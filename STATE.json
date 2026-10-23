@@ -1,0 +1,15 @@
+{
+  "objective": "Best valid measured Open Kernel Challenge projection speedup before deadline",
+  "deadline_utc": "2026-10-23T17:00:00Z",
+  "integration_cutoff_utc": "2026-10-23T16:55:00Z",
+  "controller": "Native Codex goal; one primary coordinator with bounded native workers",
+  "ralph": "Inspected installed runner; not started because native goal already owns this project. No second controller.",
+  "kernel": "muse_bf16_proj",
+  "status": "running",
+  "baseline_job": "05a52f7e67084663",
+  "best_verified_speedup": null,
+  "best_verified_file": null,
+  "authentication": "signed in as achitaan",
+  "next_actions": ["Check starter baseline", "Evaluate small batch, larger batch, and router candidates", "Integrate per-shape measured winners", "Independent review", "Final official submission"],
+  "local_hardware": "GTX 1660 class, 6 GiB; not representative of H200; no local Triton runtime"
+}

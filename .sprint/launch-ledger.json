@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "calls": [
+    {
+      "id": "route-1",
+      "packet": "sprint-route",
+      "agent": "router",
+      "status": "completed",
+      "usage": null
+    },
+    {
+      "id": "small-1",
+      "packet": "small-batch",
+      "agent": "performance-engineer",
+      "status": "pending",
+      "usage": null
+    },
+    {
+      "id": "large-1",
+      "packet": "larger-batch",
+      "agent": "performance-engineer",
+      "status": "pending",
+      "usage": null
+    }
+  ]
+}
