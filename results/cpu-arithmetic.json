@@ -1,0 +1,237 @@
+{
+  "utc": "2026-10-23T16:27:34.048528+00:00",
+  "torch": "2.3.1+cpu",
+  "device": "cpu",
+  "limitation": "Arithmetic model, not GPU execution or timing; BLAS and MMA reduction details differ.",
+  "candidate_sha256": "dd93e51740ffb51e588e8d864264377ba3307fca8b6039dbcd4170947ca9c707",
+  "results": [
+    {
+      "seed": 20261023,
+      "m": 1,
+      "splits": 16,
+      "errors": {
+        "global": 2.4940310345645283e-06,
+        "row": 2.4940310345645283e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "m": 8,
+      "splits": 16,
+      "errors": {
+        "global": 2.4259976766622643e-06,
+        "row": 2.5929465694451595e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "m": 9,
+      "splits": 16,
+      "errors": {
+        "global": 2.432573466957732e-06,
+        "row": 2.6688547598906207e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "m": 32,
+      "splits": 16,
+      "errors": {
+        "global": 2.4276684935603377e-06,
+        "row": 2.6876407047781244e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "m": 128,
+      "splits": 4,
+      "errors": {
+        "global": 2.4364924537804552e-06,
+        "row": 2.852586145099766e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "m": 256,
+      "splits": 4,
+      "errors": {
+        "global": 2.4804188039809075e-06,
+        "row": 2.8967829947208567e-06,
+        "probe": 2.4940310345645283e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 20261023,
+      "negative_control": "BF16 router weights alone",
+      "errors": {
+        "global": 0.0016753973899445178,
+        "row": 0.0019519559131562709,
+        "probe": 0.001676584836267603
+      },
+      "correctly_rejected": true
+    },
+    {
+      "seed": 44491,
+      "m": 1,
+      "splits": 16,
+      "errors": {
+        "global": 2.566670361712392e-06,
+        "row": 2.566670361712392e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "m": 8,
+      "splits": 16,
+      "errors": {
+        "global": 2.4697601479123316e-06,
+        "row": 2.696329865709485e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "m": 9,
+      "splits": 16,
+      "errors": {
+        "global": 2.4999634321869136e-06,
+        "row": 2.6979307652946257e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "m": 32,
+      "splits": 16,
+      "errors": {
+        "global": 2.444886320074084e-06,
+        "row": 2.7457283160574433e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "m": 128,
+      "splits": 4,
+      "errors": {
+        "global": 2.428498310692709e-06,
+        "row": 2.915462990659075e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "m": 256,
+      "splits": 4,
+      "errors": {
+        "global": 2.4528979501064134e-06,
+        "row": 3.0918912288847987e-06,
+        "probe": 2.566670361712392e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 44491,
+      "negative_control": "BF16 router weights alone",
+      "errors": {
+        "global": 0.0016602615154083303,
+        "row": 0.002006794983811988,
+        "probe": 0.0016575593212490327
+      },
+      "correctly_rejected": true
+    },
+    {
+      "seed": 80413,
+      "m": 1,
+      "splits": 16,
+      "errors": {
+        "global": 2.7567516064102032e-06,
+        "row": 2.7567516064102032e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "m": 8,
+      "splits": 16,
+      "errors": {
+        "global": 2.371108885998164e-06,
+        "row": 2.7567516064102032e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "m": 9,
+      "splits": 16,
+      "errors": {
+        "global": 2.372837395967339e-06,
+        "row": 2.7567516064102032e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "m": 32,
+      "splits": 16,
+      "errors": {
+        "global": 2.4889723688947492e-06,
+        "row": 2.7567516064102032e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "m": 128,
+      "splits": 4,
+      "errors": {
+        "global": 2.4595225543464307e-06,
+        "row": 2.826659609668476e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "m": 256,
+      "splits": 4,
+      "errors": {
+        "global": 2.4661460944516732e-06,
+        "row": 2.8649197660166957e-06,
+        "probe": 2.7567516064102032e-06
+      },
+      "pass": true
+    },
+    {
+      "seed": 80413,
+      "negative_control": "BF16 router weights alone",
+      "errors": {
+        "global": 0.0016507981268397084,
+        "row": 0.0019400151652147614,
+        "probe": 0.0015443370323884361
+      },
+      "correctly_rejected": true
+    }
+  ]
+}

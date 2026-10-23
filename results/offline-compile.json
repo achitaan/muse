@@ -1,0 +1,484 @@
+{
+  "triton": "3.8.0",
+  "target": "GPUTarget(backend='cuda', arch=90, warp_size=32)",
+  "results": [
+    {
+      "file": "small_batch",
+      "kernel": "_gemv_contiguous_k",
+      "constants": {
+        "N": 2304,
+        "K": 8192,
+        "BLOCK_N": 4,
+        "BLOCK_K": 1024
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 7.9858133159999625,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='232576592612679f485018588ddeb84304b683c5ad1f8cdbf98910f425cc7c10', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_gemv_contiguous_k', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=64, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_gemv_contiguous_k",
+      "constants": {
+        "N": 8192,
+        "K": 1024,
+        "BLOCK_N": 4,
+        "BLOCK_K": 1024
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 0.3781409139999141,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='64f786ece26b79685e2b5aacdf24660b0a35ea340f85a97d235cecf2f5c7ba9e', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_gemv_contiguous_k', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=64, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_gemv_contiguous_k",
+      "constants": {
+        "N": 1024,
+        "K": 4096,
+        "BLOCK_N": 4,
+        "BLOCK_K": 1024
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 0.4810270059999766,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='836be7d8f4bbc03126bce74d8babf0dc71baa964f38f02591abedfc169db5466', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_gemv_contiguous_k', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=64, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_split_k_bf16",
+      "constants": {
+        "M": 7,
+        "N": 4096,
+        "K": 8192,
+        "WEIGHT_N": 4096,
+        "BLOCK_M": 16,
+        "BLOCK_N": 64,
+        "BLOCK_K": 64,
+        "SPLIT_K": 8
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.48551286600002186,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='fc9a63411124aab08dddee1c4148cbe9a3d364a1ce975739c8b7eab5f801f862', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_split_k_bf16', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=10240, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_split_k_bf16",
+      "constants": {
+        "M": 5,
+        "N": 1024,
+        "K": 4096,
+        "WEIGHT_N": 8192,
+        "BLOCK_M": 16,
+        "BLOCK_N": 64,
+        "BLOCK_K": 64,
+        "SPLIT_K": 16
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.5293038940000088,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='edf81506d55f33a43557f3f8ba3210b5d050a6b2ce97793cbd5081719f6a7d64', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_split_k_bf16', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=10240, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_split_k_bf16",
+      "constants": {
+        "M": 16,
+        "N": 2304,
+        "K": 8192,
+        "WEIGHT_N": 2304,
+        "BLOCK_M": 16,
+        "BLOCK_N": 64,
+        "BLOCK_K": 64,
+        "SPLIT_K": 8
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.7556439429999955,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='ecfb480bad4b6d6c1d5d16dfdd203e1c5c3a314bdf6583f7b2cdae67ece45b09', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_split_k_bf16', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=10240, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_split_k_bf16",
+      "constants": {
+        "M": 32,
+        "N": 8192,
+        "K": 1024,
+        "WEIGHT_N": 8192,
+        "BLOCK_M": 32,
+        "BLOCK_N": 64,
+        "BLOCK_K": 64,
+        "SPLIT_K": 8
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.6800374780000311,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='0bc86b4f5589c9b6350a079d10d933e596c1040259ec811e3a3b082f9324cc17', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_split_k_bf16', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=12288, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "small_batch",
+      "kernel": "_finish_split_k",
+      "constants": {
+        "ELEMENTS": 5120,
+        "SPLIT_K": 16,
+        "BLOCK": 256
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 0.3697483610000063,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='dcae8b203c2d69e36844154d6ef58d918f6a1b09c208cd99c9ff1aecab7c8653', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_finish_split_k', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=0, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "router_only",
+      "kernel": "_router_products",
+      "constants": {
+        "M": 9,
+        "N": 256,
+        "K": 8192,
+        "BM": 16,
+        "BN": 32,
+        "BK": 64,
+        "SPLITS": 16
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2
+      },
+      "status": "pass",
+      "seconds": 0.5145622299999104,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='5f511e06ceba4beb4b88ab167a26b05de3157caa9f4b4457865874f3a4fef33c', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_router_products', num_ctas=1, num_stages=2, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=10240, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "router_only",
+      "kernel": "_router_products",
+      "constants": {
+        "M": 128,
+        "N": 256,
+        "K": 8192,
+        "BM": 32,
+        "BN": 32,
+        "BK": 64,
+        "SPLITS": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 2
+      },
+      "status": "pass",
+      "seconds": 0.5226716470000383,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='42e7fbe4b94a8228d969b05ff4b24ce738641accfd76c390d2038be64363fd44', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_router_products', num_ctas=1, num_stages=2, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=12288, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "router_only",
+      "kernel": "_router_reduce",
+      "constants": {
+        "SIZE": 2304,
+        "SPLITS": 16,
+        "BLOCK": 256
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 0.4859325259999423,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='63138c89d561a7030ca054144d4cd9eb4225bac5fbe74f82df379c3f0250a5ca', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_router_reduce', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=0, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_gemm",
+      "constants": {
+        "M": 32,
+        "N": 2304,
+        "K": 8192,
+        "XSM": 8192,
+        "XSK": 1,
+        "WSN": 8192,
+        "WSK": 1,
+        "BM": 32,
+        "BN": 64,
+        "BK": 64,
+        "SPLIT_K": 4,
+        "GROUP_M": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.6593188370000007,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='158a616760b9bf86cc16e5980417266093f936df135ea9720bb1b876beed26fa', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_gemm', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=12288, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_gemm",
+      "constants": {
+        "M": 33,
+        "N": 8192,
+        "K": 1024,
+        "XSM": 1024,
+        "XSK": 1,
+        "WSN": 1024,
+        "WSK": 1,
+        "BM": 32,
+        "BN": 64,
+        "BK": 64,
+        "SPLIT_K": 1,
+        "GROUP_M": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.6227543319999995,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='ee85aeff40f57cd0e66bc4b3df017bc399386bc509663b944a08d1f45294b099', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_gemm', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=12288, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_gemm",
+      "constants": {
+        "M": 128,
+        "N": 4096,
+        "K": 8192,
+        "XSM": 8192,
+        "XSK": 1,
+        "WSN": 8192,
+        "WSK": 1,
+        "BM": 32,
+        "BN": 64,
+        "BK": 64,
+        "SPLIT_K": 1,
+        "GROUP_M": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.6668203399999584,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='49fdd0d23d38607c266e804fa7a6e254b199ab4cff97b74a64aa1975e1381c17', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_gemm', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=12288, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_gemm",
+      "constants": {
+        "M": 130,
+        "N": 8192,
+        "K": 4096,
+        "XSM": 4096,
+        "XSK": 1,
+        "WSN": 4096,
+        "WSK": 1,
+        "BM": 64,
+        "BN": 64,
+        "BK": 64,
+        "SPLIT_K": 1,
+        "GROUP_M": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.7660894100000633,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='0ba1ddc47abcd3996bb652bd4611508cdf3053757332d01d578467541c0788f7', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_gemm', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=16384, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_gemm",
+      "constants": {
+        "M": 1000,
+        "N": 8192,
+        "K": 4096,
+        "XSM": 4096,
+        "XSK": 1,
+        "WSN": 4096,
+        "WSK": 1,
+        "BM": 64,
+        "BN": 64,
+        "BK": 64,
+        "SPLIT_K": 1,
+        "GROUP_M": 4
+      },
+      "options": {
+        "num_warps": 4,
+        "num_stages": 3
+      },
+      "status": "pass",
+      "seconds": 0.7242609410000114,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='b4854cfa4f1ebd8191d94ca82b2fe2e6a0e7f9b9fe89813946c51d361b902196', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_gemm', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=16384, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    },
+    {
+      "file": "large_batch",
+      "kernel": "_large_split_reduce",
+      "constants": {
+        "SIZE": 73728,
+        "SPLIT_K": 4,
+        "BLOCK": 1024
+      },
+      "options": {
+        "num_warps": 4
+      },
+      "status": "pass",
+      "seconds": 0.42282063499999367,
+      "stages": [
+        "source",
+        "ttir",
+        "ttgir",
+        "llir",
+        "ptx",
+        "cubin"
+      ],
+      "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=True, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse/.tools/offline-triton/site-packages/triton/backends/nvidia/lib/libdevice.10.bc']], global_scratch_align=1, global_scratch_size=0, hash='68e50587fe6f962b957d8a917f465f3d2ba04c6b993d2a516dc8ea8bbbcd64f3', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, name='_large_split_reduce', num_ctas=1, num_stages=3, num_warps=4, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, shared=0, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.8.0', warp_size=32)"
+    }
+  ]
+}

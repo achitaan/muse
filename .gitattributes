@@ -1,0 +1,5 @@
+# Preserve exact checked source bytes and raw evaluator evidence.
+candidates/** -text
+best/** -text
+results/** -text
+muse_bf16_proj/** -text

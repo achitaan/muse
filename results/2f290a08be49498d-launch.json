@@ -1,0 +1,9 @@
+{
+  "action": "check",
+  "source": "candidates\\hybrid_v1.py",
+  "payload": "results\\payloads\\35add188b414dac0020a57202032d867628abfb89a8b9050d5ae8c3df09f3b57.py",
+  "local_sha256": "35add188b414dac0020a57202032d867628abfb89a8b9050d5ae8c3df09f3b57",
+  "submitted_utc": "2026-10-23T16:26:03.036277+00:00",
+  "job_id": "2f290a08be49498d",
+  "problem": "muse_bf16_proj"
+}

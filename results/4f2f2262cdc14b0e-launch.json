@@ -1,0 +1,9 @@
+{
+  "action": "check",
+  "source": "candidates\\router_packed.py",
+  "payload": "results\\payloads\\ec9e8c56410d5bca87a25167d187f4caf2385312caca8a4b36c58b1c28999391.py",
+  "local_sha256": "ec9e8c56410d5bca87a25167d187f4caf2385312caca8a4b36c58b1c28999391",
+  "submitted_utc": "2026-10-23T16:29:06.313318+00:00",
+  "job_id": "4f2f2262cdc14b0e",
+  "problem": "muse_bf16_proj"
+}

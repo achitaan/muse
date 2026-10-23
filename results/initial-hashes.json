@@ -1,0 +1,22 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "45371DCC0476667D7C08F18E5520D263CE035380B196DBC1E77123C92897C092",
+    "Path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse\\candidates\\large_batch.py"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "DD93E51740FFB51E588E8D864264377BA3307FCA8B6039DBCD4170947CA9C707",
+    "Path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse\\candidates\\router_only.py"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "2208414571DFAF179782AA1639789297A7C3291A1CCEAFCCD145D6B53B7ECF04",
+    "Path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse\\candidates\\small_batch.py"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "964EED6CFEF28AD2DC28CA05487A0BF28F7183BA12470EB82ACC152CC5A25154",
+    "Path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse\\best\\starter.py"
+  }
+]

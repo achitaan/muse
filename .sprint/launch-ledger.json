@@ -12,14 +12,35 @@
       "id": "small-1",
       "packet": "small-batch",
       "agent": "performance-engineer",
-      "status": "pending",
+      "status": "completed",
       "usage": null
     },
     {
       "id": "large-1",
       "packet": "larger-batch",
       "agent": "performance-engineer",
-      "status": "pending",
+      "status": "completed",
+      "usage": null
+    },
+    {
+      "id": "review-1",
+      "packet": "numerical-review",
+      "agent": "reviewer",
+      "status": "completed",
+      "usage": null
+    },
+    {
+      "id": "compile-1",
+      "packet": "offline-compile",
+      "agent": "performance-engineer",
+      "status": "completed",
+      "usage": null
+    },
+    {
+      "id": "adaptive-1",
+      "packet": "adaptive-small",
+      "agent": "performance-engineer",
+      "status": "completed",
       "usage": null
     }
   ]

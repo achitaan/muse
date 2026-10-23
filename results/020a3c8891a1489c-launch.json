@@ -1,0 +1,9 @@
+{
+  "action": "check",
+  "source": "candidates\\router_gemv.py",
+  "payload": "results\\payloads\\9cc88ebfb728a55d5af9d39d4a22909eb59e9c01430a2b5c769d4f007d49058f.py",
+  "local_sha256": "9cc88ebfb728a55d5af9d39d4a22909eb59e9c01430a2b5c769d4f007d49058f",
+  "submitted_utc": "2026-10-23T16:26:04.300596+00:00",
+  "job_id": "020a3c8891a1489c",
+  "problem": "muse_bf16_proj"
+}
