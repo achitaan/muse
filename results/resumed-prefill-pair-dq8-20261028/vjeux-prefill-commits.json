@@ -1,0 +1,17 @@
+[
+  {
+    "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "message": "v2: dead-code removal — switches, arch guards, dead branches gone; oracle + GPU gated",
+    "date": "2026-10-28T02:03:32Z"
+  },
+  {
+    "sha": "3be5c82a99c464f85b59cc09b86a7dcb5f05f1e3",
+    "message": "OKC 2026: refactored submissions — clean, documented, GPU-validated",
+    "date": "2026-10-27T23:15:02Z"
+  },
+  {
+    "sha": "3fa2f6b8c529a1107581dda54cfbb0b818223437",
+    "message": "OKC 2026 money-out entries: v298, v157e (2.0860), v216x, v116s, v141",
+    "date": "2026-10-27T13:57:03Z"
+  }
+]

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Read prefill_small_expert_mma_review.md. Inspect actual Prefill persistent small-N MMA32 dispatch, corrected BF16 epilogues and upstream negative evidence before any candidate. Zero-row compaction deferred: CPU proxy11.6%zeros, actual256experts/busiest range; router/pooler already overlapped. MoE padding stores already omitted. No blind flag sweep, 3CTA repeats or score-only reruns. Best Attention9e922 and DecodeD9 repaired, no pending jobs/controller.",
+  "next_trial": "One guarded FP32 tanh-SiLU MoE experiment, review moe_silu_review.md. CPU screen passed; full-domain GPU diagnostic and full5/6/integrity mandatory. No score for noise; Prefill exact decode transfer reverted by fixed guard.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_prefill_layer",
+  "active_track": "muse_moe_w4a16",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -503,7 +503,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T21:01:54.238011+00:00",
+  "updated_utc": "2026-10-28T22:48:34.602736+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T20:33:00.810441+00:00",
     "boards": {
@@ -2086,7 +2086,13 @@
     },
     "ranked": 1447,
     "overall_speedup": null,
-    "overall_measure": "rank across the problems; the API gives ranks only"
+    "overall_measure": "rank across the problems; the API gives ranks only",
+    "derived_after_prefill_check": {
+      "checks_left": 29,
+      "scored_left": 25,
+      "prefill_checks_left": 18,
+      "note": "Derived from22:34API minus one Prefill check; no new quota API call"
+    }
   },
   "attention_three_cta_trial": {
     "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
@@ -2283,5 +2289,34 @@
     "mean_zero_fraction": 0.11586985737085342,
     "min_zero_fraction": 0.03187251091003418,
     "max_zero_fraction": 0.2018592357635498
+  },
+  "prefill_pair_dq8_trial": {
+    "source_sha256": "28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d",
+    "parent_sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+    "job": "221b6741d74c4aa2",
+    "tests": 5,
+    "benchmarks": 8,
+    "integrity": true,
+    "passed": true,
+    "speedup": 1.6801620794921577,
+    "interval": [
+      1.6549596482997753,
+      1.7053645106845399
+    ],
+    "normalized_expert_profile_ratios": {
+      "0": 1.016823154562615,
+      "1": 0.9285889954652821,
+      "2": 1.0892415556189043,
+      "3": 0.962992273809013,
+      "4": 1.0084811833940566,
+      "5": 1.0951581396954913,
+      "6": 0.9046887207413331,
+      "7": 1.0468157826475353
+    },
+    "normalized_expert_profile_geomean": 1.0044220879255907,
+    "outcome": "discarded by fixed normalized-profile guard",
+    "scored_runs_used": 0,
+    "checks_used": 1,
+    "causal_significance_claim": false
   }
 }

@@ -1,0 +1,29 @@
+{
+  "source_sha256": "28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d",
+  "parent_sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+  "job": "221b6741d74c4aa2",
+  "tests": 5,
+  "benchmarks": 8,
+  "integrity": true,
+  "passed": true,
+  "speedup": 1.6801620794921577,
+  "interval": [
+    1.6549596482997753,
+    1.7053645106845399
+  ],
+  "normalized_expert_profile_ratios": {
+    "0": 1.016823154562615,
+    "1": 0.9285889954652821,
+    "2": 1.0892415556189043,
+    "3": 0.962992273809013,
+    "4": 1.0084811833940566,
+    "5": 1.0951581396954913,
+    "6": 0.9046887207413331,
+    "7": 1.0468157826475353
+  },
+  "normalized_expert_profile_geomean": 1.0044220879255907,
+  "outcome": "discarded by fixed normalized-profile guard",
+  "scored_runs_used": 0,
+  "checks_used": 1,
+  "causal_significance_claim": false
+}

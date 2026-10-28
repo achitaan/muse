@@ -37,3 +37,5 @@ global stores for padding rows. wgs_gather sets d[k] only for r<cnt and
 stores only nonnull d[k]; padding is counted in xready but not written.
 wgs_xproducer copies only ceil(cnt/8)*8 rows per job/stage, not FT_T rows.
 There is no missing easy zero-fill removal to spend the last MoE check on.
+
+Inspection completed: real dispatch passes ti.w as nreal; only N32 expert tails use the optional synchronous MMA path. Weight traffic/decode and padded epilogue remain unchanged. No upstream positive timing evidence; leave disabled. The stronger exact-decode/paired-epilogue transfer was tested separately and discarded by its fixed profile guard; see results/resumed-prefill-pair-dq8-20261028/.

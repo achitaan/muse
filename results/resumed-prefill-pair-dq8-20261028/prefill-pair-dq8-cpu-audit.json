@@ -1,0 +1,14 @@
+{
+  "source_sha256": "28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d",
+  "seed": 20261028,
+  "inverse_recovers_parent_cuda_and_other_ast": true,
+  "codes_inverted": 1048576,
+  "scale_bytes_inverted": 65536,
+  "original_fragment_bits_identical": true,
+  "exhaustive_masked_multiply_inputs": 256,
+  "bf16_products_fp64_oracle": 1566720,
+  "signed_zeros_subnormals_overflow": true,
+  "power_of_two_encoding_products": 131072,
+  "scheduling_routing_norms_attention_dense_unchanged": true,
+  "gpu_status": "unmeasured; CPU evidence does not prove CUDA behavior or speed"
+}

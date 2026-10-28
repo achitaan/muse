@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_prefill.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 227.625,
+  "returncode": 0,
+  "stderr": "Prefill job 221b6741d74c4aa2: received; source 28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d\r\nPrefill job 221b6741d74c4aa2: running; source 28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d\r\nPrefill job 221b6741d74c4aa2: done; source 28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d\r\n",
+  "stdout": "{\"speedup\": 1.6801620794921577, \"correct\": true, \"job\": \"221b6741d74c4aa2\", \"source_sha256\": \"28d04382f7224043f8cd406eda38e70e6242471673e909dbea96984fa0ea953d\", \"tests\": 5, \"benchmarks\": 8, \"interval\": [1.6549596482997753, 1.7053645106845399], \"error\": null}\r\n",
+  "timed_out": false
+}

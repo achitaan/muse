@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_prefill_pair_dq8_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.125,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_prefill_pair_dq8_evidence.py\", line 54, in <module>\r\n    assert normalized_gm > 1.02, ('No material expert improvement relative to unchanged profile work', normalized_gm)\r\nAssertionError: ('No material expert improvement relative to unchanged profile work', 1.0044220879255907)\r\n",
+  "stdout": "Full 5-test/8-benchmark Prefill evidence matches the current source hash.\r\n",
+  "timed_out": false
+}

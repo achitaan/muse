@@ -78,3 +78,8 @@ assumption was wrong. Eight CPU routing proxies gave3.19..20.19%zero rows,
 mean11.59%; these omit attention/gain/router calibration and are not actual
 challenge measurements. Custom matmul benefit is unproven. Pooler/router
 overlap already exists in this source. Next read prefill_small_expert_mma_review.md.
+
+
+## Prefill follow-up, October28 at22:46UTC
+
+Exact-decode/BF16pair transfer28d04382 passed full5/8/integrity as221b6741d74c4aa2 at1.680162079x, CI[1.654959648,1.705364511]. Fixed guard rejected normalized expert-profile GM1.004422088 (<1.02). Controller reverted; retain93e57ab4/scored1.663469245x. One check, no score. Source/audits/full result/controller: results/resumed-prefill-pair-dq8-20261028/. MMA32 and CIT remain disabled; no blind flag experiment. Next guarded MoE SiLU screen is CPU-audited, GPU unmeasured.

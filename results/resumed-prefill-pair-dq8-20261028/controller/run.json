@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T22:42:16Z",
+  "goal": "Approach top50 overall in main chat; one conservative Prefill exact-decode and paired-BF16 transfer, preserve cached baseline and complete coverage, no score for noise",
+  "guard": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_prefill_pair_dq8_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_prefill.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_prefill_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "6eb78ff021054ac882451753fa2eee59",
+  "schema_version": 1,
+  "scope": [
+    "candidates/prefill_active.py"
+  ],
+  "target": 1.75,
+  "timeout_seconds": 1200
+}

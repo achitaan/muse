@@ -411,3 +411,8 @@ registers per32-key block, with16FP16 MMA operations. A register-only
 4x4 byte transpose could feed8FP8 K32 MMAs without extra shared memory.
 Keep the retained FP16 QK path. Before a candidate, audit P scaling,
 PTX A/B/C mapping, every BF16 boundary and actual FA3 internal precision.
+
+
+## Prefill follow-up, October28 at22:46UTC
+
+Exact-decode/BF16pair transfer28d04382 passed full5/8/integrity as221b6741d74c4aa2 at1.680162079x, CI[1.654959648,1.705364511]. Fixed guard rejected normalized expert-profile GM1.004422088 (<1.02). Controller reverted; retain93e57ab4/scored1.663469245x. One check, no score. Source/audits/full result/controller: results/resumed-prefill-pair-dq8-20261028/. MMA32 and CIT remain disabled; no blind flag experiment. Next guarded MoE SiLU screen is CPU-audited, GPU unmeasured.
