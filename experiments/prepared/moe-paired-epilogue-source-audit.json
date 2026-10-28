@@ -1,0 +1,10 @@
+{
+  "source_sha256": "6862c3a54429fb4149e7fd78f63b24db71d70648a1947172826ea7f134082409",
+  "base_sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "paired_call_sites": 11,
+  "weights_and_packing_unchanged": true,
+  "normalization_intermediates": "FP32, unchanged",
+  "inverse_recovers_all_original_cuda_bytes": true,
+  "rounding": "BF16 accumulator, BF16 global scale, RN-even BF16 product, then FP32",
+  "gpu_status": "unmeasured"
+}

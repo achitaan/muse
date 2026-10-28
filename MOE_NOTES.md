@@ -1,3 +1,17 @@
+# Next MoE hypothesis - paired epilogue, GPU unmeasured
+
+Prepared source 6862c3a54429fb4149e7fd78f63b24db71d70648a1947172826ea7f134082409
+pairs eleven independent GEMM-output sites through BF16x2 RN-even operations.
+BF16 accumulator/global-scale/product boundaries and FP32 norm intermediates
+remain. CPU audit matched 1,566,720 products to independent FP64 rounding,
+including signed zeros, subnormals and overflow. Reversing the transformation
+recovers all original native CUDA bytes. This is not a measured speedup.
+One full MoE check will test it against cached baseline dd6049cb at 2.299797371x;
+no geometry sweep or automatic scored publication. See
+experiments/prepared/moe_paired_epilogue_review.md and saved CPU audits.
+
+---
+
 # Latest native MoE checkpoint - October 28, 2026
 
 Check `6792a5c832ee4aff`: **2.299797371x**, all 5 tests, 6 benchmarks and

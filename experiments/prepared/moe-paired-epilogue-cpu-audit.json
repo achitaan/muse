@@ -1,0 +1,9 @@
+{
+  "source_sha256": "6862c3a54429fb4149e7fd78f63b24db71d70648a1947172826ea7f134082409",
+  "all_finite_bf16_accumulators": 65280,
+  "bf16_scales": 24,
+  "products_bitwise_equal_to_independent_fp64_rn_even": 1566720,
+  "signed_zeros_subnormals_and_overflow_included": true,
+  "limitations": "CPU algebra/rounding model; no CUDA compilation, GPU correctness or speed evidence",
+  "gpu_status": "unmeasured"
+}

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Observe scored job 02fd620987114785 once it finishes; then investigate exact native MoE epilogue pairing before another check.",
+  "next_trial": "One full MoE check of paired BF16 epilogues (6862c3a5), cached baseline; retain decoder publication handle 02fd620987114785.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_decode_layer",
+  "active_track": "muse_moe_w4a16",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
