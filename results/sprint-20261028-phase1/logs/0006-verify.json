@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_active.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 82.281,
+  "returncode": 0,
+  "stderr": "H200 job 09e8e70523194848: received; payload 8efce55853dd2685beb8cb1db4baf826ded4ca5d2ce91b07e8a58b291a877e94\r\nH200 job 09e8e70523194848: running; payload 8efce55853dd2685beb8cb1db4baf826ded4ca5d2ce91b07e8a58b291a877e94\r\nH200 job 09e8e70523194848: done; payload 8efce55853dd2685beb8cb1db4baf826ded4ca5d2ce91b07e8a58b291a877e94\r\n",
+  "stdout": "{\"speedup\": 1.2327368522942064, \"correct\": true, \"job\": \"09e8e70523194848\", \"sha256\": \"8efce55853dd2685beb8cb1db4baf826ded4ca5d2ce91b07e8a58b291a877e94\", \"interval\": [1.2142457995097933, 1.2512279050786193], \"error\": null}\r\n",
+  "timed_out": false
+}
