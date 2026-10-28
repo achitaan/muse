@@ -1,7 +1,7 @@
 # Next MoE hypothesis: a bounded WGS specialization for 17..32 tokens
 
-This is a source-backed hypothesis, not an implemented or measured GPU
-optimization. Use exact retained 33114871 as the baseline. Do not inherit the
+This is implemented and CPU-audited, but GPU correctness and speed remain
+unverified. Use exact retained 33114871 as the baseline. Do not inherit the
 rejected scale-six layout. It passed full correctness but lost 11..14% speedup
 on all WGS loads; original byte scales, PRMT decode and NVFP4 code layout stay.
 
@@ -54,3 +54,36 @@ factory consistency, host dispatch near all thresholds, full source inversion
 and the original BF16/FP32 precision contract. The guard must require full
 5/6/integrity plus evidence the specialization actually compiled/was enabled.
 Reject a fallback-only trial. Score only a material measured improvement.
+
+## Implemented candidate and pre-check evidence
+
+Source d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4
+is 181513 bytes. The original CUDA source is retained byte for byte with only
+an appended host resource-query function. The alternate source is constructed
+by ordinary string operations from that source: FT_T32, removal of the wider
+WG/WGSMMA definitions, and trap defaults for impossible job tile counts above
+four. The original variants retain their full original code and 64-token cap.
+
+The host dispatch uses the new module and a distinct scratch bank only at
+17..32 tokens. Packing, weights and all numerical helpers are unchanged. The
+wrapper reuses the cached original modules, adds just one module and one bank,
+and skips the new build if original preparation exceeds235 seconds. Require
+full 5/6/integrity plus explicit enabled/resource diagnostics before retention.
+
+audit_moe_wgs32_cpu.py reversed all enumerated edits to recover the original
+module AST. It independently reconstructed and reversed alternate-source edits,
+exhausted 6146 single-expert count cases and checked 560 routing distributions,
+including duplicates and skew. It checked 292 host-dispatch cases, exact chunk
+coverage, fresh outputs, dtype/ID-alignment behavior, both scratch layouts,
+budget/domain/hardware gates and the real factory's five-key cache isolation.
+These are control-flow, representation and bounds checks, not GPU numerics.
+
+Both allocations are large enough for both declared layouts, but counter offsets
+differ (15204352 versus17825792 float-sized positions from ybuf); banks remain
+separate across alternating batches. The specialization cuts x-ring payload
+from98304 to49152 bytes. Actual register/local-memory/shared-memory values will
+come from the real kernels, not the CPU mocks. NVIDIA's field definitions:
+https://docs.nvidia.com/cuda/cuda-runtime-api/cuda_runtime_api/structcudaFuncAttributes.html
+
+One focused full official check is planned using cached baseline 2.365437416x.
+No geometry sweep, synthetic timing selector or scored intermediate is added.
