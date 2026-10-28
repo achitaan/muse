@@ -1,0 +1,42 @@
+[
+  {
+    "job": "20524d06e3894595",
+    "source": "best/attention_checked.py",
+    "source_sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+    "attention_cuda_sha256": "244b650e914a1915b2bb6a5c6ba61f4525ef8822a2cc7584e3b0589bb51d7927",
+    "identical_inherited_attention": true,
+    "missing_bf16_boundaries": true
+  },
+  {
+    "job": "441eb580f3074669",
+    "source": "best/decoder_published.py",
+    "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "attention_cuda_sha256": "244b650e914a1915b2bb6a5c6ba61f4525ef8822a2cc7584e3b0589bb51d7927",
+    "identical_inherited_attention": true,
+    "missing_bf16_boundaries": true
+  },
+  {
+    "job": "02fd620987114785",
+    "source": "results/resumed-decoder-phase5-20261028/a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d/submission.py",
+    "source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+    "attention_cuda_sha256": "244b650e914a1915b2bb6a5c6ba61f4525ef8822a2cc7584e3b0589bb51d7927",
+    "identical_inherited_attention": true,
+    "missing_bf16_boundaries": true
+  },
+  {
+    "job": "e5b95129043d442d",
+    "source": "results/resumed-decoder-phase4-20261028/660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff/submission.py",
+    "source_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+    "attention_cuda_sha256": "244b650e914a1915b2bb6a5c6ba61f4525ef8822a2cc7584e3b0589bb51d7927",
+    "identical_inherited_attention": true,
+    "missing_bf16_boundaries": true
+  },
+  {
+    "job": "95bbfd2c81224715",
+    "source": "results/resumed-decoder-phase3-20261028/53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024/submission.py",
+    "source_sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+    "attention_cuda_sha256": "244b650e914a1915b2bb6a5c6ba61f4525ef8822a2cc7584e3b0589bb51d7927",
+    "identical_inherited_attention": true,
+    "missing_bf16_boundaries": true
+  }
+]

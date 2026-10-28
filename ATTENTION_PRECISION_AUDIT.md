@@ -13,6 +13,11 @@ but still materializes the normalized Q/K as BF16. Our pinned local
 muse_attention_decode/baseline.py additionally casts attention output to BF16
 before rms_norm_gate. TASK.md requires BF16 wherever SGLang keeps BF16.
 
+The pinned [norm_gate CUDA implementation](https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_gate.cuh)
+uses FP32 pairs through RMSNorm and sigmoid multiplication, casting to BF16
+only at the final output (lines145..162). There is no additional BF16 boundary
+between normalization and gate multiplication in this fused operation.
+
 The inherited b56e07b1 attention source omitted these round trips: it used
 FP32 norm/RoPE values for conversion and FP32 attention output for RMSNorm.
 Its pr8 helper was an identity. Earlier full correctness passes only establish
@@ -46,10 +51,27 @@ FP64 mathematical oracle with the BF16 boundaries. Maximum relative L2 is
 equivalent uint8 view of the bytes; submitted GPU arithmetic is unchanged.
 This model does not establish CUDA FMA equivalence or GPU correctness.
 
-Attention draft24782695 (170315bytes) is checking as1a16e2d658a8400d.
-Decode draft1fb5d05d (988827bytes) is prepared, not GPU measured. Wait for the
-Attention full16test/12benchmark/integrity result before a Decode check.
-No scored correction has been launched yet. No active autoresearch controller;
+Attention24782695 (170315bytes) passed as1a16e2d658a8400d, with16tests,
+12benchmarks and integrity. Its scored confirmation isd0cdadc0960446ca.
+Decode1fb5d05d (988827bytes) is checking as9a176eaead1a44ec after the
+standalone pass. No active autoresearch controller;
 phase11 was archived after its guard rejected the router experiment. These
 are required numerical repairs, retained based on conformance rather than
 discarded solely because an older nonconforming source might time faster.
+
+Withdrawal of five audited published sources was blocked by automatic approval
+review because public score removal needs explicit authorization and may be
+costly to reverse. User approval requested; no withdrawals executed. Source/job
+mapping is saved in results/attention-bf16-boundaries-20261028/affected-published-sources.json.
+
+
+## BF16 boundary correction: full check passed
+
+Corrected Attention24782695 passed16tests/12benchmarks/integrity as
+1a16e2d658a8400d at2.522139036x, CI[2.484306950,2.559971122]. This is now
+best/attention_checked.py. Exact-source scored confirmationd0cdadc0960446ca
+and Decode transfer check9a176eaead1a44ec (source1fb5d05d) are pending.
+See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/.
+Withdrawal of five affected historical publications needs explicit approval;
+automatic review rejected it and no withdrawal executed. Do not claim that
+historical unfixed scores belong to these corrected source files.

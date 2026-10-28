@@ -1,0 +1,18 @@
+{
+  "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "job": "1a16e2d658a8400d",
+  "speedup": 2.5221390359773115,
+  "interval": [
+    2.484306950437652,
+    2.5599711215169707
+  ],
+  "tests": 16,
+  "benchmarks": 12,
+  "integrity": true,
+  "bf16_boundaries": true,
+  "publication_job": "d0cdadc0960446ca",
+  "publication_status": "pending",
+  "withdrawal": "pending explicit user approval; automatic review rejected; none executed",
+  "decode_transfer_source": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "decode_transfer_job": "9a176eaead1a44ec"
+}

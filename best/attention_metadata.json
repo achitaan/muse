@@ -1,11 +1,11 @@
 {
   "source": "best/attention_checked.py",
-  "sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
-  "checked_job": "ea693135be544501",
-  "checked_speedup": 2.5897607970798813,
+  "sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "checked_job": "1a16e2d658a8400d",
+  "checked_speedup": 2.5221390359773115,
   "checked_interval": [
-    2.550914385123683,
-    2.6406405883740645
+    2.484306950437652,
+    2.5599711215169707
   ],
   "tests": 16,
   "benchmarks": 12,
@@ -15,7 +15,8 @@
     "license": "Apache-2.0"
   },
   "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported.",
-  "scored": {
+  "historical_unfixed_source_sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+  "historical_unfixed_scored": {
     "job": "20524d06e3894595",
     "speedup": 2.5624023087539505,
     "interval": [
@@ -23,5 +24,9 @@
       2.6141994378600057
     ],
     "passed": true
-  }
+  },
+  "integrity": true,
+  "bf16_attention_boundaries_preserved": true,
+  "publication": "scored correction pending: d0cdadc0960446ca",
+  "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
 }

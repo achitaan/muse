@@ -1,7 +1,9 @@
-> Current checkpoint: October28,20:12UTC. Read ATTENTION_PRECISION_AUDIT.md.
-> Corrected Attention24782695 is checking as1a16e2d658a8400d. Decode transfer
-> 1fb5d05d is prepared. Earlier native attention sources omitted BF16 boundaries;
-> historical scores below need replacement. Redux trial passed but failed its
+> Current checkpoint: October28,20:17UTC. Read ATTENTION_PRECISION_AUDIT.md.
+> Corrected Attention24782695 passed full coverage at2.522139036x; score
+> d0cdadc0960446ca and Decode check9a176eaead1a44ec are pending. Earlier native
+> attention sources omitted BF16 boundaries; withdrawal needs user approval.
+> Decode transfer1fb5d05d is checking. Historical scores below need replacement.
+> Redux trial passed but failed its
 > performance guard and was discarded. No controller active; top50Goal active.
 
 # Current handoff - October 28, 2026
@@ -290,3 +292,15 @@ median>1.03; M8 failed. Controller discarded/reverted automatically. No score
 used, no threshold revision or repeat. Prepare255.533s. Complete evidence:
 results/resumed-decoder-phase11-20261028/. Original09badc9b remains retained
 pending the attention precision correction documented in ATTENTION_PRECISION_AUDIT.md.
+
+
+## BF16 boundary correction: full check passed
+
+Corrected Attention24782695 passed16tests/12benchmarks/integrity as
+1a16e2d658a8400d at2.522139036x, CI[2.484306950,2.559971122]. This is now
+best/attention_checked.py. Exact-source scored confirmationd0cdadc0960446ca
+and Decode transfer check9a176eaead1a44ec (source1fb5d05d) are pending.
+See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/.
+Withdrawal of five affected historical publications needs explicit approval;
+automatic review rejected it and no withdrawal executed. Do not claim that
+historical unfixed scores belong to these corrected source files.

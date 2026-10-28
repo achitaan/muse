@@ -47,3 +47,15 @@ must resolve a concrete question with a material expected gain. Reuse cached
 baselines and job handles. A small timing fluctuation is not a reason to repeat
 a check or spend another scored submission. Prefill remains last; its official
 TASK states it does not contribute to the overall board.
+
+
+## BF16 boundary correction: full check passed
+
+Corrected Attention24782695 passed16tests/12benchmarks/integrity as
+1a16e2d658a8400d at2.522139036x, CI[2.484306950,2.559971122]. This is now
+best/attention_checked.py. Exact-source scored confirmationd0cdadc0960446ca
+and Decode transfer check9a176eaead1a44ec (source1fb5d05d) are pending.
+See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/.
+Withdrawal of five affected historical publications needs explicit approval;
+automatic review rejected it and no withdrawal executed. Do not claim that
+historical unfixed scores belong to these corrected source files.
