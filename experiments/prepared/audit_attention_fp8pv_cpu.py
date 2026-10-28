@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from build_attention_fp8pv import ROOT,BASE_SHA,literal,transform
+from build_attention_fp8pv import ROOT,BASE_SHA,literal,transform,parent_source
 sys.path.insert(0,str(ROOT/'scripts'))
 from verify_attention_precision import verify
 
@@ -16,7 +16,7 @@ rng=np.random.default_rng(20261028)
 source=(ROOT/'.tools/attention-fp8pv-variant.py').read_bytes()
 cuda=literal(source)[1]
 verify(source)
-assert transform(literal((ROOT/'best/attention_checked.py').read_bytes())[1])[0]==cuda
+assert transform(literal(parent_source())[1])[0]==cuda
 assert 'const float pv = ex2(s[nt][e] - m_new) * 256.f;' in cuda
 helper=cuda[cuda.index('__device__ __forceinline__ void load_v_frags_f8'):cuda.index('// the merge / barrier fences')]
 assert '__shfl' not in helper and 'cvt2(' not in helper

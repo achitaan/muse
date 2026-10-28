@@ -1,0 +1,13 @@
+{
+  "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+  "exact_integer_pv": true,
+  "operand_matrices": 256,
+  "byte_transposes": 2048,
+  "numerical_cases": 32,
+  "max_output_relative_l2": 0.011853505857288837,
+  "max_per_row_relative_l2": 0.025342844426631927,
+  "bf16_guard": true,
+  "unchanged_fp16_qk": true,
+  "no_extra_shared_storage": true,
+  "scope": "CPU evidence with synthetic inputs; official held-out GPU coverage still required"
+}

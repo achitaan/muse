@@ -421,3 +421,17 @@ was1.988085030x. Both corrected Attention and Decode have full scored coverage;
 no job/controller pending. Earlier published sources remain pending withdrawal
 approval and must not supply this source's speedup/rank. All sources/results/
 profiles are archived. Top50overall remains unproven and the Goal stays active.
+
+
+## FP8 PV confirmation and next step
+
+Check574bd76165e54556/sourcea310b988 passed full16/12/integrity at
+2.580662730x [2.541952789,2.633527864]; fixed guard passed. Exact-source
+publication3e2a317e289a4cc8 passed full16/12/integrity at2.548282764x
+[2.510058522,2.602435597]. This is effectively tied with parent's2.541743138x;
+check affected GM1.032137 vs unchanged GM1.030139 does not isolate a gain.
+Best/candidate Attention usesa310 for the next register-resource hypothesis.
+No score repeat or Decode transfer: optimistic screen about0.5% whole Decode.
+Payloads, profiles, ledgers, CPU audit, controller and publication are saved in
+results/resumed-attention-fp8pv-20261028/. No pending GPU job or controller.
+See attention_fp8pv_three_cta_review.md before constructing the next candidate.

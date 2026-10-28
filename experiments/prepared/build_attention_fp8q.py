@@ -8,6 +8,16 @@ ROOT = next(p for p in Path(__file__).resolve().parents if (p/'STATE.json').is_f
 BASE_SHA = '24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a'
 
 
+def parent_source():
+    # Keep historical experiments reproducible after best/ advances.
+    paths = [ROOT/'.attention-measurements'/BASE_SHA/'submission.py',
+             ROOT/'results/attention-bf16-boundaries-20261028/check'/BASE_SHA/'submission.py',
+             ROOT/'best/attention_checked.py']
+    raw = next(p.read_bytes() for p in paths if p.is_file())
+    assert hashlib.sha256(raw).hexdigest() == BASE_SHA
+    return raw
+
+
 def literal(source):
     tree = ast.parse(source)
     node = next(n for n in tree.body if isinstance(n, ast.Assign)
@@ -108,7 +118,7 @@ __device__ __forceinline__ void mma_f8q(float* c, uint32_t a0, uint32_t a2,
 
 
 def build():
-    raw = (ROOT/'best/attention_checked.py').read_bytes()
+    raw = parent_source()
     assert hashlib.sha256(raw).hexdigest() == BASE_SHA
     source = raw.decode('utf8')
     node, old = literal(source)

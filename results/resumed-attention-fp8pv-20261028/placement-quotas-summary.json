@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-28T21:47:09.515854+00:00",
+  "provenance": "Normalized summary of read-only official CLI responses observed in this turn",
+  "overall": {
+    "rank": 149,
+    "ranked": 1445,
+    "measure": "rank across the problems; the API gives ranks only"
+  },
+  "attention": {
+    "rank": 91,
+    "ranked": 960,
+    "api_best_speedup": 2.5624,
+    "precision_note": "API best still historical omitted-boundary20524d06; this rank is not a source-bound rank for a310."
+  },
+  "limits_left": {
+    "muse_bf16_proj": {
+      "checks": 0,
+      "scored": 0
+    },
+    "muse_moe_w4a16": {
+      "checks": 1,
+      "scored": 7
+    },
+    "muse_decode_layer": {
+      "checks": 2,
+      "scored": 4
+    },
+    "muse_attention_decode": {
+      "checks": 11,
+      "scored": 6
+    },
+    "muse_prefill_layer": {
+      "checks": 19,
+      "scored": 9
+    }
+  },
+  "total_checks_left": 33,
+  "total_scored_left": 26
+}

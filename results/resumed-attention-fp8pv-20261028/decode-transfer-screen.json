@@ -1,0 +1,64 @@
+{
+  "assumption": "Optimistically grant the largest observed affected Attention ratio1.06301045 to every L1 case, including full; L8 unchanged. Cross-run controls improved too, so this is a screening estimate, not a measured Decode improvement.",
+  "source": "Decode1fb5 check9a176eaead1a44ec profile and paired timings; Attentiona310 check574bd76165e54556",
+  "affected": {
+    "0": {
+      "attention_profile_us": 5.1,
+      "layer_median_us": 85.15199292248231,
+      "optimistic_saved_us": 0.30230493429043503
+    },
+    "1": {
+      "attention_profile_us": 10.9,
+      "layer_median_us": 92.12323097917685,
+      "optimistic_saved_us": 0.6461027026991651
+    },
+    "2": {
+      "attention_profile_us": 8.2,
+      "layer_median_us": 135.97815565110915,
+      "optimistic_saved_us": 0.48605891395717005
+    },
+    "3": {
+      "attention_profile_us": 87.1,
+      "layer_median_us": 213.61591555243558,
+      "optimistic_saved_us": 5.162894073862136
+    },
+    "4": {
+      "attention_profile_us": 9.3,
+      "layer_median_us": 169.89615614326405,
+      "optimistic_saved_us": 0.5512619390002051
+    },
+    "5": {
+      "attention_profile_us": 169.3,
+      "layer_median_us": 323.58898274890777,
+      "optimistic_saved_us": 10.035338308896208
+    }
+  },
+  "loads": [
+    {
+      "load": "decode 1",
+      "optimistic_ratio": 1.0045174094374794
+    },
+    {
+      "load": "decode 16",
+      "optimistic_ratio": 1.0109705559262594
+    },
+    {
+      "load": "decode 32",
+      "optimistic_ratio": 1.0145176448092288
+    },
+    {
+      "load": "verify 1",
+      "optimistic_ratio": 1.0
+    },
+    {
+      "load": "verify 16",
+      "optimistic_ratio": 1.0
+    },
+    {
+      "load": "verify 32",
+      "optimistic_ratio": 1.0
+    }
+  ],
+  "optimistic_overall_ratio": 1.0049842678786807,
+  "decision": "Preserve2Decode checks: projected whole-layer saving remains below1%; no transfer now."
+}

@@ -48,3 +48,17 @@ L1 symbols, affected GM ratio>1.025, no affected ratio below0.98, aggregate
 ratio>1.015 versus cached247 check. One full official H200 check, no repeated
 baseline. The previous FP8Q changed GM0.999962 shows why aggregate noise
 alone cannot justify a score or Decode transfer.
+
+
+## FP8 PV confirmation and next step
+
+Check574bd76165e54556/sourcea310b988 passed full16/12/integrity at
+2.580662730x [2.541952789,2.633527864]; fixed guard passed. Exact-source
+publication3e2a317e289a4cc8 passed full16/12/integrity at2.548282764x
+[2.510058522,2.602435597]. This is effectively tied with parent's2.541743138x;
+check affected GM1.032137 vs unchanged GM1.030139 does not isolate a gain.
+Best/candidate Attention usesa310 for the next register-resource hypothesis.
+No score repeat or Decode transfer: optimistic screen about0.5% whole Decode.
+Payloads, profiles, ledgers, CPU audit, controller and publication are saved in
+results/resumed-attention-fp8pv-20261028/. No pending GPU job or controller.
+See attention_fp8pv_three_cta_review.md before constructing the next candidate.

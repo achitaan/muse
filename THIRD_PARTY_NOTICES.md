@@ -90,3 +90,6 @@ keep the full 8192-column norm domain, and issue independent reads early.
 The full Apache license is retained in the integrated submission and under
 licenses/. The pinned SGLang root had no NOTICE file.
 Source: https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_norm_residual.py
+
+
+Attention a310b988 (October28): local FP8 probability/value MMA and register-only byte transpose preserve inherited V load ordering, FP32 accumulation, BF16 Q/K/RoPE/output boundaries and Apache-2.0 notices. Probability scale256 follows the FA3 numerical approach; implementation and CPU permutation audits are local. Full measured payload and source edit ledger are archived in results/resumed-attention-fp8pv-20261028/.

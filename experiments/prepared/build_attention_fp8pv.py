@@ -3,7 +3,7 @@ import ast
 import hashlib
 import json
 from pathlib import Path
-from build_attention_fp8q import ROOT, BASE_SHA, literal
+from build_attention_fp8q import ROOT, BASE_SHA, literal, parent_source
 
 
 def transform(old):
@@ -75,7 +75,7 @@ __device__ __forceinline__ void mma_f8pv(float* c, uint32_t a0, uint32_t a2,
 
 
 def build():
-    raw=(ROOT/'best/attention_checked.py').read_bytes()
+    raw=parent_source()
     assert hashlib.sha256(raw).hexdigest()==BASE_SHA
     source=raw.decode('utf8');node,old=literal(source)
     new,edits=transform(old);reverse=new

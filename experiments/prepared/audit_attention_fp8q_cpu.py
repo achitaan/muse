@@ -14,7 +14,7 @@ import numpy as np
 import torch
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from build_attention_fp8q import ROOT, BASE_SHA, literal, transform
+from build_attention_fp8q import ROOT, BASE_SHA, literal, transform, parent_source
 sys.path.insert(0,str(ROOT/'scripts'))
 from verify_attention_precision import verify
 
@@ -23,7 +23,7 @@ rng = np.random.default_rng(20261028)
 source = (ROOT/'.tools/attention-fp8q-variant.py').read_bytes()
 cuda = literal(source)[1]
 verify(source)
-base = (ROOT/'best/attention_checked.py').read_bytes()
+base = parent_source()
 assert hashlib.sha256(base).hexdigest() == BASE_SHA
 assert transform(literal(base)[1])[0] == cuda
 assert 'mma.sync.aligned.m16n8k32.row.col.f32.e4m3.e4m3.f32' in cuda

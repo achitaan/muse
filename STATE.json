@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One-query FP8 PV a310b988: retain corrected247 FP16 QK; register-only byte transpose, common K permutation, FP32 denominator and FA3 probability scale256. CPU256operand/2048transpose/32numerical cases pass; initialize scoped controller with cached baseline, then one full check.",
+  "next_trial": "Read experiments/prepared/attention_fp8pv_three_cta_review.md. Parent a310 check/scored full16/12 passed but effective tie; no score repeat. Audit L1 flat3CTA61440regs/187392shared and partition invariants before one check; stronger control-normalized performance guard. Preserve2Decode checks: transfer screen only~0.5%. Prefill last.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -59,12 +59,12 @@
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
-    "sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
-    "checked_job": "1a16e2d658a8400d",
-    "checked_speedup": 2.5221390359773115,
+    "sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+    "checked_job": "574bd76165e54556",
+    "checked_speedup": 2.5806627296497604,
     "checked_interval": [
-      2.484306950437652,
-      2.5599711215169707
+      2.541952788705014,
+      2.633527864027198
     ],
     "tests": 16,
     "benchmarks": 12,
@@ -86,22 +86,25 @@
     },
     "integrity": true,
     "bf16_attention_boundaries_preserved": true,
-    "publication": "fully passed corrected-source scored confirmation; old publication withdrawal pending approval",
+    "publication": "full corrected-source FP8 PV confirmation passed; effectively tied with parent score; no claim of significance",
     "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
     "scored": {
-      "job": "d0cdadc0960446ca",
-      "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
-      "speedup": 2.541743138003351,
+      "job": "3e2a317e289a4cc8",
+      "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+      "speedup": 2.5482827639214785,
       "interval": [
-        2.5036169909333004,
-        2.579869285073401
+        2.510058522462656,
+        2.60243559730152
       ],
       "passed": true,
       "tests": 16,
       "benchmarks": 12,
       "integrity": true,
       "bf16_attention_boundaries_preserved": true
-    }
+    },
+    "parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "internal_pv": "E4M3 MMA with FP32 accumulation and probability scale256; retained FP16 QK",
+    "gain_uncertainty": "Changed check controls rose about3%, scored confirmation only0.257% above parent. One confirmation used; do not rescore for noise."
   },
   "decoder_baseline": {
     "job": "65ab5fffad0c4995",
@@ -118,12 +121,12 @@
     "precision_note": "Previous public-starter BF16 scaled norm rounding is removed in the new baseline."
   },
   "attention_scored": {
-    "job": "d0cdadc0960446ca",
-    "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
-    "speedup": 2.541743138003351,
+    "job": "3e2a317e289a4cc8",
+    "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+    "speedup": 2.5482827639214785,
     "interval": [
-      2.5036169909333004,
-      2.579869285073401
+      2.510058522462656,
+      2.60243559730152
     ],
     "passed": true,
     "tests": 16,
@@ -2011,5 +2014,87 @@
     "retained_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
     "trial_commit": "91092e87b436b01beec6da0f8a6efc3e0f69a464",
     "revert_commit": "04741e8ce588f11783d250db0e98c0d93b6ababf"
+  },
+  "attention_fp8pv_trial": {
+    "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+    "parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "job": "574bd76165e54556",
+    "speedup": 2.5806627296497604,
+    "interval": [
+      2.541952788705014,
+      2.633527864027198
+    ],
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "changed_six_ratios": [
+      1.0193892845402832,
+      1.0426973566997144,
+      1.0630104519253611,
+      1.0097497673287543,
+      1.0541085626241808,
+      1.0052872929494163
+    ],
+    "changed_geomean": 1.0321374301423938,
+    "unchanged_geomean": 1.0301387031538145,
+    "outcome": "retained: full coverage; scored2.548282764 effectively tied with parent2.541743138; next resource audit only",
+    "gain_uncertainty": "Changed GM1.03214 vs unchanged control GM1.03014; cross-run points do not isolate the gain",
+    "checks_used": 1,
+    "scored_runs_used": 1,
+    "trial_commit": "1b06458c3fe3e92610505ca238d5223e9e1bb265",
+    "scored": {
+      "job": "3e2a317e289a4cc8",
+      "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+      "speedup": 2.5482827639214785,
+      "interval": [
+        2.510058522462656,
+        2.60243559730152
+      ],
+      "passed": true,
+      "tests": 16,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
+    }
+  },
+  "quota_snapshot_all_tracks": {
+    "utc": "2026-10-28T21:47:09.515854+00:00",
+    "provenance": "Normalized summary of read-only official CLI responses observed in this turn",
+    "overall": {
+      "rank": 149,
+      "ranked": 1445,
+      "measure": "rank across the problems; the API gives ranks only"
+    },
+    "attention": {
+      "rank": 91,
+      "ranked": 960,
+      "api_best_speedup": 2.5624,
+      "precision_note": "API best still historical omitted-boundary20524d06; this rank is not a source-bound rank for a310."
+    },
+    "limits_left": {
+      "muse_bf16_proj": {
+        "checks": 0,
+        "scored": 0
+      },
+      "muse_moe_w4a16": {
+        "checks": 1,
+        "scored": 7
+      },
+      "muse_decode_layer": {
+        "checks": 2,
+        "scored": 4
+      },
+      "muse_attention_decode": {
+        "checks": 11,
+        "scored": 6
+      },
+      "muse_prefill_layer": {
+        "checks": 19,
+        "scored": 9
+      }
+    },
+    "total_checks_left": 33,
+    "total_scored_left": 26
   }
 }

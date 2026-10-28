@@ -1,0 +1,43 @@
+{
+  "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+  "parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "job": "574bd76165e54556",
+  "speedup": 2.5806627296497604,
+  "interval": [
+    2.541952788705014,
+    2.633527864027198
+  ],
+  "passed": true,
+  "tests": 16,
+  "benchmarks": 12,
+  "integrity": true,
+  "changed_six_ratios": [
+    1.0193892845402832,
+    1.0426973566997144,
+    1.0630104519253611,
+    1.0097497673287543,
+    1.0541085626241808,
+    1.0052872929494163
+  ],
+  "changed_geomean": 1.0321374301423938,
+  "unchanged_geomean": 1.0301387031538145,
+  "outcome": "retained: full coverage; scored2.548282764 effectively tied with parent2.541743138; next resource audit only",
+  "gain_uncertainty": "Changed GM1.03214 vs unchanged control GM1.03014; cross-run points do not isolate the gain",
+  "checks_used": 1,
+  "scored_runs_used": 1,
+  "trial_commit": "1b06458c3fe3e92610505ca238d5223e9e1bb265",
+  "scored": {
+    "job": "3e2a317e289a4cc8",
+    "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+    "speedup": 2.5482827639214785,
+    "interval": [
+      2.510058522462656,
+      2.60243559730152
+    ],
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  }
+}

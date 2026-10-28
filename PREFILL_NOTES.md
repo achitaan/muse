@@ -57,3 +57,16 @@ Current decoder fusion draft has passed bitwise codec/layout and Python
 binding audits; GPU correctness and speed remain unmeasured. One check will
 test 9..32-token fusion, preserving the complete FP32 small-token router.
 Publish only if its checked interval excludes the retained interval.
+
+
+## Read-only follow-up inspection at21:47UTC
+
+Retain93e57ab4, scored1.663469245x. No additional Prefill evaluation used.
+Cached primary profiles show persistent experts278.5us/44.4% atT753,
+811.2us/40.3% atT3012,3807.6us/37.2% atT16384. Large dense projections
+account for much of the remaining time. Norm/residual stages are each
+about21us,78us and400us at these sizes, roughly6..8% combined. They are
+likely bandwidth bound; audit the exact stream/router output byte traffic
+before assuming a launch fusion removes their work. Prioritize an
+algorithmic expert/dense improvement for a material Prefill gain. This
+track stays last and does not improve overall placement.

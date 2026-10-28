@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T21:30:55Z",
+  "goal": "Approach overall top50; Attention register-only FP8 PV phase with one source-backed check; top-level goal remains broader",
+  "guard": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_fp8pv_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_attention.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "65c9eb26a5b74c2dba9b6ed0ecf3744f",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.65,
+  "timeout_seconds": 1800
+}

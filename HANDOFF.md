@@ -1,3 +1,13 @@
+> Latest checkpoint: October28,21:47UTC. Attentiona310b988 FP8 PV passed
+> full16tests/12benchmarks/integrity; check574bd76165e54556 at2.580662730x,
+> scored3e2a317e289a4cc8 at2.548282764x. Effectively tied with parent2.541743138x;
+> changed and unchanged controls rose similarly. Do not rescore for noise.
+> No pending job/controller. Best/candidate Attention nowa310. Decode remains1fb5.
+> Next: audit attention_fp8pv_three_cta_review.md; no new3CTA candidate yet.
+> API overall149/1445; Attention91/960 still historical2.5624, not a310's rank.
+> Live remaining checks/scores: Dense0/0,MoE1/7,Decode2/4,Attention11/6,Prefill19/9.
+> Total33checks/26scores. Preserve Decode checks; PV transfer screen~0.5%overall.
+
 > Current checkpoint: October28,21:00UTC. Read ATTENTION_PRECISION_AUDIT.md.
 > Corrected Attention24782695 passed full coverage at2.522139036x and scored
 > 2.541743138x asd0cdadc0960446ca. Decode1fb5d05d passed full13/12/integrity
