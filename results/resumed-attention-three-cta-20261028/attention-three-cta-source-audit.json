@@ -1,0 +1,59 @@
+{
+  "parent_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+  "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
+  "bytes": 172136,
+  "inverse_cuda_exact": true,
+  "all_other_ast_unchanged": true,
+  "changed_functions": [
+    "_plan",
+    "_fits"
+  ],
+  "math_unchanged": true,
+  "edits": [
+    {
+      "before": "#include <type_traits>",
+      "after": "#include <type_traits>\n#include <cstdio>",
+      "count": 1
+    },
+    {
+      "before": "static constexpr int MINB = 2;",
+      "after": "static constexpr int MINB = (L == 1 && F) ? 3 : 2;",
+      "count": 1
+    },
+    {
+      "before": "(65536 / (2 * NTX))",
+      "after": "(65536 / (MINB * NTX))",
+      "count": 2
+    },
+    {
+      "before": "int seg[F ? MAXSEG : 1][3];",
+      "after": "int seg[F ? ((L == 1) ? MAXB : MAXSEG) : 1][3];",
+      "count": 1
+    },
+    {
+      "before": "S.cum[b] < ceg && n < MAXSEG",
+      "after": "S.cum[b] < ceg && n < MAXB",
+      "count": 1
+    },
+    {
+      "before": "attn_kernel_fp8pv",
+      "after": "attn_kernel_pv3",
+      "count": 14
+    },
+    {
+      "before": "    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);",
+      "after": "    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);\n    if constexpr (L == 1) {\n      cudaFuncAttributes attr;\n      cudaFuncGetAttributes(&attr, attn_kernel_pv3<L, true>);\n      int regs_sm = 0, shared_sm = 0;\n      cudaDeviceGetAttribute(&regs_sm, cudaDevAttrMaxRegistersPerMultiprocessor, dev);\n      cudaDeviceGetAttribute(&shared_sm, cudaDevAttrMaxSharedMemoryPerMultiprocessor, dev);\n      printf(\"ATTN_PV3_RESOURCES %d %zu %d %d %zu %d %d %d %d %d %d\\n\",\n             attr.numRegs, attr.localSizeBytes, occ_f, sm_f, sizeof(Smem<L, true>),\n             Cfg<L, true>::MINB, Cfg<L, true>::BASEREGS, Cfg<L, true>::CREGS,\n             nsm, regs_sm, shared_sm);\n    }",
+      "count": 1
+    }
+  ],
+  "python_edits": [
+    {
+      "before": "def _plan(B, pairs, L, window, max_pages, P, device):\n    \"\"\"Launch plan for a shape: n_splits CTAs per (request, KV pair) or, flat, per KV pair over all\n    requests; clusters of cs CTAs reduce through DSMEM (ncl clusters per request); nc workspace copies.\"\"\"\n    sms = _num_sms(device)\n    target = 2 * sms\n    if not window and 1 < B <= MAX_BATCH:\n        return dict(n_splits=max(1, target // pairs), flat=1, cs=0, ncl=1, nc=1)\n    keys_max = min(window + L - 1, max_pages * P) if window else max_pages * P\n    tiles = max(1, (keys_max + TILE_KEYS - 1) // TILE_KEYS)\n    reqs = B * pairs\n    if not window:\n        if L == 8:\n            n = _splits(tiles, _headroom(target) // reqs)\n            return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 8))\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4), coop=0)\n    if L == 1 and reqs < 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    if L == 8 and reqs < 16:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if L == 8 and reqs >= 16:\n        n = _splits(tiles, (target if reqs >= 24 else sms) // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if reqs >= 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    cs = 16\n    limit = 2 * sms if L == 1 else sms\n    if L == 8 and target == sms:\n        limit = sms * 15 // 16\n    while cs > 4 and reqs * cs > limit:\n        cs //= 2\n    ncl = 1\n    while cs * ncl > tiles and cs > 4:\n        cs //= 2\n    if cs * ncl > tiles or cs < 4:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4))\n    return dict(n_splits=cs * ncl, flat=0, cs=cs, ncl=ncl, nc=_copies(ncl, 4))",
+      "after": "def _plan(B, pairs, L, window, max_pages, P, device):\n    \"\"\"Launch plan for a shape: n_splits CTAs per (request, KV pair) or, flat, per KV pair over all\n    requests; clusters of cs CTAs reduce through DSMEM (ncl clusters per request); nc workspace copies.\"\"\"\n    sms = _num_sms(device)\n    target = 2 * sms\n    if not window and 1 < B <= MAX_BATCH:\n        return dict(n_splits=max(1, (3 if L == 1 else 2) * sms // pairs), flat=1, cs=0, ncl=1, nc=1)\n    keys_max = min(window + L - 1, max_pages * P) if window else max_pages * P\n    tiles = max(1, (keys_max + TILE_KEYS - 1) // TILE_KEYS)\n    reqs = B * pairs\n    if not window:\n        if L == 8:\n            n = _splits(tiles, _headroom(target) // reqs)\n            return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 8))\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4), coop=0)\n    if L == 1 and reqs < 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    if L == 8 and reqs < 16:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if L == 8 and reqs >= 16:\n        n = _splits(tiles, (target if reqs >= 24 else sms) // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if reqs >= 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    cs = 16\n    limit = 2 * sms if L == 1 else sms\n    if L == 8 and target == sms:\n        limit = sms * 15 // 16\n    while cs > 4 and reqs * cs > limit:\n        cs //= 2\n    ncl = 1\n    while cs * ncl > tiles and cs > 4:\n        cs //= 2\n    if cs * ncl > tiles or cs < 4:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4))\n    return dict(n_splits=cs * ncl, flat=0, cs=cs, ncl=ncl, nc=_copies(ncl, 4))"
+    },
+    {
+      "before": "def _fits(data):\n    \"\"\"Sizes the CUDA path's 32-bit indexing covers (caches of any size are fine: 64-bit offsets past 4 GB).\"\"\"\n    cfg = data['config']\n    out_elems = cfg['batch'] * cfg['q_len'] * cfg['num_q_heads'] * cfg['head_dim']\n    return data['qkv'].numel() < INDEX_LIMIT and data['page_table'].numel() < INDEX_LIMIT and (out_elems < INDEX_LIMIT)",
+      "after": "def _fits(data):\n    \"\"\"Sizes the CUDA path's 32-bit indexing covers (caches of any size are fine: 64-bit offsets past 4 GB).\"\"\"\n    cfg = data['config']\n    out_elems = cfg['batch'] * cfg['q_len'] * cfg['num_q_heads'] * cfg['head_dim']\n    return (data['qkv'].numel() < INDEX_LIMIT and data['page_table'].numel() < INDEX_LIMIT and (out_elems < INDEX_LIMIT)) and cfg['batch'] * (data['page_table'].shape[1] * cfg['page_size'] + cfg['q_len'] + 600) < INDEX_LIMIT"
+    }
+  ]
+}

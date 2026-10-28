@@ -1,0 +1,32 @@
+{
+  "batch": 512,
+  "kv_pairs": 8,
+  "query_length": 1,
+  "page_size": 1,
+  "max_pages": 1048577,
+  "seq_lens_recipe": "[1048576]+[0]*511",
+  "old_grid": 33,
+  "new_grid": 49,
+  "old_segment_capacity": 64,
+  "new_segment_capacity": 512,
+  "old_max_segments": 95,
+  "old_lost_keys": 154,
+  "new_max_segments": 64,
+  "new_lost_keys": 0,
+  "page_table_elements": 536871424,
+  "index_limit": 2147483648,
+  "parent_public_shape_bounds_pass": true,
+  "new_prefix_bound_pass": true,
+  "model_scope": "Exact source interval/list model, not a GPU result",
+  "capacity_fix_needed_even_with_three_blocks": {
+    "batch": 256,
+    "kv_pairs": 8,
+    "max_pages": 4194305,
+    "seq_lens_recipe": "[4194304]+[0]*255",
+    "grid": 49,
+    "old_cap_lost_keys": 155,
+    "max_segments": 219,
+    "fixed_lost_keys": 0,
+    "shape_bound_pass": true
+  }
+}

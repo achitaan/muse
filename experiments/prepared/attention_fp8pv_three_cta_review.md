@@ -5,7 +5,7 @@ Unimplemented, unmeasured. First finish the exact-source scored confirmation
 claiming a new gain or spending a run before the resource/dispatch audit.
 Main chat only. Retain all BF16 boundaries and the same FP32/FP8 math.
 
-Update at21:59UTC: source65527644 is prepared and CPU audited, not GPU
+Preflight update: source65527644 is prepared and CPU audited, not GPU
 measured. Parent publication finished2.548282764x with full16/12/integrity.
 The following inspection prediction is superseded where noted below.
 
@@ -35,6 +35,17 @@ resource layout, actual new full B16/B32 profiles, affected/control ratio>1.03,
 neither changed ratio below0.99, and aggregate ratio>1.015 vs cacheda310.
 Local-memory size is reported rather than assumed. These are empirical
 admission thresholds, not proof of significance. One full H200 check next.
+
+Closed at22:00UTC: checke6202683302640b4 passed16/12/integrity at
+2.540543288x [2.502435139,2.586864626]. Actual resources matched the model:
+numRegs80, local bytes0, occupancy3, dynamic67,584, sizeof66,560, consumer104,
+132SMs,65,536regs/SM,233,472sharedbytes/SM. No spills, yet affected full
+B16/B32 GM0.982897573 vs unchanged controls0.983429618; normalized0.999459.
+The controller discarded the trial before the performance guard (metric
+declined); do not claim that guard ran. Actual profiles87.5/166.1us.
+Do not retry nearby register budgets or extra-CTA counts without new evidence.
+Correctness repair is isolated as c05090e2, preserving the original2CTA
+register/grid configuration. It needs an exact-source check before retention.
 
 FP8Q was a closed negative result. FP8PV a310 passed16/12/integrity and its
 fixed guard at2.580662730x. Changed six-case GM1.032137 vs unchanged-control

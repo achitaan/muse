@@ -1,0 +1,1039 @@
+{
+  "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
+  "layout": {
+    "L1_flat0": {
+      "size": 57344,
+      "dynamic": 58368,
+      "fields": [
+        {
+          "name": "k",
+          "offset": 0,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "v",
+          "offset": 24576,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "mbar",
+          "offset": 49152,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "pbar",
+          "offset": 49216,
+          "bytes": 32,
+          "alignment": 8
+        },
+        {
+          "name": "pgc",
+          "offset": 49248,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dbgn",
+          "offset": 49252,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "vidx",
+          "offset": 49256,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pidx",
+          "offset": 49280,
+          "bytes": 1280,
+          "alignment": 128
+        },
+        {
+          "name": "full",
+          "offset": 50560,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "empty",
+          "offset": 50624,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "vtf",
+          "offset": 50688,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "vte",
+          "offset": 50704,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "qdone",
+          "offset": 50720,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "claim",
+          "offset": 50728,
+          "bytes": 8,
+          "alignment": 4
+        },
+        {
+          "name": "nxt",
+          "offset": 50736,
+          "bytes": 32,
+          "alignment": 4
+        },
+        {
+          "name": "idx",
+          "offset": 50768,
+          "bytes": 1536,
+          "alignment": 4
+        },
+        {
+          "name": "kvq",
+          "offset": 53248,
+          "bytes": 2048,
+          "alignment": 1024
+        },
+        {
+          "name": "q8s",
+          "offset": 55296,
+          "bytes": 16,
+          "alignment": 1024
+        },
+        {
+          "name": "kvst",
+          "offset": 55312,
+          "bytes": 512,
+          "alignment": 2
+        },
+        {
+          "name": "gst",
+          "offset": 55824,
+          "bytes": 512,
+          "alignment": 2
+        },
+        {
+          "name": "kn",
+          "offset": 56336,
+          "bytes": 128,
+          "alignment": 1
+        },
+        {
+          "name": "vn",
+          "offset": 56464,
+          "bytes": 128,
+          "alignment": 1
+        },
+        {
+          "name": "cs",
+          "offset": 56592,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "sn",
+          "offset": 56720,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "ifreq",
+          "offset": 56848,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "scl",
+          "offset": 56976,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "cloc",
+          "offset": 56992,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "flag",
+          "offset": 57000,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "sense",
+          "offset": 57004,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "cum",
+          "offset": 57008,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "seg",
+          "offset": 57012,
+          "bytes": 12,
+          "alignment": 4
+        },
+        {
+          "name": "nseg",
+          "offset": 57024,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fcs",
+          "offset": 57028,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fce",
+          "offset": 57032,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pseg",
+          "offset": 57036,
+          "bytes": 12,
+          "alignment": 4
+        },
+        {
+          "name": "pnseg",
+          "offset": 57048,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pchunk",
+          "offset": 57052,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dq",
+          "offset": 57056,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "dqf",
+          "offset": 57072,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "dqe",
+          "offset": 57080,
+          "bytes": 8,
+          "alignment": 8
+        }
+      ]
+    },
+    "L1_flat1": {
+      "size": 66560,
+      "dynamic": 67584,
+      "fields": [
+        {
+          "name": "k",
+          "offset": 0,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "v",
+          "offset": 24576,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "mbar",
+          "offset": 49152,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "pbar",
+          "offset": 49216,
+          "bytes": 32,
+          "alignment": 8
+        },
+        {
+          "name": "pgc",
+          "offset": 49248,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dbgn",
+          "offset": 49252,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "vidx",
+          "offset": 49256,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pidx",
+          "offset": 49280,
+          "bytes": 1280,
+          "alignment": 128
+        },
+        {
+          "name": "full",
+          "offset": 50560,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "empty",
+          "offset": 50624,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "vtf",
+          "offset": 50688,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "vte",
+          "offset": 50704,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "qdone",
+          "offset": 50720,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "claim",
+          "offset": 50728,
+          "bytes": 8,
+          "alignment": 4
+        },
+        {
+          "name": "nxt",
+          "offset": 50736,
+          "bytes": 32,
+          "alignment": 4
+        },
+        {
+          "name": "idx",
+          "offset": 50768,
+          "bytes": 1536,
+          "alignment": 4
+        },
+        {
+          "name": "kvq",
+          "offset": 53248,
+          "bytes": 2048,
+          "alignment": 1024
+        },
+        {
+          "name": "q8s",
+          "offset": 55296,
+          "bytes": 16,
+          "alignment": 1024
+        },
+        {
+          "name": "kvst",
+          "offset": 55312,
+          "bytes": 512,
+          "alignment": 2
+        },
+        {
+          "name": "gst",
+          "offset": 55824,
+          "bytes": 512,
+          "alignment": 2
+        },
+        {
+          "name": "kn",
+          "offset": 56336,
+          "bytes": 128,
+          "alignment": 1
+        },
+        {
+          "name": "vn",
+          "offset": 56464,
+          "bytes": 128,
+          "alignment": 1
+        },
+        {
+          "name": "cs",
+          "offset": 56592,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "sn",
+          "offset": 56720,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "ifreq",
+          "offset": 56848,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "scl",
+          "offset": 56976,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "cloc",
+          "offset": 56992,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "flag",
+          "offset": 57000,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "sense",
+          "offset": 57004,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "cum",
+          "offset": 57008,
+          "bytes": 2052,
+          "alignment": 4
+        },
+        {
+          "name": "seg",
+          "offset": 59060,
+          "bytes": 6144,
+          "alignment": 4
+        },
+        {
+          "name": "nseg",
+          "offset": 65204,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fcs",
+          "offset": 65208,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fce",
+          "offset": 65212,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pseg",
+          "offset": 65216,
+          "bytes": 768,
+          "alignment": 4
+        },
+        {
+          "name": "pnseg",
+          "offset": 65984,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pchunk",
+          "offset": 65988,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dq",
+          "offset": 65992,
+          "bytes": 256,
+          "alignment": 4
+        },
+        {
+          "name": "dqf",
+          "offset": 66248,
+          "bytes": 128,
+          "alignment": 8
+        },
+        {
+          "name": "dqe",
+          "offset": 66376,
+          "bytes": 128,
+          "alignment": 8
+        }
+      ]
+    },
+    "L8_flat0": {
+      "size": 93184,
+      "dynamic": 94208,
+      "fields": [
+        {
+          "name": "k",
+          "offset": 0,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "v",
+          "offset": 24576,
+          "bytes": 24576,
+          "alignment": 1
+        },
+        {
+          "name": "mbar",
+          "offset": 49152,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "pbar",
+          "offset": 49216,
+          "bytes": 32,
+          "alignment": 8
+        },
+        {
+          "name": "pgc",
+          "offset": 49248,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dbgn",
+          "offset": 49252,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "vidx",
+          "offset": 49256,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pidx",
+          "offset": 49280,
+          "bytes": 1280,
+          "alignment": 128
+        },
+        {
+          "name": "full",
+          "offset": 50560,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "empty",
+          "offset": 50624,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "vtf",
+          "offset": 50688,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "vte",
+          "offset": 50704,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "qdone",
+          "offset": 50720,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "claim",
+          "offset": 50728,
+          "bytes": 8,
+          "alignment": 4
+        },
+        {
+          "name": "nxt",
+          "offset": 50736,
+          "bytes": 32,
+          "alignment": 4
+        },
+        {
+          "name": "idx",
+          "offset": 50768,
+          "bytes": 1536,
+          "alignment": 4
+        },
+        {
+          "name": "kvq",
+          "offset": 53248,
+          "bytes": 18432,
+          "alignment": 1024
+        },
+        {
+          "name": "q8s",
+          "offset": 71680,
+          "bytes": 8192,
+          "alignment": 1024
+        },
+        {
+          "name": "kvst",
+          "offset": 79872,
+          "bytes": 4096,
+          "alignment": 2
+        },
+        {
+          "name": "gst",
+          "offset": 83968,
+          "bytes": 4096,
+          "alignment": 2
+        },
+        {
+          "name": "kn",
+          "offset": 88064,
+          "bytes": 1024,
+          "alignment": 1
+        },
+        {
+          "name": "vn",
+          "offset": 89088,
+          "bytes": 1024,
+          "alignment": 1
+        },
+        {
+          "name": "cs",
+          "offset": 90112,
+          "bytes": 1024,
+          "alignment": 4
+        },
+        {
+          "name": "sn",
+          "offset": 91136,
+          "bytes": 1024,
+          "alignment": 4
+        },
+        {
+          "name": "ifreq",
+          "offset": 92160,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "scl",
+          "offset": 92288,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "cloc",
+          "offset": 92304,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "flag",
+          "offset": 92368,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "sense",
+          "offset": 92372,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "cum",
+          "offset": 92376,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "seg",
+          "offset": 92380,
+          "bytes": 12,
+          "alignment": 4
+        },
+        {
+          "name": "nseg",
+          "offset": 92392,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fcs",
+          "offset": 92396,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fce",
+          "offset": 92400,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pseg",
+          "offset": 92404,
+          "bytes": 12,
+          "alignment": 4
+        },
+        {
+          "name": "pnseg",
+          "offset": 92416,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pchunk",
+          "offset": 92420,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dq",
+          "offset": 92424,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "dqf",
+          "offset": 92440,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "dqe",
+          "offset": 92448,
+          "bytes": 8,
+          "alignment": 8
+        }
+      ]
+    },
+    "L8_flat1": {
+      "size": 113664,
+      "dynamic": 114688,
+      "fields": [
+        {
+          "name": "k",
+          "offset": 0,
+          "bytes": 32768,
+          "alignment": 1
+        },
+        {
+          "name": "v",
+          "offset": 32768,
+          "bytes": 32768,
+          "alignment": 1
+        },
+        {
+          "name": "mbar",
+          "offset": 65536,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "pbar",
+          "offset": 65600,
+          "bytes": 32,
+          "alignment": 8
+        },
+        {
+          "name": "pgc",
+          "offset": 65632,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dbgn",
+          "offset": 65636,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "vidx",
+          "offset": 65640,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pidx",
+          "offset": 65664,
+          "bytes": 1280,
+          "alignment": 128
+        },
+        {
+          "name": "full",
+          "offset": 66944,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "empty",
+          "offset": 67008,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "vtf",
+          "offset": 67072,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "vte",
+          "offset": 67088,
+          "bytes": 16,
+          "alignment": 8
+        },
+        {
+          "name": "qdone",
+          "offset": 67104,
+          "bytes": 8,
+          "alignment": 8
+        },
+        {
+          "name": "claim",
+          "offset": 67112,
+          "bytes": 8,
+          "alignment": 4
+        },
+        {
+          "name": "nxt",
+          "offset": 67120,
+          "bytes": 32,
+          "alignment": 4
+        },
+        {
+          "name": "idx",
+          "offset": 67152,
+          "bytes": 2048,
+          "alignment": 4
+        },
+        {
+          "name": "kvq",
+          "offset": 69632,
+          "bytes": 18432,
+          "alignment": 1024
+        },
+        {
+          "name": "q8s",
+          "offset": 88064,
+          "bytes": 8192,
+          "alignment": 1024
+        },
+        {
+          "name": "kvst",
+          "offset": 96256,
+          "bytes": 4096,
+          "alignment": 2
+        },
+        {
+          "name": "gst",
+          "offset": 100352,
+          "bytes": 4096,
+          "alignment": 2
+        },
+        {
+          "name": "kn",
+          "offset": 104448,
+          "bytes": 1024,
+          "alignment": 1
+        },
+        {
+          "name": "vn",
+          "offset": 105472,
+          "bytes": 1024,
+          "alignment": 1
+        },
+        {
+          "name": "cs",
+          "offset": 106496,
+          "bytes": 1024,
+          "alignment": 4
+        },
+        {
+          "name": "sn",
+          "offset": 107520,
+          "bytes": 1024,
+          "alignment": 4
+        },
+        {
+          "name": "ifreq",
+          "offset": 108544,
+          "bytes": 128,
+          "alignment": 4
+        },
+        {
+          "name": "scl",
+          "offset": 108672,
+          "bytes": 16,
+          "alignment": 4
+        },
+        {
+          "name": "cloc",
+          "offset": 108688,
+          "bytes": 64,
+          "alignment": 8
+        },
+        {
+          "name": "flag",
+          "offset": 108752,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "sense",
+          "offset": 108756,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "cum",
+          "offset": 108760,
+          "bytes": 2052,
+          "alignment": 4
+        },
+        {
+          "name": "seg",
+          "offset": 110812,
+          "bytes": 768,
+          "alignment": 4
+        },
+        {
+          "name": "nseg",
+          "offset": 111580,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fcs",
+          "offset": 111584,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "fce",
+          "offset": 111588,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pseg",
+          "offset": 111592,
+          "bytes": 768,
+          "alignment": 4
+        },
+        {
+          "name": "pnseg",
+          "offset": 112360,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "pchunk",
+          "offset": 112364,
+          "bytes": 4,
+          "alignment": 4
+        },
+        {
+          "name": "dq",
+          "offset": 112368,
+          "bytes": 256,
+          "alignment": 4
+        },
+        {
+          "name": "dqf",
+          "offset": 112624,
+          "bytes": 128,
+          "alignment": 8
+        },
+        {
+          "name": "dqe",
+          "offset": 112752,
+          "bytes": 128,
+          "alignment": 8
+        }
+      ]
+    }
+  },
+  "configurations": [
+    {
+      "L": 1,
+      "flat": false,
+      "ntx": 128,
+      "minblocks": 2,
+      "average": 248,
+      "producer": 56,
+      "consumer": 248
+    },
+    {
+      "L": 1,
+      "flat": true,
+      "ntx": 256,
+      "minblocks": 3,
+      "average": 80,
+      "producer": 56,
+      "consumer": 104
+    },
+    {
+      "L": 8,
+      "flat": false,
+      "ntx": 256,
+      "minblocks": 2,
+      "average": 128,
+      "producer": 32,
+      "consumer": 128
+    },
+    {
+      "L": 8,
+      "flat": true,
+      "ntx": 384,
+      "minblocks": 2,
+      "average": 80,
+      "producer": 32,
+      "consumer": 104
+    }
+  ],
+  "dynamic_shared_bytes": 67584,
+  "three_cta_shared_bytes": 202752,
+  "three_cta_registers": 61440,
+  "partitions": 660,
+  "segments_checked": 144675,
+  "paged_end_checks": 434025,
+  "max_segment_count": 366,
+  "old_truncation_cases": 30,
+  "shape_plans": 256,
+  "full_key_coverage": true,
+  "unchanged_math": true,
+  "scope": "CPU model; actual CUDA resource attributes and official GPU coverage required"
+}
