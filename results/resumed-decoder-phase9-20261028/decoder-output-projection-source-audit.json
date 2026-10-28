@@ -1,0 +1,36 @@
+{
+  "source_sha256": "9f415f258c8659c16067401355562adf954b4f7a260bbdf91bc26db3f2031396",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "packaged_bytes": 994443,
+  "public_config": [
+    "o32h_r100",
+    "o",
+    8192,
+    32,
+    2,
+    2,
+    2,
+    2,
+    1,
+    1
+  ],
+  "instantiation": [
+    0,
+    "o",
+    8192,
+    1024,
+    32,
+    2,
+    2,
+    2,
+    2,
+    1,
+    4
+  ],
+  "tma_token_rows": 16,
+  "dispatch_domain": "9..16 tokens; output projection only",
+  "comparison": "two synthetic patterns at 16 tokens; incumbent vs one fixed SK2 config",
+  "rejected_small_projection_instantiations": 0,
+  "extra_extension_builds": 0,
+  "gpu_status": "unmeasured"
+}

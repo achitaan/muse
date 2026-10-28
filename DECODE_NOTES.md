@@ -1,3 +1,24 @@
+# Latest publication - October 28, 2026, 17:58 UTC
+
+Retained 09badc9b is now also the published source. Scored job
+441eb580f3074669 passed all 13 tests, 12 benchmarks and integrity at
+**1.993956388x**, interval [1.964047042,2.023865734]. Overall is **146/1436**,
+Decode **146/869**, at 17:58:08 UTC. Previous 1.965324622x publication is
+superseded; its exact source/evidence remain in phase5. No job/controller pending.
+
+Phase9's output comparison 008ff9489dec46d2 passed at 2.007000100x but selected
+no alternate: its fixed kernel was 4.9% slower. The guard discarded it. Correct
+profile mapping: m16trace_ is O16 (~5.6 us), dd_cap2_b_cpssm is unpooling (~14.6 us).
+Do not attribute the latter to O16 or count the empty-choice aggregate as a gain.
+Full frozen records, profiles, audits, history, publication and placement are in
+results/resumed-decoder-phase9-20261028/.
+
+One scored confirmation followed the primary 09badc9b check and three full
+incumbent-only observations. Intervals overlap, so no formal significance claim.
+Next focus is the lossless MoE scale-six prototype described in HANDOFF.md.
+
+---
+
 # Phase8 checkpoint - October 28, 2026
 
 Shared-build trial 50eae88b3dd744ae passed 13/12/integrity at 1.998784201x,

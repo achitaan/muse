@@ -1,0 +1,15 @@
+{
+  "seed": 20261028,
+  "scale_values_roundtripped": 1310720,
+  "eligibility_byte_values_exhausted": 256,
+  "mixed_bank_and_dtype_fallbacks": true,
+  "adjacent_field_pairs_exhausted": 32768,
+  "scale_pair_bits_match_original_prmt_imad": true,
+  "first_and_last_packet_two_word_loads_in_bounds": true,
+  "warpgroup_piece_bytes": 8960,
+  "stage_bytes": 35840,
+  "old_stage_bytes": 36864,
+  "streamed_weight_byte_reduction": 0.02777777777777779,
+  "eligibility_required": "every local scale byte in 0x40..0x7e; all others use old format",
+  "gpu_status": "no implementation or GPU measurement yet"
+}

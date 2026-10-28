@@ -1,3 +1,17 @@
+# Latest checkpoint - October 28, 17:58 UTC
+
+Overall 146/1436. Decode publication 441eb580f3074669 passed 13/12/integrity at
+1.993956388x; checked and published sources are both 09badc9b. MoE remains
+53/994 at 2.348299935x. No job/controller is pending. All earlier checkpoint
+sections below are historical and superseded by HANDOFF.md and STATE.json.
+
+Three small-projection alternatives and one output alternative were rejected
+by bounded comparisons, with empty selections and no scored intermediates.
+Next is the CPU-audited lossless MoE scale-six prototype; GPU code is not yet
+implemented or measured. Goal active; top 50 overall unmet. Conserve runs.
+
+---
+
 # Challenge track handoff â€” October 28, 2026
 
 ## Current result after the ordered pass

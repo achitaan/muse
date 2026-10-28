@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T17:40:11Z",
+  "goal": "Approach top 50 overall by targeting the profiled 16-token decoder output projection",
+  "guard": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_decode_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decode.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_decoder_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "0838ed3b1f5d4769b3e64d9d69d7f3e4",
+  "schema_version": 1,
+  "scope": [
+    "candidates/decode_active.py"
+  ],
+  "target": 2.4,
+  "timeout_seconds": 1800
+}

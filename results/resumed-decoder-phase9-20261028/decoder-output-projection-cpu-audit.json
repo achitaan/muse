@@ -1,0 +1,22 @@
+{
+  "source_sha256": "9f415f258c8659c16067401355562adf954b4f7a260bbdf91bc26db3f2031396",
+  "seed": 20261028,
+  "cases": [
+    {
+      "layer": "o",
+      "values_recovered": 131072,
+      "corrections": 26,
+      "stages": 4,
+      "sample_pmax": 10,
+      "sample_dynamic_shared_bytes": 91696
+    }
+  ],
+  "lossless_cpu_recovery": true,
+  "streams_bijective": true,
+  "correction_tables_exact": true,
+  "fallbacks_and_token_store_geometry": true,
+  "factory_reuse": true,
+  "global_bindings": true,
+  "baseline_bytes_unchanged": false,
+  "gpu_status": "unmeasured"
+}

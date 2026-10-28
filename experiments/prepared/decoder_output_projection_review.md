@@ -1,9 +1,10 @@
 # One output-projection trial
 
-The 16-token decoder output projection takes about 14.3..14.7 microseconds in
-the saved profiles. It reads an 8192-by-1024 BF16 matrix. This is the next
-measured projection bottleneck after the three smaller alternatives were
-rejected by actual paired comparisons in phase8.
+The initial hypothesis misattributed a truncated profile label: the roughly
+14.3..14.7 microsecond stage is the unpooler. Source dispatch resolves the
+output projection to m16trace_, about 5.6 microseconds. It reads an
+8192-by-1024 BF16 matrix. The paired measurement below corrected this mapping;
+do not repeat the mistaken bottleneck attribution in future work.
 
 Use the single public o32h_r100 configuration from the pinned Vjeux source:
 https://github.com/vjeux/okc-2026/blob/f35a41ee1c13e316dabbf772830d47b23b453393/muse_decode_layer.py
@@ -37,3 +38,18 @@ requires all 13 tests and 12 benchmarks, integrity and choice ('o',16), so a
 passing incumbent-only run cannot be retained as the new optimization. GPU
 correctness, nearby-shape behavior and speed remain unverified until that run.
 No parameter sweep or scored intermediate is planned.
+
+## Official result
+
+Check 008ff9489dec46d2 passed 13/12/integrity at 2.007000100x, interval
+[1.976895099,2.037105102]. The paired output comparison was slower: ratio
+1.0493 combined, worst pattern 1.0629. Relative L2 stayed below 0.0000553.
+SMALL_PROJ_CHOICES was empty, so the guard discarded the trial and retained
+09badc9b. No new output kernel was selected in the official timed calls.
+
+The incumbent's paired times were 10.720 and 10.688 us; candidate 11.104 and
+11.360 us. These graph measurements include fixed timing overhead; they do not
+contradict the ~5.6 us individual-kernel profile. The profile mapping was the
+mistake. No score was submitted for this rejected source. A separate scored
+confirmation of the retained 09badc9b update is job 441eb580f3074669. Full trial
+evidence/controller is in results/resumed-decoder-phase9-20261028/.

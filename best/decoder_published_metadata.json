@@ -1,35 +1,65 @@
 {
   "source": "best/decoder_published.py",
-  "sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
-  "checked_job": "34131378611b46ab",
-  "checked_speedup": 1.9685542293211786,
+  "sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "checked_job": "09b34f4e921e49a6",
+  "checked_speedup": 1.9943191672336562,
   "checked_interval": [
-    1.939025915881361,
-    1.998082542760996
+    1.9644043797251514,
+    2.024233954742161
   ],
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
+  "publication": "passed; one scored confirmation after primary check and three incumbent-only full trial observations",
+  "published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
   "fp32_router_precision_preserved": true,
-  "pooler_router_fused_tokens": "9..32",
-  "expert_input_normalization_and_rotation_fused": true,
-  "wide_router_tokens": ">32, original two-GEMM fallback retained",
-  "wide_router_precision": "BF16 hi/lo weights, FP32 accumulation/output",
+  "sliced_ffn_boundary_tokens": "1..8",
+  "sliced_ffn_norm_domain": 8192,
+  "sliced_ffn_early_readonly_loads": true,
+  "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
   "workspace_contract": "sequential calls",
-  "publication_comparison_source_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
-  "publication_comparison_checked_interval": [
-    1.8571751168677493,
-    1.9137388260109294
-  ],
-  "scored": {
-    "job": "02fd620987114785",
-    "speedup": 1.9653246216579754,
+  "independent_timed_repeat": {
+    "job": "afd35730c7d3476f",
+    "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+    "speedup": 1.9979169351927655,
     "interval": [
-      1.9358447523331057,
-      1.9948044909828448
+      1.967948181164874,
+      2.027885689220657
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "identity": "projection selector skipped; same timed compute with forwarding wrapper",
+    "new_projection_paths_verified": false
+  },
+  "scored": {
+    "job": "441eb580f3074669",
+    "speedup": 1.9939563882868192,
+    "interval": [
+      1.964047042462517,
+      2.0238657341111215
     ],
     "passed": true,
-    "rank_snapshot": 149,
-    "rank_snapshot_utc": "2026-10-28T15:47:59.301571+00:00"
-  }
+    "rank_snapshot": 146,
+    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
+  },
+  "publication_support": [
+    {
+      "job": "09b34f4e921e49a6",
+      "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+      "role": "primary full check"
+    },
+    {
+      "job": "afd35730c7d3476f",
+      "role": "projection setup skipped; same retained computation"
+    },
+    {
+      "job": "50eae88b3dd744ae",
+      "role": "new projection choices empty; incumbents retained"
+    },
+    {
+      "job": "008ff9489dec46d2",
+      "role": "new output projection choice empty; incumbent retained"
+    }
+  ]
 }

@@ -1,7 +1,21 @@
-# Active October 28 objective
+# Active objective
 
-Until 4am, optimize muse_bf16_proj to get as close as possible to a top-50 placement. Do everything in the main chat only, using available knowledge and online resources. Use branches for experiments when useful and conserve the remaining account allowance.
+Get as close as possible to top 50 overall in the Open Kernel Challenge, using
+the current account and free official H200 service. Work in this main chat only
+and preserve the selected model. The user removed the original 04:00 Toronto
+deadline; the native Goal remains active, with no deadline. Top 50 is unmet.
 
-Deadline: 2026-10-28 04:00 America/Toronto / 08:00 UTC. No paid infrastructure or external model providers. The earlier 2.5x objective and October 23 deadline are superseded; their handoff is preserved in results/oct23-handoff-documents.
+The requested ordered pass MoE -> Decode -> Attention -> Prefill is complete
+with full passing coverage. Continue justified optimization, conserving checks
+and scores. Do not run blind sweeps, repeated baselines or cosmetic submissions.
+No paid infrastructure, external model routing, subagents or credential output.
 
-Status: blocked by exhausted official evaluation quotas. Best provisional rank 85 at 1.527771327x; top 50 unmet. The objective is unchanged, and no deadline extension is authorized.
+Latest snapshot: overall 146/1436 at 17:58:08 UTC October 28. Decoder publication
+441eb580f3074669 passed full 13/12/integrity at 1.993956388x. MoE remains 53rd
+at 2.348299935x. See HANDOFF.md and STATE.json for source identities, evidence,
+remaining work and per-track timestamps. No job or controller is pending.
+
+Next implement and CPU-audit the lossless six-bit MoE WGS scale layout described
+in experiments/prepared/moe_scale6_review.md before a focused official check.
+Its representation prototype is audited; GPU code and speed are unverified.
+Preserve numerical precision, exact weights, all routes/keys and fresh outputs.

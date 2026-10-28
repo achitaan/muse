@@ -1,3 +1,16 @@
+# Next MoE work - October 28, 17:58 UTC
+
+MoE remains 53/994 at 2.348299935x; exact 33114871 is checked and published.
+The decoder publication improved to 1.993956388x, overall 146/1436. No job is
+pending. Next read experiments/prepared/moe_scale6_review.md and its CPU audit.
+The lossless scale-six representation prototype passed 1,310,720 value round
+trips, exhaustive adjacent field pairs and all 256 eligibility bytes. It could
+reduce WGS weight bytes by 2.7778%, at extra decode cost. GPU code is not yet
+implemented or measured. Use original fallback for wider scales, preserve all
+precision boundaries and audit full layouts before one focused MoE check.
+
+---
+
 # Current MoE publication - October 28, 2026
 
 Scored job **b6c70c9b83724d2e** passed all 5 tests, 6 benchmarks and integrity at

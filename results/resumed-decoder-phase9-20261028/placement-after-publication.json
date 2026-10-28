@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-28T17:58:08.320902+00:00",
+  "boards": {
+    "overall": {
+      "you": {
+        "rank": 146,
+        "team": "achitaan",
+        "first": false,
+        "ahead": 145
+      },
+      "ranked": 1436,
+      "rank_50": {
+        "rank": 50,
+        "solved": 4,
+        "team": "cu788"
+      }
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 146,
+        "team": "achitaan",
+        "speedup": 1.994,
+        "first": false,
+        "ahead": 145,
+        "to_first": 1.2051
+      },
+      "ranked": 869,
+      "rank_50": {
+        "attempts": 13,
+        "job": "e8d22fb25b3a4e8b",
+        "rank": 50,
+        "speedup": 2.1438,
+        "submitted_at": 1793133144.5350077,
+        "team": "cu788",
+        "value": 10551.679254337867
+      }
+    },
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 53,
+        "team": "achitaan",
+        "speedup": 2.3483,
+        "first": false,
+        "ahead": 52,
+        "to_first": 1.1435
+      },
+      "ranked": 994,
+      "rank_50": {
+        "attempts": 7,
+        "job": "262c7268203949c6",
+        "rank": 50,
+        "speedup": 2.3539,
+        "submitted_at": 1793153876.7036498,
+        "team": "morganmcg1",
+        "value": 5713.23693694692
+      }
+    }
+  }
+}

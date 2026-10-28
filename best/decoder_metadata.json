@@ -10,7 +10,7 @@
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
-  "publication": "withheld; aggregate interval overlaps published source check",
+  "publication": "passed; one scored confirmation after primary check and three incumbent-only full trial observations",
   "published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
   "fp32_router_precision_preserved": true,
   "sliced_ffn_boundary_tokens": "1..8",
@@ -31,5 +31,35 @@
     "benchmarks": 12,
     "identity": "projection selector skipped; same timed compute with forwarding wrapper",
     "new_projection_paths_verified": false
-  }
+  },
+  "scored": {
+    "job": "441eb580f3074669",
+    "speedup": 1.9939563882868192,
+    "interval": [
+      1.964047042462517,
+      2.0238657341111215
+    ],
+    "passed": true,
+    "rank_snapshot": 146,
+    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
+  },
+  "publication_support": [
+    {
+      "job": "09b34f4e921e49a6",
+      "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+      "role": "primary full check"
+    },
+    {
+      "job": "afd35730c7d3476f",
+      "role": "projection setup skipped; same retained computation"
+    },
+    {
+      "job": "50eae88b3dd744ae",
+      "role": "new projection choices empty; incumbents retained"
+    },
+    {
+      "job": "008ff9489dec46d2",
+      "role": "new output projection choice empty; incumbent retained"
+    }
+  ]
 }

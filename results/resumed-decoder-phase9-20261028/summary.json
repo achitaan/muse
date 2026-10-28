@@ -1,0 +1,42 @@
+{
+  "source_sha256": "9f415f258c8659c16067401355562adf954b4f7a260bbdf91bc26db3f2031396",
+  "job": "008ff9489dec46d2",
+  "speedup": 2.007000100361498,
+  "interval": [
+    1.9768950988560754,
+    2.03710510186692
+  ],
+  "tests": 13,
+  "benchmarks": 12,
+  "integrity": true,
+  "prepare_s": 253.12046705,
+  "candidate_incumbent_ratio": 1.049327338263293,
+  "worst_pattern_ratio": 1.0628742053195004,
+  "max_synthetic_relative_l2": 5.528537440113723e-05,
+  "discarded": true,
+  "reason": "Single new output projection slower; no selected path",
+  "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "corrected_profile_mapping": {
+    "output_m16": {
+      "symbol_prefix": "m16trace_",
+      "us": 5.6
+    },
+    "unpooler_m16": {
+      "symbol_prefix": "dd_cap2_b_cpssm_gemv",
+      "us": 14.6
+    }
+  },
+  "profiling_lesson": "Resolve dispatch source and symbol before attributing a truncated name to a projection",
+  "publication": {
+    "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "job": "441eb580f3074669",
+    "speedup": 1.9939563882868192,
+    "interval": [
+      1.964047042462517,
+      2.0238657341111215
+    ],
+    "passed": true,
+    "rank_snapshot": 146,
+    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
+  }
+}
