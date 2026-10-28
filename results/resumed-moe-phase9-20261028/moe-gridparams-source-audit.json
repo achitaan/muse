@@ -1,0 +1,13 @@
+{
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "1613f98e749538dde707677bd268fb6d94fe39b45341147d2eaadae243067c71",
+  "packaged_bytes": 179110,
+  "changed_kernel_declarations": 1,
+  "kernel_body_bytes_unchanged": true,
+  "original_module_ast_recovered": true,
+  "parameter_member_assignments": 0,
+  "nonconst_Refs_or_pointer_aliases_to_parameter_object": 0,
+  "read_only_object_contract": "pointer pointees remain mutable; the Params object and pointer values are immutable",
+  "other_precision_weights_host_dispatch_unchanged": true,
+  "gpu_status": "unmeasured; neither parameter copying nor a speedup inferred from source alone"
+}

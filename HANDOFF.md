@@ -1,3 +1,8 @@
+> Current checkpoint: October28,18:57UTC. MoE33114871 retained:2.365437416x
+> checked,2.348299935x published. Latest three trials lost/tied and were reverted;
+> no score used. No pending job/controller. Read phase9 at the end of this file
+> and experiments/prepared/moe_register_split_review.md for next work. Goal active.
+
 # Current handoff - October 28, 2026
 
 Goal: approach top 50 overall, main chat only, no deadline. Preserve the selected
@@ -132,3 +137,28 @@ mutable. This may avoid per-thread parameter copies, but no generated-code
 or timing gain is established. See experiments/prepared/moe_gridparams_review.md.
 No pending job at this phase boundary. Expected MoE quota6checks/7scores after
 two checks since18:24; not a fresh quota API observation. Goal remains active.
+
+
+## Phase 9: grid-parameter annotation rejected (18:57 UTC)
+
+Full checke5ed457feaff4119, source1613f98e749538dde707677bd268fb6d94fe39b45341147d2eaadae243067c71,
+passed5tests/6benchmarks/integrity at2.354389959x, CI[2.319074110,2.389705809].
+No aggregate gain over retained33114871; reverted without a score. The source
+audit recovers the exact original kernel body and module AST. This experiment
+does not establish whether parameter copies were present or eliminated in SASS.
+Raw sources/profiles/results, source audit and controller history are saved in
+results/resumed-moe-phase9-20261028/. No trial from phases7..9 is published or
+transferred to Decode. Baseline remains2.365437416x checked/2.348299935x scored.
+
+Next investigation is design-only: experiments/prepared/moe_register_split_review.md.
+A complete producer warpgroup may allow explicit register redistribution, but
+compile-time resource admission, all thread roles and barrier counts need proof
+before implementation/evaluation. Keep GS2 and every original numerical path.
+Do not apply setmaxnreg to a partial producer warpgroup or mix in losing trials.
+
+All controllers are archived. No official job is pending. Three checks and
+zero scores used since18:24. Expected MoE quota5checks/7scores remaining, an
+accounting estimate rather than a fresh API observation. Overall rank remains
+the last observed146/1438 at18:24; no new placement claim. Top50Goal is active.
+Public Vjeux and LeePenkman repository HEADs still match their already-pinned
+f35a41ee andc565e373 revisions; no newer public patch was found in those repos.

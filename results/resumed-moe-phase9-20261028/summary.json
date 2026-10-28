@@ -1,0 +1,55 @@
+{
+  "job": "e5ed457feaff4119",
+  "source_sha256": "1613f98e749538dde707677bd268fb6d94fe39b45341147d2eaadae243067c71",
+  "speedup": 2.354389959303989,
+  "interval": [
+    2.319074109914429,
+    2.3897058086935488
+  ],
+  "passed": true,
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "comparisons": [
+    {
+      "bs": 1,
+      "baseline_speedup": 3.146383311095091,
+      "trial_speedup": 3.120787785777419,
+      "ratio": 0.9918650962750105
+    },
+    {
+      "bs": 16,
+      "baseline_speedup": 2.0029663645249736,
+      "trial_speedup": 2.0142470704683895,
+      "ratio": 1.0056319996896659
+    },
+    {
+      "bs": 32,
+      "baseline_speedup": 1.642387556147249,
+      "trial_speedup": 1.6177677411631055,
+      "ratio": 0.9850097409152946
+    },
+    {
+      "bs": 8,
+      "baseline_speedup": 2.2726496055914778,
+      "trial_speedup": 2.285478995971487,
+      "ratio": 1.0056451246810967
+    },
+    {
+      "bs": 128,
+      "baseline_speedup": 2.5906674179713978,
+      "trial_speedup": 2.5724248598154915,
+      "ratio": 0.9929583558162047
+    },
+    {
+      "bs": 256,
+      "baseline_speedup": 2.8745091518761363,
+      "trial_speedup": 2.848769428671744,
+      "ratio": 0.9910455240027355
+    }
+  ],
+  "decision": "discard; no aggregate gain; no claim about generated parameter copies",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
+}
