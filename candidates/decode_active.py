@@ -231,6 +231,7 @@
 # SOFTWARE.
 # 
 # 
+# Additional local change: full FP32 router/top-8 fusion for 1..8 tokens; no activation or weight quantization.
 from typing import TypedDict
 import torch
 from torch.utils.cpp_extension import load_inline
@@ -7026,12 +7027,15 @@ def kernel_fn(data, state):
   side_stream.wait_stream(main_stream)
   expert_input = _achita_dense_project(ffn_input, 'pooler', state)
   with torch.cuda.stream(side_stream):
-   if split_router:
-    logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
-    logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
+   if not split_router and tokens > 0 and (state['rf'] is not None):
+    (topk_weights, topk_ids) = _rf_route(router_input, state['rf'])
    else:
-    logits = F.linear(router_input, state['router'])
-   (topk_weights, topk_ids) = state['routing'](None, logits, TOP_K, True)
+    if split_router:
+     logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
+     logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
+    else:
+     logits = F.linear(router_input, state['router'])
+    (topk_weights, topk_ids) = state['routing'](None, logits, TOP_K, True)
   main_stream.wait_stream(side_stream)
   if not torch.cuda.is_current_stream_capturing():
    for tensor in (topk_weights, topk_ids):
@@ -7275,4 +7279,30 @@ _fpr_original_prepare = prepare
 def prepare(weights):
  state = _fpr_original_prepare(weights)
  state['fpr'] = _fpr_prepare(weights)
+ return state
+from torch.utils.cpp_extension import load_inline as _rf_load_inline
+_RF_CPP = '\n#include <torch/extension.h>\nvoid run(torch::Tensor x, torch::Tensor w, torch::Tensor bias, torch::Tensor parts,\n         torch::Tensor counter, torch::Tensor outw, torch::Tensor outi);\n'
+_RF_CUDA = "\n#include <ATen/core/Tensor.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <c10/cuda/CUDAException.h>\n#include <cuda_runtime.h>\n#include <math.h>\n#include <limits.h>\n\n// H200: 16 row tiles * 8 K splits = 128 CTAs, approximately one SM wave.\n// Each warp handles two router rows, sharing their weights across all tokens.\ntemplate<int TM>\n__global__ void route_fp32(const float* __restrict__ x, const float* __restrict__ w,\n                          const float* __restrict__ bias, volatile float* parts,\n                          unsigned int* counter, float* outw, int* outi, int M) {\n  const int tid = threadIdx.x, lane = tid & 31, warp = tid >> 5;\n  const int nb = blockIdx.x & 15, ks = blockIdx.x >> 4;\n  const int row0 = nb * 16 + warp * 2, row1 = row0 + 1;\n  float a[TM], b[TM];\n#pragma unroll\n  for (int m = 0; m < TM; ++m) a[m] = b[m] = 0.f;\n#pragma unroll\n  for (int j = 0; j < 32; ++j) {\n    const int k = ks * 1024 + j * 32 + lane;\n    const float w0 = w[(size_t)row0 * 8192 + k], w1 = w[(size_t)row1 * 8192 + k];\n#pragma unroll\n    for (int m = 0; m < TM; ++m) {\n      if (m < M) {\n        const float v = x[(size_t)m * 8192 + k];\n        a[m] = __fmaf_rn(v, w0, a[m]);\n        b[m] = __fmaf_rn(v, w1, b[m]);\n      }\n    }\n  }\n#pragma unroll\n  for (int m = 0; m < TM; ++m) {\n    if (m < M) {\n#pragma unroll\n      for (int d = 16; d > 0; d >>= 1) {\n        a[m] += __shfl_down_sync(0xffffffffu, a[m], d);\n        b[m] += __shfl_down_sync(0xffffffffu, b[m], d);\n      }\n      if (lane == 0) {\n        parts[((size_t)ks * 8 + m) * 256 + row0] = a[m];\n        parts[((size_t)ks * 8 + m) * 256 + row1] = b[m];\n      }\n    }\n  }\n  // Publish all eight producer warps' partials before this CTA's completion.\n  // Fenced stores + volatile partials follow CUDA's last-block reduction pattern:\n  // docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cpp-language-extensions.html\n  if (lane == 0) __threadfence();\n  __syncthreads();\n  __shared__ int last;\n  if (tid == 0) {\n    unsigned int old = atomicAdd(counter, 1u);\n    last = ((old & 127u) == 127u);\n  }\n  __syncthreads();\n  if (!last || warp >= M) return;\n  __threadfence();\n  // The last CTA reduces every split, then routes one token per warp. The\n  // counter advances 128 per invocation; its low seven bits safely cycle even\n  // across uint32 wrap. All consumed partials are overwritten on every call.\n  float score[8], sel[8];\n#pragma unroll\n  for (int j = 0; j < 8; ++j) {\n    const int e = lane + 32 * j;\n    float v = 0.f;\n#pragma unroll\n    for (int s = 0; s < 8; ++s) v += parts[((size_t)s * 8 + warp) * 256 + e];\n    const float z = __fmul_rn(v, 0.1767766952966369f);\n    score[j] = 1.f / (1.f + expf(-z));\n    sel[j] = score[j] + bias[e];\n  }\n  float chosen_score[8];\n  int chosen_id[8];\n  float sum = 0.f;\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    float best = -INFINITY, raw = 0.f;\n    int id = INT_MAX;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) {\n      const int e = lane + j * 32;\n      if (sel[j] > best || (sel[j] == best && e < id)) {\n        best = sel[j]; raw = score[j]; id = e;\n      }\n    }\n#pragma unroll\n    for (int d = 16; d > 0; d >>= 1) {\n      const float ob = __shfl_xor_sync(0xffffffffu, best, d);\n      const float os = __shfl_xor_sync(0xffffffffu, raw, d);\n      const int oi = __shfl_xor_sync(0xffffffffu, id, d);\n      if (ob > best || (ob == best && oi < id)) { best = ob; raw = os; id = oi; }\n    }\n    chosen_score[r] = raw; chosen_id[r] = id; sum += raw;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) if (lane + j * 32 == id) sel[j] = -INFINITY;\n  }\n  const float inv = 1.f / (sum + 1e-15f);\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    if (lane == r) {\n      outw[warp * 8 + r] = chosen_score[r] * inv;\n      outi[warp * 8 + r] = chosen_id[r];\n    }\n  }\n}\n\nvoid run(at::Tensor x, at::Tensor w, at::Tensor bias, at::Tensor parts,\n         at::Tensor counter, at::Tensor outw, at::Tensor outi) {\n  TORCH_CHECK(x.is_cuda() && x.is_contiguous() && x.scalar_type() == at::kFloat);\n  TORCH_CHECK(w.is_cuda() && w.is_contiguous() && w.scalar_type() == at::kFloat);\n  TORCH_CHECK(x.dim() == 2 && x.size(0) >= 1 && x.size(0) <= 8 && x.size(1) == 8192);\n  TORCH_CHECK(w.dim() == 2 && w.size(0) == 256 && w.size(1) == 8192);\n  const int M = (int)x.size(0);\n  auto stream = at::cuda::getCurrentCUDAStream();\n  auto* p = (volatile float*)parts.data_ptr<float>();\n  auto* c = reinterpret_cast<unsigned int*>(counter.data_ptr<int>());\n  if (M == 1) route_fp32<1><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  else route_fp32<8><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  C10_CUDA_KERNEL_LAUNCH_CHECK();\n}\n"
+_rf_ext = None
+
+def _rf_get_ext():
+ global _rf_ext
+ if _rf_ext is None:
+  _rf_ext = _rf_load_inline(name='okc_router_fp32_d5a88ed70badd431_90a', cpp_sources=_RF_CPP, cuda_sources=_RF_CUDA, functions=['run'], extra_cuda_cflags=['-O3', '-gencode=arch=compute_90a,code=sm_90a'], no_implicit_headers=True, verbose=False)
+ return _rf_ext
+
+def _rf_route(x, state):
+ x = x.contiguous()
+ outw = torch.empty((x.shape[0], 8), dtype=torch.float32, device=x.device)
+ outi = torch.empty((x.shape[0], 8), dtype=torch.int32, device=x.device)
+ state['ext'].run(x, state['weight'], state['bias'], state['parts'], state['counter'], outw, outi)
+ return (outw, outi)
+_rf_old_prepare = prepare
+
+def prepare(weights):
+ state = _rf_old_prepare(weights)
+ dev = weights['router'].device
+ state['rf'] = None
+ if torch.cuda.get_device_capability(dev)[0] == 9:
+  state['rf'] = {'ext': _rf_get_ext(), 'weight': state['router'], 'bias': weights['router_bias'].float().contiguous(), 'parts': torch.empty(8 * 8 * 256, dtype=torch.float32, device=dev), 'counter': torch.zeros(1, dtype=torch.int32, device=dev)}
  return state
