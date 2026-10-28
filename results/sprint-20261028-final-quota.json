@@ -1,0 +1,16 @@
+{
+  "name": "muse_bf16_proj",
+  "title": "Dense projections",
+  "limits": {
+    "scored": {
+      "per_day": 10,
+      "used": 10,
+      "left": 0
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 20,
+      "left": 0
+    }
+  }
+}

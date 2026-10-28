@@ -7072,3 +7072,69 @@ def kernel_fn(data: Inputs,state: dict) -> torch.Tensor:
 
 SELECTED_ROUTES=[r for r in SELECTED_ROUTES if (r['m'],r['layer']) not in {(x['m'],x['layer']) for x in V18_ROUTES}]+V18_ROUTES
 
+
+# Local experiment: retain four total K partitions, using two cooperating CTAs.
+dd_decodediet_tt_mw_CONFIGS[(32,'unpooler')] = ((32,64,2,2,2,True,2),2)
+
+# Local experiment: choose among exact WGMMA K-partition layouts.
+_achita_wg_base_prepare=prepare
+_achita_wg_base_kernel=kernel_fn
+
+
+def _achita_wg_time(fn,flush,stream,repeats=13):
+    fn();fn()
+    graph=torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph,stream=stream):fn()
+    samples=[]
+    for _ in range(repeats):
+        flush.sum()
+        begin=torch.cuda.Event(enable_timing=True);end=torch.cuda.Event(enable_timing=True)
+        begin.record();graph.replay();end.record();end.synchronize()
+        samples.append(begin.elapsed_time(end)*1000)
+    return statistics.median(samples)
+
+
+def prepare(weights):
+    state=_achita_wg_base_prepare(weights)
+    variants=[(64,1,4),(64,1,8),(64,2,4),(32,1,4),(32,2,4)]
+    device=weights['qkv_gate'].device
+    generator=torch.Generator(device=device).manual_seed(20261028)
+    flush=torch.ones(64*1024*1024,device=device,dtype=torch.float32)
+    stream=torch.cuda.Stream(device=device)
+    stream.wait_stream(torch.cuda.current_stream(device))
+    choices={}
+    with torch.cuda.stream(stream):
+        for m,layer in ((16,'qkv_gate'),(32,'qkv_gate'),(32,'unpooler')):
+            w=weights[layer];n,k=w.shape
+            x=torch.randn((m,k),device=device,dtype=torch.bfloat16,generator=generator)
+            data={'x':x,'config':{'m':m,'n':n,'k':k,'layer':layer}}
+            baseline=lambda:_achita_wg_base_kernel(data,state)
+            base_time=_achita_wg_time(baseline,flush,stream,17)
+            best=None
+            for rows,wk,split in variants:
+                cap=4 if wk==1 else 2
+                inst=(m,rows,wk,2,2,True,cap)
+                candidate=dd_decodediet_tt_mw_prepare_m32w(weights,configs={(m,layer):(inst,split)})
+                if (m,layer) not in candidate['plans']:continue
+                fn=lambda:dd_decodediet_tt_mw_run_m32w(x,layer,n,candidate)
+                latency=_achita_wg_time(fn,flush,stream)
+                print('WG_CANDIDATE',m,layer,inst,split,latency,'baseline',base_time,flush=True)
+                if best is None or latency<best[0]:best=(latency,candidate,inst,split)
+            base_time=min(base_time,_achita_wg_time(baseline,flush,stream,17))
+            if best is not None and best[0]<base_time*0.97:
+                choices[m,layer,n,k]=best[1]
+                print('WG_SELECT',m,layer,best[2],best[3],best[0],'baseline',base_time,flush=True)
+            else:print('WG_KEEP',m,layer,'baseline',base_time,'best',None if best is None else best[0],flush=True)
+    torch.cuda.current_stream(device).wait_stream(stream)
+    state['achita_wg_choices']=choices
+    return state
+
+
+def kernel_fn(data,state):
+    x,cfg=data['x'],data['config']
+    key=(x.shape[0],cfg['layer'],cfg['n'],x.shape[1])
+    choice=state['achita_wg_choices'].get(key)
+    if choice is not None:
+        y=dd_decodediet_tt_mw_run_m32w(x,cfg['layer'],cfg['n'],choice)
+        if y is not None:return y
+    return _achita_wg_base_kernel(data,state)

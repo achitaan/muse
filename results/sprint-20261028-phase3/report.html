@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <title>Codex Autoresearch Report - Get as close as possible to top 50 on muse_bf16_proj by 2026-10-28 04:00 America/Toronto, main chat only; scored phase after official check quota exhaustion</title>
+  <style>
+    :root { color-scheme: light; --ink: #172033; --muted: #647084; --line: #d7dde7; --panel: #f6f8fb; --blue: #2563eb; --green: #15803d; --red: #b42318; --amber: #a15c00; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #ffffff; color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; letter-spacing: 0; }
+    header { border-bottom: 1px solid var(--line); background: #f9fafc; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .header-inner { padding: 34px 0 30px; }
+    .product { margin: 0 0 8px; color: var(--blue); font-size: 13px; font-weight: 700; }
+    h1 { max-width: 900px; margin: 0; font-size: 30px; line-height: 1.2; font-weight: 720; overflow-wrap: anywhere; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 18px; color: var(--muted); }
+    .status { display: inline-flex; align-items: center; min-height: 28px; padding: 3px 9px; border: 1px solid currentColor; border-radius: 4px; font-weight: 700; }
+    .status.complete { color: var(--green); background: #f0fdf4; } .status.error { color: var(--red); background: #fef3f2; }
+    .status.blocked, .status.stopped { color: var(--amber); background: #fff8e7; } .status.active { color: var(--blue); background: #eff6ff; }
+    main { padding: 28px 0 44px; }
+    section { margin-top: 34px; } section:first-child { margin-top: 0; }
+    h2 { margin: 0 0 14px; font-size: 18px; line-height: 1.3; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
+    .summary-grid > div { min-width: 0; padding: 15px 16px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+    dt { color: var(--muted); font-size: 12px; } dd { margin: 5px 0 0; font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
+    .chart-shell { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px 4px; overflow: hidden; background: #fff; }
+    .metric-chart { display: block; width: 100%; height: auto; aspect-ratio: 24 / 7; }
+    .grid-line { stroke: #e7ebf1; stroke-width: 1; } .axis-line { stroke: #8993a4; stroke-width: 1; }
+    .target-line { stroke: #a15c00; stroke-width: 1.5; stroke-dasharray: 6 5; } .target-label { fill: #815000; font-size: 12px; }
+    .retained-line { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+    .retained-point { fill: #fff; stroke: var(--blue); stroke-width: 3; } .trial-point { stroke-width: 2; }
+    .trial-point.keep { fill: #dcfce7; stroke: var(--green); } .trial-point.discard { fill: #fee4e2; stroke: var(--red); }
+    .axis-label, .legend text { fill: var(--muted); font-size: 12px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+    table { width: 100%; min-width: 1060px; border-collapse: collapse; background: #fff; }
+    th { padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--panel); color: #485468; font-size: 12px; text-align: left; font-weight: 700; }
+    td { padding: 11px 12px; border-bottom: 1px solid #e8ecf2; vertical-align: top; } tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fafcff; } .numeric { text-align: right; font-variant-numeric: tabular-nums; } .retained { font-weight: 700; }
+    .description { min-width: 240px; max-width: 420px; overflow-wrap: anywhere; } .time { white-space: nowrap; color: var(--muted); font-size: 12px; }
+    .event-label { display: inline-block; min-width: 66px; padding: 2px 6px; border-radius: 4px; background: #edf1f6; color: #465268; font-size: 12px; font-weight: 700; text-align: center; }
+    .event-label.keep, .event-label.complete { color: var(--green); background: #e9f8ee; } .event-label.discard, .event-label.error { color: var(--red); background: #fdf0ef; }
+    .event-label.blocked, .event-label.stopped { color: var(--amber); background: #fff4d8; } .event-label.resumed { color: var(--blue); background: #eaf2ff; }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; overflow-wrap: anywhere; }
+    a { color: #175cd3; text-decoration-thickness: 1px; text-underline-offset: 2px; } .muted { color: #8a94a5; } .commit-separator { margin-left: 5px; color: var(--muted); font-size: 11px; }
+    .config { display: grid; grid-template-columns: 160px minmax(0, 1fr); margin: 0; border-top: 1px solid var(--line); }
+    .config dt, .config dd { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; } .config dd { font-weight: 500; overflow-wrap: anywhere; }
+    footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    @media (max-width: 760px) { .wrap { width: min(100% - 24px, 1180px); } .header-inner { padding: 24px 0; } h1 { font-size: 24px; } .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .config { grid-template-columns: 1fr; } .config dt { padding-bottom: 2px; border-bottom: 0; } .config dd { padding-top: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap header-inner">
+      <p class="product">CODEX AUTORESEARCH</p>
+      <h1>Get as close as possible to top 50 on muse_bf16_proj by 2026-10-28 04:00 America/Toronto, main chat only; scored phase after official check quota exhaustion</h1>
+      <div class="header-meta">
+        <span class="status blocked">blocked</span>
+        <span>Run <code>93d3b6846f0e</code></span>
+        <span>foreground</span>
+        <span>codex/h200-2-5x-20261028</span>
+      </div>
+    </div>
+  </header>
+  <main class="wrap">
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Run summary</h2>
+      <dl class="summary-grid">
+        <div><dt>Baseline</dt><dd>1.5217644181765482</dd></div>
+        <div><dt>Current</dt><dd>1.5277713270942548</dd></div>
+        <div><dt>Target</dt><dd>1.565</dd></div>
+        <div><dt>Iterations</dt><dd>8</dd></div>
+      </dl>
+    </section>
+    <section aria-labelledby="trajectory-heading">
+      <h2 id="trajectory-heading">Metric trajectory</h2>
+      <div class="chart-shell"><svg class="metric-chart" viewBox="0 0 960 280" role="img" aria-label="Retained and trial metric trajectory">
+  <line class="grid-line" x1="72.00" y1="28.00" x2="936.00" y2="28.00" /><line class="grid-line" x1="72.00" y1="77.00" x2="936.00" y2="77.00" /><line class="grid-line" x1="72.00" y1="126.00" x2="936.00" y2="126.00" /><line class="grid-line" x1="72.00" y1="175.00" x2="936.00" y2="175.00" /><line class="grid-line" x1="72.00" y1="224.00" x2="936.00" y2="224.00" />
+  <line class="axis-line" x1="72.00" y1="224.00" x2="936.00" y2="224.00" />
+  <line class="target-line" x1="72.00" y1="41.52" x2="936.00" y2="41.52" />
+  <polyline class="retained-line" points="72.00,113.98 180.00,113.98 288.00,104.75 396.00,103.91 504.00,103.91 612.00,103.91 720.00,103.91 828.00,103.91 936.00,103.91" />
+  <circle class="trial-point discard" cx="180.00" cy="125.09" r="6"><title>Iteration 1: 1.5151342202191378 (discard)</title></circle><circle class="trial-point keep" cx="288.00" cy="104.75" r="6"><title>Iteration 2: 1.5272707129963523 (keep)</title></circle><circle class="trial-point keep" cx="396.00" cy="103.91" r="6"><title>Iteration 3: 1.5277713270942548 (keep)</title></circle><circle class="trial-point discard" cx="504.00" cy="210.48" r="6"><title>Iteration 4: 1.4641782776534369 (discard)</title></circle><circle class="trial-point discard" cx="612.00" cy="155.24" r="6"><title>Iteration 5: 1.4971400573542974 (discard)</title></circle><circle class="trial-point discard" cx="720.00" cy="141.76" r="6"><title>Iteration 6: 1.5051860094365868 (discard)</title></circle><circle class="trial-point discard" cx="828.00" cy="117.07" r="6"><title>Iteration 7: 1.5199169415489535 (discard)</title></circle><circle class="trial-point discard" cx="936.00" cy="108.03" r="6"><title>Iteration 8: 1.5253097105096993 (discard)</title></circle>
+  <circle class="retained-point" cx="72.00" cy="113.98" r="4"><title>Iteration 0: 1.5217644181765482 retained</title></circle><circle class="retained-point" cx="180.00" cy="113.98" r="4"><title>Iteration 1: 1.5217644181765482 retained</title></circle><circle class="retained-point" cx="288.00" cy="104.75" r="4"><title>Iteration 2: 1.5272707129963523 retained</title></circle><circle class="retained-point" cx="396.00" cy="103.91" r="4"><title>Iteration 3: 1.5277713270942548 retained</title></circle><circle class="retained-point" cx="504.00" cy="103.91" r="4"><title>Iteration 4: 1.5277713270942548 retained</title></circle><circle class="retained-point" cx="612.00" cy="103.91" r="4"><title>Iteration 5: 1.5277713270942548 retained</title></circle><circle class="retained-point" cx="720.00" cy="103.91" r="4"><title>Iteration 6: 1.5277713270942548 retained</title></circle><circle class="retained-point" cx="828.00" cy="103.91" r="4"><title>Iteration 7: 1.5277713270942548 retained</title></circle><circle class="retained-point" cx="936.00" cy="103.91" r="4"><title>Iteration 8: 1.5277713270942548 retained</title></circle>
+  <text class="axis-label" x="60.00" y="45.52" text-anchor="end">1.565</text>
+  <text class="axis-label" x="60.00" y="214.48" text-anchor="end">1.4641782776534369</text>
+  <text class="target-label" x="80.00" y="33.52">Target 1.565</text>
+  <text class="axis-label" x="72.00" y="250.00">0</text>
+  <text class="axis-label" x="936.00" y="250.00" text-anchor="end">8</text>
+  <g class="legend" transform="translate(650 252)">
+    <line class="retained-line" x1="0" y1="0" x2="24" y2="0" /><text x="32" y="4">Retained</text>
+    <circle class="trial-point keep" cx="122" cy="0" r="5" /><text x="134" y="4">Keep</text>
+    <circle class="trial-point discard" cx="200" cy="0" r="5" /><text x="212" y="4">Discard</text>
+  </g>
+</svg></div>
+    </section>
+    <section aria-labelledby="history-heading">
+      <h2 id="history-heading">Experiment history</h2>
+      <div class="table-wrap" role="region" aria-label="Experiment history table" tabindex="0">
+        <table>
+          <thead><tr><th>Iter</th><th>Event</th><th>Previous</th><th>Trial</th><th>Retained</th><th>Description</th><th>Commits</th><th>Logs</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="numeric">0</td>
+              <td><span class="event-label baseline">baseline</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5217644181765482</td>
+              <td class="description">Initial measurement</td>
+              <td><span class="muted">-</span></td>
+              <td><a href="logs/0000-baseline-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:22:37Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">1</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5217644181765482</td>
+              <td class="numeric">1.5151342202191378</td>
+              <td class="numeric retained">1.5217644181765482</td>
+              <td class="description">Evaluate 256-byte L2 prefetch hints for streaming weight loads in official scored mode after check quota exhaustion; keep exact decoder and arithmetic</td>
+              <td><code title="2d46c2e425a547f4dbf07e3659377b25e77173f5">2d46c2e4</code> <span class="commit-separator">revert</span> <code title="24dc02d801e95632d966f68d12c8d13659fabdf9">24dc02d8</code></td>
+              <td><a href="logs/0001-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:25:10Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">2</td>
+              <td><span class="event-label keep">keep</span></td>
+              <td class="numeric">1.5217644181765482</td>
+              <td class="numeric">1.5272707129963523</td>
+              <td class="numeric retained">1.5272707129963523</td>
+              <td class="description">Keep four total unpooler32 K partitions but distribute them across two cooperating CTAs with two warp groups each and the same register ceiling</td>
+              <td><code title="4e0a958f11bdf3888c92b642dff182e8b66bfae2">4e0a958f</code></td>
+              <td><a href="logs/0002-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:28:27Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">3</td>
+              <td><span class="event-label keep">keep</span></td>
+              <td class="numeric">1.5272707129963523</td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Autotune exact WGMMA row tiles and cooperating K partitions for QKV16/32 and unpooler32; retain only cold-cache gains after exhaustive weight-column verification</td>
+              <td><code title="e19caa07f0157a3f5fc65cee8712e4e705df9d28">e19caa07</code></td>
+              <td><a href="logs/0003-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:33:06Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">3</td>
+              <td><span class="event-label error">error</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Metric command exited 1: C:\Users\Achita\AppData\Local\Programs\Python\Python310\python.exe scripts/measure_scored.py. Full output: C:\Users\Achita\Documents\ChatGPT\Muse 2\autoresearch-results\logs\0004-verify.json</td>
+              <td><code title="6868d36f4608d5cf45b0e325d426b94ad8a659a3">6868d36f</code> <span class="commit-separator">revert</span> <code title="d55347427cdeb9c868f5aa4799f24984e7e03d05">d5534742</code></td>
+              <td><a href="logs/0004-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:34:52Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">3</td>
+              <td><span class="event-label resumed">resumed</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Transient TLS launch failure cleared; authenticated jobs listing confirms no aligned-exponent job was accepted, latest server job is still 6131bc96427e4486</td>
+              <td><span class="muted">-</span></td>
+              <td><span class="muted">-</span></td>
+              <td class="time">2026-10-28T05:35:59Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">4</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric">1.4641782776534369</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Use aligned exponent windows and exact LOP3 decoding for QKV1 after reconciled TLS failure; preserve exact bits and four total K partitions</td>
+              <td><code title="7cdff89564904428a2cd2d22773fcd6b59539af9">7cdff895</code> <span class="commit-separator">revert</span> <code title="c16bcce6720816192e24b7feeb65ff072eec964d">c16bcce6</code></td>
+              <td><a href="logs/0004-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:38:29Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">5</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric">1.4971400573542974</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Isolate exact aligned-window LOP3 decoding to the K1024 output projection, preserving its existing warp geometry and all other kernel paths</td>
+              <td><code title="5fcb8978ceb6ea78b8bb7e210d42ffb747d7fe13">5fcb8978</code> <span class="commit-separator">revert</span> <code title="15b2fad4d8ade8ca02b3c6c4f918e4bd9648207b">15b2fad4</code></td>
+              <td><a href="logs/0005-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:42:32Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">6</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric">1.5051860094365868</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Use CUDA cluster scheduling Spread preference for existing cooperating-CTA streaming kernels without changing arithmetic, weight representation or tile geometry</td>
+              <td><code title="edb24159c078bc8e19292ada37cbeaf6abc72f0b">edb24159</code> <span class="commit-separator">revert</span> <code title="442be0f09094866b2ebb8a108c10b5ded81a3b25">442be0f0</code></td>
+              <td><a href="logs/0006-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:46:36Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">7</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric">1.5199169415489535</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Use CUDA cluster scheduling LoadBalancing preference for existing cooperating-CTA streaming kernels, preserving all data layouts and arithmetic</td>
+              <td><code title="a0062aec9a257aaa4d0537075e7525fdca448948">a0062aec</code> <span class="commit-separator">revert</span> <code title="3555c4c796677763b1153fb5dacec63fce66e9b0">3555c4c7</code></td>
+              <td><a href="logs/0007-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:50:25Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">7</td>
+              <td><span class="event-label error">error</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Metric command exited 1: C:\Users\Achita\AppData\Local\Programs\Python\Python310\python.exe scripts/measure_scored.py. Full output: C:\Users\Achita\Documents\ChatGPT\Muse 2\autoresearch-results\logs\0008-verify.json</td>
+              <td><code title="a2940eabb062bee7a51cf011aa138ee244751840">a2940eab</code> <span class="commit-separator">revert</span> <code title="21cfcaf09b100cc73f9a4ae7223dc619356d78c9">21cfcaf0</code></td>
+              <td><a href="logs/0008-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:52:48Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">7</td>
+              <td><span class="event-label resumed">resumed</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Final-upload TLS failure reconciled: no new server job after d445b98a82814ef7; quota confirms one scored run remains and API reads are healthy</td>
+              <td><span class="muted">-</span></td>
+              <td><span class="muted">-</span></td>
+              <td class="time">2026-10-28T05:53:35Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">8</td>
+              <td><span class="event-label discard">discard</span></td>
+              <td class="numeric">1.5277713270942548</td>
+              <td class="numeric">1.5253097105096993</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Final lean source and direct unpooler layout validation after reconciled upload failure, using the last free scored evaluation</td>
+              <td><code title="b1e68b53ca4bbce8204b48858f379bda9b5baf0a">b1e68b53</code> <span class="commit-separator">revert</span> <code title="3b142e08129725fdf82909608e968ae3c818c9dc">3b142e08</code></td>
+              <td><a href="logs/0008-verify.json">verify</a></td>
+              <td class="time">2026-10-28T05:56:08Z</td>
+            </tr>
+            <tr>
+              <td class="numeric">8</td>
+              <td><span class="event-label blocked">blocked</span></td>
+              <td class="numeric">-</td>
+              <td class="numeric">-</td>
+              <td class="numeric retained">1.5277713270942548</td>
+              <td class="description">Both official per-problem quotas are exhausted (20 checks and 10 scored); all jobs are terminal; the reset is after the 08:00 UTC deadline. Revalidated across three goal turns; top 50 remains unmet.</td>
+              <td><span class="muted">-</span></td>
+              <td><span class="muted">-</span></td>
+              <td class="time">2026-10-28T06:07:46Z</td>
+            </tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section aria-labelledby="config-heading">
+      <h2 id="config-heading">Configuration</h2>
+      <dl class="config">
+        <dt>Metric</dt><dd>official_h200_scored_speedup (higher is better)</dd>
+        <dt>Scope</dt><dd><code>candidates/active.py</code></dd>
+        <dt>Verify</dt><dd><code>C:\Users\Achita\AppData\Local\Programs\Python\Python310\python.exe scripts/measure_scored.py</code></dd>
+        <dt>Guard</dt><dd><code>None</code></dd>
+        <dt>Iteration limit</dt><dd>Unlimited</dd>
+      </dl>
+    </section>
+    <footer>Generated 2026-10-28T06:07:53Z from validated <code>run.json</code> and <code>events.jsonl</code>.</footer>
+  </main>
+</body>
+</html>

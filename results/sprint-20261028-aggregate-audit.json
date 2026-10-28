@@ -1,0 +1,37 @@
+{
+  "job": "6131bc96427e4486",
+  "official_speedup": 1.5277713270942548,
+  "independently_recomputed_speedup": 1.5277713270942548,
+  "loads": {
+    "decode 1": {
+      "baseline_ns": 3697183.9740872383,
+      "candidate_ns": 2210826.864907559,
+      "speedup": 1.6723082357884358
+    },
+    "decode 16": {
+      "baseline_ns": 4752671.927213669,
+      "candidate_ns": 2983857.81921742,
+      "speedup": 1.5927943672799254
+    },
+    "decode 32": {
+      "baseline_ns": 4758624.088019133,
+      "candidate_ns": 3421785.8980900855,
+      "speedup": 1.390684347222081
+    },
+    "verify 1": {
+      "baseline_ns": 4686207.998543978,
+      "candidate_ns": 2224638.7797572794,
+      "speedup": 2.106502880910522
+    },
+    "verify 16": {
+      "baseline_ns": 5305216.150358319,
+      "candidate_ns": 4075324.6348127024,
+      "speedup": 1.3017898267636148
+    },
+    "verify 32": {
+      "baseline_ns": 6335904.145613313,
+      "candidate_ns": 5061345.742888372,
+      "speedup": 1.25182203853902
+    }
+  }
+}

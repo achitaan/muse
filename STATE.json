@@ -1,11 +1,11 @@
 {
-  "snapshot_utc": "2026-10-28T05:21:10.482274+00:00",
-  "status": "active",
+  "snapshot_utc": "2026-10-28T06:07:59.460789+00:00",
+  "status": "blocked",
   "objective": "Get as close as possible to top 50 by 4 AM Toronto, main chat only",
   "deadline_utc": "2026-10-28T08:00:00Z",
   "branch": "codex/h200-2-5x-20261028",
   "best_source": "best/verified.py",
-  "best_source_sha256": "41a3c15f1f94560314f227adf718e21d4b17a03c5d58bc864e17827048c21bdf",
+  "best_source_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
   "best_check": {
     "job": "60a349bee6944644",
     "speedup": 1.5228745090040243,
@@ -15,24 +15,44 @@
     ]
   },
   "best_scored": {
-    "job": "1183fb1c393c4422",
-    "speedup": 1.5217644181765482,
+    "job": "6131bc96427e4486",
+    "speedup": 1.5277713270942548,
     "ci": [
-      1.4989379519039,
-      1.5445908844491962
+      1.504854757187841,
+      1.5506878970006686
     ],
-    "rank_snapshot": 106
+    "rank_snapshot": 85
   },
-  "rank_snapshot_utc": "2026-10-28T05:13:50Z",
-  "top50_speedup_snapshot": 1.541,
+  "rank_snapshot_utc": "2026-10-28T06:07:59.460789+00:00",
+  "top50_speedup_snapshot": 1.5448,
   "quota_snapshot": {
-    "checks_used": 20,
-    "scored_used": 2
+    "scored": {
+      "per_day": 10,
+      "used": 10,
+      "left": 0
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 20,
+      "left": 0
+    }
   },
   "upstream": {
     "repo": "NathenFernandes/muse-bf16-proj",
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "256-byte L2 prefetch hints; prior attempt did not launch because check quota was exhausted"
+  "next_trial": null,
+  "blocking_reason": "Both official per-problem daily evaluation quotas are exhausted; reset is after the user deadline",
+  "lean_source": {
+    "file": "best/lean.py",
+    "job": "a91eb48178ad42be",
+    "sha256": "c70c595b4f3ae1797f392f477266862fdd7246a4473f76d2f934177be3617d33",
+    "speedup": 1.5253097105096993,
+    "ci": [
+      1.5024300648520539,
+      1.5481893561673448
+    ]
+  },
+  "target_achieved": false
 }

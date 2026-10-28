@@ -1,29 +1,34 @@
 # Muse Open Kernel Challenge
 
 Optimization of `muse_bf16_proj` on the official remote H200 evaluator.
-Read [HANDOFF.md](HANDOFF.md) and [STATE.json](STATE.json) before continuing.
 
-## Latest verified result
+## Final October 28 checkpoint
 
-- Scored job `1183fb1c393c4422`: **1.521764x SGLang**, all 9 tests and 30 benchmarks passed.
-- Leaderboard snapshot at 05:13 UTC October 28: **106th**; rank 50 was 1.541x.
-- Exact source: `best/verified.py`; SHA256 `41a3c15f1f94560314f227adf718e21d4b17a03c5d58bc864e17827048c21bdf`.
-- Check job `60a349bee6944644`: 1.522875x, 95% interval [1.500031, 1.545718].
+- Best scored result: **1.527771x SGLang**, provisional rank **85**.
+- Rank 50 cutoff at the snapshot: **1.5448x**. Top 50 was not achieved.
+- Job `6131bc96427e4486` passed all 9 tests, 30 benchmark cases and integrity checks.
+- 95% interval: [1.504855, 1.550688]. Small point differences are not conclusive wins.
+- Exact scored source: `best/verified.py`, SHA256 `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b`.
+- Lean alternative: `best/lean.py`, independently scored at 1.525310x.
 
-The candidate derives from Nathen Fernandes' MIT-licensed v18 implementation.
-Local changes extend its exact additive decoder. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-Small point-score gains inside the judge's uncertainty interval are not conclusive performance wins.
+All **20 checks and 10 scored submissions** are used. Further H200 optimization
+is blocked by the official daily quotas; reset is after the user's 04:00 Toronto
+/ 08:00 UTC deadline. A new deadline and renewed quota are required to continue.
 
-The current user deadline is **October 28, 04:00 Toronto / 08:00 UTC**.
-Work stays in the main chat. Code editing runs locally; GPU evaluations run on the
-challenge service. No paid GPU infrastructure is provisioned.
+The implementation derives from Nathen Fernandes' MIT-licensed v18. Local work
+extended the exact additive decoder and evaluated alternative layouts. Preserve
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and embedded license notices.
 
-## Evidence and continuation
+## Reproduction and handoff
 
-- `results/sprint-20261028-evidence/manifest.json`: source hashes and raw official results.
-- `results/sprint-20261028-phase1/` and `results/sprint-20261028-phase2/`: immutable experiment controller histories.
-- `results/sprint-20261028-cpu/`: exact codec and layout checks; these are not GPU timing evidence.
-- `muse_bf16_proj/`: unmodified official task and reference material.
-- `CLOUD_PROMPT.md`: continuation prompt with the current deadline and source attribution.
+- [HANDOFF.md](HANDOFF.md) and [STATE.json](STATE.json): exact current state.
+- [CLOUD_PROMPT.md](CLOUD_PROMPT.md): continuation prompt.
+- `results/sprint-20261028-evidence/manifest.json`: full official evidence and frozen source hashes.
+- `results/sprint-20261028-phase1/`, `phase2/`, `phase3/`: controller histories.
+- `results/sprint-20261028-phase3/report.html`: standalone experiment report.
+- `results/sprint-20261028-aggregate-audit.json`: independent recomputation of the score from all 30 cases.
+- `scripts/verify_codec.py`: CPU bit-pattern checks; these do not establish GPU speed.
 
-Credentials, CLI binaries, compiler caches and local measurement caches are excluded from Git.
+Editing ran locally in the main chat; GPU measurements used the free official
+H200 service. No paid infrastructure is provisioned. Credentials and local caches
+are excluded from Git. Historical October 23 documents remain under `results/`.

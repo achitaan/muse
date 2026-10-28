@@ -1,0 +1,16 @@
+{
+  "roundtrips": [
+    {
+      "values": 65536,
+      "base": 0,
+      "exact": true
+    },
+    {
+      "values": 131072,
+      "base": 56,
+      "exact": true
+    }
+  ],
+  "all_aligned_bases_have_disjoint_bitfields": true,
+  "lop3_truth_table_verified": true
+}
