@@ -6671,42 +6671,8 @@ def kernel_fn(data, state):
     dense = state["dense"]
     # Attention: MuseSpark1xAttention.forward.
     qkv = _achita_dense_project(data["attn_input"], "qkv_gate", state)
-    if cfg["rope_theta"]:
-        q, k = state["qk_norm"](qkv, data["positions"], state["cos_sin"])
-    else:
-        q, k = state["qk_norm"](qkv)
-    v = qkv[:, hq * d + hkv * d: hq * d + 2 * hkv * d]
-    gate = qkv[:, hq * d + 2 * hkv * d:]
-    k_cache, v_cache = data["k_cache"], data["v_cache"]
-    scaled = cfg["kv_scale"] != 1.0
-    k = k.reshape(tokens, hkv * d)
-    if scaled:
-        k, v = k / data["k_scale"], v / data["v_scale"]
-    # The pool keeps FP8 rows as bytes; slot 0 is a live row here (SGLang reserves it for padding).
-    store_cache(k.to(FP8).view(torch.uint8), v.to(FP8).view(torch.uint8),
-                k_cache.view(-1, hkv * d).view(torch.uint8), v_cache.view(-1, hkv * d).view(torch.uint8),
-                data["cache_loc"], reserved_skip_index=-1)
-    window = cfg["window"]
-    descale = {}
-    if scaled:
-        descale = dict(k_descale=data["k_scale"].reshape(1, 1).expand(batch, hkv),
-                       v_descale=data["v_scale"].reshape(1, 1).expand(batch, hkv))
-    out = flash_attn_with_kvcache(
-        q=q.view(tokens, hq, d).to(FP8),
-        k_cache=k_cache,
-        v_cache=v_cache,
-        page_table=data["page_table"],
-        cache_seqlens=data["cache_seqlens"],
-        cu_seqlens_q=data["cu_seqlens_q"],
-        max_seqlen_q=length,
-        softmax_scale=cfg["sm_scale"] * cfg["qk_scale_factor"],
-        causal=True,
-        window_size=(window - 1, 0) if window else (-1, -1),
-        scheduler_metadata=data["scheduler_metadata"],
-        **descale,
-    )
-    if isinstance(out, tuple):
-        out = out[0]
+    out = _achita_decoder_attention(data, qkv)
+    gate = qkv[:, (hq + 2 * hkv) * d:]
     o = state["o_norm_gate"](out.reshape(tokens, hq * d).to(torch.bfloat16), gate)
     attn_output = _achita_dense_project(o, "o", state)  # all-reduce: identity
 
@@ -6805,3 +6771,59 @@ def prepare(weights):
     state['achita_dense'] = _achita_dense_prepare({key: weights[key] for key in
         ('qkv_gate', 'o', 'pooler', 'unpooler', 'router')})
     return state
+
+
+import math
+import triton
+import triton.language as tl
+
+@triton.jit
+def _achita_qkv_preprocess(QKV, POS, LOC, KC, VC, KS, VS, QOUT,
+                          HQ: tl.constexpr, HKV: tl.constexpr, D: tl.constexpr,
+                          STRIDE: tl.constexpr, LOG_THETA: tl.constexpr,
+                          ROPE: tl.constexpr):
+    token = tl.program_id(0)
+    head = tl.program_id(1)
+    dim = tl.arange(0, D)
+    values = tl.load(QKV + token * STRIDE + head * D + dim).to(tl.float32)
+    inv = tl.rsqrt(tl.sum(values * values, 0) / D + 1.0e-5)
+    values = values * inv
+    if ROPE:
+        other = tl.load(QKV + token * STRIDE + head * D + (dim ^ 1)).to(tl.float32) * inv
+        position = tl.load(POS + token).to(tl.float32)
+        angle = position * tl.exp((-2.0 * (dim // 2) / D) * LOG_THETA)
+        values = values * tl.cos(angle) + tl.where(dim % 2 == 0, -other, other) * tl.sin(angle)
+    # Match SGLang's BF16 Q/K normalization output before FP8 conversion.
+    values = values.to(tl.bfloat16).to(tl.float32)
+    if head < HQ:
+        tl.store(QOUT + (token * HQ + head) * D + dim, values)
+    else:
+        kv_head = head - HQ
+        slot = tl.load(LOC + token)
+        cache_offset = (slot * HKV + kv_head) * D + dim
+        tl.store(KC + cache_offset, values / tl.load(KS))
+        value = tl.load(QKV + token * STRIDE + (HQ + HKV + kv_head) * D + dim).to(tl.float32)
+        tl.store(VC + cache_offset, value / tl.load(VS))
+
+def _achita_decoder_attention(data, qkv):
+    cfg = data['config']
+    batch, length, tokens = cfg['batch'], cfg['q_len'], cfg['tokens']
+    hq, hkv, d = cfg['num_q_heads'], cfg['num_kv_heads'], cfg['head_dim']
+    q = torch.empty((tokens, hq, d), device=qkv.device, dtype=torch.float8_e4m3fn)
+    _achita_qkv_preprocess[(tokens, hq + hkv)](
+        qkv, data['positions'], data['cache_loc'], data['k_cache'], data['v_cache'],
+        data['k_scale'], data['v_scale'], q, hq, hkv, d, qkv.stride(0),
+        math.log(cfg['rope_theta']) if cfg['rope_theta'] else 0.0,
+        bool(cfg['rope_theta']), num_warps=4)
+    descale = {}
+    if cfg['kv_scale'] != 1.0:
+        descale = dict(k_descale=data['k_scale'].reshape(1, 1).expand(batch, hkv),
+                       v_descale=data['v_scale'].reshape(1, 1).expand(batch, hkv))
+    out = flash_attn_with_kvcache(
+        q=q, k_cache=data['k_cache'], v_cache=data['v_cache'],
+        page_table=data['page_table'], cache_seqlens=data['cache_seqlens'],
+        cu_seqlens_q=data['cu_seqlens_q'], max_seqlen_q=length,
+        softmax_scale=cfg['sm_scale'] * cfg['qk_scale_factor'], causal=True,
+        window_size=(cfg['window'] - 1, 0) if cfg['window'] else (-1, -1),
+        scheduler_metadata=data['scheduler_metadata'], **descale)
+    return out[0] if isinstance(out, tuple) else out
