@@ -1,4 +1,8 @@
-Resume this repository only after I provide a new deadline and official evaluation quota is available. Read HANDOFF.md, STATE.json, THIRD_PARTY_NOTICES.md and the official muse_bf16_proj/TASK.md and AGENTS.md.
+Continue toward top 50 overall, using the main chat only. The user removed the original deadline and requested whole decoder layer as the current focus, with conservative use of evaluations. Read the latest STATE.json, the resume note at the top of HANDOFF.md, THIRD_PARTY_NOTICES.md, and muse_decode_layer/TASK.md and AGENTS.md. Use checks for focused hypotheses before spending scored runs. Preserve current best sources and immutable official evidence. Inspect the active controller and existing job handles before launching anything.
+
+Attention preprocessing passed 16 tests and 12 benchmark cases at 1.120441329x in check job 89f9f7d227424d20. Exact source is best/attention_checked.py; scored job f6b899f674914ef2 was launched once and must be observed, not duplicated. Whole-layer work should first establish the supplied SGLang baseline, then assess local expert ID mapping and 32-expert sorting. The split-attention addon under experiments/prepared is unmeasured.
+
+The following describes the historical dense-projection sprint, whose original deadline is no longer the current goal deadline:
 
 The October 28 sprint used all 20 checks and 10 scored submissions. Its 04:00 Toronto / 08:00 UTC deadline must not be silently extended. Best scored job 6131bc96427e4486 passed all 9 tests, 30 benchmark cases and integrity checks at 1.527771327x, provisional rank 85; rank 50 was 1.5448x at the snapshot. Refresh live state rather than assuming those numbers remain current. Top 50 was not achieved.
 

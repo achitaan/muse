@@ -1,0 +1,200 @@
+{
+  "coverage_cases": [
+    {
+      "seq": 0,
+      "length": 1,
+      "window": 0,
+      "splits": 1
+    },
+    {
+      "seq": 0,
+      "length": 1,
+      "window": 2048,
+      "splits": 1
+    },
+    {
+      "seq": 0,
+      "length": 8,
+      "window": 0,
+      "splits": 1
+    },
+    {
+      "seq": 0,
+      "length": 8,
+      "window": 2048,
+      "splits": 1
+    },
+    {
+      "seq": 10,
+      "length": 1,
+      "window": 0,
+      "splits": 1
+    },
+    {
+      "seq": 10,
+      "length": 1,
+      "window": 2048,
+      "splits": 1
+    },
+    {
+      "seq": 10,
+      "length": 8,
+      "window": 0,
+      "splits": 1
+    },
+    {
+      "seq": 10,
+      "length": 8,
+      "window": 2048,
+      "splits": 1
+    },
+    {
+      "seq": 2047,
+      "length": 1,
+      "window": 0,
+      "splits": 1
+    },
+    {
+      "seq": 2047,
+      "length": 1,
+      "window": 2048,
+      "splits": 2
+    },
+    {
+      "seq": 2047,
+      "length": 8,
+      "window": 0,
+      "splits": 2
+    },
+    {
+      "seq": 2047,
+      "length": 8,
+      "window": 2048,
+      "splits": 3
+    },
+    {
+      "seq": 5000,
+      "length": 1,
+      "window": 0,
+      "splits": 3
+    },
+    {
+      "seq": 5000,
+      "length": 1,
+      "window": 2048,
+      "splits": 2
+    },
+    {
+      "seq": 5000,
+      "length": 8,
+      "window": 0,
+      "splits": 3
+    },
+    {
+      "seq": 5000,
+      "length": 8,
+      "window": 2048,
+      "splits": 3
+    },
+    {
+      "seq": 80000,
+      "length": 1,
+      "window": 0,
+      "splits": 40
+    },
+    {
+      "seq": 80000,
+      "length": 1,
+      "window": 2048,
+      "splits": 2
+    },
+    {
+      "seq": 80000,
+      "length": 8,
+      "window": 0,
+      "splits": 40
+    },
+    {
+      "seq": 80000,
+      "length": 8,
+      "window": 2048,
+      "splits": 3
+    },
+    {
+      "seq": 100000,
+      "length": 1,
+      "window": 0,
+      "splits": 49
+    },
+    {
+      "seq": 100000,
+      "length": 1,
+      "window": 2048,
+      "splits": 2
+    },
+    {
+      "seq": 100000,
+      "length": 8,
+      "window": 0,
+      "splits": 49
+    },
+    {
+      "seq": 100000,
+      "length": 8,
+      "window": 2048,
+      "splits": 3
+    },
+    {
+      "seq": 1048576,
+      "length": 1,
+      "window": 0,
+      "splits": 513
+    },
+    {
+      "seq": 1048576,
+      "length": 1,
+      "window": 2048,
+      "splits": 2
+    },
+    {
+      "seq": 1048576,
+      "length": 8,
+      "window": 0,
+      "splits": 513
+    },
+    {
+      "seq": 1048576,
+      "length": 8,
+      "window": 2048,
+      "splits": 3
+    }
+  ],
+  "softmax_merge_cases": [
+    {
+      "keys": 1,
+      "max_absolute_error": 0.0
+    },
+    {
+      "keys": 63,
+      "max_absolute_error": 0.0
+    },
+    {
+      "keys": 64,
+      "max_absolute_error": 1.6653345369377348e-16
+    },
+    {
+      "keys": 65,
+      "max_absolute_error": 1.6653345369377348e-16
+    },
+    {
+      "keys": 2047,
+      "max_absolute_error": 2.42861286636753e-16
+    },
+    {
+      "keys": 4099,
+      "max_absolute_error": 2.914335439641036e-16
+    }
+  ],
+  "gpu_correctness_verified": false,
+  "h200_speedup_measured": false
+}

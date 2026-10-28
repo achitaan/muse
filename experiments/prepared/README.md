@@ -1,0 +1,1 @@
+The attention split addon is an unmeasured hypothesis, to append to the fused attention candidate. Its CPU partition/softmax model passed; CUDA compilation, GPU correctness and runtime have not been tested. Do not promote it to a verified best.

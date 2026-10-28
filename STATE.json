@@ -1,8 +1,8 @@
 {
   "snapshot_utc": "2026-10-28T06:07:59.460789+00:00",
-  "status": "blocked",
+  "status": "active",
   "objective": "Get as close as possible to top 50 by 4 AM Toronto, main chat only",
-  "deadline_utc": "2026-10-28T08:00:00Z",
+  "deadline_utc": null,
   "branch": "codex/h200-2-5x-20261028",
   "best_source": "best/verified.py",
   "best_source_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
@@ -42,8 +42,8 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": null,
-  "blocking_reason": "Both official per-problem daily evaluation quotas are exhausted; reset is after the user deadline",
+  "next_trial": "Whole-decoder-layer SGLang baseline, then fuse local expert ID mapping and bound sorting to 32 local experts.",
+  "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
     "job": "a91eb48178ad42be",
@@ -54,5 +54,14 @@
       1.5481893561673448
     ]
   },
-  "target_achieved": false
+  "target_achieved": false,
+  "active_track": "muse_decode_layer",
+  "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
+  "attention_checked": {
+    "job": "89f9f7d227424d20",
+    "source": "best/attention_checked.py",
+    "sha256": "481e472af7daac9e079547ad3b15614596e6cc650b23c4ac2486013dfc314bc0",
+    "speedup": 1.1204413294897262,
+    "scored_job_pending": "f6b899f674914ef2"
+  }
 }
