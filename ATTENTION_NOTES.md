@@ -4,8 +4,8 @@ Best check: **2.589760797x**, job `ea693135be544501`, all 16 tests,
 12 benchmarks and integrity checks passed. Interval: [2.550914385, 2.640640588].
 Exact source: `best/attention_checked.py`; SHA256
 `b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4`.
-One scored publication is pending: `20524d06e3894595`. Observe this handle;
-do not launch another copy.
+Scored publication `20524d06e3894595` passed at **2.562402309x**.
+Do not repeat it for timing noise.
 
 The candidate derives from Vjeux's Apache-2.0 implementation at
 https://github.com/vjeux/okc-2026/tree/f35a41ee1c13e316dabbf772830d47b23b453393.

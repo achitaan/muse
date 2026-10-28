@@ -9,7 +9,7 @@ ATTENTION_NOTES.md, THIRD_PARTY_NOTICES.md and the problem TASK.md/AGENTS.md.
 Attention check ea693135be544501 passed 16 tests and 12 benchmarks at
 2.589760797x. Exact source best/attention_checked.py, SHA256
 b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4.
-Scored attention job 20524d06e3894595 is already running: observe, never duplicate.
+Scored attention job 20524d06e3894595 passed at 2.562402309x; never duplicate.
 Decoder scored 88f8b06932fa43b7 passed at 1.172780190x. MoE scored
 650aa66fd3334d8c passed at 1.268508633x. Dense 6131bc96427e4486 passed at
 1.527771327x and both daily quotas are exhausted. Top 50 overall remains unmet.

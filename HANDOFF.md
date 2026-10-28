@@ -16,7 +16,7 @@ Reuse exact frozen sources and existing official job handles after timeouts.
 | Dense | best/verified.py; scored 6131bc96427e4486, 1.527771327x; both daily quotas exhausted |
 | MoE | best/moe_verified.py; scored 650aa66fd3334d8c, 1.268508633x |
 | Whole decoder | best/decoder_verified.py; scored 88f8b06932fa43b7, 1.172780190x |
-| Attention | best/attention_checked.py; check ea693135be544501, 2.589760797x; scored 20524d06e3894595 pending |
+| Attention | best/attention_checked.py; check ea693135be544501, 2.589760797x; scored 20524d06e3894595 passed, 2.562402309x |
 | Prefill | No GPU evaluation yet; official TASK says it does not count toward overall |
 
 MoE preserves pinned SGLang's FP32 post-norm intermediates. Do not restore the

@@ -10,7 +10,7 @@ fully checked candidates.
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
 | MoE W4A16 | 1.268509x scored | Saved; 7 checks and 1 scored run used |
 | Whole decoder layer | 1.172780x scored | Saved |
-| Attention decode | 2.589761x checked | One scored publication pending |
+| Attention decode | 2.562402x scored | Saved |
 | Prefill layer | No run yet | Last in the requested order |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall

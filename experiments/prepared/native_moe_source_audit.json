@@ -1,0 +1,19 @@
+{
+  "upstream_commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+  "upstream_sha256": "4950dd2ae07e4ca19399ddb7cc9ab7e3b77e4ac8e3174960ed1a1476e9701eda",
+  "source_sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "rounding_sites": {
+    "r[h] * gsc": 2,
+    "r[2 + h] * gsc": 2,
+    "s0 * gsc": 4,
+    "s1 * gsc": 4,
+    "(h ? sm.y : sm.x) * gsc": 3,
+    "(h ? sm.w : sm.z) * gsc": 3,
+    "d4[h] * gsc": 1,
+    "d4[2 + h] * gsc": 1
+  },
+  "cuda_upstream_sha256": "18e7de001e26f44eed941caf2350d50927bd6772dfc9e28a7a57764184b25593",
+  "cuda_modified_sha256": "842c13d256e60a8571ed1bf5a3e7d3c5851c782201effba360568b240d92a16f",
+  "gpu_status": "unmeasured",
+  "contract": "sequential shared scratch"
+}

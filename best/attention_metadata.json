@@ -9,11 +9,19 @@
   ],
   "tests": 16,
   "benchmarks": 12,
-  "scored_job_pending": "20524d06e3894595",
   "upstream": {
     "repo": "vjeux/okc-2026",
     "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
     "license": "Apache-2.0"
   },
-  "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported."
+  "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported.",
+  "scored": {
+    "job": "20524d06e3894595",
+    "speedup": 2.5624023087539505,
+    "interval": [
+      2.523966274122641,
+      2.6141994378600057
+    ],
+    "passed": true
+  }
 }

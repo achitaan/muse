@@ -4,7 +4,7 @@
 
 User requested fewer checks and runs. Reuse cached evidence and require a
 material expected gain before another GPU experiment. Read ATTENTION_NOTES.md:
-attention checks at 2.589760797x; scored job 20524d06e3894595 is pending.
+attention checks at 2.589760797x; scored job 20524d06e3894595 passed at 2.562402309x.
 Whole decoder scored at 1.172780190x; MoE at 1.268508633x. Dot's precision review
 has arrived and is incorporated. Prefill remains last and does not count toward
 overall. Native Goal remains active; the attention controller is archived.
