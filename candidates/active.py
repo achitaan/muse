@@ -4489,7 +4489,7 @@ def tt_v14_qkv_qbig_mma(n):
     regs = ','.join((f'%{i}' for i in range(n // 2)))
     outs = ','.join((f'"+f"(a[{i}])' for i in range(n // 2)))
     return f'__device__ __forceinline__ void q_mma_{n}(float* a,uint64_t x,uint64_t w) {{\n      asm volatile("wgmma.mma_async.sync.aligned.m64n{n}k16.f32.bf16.bf16 {{{regs}}}, %{n // 2}, %{n // 2 + 1}, 1, 1, 1, 0, 0;" : {outs} : "l"(x),"l"(w));\n    }}'
-tt_v14_qkv_QKVBIG_CUDA = _zsrc('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')
+tt_v14_qkv_QKVBIG_CUDA = _zsrc("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")
 
 def tt_v14_qkv_build_qkv(configs, profile=False):
     ns = sorted({c[0] for c in configs} | {c[2] for c in configs if c[5] & 8})
@@ -4505,19 +4505,17 @@ def tt_v14_qkv_build_qkv(configs, profile=False):
     cpp = '#include <pybind11/pybind11.h>\n#include <stdint.h>\nint qb_launch(int,int64_t,int64_t,int64_t,int,int64_t,int,int64_t);'
     return load_inline('qbig_' + hashlib.sha256(source.encode()).hexdigest()[:16], cpp, cuda_sources=source, functions=['qb_launch'], no_implicit_headers=True, with_pytorch_error_handling=False, verbose=False, extra_cuda_cflags=['-O3', '-std=c++20', '-gencode=arch=compute_90a,code=sm_90a', '--ptxas-options=-v'])
 
-def tt_v14_qkv_qbig_pack(w,groups,kt=1):
-    # Each group owns whole eight-weight output vectors. Padding never becomes output.
-    if kt==2:
-        rows=(2304+groups-1)//groups
-        return w.view(groups,rows,128,64).permute(0,2,1,3).contiguous().reshape(-1,64)
-    rows=8*((288+groups-1)//groups)
-    if 2304%groups==0 and rows==2304//groups:
+def tt_v14_qkv_qbig_pack(w, groups, kt=1):
+    rows = (2304 + groups - 1) // groups
+    if kt == 2:
+        return w.view(groups, rows, 128, 64).permute(0, 2, 1, 3).contiguous().reshape(-1, 64)
+    if 2304 % groups == 0:
         return w.contiguous()
-    out=torch.zeros((groups,rows,8192),dtype=torch.bfloat16,device=w.device)
-    for group in range(groups):
-        lo=8*(group*288//groups);hi=8*((group+1)*288//groups)
-        out[group,:hi-lo].copy_(w[lo:hi])
-    return out.reshape(-1,8192)
+    out = torch.zeros((groups, rows, 8192), dtype=torch.bfloat16, device=w.device)
+    for g in range(groups):
+        lo, hi = (g * 2304 // groups, (g + 1) * 2304 // groups)
+        out[g, :hi - lo].copy_(w[lo:hi])
+    return out.reshape(-1, 8192)
 
 def tt_v14_qkv_prepare_qbig_candidates(weights, configs, profile=False):
     w = weights['qkv_gate']
@@ -7074,69 +7072,3 @@ def kernel_fn(data: Inputs,state: dict) -> torch.Tensor:
 
 SELECTED_ROUTES=[r for r in SELECTED_ROUTES if (r['m'],r['layer']) not in {(x['m'],x['layer']) for x in V18_ROUTES}]+V18_ROUTES
 
-
-# Local extension: balance QKV128 clusters across Hopper SMs.
-_achita_qkv_base_prepare=prepare
-_achita_qkv_base_kernel=kernel_fn
-
-
-def _achita_qkv_time(fn,flush,stream,repeats=15):
-    fn();fn()
-    graph=torch.cuda.CUDAGraph()
-    with torch.cuda.graph(graph,stream=stream):fn()
-    samples=[]
-    for _ in range(repeats):
-        flush.sum()
-        begin=torch.cuda.Event(enable_timing=True);end=torch.cuda.Event(enable_timing=True)
-        begin.record();graph.replay();end.record();end.synchronize()
-        samples.append(begin.elapsed_time(end)*1000)
-    return statistics.median(samples)
-
-
-def prepare(weights):
-    state=_achita_qkv_base_prepare(weights)
-    configs=[(64,g,128,3,8,539,5) for g in (40,42,44)]
-    trial=tt_v14_qkv_prepare_qbig_candidates(weights,configs)
-    device=weights['qkv_gate'].device
-    generator=torch.Generator(device=device).manual_seed(20261028)
-    x=torch.randn((128,8192),device=device,dtype=torch.bfloat16,generator=generator)
-    x[0].zero_();x[0,8192//3]=2
-    reference=torch.mm(x.double(),weights['qkv_gate'].double().T)
-    denominator=torch.linalg.vector_norm(reference)
-    data={'x':x,'config':{'m':128,'n':2304,'k':8192,'layer':'qkv_gate'}}
-    flush=torch.ones(64*1024*1024,device=device,dtype=torch.float32)
-    stream=torch.cuda.Stream(device=device)
-    stream.wait_stream(torch.cuda.current_stream(device))
-    best=None
-    with torch.cuda.stream(stream):
-        baseline=lambda:_achita_qkv_base_kernel(data,state)
-        base_time=_achita_qkv_time(baseline,flush,stream)
-        alternatives=[(trial,i) for i in range(len(configs))]
-        alternatives += [(state['v14_qkv'],i) for i in (1,2)]
-        for st,index in alternatives:
-            fn=lambda:tt_v14_qkv_run_qbig_candidate(x,st,index)
-            y=fn()
-            error=float(torch.linalg.vector_norm(y.double()-reference)/denominator)
-            probe=float(torch.linalg.vector_norm(y[0].double()-reference[0])/torch.linalg.vector_norm(reference[0]))
-            if not bool(torch.isfinite(y).all()) or error>1e-2 or probe>1e-3:
-                print('QKV_REJECT',st['configs'][index],error,probe,flush=True)
-                continue
-            latency=_achita_qkv_time(fn,flush,stream)
-            print('QKV_CANDIDATE',st['configs'][index],latency,'baseline',base_time,flush=True)
-            if best is None or latency<best[0]:best=(latency,st,index)
-        base_time=min(base_time,_achita_qkv_time(baseline,flush,stream))
-    torch.cuda.current_stream(device).wait_stream(stream)
-    state['achita_qkv_choice']=None
-    if best is not None and best[0]<base_time*0.97:
-        state['achita_qkv_choice']=(best[1],best[2])
-        print('QKV_SELECT',best[1]['configs'][best[2]],best[0],'baseline',base_time,flush=True)
-    else:print('QKV_KEEP','baseline',base_time,'best',None if best is None else best[0],flush=True)
-    return state
-
-
-def kernel_fn(data,state):
-    x,cfg=data['x'],data['config']
-    choice=state['achita_qkv_choice']
-    if choice is not None and cfg['layer']=='qkv_gate' and cfg['n']==2304 and tuple(x.shape)==(128,8192) and x.is_contiguous() and x.data_ptr()%16==0:
-        return tt_v14_qkv_run_qbig_candidate(x,choice[0],choice[1])
-    return _achita_qkv_base_kernel(data,state)
