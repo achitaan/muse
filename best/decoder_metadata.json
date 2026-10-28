@@ -1,25 +1,30 @@
 {
   "source": "best/decoder_verified.py",
-  "sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
-  "checked_job": "2f41872843fe4490",
-  "checked_speedup": 1.8155117849527829,
+  "sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+  "checked_job": "7f5007bdf0784a65",
+  "checked_speedup": 1.8854569714393394,
   "checked_interval": [
-    1.788279108178491,
-    1.8427444617270745
+    1.8571751168677493,
+    1.9137388260109294
   ],
   "tests": 13,
   "benchmarks": 12,
-  "fp32_router_preserved": true,
-  "upstream": {
-    "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
-    "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
-  },
+  "integrity": true,
+  "fp32_router_precision_preserved": true,
+  "router_implementation": "FP32 native FMA/top-8 at 1..8 tokens; original F.linear retained as fallback",
+  "pooler_router_fused_tokens": "9..32",
+  "shared_workspace_contract": "sequential calls",
+  "publication_comparison_source_sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+  "publication_comparison_checked_interval": [
+    1.788279108178491,
+    1.8427444617270745
+  ],
   "scored": {
-    "job": "95bbfd2c81224715",
-    "speedup": 1.8046413706935582,
+    "job": "e5b95129043d442d",
+    "speedup": 1.8748899907066205,
     "interval": [
-      1.777571750133155,
-      1.8317109912539615
+      1.8467666408460213,
+      1.9030133405672196
     ],
     "passed": true
   }

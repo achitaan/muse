@@ -1,28 +1,5 @@
-Continue the active Goal toward top 50 overall, in this main chat only.
-Read HANDOFF.md, STATE.json, per-track NOTES and official TASK.md/AGENTS.md.
-All five tracks now have complete passing coverage in the requested order.
-Current overall placement snapshot is 221; top 50 remains unmet. Dense scores
-1.527771327x, MoE 2.312613084x, Decode 1.804641371x and Attention 2.562402309x.
-Prefill checks at 1.639290758x; scored job 23e7c8b4c3e54869 is already pending.
-Observe that handle; never duplicate it. Prefill does not count toward overall.
+Continue the active Goal: get as close as possible to top 50 overall. Work in this main chat only, preserve the current selected model and conserve official runs.
 
-The Prefill controller is archived; no experiment controller is active. Next
-review experiments/prepared/decoder_fused_pr_review.md before another GPU run:
-fused lossless pooler/router for 8<T<=32. Preserve the full FP32 router path
-for T<=8 and all existing numerical boundaries. The draft hypothesis is not
-implemented or measured. User wants fewer checks: no blind parameter sweeps,
-repeated baselines or frequent quota queries. Use profiles and material gains.
+Read HANDOFF.md, STATE.json, DECODE_NOTES.md and the other per-track notes before changing anything. The current published Decode result is 1.874889991x, job e5b95129043d442d, with full 13/12 coverage. Overall rank was 193 at 15:05 UTC October 28; top 50 is unmet. Every requested track has a passing publication; no scored job or experiment controller is pending.
 
-Use only the current account and free official H200 service. No subagents,
-paid GPUs, external providers, tokens in output or global mutations. Retain
-Apache/MIT licenses, original weight formats, fresh inputs, every route/key,
-cache writes and all residual outputs. Reuse cached evidence, initialize one
-scope at a time, and publish full evidence at phase boundaries. Never edit
-controller journals manually or mark the overall Goal complete for a local
-phase target. Latest exact sources and hashes are in best/ and STATE.json.
-
-Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
-The next decoder fusion draft has passed its bitwise codec/layout and Python
-binding audit, but GPU correctness and speed remain unmeasured. One check
-will test 9..32-token fusion. Preserve the complete FP32 small-token router.
-Publish only if the checked gain exceeds measurement uncertainty.
+Next investigate the remaining MoE/whole-layer profile for a material improvement. Reuse cached baselines, retain exact source hashes, preserve FP32 small-token router precision, BF16 expert boundaries, all routes/keys and outputs. Use only the current account and free official H200 service. No subagents, paid providers, credential output, global mutations or blind sweeps. Initialize one scoped phase for experiments; never edit its journals. Preserve Apache/MIT notices and publish full evidence at phase boundaries.

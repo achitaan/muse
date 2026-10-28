@@ -123,7 +123,7 @@ def prepare(weights):
 '''
 setup = setup.replace('okc_fpr_HASH_', 'okc_fpr_' + hashlib.sha256(cuda.encode()).hexdigest()[:16] + '_')
 
-decoder = (root / 'best/decoder_verified.py').read_text(encoding='utf-8')
+decoder = (root / 'results/resumed-decoder-phase3-20261028/53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024/submission.py').read_text(encoding='utf-8')
 start = '    side_stream.wait_stream(main_stream)\n'
 end = '    # This GPU\'s experts start at local_start:'
 assert decoder.count(start) == 1 and decoder.count(end) == 1
@@ -143,16 +143,62 @@ notice = ('# Additional fused pooler/router from Vjeux, Apache-2.0, revision\n'
 combined = (first + '\n' + notice + rest + '\n\n_fpr_CUDA = ' + repr(cuda) +
             '\n_fpr_CPP = ' + repr('#include <torch/extension.h>\n' + values['bfp_CPP_SRC']) +
             '\n_fpr_GEOMETRIES = ' + repr(geometries) + '\n' + helpers + setup)
+expanded_bytes = len(combined.encode())
+# The CLI caps a submission at 1 MB. Remove duplicate Python documentation,
+# retain one full copy of both licenses, and shorten indentation. All actual
+# program AST nodes and every CUDA literal remain unchanged.
+assert '__doc__' not in combined
+class StripDocs(ast.NodeTransformer):
+    def clean(self, node):
+        self.generic_visit(node)
+        if (node.body and isinstance(node.body[0], ast.Expr)
+                and isinstance(node.body[0].value, ast.Constant)
+                and isinstance(node.body[0].value.value, str)):
+            node.body.pop(0)
+        if not node.body: node.body = [ast.Pass()]
+        return node
+    visit_Module = clean
+    visit_FunctionDef = clean
+    visit_ClassDef = clean
+parsed = ast.parse(combined)
+cuda_before = [n.value for n in ast.walk(parsed) if isinstance(n, ast.Constant)
+               and isinstance(n.value, str) and '#include' in n.value]
+parsed = StripDocs().visit(parsed)
+ast.fix_missing_locations(parsed)
+lines = []
+for line in ast.unparse(parsed).splitlines():
+    n = len(line) - len(line.lstrip(' '))
+    assert n % 4 == 0
+    lines.append(' ' * (n // 4) + line[n:])
+body = '\n'.join(lines) + '\n'
+assert ast.dump(ast.parse(body)) == ast.dump(parsed)
+cuda_after = [n.value for n in ast.walk(ast.parse(body)) if isinstance(n, ast.Constant)
+              and isinstance(n.value, str) and '#include' in n.value]
+assert cuda_before == cuda_after
+mit = (root / 'THIRD_PARTY_NOTICES.md').read_text(encoding='utf-8').split('MIT License', 1)[1].split('## Native attention source', 1)[0]
+apache = (root / 'licenses/vjeux-Apache-2.0.txt').read_text(encoding='utf-8')
+header = ('# okc: problem=muse_decode_layer\n'
+          '# Vjeux okc-2026, Apache-2.0, f35a41ee1c13e316dabbf772830d47b23b453393.\n'
+          '# NathenFernandes/muse-bf16-proj, MIT, 7385e5d8f70980cfd5322ea254edc0b2b8ca90f7.\n'
+          '# Local changes: decoder integration/cache lifetime, strict BF16 MoE boundaries,\n'
+          '# fused pooler/router only at 9..32 tokens. Original FP32 small-token router\n'
+          '# and all fallback computation retained. Shared scratch requires sequential replay.\n'
+          '# Python metadata/formatting compacted for 1 MB cap; CUDA literals unchanged.\n')
+header += '\n'.join('# ' + x for x in (apache + '\nMIT License' + mit).splitlines()) + '\n'
+combined = header + body
+assert len(combined.encode()) < 1_000_000
 compile(combined, '<decoder-fused-pr>', 'exec')
-assert 'F.linear(router_input, state["router"])' in combined
+assert "F.linear(router_input, state['router'])" in combined
 out = root / '.tools/decoder-fused-pr-variant.py'
 out.write_bytes(combined.encode())
 (root / '.tools/decoder-fused-pr-cuda.cu').write_text(cuda)
 audit = {'source_sha256': hashlib.sha256(combined.encode()).hexdigest(),
-         'base_sha256': hashlib.sha256((root / 'best/decoder_verified.py').read_bytes()).hexdigest(),
+         'base_sha256': hashlib.sha256((root / 'results/resumed-decoder-phase3-20261028/53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024/submission.py').read_bytes()).hexdigest(),
          'cuda_sha256': hashlib.sha256(cuda.encode()).hexdigest(),
          'geometries': geometries, 'enabled_tokens': '9..32, public shape dispatch',
          'small_token_fp32_router': 'original full path preserved',
          'workspace': 'eager allocation; sequential replay', 'gpu_status': 'unmeasured'}
+audit.update(expanded_bytes=expanded_bytes, packaged_bytes=len(combined.encode()),
+             program_ast_preserved_except_docstrings=True, cuda_literals_unchanged=True)
 (root / '.tools/decoder-fused-pr-source-audit.json').write_text(json.dumps(audit, indent=2))
 print(json.dumps(audit))

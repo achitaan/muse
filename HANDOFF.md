@@ -1,48 +1,42 @@
 # Current handoff - October 28, 2026
 
-Goal: approach top 50 overall in this main chat only. No deadline. Conserve
-checks and scored runs: no blind sweeps, repeat baselines or frequent quota
-queries. The requested ordered pass (MoE, Decode, Attention, Prefill last) now
-has complete passing coverage on every track. Overall Goal is still active.
+Goal: approach top 50 overall in this main chat only. No deadline. Conserve checks
+and scored runs: no blind sweeps, repeated baselines or frequent quota queries.
+The requested pass (MoE, Decode, Attention, Prefill last) is complete, with full
+passing coverage on every track. The overall Goal remains active and top 50 unmet.
 
-| Track | Latest verified result |
-|---|---|
-| Dense | 1.527771327x scored, 6131bc96427e4486; both daily quotas exhausted |
-| MoE | 2.312613084x scored, b4a10b76347e4cb0 |
-| Decode | 1.804641371x scored, 95bbfd2c81224715 |
-| Attention | 2.562402309x scored, 20524d06e3894595 |
-| Prefill | 1.639290758x checked, 9ca79c7f676f4b63; scored 23e7c8b4c3e54869 passed, 1.663469245x |
+| Track | Published speedup | Place at 15:05 UTC | Job |
+| --- | ---: | ---: | --- |
+| Dense | 1.527771327x | 97/1242 | 6131bc96427e4486 |
+| MoE | 2.312613084x | 108/991 | b4a10b76347e4cb0 |
+| Decode | 1.874889991x | 193/866 | e5b95129043d442d |
+| Attention | 2.562402309x | 80/945 | 20524d06e3894595 |
+| Prefill | 1.663469245x | 122/573 | 23e7c8b4c3e54869 |
 
-Latest overall snapshot: rank 221 after the new MoE/decoder scores. Top 50 is
-unmet. Prefill is excluded from overall placement by its official TASK.
-Read STATE.json, all per-track NOTES.md, THIRD_PARTY_NOTICES.md and relevant
-TASK.md/AGENTS.md. best/ holds exact source bytes and metadata; results/ holds
-full official evidence and immutable controller histories.
+Overall: 193/1427. Prefill is excluded from overall by its official TASK.
+All scored jobs above are terminal and passing. No pending publication.
+No experiment controller is active; phase4 Decode is archived and exported.
 
-The first Prefill phase reached its local 1.5x threshold and is archived;
-this does not complete the overall Goal. No experiment controller is active.
-Observe existing Prefill scored job 23e7c8b4c3e54869 without duplication. Next
-source-review hypothesis is experiments/prepared/decoder_fused_pr_review.md:
-fused lossless pooler/router for 8<T<=32, supported by current decoder profile.
-Keep the entire original FP32 router-input path for T<=8. Do not adopt a public
-whole-layer pipeline wholesale or infer performance from another author's score.
+Read STATE.json, per-track NOTES.md, THIRD_PARTY_NOTICES.md and applicable
+TASK.md/AGENTS.md. best/ holds exact measured source bytes and metadata; results/
+holds full official records, profiles, frozen sources and controller histories.
+The latest decoder combines fused pooler/router for 9..32 tokens and full-FP32
+router/top-8 for 1..8. Original F.linear is retained as fallback. See DECODE_NOTES.md
+for numerical boundaries, exact hashes, CPU audits and clone reproduction.
 
-Current sources preserve BF16 GEMM/global-scale boundaries, BF16 effective norm
-weights, FP32 norm intermediates, every route/key and all residual outputs.
-Native decoder shared scratch requires sequential calls. Preserve dense MIT and
-native Apache notices. No output/input caching, harness/timing changes, dropped
-routes/keys or persistent BF16 expert expansion. Dot's precision review is in
-MOE_NOTES.md and retained in current sources.
+Next: inspect profiles for a material MoE improvement. Do not spend a run on a
+weak tile sweep. Current expert weights remain exact NVFP4; BF16 GEMM/global-scale
+boundaries and effective norm weights are preserved, with FP32 norm arithmetic.
+Keep every route/key, fresh input, cache write and residual output. Shared native
+scratch requires sequential calls. No output caching or persistent BF16 expansion.
 
-Use the signed-in account and free official H200 service only. No subagents,
-paid GPUs, external providers, global configuration changes or token output.
-Initialize a scoped phase before further trials, reuse cached baselines, retain
-job handles across observation failures, and publish evidence at phase boundaries.
-Never hand-edit controller journals. One decoder upload failed TLS; official jobs
-were reconciled before a successful retry. Complete raw evidence is preserved.
+Use only the existing account and free official H200 service. No subagents, paid
+GPUs, external providers, global configuration changes or credential output.
+Dense's last observed daily quotas were exhausted. Check other quotas only when
+needed. Initialize one scoped experiment phase before trials, reuse cached
+baselines, and preserve job handles after observation failures. Never hand-edit
+controller journals. Commit and push complete evidence at phase boundaries.
 
-Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
-The next decoder fusion draft has passed its bitwise codec/layout and Python
-binding audit, but GPU correctness and speed remain unmeasured. One check
-will test 9..32-token fusion. Preserve the complete FP32 small-token router.
-Publish only if the checked gain exceeds measurement uncertainty.
+Pinned public sources: Vjeux/okc-2026 f35a41ee1c13e316dabbf772830d47b23b453393
+(Apache-2.0), NathenFernandes/muse-bf16-proj
+7385e5d8f70980cfd5322ea254edc0b2b8ca90f7 (MIT). Preserve all embedded notices.

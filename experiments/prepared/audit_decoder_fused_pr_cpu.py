@@ -76,7 +76,7 @@ for a, off in [(hi, 0), (lo, 1024)]:
     got = undo_tileunits(rr[..., off:off + 1024].contiguous().view(torch.bfloat16), 256)
     assert torch.equal(got.view(torch.int16), a.view(torch.int16))
 
-baseline = ast.parse((root / 'best/decoder_verified.py').read_text(encoding='utf-8'))
+baseline = ast.parse((root / 'results/resumed-decoder-phase3-20261028/53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024/submission.py').read_text(encoding='utf-8'))
 old_fn = next(n for n in baseline.body if isinstance(n, ast.FunctionDef) and n.name == 'kernel_fn')
 new_fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kernel_fn')
 branch = next(n for n in new_fn.body if isinstance(n, ast.If) and ast.unparse(n.test) == "8 < tokens <= 32 and state['fpr'] is not None")

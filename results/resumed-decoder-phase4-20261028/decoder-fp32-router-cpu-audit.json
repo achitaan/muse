@@ -1,0 +1,12 @@
+{
+  "source_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+  "seed": 20261028,
+  "manufactured_cases": 5,
+  "max_logit_error_vs_fp64": 2.807057665421553e-06,
+  "max_route_weight_error_vs_fp64": 2.7109305078543144e-08,
+  "coverage_row_k_pairs": 2097152,
+  "counter_wrap_verified": true,
+  "global_bindings_checked": 1995,
+  "gpu_status": "unmeasured",
+  "memory_contract": "fenced volatile partials, last-block reduction; sequential calls"
+}

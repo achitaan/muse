@@ -64,4 +64,4 @@ The new decoder hypothesis extracts Vjeux's same Apache revision's sk2 fused
 pooler/router path. Original native arithmetic is retained; only 9..32 tokens
 use it, while all other shapes retain the previously checked path. Local
 changes isolate compilation, check lossless fallback/workspace bounds, and
-eagerly allocate shared control buffers. No GPU result exists for this draft.
+eagerly allocate shared control buffers. The component passed whole-layer checks and publication in phase4; see DECODE_NOTES.md. The additional full-FP32 small-token router/top-8 kernel is a local implementation.

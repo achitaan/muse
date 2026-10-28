@@ -1,0 +1,12 @@
+{
+  "source_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+  "base_sha256": "bd3fad49244f5ce6f1d9ce598a69593dcd9c81bd7dc3113c5bd5387db981a848",
+  "packaged_bytes": 984265,
+  "enabled_tokens": "1..8",
+  "router_inputs_weights_accumulation": "FP32",
+  "grid": "16 row tiles x 8 K splits = 128 blocks",
+  "partial_storage": "8 x 8 x 256 FP32 values; every consumed entry rewritten",
+  "counter": "uint32 advances 128 per invocation; last = low seven bits all one",
+  "fallback_ast_identical": true,
+  "gpu_status": "unmeasured"
+}

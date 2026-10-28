@@ -1,0 +1,12 @@
+{
+  "source_sha256": "bd3fad49244f5ce6f1d9ce598a69593dcd9c81bd7dc3113c5bd5387db981a848",
+  "seed": 20261028,
+  "bf16_pooler_values_recovered": 524288,
+  "escapes_checked": 83,
+  "router_hi_lo_values_recovered": 4194304,
+  "streams_bijective": true,
+  "entire_original_else_path_unchanged": true,
+  "global_bindings_checked": 1986,
+  "factory_reuse_and_cpp_headers": true,
+  "gpu_status": "unmeasured"
+}

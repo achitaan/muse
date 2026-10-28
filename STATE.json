@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One profile-backed fused pooler/router check for 9..32 tokens; retain exact old fallback for all other shapes and FP32 small-token router.",
+  "next_trial": "Profile-guided MoE investigation; avoid blind sweeps and repeat baselines.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -143,26 +143,31 @@
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
-    "sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
-    "checked_job": "2f41872843fe4490",
-    "checked_speedup": 1.8155117849527829,
+    "sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+    "checked_job": "7f5007bdf0784a65",
+    "checked_speedup": 1.8854569714393394,
     "checked_interval": [
-      1.788279108178491,
-      1.8427444617270745
+      1.8571751168677493,
+      1.9137388260109294
     ],
     "tests": 13,
     "benchmarks": 12,
-    "fp32_router_preserved": true,
-    "upstream": {
-      "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
-      "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
-    },
+    "integrity": true,
+    "fp32_router_precision_preserved": true,
+    "router_implementation": "FP32 native FMA/top-8 at 1..8 tokens; original F.linear retained as fallback",
+    "pooler_router_fused_tokens": "9..32",
+    "shared_workspace_contract": "sequential calls",
+    "publication_comparison_source_sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+    "publication_comparison_checked_interval": [
+      1.788279108178491,
+      1.8427444617270745
+    ],
     "scored": {
-      "job": "95bbfd2c81224715",
-      "speedup": 1.8046413706935582,
+      "job": "e5b95129043d442d",
+      "speedup": 1.8748899907066205,
       "interval": [
-        1.777571750133155,
-        1.8317109912539615
+        1.8467666408460213,
+        1.9030133405672196
       ],
       "passed": true
     }
@@ -177,20 +182,20 @@
     "passed": true
   },
   "overall_placement_snapshot": {
-    "utc": "2026-10-28T13:37:24.220613+00:00",
+    "utc": "2026-10-28T15:05:01.624465+00:00",
     "you": {
-      "rank": 221,
+      "rank": 193,
       "team": "achitaan",
       "first": false,
-      "ahead": 220
+      "ahead": 192
     }
   },
   "decoder_scored": {
-    "job": "95bbfd2c81224715",
-    "speedup": 1.8046413706935582,
+    "job": "e5b95129043d442d",
+    "speedup": 1.8748899907066205,
     "interval": [
-      1.777571750133155,
-      1.8317109912539615
+      1.8467666408460213,
+      1.9030133405672196
     ],
     "passed": true
   },
@@ -230,74 +235,105 @@
     ],
     "passed": true
   },
-  "publication_gate": "Publish fused decoder only if correctness passes and its checked interval lower endpoint exceeds the retained checked interval upper endpoint.",
+  "publication_gate": "Compare the combined candidate against the currently published source, not an unsubmitted intermediate variant. Full correctness and nonoverlapping checked intervals are required.",
   "track_placement_snapshot": {
-    "utc": "2026-10-28T13:55:03.534056+00:00",
+    "utc": "2026-10-28T15:05:01.624465+00:00",
     "boards": {
       "overall": {
         "you": {
-          "rank": 221,
+          "rank": 193,
           "team": "achitaan",
           "first": false,
-          "ahead": 220
+          "ahead": 192
         },
-        "ranked": 1426
+        "ranked": 1427
       },
       "muse_bf16_proj": {
         "you": {
-          "rank": 96,
+          "rank": 97,
           "team": "achitaan",
           "speedup": 1.5278,
           "first": false,
-          "ahead": 95,
+          "ahead": 96,
           "to_first": 1.0713
         },
-        "ranked": 1239
+        "ranked": 1242
       },
       "muse_moe_w4a16": {
         "you": {
-          "rank": 107,
+          "rank": 108,
           "team": "achitaan",
           "speedup": 2.3126,
           "first": false,
-          "ahead": 106,
+          "ahead": 107,
           "to_first": 1.1612
         },
-        "ranked": 988
+        "ranked": 991
       },
       "muse_decode_layer": {
         "you": {
-          "rank": 221,
+          "rank": 193,
           "team": "achitaan",
-          "speedup": 1.8046,
+          "speedup": 1.8749,
           "first": false,
-          "ahead": 220,
-          "to_first": 1.3315
+          "ahead": 192,
+          "to_first": 1.2816
         },
-        "ranked": 862
+        "ranked": 866
       },
       "muse_attention_decode": {
         "you": {
-          "rank": 79,
+          "rank": 80,
           "team": "achitaan",
           "speedup": 2.5624,
           "first": false,
-          "ahead": 78,
+          "ahead": 79,
           "to_first": 1.1831
         },
-        "ranked": 942
+        "ranked": 945
       },
       "muse_prefill_layer": {
         "you": {
-          "rank": 118,
+          "rank": 122,
           "team": "achitaan",
           "speedup": 1.6635,
           "first": false,
-          "ahead": 117,
+          "ahead": 121,
           "to_first": 1.2204
         },
-        "ranked": 570
+        "ranked": 573
       }
+    }
+  },
+  "decoder_published": {
+    "source": "best/decoder_published.py",
+    "sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+    "checked_job": "7f5007bdf0784a65",
+    "checked_speedup": 1.8854569714393394,
+    "checked_interval": [
+      1.8571751168677493,
+      1.9137388260109294
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "fp32_router_precision_preserved": true,
+    "router_implementation": "FP32 native FMA/top-8 at 1..8 tokens; original F.linear retained as fallback",
+    "pooler_router_fused_tokens": "9..32",
+    "shared_workspace_contract": "sequential calls",
+    "publication_comparison_source_sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+    "publication_comparison_checked_interval": [
+      1.788279108178491,
+      1.8427444617270745
+    ],
+    "scored": {
+      "job": "e5b95129043d442d",
+      "speedup": 1.8748899907066205,
+      "interval": [
+        1.8467666408460213,
+        1.9030133405672196
+      ],
+      "passed": true
     }
   }
 }

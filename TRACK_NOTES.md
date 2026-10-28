@@ -152,3 +152,18 @@ Publish only if its checked interval excludes the retained interval.
 | Prefill | 118 / 570 |
 
 Read-only board queries; no evaluation quotas were spent.
+
+## Placement snapshot 2026-10-28T15:05:01.624465+00:00
+
+Read-only official leaderboard queries; no evaluation runs consumed.
+
+| Track | Place | Speedup |
+| --- | --- | --- |
+| Overall | 193 / 1427 | - |
+| Dense | 97 / 1242 | 1.5278x |
+| MoE | 108 / 991 | 2.3126x |
+| Decode layer | 193 / 866 | 1.8749x |
+| Attention | 80 / 945 | 2.5624x |
+| Prefill | 122 / 573 | 1.6635x |
+
+Decode now appears at 1.8749x on the leaderboard. Retrieve the already-launched scored job e5b95129043d442d for full result evidence; do not resubmit.
