@@ -150,3 +150,46 @@ def kernel_fn(data, state):
     return fused_post_expert_norm_weighted_sum(
         y, topk_weights, norm_weight=state["norm_w"], eps=POST_NORM_EPS, weight_first=True,
         slot_expert_ids=local_ids)
+
+# Fuse the small-batch per-expert post norm and weighted sum. Larger batches
+# retain the already-fused SGLang implementation.
+import triton
+import triton.language as tl
+
+
+@triton.jit
+def _achita_moe_small_finalize(Y, WEIGHT, NORM, IDS, OUT,
+                              H: tl.constexpr, K: tl.constexpr,
+                              EPS: tl.constexpr, BK: tl.constexpr):
+    token = tl.program_id(0)
+    expert = tl.arange(0, BK)
+    dim = tl.arange(0, H)
+    ids = tl.load(IDS + token * K + expert, mask=expert < K, other=-1)
+    active = (expert < K) & (ids >= 0)
+    values = tl.load(Y + (token * K + expert[:, None]) * H + dim[None, :],
+                     mask=active[:, None], other=0).to(tl.float32)
+    norm = tl.load(NORM + dim).to(tl.float32)
+    # SGLang applies the effective BF16 norm weight before normalizing.
+    scaled = (values * norm[None, :]).to(tl.bfloat16).to(tl.float32)
+    inv = tl.rsqrt(tl.sum(scaled * scaled, 1) / H + EPS)
+    weights = tl.load(WEIGHT + token * K + expert, mask=active, other=0)
+    result = tl.sum(scaled * (inv * weights)[:, None], 0)
+    tl.store(OUT + token * H + dim, result)
+
+
+_achita_original_finalize = fused_post_expert_norm_weighted_sum
+
+
+def fused_post_expert_norm_weighted_sum(y, topk_weights, norm_weight=None,
+                                        eps=1e-8, weight_first=False,
+                                        slot_expert_ids=None):
+    if (y.shape[0] <= 16 and y.shape[2] == 4096 and y.shape[1] == 8
+            and weight_first and norm_weight is not None and slot_expert_ids is not None):
+        result = torch.empty((y.shape[0], y.shape[2]), device=y.device, dtype=y.dtype)
+        _achita_moe_small_finalize[(y.shape[0],)](
+            y, topk_weights, norm_weight, slot_expert_ids, result,
+            y.shape[2], y.shape[1], eps, 8, num_warps=8)
+        return result
+    return _achita_original_finalize(y, topk_weights, norm_weight=norm_weight,
+                                     eps=eps, weight_first=weight_first,
+                                     slot_expert_ids=slot_expert_ids)
