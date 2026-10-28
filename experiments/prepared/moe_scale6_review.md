@@ -1,7 +1,8 @@
 # Next MoE hypothesis: lossless scale-byte compression
 
-This is a CPU-audited representation prototype, not an implemented GPU kernel
-or measured speedup. Retain 33114871 as the verified/published MoE source.
+This began as a CPU-audited representation prototype. A GPU candidate is now
+implemented and CPU-audited as described below; its GPU correctness and speed
+remain unverified. Retain 33114871 as the verified/published MoE source.
 The native CUDA is extracted for inspection in .tools/moe-current-inspect.cu.
 Its original source/license and the DQ8 modifications must remain intact.
 
@@ -56,3 +57,33 @@ sizes, shared-memory bases, compile variants, binding/factory consistency and
 the original BF16/FP32 precision guard. Require full MoE 5/6/integrity and clear
 evidence the compressed WGS path was enabled; unchanged fallback-only timing
 cannot be retained as an optimization. One fixed encoding, no geometry sweep.
+
+## Implemented candidate, GPU unmeasured
+
+build_moe_scale6.py produces source
+4d91bbd6d6dc8043ee96c20b07b6afaf5a6156567c53a15b1a99a23ab3b305f0,
+179916 bytes, from immutable 33114871. It follows the WGS-only boundary above.
+Its ledger reverses every CUDA edit to recover the entire original string.
+Reversing just the enumerated host setup, pack and factory-name edits recovers
+the entire original Python AST. kernel_fn is unchanged. Full licenses remain.
+
+audit_moe_scale6_cpu.py checks complete 8192-row gate/up and 4096-row output
+banks, plus a permuted 512-row bank. It independently recovers 3,276,800 original
+FP8 scale bytes, compares 26,214,400 unchanged NVFP4 code bytes, and verifies
+byte-identical fallback. All 256 predicate inputs are exhausted. CPU spies of
+the actual prepare function confirm agreement between chosen packs, PRMT/S6
+flags and main/fallback variants, with four compiled variants in every case.
+The real factory, using a fake loader, reuses each format/variant key without
+crossing modules. The original BF16 GEMM/FP32 norm guard passes structurally.
+
+NVIDIA documents the exact hi:lo right-funnel semantics used by the load helper:
+https://docs.nvidia.com/cuda/archive/12.5.0/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__INT.html
+Only shifts zero and sixteen normalize the loaded packet; the pair crossing
+word boundaries uses shift24. Scalar shared loads retain four-byte alignment.
+Compile-time assertions protect PRMT-domain and WGS layout alignment.
+
+The evidence guard requires full official 5/6/integrity and a true
+MOE_SCALE6_WGS diagnostic from prepare. One full H200 check is planned, using
+the cached 2.365437416x baseline. Nine MoE checks and seven scored runs remained
+at 18:08:22 UTC. No synthetic selector or tile sweep is added to this candidate.
+No scored publication is planned without a material measured improvement.
