@@ -1,3 +1,43 @@
+# Latest MoE check - October 28, 2026, phase4
+
+Checked source best/moe_verified.py: SHA256
+`331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50`.
+Check d600231c8a8244cb passed all 5 tests, 6 benchmarks and integrity at
+**2.365437416x**, CI [2.329955855,2.400918977]. This is not the published score.
+The interval overlaps the prior source's check upper bound 2.334294331,
+so no scored run was spent. best/moe_published.py retains dd6049cb and the
+2.312613084x publication b4a10b76347e4cb0. The published decoder still embeds
+that older MoE implementation; no uncertain standalone gain was transferred.
+
+Two measured changes: paired BF16 epilogues (375685be8be14e1b) passed at
+2.318616664x, CI [2.283837414,2.353395914]. Pairing retains the BF16 accumulator,
+BF16 global-scale and RN-even BF16 product boundaries, followed by FP32 norm
+arithmetic. All 1,566,720 products in the independent CPU audit matched analytical
+FP64 RN-even rounding, including signed zeros, subnormals and overflow.
+
+The second change uses Lee Penkman's exact eight-operation FP4 placement and a
+matching prepare-time bijection of all 32 packed bits. It changes representation
+only: same NVFP4 bit count, no requantization, same BF16 fragments, scales,
+routing, reductions and norm math. CPU audits checked 1,048,576 codes and 65,536
+scale bytes across MMA, natural-K, fat, unit and WGS layouts. All 256 possible
+inputs to the masked multiply were enumerated, proving no carry interference
+in its selected output bits. Source inversions recover all original native
+CUDA except the explicitly changed helpers. GPU speed is established by the
+full check, not by source-level operation counting.
+
+Provenance: native Vjeux source remains pinned f35a41ee; exact placement derives
+from lee101/openkernels c565e373d34575c5f7df862b05f8be7619078b0f, Apache-2.0,
+copyright 2026 Lee Penkman. The pinned root had no NOTICE file. Full Apache
+license and additional attribution are retained in the source and notices.
+
+Evidence: results/resumed-moe-phase4-20261028/. Builders and CPU audits are in
+experiments/prepared/ and read immutable baseline sources. The controller is
+archived, no job is pending, and the overall Goal remains active. This phase
+used two checks, no repeated baseline and no scored submission. Further work
+needs a material hypothesis; do not spend a run merely to chase interval noise.
+
+---
+
 # Next MoE hypothesis - paired epilogue, GPU unmeasured
 
 Prepared source 6862c3a54429fb4149e7fd78f63b24db71d70648a1947172826ea7f134082409

@@ -1,0 +1,14 @@
+{
+  "source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "base_sha256": "6862c3a54429fb4149e7fd78f63b24db71d70648a1947172826ea7f134082409",
+  "changed_components": [
+    "dq4",
+    "_stored_pos",
+    "extension cache tag",
+    "attribution"
+  ],
+  "source_inverse_exact": true,
+  "rounding_reductions_routing_unchanged": true,
+  "weight_format": "same number of NVFP4 bits; lossless permutation only",
+  "gpu_status": "unmeasured"
+}

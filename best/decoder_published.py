@@ -7031,8 +7031,10 @@ def kernel_fn(data, state):
     (topk_weights, topk_ids) = _rf_route(router_input, state['rf'])
    else:
     if split_router:
-     logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
-     logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
+     logits = _achita_wide_router(ffn_input, state)
+     if logits is None:
+      logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
+      logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
     else:
      logits = F.linear(router_input, state['router'])
     (topk_weights, topk_ids) = state['routing'](None, logits, TOP_K, True)
@@ -7040,8 +7042,8 @@ def kernel_fn(data, state):
   if not torch.cuda.is_current_stream_capturing():
    for tensor in (topk_weights, topk_ids):
     tensor.record_stream(main_stream)
- local_ids = (topk_ids - data['local_start']) % N_EXPERTS
- expert_output = _experts(state['pre_expert_norm'](expert_input), topk_weights, local_ids, state)
+ expert_input, local_ids = _pn_expert_inputs(expert_input, topk_ids, data['local_start'], state)
+ expert_output = _experts(expert_input, topk_weights, local_ids, state)
  if tokens <= SLICED_UNPOOL_MAX_TOKENS:
   unpooled = _achita_dense_project(expert_output, 'unpooler', state, UNPOOL_SLICE)
   ffn_output = F.pad(unpooled, (0, HIDDEN - UNPOOL_SLICE))
@@ -7306,3 +7308,51 @@ def prepare(weights):
  if torch.cuda.get_device_capability(dev)[0] == 9:
   state['rf'] = {'ext': _rf_get_ext(), 'weight': state['router'], 'bias': weights['router_bias'].float().contiguous(), 'parts': torch.empty(8 * 8 * 256, dtype=torch.float32, device=dev), 'counter': torch.zeros(1, dtype=torch.int32, device=dev)}
  return state
+
+"""Fuse pre-expert RMSNorm and global-to-local route rotation."""
+import triton as _pn_triton
+import triton.language as _pn_tl
+
+
+@_pn_triton.jit
+def _pn_inputs_kernel(X, Gain, Ids, Start, Out, LocalIds,
+                      XStride: _pn_tl.constexpr, IdStride: _pn_tl.constexpr,
+                      H: _pn_tl.constexpr, Eps: _pn_tl.constexpr,
+                      Block: _pn_tl.constexpr):
+    row = _pn_tl.program_id(0)
+    col = _pn_tl.arange(0, Block)
+    x = _pn_tl.load(X + row * XStride + col, col < H, 0).to(_pn_tl.float32)
+    gain = _pn_tl.load(Gain + col, col < H, 0).to(_pn_tl.float32)
+    inv = _pn_tl.rsqrt(_pn_tl.sum(x * x, 0) / H + Eps)
+    y = (x * inv) * gain
+    _pn_tl.store(Out + row * H + col, y, col < H)
+    slot = _pn_tl.arange(0, 8)
+    ids = _pn_tl.load(Ids + row * IdStride + slot).to(_pn_tl.int32)
+    start = _pn_tl.load(Start).to(_pn_tl.int32)
+    # Positive modulus 256 is exactly a low-eight-bit mask, including negatives.
+    _pn_tl.store(LocalIds + row * 8 + slot, (ids - start) & 255)
+
+
+def _pn_expert_inputs(x, ids, local_start, state):
+    rows, hidden = x.shape
+    gain = state['pre_expert_norm']._get_effective_weight()
+    assert x.dtype == gain.dtype == torch.bfloat16 and hidden == 4096
+    out = torch.empty((rows, hidden), dtype=x.dtype, device=x.device)
+    local_ids = torch.empty(ids.shape, dtype=torch.int32, device=ids.device)
+    if rows:
+        _pn_inputs_kernel[(rows,)](
+            x, gain, ids, local_start, out, local_ids, x.stride(0), ids.stride(0),
+            hidden, RMS_EPS, _pn_triton.next_power_of_2(hidden), num_warps=4,
+            enable_fp_fusion=False)
+    return out, local_ids
+
+
+def _achita_wide_router(x, state):
+    # Both existing arms use dynamic M, masked stores and TMA boundary checks.
+    # Keep the full FP32 small-token router and the 9..32 fusion unchanged.
+    if x.shape[0] <= 32 or x.dtype != torch.bfloat16 or not x.is_contiguous() or x.data_ptr() % 16:
+        return None
+    rw = state['achita_dense'].get('bundle', {}).get('rw', {})
+    if not rw.get('enabled') or x.device != rw['weight'].device:
+        return None
+    return rw_run_routerwide_candidate(x, rw, 128 if x.shape[0] <= 128 else 256)

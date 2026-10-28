@@ -9,7 +9,7 @@ fully checked candidates.
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
 | MoE W4A16 | 2.312613x scored | Saved |
-| Whole decoder layer | 1.874890x scored | Saved |
+| Whole decoder layer | 1.965325x scored | Saved |
 | Attention decode | 2.562402x scored | Saved |
 | Prefill layer | 1.663469x scored | Saved |
 
@@ -37,10 +37,14 @@ Native attention attribution and full Apache license are preserved. See
 assumptions and exact evidence. User requested fewer checks and submissions;
 remaining quota is capacity, not a reason to launch weak experiments.
 
-Latest overall placement snapshot: **193**, at 15:05 UTC October 28 after the latest
+Latest overall placement snapshot: **149**, at 15:47:59 UTC October 28 after the latest
 decoder improvement. Top 50 remains unmet. All five requested tracks now have
 complete passing coverage. See PREFILL_NOTES.md; its scored job passed at 1.663469245x.
 
 Latest decoder check: **1.968554229x**, full 13/12 coverage; scored job
-02fd620987114785 is pending. The table above retains the last completed scores.
+02fd620987114785 passed at **1.965324622x**.
 See DECODE_NOTES.md for phase5 fusion and wide-router transfer evidence.
+
+MoE has a newer **2.365437416x check**, with full coverage, saved separately
+from its 2.312613084x publication. Its uncertainty overlaps the earlier check,
+so no scored run or decoder transfer was spent. See MOE_NOTES.md.

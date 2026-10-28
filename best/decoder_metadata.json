@@ -10,7 +10,6 @@
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
-  "scored_job_pending": "02fd620987114785",
   "fp32_router_precision_preserved": true,
   "pooler_router_fused_tokens": "9..32",
   "expert_input_normalization_and_rotation_fused": true,
@@ -21,5 +20,16 @@
   "publication_comparison_checked_interval": [
     1.8571751168677493,
     1.9137388260109294
-  ]
+  ],
+  "scored": {
+    "job": "02fd620987114785",
+    "speedup": 1.9653246216579754,
+    "interval": [
+      1.9358447523331057,
+      1.9948044909828448
+    ],
+    "passed": true,
+    "rank_snapshot": 149,
+    "rank_snapshot_utc": "2026-10-28T15:47:59.301571+00:00"
+  }
 }

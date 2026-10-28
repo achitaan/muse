@@ -5,21 +5,27 @@ and scored runs: no blind sweeps, repeated baselines or frequent quota queries.
 The requested pass (MoE, Decode, Attention, Prefill last) is complete, with full
 passing coverage on every track. The overall Goal remains active and top 50 unmet.
 
-| Track | Published speedup | Place at 15:05 UTC | Job |
+| Track | Published speedup | Last observed place | Job |
 | --- | ---: | ---: | --- |
 | Dense | 1.527771327x | 97/1242 | 6131bc96427e4486 |
 | MoE | 2.312613084x | 108/991 | b4a10b76347e4cb0 |
-| Decode | 1.874889991x | 193/866 | e5b95129043d442d |
+| Decode | 1.965324622x | 149/869 | 02fd620987114785 |
 | Attention | 2.562402309x | 80/945 | 20524d06e3894595 |
 | Prefill | 1.663469245x | 122/573 | 23e7c8b4c3e54869 |
 
-Overall: 193/1427. Prefill is excluded from overall by its official TASK.
-All scored jobs in the table are terminal and passing. New decoder check
-34131378611b46ab passed at 1.968554229x; scored job **02fd620987114785** is pending.
-Observe that handle without duplication. Its source is best/decoder_verified.py,
-a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d.
-best/decoder_published.py remains the earlier passing 660f4ac5 source.
-No experiment controller is active; phase5 Decode is archived and exported.
+Overall: 149/1428 at 15:47:59 UTC. Prefill is excluded from overall by its official TASK.
+All publications in the table are terminal and passing. Latest decoder publication
+02fd620987114785 passed at 1.965324622x; checked source a61735ee and published
+source are identical. Overall and Decode rank were 149 at 15:47:59 UTC; Decode's
+50th-place score was 2.139x. All other per-track places in the table are the older
+15:05 snapshot. No job or experiment controller is pending; decoder phase5 and
+MoE phase4 are archived and exported.
+
+MoE now has a newer standalone full passing check at 2.365437416x (d600231c8a8244cb,
+33114871 source), using paired BF16 epilogues and exact DQ8 bit placement. Its
+interval overlaps the prior check, so it was not scored or transferred to the
+decoder. best/moe_verified.py holds this check; best/moe_published.py holds the
+2.312613084x publication. Preserve that distinction and do not publish on noise.
 
 Read STATE.json, per-track NOTES.md, THIRD_PARTY_NOTICES.md and applicable
 TASK.md/AGENTS.md. best/ holds exact measured source bytes and metadata; results/
@@ -28,8 +34,8 @@ The latest decoder combines fused pooler/router for 9..32 tokens and full-FP32
 router/top-8 for 1..8. Original F.linear is retained as fallback. See DECODE_NOTES.md
 for numerical boundaries, exact hashes, CPU audits and clone reproduction.
 
-Next: collect the pending scored result, then inspect native MoE epilogue pairing
-for a material improvement. Phase5 fused expert input normalization/ID rotation
+Next: inspect profiles for a material native MoE/whole-layer improvement; the
+paired epilogue and DQ8 trials are already checked. Phase5 fused expert input normalization/ID rotation
 and transferred the already-prepared wide router above 32 tokens. No new CUDA
 payloads or precision changes were introduced. Do not spend a run on a
 weak tile sweep. Current expert weights remain exact NVFP4; BF16 GEMM/global-scale

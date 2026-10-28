@@ -1,3 +1,18 @@
+# Latest decoder publication - October 28, 2026
+
+Scored job **02fd620987114785** passed all 13 tests, 12 benchmarks and integrity
+at **1.965324622x**, CI [1.935844752,1.994804491]. Exact a61735ee source is in
+both best/decoder_verified.py and best/decoder_published.py. Overall placement
+was **149/1428**, and Decode **149/869**, at 15:47:59 UTC. The current Decode
+50th-place score was 2.139x; top 50 remains unmet. No decoder job is pending.
+Full evidence and placement snapshot are in results/resumed-decoder-phase5-20261028/.
+
+The pending-publication statements in the historical checkpoint below are now
+superseded by this passing result. MoE's later standalone 2.365437416x check has
+not been scored or transferred; the decoder's embedded MoE remains dd6049cb.
+
+---
+
 # Latest decoder check - October 28, 2026, phase5
 
 Checked source: best/decoder_verified.py, SHA256

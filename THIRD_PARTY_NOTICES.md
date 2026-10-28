@@ -65,3 +65,16 @@ pooler/router path. Original native arithmetic is retained; only 9..32 tokens
 use it, while all other shapes retain the previously checked path. Local
 changes isolate compilation, check lossless fallback/workspace bounds, and
 eagerly allocate shared control buffers. The component passed whole-layer checks and publication in phase4; see DECODE_NOTES.md. The additional full-FP32 small-token router/top-8 kernel is a local implementation.
+
+
+## Exact NVFP4 bit placement
+
+The newer checked MoE source adapts the eight-operation FP4 placement from
+Lee Penkman, lee101/openkernels commit
+c565e373d34575c5f7df862b05f8be7619078b0f, under Apache-2.0.
+Copyright 2026 Lee Penkman. The complete Apache license already retained in
+licenses/vjeux-Apache-2.0.txt and embedded in the submission also covers this
+component. No NOTICE file was present in the pinned root. Local changes derive
+the matching 32-bit packing bijection, integrate it with the native MoE, and
+retain the corrected BF16 epilogues and FP32 norm arithmetic.
+Source: https://github.com/lee101/openkernels/blob/c565e373d34575c5f7df862b05f8be7619078b0f/muse_moe_w4a16/submission.py

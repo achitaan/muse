@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-28T15:47:59.301571+00:00",
+  "boards": {
+    "overall": {
+      "you": {
+        "rank": 149,
+        "team": "achitaan",
+        "first": false,
+        "ahead": 148
+      },
+      "ranked": 1428,
+      "rank_50": {
+        "rank": 50,
+        "solved": 4,
+        "team": "alygg77"
+      }
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 149,
+        "team": "achitaan",
+        "speedup": 1.9653,
+        "first": false,
+        "ahead": 148,
+        "to_first": 1.2227
+      },
+      "ranked": 869,
+      "rank_50": {
+        "attempts": 7,
+        "job": "3282d08730524f21",
+        "rank": 50,
+        "speedup": 2.139,
+        "submitted_at": 1793197292.8935144,
+        "team": "alygg77",
+        "value": 10575.346954575129
+      }
+    }
+  }
+}

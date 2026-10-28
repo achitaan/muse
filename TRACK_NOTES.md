@@ -177,3 +177,15 @@ Both have full 13-test/12-benchmark/integrity coverage. Only the combined source
 was published: job 02fd620987114785 pending. Do not duplicate. Exact evidence is
 in results/resumed-decoder-phase5-20261028; current checked source a61735ee and
 previous published source 660f4ac5 are separate in best/. Top 50 remains unmet.
+
+
+## Phase boundary, 15:52 UTC October 28
+
+Decoder publication 02fd620987114785 passed at 1.965324622x. Overall rank improved
+from 193 to 149 (149/1428), Decode 149/869 at 15:47:59 UTC. No publication pending.
+MoE pairing passed at 2.318616664x, then exact DQ8 placement at 2.365437416x, full
+5/6/integrity. Both intervals overlap the prior check, so neither was scored.
+New checked MoE 33114871 and published dd6049cb are separate in best/. The
+current decoder still embeds dd6049cb. MoE phase4 and decoder phase5 are archived
+and exported. Four checks and one scored publication in this continuation; no
+repeated GPU baselines. Top 50 remains unmet; main-chat Goal stays active.

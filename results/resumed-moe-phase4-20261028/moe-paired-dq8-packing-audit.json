@@ -1,0 +1,11 @@
+{
+  "seed": 20261028,
+  "codes_checked": 1048576,
+  "scales_checked": 65536,
+  "mma_sync_pack_inverse": true,
+  "natural_pack_inverse": true,
+  "fat_unit_wgs_layout_inverse": true,
+  "bf16_boundary_formula": true,
+  "gpu_correctness": "not established",
+  "gpu_speedup": "not measured"
+}

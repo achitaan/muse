@@ -1,0 +1,28 @@
+{
+  "source": "best/moe_published.py",
+  "sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "checked_job": "6792a5c832ee4aff",
+  "checked_speedup": 2.2997973708634096,
+  "checked_interval": [
+    2.2653004103004584,
+    2.3342943314263604
+  ],
+  "tests": 5,
+  "benchmarks": 6,
+  "fp32_norm_intermediates": true,
+  "bf16_gemm_boundaries": true,
+  "upstream": {
+    "repo": "vjeux/okc-2026",
+    "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "license": "Apache-2.0"
+  },
+  "scored": {
+    "job": "b4a10b76347e4cb0",
+    "speedup": 2.3126130842746706,
+    "interval": [
+      2.2779238880105503,
+      2.3473022805387904
+    ],
+    "passed": true
+  }
+}

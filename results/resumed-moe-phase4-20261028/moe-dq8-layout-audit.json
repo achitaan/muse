@@ -1,0 +1,11 @@
+{
+  "seed": 20261028,
+  "random_full_words": 131072,
+  "weight_codes_checked": 1048576,
+  "all_word_bit_positions_bijective": true,
+  "all_multiply_operand_patterns_checked": 256,
+  "old_and_new_bf16_fragment_bits_identical": true,
+  "candidate_modified": false,
+  "gpu_status": "unmeasured",
+  "performance_claim": "none; source operation count is not measured machine code"
+}
