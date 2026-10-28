@@ -25,4 +25,14 @@ assert 'split_router = tokens > ROUTER_FP32_MAX_TOKENS' in text
 limits = [n.value.value for n in tree.body if isinstance(n, ast.Assign)
           and any(isinstance(t, ast.Name) and t.id == 'ROUTER_FP32_MAX_TOKENS' for t in n.targets)]
 assert limits == [8]
+small_ffn = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == '_sfn_kernel']
+if small_ffn:
+    assert len(small_ffn) == 1
+    kernel = ast.unparse(small_ffn[0])
+    assert '(branch * post_weight).to(_sfn_tl.bfloat16).to(_sfn_tl.float32)' in kernel
+    assert '(post_input * post_inv).to(_sfn_tl.bfloat16).to(_sfn_tl.float32)' in kernel
+    assert '/ H + PostEps' in kernel and '/ H + PreEps' in kernel
+    assert 'updated.to(' not in kernel, 'Residual and pre-norm input must remain FP32'
+    assert '_sfn_tl.store(NewStream + row * H + col, updated)' in kernel
+    assert 'col < Slice' in kernel
 print('Full decoder evidence matches current source; FP32 router path is preserved.')

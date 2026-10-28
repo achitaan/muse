@@ -1,0 +1,17 @@
+{
+  "source_sha256": "f7958fd73c79ae1b40d64d4a09fcfca4d0fc1f77c1c9657b688376a56cd25c02",
+  "synthetic_cases": 144,
+  "eligible_rows": "9..32",
+  "local_starts": [
+    0,
+    96
+  ],
+  "route_ids_unique_per_token": true,
+  "weights_positive_normalized": true,
+  "maximum_fallback_jobs_observed": 32,
+  "fallback_jobs_upper_bound": 32,
+  "native_jmax": 88,
+  "scratch_route_capacity": 3072,
+  "selector_returns_backend_metadata_only": true,
+  "gpu_correctness_and_performance": "unmeasured"
+}

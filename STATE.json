@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "No pending jobs. Find a material next change from native MoE/whole-layer profiles; do not score or transfer the small uncertain MoE gain on its own.",
+  "next_trial": "One whole-decoder check of checked MoE transfer plus sliced FFN boundary fusion (427cebf1), after CPU and source audits; no pending job yet.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_moe_w4a16",
+  "active_track": "muse_decode_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",

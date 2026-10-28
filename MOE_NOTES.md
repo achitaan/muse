@@ -1,3 +1,23 @@
+# Backend selection rejected - October 28, 2026, phase5
+
+One full check ca76bcd1b6ce43b4 passed all 5 tests and 6 benchmarks at
+2.350439250x, CI [2.315182661,2.385695838]. The two-algorithm comparison selected
+neither alternative: the mixed skinny/fat fallback was about 6.1% slower on
+average for the 16-token synthetic patterns and 7.1% slower for 32 tokens.
+All six output comparisons were finite, relative L2 below 0.000814. Existing
+incumbents were retained, so there was no change to timed native compute.
+The controller discarded the trial; no score or follow-up sweep was spent.
+Prepared-state selection returned metadata only; source is retained as negative
+evidence in results/resumed-moe-phase5-20261028/. Prepare took 208.4 seconds.
+The earlier 2.365437416x check and 2.312613084x publication remain unchanged.
+
+Next decoder trial combines that already-checked exact MoE implementation with
+an audited small-token FFN padding/boundary fusion. It also removes a dense
+prepare-only sweep whose alternatives were unselected in the observed runs,
+to protect the 300-second prepare budget. GPU behavior is not yet verified.
+
+---
+
 # Latest MoE check - October 28, 2026, phase4
 
 Checked source best/moe_verified.py: SHA256

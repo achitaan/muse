@@ -1,0 +1,13 @@
+{
+  "source_sha256": "427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5",
+  "decoder_base_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "moe_checked_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "packaged_bytes": 988314,
+  "only_changed_native_cuda": "exact checked MoE CUDA",
+  "global_bindings_resolved": true,
+  "small_fp32_router_unchanged": true,
+  "attention_cuda_unchanged": true,
+  "dense_timed_dispatch": "prior incumbents; unselected prepare-only WG sweep removed",
+  "sliced_ffn_boundary": "implicit zero tail, full 8192-column norm domain",
+  "gpu_status": "unmeasured"
+}

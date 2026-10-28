@@ -1,0 +1,15 @@
+{
+  "source_sha256": "f7958fd73c79ae1b40d64d4a09fcfca4d0fc1f77c1c9657b688376a56cd25c02",
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "cuda_and_weight_packing_unchanged": true,
+  "compared_algorithms": "incumbent vs existing mixed skinny/fat fallback",
+  "eligible_tokens": "9..32; two adjacent shape buckets",
+  "synthetic_patterns": [
+    "diffuse",
+    "hot",
+    "mixed"
+  ],
+  "selection_threshold": "3% average gain, no pattern over 5% slower",
+  "cached_state": "backend defines only, no synthetic input or output",
+  "gpu_status": "unmeasured"
+}
