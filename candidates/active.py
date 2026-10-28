@@ -27,10 +27,24 @@ __device__ __forceinline__ uint4 stream_load(const uint4* p) {
     return v;
 }
 
+__device__ __forceinline__ uint4 expand_fragment(uint2 low, unsigned q, unsigned table0, unsigned table1) {
+    unsigned hi0=__byte_perm(table0,table1,q & 0x7777u) | (q & 0x80808080u);
+    unsigned hi1=__byte_perm(table0,table1,(q>>16) & 0x7777u) | ((q<<4) & 0x80808080u);
+    return make_uint4(__byte_perm(low.x,hi0,0x5140),__byte_perm(low.x,hi0,0x7362),
+                      __byte_perm(low.y,hi1,0x5140),__byte_perm(low.y,hi1,0x7362));
+}
+__device__ __forceinline__ uint2 stream_load2(const uint2* p) {
+    uint2 v;
+    asm volatile("ld.global.nc.L1::no_allocate.v2.u32 {%0,%1}, [%2];"
+      : "=r"(v.x), "=r"(v.y) : "l"(p));
+    return v;
+}
+
 template<int NW, int NB, int U, bool DUAL, bool FLOAT_OUT>
 __global__ __launch_bounds__(NW*32, 2) void stream_mma(
     const uint4 *__restrict__ W, const uint4 *__restrict__ L,
     const unsigned *__restrict__ X, void *__restrict__ O,
+    const uint2 *__restrict__ C, const unsigned char *__restrict__ F, unsigned T0, unsigned T1,
     int M, int N, int K, int SPLIT) {
     int lane=threadIdx.x&31, warp=threadIdx.x>>5;
     int g=lane>>2, t=lane&3;
@@ -48,7 +62,19 @@ __global__ __launch_bounds__(NW*32, 2) void stream_mma(
             #pragma unroll
             for(int h=0;h<2;++h) {
                 av[u][h]=make_uint4(0,0,0,0);
-                if(kt<end) av[u][h]=stream_load(W+(blockIdx.x*tiles+kt)*64+h*32+lane);
+                if(kt<end) {
+                    int idx=blockIdx.x*tiles+kt;
+                    if constexpr(DUAL) av[u][h]=stream_load(W+idx*64+h*32+lane);
+                    else {
+                        unsigned flag=__ldg(F+idx);
+                        if(flag & (1u<<h)) av[u][h]=stream_load(W+idx*64+h*32+lane);
+                        else {
+                            uint2 low=stream_load2(C+idx*96+h*32+lane);
+                            uint2 code=stream_load2(C+idx*96+64+lane);
+                            av[u][h]=expand_fragment(low,h==0?code.x:code.y,T0,T1);
+                        }
+                    }
+                }
                 if constexpr(DUAL) {
                     lv[u][h]=make_uint4(0,0,0,0);
                     if(kt<end) lv[u][h]=stream_load(L+(blockIdx.x*tiles+kt)*64+h*32+lane);
@@ -113,21 +139,21 @@ template<bool BF16> __global__ void reduce_parts(const float *P, void *O, int si
 }
 
 template<int NW,int NB,int U> void dispatch(const at::Tensor &W,const at::Tensor &L,
-    const at::Tensor &X, at::Tensor &P,int M,int N,int K,int S,bool dual,cudaStream_t stream) {
+    const at::Tensor &X, at::Tensor &P,const at::Tensor &C,const at::Tensor &F,unsigned T0,unsigned T1,int M,int N,int K,int S,bool dual,cudaStream_t stream) {
     dim3 grid((N+15)/16,S);
     const uint4* w=reinterpret_cast<const uint4*>(W.data_ptr());
     const uint4* l=reinterpret_cast<const uint4*>(L.data_ptr());
     const unsigned* x=reinterpret_cast<const unsigned*>(X.data_ptr());
-    if(dual) stream_mma<NW,NB,U,true,true><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),M,N,K,S);
-    else if(S>1) stream_mma<NW,NB,U,false,true><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),M,N,K,S);
-    else stream_mma<NW,NB,U,false,false><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),M,N,K,S);
+    if(dual) stream_mma<NW,NB,U,true,true><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),reinterpret_cast<const uint2*>(C.data_ptr()),F.data_ptr<unsigned char>(),T0,T1,M,N,K,S);
+    else if(S>1) stream_mma<NW,NB,U,false,true><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),reinterpret_cast<const uint2*>(C.data_ptr()),F.data_ptr<unsigned char>(),T0,T1,M,N,K,S);
+    else stream_mma<NW,NB,U,false,false><<<grid,NW*32,0,stream>>>(w,l,x,P.data_ptr(),reinterpret_cast<const uint2*>(C.data_ptr()),F.data_ptr<unsigned char>(),T0,T1,M,N,K,S);
 }
 
-void run(at::Tensor W,at::Tensor L,at::Tensor X,at::Tensor P,at::Tensor Y,
+void run(at::Tensor W,at::Tensor L,at::Tensor X,at::Tensor P,at::Tensor Y,at::Tensor C,at::Tensor F,int64_t T0,int64_t T1,
          int N,int NW,int S,int U,bool dual) {
     int M=X.size(0),K=X.size(1);
     auto stream=at::cuda::getCurrentCUDAStream();
-    #define GO(WARPS,UNROLL) if(M<=8) dispatch<WARPS,1,UNROLL>(W,L,X,P,M,N,K,S,dual,stream); else if(M<=16) dispatch<WARPS,2,UNROLL>(W,L,X,P,M,N,K,S,dual,stream); else dispatch<WARPS,4,UNROLL>(W,L,X,P,M,N,K,S,dual,stream)
+    #define GO(WARPS,UNROLL) if(M<=8) dispatch<WARPS,1,UNROLL>(W,L,X,P,C,F,(unsigned)T0,(unsigned)T1,M,N,K,S,dual,stream); else if(M<=16) dispatch<WARPS,2,UNROLL>(W,L,X,P,C,F,(unsigned)T0,(unsigned)T1,M,N,K,S,dual,stream); else dispatch<WARPS,4,UNROLL>(W,L,X,P,C,F,(unsigned)T0,(unsigned)T1,M,N,K,S,dual,stream)
     if(U==2) { if(NW==4) { GO(4,2); } else if(NW==8) { GO(8,2); } else { GO(16,2); } }
     else { if(NW==4) { GO(4,4); } else if(NW==8) { GO(8,4); } else { GO(16,4); } }
     #undef GO
@@ -137,7 +163,7 @@ void run(at::Tensor W,at::Tensor L,at::Tensor X,at::Tensor P,at::Tensor Y,
     }
 }
 '''
-CPP = '''void run(at::Tensor W,at::Tensor L,at::Tensor X,at::Tensor P,at::Tensor Y,
+CPP = '''void run(at::Tensor W,at::Tensor L,at::Tensor X,at::Tensor P,at::Tensor Y,at::Tensor C,at::Tensor F,int64_t T0,int64_t T1,
                   int N,int NW,int S,int U,bool dual);'''
 
 
@@ -154,13 +180,16 @@ def _pack(w):
 
 def prepare(weights):
     state={name:w.contiguous() for name,w in weights.items()}
-    state['module']=load_inline(name='muse_stream_mma_v4',cpp_sources=CPP,cuda_sources=CUDA,
+    state['module']=load_inline(name='muse_stream_mma_v5',cpp_sources=CPP,cuda_sources=CUDA,
                                 functions=['run'],extra_cuda_cflags=['-O3'],verbose=False)
     for name,w in weights.items():
-        if w.dtype==torch.bfloat16:state[name+'_pack']=_pack(w)
+        if w.dtype==torch.bfloat16:
+            state[name+'_pack']=_pack(w)
+            state[name+'_compressed']=_compress(state[name+'_pack'])
     hi=weights['router'].to(torch.bfloat16)
     lo=(weights['router']-hi.float()).to(torch.bfloat16)
     state['rhi'],state['rlo']=_pack(hi),_pack(lo)
+    state['router_compressed']=(state['rhi'],torch.empty(1,device=hi.device,dtype=torch.uint8),0,0)
     state['rpack']=torch.cat((hi,lo),0).T.contiguous()
     _tune(state)
     return state
@@ -185,7 +214,7 @@ def kernel_fn(data,state):
     partial=torch.empty((split,m,n),device=x.device,dtype=torch.float32) if split>1 else out
     w=state['rhi'] if router else state[layer+'_pack']
     lo=state['rlo'] if router else w
-    state['module'].run(w,lo,x,partial,out,n,nw,split,unroll,router)
+    state['module'].run(w,lo,x,partial,out,*state[layer+'_compressed'],n,nw,split,unroll,router)
     return out
 
 
@@ -225,7 +254,7 @@ def _tune(state):
                     else:
                         nw,ss,u=choice
                         p=torch.empty((ss,m,n),device=device,dtype=torch.float32) if ss>1 else y
-                        def call(): state['module'].run(w,lo,x,p,y,n,nw,ss,u,router)
+                        def call(): state['module'].run(w,lo,x,p,y,*state[layer+'_compressed'],n,nw,ss,u,router)
                     call();call()
                     graph=torch.cuda.CUDAGraph()
                     with torch.cuda.graph(graph,stream=stream): call()
@@ -241,3 +270,28 @@ def _tune(state):
                 print('TUNE',layer,m,n,'selected',best,'all',measurements,flush=True)
     torch.cuda.current_stream(device).wait_stream(stream)
     state['choices']=choices
+    print('CHOICES',choices,flush=True)
+
+
+def _compress(packed):
+    # A fragment keeps every low byte plus sign and a three-bit exponent code.
+    # Any exceptional fragment is loaded in full, preserving arbitrary BF16 bits.
+    bits=packed.view(torch.int16).to(torch.int32)&65535
+    e=(bits>>8)&127
+    hist=torch.bincount(e.flatten(),minlength=128)
+    prefix=torch.cat((torch.zeros(1,device=hist.device,dtype=hist.dtype),hist.cumsum(0)))
+    base=int(torch.argmax(prefix[8:]-prefix[:-8]))
+    escape=((e<base)|(e>base+7)).any(dim=-1).any(dim=-1)
+    flags=(escape[:,:,0].to(torch.uint8)+2*escape[:,:,1].to(torch.uint8)).contiguous()
+    low=(bits&255).to(torch.uint8).contiguous().view(torch.int32)
+    code=(e-base).clamp(0,7)
+    sign=bits>>15
+    q=torch.zeros_like(code[...,0])
+    for i in range(4):
+        q=q | (code[...,i]<<(4*i)) | (code[...,i+4]<<(16+4*i))
+        q=q | (sign[...,i]<<(8*i+7)) | (sign[...,i+4]<<(8*i+3))
+    codes=q.permute(0,1,3,2).contiguous()
+    compressed=torch.stack((low[:,:,0],low[:,:,1],codes),dim=2).contiguous()
+    t0=sum((base+i)<<(8*i) for i in range(4))
+    t1=sum((base+4+i)<<(8*i) for i in range(4))
+    return compressed,flags,t0,t1
