@@ -34,3 +34,5 @@ check, no case<98.5%ofparent. At most one score, only if the new checked lower
 confidence bound clears prior publication upper2.383524434 and the guard passes.
 Do not transfer to Decode based on CPU or MoE alone; its whole-layer benefit
 must be material. Phase2.45x is only a checkpoint; overall top50Goal stays active.
+
+Closed22:52UTC: c6d1d5cf59b5441a passed5/6/integrity at2.348851666x, CI[2.313618891,2.384084441]. Native audit all65280gates finite; scaled error7.6682e-5 (original8.2428e-7), BF16stageL2.000143914. Actual precision audit passed, but aggregate regressed; controller discarded before guard. Five of six point ratios<1; soleM16gain.52%is noise, no selective retention. No score/Decode transfer/nearby cutoff sweep.

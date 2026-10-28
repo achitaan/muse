@@ -1,0 +1,1 @@
+MOE_SILU_AUDIT {'count': 65280, 'all_finite': True, 'scaled_error': 7.6682076237769e-05, 'original_scaled_error': 8.24280530480603e-07, 'bf16_stage_l2': 0.00014391369768418372, 'cutoff': -4, 'oracle': 'stable FP64 SiLU on all finite BF16 gates'}

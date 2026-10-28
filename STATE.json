@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One guarded FP32 tanh-SiLU MoE experiment, review moe_silu_review.md. CPU screen passed; full-domain GPU diagnostic and full5/6/integrity mandatory. No score for noise; Prefill exact decode transfer reverted by fixed guard.",
+  "next_trial": "Main-chat source inspection only before another justified evaluation. Dense0/0,MoE0/7; Decode1/4 should be conserved, SiLU transfer declined. Attention9/5,Prefill18/9 available, but no blind repeat of occupancy, FP8Q, page-table TMA, MMA32, CIT or lossless-decode trials. Read dense_pinned_source_review.md for quota-reset investigation; numerical packing/eligibility audit required, no dense candidate yet.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_moe_w4a16",
+  "active_track": "source_inspection",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -503,7 +503,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T22:48:34.602736+00:00",
+  "updated_utc": "2026-10-28T22:54:12.042379+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T20:33:00.810441+00:00",
     "boards": {
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T19:32:56.293557+00:00",
+  "latest_experiment_boundary_utc": "2026-10-28T22:54:12.042379+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2053,7 +2053,7 @@
     }
   },
   "quota_snapshot_all_tracks": {
-    "utc": "2026-10-28T22:34:05.967226+00:00",
+    "utc": "2026-10-28T22:53:11.332309+00:00",
     "limits_left": {
       "muse_bf16_proj": {
         "scored": 0,
@@ -2065,7 +2065,7 @@
       },
       "muse_moe_w4a16": {
         "scored": 7,
-        "checks": 1
+        "checks": 0
       },
       "muse_decode_layer": {
         "scored": 4,
@@ -2073,26 +2073,13 @@
       },
       "muse_prefill_layer": {
         "scored": 9,
-        "checks": 19
+        "checks": 18
       }
     },
-    "total_checks_left": 30,
+    "total_checks_left": 28,
     "total_scored_left": 25,
-    "overall": {
-      "rank": 150,
-      "team": "achitaan",
-      "first": false,
-      "ahead": 149
-    },
-    "ranked": 1447,
-    "overall_speedup": null,
-    "overall_measure": "rank across the problems; the API gives ranks only",
-    "derived_after_prefill_check": {
-      "checks_left": 29,
-      "scored_left": 25,
-      "prefill_checks_left": 18,
-      "note": "Derived from22:34API minus one Prefill check; no new quota API call"
-    }
+    "source": "results/resumed-moe-silu-20261028/quota-api.json",
+    "reset_utc": "2026-10-29T00:00:00Z"
   },
   "attention_three_cta_trial": {
     "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
@@ -2318,5 +2305,40 @@
     "scored_runs_used": 0,
     "checks_used": 1,
     "causal_significance_claim": false
+  },
+  "moe_silu_trial": {
+    "source_sha256": "f57377770e5124b8fac8f5d70d7e47d82d69a7c4988516f564700d4cf65ceddd",
+    "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "job": "c6d1d5cf59b5441a",
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true,
+    "passed": true,
+    "speedup": 2.3488516659027576,
+    "interval": [
+      2.313618890914216,
+      2.3840844408912987
+    ],
+    "native_activation_audit": {
+      "count": 65280,
+      "all_finite": true,
+      "scaled_error": 7.6682076237769e-05,
+      "original_scaled_error": 8.24280530480603e-07,
+      "bf16_stage_l2": 0.00014391369768418372,
+      "cutoff": -4,
+      "oracle": "stable FP64 SiLU on all finite BF16 gates"
+    },
+    "per_case_speedup_ratios": {
+      "0": 0.9862271262814963,
+      "1": 1.0051859713442628,
+      "2": 0.9913714698038851,
+      "3": 0.9947835142500429,
+      "4": 0.9895919821745853,
+      "5": 0.9908781415042348
+    },
+    "outcome": "discard; metric declined; guard not run",
+    "checks_used": 1,
+    "scored_runs_used": 0,
+    "decode_transfer": false
   }
 }

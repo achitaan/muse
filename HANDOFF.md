@@ -1,3 +1,15 @@
+> Latest checkpoint: October28,22:53UTC. No pending job/controller. Goal active; top50unmet.
+> Two checks this continuation, no scored runs. Prefill28d04382 passed5/8/integrity
+> at1.680162079x but fixed normalized-profile guard failed1.004422(<1.02); reverted.
+> MoEf5737777 passed5/6/integrity at2.348851666x; native65280gate audit passed,
+> but aggregate declined vs2.365437416; controller discarded before guard. No Decode transfer.
+> Retain MoE33114871(scored2.348299935x),Prefill93e57ab4(scored1.663469245x),
+> Attention9e922c35(scored2.537000514x),DecodeD9checked1.990224880x/unscoredrepair.
+> API limits: Dense0/0,MoE0/7,Decode1/4,Attention9/5,Prefill18/9(checks/scores).
+> Total28checks/25scores; reset00UTC. Latest overall snapshot remains150/1447at22:34UTC.
+> Next source inspection: dense_pinned_source_review.md; Dense cannot evaluate before reset.
+> Conserve other tracks: no new candidate justified yet. Main chat only.
+
 > Latest checkpoint: 2026-10-28T22:34:05.967226+00:00. Attention9e922c35 scored2.537000514x,
 > full16/12/integrity; retained segment/index-domain repair. DecodeD9FE7558
 > checked1.990224880x as9560c915e85f4f50, full13/12/integrity. Unscored repair;

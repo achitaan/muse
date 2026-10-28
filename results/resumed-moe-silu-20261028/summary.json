@@ -1,0 +1,35 @@
+{
+  "source_sha256": "f57377770e5124b8fac8f5d70d7e47d82d69a7c4988516f564700d4cf65ceddd",
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "job": "c6d1d5cf59b5441a",
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "passed": true,
+  "speedup": 2.3488516659027576,
+  "interval": [
+    2.313618890914216,
+    2.3840844408912987
+  ],
+  "native_activation_audit": {
+    "count": 65280,
+    "all_finite": true,
+    "scaled_error": 7.6682076237769e-05,
+    "original_scaled_error": 8.24280530480603e-07,
+    "bf16_stage_l2": 0.00014391369768418372,
+    "cutoff": -4,
+    "oracle": "stable FP64 SiLU on all finite BF16 gates"
+  },
+  "per_case_speedup_ratios": {
+    "0": 0.9862271262814963,
+    "1": 1.0051859713442628,
+    "2": 0.9913714698038851,
+    "3": 0.9947835142500429,
+    "4": 0.9895919821745853,
+    "5": 0.9908781415042348
+  },
+  "outcome": "discard; metric declined; guard not run",
+  "checks_used": 1,
+  "scored_runs_used": 0,
+  "decode_transfer": false
+}

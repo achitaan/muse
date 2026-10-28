@@ -1,0 +1,103 @@
+{
+  "source_sha256": "f57377770e5124b8fac8f5d70d7e47d82d69a7c4988516f564700d4cf65ceddd",
+  "seed": 20261028,
+  "finite_bf16_gate_values": 65280,
+  "negative_tail_cutoff": -4,
+  "max_fp32_cpu_error_scaled_by_max_reference_or_1e_5": 7.993963227659814e-07,
+  "cases": [
+    {
+      "mean": -4.0,
+      "sigma": 0.25,
+      "bf16_intermediate_relative_l2": 0.0,
+      "normalized_linear_max_row_l2": 0.0,
+      "exact_tail_fraction": 0.47891998291015625
+    },
+    {
+      "mean": 0.0,
+      "sigma": 0.25,
+      "bf16_intermediate_relative_l2": 0.0,
+      "normalized_linear_max_row_l2": 0.0,
+      "exact_tail_fraction": 0.0
+    },
+    {
+      "mean": 4.0,
+      "sigma": 0.25,
+      "bf16_intermediate_relative_l2": 0.0,
+      "normalized_linear_max_row_l2": 0.0,
+      "exact_tail_fraction": 0.0
+    },
+    {
+      "mean": -4.0,
+      "sigma": 1.0,
+      "bf16_intermediate_relative_l2": 0.0,
+      "normalized_linear_max_row_l2": 0.0,
+      "exact_tail_fraction": 0.49222564697265625
+    },
+    {
+      "mean": 0.0,
+      "sigma": 1.0,
+      "bf16_intermediate_relative_l2": 2.859472658656159e-07,
+      "normalized_linear_max_row_l2": 1.8313454575036303e-06,
+      "exact_tail_fraction": 3.814697265625e-05
+    },
+    {
+      "mean": 4.0,
+      "sigma": 1.0,
+      "bf16_intermediate_relative_l2": 0.0,
+      "normalized_linear_max_row_l2": 0.0,
+      "exact_tail_fraction": 0.0
+    },
+    {
+      "mean": -4.0,
+      "sigma": 4.0,
+      "bf16_intermediate_relative_l2": 9.719491345094866e-08,
+      "normalized_linear_max_row_l2": 5.357921963877743e-07,
+      "exact_tail_fraction": 0.49725341796875
+    },
+    {
+      "mean": 0.0,
+      "sigma": 4.0,
+      "bf16_intermediate_relative_l2": 6.193067383719608e-05,
+      "normalized_linear_max_row_l2": 0.0003452130185905844,
+      "exact_tail_fraction": 0.15769195556640625
+    },
+    {
+      "mean": 4.0,
+      "sigma": 4.0,
+      "bf16_intermediate_relative_l2": 5.9407178923720494e-05,
+      "normalized_linear_max_row_l2": 0.00018833954527508467,
+      "exact_tail_fraction": 0.02204132080078125
+    },
+    {
+      "mean": -4.0,
+      "sigma": 16.0,
+      "bf16_intermediate_relative_l2": 9.66896095633274e-06,
+      "normalized_linear_max_row_l2": 5.29593562532682e-05,
+      "exact_tail_fraction": 0.5003662109375
+    },
+    {
+      "mean": 0.0,
+      "sigma": 16.0,
+      "bf16_intermediate_relative_l2": 4.030094714835286e-05,
+      "normalized_linear_max_row_l2": 0.00017579282575752586,
+      "exact_tail_fraction": 0.40383148193359375
+    },
+    {
+      "mean": 4.0,
+      "sigma": 16.0,
+      "bf16_intermediate_relative_l2": 3.7816567783011124e-05,
+      "normalized_linear_max_row_l2": 0.00014707465015817434,
+      "exact_tail_fraction": 0.30852508544921875
+    }
+  ],
+  "hardware_tanh_error_bound_relative": 0.00048828125,
+  "hardware_error_bound_source": "https://docs.nvidia.com/cuda/parallel-thread-execution/#floating-point-instructions-tanh",
+  "cpu_is_not_ptx_emulator": true,
+  "gpu_correctness": "unmeasured",
+  "speedup": "unmeasured",
+  "required_before_retention": [
+    "actual GPU full-domain activation audit",
+    "full official 5/6/integrity",
+    "material speedup"
+  ]
+}

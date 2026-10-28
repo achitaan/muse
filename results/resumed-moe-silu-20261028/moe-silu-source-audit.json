@@ -1,0 +1,10 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "f57377770e5124b8fac8f5d70d7e47d82d69a7c4988516f564700d4cf65ceddd",
+  "silu_sites": 5,
+  "negative_tail_cutoff": -4,
+  "exact_source_inverse": true,
+  "kernel_fn_and_all_nonactivation_math_unchanged": true,
+  "gpu_diagnostic": "all65280finiteBF16gates with stableFP64oracle, independent of timed data",
+  "gpu_status": "unmeasured"
+}
