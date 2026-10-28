@@ -1,0 +1,265 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "kc-42673a30ea944f2b",
+  "cluster": "sfo3",
+  "content_hash": "6c278411a18fe7a137667fcdfaac689902230affb7725fe81b13333e9d64d649",
+  "created_at": 1793193194.0967934,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793193518.9389603,
+  "id": "42673a30ea944f2b",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.decode-measurements/374906c67a19b8b295a28dbed7a0779b003b268e073b2db03ccb906d734e1b9d/profiles/submission.42673a30ea944f2b.log"
+  },
+  "payload_ref": "muse_decode_layer/6c278411a18fe7a137667fcdfaac689902230affb7725fe81b13333e9d64d649.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 7511, in kernel_fn\n    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 857, in _native_attn_kernel_fn\n    return _native_attn__launch(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 795, in _native_attn__launch\n    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-o2qc5r7k/run/submission.py\", line 677, in _native_attn__module\n    if _native_attn__MOD is None:\n       ^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 125.26,
+        "power.limit": 700,
+        "temperature.gpu": 35
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 80.1,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "node": "n-hbquzsoc2fbla3mk4cpu32bkrb"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 221696,
+        "copies": 1,
+        "error": null,
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": 17603584,
+        "prepare_s": 256.160864661,
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 10,
+          "layer": "sliding",
+          "seed": 6357695987375521489
+        },
+        "event": "test",
+        "index": 0,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 3000,
+          "layer": "full",
+          "seed": 6357838372293630742
+        },
+        "event": "test",
+        "index": 1,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 8,
+          "ctx": 2047,
+          "layer": "sliding",
+          "seed": 6357980757211739996
+        },
+        "event": "test",
+        "index": 2,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 9,
+          "ctx": 5000,
+          "layer": "sliding",
+          "page": 1,
+          "seed": 6358123142129849251,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 3,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 3,
+          "ctx": 6000,
+          "dist": "outliers",
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6358265527047958507
+        },
+        "event": "test",
+        "index": 4,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 5,
+          "ctx": 5000,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6358407911966067764,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 5,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 33,
+          "ctx": 20000,
+          "layer": "full",
+          "page": 1,
+          "seed": 6358550296884177022,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 6,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 300000,
+          "layer": "sliding",
+          "q_len": 8,
+          "seed": 6358692681802286281
+        },
+        "event": "test",
+        "index": 7,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 1048576,
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6358835066720395541
+        },
+        "event": "test",
+        "index": 8,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 7000,
+          "kv_scale": 0.015625,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6359404606392832591
+        },
+        "event": "test",
+        "index": 9,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "page": 1,
+          "seed": 6358977451638504802
+        },
+        "event": "test",
+        "index": 10,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 6000,
+          "dist": "soft",
+          "layer": "sliding",
+          "q_len": 8,
+          "seed": 6359119836556614064
+        },
+        "event": "test",
+        "index": 11,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 20000,
+          "dist": "soft",
+          "layer": "full",
+          "page": 1,
+          "seed": 6359262221474723327,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 12,
+        "message": "UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value",
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793193201.6994786,
+  "status": "done",
+  "team": "achitaan"
+}

@@ -11,10 +11,18 @@
   "benchmarks": 6,
   "fp32_norm_intermediates": true,
   "bf16_gemm_boundaries": true,
-  "scored_job_pending": "b4a10b76347e4cb0",
   "upstream": {
     "repo": "vjeux/okc-2026",
     "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
     "license": "Apache-2.0"
+  },
+  "scored": {
+    "job": "b4a10b76347e4cb0",
+    "speedup": 2.3126130842746706,
+    "interval": [
+      2.2779238880105503,
+      2.3473022805387904
+    ],
+    "passed": true
   }
 }

@@ -8,10 +8,10 @@ fully checked candidates.
 | Track | Latest verified result | State |
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
-| MoE W4A16 | 2.299797x checked | One scored publication pending |
-| Whole decoder layer | 1.172780x scored | Saved |
+| MoE W4A16 | 2.312613x scored | Saved |
+| Whole decoder layer | 1.815512x checked | One scored publication pending |
 | Attention decode | 2.562402x scored | Saved |
-| Prefill layer | No run yet | Last in the requested order |
+| Prefill layer | Unmeasured grouped-MoE candidate | Current focus; last track |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall
 board rather than treating a historical rank as current.

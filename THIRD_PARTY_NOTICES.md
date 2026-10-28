@@ -48,3 +48,12 @@ revision. Local changes remove diagnostics and restore Marlin BF16 GEMM outputs,
 BF16 global scales and BF16 effective post-norm weights; norm arithmetic stays
 FP32. The candidate passed full official coverage at 2.299797371x. The prepared source embeds the full
 Apache license. Shared scratch requires sequential replay.
+
+## Grouped Prefill expert component
+
+The prepared Prefill expert component derives from Vjeux's same pinned Apache
+revision. Local changes extract the component, preserve Marlin BF16 boundaries,
+copy already-normalized BF16 inputs without arithmetic, rebuild route metadata
+from fresh inputs, and integrate FP32 post-norm/weighted sum with SGLang. The
+original SGLang full-layer pipeline remains. This candidate is unmeasured;
+preserve embedded Apache license and this change notice.

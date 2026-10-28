@@ -1,5 +1,14 @@
 # Challenge track handoff — October 28, 2026
 
+## Current checkpoint (supersedes all earlier historical snapshots)
+
+MoE scored 2.312613084x. Attention scored 2.562402309x. Decoder checked
+1.815511785x, passing 13 tests/12 benchmarks; scored job 95bbfd2c81224715 is
+pending. Prefill is prepared for one full check, last in the requested order;
+read PREFILL_NOTES.md. No Prefill GPU result yet. The overall Goal is active
+and top 50 remains unmet. Conserve evaluations; no sweeps or repeat baselines.
+
+
 ## Latest checkpoint (supersedes historical sections below)
 
 User requested fewer checks and runs. Reuse cached evidence and require a

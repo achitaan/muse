@@ -3,7 +3,7 @@
 Check `6792a5c832ee4aff`: **2.299797371x**, all 5 tests, 6 benchmarks and
 integrity checks passed. Exact source `best/moe_verified.py`, SHA256
 `dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3`.
-One scored publication is pending: `b4a10b76347e4cb0`; observe, never duplicate.
+Scored publication `b4a10b76347e4cb0` passed at **2.312613084x**. Do not duplicate.
 This supersedes the previous 1.268945620x checked Marlin candidate below.
 
 Derived from Vjeux's Apache-2.0 source at revision

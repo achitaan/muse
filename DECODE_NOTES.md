@@ -1,4 +1,33 @@
-# Whole decoder-layer notes — October 28, 2026
+# Latest decoder checkpoint - October 28, 2026
+
+Check `2f41872843fe4490`: **1.815511785x**, all 13 tests, 12 benchmarks and
+integrity checks passed. Interval [1.788279108, 1.842744462]. Exact source
+`best/decoder_verified.py`, SHA256
+`53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024`.
+Scored publication `95bbfd2c81224715` is pending. Do not duplicate it.
+
+This integrates the checked native attention and corrected native MoE while
+retaining the checked lossless dense implementation, original SGLang residual
+boundaries, expert-ID rotation and FP32 router for small token counts. Native
+MoE preserves BF16 GEMM/global-scale boundaries and FP32 norm intermediates.
+The original Marlin weight bank is not built because native MoE owns its exact
+packed NVFP4 copies. Shared scratch requires sequential calls.
+
+First integration check `42673a30ea944f2b` failed before numerical execution:
+the AST renamer omitted a Global declaration. The controller reverted it. The
+fixed transformer now renames declarations, and a local audit verifies 94
+global bindings and calls the attention factory twice, confirming one build.
+Only this specific fix was retried; no parameter sweep was run.
+
+The first scored upload hit a TLS error. The authoritative jobs list confirmed
+no new run before one retry, which returned job 95bbfd2c81224715. Evidence and
+reconciliation are in results/resumed-decoder-phase3-20261028/. Preserve Apache
+native-source notices and the dense MIT notice. The older checkpoints below
+are historical, not current source identities.
+
+---
+
+# Whole decoder-layer notes â€” October 28, 2026
 
 The user requested MoE first, then Decode Layer, Attention Decode, Prefill last.
 All work was in the main chat; checks were used before scored publication.

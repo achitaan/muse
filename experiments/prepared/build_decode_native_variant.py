@@ -16,6 +16,12 @@ def namespace(source, prefix):
             symbols.update(t.id for t in n.targets if isinstance(t, ast.Name))
     names = {name: prefix + name for name in symbols}
     class Rename(ast.NodeTransformer):
+        def visit_Global(self, node):
+            node.names = [names.get(name, name) for name in node.names]
+            return node
+        def visit_Nonlocal(self, node):
+            node.names = [names.get(name, name) for name in node.names]
+            return node
         def visit_Name(self, node):
             node.id = names.get(node.id, node.id)
             return node
@@ -27,12 +33,15 @@ def namespace(source, prefix):
             return self.generic_visit(node)
     strings_before = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant)
                       and isinstance(n.value, str) and '#include' in n.value]
+    globals_before = [list(n.names) for n in ast.walk(tree) if isinstance(n, ast.Global)]
     tree = Rename().visit(tree)
     ast.fix_missing_locations(tree)
     text = ast.unparse(tree)
     strings_after = [n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant)
                      and isinstance(n.value, str) and '#include' in n.value]
     assert strings_before == strings_after
+    globals_after = [n.names for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Global)]
+    assert globals_after == [[names.get(name, name) for name in group] for group in globals_before]
     return text
 
 moe = (root / '.tools/native-moe-prepared.py').read_text()

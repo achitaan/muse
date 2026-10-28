@@ -1,21 +1,18 @@
 {
   "source": "best/decoder_verified.py",
-  "sha256": "5ed23e1eba17e7abfc5145fbdf5b607f501163517b9869af433363bb48ac10c2",
-  "checked_job": "03de660946744adb",
-  "checked_speedup": 1.1686387142058807,
+  "sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+  "checked_job": "2f41872843fe4490",
+  "checked_speedup": 1.8155117849527829,
   "checked_interval": [
-    1.1511091334927925,
-    1.186168294918969
+    1.788279108178491,
+    1.8427444617270745
   ],
   "tests": 13,
   "benchmarks": 12,
-  "scored": {
-    "job": "88f8b06932fa43b7",
-    "speedup": 1.1727801897410768,
-    "interval": [
-      1.1551884868949607,
-      1.190371892587193
-    ],
-    "passed": true
+  "scored_job_pending": "95bbfd2c81224715",
+  "fp32_router_preserved": true,
+  "upstream": {
+    "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+    "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
   }
 }

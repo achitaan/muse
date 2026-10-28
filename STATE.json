@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One end-to-end decoder check integrating verified native attention and native MoE while preserving the FP32 router and all residual boundaries.",
+  "next_trial": "First Prefill candidate: original SGLang layer with audited persistent grouped NVFP4 MoE only. Use one full check; no baseline remeasurement.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_decode_layer",
+  "active_track": "muse_prefill_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -126,36 +126,50 @@
     "benchmarks": 6,
     "fp32_norm_intermediates": true,
     "bf16_gemm_boundaries": true,
-    "scored_job_pending": "b4a10b76347e4cb0",
     "upstream": {
       "repo": "vjeux/okc-2026",
       "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
       "license": "Apache-2.0"
+    },
+    "scored": {
+      "job": "b4a10b76347e4cb0",
+      "speedup": 2.3126130842746706,
+      "interval": [
+        2.2779238880105503,
+        2.3473022805387904
+      ],
+      "passed": true
     }
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
-    "sha256": "5ed23e1eba17e7abfc5145fbdf5b607f501163517b9869af433363bb48ac10c2",
-    "checked_job": "03de660946744adb",
-    "checked_speedup": 1.1686387142058807,
+    "sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+    "checked_job": "2f41872843fe4490",
+    "checked_speedup": 1.8155117849527829,
     "checked_interval": [
-      1.1511091334927925,
-      1.186168294918969
+      1.788279108178491,
+      1.8427444617270745
     ],
     "tests": 13,
-    "benchmarks": 12
+    "benchmarks": 12,
+    "scored_job_pending": "95bbfd2c81224715",
+    "fp32_router_preserved": true,
+    "upstream": {
+      "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+      "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
+    }
   },
   "moe_scored": {
-    "job": "650aa66fd3334d8c",
-    "speedup": 1.2685086331610234,
+    "job": "b4a10b76347e4cb0",
+    "speedup": 2.3126130842746706,
     "interval": [
-      1.249481003663608,
-      1.2875362626584386
+      2.2779238880105503,
+      2.3473022805387904
     ],
     "passed": true
   },
   "overall_placement_snapshot": {
-    "utc": "2026-10-28T13:07:00Z",
+    "utc": "2026-10-28T13:06:50.833285+00:00",
     "you": {
       "rank": 619,
       "team": "achitaan",

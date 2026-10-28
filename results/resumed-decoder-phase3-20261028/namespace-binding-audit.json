@@ -1,0 +1,5 @@
+{
+  "namespace_global_bindings_checked": 94,
+  "attention_factory_initializes_once": true,
+  "gpu_math": "not verified"
+}

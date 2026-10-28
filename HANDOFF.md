@@ -1,51 +1,40 @@
 # Current handoff - October 28, 2026
 
-Pursue top 50 overall in the main chat only. Original 04:00 deadline was removed.
-Requested order: MoE W4A16, Decode Layer, Attention Decode, Prefill last.
-Native Goal remains active. Top 50 remains unmet. The latest user instruction
-is to be more sparing with checks and runs. Require a concrete unresolved
-question and a material expected improvement; avoid blind sweeps, repeated
-baseline measurements and repeated quota/board queries.
+Goal: get as close as possible to top 50 overall, main chat only. No deadline.
+User requested fewer checks and scored runs: no blind sweeps, repeated baselines
+or frequent quota queries. Require a concrete question and a material expected
+gain. Original track order is MoE, Decode Layer, Attention Decode, Prefill last.
+The final track is now prepared for its first full check.
 
-Read STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md,
-ATTENTION_NOTES.md and the relevant official TASK.md/AGENTS.md before changes.
-Reuse exact frozen sources and existing official job handles after timeouts.
-
-| Track | Current evidence |
+| Track | Current verified evidence |
 |---|---|
-| Dense | best/verified.py; scored 6131bc96427e4486, 1.527771327x; both daily quotas exhausted |
-| MoE | best/moe_verified.py; scored 650aa66fd3334d8c, 1.268508633x |
-| Whole decoder | best/decoder_verified.py; scored 88f8b06932fa43b7, 1.172780190x |
-| Attention | best/attention_checked.py; check ea693135be544501, 2.589760797x; scored 20524d06e3894595 passed, 2.562402309x |
-| Prefill | No GPU evaluation yet; official TASK says it does not count toward overall |
+| Dense | 1.527771327x scored, 6131bc96427e4486; both daily quotas exhausted |
+| MoE | 2.312613084x scored, b4a10b76347e4cb0; best/moe_verified.py |
+| Decode Layer | 1.815511785x checked, 2f41872843fe4490; scored 95bbfd2c81224715 pending |
+| Attention | 2.562402309x scored, 20524d06e3894595; best/attention_checked.py |
+| Prefill | First grouped-MoE candidate prepared; unmeasured |
 
-MoE preserves pinned SGLang's FP32 post-norm intermediates. Do not restore the
-older extra BF16 rounding for timing noise. Decoder retains the FP32 router
-path, incorporates checked dense/MoE improvements and fused Q/K preprocessing.
-Attention derives from Vjeux's Apache source; native CUDA algorithms are
-unchanged. Cache changes eliminate initialization from graph replay. Scratch
-requires sequential replay for calls sharing a device/launch signature.
-All current sources pass the complete official correctness/benchmark coverage.
+Read STATE.json, MOE_NOTES.md, DECODE_NOTES.md, ATTENTION_NOTES.md,
+PREFILL_NOTES.md and official TASK.md/AGENTS.md for the active problem. Prefill
+does not count toward overall placement. Last overall snapshot was 619 after
+attention, before the new MoE and decoder scores. Top 50 remains unmet.
 
-Preserve every attention key, weight codes/scales, activation boundaries,
-cache updates, routing and residual outputs. No output caching, harness access,
-dropped routes, timing changes or persistent BF16 expert-weight expansion.
-Preserve dense MIT and attention Apache licenses and local change notices.
+The current decoder keeps the FP32 router for small token counts and all
+SGLang residual boundaries. It combines checked native attention/MoE with the
+checked lossless dense path. The native MoE restores BF16 GEMM/global-scale
+boundaries and FP32 post-norm intermediates, preserving Dot's precision review.
+Native attention/MoE shared scratch requires sequential calls. Preserve Apache
+native-source attribution and the dense MIT notice. Never drop routes/keys,
+cache inputs/outputs, change timing/harness or persist BF16 expert expansions.
 
-The attention controller phase is archived under
-results/resumed-attention-phase2-20261028/controller/. No experiment controller
-is currently active. Do not hand-edit immutable controller events. Initialize
-the next scoped phase from cached evidence before any new trial. Publish
-checkpoint documentation outside active candidate-only scopes.
+The decoder controller phase is archived; native overall Goal remains active.
+Initialize one Prefill scope from the prepared candidate and use its full
+5-test/8-benchmark verifier and cached-evidence guard. Do not interpret a local
+controller target as completion of the overall Goal. Existing job handles must
+be observed after timeouts, never duplicated. One initial decoder upload hit a
+TLS error; official jobs confirmed no accepted run before the successful retry.
 
-Use the existing authenticated free official service; never print tokens.
-No paid GPUs, external providers, subagents or global orchestration mutations.
-Quotas are per track and reset at 00:00 UTC; unused quota need not be consumed
-on weak hypotheses. Commit/push measured evidence at phase boundaries.
-
-Latest MoE update: check 6792a5c832ee4aff passed at 2.299797371x with
-all 5 tests and 6 benchmarks. Exact source best/moe_verified.py. Scored job
-b4a10b76347e4cb0 is pending. Read MOE_NOTES.md; the old 1.2685x result is
-historical. Current next phase is one combined native decoder check, preserving
-the FP32 router and all residual boundaries. Latest overall snapshot: rank 619
-after attention, before the new MoE score. No sweeps; Prefill remains last.
+Use the existing account and free official H200 service only. No subagents,
+paid GPUs, external providers or global orchestration changes. Never read,
+print or commit tokens. Commit/push evidence at controller phase boundaries;
+never edit immutable controller journals by hand.

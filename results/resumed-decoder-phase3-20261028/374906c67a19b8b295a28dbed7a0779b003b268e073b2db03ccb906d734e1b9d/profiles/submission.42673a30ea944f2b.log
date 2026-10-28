@@ -1,0 +1,210 @@
+File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 7511, in kernel_fn
+    o = _native_attn_kernel_fn(attention_data).reshape(tokens, hq * d)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 857, in _native_attn_kernel_fn
+    return _native_attn__launch(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 795, in _native_attn__launch
+    (_mod or _native_attn__module()).run(qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'], page_table, data['k_scale'], data['v_scale'], _native_attn__inv_freq(cfg['rope_theta'], device), out, ws_acc, ws_l, ws_cnt, B, L, hq, hkv, P, window, 1 if cfg['rope_theta'] else 0, n_splits, flat, nc, scale_log2, dbg, cs, ncl, tma)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-o2qc5r7k/run/submission.py", line 677, in _native_attn__module
+    if _native_attn__MOD is None:
+       ^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable '_native_attn__MOD' where it is not associated with a value
