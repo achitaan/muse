@@ -1,0 +1,15 @@
+{
+  "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+  "original_prefix_exact": true,
+  "routing_cases": 48,
+  "hot_second_tile_cases": 16,
+  "dispatch_cases": 770,
+  "global_references_checked": 36,
+  "no_new_weight_copies": true,
+  "state_writes": [
+    "state['skinny16_enabled']",
+    "state['skinny16_enabled']"
+  ],
+  "both_cuda_precision_contracts_preserved": true,
+  "gpu_status": "unmeasured; CPU metadata and source checks only"
+}

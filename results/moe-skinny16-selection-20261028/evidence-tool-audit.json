@@ -1,0 +1,25 @@
+{
+  "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+  "cached_parent_full_suite_accepted": true,
+  "synthetic_good_evidence_accepted": true,
+  "fault_injections_rejected": [
+    "missing_test",
+    "missing_benchmark",
+    "wrong_nearby_test",
+    "missing_skew",
+    "integrity_failure",
+    "wrong_gpu",
+    "prepare_timeout",
+    "empty_selection",
+    "missing_nearby_probe",
+    "false_all_remote",
+    "nonfinite_probe",
+    "row_error",
+    "missing_pair",
+    "false_ratio",
+    "slow_pattern",
+    "missing_or_ambiguous_marker",
+    "missing_or_ambiguous_marker"
+  ],
+  "official_runs_used": 0
+}

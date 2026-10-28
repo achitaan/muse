@@ -1,0 +1,24 @@
+{
+  "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+  "bytes": 329542,
+  "prototype_sha256": "921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96",
+  "original_and_prototype_prefix_exact": true,
+  "eligible_tokens": [
+    9,
+    16
+  ],
+  "numerical_shapes": [
+    9,
+    15,
+    16
+  ],
+  "routing_patterns": [
+    "diffuse",
+    "hot",
+    "mixed"
+  ],
+  "analytic_cases": "all-remote -> exact zero at M9/15/16",
+  "timing": "8 alternating cold-L2 graph pairs for each of three patterns at M16",
+  "selection": "geomean new/old<.97; no pattern ratio>1.02",
+  "status": "prepared; no GPU evaluation"
+}

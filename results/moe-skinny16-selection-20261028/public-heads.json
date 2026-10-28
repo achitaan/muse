@@ -1,0 +1,30 @@
+[
+  {
+    "file": "muse_moe_w4a16.py",
+    "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "date": "2026-10-28T02:03:32Z",
+    "message": "v2: dead-code removal — switches, arch guards, dead branches gone; oracle + GPU gated",
+    "url": "https://github.com/vjeux/okc-2026/commit/f35a41ee1c13e316dabbf772830d47b23b453393"
+  },
+  {
+    "file": "muse_attention_decode.py",
+    "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "date": "2026-10-28T02:03:32Z",
+    "message": "v2: dead-code removal — switches, arch guards, dead branches gone; oracle + GPU gated",
+    "url": "https://github.com/vjeux/okc-2026/commit/f35a41ee1c13e316dabbf772830d47b23b453393"
+  },
+  {
+    "file": "muse_decode_layer.py",
+    "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "date": "2026-10-28T02:03:32Z",
+    "message": "v2: dead-code removal — switches, arch guards, dead branches gone; oracle + GPU gated",
+    "url": "https://github.com/vjeux/okc-2026/commit/f35a41ee1c13e316dabbf772830d47b23b453393"
+  },
+  {
+    "file": "muse_bf16_proj.py",
+    "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "date": "2026-10-28T02:03:32Z",
+    "message": "v2: dead-code removal — switches, arch guards, dead branches gone; oracle + GPU gated",
+    "url": "https://github.com/vjeux/okc-2026/commit/f35a41ee1c13e316dabbf772830d47b23b453393"
+  }
+]

@@ -1,3 +1,19 @@
+> MoE skinny16 is now a full prepared candidate f20caadb (329542bytes), not just
+> the earlier unused prototype. Review experiments/prepared/moe_skinny16_selection_review.md.
+> CPU48routing/770dispatch cases pass;17 bad evidence mutations rejected. Pinned
+> pre-pruning source confirms the second-store diagnosis in PRMT and LUT modes.
+> New selector probes M9/15/16 on3routing patterns plus exact all-remote zeros,
+> then8paired cold-L2 graph samples per pattern. State retains only a boolean.
+> Original331 and prototype921 are exact prefixes; all non9..16 paths stay original.
+> Guard requires full5/6/integrity, actual new backend, complete probes/timings,
+> >3%affected/control and>1%aggregate gains. No GPU result or performance claim yet.
+> Next: init cached331 baseline and scope candidates/moe_active.py using
+> scripts/measure_moe_skinny16.py and scripts/verify_moe_skinny16_evidence.py.
+> Wait until00:00:15UTC Oct29, then one quota-gated check; no fresh GPU baseline.
+> A foreground wait/finish handle may be added after this clean checkpoint;
+> inspect autoresearch status and .tools/moe-skinny16-foreground.json before any launch.
+> Dense4d443b13 also ready; retain all current verified sources. Top50Goal active.
+
 > Additional CPU work: MoE skinny16 prototype921dc83e preserves the complete33114871
 > prefix and dispatch. Its alternate repairs a dormant second-tile store, reuses
 > decoded weights for tokens9..16, and preserves four FP32 accumulators per tile.

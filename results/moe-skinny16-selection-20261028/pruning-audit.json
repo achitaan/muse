@@ -1,0 +1,28 @@
+{
+  "upstream_parent_commit": "5f9f7c7b0fe83ca53f5f434e3bef2227549eaf5e",
+  "upstream_source_sha256": "8bc17e47731b5dd4de9fefd3fd0db97e63e6104cacc53f01c8187c3553d03e5d",
+  "prototype_sha256": "921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96",
+  "listed_conditions": {
+    "defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 900": true,
+    "OKC_EPI4": false,
+    "OKC_XPF": false,
+    "!OKC_NOLOAD": true,
+    "OKC_NW == 16": false,
+    "OKC_NACC == 4": true,
+    "OKC_PRMTSC": true,
+    "OKC_SKSC2": false,
+    "!OKC_NOCOMPUTE": true,
+    "OKC_TWOACC": false,
+    "OKC_SKT > 8": true,
+    "OKC_BEPI": false,
+    "OKC_NOLOAD": false
+  },
+  "checked_prmt_modes": [
+    true,
+    false
+  ],
+  "missing_second_store_confirmed_in_unpruned_source": true,
+  "all_other_active_static_operations_match_after_known_precision_repairs": true,
+  "scope": "static skinny_ring, PRMT scales, NW8/NACC4/EPI4off/SKT16 on SM90",
+  "limitation": "Does not validate other dormant paths or CUDA execution"
+}

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Dense cluster candidate4d443b13 is frozen and CPU-audited; read experiments/prepared/dense_cluster_review.md. Reuse exact scored EDC baseline with scripts/measure_dense_cluster.py and fixed scripts/verify_dense_cluster_evidence.py. Dense checks/scores currently0/0; require positive official quota before one full9/30 GPU check after00UTC reset. No controller/job pending. Preserve other tracks and avoid noisy rescoring.",
+  "next_trial": "MoE f20caadb is fully CPU-audited with fixed selected-path/full5/6/paired/affected-control guard. Init controller on cached331 baseline, scope candidates/moe_active.py, measure scripts/measure_moe_skinny16.py, guard scripts/verify_moe_skinny16_evidence.py. Wait until00:00:15UTC Oct29 before one quota-gated full check; no score unless material guard passes. Dense4d443b13 is also ready. No active GPU job at this checkpoint.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "dense_cluster_cpu_preflight",
+  "active_track": "moe_skinny16_prepared",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T23:39:44.812903+00:00",
+  "latest_experiment_boundary_utc": "2026-10-28T23:48:30.681918+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2477,5 +2477,27 @@
     "gpu_checks_used": 0,
     "scored_runs_used": 0,
     "next": "Add bounded prepare-only paired comparator and nearby/analytic GPU probes, then freeze source-bound full5/6 guard. No current dispatch or best-source change."
+  },
+  "moe_skinny16_selection": {
+    "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+    "prototype_sha256": "921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96",
+    "source": "results/moe-skinny16-selection-20261028/submission.py",
+    "status": "CPU-prepared, GPU-unmeasured",
+    "eligible_tokens": [
+      9,
+      16
+    ],
+    "routing_cases": 48,
+    "dispatch_cases": 770,
+    "hot_second_tile_cases": 16,
+    "evidence_fault_injections_rejected": 17,
+    "upstream_unpruned_static_path_checked": true,
+    "prmt_and_lut_modes_checked": true,
+    "review": "experiments/prepared/moe_skinny16_selection_review.md",
+    "gpu_checks_used": 0,
+    "scored_runs_used": 0,
+    "paired_selection": "8 pairs per diffuse/hot/mixed pattern, geometric new/old<.97 and worst<=1.02",
+    "keep_policy": "full5/6/integrity, nonempty choice, actual selected16-token profile, affected and normalized ratio>1.03, aggregate>1.01",
+    "baseline": "exact cached331 check2.365437416x; no API or GPU baseline rerun"
   }
 }
