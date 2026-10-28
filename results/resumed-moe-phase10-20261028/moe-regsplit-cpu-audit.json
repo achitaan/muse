@@ -1,0 +1,90 @@
+{
+  "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "original_module_ast_recovered": true,
+  "cuda_edits_reversible": true,
+  "all_numerical_cuda_bytes_unchanged": true,
+  "warpgroup_actions": [
+    "inc112",
+    "inc112",
+    "inc112",
+    "inc112",
+    "dec32"
+  ],
+  "barrier_membership_counts": {
+    "full_join": 640,
+    "routing_join": 544,
+    "compute": 512
+  },
+  "register_pool_states": 45,
+  "register_pool_transitions": 68,
+  "no_pool_dead_end": true,
+  "total_registers": 61440,
+  "preflight_cases": [
+    {
+      "case": "admitted",
+      "outcome": true
+    },
+    {
+      "case": "no_prmt",
+      "outcome": false
+    },
+    {
+      "case": "small_initial",
+      "outcome": "fail"
+    },
+    {
+      "case": "large_initial",
+      "outcome": "fail"
+    },
+    {
+      "case": "big_kernel_mismatch",
+      "outcome": "fail"
+    },
+    {
+      "case": "no_residency",
+      "outcome": "fail"
+    },
+    {
+      "case": "register_file_too_small",
+      "outcome": "fail"
+    },
+    {
+      "case": "grid_too_large",
+      "outcome": "fail"
+    },
+    {
+      "case": "wrong_arch",
+      "outcome": "fail"
+    }
+  ],
+  "compile_configurations": [
+    {
+      "name": "MAIN_DEFINES",
+      "old_threads": 576,
+      "new_threads": 640
+    },
+    {
+      "name": "TINY_DEFINES",
+      "old_threads": 288,
+      "new_threads": 288
+    },
+    {
+      "name": "TINY2_DEFINES",
+      "old_threads": 288,
+      "new_threads": 288
+    },
+    {
+      "name": "MID_DEFINES",
+      "old_threads": 288,
+      "new_threads": 288
+    },
+    {
+      "name": "MAIN_FALLBACK_DEFINES",
+      "old_threads": 256,
+      "new_threads": 256
+    }
+  ],
+  "global_bindings": true,
+  "scope_limit": "CPU source/control/budget proof; actual compiler attributes, occupancy, GPU numerics and speed unverified"
+}

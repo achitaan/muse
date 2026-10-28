@@ -1,0 +1,10 @@
+{
+  "source_sha256": "21bf949ffa4066fcdebcfe0d3c90d1f457cf69d5ac9b33ee7df2dd4fa09dfa06",
+  "decoder_base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "moe_draft_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
+  "packaged_bytes": 991255,
+  "outside_moe_ast_unchanged": true,
+  "new_cuda_exact": true,
+  "global_bindings_resolved": true,
+  "status": "inactive draft; do not evaluate/promote unless standalone trial proves a material gain"
+}

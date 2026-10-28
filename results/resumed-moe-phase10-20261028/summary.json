@@ -1,0 +1,70 @@
+{
+  "job": "fc4ff22b0b184caf",
+  "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
+  "speedup": 2.3404786355685374,
+  "interval": [
+    2.3053714560350094,
+    2.3755858151020655
+  ],
+  "passed": true,
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "resource_preflight": [
+    640,
+    96,
+    96,
+    0,
+    0,
+    231168,
+    1,
+    1,
+    65536,
+    132
+  ],
+  "split_enabled": true,
+  "comparisons": [
+    {
+      "bs": 1,
+      "baseline_speedup": 3.146383311095091,
+      "trial_speedup": 3.0966377585774376,
+      "ratio": 0.9841896083219626
+    },
+    {
+      "bs": 16,
+      "baseline_speedup": 2.0029663645249736,
+      "trial_speedup": 2.0165918786091113,
+      "ratio": 1.0068026674463748
+    },
+    {
+      "bs": 32,
+      "baseline_speedup": 1.642387556147249,
+      "trial_speedup": 1.6216643803753092,
+      "ratio": 0.9873822864193196
+    },
+    {
+      "bs": 8,
+      "baseline_speedup": 2.2726496055914778,
+      "trial_speedup": 2.267165463607027,
+      "ratio": 0.9975868950625041
+    },
+    {
+      "bs": 128,
+      "baseline_speedup": 2.5906674179713978,
+      "trial_speedup": 2.54954228965142,
+      "ratio": 0.9841256627405379
+    },
+    {
+      "bs": 256,
+      "baseline_speedup": 2.8745091518761363,
+      "trial_speedup": 2.8081044200776013,
+      "ratio": 0.9768987579130879
+    }
+  ],
+  "decision": "discard register-only variant; no aggregate or changed-load timing gain",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "decoder_draft": "21bf949f, inactive and never evaluated; outside-MoE AST unchanged, 991255 bytes",
+  "limits": "Static resource admission and full numerics passed; actual dynamic register ownership or compiler stall cause not observed in SASS. Separate-job intervals overlap.",
+  "next_step": "One four-step commit-group trial on the admitted register split; source explicitly records GS4 serialization at old96 budget. Capture ordinary compiler diagnostics. No geometry/encoding sweep."
+}

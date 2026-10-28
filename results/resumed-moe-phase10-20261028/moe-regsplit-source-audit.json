@@ -1,0 +1,17 @@
+{
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
+  "packaged_bytes": 180781,
+  "consumer_threads": 512,
+  "producer_group_threads": 128,
+  "useful_producer_threads": 64,
+  "padding_threads": 64,
+  "initial_registers": 96,
+  "compute_registers": 112,
+  "producer_registers": 32,
+  "total_registers": 61440,
+  "compile_variants": 4,
+  "extra_scratch_or_weight_copies": 0,
+  "preflight": "actual attributes must show initial96, occupancy>=1 and resident persistent grid",
+  "gpu_status": "unmeasured"
+}

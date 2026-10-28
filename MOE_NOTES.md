@@ -306,3 +306,27 @@ accounting estimate rather than a fresh API observation. Overall rank remains
 the last observed146/1438 at18:24; no new placement claim. Top50Goal is active.
 Public Vjeux and LeePenkman repository HEADs still match their already-pinned
 f35a41ee andc565e373 revisions; no newer public patch was found in those repos.
+
+
+## Phase10: full producer warpgroup, no retained speedup (19:08 UTC)
+
+Checkfc4ff22b0b184caf/source17adb3e6 passed5tests/6benchmarks/integrity at
+2.340478636x, CI[2.305371456,2.375585815]. Resource preflight was
+(640,96,96,0,0,231168,1,1,65536,132): both initial allocations96, no static
+local bytes, one resident block/SM. Split enabledTrue. No changed WGS load
+improved over primary33114871. Reverted, archived, no score. All math helpers
+and GS2 were unchanged. Static attributes do not directly measure dynamic
+ownership or establish a compiler-stall cause. Full evidence and audits:
+results/resumed-moe-phase10-20261028/. No official job pending at this boundary.
+
+An inactive Decode transfer draft21bf949f is991255bytes with all non-MoE AST
+unchanged, but it was never evaluated or promoted because standalone timing
+did not improve. Retain09badc9b in Decode and33114871 in MoE.
+
+One source-backed follow-up: four-step WGMMA groups on this admitted register
+split. Original source specifically says GS4 serialized16..32-token variants
+at96registers; GS4 needs16more live A-fragment registers, matching the reviewed
+96to112compute budget change. Test that paired mechanism once, retaining all
+geometry, original layouts and GSFCI3; capture ordinary compiler diagnostics.
+Do not retry tile/encoding/grid parameters or score a flat result. Expected
+MoE quota4checks/7scores after four checks since18:24 (not a fresh API query).
