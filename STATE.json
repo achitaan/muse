@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Whole-decoder-layer SGLang baseline, then fuse local expert ID mapping and bound sorting to 32 local experts.",
+  "next_trial": "Establish Marlin MoE baseline; inspect padding and alignment overhead before one focused hypothesis.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_decode_layer",
+  "active_track": "muse_moe_w4a16",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "job": "89f9f7d227424d20",
@@ -63,5 +63,12 @@
     "sha256": "481e472af7daac9e079547ad3b15614596e6cc650b23c4ac2486013dfc314bc0",
     "speedup": 1.1204413294897262,
     "scored_job_pending": "f6b899f674914ef2"
+  },
+  "decoder_baseline": {
+    "job": "65ab5fffad0c4995",
+    "speedup": 1.0020134435113135,
+    "tests": 13,
+    "benchmarks": 12,
+    "status": "set_aside_at_user_request"
   }
 }
