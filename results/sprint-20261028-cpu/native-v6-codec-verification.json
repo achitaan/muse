@@ -1,0 +1,26 @@
+[
+  {
+    "weights": 65536,
+    "exact": true,
+    "escape_count": 61952,
+    "row_capacity": 256
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "escape_count": 1272,
+    "row_capacity": 12
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "escape_count": 750,
+    "row_capacity": 8
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "escape_count": 864,
+    "row_capacity": 10
+  }
+]

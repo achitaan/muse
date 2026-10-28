@@ -1,0 +1,6 @@
+{
+  "all_65536_patterns_exact": true,
+  "random_values_exact": 131072,
+  "packed_bytes_and_escapes_identical": true,
+  "base_constant_conversion_exact": true
+}

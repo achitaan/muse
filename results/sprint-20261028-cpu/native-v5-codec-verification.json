@@ -1,0 +1,22 @@
+[
+  {
+    "weights": 65536,
+    "exact": true,
+    "fallback_fragment_fraction": 1.0
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "fallback_fragment_fraction": 0.038818359375
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "fallback_fragment_fraction": 0.0240478515625
+  },
+  {
+    "weights": 2097152,
+    "exact": true,
+    "fallback_fragment_fraction": 0.027587890625
+  }
+]

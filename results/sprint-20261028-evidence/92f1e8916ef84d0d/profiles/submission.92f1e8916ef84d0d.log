@@ -1,0 +1,25 @@
+COMPRESS (2304, 8192) base 55 escape 10438 cap 14
+COMPRESS (8192, 1024) base 55 escape 2115 cap 3
+COMPRESS (4096, 8192) base 55 escape 18792 cap 14
+COMPRESS (8192, 4096) base 55 escape 13015 cap 7
+TUNE qkv_gate 1 2304 selected (15.135999768972397, (8, 1, 2, False))
+TUNE qkv_gate 8 2304 selected (15.87199978530407, (16, 1, 2, False))
+TUNE qkv_gate 16 2304 selected (16.704000532627106, (16, 1, 2, False))
+TUNE qkv_gate 32 2304 selected (17.855999991297722, None)
+TUNE o 1 8192 selected (9.824000298976898, (8, 1, 4, False))
+TUNE o 8 8192 selected (9.952000342309475, (8, 1, 4, False))
+TUNE o 16 8192 selected (10.495999827980995, (4, 1, 4, False))
+TUNE o 32 8192 selected (10.591999627649784, None)
+TUNE pooler 1 4096 selected (21.15200087428093, (8, 1, 4, False))
+TUNE pooler 8 4096 selected (21.536000072956085, (16, 1, 2, False))
+TUNE pooler 16 4096 selected (21.856000646948814, (8, 1, 4, False))
+TUNE pooler 32 4096 selected (22.87999913096428, (16, 1, 2, False))
+TUNE unpooler 1 1024 selected (8.576000109314919, (16, 1, 4, False))
+TUNE unpooler 8 1024 selected (8.927999995648861, (16, 1, 4, False))
+TUNE unpooler 16 8192 selected (21.888000890612602, (4, 1, 4, False))
+TUNE unpooler 32 8192 selected (22.431999444961548, None)
+TUNE router 1 256 selected (9.696000255644321, (16, 4, 4, False))
+TUNE router 8 256 selected (9.79200005531311, (8, 8, 2, False))
+TUNE router 16 256 selected (9.920000098645687, (8, 8, 4, False))
+TUNE router 32 256 selected (10.591999627649784, (4, 16, 2, False))
+CHOICES {('qkv_gate', 1, 2304): (8, 1, 2, False), ('qkv_gate', 8, 2304): (16, 1, 2, False), ('qkv_gate', 16, 2304): (16, 1, 2, False), ('qkv_gate', 32, 2304): None, ('o', 1, 8192): (8, 1, 4, False), ('o', 8, 8192): (8, 1, 4, False), ('o', 16, 8192): (4, 1, 4, False), ('o', 32, 8192): None, ('pooler', 1, 4096): (8, 1, 4, False), ('pooler', 8, 4096): (16, 1, 2, False), ('pooler', 16, 4096): (8, 1, 4, False), ('pooler', 32, 4096): (16, 1, 2, False), ('unpooler', 1, 1024): (16, 1, 4, False), ('unpooler', 8, 1024): (16, 1, 4, False), ('unpooler', 16, 8192): (4, 1, 4, False), ('unpooler', 32, 8192): None, ('router', 1, 256): (16, 4, 4, False), ('router', 8, 256): (8, 8, 2, False), ('router', 16, 256): (8, 8, 4, False), ('router', 32, 256): (4, 16, 2, False)}

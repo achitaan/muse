@@ -1,29 +1,29 @@
 # Muse Open Kernel Challenge
 
-GPU-kernel optimization sprint for [`muse_bf16_proj`](https://openkernelchallenge.dev/problems/muse_bf16_proj).
+Optimization of `muse_bf16_proj` on the official remote H200 evaluator.
+Read [HANDOFF.md](HANDOFF.md) and [STATE.json](STATE.json) before continuing.
 
-Start with [HANDOFF.md](HANDOFF.md). Paste [CLOUD_PROMPT.md](CLOUD_PROMPT.md) into a Codex Cloud task attached to this repository.
+## Latest verified result
 
-The coding session ran locally in Codex Desktop. Official evaluations run on the challenge's remote H200s. This repository does not provision paid GPU infrastructure.
+- Scored job `1183fb1c393c4422`: **1.521764x SGLang**, all 9 tests and 30 benchmarks passed.
+- Leaderboard snapshot at 05:13 UTC October 28: **106th**; rank 50 was 1.541x.
+- Exact source: `best/verified.py`; SHA256 `41a3c15f1f94560314f227adf718e21d4b17a03c5d58bc864e17827048c21bdf`.
+- Check job `60a349bee6944644`: 1.522875x, 95% interval [1.500031, 1.545718].
 
-## Verified so far
+The candidate derives from Nathen Fernandes' MIT-licensed v18 implementation.
+Local changes extend its exact additive decoder. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Small point-score gains inside the judge's uncertainty interval are not conclusive performance wins.
 
-- Official PyTorch starter: 9/9 correctness tests and 30/30 scored shapes passed on H200; **0.908671× SGLang**, 95% interval **[0.895041, 0.922301]**. This is slower than SGLang.
-- Initial Triton candidates: 17 SM90 specializations compiled through cubin; five follow-up specializations also compiled.
-- Independent numerical review and reproducible CPU router models passed, including negative controls. These do not establish GPU correctness or performance.
-- Six optimization checks were pending at the handoff snapshot. Inspect their current status before drawing conclusions or launching replacements.
+The current user deadline is **October 28, 04:00 Toronto / 08:00 UTC**.
+Work stays in the main chat. Code editing runs locally; GPU evaluations run on the
+challenge service. No paid GPU infrastructure is provisioned.
 
-The small-batch candidate also passed official correctness at **0.912009x SGLang**, 95% interval **[0.898329, 0.925689]**. Neither completed candidate beats SGLang overall. No scored submission has been made.
+## Evidence and continuation
 
-## Files
+- `results/sprint-20261028-evidence/manifest.json`: source hashes and raw official results.
+- `results/sprint-20261028-phase1/` and `results/sprint-20261028-phase2/`: immutable experiment controller histories.
+- `results/sprint-20261028-cpu/`: exact codec and layout checks; these are not GPU timing evidence.
+- `muse_bf16_proj/`: unmodified official task and reference material.
+- `CLOUD_PROMPT.md`: continuation prompt with the current deadline and source attribution.
 
-- `muse_bf16_proj/`: unmodified official task, baseline, reference, checks and starter.
-- `candidates/`: standalone optimization candidates.
-- `best/starter.py`: currently verified fallback; replace only after authoritative evidence.
-- `results/`: complete official result, pending job metadata, frozen payloads, CPU checks and compiler evidence.
-- `scripts/official.py`: Linux/Windows CLI driver with immutable payloads and a hard deadline for new checks/submissions.
-- `scripts/analyze_results.py`: per-shape official result summaries.
-- `scripts/offline_compile.py`: optional SM90 compile-only verification.
-- `scripts/verify_arithmetic.py`: deterministic CPU router arithmetic models.
-
-Credentials, downloaded tool binaries, compiler wheels and caches are excluded from Git.
+Credentials, CLI binaries, compiler caches and local measurement caches are excluded from Git.

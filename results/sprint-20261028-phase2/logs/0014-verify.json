@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_active.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1.297,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\measure_active.py\", line 70, in <module>\r\n    main()\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\measure_active.py\", line 32, in main\r\n    launch = cli(['check', 'muse_bf16_proj',\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\official.py\", line 35, in cli\r\n    raise RuntimeError(result.stderr.strip() or result.stdout.strip())\r\nRuntimeError: {\r\n  \"error\": \"daily cap of 20 check runs on muse_bf16_proj reached, counting runs not yet queued; it resets at 00:00 UTC, in 18 h 42 min\",\r\n  \"status\": 429\r\n}\r\n",
+  "stdout": "",
+  "timed_out": false
+}

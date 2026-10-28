@@ -1,0 +1,22 @@
+[
+  {
+    "family": "v18s",
+    "all_65536_patterns_exact": true,
+    "random_values_exact": 131072
+  },
+  {
+    "family": "tt_v10_sm2_smallm2",
+    "all_65536_patterns_exact": true,
+    "random_values_exact": 131072
+  },
+  {
+    "family": "tt_v12_smtrace1_smtrace",
+    "all_65536_patterns_exact": true,
+    "random_values_exact": 131072
+  },
+  {
+    "family": "tt_v13_smtrace8_smtrace",
+    "all_65536_patterns_exact": true,
+    "random_values_exact": 131072
+  }
+]

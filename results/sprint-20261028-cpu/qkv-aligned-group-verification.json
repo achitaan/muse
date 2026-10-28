@@ -1,0 +1,37 @@
+[
+  {
+    "groups": 36,
+    "rows_covered_once": 2304,
+    "all_global_vector_stores_aligned": true,
+    "row_widths": [
+      64
+    ]
+  },
+  {
+    "groups": 40,
+    "rows_covered_once": 2304,
+    "all_global_vector_stores_aligned": true,
+    "row_widths": [
+      56,
+      64
+    ]
+  },
+  {
+    "groups": 42,
+    "rows_covered_once": 2304,
+    "all_global_vector_stores_aligned": true,
+    "row_widths": [
+      48,
+      56
+    ]
+  },
+  {
+    "groups": 44,
+    "rows_covered_once": 2304,
+    "all_global_vector_stores_aligned": true,
+    "row_widths": [
+      48,
+      56
+    ]
+  }
+]

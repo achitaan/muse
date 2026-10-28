@@ -1,0 +1,1 @@
+{"all_bf16_bit_patterns": 65536, "exact_round_trip": true, "reference": "NVIDIA PTX ISA mma.m16n8k16 A fragment mapping"}

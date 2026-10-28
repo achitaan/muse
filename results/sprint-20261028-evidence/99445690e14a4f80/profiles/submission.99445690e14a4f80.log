@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/muse_bf16_proj-q7imu9d2/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_bf16_proj-q7imu9d2/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_bf16_proj-q7imu9d2/run/submission.py", line 7261, in prepare
+    error=float(torch.linalg.vector_norm(y.double()-reference)/denominator)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuStreamSynchronize
+
+

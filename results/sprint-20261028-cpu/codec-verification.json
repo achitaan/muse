@@ -1,0 +1,42 @@
+[
+  {
+    "base": 0,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 1,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 100,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 112,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 120,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 127,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 240,
+    "patterns": 65536,
+    "exact": true
+  },
+  {
+    "base": 241,
+    "patterns": 65536,
+    "exact": true
+  }
+]

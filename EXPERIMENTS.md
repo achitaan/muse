@@ -26,3 +26,8 @@ Combined small-batch + fused-router with cuBLAS larger projections; adaptive sma
 ## E07 and final local checkpoint
 
 Packed hi/lo cuBLAS router submitted as 4f2f2262cdc14b0e. Small-batch check 9b29fd36a8d646dd passed 9/9 tests and 30/30 shapes: 0.912009x SGLang, 95% interval [0.898329,0.925689]. Six other optimization jobs remain queued. No overall speedup over SGLang established; no scored submission. User requested GitHub handoff and local cleanup; all workers finished and the local goal is paused.
+
+
+## October 28 checkpoint
+
+The current scored result is 1.521764418x (job 1183fb1c393c4422), rank 106 at 05:13 UTC. The best check is 1.522874509x (60a349bee6944644). All official tests and benchmark cases passed. The target top-50 placement is not achieved. Complete raw evidence and attributed sources are in results/sprint-20261028-evidence; phase1 and phase2 directories retain the controller history. See HANDOFF.md for the current deadline and evaluation quota.

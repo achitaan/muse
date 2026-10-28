@@ -1,23 +1,38 @@
 {
-  "objective": "Best valid measured Open Kernel Challenge projection speedup before deadline",
-  "deadline_utc": "2026-10-23T17:00:00Z",
-  "integration_cutoff_utc": "2026-10-23T16:55:00Z",
-  "controller": "Local native goal paused; all workers completed; cloud continuation not started",
-  "ralph": "Inspected installed runner; not started because native goal already owns this project. No second controller.",
-  "kernel": "muse_bf16_proj",
-  "status": "paused_for_github_handoff",
-  "baseline_job": "05a52f7e67084663",
-  "best_verified_speedup": 0.9120092137662212,
-  "best_verified_file": "candidates/small_batch.py",
-  "authentication": "signed in as achitaan",
-  "next_actions": [
-    "Read HANDOFF.md and respect the original deadline",
-    "Retrieve the six existing queued jobs before launching new checks",
-    "Compare per-shape evidence and preserve exact checked artifacts"
-  ],
-  "local_hardware": "GTX 1660 class, 6 GiB; not representative of H200; no local Triton runtime",
-  "checks_remaining": 12,
-  "submissions_remaining": 10,
-  "latest_evidence": "Starter and small_batch passed 9 tests and 30 shapes. Small batch is 0.912009x SGLang, CI [0.898329,0.925689]; no overall speedup over SGLang. Six candidates still queued. 22 SM90 compiler specializations and CPU models passed.",
-  "snapshot_utc": "2026-10-23T16:40:00Z"
+  "snapshot_utc": "2026-10-28T05:21:10.482274+00:00",
+  "status": "active",
+  "objective": "Get as close as possible to top 50 by 4 AM Toronto, main chat only",
+  "deadline_utc": "2026-10-28T08:00:00Z",
+  "branch": "codex/h200-2-5x-20261028",
+  "best_source": "best/verified.py",
+  "best_source_sha256": "41a3c15f1f94560314f227adf718e21d4b17a03c5d58bc864e17827048c21bdf",
+  "best_check": {
+    "job": "60a349bee6944644",
+    "speedup": 1.5228745090040243,
+    "ci": [
+      1.500031391368964,
+      1.5457176266390846
+    ]
+  },
+  "best_scored": {
+    "job": "1183fb1c393c4422",
+    "speedup": 1.5217644181765482,
+    "ci": [
+      1.4989379519039,
+      1.5445908844491962
+    ],
+    "rank_snapshot": 106
+  },
+  "rank_snapshot_utc": "2026-10-28T05:13:50Z",
+  "top50_speedup_snapshot": 1.541,
+  "quota_snapshot": {
+    "checks_used": 20,
+    "scored_used": 2
+  },
+  "upstream": {
+    "repo": "NathenFernandes/muse-bf16-proj",
+    "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
+    "license": "MIT"
+  },
+  "next_trial": "256-byte L2 prefetch hints; prior attempt did not launch because check quota was exhausted"
 }

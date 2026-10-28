@@ -1,0 +1,20 @@
+[
+  {
+    "groups": 40,
+    "rows_covered_once": 2304,
+    "max_rows": 58,
+    "output_path": "RED4 scalar BF16 emit with wc<rows masking"
+  },
+  {
+    "groups": 42,
+    "rows_covered_once": 2304,
+    "max_rows": 55,
+    "output_path": "RED4 scalar BF16 emit with wc<rows masking"
+  },
+  {
+    "groups": 44,
+    "rows_covered_once": 2304,
+    "max_rows": 53,
+    "output_path": "RED4 scalar BF16 emit with wc<rows masking"
+  }
+]
