@@ -1,0 +1,55 @@
+{
+  "job": "35f15c0fcf9247d6",
+  "source_sha256": "df1871fad29b04f70aed36c7e3e1a5085066346c966aee5d07fe96e1a928a843",
+  "speedup": 2.3414337468711284,
+  "interval": [
+    2.3063122406680616,
+    2.376555253074195
+  ],
+  "passed": true,
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "comparisons": [
+    {
+      "bs": 1,
+      "baseline_speedup": 3.146383311095091,
+      "trial_speedup": 3.0782019705187382,
+      "ratio": 0.978330249739145
+    },
+    {
+      "bs": 16,
+      "baseline_speedup": 2.0029663645249736,
+      "trial_speedup": 1.9998324054708416,
+      "ratio": 0.9984353411471913
+    },
+    {
+      "bs": 32,
+      "baseline_speedup": 1.642387556147249,
+      "trial_speedup": 1.6246598180684715,
+      "ratio": 0.9892061176350095
+    },
+    {
+      "bs": 8,
+      "baseline_speedup": 2.2726496055914778,
+      "trial_speedup": 2.2546725313488016,
+      "ratio": 0.9920898170142698
+    },
+    {
+      "bs": 128,
+      "baseline_speedup": 2.5906674179713978,
+      "trial_speedup": 2.557936988570496,
+      "ratio": 0.9873660242245486
+    },
+    {
+      "bs": 256,
+      "baseline_speedup": 2.8745091518761363,
+      "trial_speedup": 2.8567009057671156,
+      "ratio": 0.9938047697300258
+    }
+  ],
+  "decision": "discard; WGS cases flat/slightly slower; overlapping intervals, no claimed causal regression",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "next_trial": "One const __grid_constant__ Params annotation; complete kernel body and all other source AST unchanged."
+}

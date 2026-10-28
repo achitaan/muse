@@ -256,3 +256,23 @@ controller history: results/resumed-moe-phase7-20261028/. Controller reverted
 the candidate to the verified baseline and was archived at 18:43 UTC.
 One MoE check consumed after the 18:24 quota snapshot (expected 7 checks/7
 scores remaining, not a fresh API quota observation). Goal remains active.
+
+
+## Phase 8: scheduler estimate rejected (18:52 UTC)
+
+Full check35f15c0fcf9247d6, source df1871fad29b04f70aed36c7e3e1a5085066346c966aee5d07fe96e1a928a843,
+passed5tests/6benchmarks/integrity at2.341433747x, CI[2.306312241,2.376555253].
+WGS32/128/256 speedups1.624659818/2.557936989/2.856700906 did not improve
+on the primary baseline1.642387556/2.590667418/2.874509152. Separate-job
+intervals overlap; no isolated code-layout or instruction-cost claim. Controller
+reverted to33114871 and was archived. One check, no score. Full source, raw
+profiles/results, exact-owner CPU audit and history: results/resumed-moe-phase8-20261028/.
+Do not transplant this quotient change to Decode or Attention.
+
+Next reviewed hypothesis: const __grid_constant__ Params in the native MoE
+kernel declaration. All device helpers already take const references and the
+parameter object has no member mutations; pointed-to scratch/output stays
+mutable. This may avoid per-thread parameter copies, but no generated-code
+or timing gain is established. See experiments/prepared/moe_gridparams_review.md.
+No pending job at this phase boundary. Expected MoE quota6checks/7scores after
+two checks since18:24; not a fresh quota API observation. Goal remains active.

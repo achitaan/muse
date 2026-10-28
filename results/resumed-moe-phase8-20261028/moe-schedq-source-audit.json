@@ -1,0 +1,9 @@
+{
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "df1871fad29b04f70aed36c7e3e1a5085066346c966aee5d07fe96e1a928a843",
+  "packaged_bytes": 179096,
+  "cuda_replacements": 1,
+  "original_integer_correction_loops_unchanged": true,
+  "precision_and_weights_unchanged": true,
+  "gpu_status": "unmeasured"
+}

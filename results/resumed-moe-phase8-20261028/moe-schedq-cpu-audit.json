@@ -1,0 +1,21 @@
+{
+  "source_sha256": "df1871fad29b04f70aed36c7e3e1a5085066346c966aee5d07fe96e1a928a843",
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "original_module_ast_recovered": true,
+  "cuda_one_expression_reversible": true,
+  "integer_owner_comparisons": 82275840,
+  "routing_count_distributions": 157,
+  "grid_range": [
+    1,
+    160
+  ],
+  "max_integer_product": 1838284800,
+  "float_intrinsic_error_envelope_ulp": [
+    -2,
+    2
+  ],
+  "largest_correction": 1,
+  "all_owners_exact": true,
+  "seed": 20261028,
+  "scope_limit": "CPU integer/control proof and float32 envelope; CUDA compilation and GPU numerics/timing unverified"
+}
