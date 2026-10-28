@@ -1,0 +1,13 @@
+{
+  "source": "best/decoder_verified.py",
+  "sha256": "5ed23e1eba17e7abfc5145fbdf5b607f501163517b9869af433363bb48ac10c2",
+  "checked_job": "03de660946744adb",
+  "checked_speedup": 1.1686387142058807,
+  "checked_interval": [
+    1.1511091334927925,
+    1.186168294918969
+  ],
+  "tests": 13,
+  "benchmarks": 12,
+  "scored_job_pending": "88f8b06932fa43b7"
+}

@@ -10,5 +10,13 @@
   "tests": 5,
   "benchmarks": 6,
   "fp32_norm_intermediates": true,
-  "scored_job_pending": "650aa66fd3334d8c"
+  "scored": {
+    "job": "650aa66fd3334d8c",
+    "speedup": 1.2685086331610234,
+    "interval": [
+      1.249481003663608,
+      1.2875362626584386
+    ],
+    "passed": true
+  }
 }

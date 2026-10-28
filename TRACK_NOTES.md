@@ -92,3 +92,7 @@ Read MOE_NOTES.md for measured progress, Dot review, precision correction, and r
 ## Track transition after MoE
 
 MoE retained a fully checked FP32-norm candidate at 1.268945620x. See best/moe_metadata.json and MOE_NOTES.md. Moving to Decode Layer next, then Attention Decode, with Prefill last.
+
+## Decoder checkpoint and next track
+
+Read DECODE_NOTES.md and best/decoder_metadata.json. Whole-layer checked score is 1.168638714x; a single scored publication is pending. Attention Decode is the current focus, with Prefill last. MoE scored publication passed at 1.268508633x.

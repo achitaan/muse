@@ -1,0 +1,7 @@
+{
+  "all_256_storage_bytes_preserved": true,
+  "finite_fp8_to_bf16_values_exact": 254,
+  "gpu_compilation_verified": false,
+  "gpu_correctness_verified": false,
+  "speedup_measured": false
+}

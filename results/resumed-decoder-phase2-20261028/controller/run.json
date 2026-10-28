@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T11:54:09Z",
+  "goal": "Approach top 50 overall, main chat only; Decode Layer phase using verified MoE changes, then Attention Decode and Prefill last; conserve evaluations",
+  "guard": null,
+  "max_iterations": null,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decode.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_decode_layer_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "f4cc55ca3ddc4c3ea2f8ab1a2da533bb",
+  "schema_version": 1,
+  "scope": [
+    "candidates/decode_active.py"
+  ],
+  "target": 2.2,
+  "timeout_seconds": 1200
+}

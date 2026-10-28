@@ -1,69 +1,47 @@
-> Current focus: whole Decode Layer, transferring verified MoE improvements. Read MOE_NOTES.md, TRACK_NOTES.md and STATE.json. MoE scored publication is pending; observe its existing job rather than duplicating it.
+# Current handoff — October 28, 2026
 
-> Latest focus: MoE experts (muse_moe_w4a16), at the user's request. Preserve quota. Read TRACK_NOTES.md for retrieval of attention/decoder results and pending jobs. Dot's additional ideas are pending.
+Pursue top 50 overall in the main chat only. Original 04:00 deadline was removed.
+The requested order is MoE, Decode Layer, Attention Decode, Prefill last. Current
+focus is Attention Decode; conserve checks and scored submissions. Native Goal
+remains active and is the sole foreground continuation controller.
 
-> Resumed October 28: the user removed the deadline and requested top 50 overall, main chat only. Current focus is whole decoder layer, with conservative check-first use of quotas. Dense-projection quota remains exhausted. Attention preprocessing passed all 16 tests and 12 benchmarks at 1.120441x checked; scored job f6b899f674914ef2 is pending. The earlier sprint snapshots below are historical. See STATE.json.
+Read STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md and the current
+problem's TASK.md and AGENTS.md before changing code. Validate the active
+experiment controller and existing official job handles before launching work.
+Never resubmit a job because observation timed out.
 
-# October 28 handoff
+Dense projections: exact best source best/verified.py, scored job
+6131bc96427e4486, 1.527771327x. Both daily quotas are exhausted. Historical rank
+85 is not a live placement claim.
 
-The unchanged user objective was to get as close as possible to top 50 on
-muse_bf16_proj by 04:00 Toronto / 08:00 UTC, using the main chat and existing
-subscription. The best provisional placement is **85**. Top 50 is unmet.
+MoE: best/moe_verified.py and best/moe_metadata.json identify the stricter FP32
+norm candidate. Scored job 650aa66fd3334d8c passed at 1.268508633x. The older
+1.271471562x check followed the public starter's extra BF16 norm rounding; the
+current candidate preserves pinned SGLang's FP32 norm intermediates instead.
+Do not revert that precision contract for timing noise. See MOE_NOTES.md for
+Dot's review and negative CUDA/grouped-kernel evidence.
 
-## Verified artifacts
+Whole decoder: best/decoder_verified.py and best/decoder_metadata.json identify
+the 1.168638714x checked source, passing all 13 tests, 12 benchmarks and integrity
+checks. Scored job 88f8b06932fa43b7 is pending; observe it rather than launching
+another. The candidate integrates lossless dense kernels, the checked MoE changes,
+and fused Q/K preprocessing while preserving the original FP32 router path.
 
-`best/verified.py`: SHA256 `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b`. Official scored job `6131bc96427e4486` passed all
-9 tests, 30 benchmark cases and integrity checks at **1.527771327x**,
-CI [1.504854757, 1.550687897]. The board cutoff for rank 50 was 1.5448x.
-The aggregate score was independently recomputed exactly from the 30 raw case
-records and six weighted load groups.
+Attention: best/attention_checked.py passed 16 tests and 12 benchmark cases at
+1.120441329x; scored job f6b899f674914ef2 passed at 1.116457695x. Next hypothesis
+is partitioned online-softmax attention with every visible key included, exact
+raw-byte FP8 reads and fused output norm/gate. CPU interval coverage, stable
+merge and FP8-value preservation were checked; GPU correctness/speed are untested.
+Read the prepared addon and audits under experiments/prepared/.
 
-`best/lean.py`: SHA256 `c70c595b4f3ae1797f392f477266862fdd7246a4473f76d2f934177be3617d33`. Scored job `a91eb48178ad42be` passed the same
-full validation at 1.525309711x. It removes an unused layout search and directly
-compares the original versus retained unpooler32 layouts with FP64/probe guards
-and cold-cache timing. The lean score and maximum score overlap within uncertainty.
+Preserve original BF16/NVFP4 weight formats, permitted FP32-router hi/lo splitting,
+FP32 accumulation, all activation boundaries, every attention key, fresh inputs,
+cache updates, routing and residual outputs. No output caching, harness access,
+timing changes, dropped routes or persistent predecoded BF16 expert weights.
+Preserve the dense upstream MIT notices. Full official tests are authoritative;
+CPU proofs and static guards do not establish H200 correctness or performance.
 
-## Execution is blocked
-
-All 20/20 off-board checks and 10/10 scored submissions are used. There are no
-remaining GPU evaluations on this problem today. The 00:00 UTC quota reset is
-after the requested deadline. Do not start a new run until the user supplies a
-new deadline and quota is available. No paid GPU service or external provider
-is authorized. Check current time, quotas and board before resuming.
-
-The native Goal is the sole controller. All work in this October 28 sprint was
-performed in the main chat. The final experiment journal is archived in
-`results/sprint-20261028-phase3`; do not fabricate missing events or manually edit
-controller artifacts. `scripts/measure_scored.py` has the October 28 08:00 UTC
-launch deadline. Changing it requires a new user deadline.
-
-## Provenance and findings
-
-The candidate derives from Nathen Fernandes' MIT-licensed v18 at commit
-7385e5d8f70980cfd5322ea254edc0b2b8ca90f7. Its official baseline here was
-1.516234527x checked and 1.509654730x scored. Local work extended its shorter
-additive exact decoder to four kernel families, then evaluated a two-CTA
-unpooler layout. Do not describe tiny aggregate point changes as statistically
-proved improvements: one retained search selected no new paths.
-
-Experiments also covered lossless compression, native CUDA MMA, cuBLASLt,
-register limits, QKV grouping, L2 hints, aligned exponent windows and cluster
-scheduling. Failed/slower attempts were retained in Git and reverted. A partial
-QKV grouping exposed an alignment bug; scalar and aligned-vector corrections
-passed but were slower. Two upload TLS failures were reconciled against server
-jobs before retries; neither failed upload created an extra GPU job.
-
-All BF16 values and allowed router hi/lo components retain their exact stored
-precision. Products and partial sums accumulate in FP32. Fresh inputs are used;
-outputs are not cached. The inherited implementation is not an all-finite-input
-GEMM guarantee: extreme finite BF16 arithmetic can overflow. Preserve the odd,
-outlier and nearby-shape fallbacks and all license notices.
-
-Full source bytes, judge records, profiles and confidence intervals are in
-`results/sprint-20261028-evidence`. The `unlaunched` directory records a refused
-check launch; the same source was later evaluated in scored mode. Server content
-hashes differ from local SHA256s and are not interchangeable.
-
-No credential is committed. Existing local WSL authentication is achitaan. A
-fresh environment needs an OKC_TOKEN secret or official human login. Never print
-or commit the token. Read the official TASK.md and AGENTS.md before new work.
+Use the existing signed-in free official service; never print or commit tokens.
+No paid GPUs, external providers or global orchestration changes are authorized.
+Commit/push measured evidence at phase boundaries. Do not edit run.json/events by
+hand or commit outside a controller's approved path scope during an active run.

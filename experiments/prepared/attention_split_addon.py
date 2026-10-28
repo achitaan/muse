@@ -18,7 +18,7 @@ def _achita_attention_parts(Q, KC, VC, TABLE, SEQ, KS, VS, PO, PL,
     qi, qh = rr // G, head * G + rr % G
     seq = tl.load(SEQ + batch)
     q = tl.load(Q + ((batch * L + qi[:, None]) * HQ + qh[:, None]) * D + dd[None, :],
-                mask=qi[:, None] < L, other=0).to(tl.bfloat16)
+                mask=qi[:, None] < L, other=0).to(tl.float8e4nv, bitcast=True).to(tl.bfloat16)
     base = 0
     if WINDOW:
         base = tl.maximum(0, seq + 1 - WINDOW)
@@ -34,7 +34,7 @@ def _achita_attention_parts(Q, KC, VC, TABLE, SEQ, KS, VS, PO, PL,
             physical = tl.load(TABLE + batch * TS + pos // PAGE, mask=valid, other=0)
             row = physical * PAGE + pos % PAGE
             offset = (row[None, :] * HKV + head) * D + dd[:, None]
-            k = tl.load(KC + offset, mask=valid[None, :], other=0).to(tl.bfloat16)
+            k = tl.load(KC + offset, mask=valid[None, :], other=0).to(tl.float8e4nv, bitcast=True).to(tl.bfloat16)
             score = tl.dot(q, k) * scale
             visible = valid[None, :] & (pos[None, :] <= seq + qi[:, None]) & (qi[:, None] < L)
             if WINDOW:
@@ -43,7 +43,7 @@ def _achita_attention_parts(Q, KC, VC, TABLE, SEQ, KS, VS, PO, PL,
             new_m = tl.maximum(m, tl.max(score, 1))
             correction = tl.exp2(m - new_m)
             probability = tl.where(visible, tl.exp2(score - new_m[:, None]), 0.0)
-            v = tl.load(VC + tl.trans(offset), mask=valid[:, None], other=0).to(tl.bfloat16)
+            v = tl.load(VC + tl.trans(offset), mask=valid[:, None], other=0).to(tl.float8e4nv, bitcast=True).to(tl.bfloat16)
             acc = acc * correction[:, None]
             acc = tl.dot(probability.to(tl.bfloat16), v, acc)
             den = den * correction + tl.sum(probability, 1)
@@ -103,7 +103,7 @@ def kernel_fn(data):
     lse = torch.empty((b * hkv, splits, bm), device=q.device, dtype=torch.float32)
     out = torch.empty((tokens, hq, d), device=q.device, dtype=torch.bfloat16)
     _achita_attention_parts[(b * hkv, splits)](
-        q, data['k_cache'], data['v_cache'], data['page_table'], data['seq_lens'],
+        q.view(torch.uint8), data['k_cache'].view(torch.uint8), data['v_cache'].view(torch.uint8), data['page_table'], data['seq_lens'],
         data['k_scale'], data['v_scale'], partial, lse, hq, hkv, d, length,
         group, cfg['page_size'], data['page_table'].shape[1], cfg['window'],
         cfg['sm_scale'] * cfg['qk_scale_factor'], part, splits, bm, 64,

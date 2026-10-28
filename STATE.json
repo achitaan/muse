@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Transfer the verified MoE FP32 finalizer and sparse EP8 M tiling into the whole decoder; reuse cached official baseline.",
+  "next_trial": "Reuse cached attention baseline; check partitioned online-softmax attention with exact raw FP8 reads and fused output norm/gate.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_decode_layer",
+  "active_track": "muse_attention_decode",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "job": "89f9f7d227424d20",
@@ -102,5 +102,36 @@
     "benchmarks": 6,
     "fp32_norm_intermediates": true,
     "scored_job_pending": "650aa66fd3334d8c"
+  },
+  "decoder_checked": {
+    "source": "best/decoder_verified.py",
+    "sha256": "5ed23e1eba17e7abfc5145fbdf5b607f501163517b9869af433363bb48ac10c2",
+    "checked_job": "03de660946744adb",
+    "checked_speedup": 1.1686387142058807,
+    "checked_interval": [
+      1.1511091334927925,
+      1.186168294918969
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "scored_job_pending": "88f8b06932fa43b7"
+  },
+  "moe_scored": {
+    "job": "650aa66fd3334d8c",
+    "speedup": 1.2685086331610234,
+    "interval": [
+      1.249481003663608,
+      1.2875362626584386
+    ],
+    "passed": true
+  },
+  "overall_placement_snapshot": {
+    "utc": "2026-10-28T12:11:35.091814+00:00",
+    "you": {
+      "rank": 745,
+      "team": "achitaan",
+      "first": false,
+      "ahead": 744
+    }
   }
 }
