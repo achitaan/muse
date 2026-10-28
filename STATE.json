@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Required correctness repair c05090e2 only: original2CTA math/configuration, complete512segment storage and public int32 prefix bound. CPU156native partitions/28835segments passes. One exact-source full check; no resource-neighbor sweep. ThreeCTA trial closed (real3/no spills, no gain).",
+  "next_trial": "Exact Decode correctness repaird9fe7558: original1fb5 math including FP16 QK/PV, only segment512/public prefix bound/L8large fallback guard. CPU source/guard/fallback equivalence passes. One full13/12 check, then Prefill zero-row unpooler compaction inspection; no occupancy-neighbor or identical-score repeats.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -59,42 +59,19 @@
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
-    "sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
-    "checked_job": "574bd76165e54556",
-    "checked_speedup": 2.5806627296497604,
-    "checked_interval": [
-      2.541952788705014,
-      2.633527864027198
-    ],
+    "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "verified_job": "8b767ea7b2b74de6",
+    "verification_mode": "full scored evaluation",
     "tests": 16,
     "benchmarks": 12,
-    "upstream": {
-      "repo": "vjeux/okc-2026",
-      "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
-      "license": "Apache-2.0"
-    },
-    "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported.",
-    "historical_unfixed_source_sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
-    "historical_unfixed_scored": {
-      "job": "20524d06e3894595",
-      "speedup": 2.5624023087539505,
-      "interval": [
-        2.523966274122641,
-        2.6141994378600057
-      ],
-      "passed": true
-    },
     "integrity": true,
-    "bf16_attention_boundaries_preserved": true,
-    "publication": "full corrected-source FP8 PV confirmation passed; effectively tied with parent score; no claim of significance",
-    "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
     "scored": {
-      "job": "3e2a317e289a4cc8",
-      "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
-      "speedup": 2.5482827639214785,
+      "job": "8b767ea7b2b74de6",
+      "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+      "speedup": 2.5370005142373167,
       "interval": [
-        2.510058522462656,
-        2.60243559730152
+        2.4989455065237567,
+        2.575055521950876
       ],
       "passed": true,
       "tests": 16,
@@ -102,9 +79,22 @@
       "integrity": true,
       "bf16_attention_boundaries_preserved": true
     },
-    "parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
-    "internal_pv": "E4M3 MMA with FP32 accumulation and probability scale256; retained FP16 QK",
-    "gain_uncertainty": "Changed check controls rose about3%, scored confirmation only0.257% above parent. One confirmation used; do not rescore for noise."
+    "upstream": {
+      "repo": "vjeux/okc-2026",
+      "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "license": "Apache-2.0"
+    },
+    "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported.",
+    "bf16_attention_boundaries_preserved": true,
+    "coverage_repair": "L1 flat512segments; guarded int32 prefix space; L8B>64 uses unchanged fallback",
+    "native_checked_parent": {
+      "source_sha256": "c05090e240b22b6e2e20f644cfaf48aff969d0b0418e448c4ca369ce7fcb8ba9",
+      "job": "14d661f21adc4403",
+      "speedup": 2.5943546555779924,
+      "native_cuda_exact": true
+    },
+    "performance_note": "Retained for correctness. Scores2.5370 and previous2.5483/2.5417 are effectively tied. No repeat submission for noise.",
+    "large_l8_limit": "B>64 general fallback may be slower; common scored B<=32 native paths unchanged"
   },
   "decoder_baseline": {
     "job": "65ab5fffad0c4995",
@@ -121,12 +111,12 @@
     "precision_note": "Previous public-starter BF16 scaled norm rounding is removed in the new baseline."
   },
   "attention_scored": {
-    "job": "3e2a317e289a4cc8",
-    "source_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
-    "speedup": 2.5482827639214785,
+    "job": "8b767ea7b2b74de6",
+    "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "speedup": 2.5370005142373167,
     "interval": [
-      2.510058522462656,
-      2.60243559730152
+      2.4989455065237567,
+      2.575055521950876
     ],
     "passed": true,
     "tests": 16,
@@ -643,7 +633,15 @@
     },
     "precision_note": "API best rows may still reference the five historical omitted-boundary runs; withdrawal awaits explicit approval. Corrected Attention2.541743138 and Decode1.986659677 are separate source-bound scored results."
   },
-  "pending_jobs": [],
+  "pending_jobs": [
+    {
+      "track": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+      "status": "ready_to_launch",
+      "launch": ".decode-measurements/d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988/launch.json"
+    }
+  ],
   "decoder_projection_phase7": {
     "job": "afd35730c7d3476f",
     "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
@@ -2142,5 +2140,62 @@
     "scored_runs_used": 0,
     "checks_used": 1,
     "repair_only_sha256": "c05090e240b22b6e2e20f644cfaf48aff969d0b0418e448c4ca369ce7fcb8ba9"
+  },
+  "attention_segment_repair": {
+    "native_checked_source_sha256": "c05090e240b22b6e2e20f644cfaf48aff969d0b0418e448c4ca369ce7fcb8ba9",
+    "check_job": "14d661f21adc4403",
+    "check_speedup": 2.5943546555779924,
+    "check_interval": [
+      2.5554393357443224,
+      2.633269975411662
+    ],
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "final_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "final_native_cuda_exact": true,
+    "final_difference": "L8 batch>64 falls back; CPU66shape/2largeL8 numerical cases pass",
+    "publication": "full exact-source16/12/integrity passed",
+    "performance_claim": "correctness repair; no causally established gain",
+    "scored": {
+      "job": "8b767ea7b2b74de6",
+      "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+      "speedup": 2.5370005142373167,
+      "interval": [
+        2.4989455065237567,
+        2.575055521950876
+      ],
+      "passed": true,
+      "tests": 16,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
+    },
+    "retained_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f"
+  },
+  "decoder_segment_repair_preflight": {
+    "parent_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "bytes": 989018,
+    "inverse_cuda_exact": true,
+    "all_other_ast_unchanged": true,
+    "changed_python_functions": [
+      "_native_attn__fits"
+    ],
+    "fp16_attention_qk_pv_retained": true,
+    "moe_dense_router_residual_unchanged": true,
+    "edits": [
+      {
+        "before": "int seg[F ? MAXSEG : 1][3];",
+        "after": "int seg[F ? ((L == 1) ? MAXB : MAXSEG) : 1][3];",
+        "count": 1
+      },
+      {
+        "before": "S.cum[b] < ceg && n < MAXSEG",
+        "after": "S.cum[b] < ceg && n < MAXB",
+        "count": 1
+      }
+    ],
+    "gpu_verified": false
   }
 }

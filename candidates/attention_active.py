@@ -590,7 +590,7 @@ def _fits(data):
     """Sizes the CUDA path's 32-bit indexing covers (caches of any size are fine: 64-bit offsets past 4 GB)."""
     cfg = data['config']
     out_elems = cfg['batch'] * cfg['q_len'] * cfg['num_q_heads'] * cfg['head_dim']
-    return (data['qkv'].numel() < INDEX_LIMIT and data['page_table'].numel() < INDEX_LIMIT and (out_elems < INDEX_LIMIT)) and cfg['batch'] * (data['page_table'].shape[1] * cfg['page_size'] + cfg['q_len'] + 600) < INDEX_LIMIT
+    return ((data['qkv'].numel() < INDEX_LIMIT and data['page_table'].numel() < INDEX_LIMIT and (out_elems < INDEX_LIMIT)) and cfg['batch'] * (data['page_table'].shape[1] * cfg['page_size'] + cfg['q_len'] + 600) < INDEX_LIMIT) and (cfg['q_len'] != 8 or cfg['batch'] <= 64)
 
 
 def kernel_fn(data: Inputs) -> torch.Tensor:

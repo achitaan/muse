@@ -1,0 +1,10 @@
+{
+  "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "guard_cases": 66,
+  "large_l8_fallback_cases": 2,
+  "batch": 65,
+  "max_relative_l2_vs_fp64": 5.418641012511216e-05,
+  "native_cuda_matches_checked_c050": true,
+  "bf16_boundaries_preserved": true,
+  "official_full_scored_evaluation_pending": true
+}

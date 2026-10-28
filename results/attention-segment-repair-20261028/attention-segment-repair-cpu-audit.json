@@ -1,0 +1,101 @@
+{
+  "source_sha256": "c05090e240b22b6e2e20f644cfaf48aff969d0b0418e448c4ca369ce7fcb8ba9",
+  "parent_sha256": "a310b988ce0eaccb7ff5db7016dc041ec900019528bc8c136e34a278c3fd9372",
+  "original_math_registers_grids_preserved": true,
+  "layout_sizes": {
+    "L1_flat0": 57344,
+    "L1_flat1": 66560,
+    "L8_flat0": 93184,
+    "L8_flat1": 113664
+  },
+  "partitions": 156,
+  "segments": 28835,
+  "native_domain_counterexamples": [
+    {
+      "batch": 128,
+      "pairs": 2,
+      "max_pages": 4194305,
+      "grid": 132,
+      "old_lost_keys": 17,
+      "old_max_segments": 81,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 128,
+      "pairs": 4,
+      "max_pages": 4194305,
+      "grid": 66,
+      "old_lost_keys": 64,
+      "old_max_segments": 128,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 128,
+      "pairs": 8,
+      "max_pages": 1048577,
+      "grid": 33,
+      "old_lost_keys": 20,
+      "old_max_segments": 84,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 128,
+      "pairs": 8,
+      "max_pages": 4194305,
+      "grid": 33,
+      "old_lost_keys": 64,
+      "old_max_segments": 128,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 256,
+      "pairs": 2,
+      "max_pages": 4194305,
+      "grid": 132,
+      "old_lost_keys": 52,
+      "old_max_segments": 82,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 256,
+      "pairs": 4,
+      "max_pages": 4194305,
+      "grid": 66,
+      "old_lost_keys": 128,
+      "old_max_segments": 163,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 256,
+      "pairs": 8,
+      "max_pages": 1048577,
+      "grid": 33,
+      "old_lost_keys": 64,
+      "old_max_segments": 87,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 256,
+      "pairs": 8,
+      "max_pages": 4194305,
+      "grid": 33,
+      "old_lost_keys": 192,
+      "old_max_segments": 256,
+      "new_lost_keys": 0
+    },
+    {
+      "batch": 512,
+      "pairs": 8,
+      "max_pages": 1048577,
+      "grid": 33,
+      "old_lost_keys": 154,
+      "old_max_segments": 95,
+      "new_lost_keys": 0
+    }
+  ],
+  "oversized_shape_fallback_cases": 4,
+  "full_key_intervals": true,
+  "one_cache_write_owner": true,
+  "gpu_verified": false,
+  "scope": "CPU/source evidence only; official exact-source check required"
+}

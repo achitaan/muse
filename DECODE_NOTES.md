@@ -435,3 +435,28 @@ No score repeat or Decode transfer: optimistic screen about0.5% whole Decode.
 Payloads, profiles, ledgers, CPU audit, controller and publication are saved in
 results/resumed-attention-fp8pv-20261028/. No pending GPU job or controller.
 See attention_fp8pv_three_cta_review.md before constructing the next candidate.
+
+
+## Complete Attention segment-domain repair
+
+Retained9e922c35 scored8b767ea7b2b74de6 at2.537000514x,
+CI[2.498945507,2.575055522], full16tests/12benchmarks/integrity. Native CUDA
+is exactly checkedc05090e2 (job14d661f21adc4403,2.594354656x); final source
+adds a locally verified fallback guard for L8B>64. Source9e9 itself has a
+full scored validation, not a separate check. Driver reuses that completed
+scored handle for a cached baseline, avoiding another evaluation.
+
+The source-derived interval audit found an eligible B512/pairs8 one-long-
+request case losing154keys under the old64segment cap. L1 now stores512;
+public index-space bounds guard int32 prefix overflow. L8B>64 uses the
+unchanged general fallback, whose B65/full+sliding CPU comparison against
+FP64 had maxL2 error0.0000541864. That fallback may be slower for large
+L8 batches; all scored B<=32 native arithmetic remains unchanged. A future
+native expansion could compact unused flat-only shared fields, but is not
+needed for the current scoring shapes and has no measured gain.
+
+This is a correctness repair, not a demonstrated speedup. Prior scores
+2.5483/2.5417 are effectively tied with2.5370. Prior sources had the general
+segment-domain limitation; do not claim their coverage extends to these
+skewed large batches. Full evidence: results/attention-segment-repair-20261028/.
+Do not repeat scored submissions for timing noise.

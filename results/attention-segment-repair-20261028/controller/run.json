@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T22:08:12Z",
+  "goal": "Verify required complete flat-key coverage repair with original2CTA configuration; broader overall-top50 Goal remains active",
+  "guard": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_segment_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_attention.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "b53596ecfd4842edbed14c1e35dca766",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.68,
+  "timeout_seconds": 1800
+}

@@ -1,3 +1,11 @@
+> Checkpoint: Attention coverage repair9e922c35 is fully validated and retained.
+> Scored8b767ea7b2b74de6 passed16/12/integrity at2.537000514x; native CUDA parent
+> c05090e2 checked2.594354656x. Large-L8 fallback guarded and CPU validated.
+> ThreeCTA65527644 was discarded: real3CTA/no spills but no normalized gain.
+> Decode repaird9fe7558 is CPU-audited and ready for one full13/12 check.
+> It retains original FP16 QK/PV and all dense/router/MoE/residual computation.
+> Next optimization packet: prefill_zero_row_unpooler_review.md. Goal active.
+
 > Latest checkpoint: October28,21:47UTC. Attentiona310b988 FP8 PV passed
 > full16tests/12benchmarks/integrity; check574bd76165e54556 at2.580662730x,
 > scored3e2a317e289a4cc8 at2.548282764x. Effectively tied with parent2.541743138x;
@@ -104,3 +112,28 @@ registers per32-key block, with16FP16 MMA operations. A register-only
 4x4 byte transpose could feed8FP8 K32 MMAs without extra shared memory.
 Keep the retained FP16 QK path. Before a candidate, audit P scaling,
 PTX A/B/C mapping, every BF16 boundary and actual FA3 internal precision.
+
+
+## Complete Attention segment-domain repair
+
+Retained9e922c35 scored8b767ea7b2b74de6 at2.537000514x,
+CI[2.498945507,2.575055522], full16tests/12benchmarks/integrity. Native CUDA
+is exactly checkedc05090e2 (job14d661f21adc4403,2.594354656x); final source
+adds a locally verified fallback guard for L8B>64. Source9e9 itself has a
+full scored validation, not a separate check. Driver reuses that completed
+scored handle for a cached baseline, avoiding another evaluation.
+
+The source-derived interval audit found an eligible B512/pairs8 one-long-
+request case losing154keys under the old64segment cap. L1 now stores512;
+public index-space bounds guard int32 prefix overflow. L8B>64 uses the
+unchanged general fallback, whose B65/full+sliding CPU comparison against
+FP64 had maxL2 error0.0000541864. That fallback may be slower for large
+L8 batches; all scored B<=32 native arithmetic remains unchanged. A future
+native expansion could compact unused flat-only shared fields, but is not
+needed for the current scoring shapes and has no measured gain.
+
+This is a correctness repair, not a demonstrated speedup. Prior scores
+2.5483/2.5417 are effectively tied with2.5370. Prior sources had the general
+segment-domain limitation; do not claim their coverage extends to these
+skewed large batches. Full evidence: results/attention-segment-repair-20261028/.
+Do not repeat scored submissions for timing noise.

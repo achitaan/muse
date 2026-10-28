@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_segment_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.125,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Native attention retains BF16 norm, RoPE and output boundaries in all finalizers and fallback.\r\nFull16/12/integrity for exact repaired source. Segment capacity512, int32 shape guard, original2CTA configuration.\r\n",
+  "timed_out": false
+}

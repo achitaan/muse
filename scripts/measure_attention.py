@@ -21,8 +21,11 @@ def main():
         raise RuntimeError('Frozen source hash collision')
     frozen.write_bytes(raw)
     launch_path = directory / 'launch.json'
-    if launch_path.exists():
-        launch = json.loads(launch_path.read_text())
+    # A full scored evaluation supplies the same tests/timing as a check.
+    # Reuse it as the baseline when that exact source has no check handle.
+    cached_launch = launch_path if launch_path.exists() else directory / 'scored-launch.json'
+    if cached_launch.exists():
+        launch = json.loads(cached_launch.read_text())
     else:
         # A failed upload is not automatically retried: reconcile official jobs
         # before invoking this command again if no launch record was returned.

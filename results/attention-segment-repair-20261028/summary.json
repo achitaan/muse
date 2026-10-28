@@ -1,0 +1,32 @@
+{
+  "native_checked_source_sha256": "c05090e240b22b6e2e20f644cfaf48aff969d0b0418e448c4ca369ce7fcb8ba9",
+  "check_job": "14d661f21adc4403",
+  "check_speedup": 2.5943546555779924,
+  "check_interval": [
+    2.5554393357443224,
+    2.633269975411662
+  ],
+  "tests": 16,
+  "benchmarks": 12,
+  "integrity": true,
+  "final_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "final_native_cuda_exact": true,
+  "final_difference": "L8 batch>64 falls back; CPU66shape/2largeL8 numerical cases pass",
+  "publication": "full exact-source16/12/integrity passed",
+  "performance_claim": "correctness repair; no causally established gain",
+  "scored": {
+    "job": "8b767ea7b2b74de6",
+    "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "speedup": 2.5370005142373167,
+    "interval": [
+      2.4989455065237567,
+      2.575055521950876
+    ],
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  },
+  "retained_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f"
+}

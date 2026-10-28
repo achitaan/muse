@@ -1,3 +1,11 @@
+> Checkpoint: Attention coverage repair9e922c35 is fully validated and retained.
+> Scored8b767ea7b2b74de6 passed16/12/integrity at2.537000514x; native CUDA parent
+> c05090e2 checked2.594354656x. Large-L8 fallback guarded and CPU validated.
+> ThreeCTA65527644 was discarded: real3CTA/no spills but no normalized gain.
+> Decode repaird9fe7558 is CPU-audited and ready for one full13/12 check.
+> It retains original FP16 QK/PV and all dense/router/MoE/residual computation.
+> Next optimization packet: prefill_zero_row_unpooler_review.md. Goal active.
+
 > Latest checkpoint: October28,21:47UTC. Attentiona310b988 FP8 PV passed
 > full16tests/12benchmarks/integrity; check574bd76165e54556 at2.580662730x,
 > scored3e2a317e289a4cc8 at2.548282764x. Effectively tied with parent2.541743138x;
