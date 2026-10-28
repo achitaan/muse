@@ -1,3 +1,5 @@
+> Current focus: whole Decode Layer, transferring verified MoE improvements. Read MOE_NOTES.md, TRACK_NOTES.md and STATE.json. MoE scored publication is pending; observe its existing job rather than duplicating it.
+
 > Latest focus: MoE experts (muse_moe_w4a16), at the user's request. Preserve quota. Read TRACK_NOTES.md for retrieval of attention/decoder results and pending jobs. Dot's additional ideas are pending.
 
 > Resumed October 28: the user removed the deadline and requested top 50 overall, main chat only. Current focus is whole decoder layer, with conservative check-first use of quotas. Dense-projection quota remains exhausted. Attention preprocessing passed all 16 tests and 12 benchmarks at 1.120441x checked; scored job f6b899f674914ef2 is pending. The earlier sprint snapshots below are historical. See STATE.json.

@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_moe_precision.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.125,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "FP32 norm-intermediate contract verified; GPU validation remains authoritative.\r\n",
+  "timed_out": false
+}

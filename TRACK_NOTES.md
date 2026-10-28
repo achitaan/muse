@@ -88,3 +88,7 @@ or external model provider is authorized.
 ## Latest MoE update
 
 Read MOE_NOTES.md for measured progress, Dot review, precision correction, and remaining track order. Attention scored result is 1.116457695x; its earlier pending status above is historical.
+
+## Track transition after MoE
+
+MoE retained a fully checked FP32-norm candidate at 1.268945620x. See best/moe_metadata.json and MOE_NOTES.md. Moving to Decode Layer next, then Attention Decode, with Prefill last.

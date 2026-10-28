@@ -1,3 +1,5 @@
+> Current focus: whole Decode Layer, transferring verified MoE improvements. Read MOE_NOTES.md, TRACK_NOTES.md and STATE.json. MoE scored publication is pending; observe its existing job rather than duplicating it.
+
 > Latest focus: MoE experts (muse_moe_w4a16), at the user's request. Preserve quota. Read TRACK_NOTES.md for retrieval of attention/decoder results and pending jobs. Dot's additional ideas are pending.
 
 Continue toward top 50 overall, using the main chat only. The user removed the original deadline and requested whole decoder layer as the current focus, with conservative use of evaluations. Read the latest STATE.json, the resume note at the top of HANDOFF.md, THIRD_PARTY_NOTICES.md, and muse_decode_layer/TASK.md and AGENTS.md. Use checks for focused hypotheses before spending scored runs. Preserve current best sources and immutable official evidence. Inspect the active controller and existing job handles before launching anything.

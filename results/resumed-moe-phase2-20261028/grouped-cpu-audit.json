@@ -1,0 +1,7 @@
+{
+  "seed": 20261028,
+  "all_raw_weight_values_match_task_dequantizer": true,
+  "cpu_model_relative_l2_vs_fp64": 0.0021335968403128364,
+  "gpu_verified": false,
+  "speedup_measured": false
+}

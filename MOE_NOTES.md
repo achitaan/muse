@@ -46,3 +46,23 @@ See TRACK_NOTES.md for earlier attention/decoder work. Attention scored job
 f6b899f674914ef2 completed at 1.116457695x and passed. Decoder baseline
 65ab5fffad0c4995 completed at 1.002013444x. The next focus after MoE is decoder
 layer, then attention and prefill. No Dot advice authorizes external spending.
+
+## Phase 2 checkpoint and move to Decode Layer
+
+FP32-intermediate baseline 0535f51d98d548ee passed all 5 tests, all 6 benchmarks
+and integrity checks at **1.268945620x**, CI [1.249911436,1.287979804].
+Exact source: best/moe_verified.py, SHA256 eab0e08d75f29658ec33a8f370d947ca023a9c10e3d09666684e6df1ef05f92d.
+
+Grouped Triton check c8a6c6e4c46142e1 failed compilation because a masked FP8
+load used an integer zero. One diagnosed retry 8f5c231df84b4147 compiled and
+passed all correctness checks but was much slower: 0.448401955x aggregate, with
+M128/M256 around 7.7/10.6ms. Reverted. No further geometry sweep.
+Evidence and immutable controller history: results/resumed-moe-phase2-20261028/.
+
+Seven MoE checks were used. One scored publication of the stricter FP32
+candidate is now pending: 650aa66fd3334d8c. Observe that job rather than
+resubmitting it. Remaining quota at launch: 13 checks and 9 scored runs.
+
+Next focus is whole Decode Layer, carrying over the small-M FP32 finalizer and
+M-tile choices. Whole-layer baseline 65ab5fffad0c4995 is already measured and
+cached at 1.002013444x. Reuse it without another GPU baseline run.

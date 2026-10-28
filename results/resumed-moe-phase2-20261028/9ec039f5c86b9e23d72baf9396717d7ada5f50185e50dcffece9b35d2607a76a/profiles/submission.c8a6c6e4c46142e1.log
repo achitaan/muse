@@ -1,0 +1,112 @@
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/core.py", line 43, in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/core.py", line 2540, in load
+    return _semantic.load(pointer, mask, other, boundary_check, padding_option, cache_modifier, eviction_policy,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py", line 1045, in load
+    other = self.cast(other, elt_ty)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py", line 916, in cast
+    assert False, f'cannot cast {input} to {dst_ty}'
+           ^^^^^
+AssertionError: cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/submission.py", line 262, in kernel_fn
+    _achita_nvfp4_grouped[(blocks, triton.cdiv(8192, 64))](
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 374, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 757, in run
+    kernel = self._do_compile(key, signature, device, constexprs, options, attrs, warmup)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 902, in _do_compile
+    kernel = self.compile(src, target=target, options=options.__dict__)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py", line 307, in compile
+    module = src.make_ir(target, options, codegen_fns, module_map, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+    return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+triton.compiler.errors.CompilationError: at 27:24:
+            acc = tl.zeros((BM, BN), tl.float32)
+            global_scale = tl.load(GS + expert)
+            for start_k in range(tl.cdiv(K, BK)):
+                col = start_k * BK + kk
+                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],
+                            mask=valid[:, None] & (col[None, :] < K), other=0)
+                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,
+                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)
+                code = (packed >> ((col[:, None] % 2) * 4)) & 15
+                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5
+                value = tl.where((code & 8) != 0, -magnitude, magnitude)
+                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,
+                        ^
+cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/core.py", line 43, in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/core.py", line 2540, in load
+    return _semantic.load(pointer, mask, other, boundary_check, padding_option, cache_modifier, eviction_policy,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py", line 1045, in load
+    other = self.cast(other, elt_ty)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py", line 916, in cast
+    assert False, f'cannot cast {input} to {dst_ty}'
+           ^^^^^
+AssertionError: cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_moe_w4a16-_2i67nnm/run/submission.py", line 262, in kernel_fn
+    _achita_nvfp4_grouped[(blocks, triton.cdiv(8192, 64))](
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 374, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 757, in run
+    kernel = self._do_compile(key, signature, device, constexprs, options, attrs, warmup)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py", line 902, in _do_compile
+    kernel = self.compile(src, target=target, options=options.__dict__)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py", line 307, in compile
+    module = src.make_ir(target, options, codegen_fns, module_map, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+    return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+triton.compiler.errors.CompilationError: at 27:24:
+            acc = tl.zeros((BM, BN), tl.float32)
+            global_scale = tl.load(GS + expert)
+            for start_k in range(tl.cdiv(K, BK)):
+                col = start_k * BK + kk
+                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],
+                            mask=valid[:, None] & (col[None, :] < K), other=0)
+                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,
+                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)
+                code = (packed >> ((col[:, None] % 2) * 4)) & 15
+                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5
+                value = tl.where((code & 8) != 0, -magnitude, magnitude)
+                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,
+                        ^
+cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>

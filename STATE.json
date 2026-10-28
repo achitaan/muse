@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Rebaseline with FP32 scaled norm intermediates matching pinned SGLang before further tuning.",
+  "next_trial": "Transfer the verified MoE FP32 finalizer and sparse EP8 M tiling into the whole decoder; reuse cached official baseline.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_moe_w4a16",
+  "active_track": "muse_decode_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "job": "89f9f7d227424d20",
@@ -88,5 +88,19 @@
     "muse_decode_layer",
     "muse_attention_decode",
     "muse_prefill_layer"
-  ]
+  ],
+  "moe_checked": {
+    "source": "best/moe_verified.py",
+    "sha256": "eab0e08d75f29658ec33a8f370d947ca023a9c10e3d09666684e6df1ef05f92d",
+    "checked_job": "0535f51d98d548ee",
+    "checked_speedup": 1.2689456201126204,
+    "checked_interval": [
+      1.2499114358109311,
+      1.2879798044143096
+    ],
+    "tests": 5,
+    "benchmarks": 6,
+    "fp32_norm_intermediates": true,
+    "scored_job_pending": "650aa66fd3334d8c"
+  }
 }

@@ -1,0 +1,144 @@
+{
+  "board": "muse_moe_w4a16",
+  "call_id": "kc-c8a6c6e4c46142e1",
+  "cluster": "sfo3",
+  "content_hash": "5cb7131a72a13773a02875321f146c30eb241ff6542bf2052314b398e1565390",
+  "created_at": 1793188021.6757932,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793188067.9533827,
+  "id": "c8a6c6e4c46142e1",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.moe-measurements/9ec039f5c86b9e23d72baf9396717d7ada5f50185e50dcffece9b35d2607a76a/profiles/submission.c8a6c6e4c46142e1.log"
+  },
+  "payload_ref": "muse_moe_w4a16/5cb7131a72a13773a02875321f146c30eb241ff6542bf2052314b398e1565390.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "afcead6a6ff090aa50fe9bc907f0fa8f4ba73d95fa92af93ec260b5e8ff00f00",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_moe_w4a16/baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+        "problems/muse_moe_w4a16/reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+        "problems/muse_moe_w4a16/task.yml": "cc6870087c1a115e69f40093478553e0a03c1b3e92f527c2e55c4115e2db42ad"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "Traceback (most recent call last):\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/core.py\", line 43, in wrapper\n    return fn(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/core.py\", line 2540, in load\n    return _semantic.load(pointer, mask, other, boundary_check, padding_option, cache_modifier, eviction_policy,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py\", line 1045, in load\n    other = self.cast(other, elt_ty)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py\", line 916, in cast\n    assert False, f'cannot cast {input} to {dst_ty}'\n           ^^^^^\nAssertionError: cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/submission.py\", line 262, in kernel_fn\n    _achita_nvfp4_grouped[(blocks, triton.cdiv(8192, 64))](\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 374, in <lambda>\n    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 757, in run\n    kernel = self._do_compile(key, signature, device, constexprs, options, attrs, warmup)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 902, in _do_compile\n    kernel = self.compile(src, target=target, options=options.__dict__)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py\", line 307, in compile\n    module = src.make_ir(target, options, codegen_fns, module_map, context)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py\", line 80, in make_ir\n    return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntriton.compiler.errors.CompilationError: at 27:24:\n            acc = tl.zeros((BM, BN), tl.float32)\n            global_scale = tl.load(GS + expert)\n            for start_k in range(tl.cdiv(K, BK)):\n                col = start_k * BK + kk\n                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],\n                            mask=valid[:, None] & (col[None, :] < K), other=0)\n                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,\n                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)\n                code = (packed >> ((col[:, None] % 2) * 4)) & 15\n                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5\n                value = tl.where((code & 8) != 0, -magnitude, magnitude)\n                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,\n                        ^\ncannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>\nTraceback (most recent call last):\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/core.py\", line 43, in wrapper\n    return fn(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/core.py\", line 2540, in load\n    return _semantic.load(pointer, mask, other, boundary_check, padding_option, cache_modifier, eviction_policy,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py\", line 1045, in load\n    other = self.cast(other, elt_ty)\n            ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/language/semantic.py\", line 916, in cast\n    assert False, f'cannot cast {input} to {dst_ty}'\n           ^^^^^\nAssertionError: cannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/worker.py\", line 415, in <lambda>\n    return functools.partial(lambda k, p, d: k(d, p), fn, state[\"prep\"])\n                                             ^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_2i67nnm/run/submission.py\", line 262, in kernel_fn\n    _achita_nvfp4_grouped[(blocks, triton.cdiv(8192, 64))](\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 374, in <lambda>\n    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 757, in run\n    kernel = self._do_compile(key, signature, device, constexprs, options, attrs, warmup)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/runtime/jit.py\", line 902, in _do_compile\n    kernel = self.compile(src, target=target, options=options.__dict__)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py\", line 307, in compile\n    module = src.make_ir(target, options, codegen_fns, module_map, context)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/triton/compiler/compiler.py\", line 80, in make_ir\n    return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntriton.compiler.errors.CompilationError: at 27:24:\n            acc = tl.zeros((BM, BN), tl.float32)\n            global_scale = tl.load(GS + expert)\n            for start_k in range(tl.cdiv(K, BK)):\n                col = start_k * BK + kk\n                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],\n                            mask=valid[:, None] & (col[None, :] < K), other=0)\n                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,\n                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)\n                code = (packed >> ((col[:, None] % 2) * 4)) & 15\n                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5\n                value = tl.where((code & 8) != 0, -magnitude, magnitude)\n                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,\n                        ^\ncannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 120.35,
+        "power.limit": 700,
+        "temperature.gpu": 31
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 131.84,
+        "power.limit": 700,
+        "temperature.gpu": 31
+      },
+      "node": "n-hbquzsoc2fbla3mk4cpu32bkrb"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 4,
+        "baseline_prepare_pad": 5088256,
+        "copies": 2,
+        "error": null,
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": 6324224,
+        "prepare_s": 0.088660788,
+        "status": "pass"
+      },
+      {
+        "case": {
+          "bs": 4,
+          "seed": 5823299835355725717,
+          "sharding": "ep8"
+        },
+        "event": "test",
+        "index": 0,
+        "message": "relative L2 error 5.512e-03 (worst row 5.751e-03)",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "bs": 33,
+          "seed": 5823318371543731937,
+          "sharding": "ep8"
+        },
+        "event": "test",
+        "index": 1,
+        "message": "relative L2 error 5.607e-03 (worst row 6.110e-03)",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "bs": 257,
+          "seed": 5823355443919744380,
+          "sharding": "ep8"
+        },
+        "event": "test",
+        "index": 2,
+        "message": "CompilationError: at 27:24:\n            acc = tl.zeros((BM, BN), tl.float32)\n            global_scale = tl.load(GS + expert)\n            for start_k in range(tl.cdiv(K, BK)):\n                col = start_k * BK + kk\n                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],\n                            mask=valid[:, None] & (col[None, :] < K), other=0)\n                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,\n                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)\n                code = (packed >> ((col[:, None] % 2) * 4)) & 15\n                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5\n                value = tl.where((code & 8) != 0, -magnitude, magnitude)\n                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,\n                        ^\ncannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "bs": 128,
+          "dist": "skewed",
+          "seed": 5823373980107750603,
+          "sharding": "ep8"
+        },
+        "event": "test",
+        "index": 3,
+        "message": "CompilationError: at 27:24:\n            acc = tl.zeros((BM, BN), tl.float32)\n            global_scale = tl.load(GS + expert)\n            for start_k in range(tl.cdiv(K, BK)):\n                col = start_k * BK + kk\n                x = tl.load(X + (slots[:, None] // INPUT_TOPK) * K + col[None, :],\n                            mask=valid[:, None] & (col[None, :] < K), other=0)\n                packed = tl.load(W + (expert * N + nn[None, :]) * (K // 2) + col[:, None] // 2,\n                                 mask=(nn[None, :] < N) & (col[:, None] < K), other=0).to(tl.uint32)\n                code = (packed >> ((col[:, None] % 2) * 4)) & 15\n                magnitude = ((tl.full((), 0xc8643210, tl.uint32) >> ((code & 7) * 4)) & 15).to(tl.float32) * 0.5\n                value = tl.where((code & 8) != 0, -magnitude, magnitude)\n                scale = tl.load(SF + (expert * N + nn[None, :]) * (K // 16) + col[:, None] // 16,\n                        ^\ncannot cast int32[constexpr[128], constexpr[64]] to <['128', '64'], fp8e4nv>",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "bs": 1,
+          "seed": 5823392516295756827,
+          "sharding": "ep8"
+        },
+        "event": "test",
+        "index": 4,
+        "message": "relative L2 error 5.803e-03 (worst row 5.803e-03)",
+        "status": "pass"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793188026.5266085,
+  "status": "done",
+  "team": "achitaan"
+}
