@@ -7031,8 +7031,10 @@ def kernel_fn(data, state):
     (topk_weights, topk_ids) = _rf_route(router_input, state['rf'])
    else:
     if split_router:
-     logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
-     logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
+     logits = _achita_wide_router(ffn_input, state)
+     if logits is None:
+      logits = torch.mm(ffn_input, state['router_hi_t'], out_dtype=torch.float32)
+      logits += torch.mm(ffn_input, state['router_lo_t'], out_dtype=torch.float32)
     else:
      logits = F.linear(router_input, state['router'])
     (topk_weights, topk_ids) = state['routing'](None, logits, TOP_K, True)
@@ -7343,3 +7345,14 @@ def _pn_expert_inputs(x, ids, local_start, state):
             hidden, RMS_EPS, _pn_triton.next_power_of_2(hidden), num_warps=4,
             enable_fp_fusion=False)
     return out, local_ids
+
+
+def _achita_wide_router(x, state):
+    # Both existing arms use dynamic M, masked stores and TMA boundary checks.
+    # Keep the full FP32 small-token router and the 9..32 fusion unchanged.
+    if x.shape[0] <= 32 or x.dtype != torch.bfloat16 or not x.is_contiguous() or x.data_ptr() % 16:
+        return None
+    rw = state['achita_dense'].get('bundle', {}).get('rw', {})
+    if not rw.get('enabled') or x.device != rw['weight'].device:
+        return None
+    return rw_run_routerwide_candidate(x, rw, 128 if x.shape[0] <= 128 else 256)
