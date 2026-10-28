@@ -1,0 +1,13 @@
+{
+  "source_sha256": "819a535341f4f1ff04f0cf073b461872c37b593c10162d86575aa7176b01e412",
+  "base_sha256": "53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024",
+  "cuda_sha256": "f68f77c0d29cc56b3657b7b4afafa864d186ee554996edaa1d3161159d246a54",
+  "geometries": {
+    "16": 5,
+    "32": 3
+  },
+  "enabled_tokens": "9..32, public shape dispatch",
+  "small_token_fp32_router": "original full path preserved",
+  "workspace": "eager allocation; sequential replay",
+  "gpu_status": "unmeasured"
+}

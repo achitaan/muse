@@ -11,7 +11,7 @@ has complete passing coverage on every track. Overall Goal is still active.
 | MoE | 2.312613084x scored, b4a10b76347e4cb0 |
 | Decode | 1.804641371x scored, 95bbfd2c81224715 |
 | Attention | 2.562402309x scored, 20524d06e3894595 |
-| Prefill | 1.639290758x checked, 9ca79c7f676f4b63; scored 23e7c8b4c3e54869 pending |
+| Prefill | 1.639290758x checked, 9ca79c7f676f4b63; scored 23e7c8b4c3e54869 passed, 1.663469245x |
 
 Latest overall snapshot: rank 221 after the new MoE/decoder scores. Top 50 is
 unmet. Prefill is excluded from overall placement by its official TASK.
@@ -40,3 +40,9 @@ Initialize a scoped phase before further trials, reuse cached baselines, retain
 job handles across observation failures, and publish evidence at phase boundaries.
 Never hand-edit controller journals. One decoder upload failed TLS; official jobs
 were reconciled before a successful retry. Complete raw evidence is preserved.
+
+Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
+The next decoder fusion draft has passed its bitwise codec/layout and Python
+binding audit, but GPU correctness and speed remain unmeasured. One check
+will test 9..32-token fusion. Preserve the complete FP32 small-token router.
+Publish only if the checked gain exceeds measurement uncertainty.

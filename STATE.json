@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Review fused lossless pooler/router for 8<T<=32 from decoder profile; preserve full FP32 router path at T<=8. Prefill scored job is pending; no sweeps.",
+  "next_trial": "One profile-backed fused pooler/router check for 9..32 tokens; retain exact old fallback for all other shapes and FP32 small-token router.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_prefill_layer",
+  "active_track": "muse_decode_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -206,11 +206,29 @@
     ],
     "tests": 5,
     "benchmarks": 8,
-    "scored_job_pending": "23e7c8b4c3e54869",
     "counts_toward_overall": false,
     "bf16_gemm_boundaries": true,
     "fp32_norm_intermediates": true,
-    "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393"
+    "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+    "scored": {
+      "job": "23e7c8b4c3e54869",
+      "speedup": 1.6634692445639083,
+      "interval": [
+        1.6385172058954496,
+        1.6884212832323668
+      ],
+      "passed": true
+    }
   },
-  "ordered_track_pass": "MoE, Decode, Attention, then Prefill all now have complete official passing coverage."
+  "ordered_track_pass": "MoE, Decode, Attention, then Prefill all now have complete official passing coverage.",
+  "prefill_scored": {
+    "job": "23e7c8b4c3e54869",
+    "speedup": 1.6634692445639083,
+    "interval": [
+      1.6385172058954496,
+      1.6884212832323668
+    ],
+    "passed": true
+  },
+  "publication_gate": "Publish fused decoder only if correctness passes and its checked interval lower endpoint exceeds the retained checked interval upper endpoint."
 }

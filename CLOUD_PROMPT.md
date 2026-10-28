@@ -20,3 +20,9 @@ cache writes and all residual outputs. Reuse cached evidence, initialize one
 scope at a time, and publish full evidence at phase boundaries. Never edit
 controller journals manually or mark the overall Goal complete for a local
 phase target. Latest exact sources and hashes are in best/ and STATE.json.
+
+Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
+The next decoder fusion draft has passed its bitwise codec/layout and Python
+binding audit, but GPU correctness and speed remain unmeasured. One check
+will test 9..32-token fusion. Preserve the complete FP32 small-token router.
+Publish only if the checked gain exceeds measurement uncertainty.

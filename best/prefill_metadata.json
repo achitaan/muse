@@ -9,9 +9,17 @@
   ],
   "tests": 5,
   "benchmarks": 8,
-  "scored_job_pending": "23e7c8b4c3e54869",
   "counts_toward_overall": false,
   "bf16_gemm_boundaries": true,
   "fp32_norm_intermediates": true,
-  "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393"
+  "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+  "scored": {
+    "job": "23e7c8b4c3e54869",
+    "speedup": 1.6634692445639083,
+    "interval": [
+      1.6385172058954496,
+      1.6884212832323668
+    ],
+    "passed": true
+  }
 }
