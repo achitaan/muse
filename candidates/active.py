@@ -7216,3 +7216,70 @@ def kernel_fn(data: Inputs,state: dict) -> torch.Tensor:
 
 SELECTED_ROUTES=[r for r in SELECTED_ROUTES if (r['m'],r['layer']) not in {(x['m'],x['layer']) for x in V18_ROUTES}]+V18_ROUTES
 
+
+
+# Local extension: re-evaluate existing upstream paths on seeded synthetic inputs.
+# Selection depends on tensor geometry and measured device performance only.
+_achita_v18_prepare = prepare
+_achita_v18_kernel = kernel_fn
+
+
+def prepare(weights):
+    state = _achita_v18_prepare(weights)
+    device = weights['router'].device
+    generator = torch.Generator(device=device).manual_seed(20261028)
+    flush = torch.ones(64 * 1024 * 1024, device=device, dtype=torch.float32)
+    variants = [('v18', _achita_v18_kernel), ('bundle2', _v18_base_kernel),
+                ('bundle1', _b2_base_kernel), ('v15', candidate_v15),
+                ('v13', candidate_v13), ('v12', candidate_v12),
+                ('v11', candidate_v11), ('v10', candidate_v10),
+                ('v9', candidate_v9), ('v8', candidate_v8)]
+    stream = torch.cuda.Stream(device=device)
+    stream.wait_stream(torch.cuda.current_stream(device))
+    routes = {}
+    with torch.cuda.stream(stream):
+        for m in (1,8,16,32,128,256):
+            for layer in ('qkv_gate','o','pooler','unpooler','router'):
+                w=weights[layer]
+                n=1024 if layer=='unpooler' and m<=8 else w.shape[0]
+                k=w.shape[1]
+                x=torch.randn((m,k),device=device,dtype=torch.bfloat16,generator=generator)
+                # Include a synthetic exact column probe in this setup-only guard.
+                x[0].zero_();x[0, k//3]=2
+                data={'x':x,'config':{'m':m,'n':n,'k':k,'layer':layer}}
+                reference=torch.mm(x.double(),w[:n].double().T)
+                denominator=torch.linalg.vector_norm(reference)
+                tol=1e-4 if layer=='router' else 1e-2
+                timings=[]
+                for name,fn in variants:
+                    y=fn(data,state)
+                    err=torch.linalg.vector_norm(y.double()-reference)/denominator
+                    if not bool(torch.isfinite(y).all()) or float(err)>tol:
+                        print('ROUTE_REJECT',m,layer,name,float(err),flush=True)
+                        continue
+                    fn(data,state)
+                    graph=torch.cuda.CUDAGraph()
+                    with torch.cuda.graph(graph,stream=stream):fn(data,state)
+                    samples=[]
+                    for repetition in range(11):
+                        flush.sum()
+                        start=torch.cuda.Event(enable_timing=True);end=torch.cuda.Event(enable_timing=True)
+                        start.record();graph.replay();end.record();end.synchronize()
+                        samples.append(start.elapsed_time(end)*1000)
+                    timings.append((statistics.median(samples),name,fn))
+                baseline=next((t for t in timings if t[1]=='v18'),None)
+                if baseline is None:raise RuntimeError('Upstream path failed setup correctness')
+                best=min(timings,key=lambda t:t[0])
+                selected=best if best[0]<baseline[0]*0.97 else baseline
+                routes[(m,layer,n,k)]=selected[2]
+                print('ROUTE',m,layer,'chosen',selected[:2],'baseline',baseline[:2],
+                      'measurements',[(v[0],v[1]) for v in timings],flush=True)
+    torch.cuda.current_stream(device).wait_stream(stream)
+    state['achita_routes']=routes
+    return state
+
+
+def kernel_fn(data,state):
+    x,cfg=data['x'],data['config']
+    key=(x.shape[0],cfg['layer'],cfg['n'],x.shape[1])
+    return state['achita_routes'].get(key,_achita_v18_kernel)(data,state)
