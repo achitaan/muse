@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "First Prefill candidate: original SGLang layer with audited persistent grouped NVFP4 MoE only. Use one full check; no baseline remeasurement.",
+  "next_trial": "Review fused lossless pooler/router for 8<T<=32 from decoder profile; preserve full FP32 router path at T<=8. Prefill scored job is pending; no sweeps.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -152,11 +152,19 @@
     ],
     "tests": 13,
     "benchmarks": 12,
-    "scored_job_pending": "95bbfd2c81224715",
     "fp32_router_preserved": true,
     "upstream": {
       "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
       "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
+    },
+    "scored": {
+      "job": "95bbfd2c81224715",
+      "speedup": 1.8046413706935582,
+      "interval": [
+        1.777571750133155,
+        1.8317109912539615
+      ],
+      "passed": true
     }
   },
   "moe_scored": {
@@ -169,21 +177,40 @@
     "passed": true
   },
   "overall_placement_snapshot": {
-    "utc": "2026-10-28T13:06:50.833285+00:00",
+    "utc": "2026-10-28T13:37:24.220613+00:00",
     "you": {
-      "rank": 619,
+      "rank": 221,
       "team": "achitaan",
-      "provisional": true
+      "first": false,
+      "ahead": 220
     }
   },
   "decoder_scored": {
-    "job": "88f8b06932fa43b7",
-    "speedup": 1.1727801897410768,
+    "job": "95bbfd2c81224715",
+    "speedup": 1.8046413706935582,
     "interval": [
-      1.1551884868949607,
-      1.190371892587193
+      1.777571750133155,
+      1.8317109912539615
     ],
     "passed": true
   },
-  "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles."
+  "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles.",
+  "prefill_checked": {
+    "source": "best/prefill_verified.py",
+    "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057,
+    "checked_interval": [
+      1.6147013962379757,
+      1.6638801189660357
+    ],
+    "tests": 5,
+    "benchmarks": 8,
+    "scored_job_pending": "23e7c8b4c3e54869",
+    "counts_toward_overall": false,
+    "bf16_gemm_boundaries": true,
+    "fp32_norm_intermediates": true,
+    "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393"
+  },
+  "ordered_track_pass": "MoE, Decode, Attention, then Prefill all now have complete official passing coverage."
 }

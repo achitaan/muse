@@ -1,0 +1,2 @@
+{"event":"baseline","guard_log":"logs\\0000-baseline-guard.json","head":"db5af77af85009540ebc585b90d8672deb59a8b3","metric":1.6392907576020057,"run_id":"2574976d11864b759286f16b66740249","schema_version":1,"seq":0,"time":"2026-10-28T13:37:39Z","verify_log":"logs\\0000-baseline-verify.json"}
+{"event":"complete","head":"db5af77af85009540ebc585b90d8672deb59a8b3","metric":1.6392907576020057,"reason":"baseline already satisfies the target","run_id":"2574976d11864b759286f16b66740249","schema_version":1,"seq":1,"time":"2026-10-28T13:37:39Z"}

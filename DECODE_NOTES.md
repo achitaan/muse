@@ -4,7 +4,7 @@ Check `2f41872843fe4490`: **1.815511785x**, all 13 tests, 12 benchmarks and
 integrity checks passed. Interval [1.788279108, 1.842744462]. Exact source
 `best/decoder_verified.py`, SHA256
 `53424d85d65aaa61d518c044d2a78e10453a9e4f6d13c885c1c633f1f8240024`.
-Scored publication `95bbfd2c81224715` is pending. Do not duplicate it.
+Scored publication `95bbfd2c81224715` passed at **1.804641371x**. Do not duplicate.
 
 This integrates the checked native attention and corrected native MoE while
 retaining the checked lossless dense implementation, original SGLang residual
@@ -27,7 +27,7 @@ are historical, not current source identities.
 
 ---
 
-# Whole decoder-layer notes — October 28, 2026
+# Whole decoder-layer notes â€” October 28, 2026
 
 The user requested MoE first, then Decode Layer, Attention Decode, Prefill last.
 All work was in the main chat; checks were used before scored publication.

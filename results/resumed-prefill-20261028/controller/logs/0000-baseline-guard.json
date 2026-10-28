@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_prefill_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.11,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Full 5-test/8-benchmark Prefill evidence matches the current source hash.\r\n",
+  "timed_out": false
+}

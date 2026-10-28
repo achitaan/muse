@@ -1,0 +1,17 @@
+{
+  "source": "best/prefill_verified.py",
+  "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+  "checked_job": "9ca79c7f676f4b63",
+  "checked_speedup": 1.6392907576020057,
+  "checked_interval": [
+    1.6147013962379757,
+    1.6638801189660357
+  ],
+  "tests": 5,
+  "benchmarks": 8,
+  "scored_job_pending": "23e7c8b4c3e54869",
+  "counts_toward_overall": false,
+  "bf16_gemm_boundaries": true,
+  "fp32_norm_intermediates": true,
+  "upstream": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393"
+}

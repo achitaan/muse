@@ -9,9 +9,9 @@ fully checked candidates.
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
 | MoE W4A16 | 2.312613x scored | Saved |
-| Whole decoder layer | 1.815512x checked | One scored publication pending |
+| Whole decoder layer | 1.804641x scored | Saved |
 | Attention decode | 2.562402x scored | Saved |
-| Prefill layer | Unmeasured grouped-MoE candidate | Current focus; last track |
+| Prefill layer | 1.639291x checked | One scored publication pending |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall
 board rather than treating a historical rank as current.
@@ -36,3 +36,7 @@ Native attention attribution and full Apache license are preserved. See
 [ATTENTION_NOTES.md](ATTENTION_NOTES.md) for cache lifetime, sequential replay
 assumptions and exact evidence. User requested fewer checks and submissions;
 remaining quota is capacity, not a reason to launch weak experiments.
+
+Latest overall placement snapshot: **221**, after the scored native MoE and
+decoder improvements. Top 50 remains unmet. All five requested tracks now have
+complete passing coverage. See PREFILL_NOTES.md; its scored job is pending.

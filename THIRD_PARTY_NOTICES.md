@@ -55,5 +55,5 @@ The prepared Prefill expert component derives from Vjeux's same pinned Apache
 revision. Local changes extract the component, preserve Marlin BF16 boundaries,
 copy already-normalized BF16 inputs without arithmetic, rebuild route metadata
 from fresh inputs, and integrate FP32 post-norm/weighted sum with SGLang. The
-original SGLang full-layer pipeline remains. This candidate is unmeasured;
+original SGLang full-layer pipeline remains. The candidate passed complete official coverage at 1.639290758x;
 preserve embedded Apache license and this change notice.

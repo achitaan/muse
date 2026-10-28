@@ -1,4 +1,15 @@
-# Challenge track handoff — October 28, 2026
+# Challenge track handoff â€” October 28, 2026
+
+## Current result after the ordered pass
+
+Overall rank snapshot: **221**. Scored: dense 1.527771327x, MoE 2.312613084x,
+Decode 1.804641371x, Attention 2.562402309x. Prefill check passed at
+1.639290758x; scored job 23e7c8b4c3e54869 is pending. All official test and
+benchmark coverage passes for each saved source. Prefill does not contribute
+to overall. Top 50 remains unmet. Controllers are archived; native Goal active.
+Read HANDOFF.md and the profile-backed next decoder review. Conserve runs.
+Earlier status sections below are historical and superseded.
+
 
 ## Current checkpoint (supersedes all earlier historical snapshots)
 

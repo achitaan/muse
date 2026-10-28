@@ -1,0 +1,10 @@
+{
+  "source_sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+  "upstream_commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+  "bf16_boundary_sites": 14,
+  "gather_normalization": "disabled: input normalized by original SGLang module",
+  "norm_intermediates": "FP32; effective norm weight BF16 from SGLang",
+  "router_attention_residuals": "original official baseline unchanged",
+  "gpu_status": "unmeasured",
+  "packing_inverse": "pending"
+}

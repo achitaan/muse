@@ -1,3 +1,18 @@
+# Latest verified Prefill result
+
+First full check passed at **1.639290758x**, with all 5 tests, 8 benchmarks
+and integrity checks passing. Exact source is best/prefill_verified.py;
+metadata and confidence interval are in best/prefill_metadata.json.
+One scored publication is pending: 23e7c8b4c3e54869. Do not duplicate it.
+The controller's local 1.5x target was reached; that is not completion of the
+native overall Goal. This track is excluded from overall placement.
+Full evidence and immutable phase journal: results/resumed-prefill-20261028/.
+
+The preparation record below is historical; its unmeasured status has been
+superseded by the full GPU result above.
+
+---
+
 # Prefill preparation - October 28, 2026
 
 Prefill is last in the requested track order. Its official TASK states it does

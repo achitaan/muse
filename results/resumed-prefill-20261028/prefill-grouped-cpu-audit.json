@@ -1,0 +1,12 @@
+{
+  "seed": 20261028,
+  "codes_checked": 1048576,
+  "scale_bytes_checked": 65536,
+  "source_sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+  "pack_inverse": true,
+  "gate_up_rows_bijective": true,
+  "global_bindings_checked": 108,
+  "gather_raw_bf16_copy": true,
+  "gpu_correctness": "unverified",
+  "gpu_speedup": "unmeasured"
+}

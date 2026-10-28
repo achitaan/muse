@@ -9,10 +9,18 @@
   ],
   "tests": 13,
   "benchmarks": 12,
-  "scored_job_pending": "95bbfd2c81224715",
   "fp32_router_preserved": true,
   "upstream": {
     "native_attention_moe": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
     "dense": "NathenFernandes/muse-bf16-proj@7385e5d8f70980cfd5322ea254edc0b2b8ca90f7"
+  },
+  "scored": {
+    "job": "95bbfd2c81224715",
+    "speedup": 1.8046413706935582,
+    "interval": [
+      1.777571750133155,
+      1.8317109912539615
+    ],
+    "passed": true
   }
 }
