@@ -119,9 +119,9 @@ def kernel_fn(data, state):
     local_ids = local_ids.contiguous()
     topk_weights = data["topk_weights"].to(torch.float32).contiguous()
 
-    for block_size_m in BLOCK_SIZE_M_CANDIDATES:
-        if num_tokens * TOP_K / bank["count"] / block_size_m < 0.9:
-            break
+    # With EP8 only local token/expert pairs reach the GEMMs. Use smaller
+    # M tiles than the full-global-route-density heuristic for sparse groups.
+    block_size_m = 8 if num_tokens <= 64 else 16
     if num_tokens == 1 and expert_map is None:
         from sglang.kernels.ops.moe.moe_align_single_token import moe_align_single_token
 
