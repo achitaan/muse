@@ -7076,65 +7076,62 @@ SELECTED_ROUTES=[r for r in SELECTED_ROUTES if (r['m'],r['layer']) not in {(x['m
 # Local experiment: retain four total K partitions, using two cooperating CTAs.
 dd_decodediet_tt_mw_CONFIGS[(32,'unpooler')] = ((32,64,2,2,2,True,2),2)
 
-# Local experiment: choose among exact WGMMA K-partition layouts.
-_achita_wg_base_prepare=prepare
-_achita_wg_base_kernel=kernel_fn
+
+# Final lean dispatch validation: compare the original and retained unpooler layouts.
+_achita_final_base_prepare=prepare
+_achita_final_base_kernel=kernel_fn
 
 
-def _achita_wg_time(fn,flush,stream,repeats=13):
+def _achita_final_time(fn,flush,stream,repeats=21):
     fn();fn()
     graph=torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph,stream=stream):fn()
-    samples=[]
+    times=[]
     for _ in range(repeats):
         flush.sum()
-        begin=torch.cuda.Event(enable_timing=True);end=torch.cuda.Event(enable_timing=True)
-        begin.record();graph.replay();end.record();end.synchronize()
-        samples.append(begin.elapsed_time(end)*1000)
-    return statistics.median(samples)
+        start=torch.cuda.Event(enable_timing=True);end=torch.cuda.Event(enable_timing=True)
+        start.record();graph.replay();end.record();end.synchronize()
+        times.append(start.elapsed_time(end)*1000)
+    return statistics.median(times)
 
 
 def prepare(weights):
-    state=_achita_wg_base_prepare(weights)
-    variants=[(64,1,4),(64,1,8),(64,2,4),(32,1,4),(32,2,4)]
-    device=weights['qkv_gate'].device
+    state=_achita_final_base_prepare(weights)
+    state['achita_final_unpooler']=None
+    original=dd_decodediet_tt_mw_prepare_m32w(weights,configs={(32,'unpooler'):((32,64,4,2,2,True,1),1)})
+    if (32,'unpooler') not in original['plans']:return state
+    device=weights['unpooler'].device
     generator=torch.Generator(device=device).manual_seed(20261028)
+    x=torch.randn((32,4096),device=device,dtype=torch.bfloat16,generator=generator)
+    x[0].zero_();x[0,4096//3]=2
+    data={'x':x,'config':{'m':32,'n':8192,'k':4096,'layer':'unpooler'}}
+    reference=torch.mm(x.double(),weights['unpooler'].double().T)
+    y=dd_decodediet_tt_mw_run_m32w(x,'unpooler',8192,original)
+    error=float(torch.linalg.vector_norm(y.double()-reference)/torch.linalg.vector_norm(reference))
+    probe=float(torch.linalg.vector_norm(y[0].double()-reference[0])/torch.linalg.vector_norm(reference[0]))
+    if not bool(torch.isfinite(y).all()) or error>1e-2 or probe>1e-3:
+        print('FINAL_REJECT_ORIGINAL',error,probe,flush=True)
+        return state
     flush=torch.ones(64*1024*1024,device=device,dtype=torch.float32)
     stream=torch.cuda.Stream(device=device)
     stream.wait_stream(torch.cuda.current_stream(device))
-    choices={}
     with torch.cuda.stream(stream):
-        for m,layer in ((16,'qkv_gate'),(32,'qkv_gate'),(32,'unpooler')):
-            w=weights[layer];n,k=w.shape
-            x=torch.randn((m,k),device=device,dtype=torch.bfloat16,generator=generator)
-            data={'x':x,'config':{'m':m,'n':n,'k':k,'layer':layer}}
-            baseline=lambda:_achita_wg_base_kernel(data,state)
-            base_time=_achita_wg_time(baseline,flush,stream,17)
-            best=None
-            for rows,wk,split in variants:
-                cap=4 if wk==1 else 2
-                inst=(m,rows,wk,2,2,True,cap)
-                candidate=dd_decodediet_tt_mw_prepare_m32w(weights,configs={(m,layer):(inst,split)})
-                if (m,layer) not in candidate['plans']:continue
-                fn=lambda:dd_decodediet_tt_mw_run_m32w(x,layer,n,candidate)
-                latency=_achita_wg_time(fn,flush,stream)
-                print('WG_CANDIDATE',m,layer,inst,split,latency,'baseline',base_time,flush=True)
-                if best is None or latency<best[0]:best=(latency,candidate,inst,split)
-            base_time=min(base_time,_achita_wg_time(baseline,flush,stream,17))
-            if best is not None and best[0]<base_time*0.97:
-                choices[m,layer,n,k]=best[1]
-                print('WG_SELECT',m,layer,best[2],best[3],best[0],'baseline',base_time,flush=True)
-            else:print('WG_KEEP',m,layer,'baseline',base_time,'best',None if best is None else best[0],flush=True)
+        baseline=lambda:_achita_final_base_kernel(data,state)
+        candidate=lambda:dd_decodediet_tt_mw_run_m32w(x,'unpooler',8192,original)
+        base_time=_achita_final_time(baseline,flush,stream)
+        original_time=_achita_final_time(candidate,flush,stream)
+        base_time=min(base_time,_achita_final_time(baseline,flush,stream))
     torch.cuda.current_stream(device).wait_stream(stream)
-    state['achita_wg_choices']=choices
+    if original_time<base_time*0.98:state['achita_final_unpooler']=original
+    print('FINAL_UNPOOLER','original' if state['achita_final_unpooler'] is not None else 'retained',
+          'original_us',original_time,'retained_us',base_time,'fp64_error',error,'probe_error',probe,flush=True)
     return state
 
 
 def kernel_fn(data,state):
     x,cfg=data['x'],data['config']
-    key=(x.shape[0],cfg['layer'],cfg['n'],x.shape[1])
-    choice=state['achita_wg_choices'].get(key)
-    if choice is not None:
-        y=dd_decodediet_tt_mw_run_m32w(x,cfg['layer'],cfg['n'],choice)
+    choice=state['achita_final_unpooler']
+    if choice is not None and cfg['layer']=='unpooler' and cfg['n']==8192 and tuple(x.shape)==(32,4096):
+        y=dd_decodediet_tt_mw_run_m32w(x,'unpooler',8192,choice)
         if y is not None:return y
-    return _achita_wg_base_kernel(data,state)
+    return _achita_final_base_kernel(data,state)
