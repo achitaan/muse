@@ -1,4 +1,5 @@
 """Audit lossless SK2 streams, correction tables and small-token dispatch on CPU."""
+import argparse
 import ast
 import builtins
 import hashlib
@@ -10,7 +11,11 @@ from pathlib import Path
 import torch
 
 root = next(p for p in Path(__file__).resolve().parents if (p / '.git').exists())
-raw = (root / '.tools/decoder-small-projections-variant.py').read_bytes()
+parser = argparse.ArgumentParser()
+parser.add_argument('--source', default='.tools/decoder-small-projections-variant.py')
+parser.add_argument('--output', default='.tools/decoder-small-projections-cpu-audit.json')
+args = parser.parse_args()
+raw = (root / args.source).read_bytes()
 draft = raw.decode('utf-8')
 tree = ast.parse(draft)
 constants = {n.targets[0].id: n.value.value for n in tree.body
@@ -18,8 +23,9 @@ constants = {n.targets[0].id: n.value.value for n in tree.body
              and isinstance(n.targets[0], ast.Name) and isinstance(n.value, ast.Constant)}
 configs = ast.literal_eval(next(n.value for n in tree.body if isinstance(n, ast.Assign)
                                and any(isinstance(t, ast.Name) and t.id == '_SP_CONFIGS' for t in n.targets)))
+shared = '_SP_DISPATCH' not in constants
 helpers = {'_fpr_bfp_sk2_tileunits', '_fpr_bfp_sk2_compress', '_fpr_bfp_sk2_stream',
-           '_fpr_bfp_sk2_table', '_sp_pack', '_sp_module'}
+           '_fpr_bfp_sk2_table', '_sp_pack', '_sp_module', '_fpr_get_ext'}
 ns = {'torch': torch, 'hashlib': hashlib}
 for n in tree.body:
     if isinstance(n, ast.FunctionDef) and n.name in helpers:
@@ -95,22 +101,27 @@ for config in configs:
     cases.append({'layer': layer, 'values_recovered': w.numel(), 'corrections': len(actual),
                   'stages': stages, 'sample_pmax': pmax, 'sample_dynamic_shared_bytes': plan['smem']})
 
-cuda = constants['_fpr_CUDA'].split('\nvoid sk2f(', 1)[0] + constants['_SP_DISPATCH']
+cuda = (constants['_fpr_CUDA'] if shared else
+        constants['_fpr_CUDA'].split('\nvoid sk2f(', 1)[0] + constants['_SP_DISPATCH'])
 assert 'if (TOKR == 8 || M < TOKR) go(std::true_type{})' in cuda
 assert '(PK && trow[mt] >= M) ? zrow' in cuda
 assert 'PK ? (uint32_t)M : (uint32_t)TOKR' in cuda
 assert 'for (int idx = tid; idx < R4 * M; idx += NC)' in cuda
 assert cuda.count('launch_sk2<1, 8,') == 3 and '@@' not in cuda
-assert constants['_SP_CPP'].startswith('#include <torch/extension.h>\n')
+cpp = constants['_fpr_CPP'] if shared else constants['_SP_CPP']
+assert cpp.startswith('#include <torch/extension.h>\n')
 calls = []
-extension = object()
+extension = types.SimpleNamespace(sk2_set_pdl=lambda value: calls.append(('pdl', value)))
 def loader(**kwargs):
-    assert kwargs['cuda_sources'] == cuda and kwargs['cpp_sources'] == constants['_SP_CPP']
-    assert kwargs['functions'] == ['sk2small']
+    assert kwargs['cuda_sources'] == cuda and kwargs['cpp_sources'] == cpp
+    assert kwargs['functions'] == (['sk2f', 'sk2_set_pdl', 'sk2small'] if shared else ['sk2small'])
     calls.append(1)
     return extension
-ns.update(_sp_ext=None, _SP_CUDA=cuda, _SP_CPP=constants['_SP_CPP'], _fpr_load_inline=loader)
-assert ns['_sp_module']() is extension and ns['_sp_module']() is extension and calls == [1]
+ns.update(_sp_ext=None, _SP_CUDA=cuda, _SP_CPP=cpp, _fpr_load_inline=loader,
+          _fpr_ext=None, _fpr_CPP=cpp, _fpr_CUDA=cuda,
+          torch=types.SimpleNamespace(cuda=types.SimpleNamespace(get_device_capability=lambda: (9, 0))))
+assert ns['_sp_module']() is extension and ns['_sp_module']() is extension
+assert calls == ([1, ('pdl', 0)] if shared else [1])
 
 # Exercise only the new dispatch wrapper with fake tensor metadata.
 wrapper = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == '_achita_dense_project'][-1]
@@ -145,10 +156,16 @@ def audit_bindings(table):
 audit_bindings(symbols)
 base = (root / 'best/decoder_verified.py').read_bytes()
 assert hashlib.sha256(base).hexdigest() == '09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67'
-assert raw.startswith(base) and len(raw) < 1_000_000
+if shared:
+    # CUDA extension integration is independently audited in the companion script.
+    assert constants['_fpr_CUDA'].startswith(next(n.value.value for n in ast.parse(base).body
+        if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == '_fpr_CUDA' for t in n.targets)))
+else:
+    assert raw.startswith(base)
+assert len(raw) < 1_000_000
 result = {'source_sha256': hashlib.sha256(raw).hexdigest(), 'seed': 20261028, 'cases': cases,
           'lossless_cpu_recovery': True, 'streams_bijective': True, 'correction_tables_exact': True,
           'fallbacks_and_token_store_geometry': True, 'factory_reuse': True, 'global_bindings': True,
-          'baseline_bytes_unchanged': True, 'gpu_status': 'unmeasured'}
-(root / '.tools/decoder-small-projections-cpu-audit.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+          'baseline_bytes_unchanged': not shared, 'gpu_status': 'unmeasured'}
+(root / args.output).write_bytes((json.dumps(result, indent=2) + '\n').encode('utf-8'))
 print(json.dumps(result))
