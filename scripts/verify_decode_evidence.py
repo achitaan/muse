@@ -17,6 +17,17 @@ assert len(tests) == 13 and len(benches) == 12
 assert all(r.get('status') == 'pass' for r in tests + benches)
 assert body.get('checks', {}).get('ok') is True
 tree = ast.parse(source)
+if any(isinstance(n, ast.FunctionDef) and n.name == '_sp_select' for n in tree.body):
+    selections = [line.split('SMALL_PROJ_CHOICES', 1)[1].strip()
+                  for line in body.get('log_tail', '').splitlines()
+                  if 'SMALL_PROJ_CHOICES' in line]
+    assert len(selections) == 1, 'Require explicit evidence of projection selection'
+    choices = ast.literal_eval(selections[0])
+    assert isinstance(choices, tuple) and choices, 'Unselected projection trials change no timed compute'
+    assert len(set(choices)) == len(choices)
+    assert all(isinstance(key, tuple) and len(key) == 2
+               and key[0] in ('pooler', 'qkv_gate', 'unpooler') and key[1] in (1, 8)
+               for key in choices)
 fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kernel_fn')
 text = ast.unparse(fn)
 assert "F.linear(router_input, state['router'])" in text

@@ -43,3 +43,32 @@ Preparation fell from 279 s for the published source to 215 s in the latest
 check after removing the unselected WG sweep. Preserve the 300 s budget.
 Current source is 988314 bytes, leaving about 11.7 kB under the upload limit;
 reuse existing generic helpers and retain full Apache/MIT notices.
+
+## Prepared implementation and CPU evidence, October 28 at 17:10 UTC
+
+The builder now produces source 92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa,
+995430 bytes. Every byte of baseline 09badc9b remains its prefix. Three fixed
+instantiations reuse the existing generic CUDA template in a separate extension;
+their pipeline depths come from the pinned upstream geometry function: pooler 3,
+QKV 6, sliced unpooler 4. The original extension and router paths are untouched.
+
+The CPU audit independently recovers 1,441,792 BF16 values exactly, including
+233 escape corrections, checks every stream tile/unit once and reconstructs
+correction tables. It exercises negative-zero, nonfinite, unsupported dtype,
+wrong shape, excessive escapes and shared-memory fallback. It checks store
+coverage for tokens 1 through 8, dispatch for nearby and larger shapes, module
+reuse and global bindings. These are finite CPU checks, not GPU verification.
+
+Prepare compares each fixed candidate only with its incumbent on two synthetic
+activation patterns, for token counts 1 and 8, with seven paired cold-L2 graph
+replays per pattern. Enable only a mean ratio below 0.97 with neither pattern
+above 1.02. Tokens 2 through 7 use the selected eight-token geometry with explicit
+masking. Configuration choices and static weights are the only cached results.
+Packing/building is skipped if the initial prepare leaves insufficient budget;
+selection stops at 275 seconds to preserve the 300-second prepare bound.
+
+The guard requires full official 13/12 coverage, integrity, the existing FP32
+router contract and an explicit nonempty SMALL_PROJ_CHOICES tuple. An empty
+selection cannot be retained as a measured optimization. One full official
+check is planned; no tile sweep or scored submission is authorized by evidence
+yet. Reuse the cached baseline check without a new GPU job.
