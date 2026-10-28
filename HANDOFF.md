@@ -1,11 +1,11 @@
-> Current checkpoint: October28,20:28UTC. Read ATTENTION_PRECISION_AUDIT.md.
+> Current checkpoint: October28,20:33UTC. Read ATTENTION_PRECISION_AUDIT.md.
 > Corrected Attention24782695 passed full coverage at2.522139036x and scored
 > 2.541743138x asd0cdadc0960446ca. Decode1fb5d05d passed full13/12/integrity
-> at1.988085030x; scored confirmation75f2c7f464f34c61 is pending. Earlier native
+> at1.988085030x and scored1.986659677x as75f2c7f464f34c61. Earlier native
 > attention sources omitted BF16 boundaries; withdrawal needs user approval.
-> Historical Attention/Decode board scores below need replacement.
-> Redux trial passed but failed its
-> performance guard and was discarded. No controller active; top50Goal active.
+> No job/controller pending. Redux was discarded by its performance guard.
+> MoE two-group geometry CPU audit passed; no GPU implementation/evaluation.
+> Top50Goal active. API overall147/1442 still includes older publications.
 
 # Current handoff - October 28, 2026
 
@@ -15,20 +15,22 @@ model providers, global changes, credential output, blind sweeps, repeated
 baselines or cosmetic resubmissions. The ordered MoE -> Decode -> Attention ->
 Prefill pass has full passing coverage. Top 50 overall remains unmet; Goal active.
 
-Historical API snapshot, before the BF16 correction:
+Live API snapshot at20:33UTC, with source-bound scores separated from API bests:
 
-| Track | Published speedup | Last observed place | Job |
-| --- | ---: | ---: | --- |
-| Dense | 1.527771327x | 105/1252, 18:24 UTC | 6131bc96427e4486 |
-| MoE | 2.348299935x | 54/995, 18:24 UTC | b6c70c9b83724d2e |
-| Decode | 1.993956388x | 146/871, 18:24 UTC | 441eb580f3074669 |
-| Attention | 2.562402309x | 86/954, 18:24 UTC | 20524d06e3894595 |
-| Prefill | 1.663469245x | 125/577, 18:24 UTC | 23e7c8b4c3e54869 |
+| Track | Current retained scored source | API best speedup | API place |
+| --- | ---: | ---: | ---: |
+| Dense | 1.527771327x,6131bc96427e4486 | 1.5278x | 106/1255 |
+| MoE | 2.348299935x,b6c70c9b83724d2e | 2.3483x | 54/1001 |
+| Decode | corrected1.986659677x,75f2c7f464f34c61 | historical1.9940x | 147/874 |
+| Attention | corrected2.541743138x,d0cdadc0960446ca | historical2.5624x | 88/959 |
+| Prefill | 1.663469245x,23e7c8b4c3e54869 | 1.6635x | 125/582 |
 
-Overall: **146/1438 at 18:24:33 UTC**. The overall API gives ranks only,
-not a combined speedup; whole-decoder-layer speedup is 1.993956388x. Cutoffs last
-read at 17:58 were Decode 2.1438x and MoE 2.3539x. Prefill does not count toward
-overall. No job or controller is pending.
+Overall: **147/1442 at20:33UTC**. API gives ranks only, no combined speedup.
+Attention/Decode API places still use earlier omitted-boundary publications
+pending withdrawal approval; they are not verified ranks for corrected sources.
+Top50cutoffs at this snapshot: Dense1.5523,MoE2.3557,Decode2.1456,
+Attention2.6112,Prefill1.7982. Prefill does not count toward overall.
+Snapshot: results/decoder-attention-bf16-boundaries-20261028/placement-20261028-203300.json.
 
 Current daily quotas at20:28:30UTC (checks/scored left): Dense0/0,
 MoE2/7, Decode2/4, Attention13/7, Prefill19/9. Totals:36checks and27scores,
@@ -37,8 +39,8 @@ results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json.
 
 ## Historical decoder publication and rejected trials
 
-Exact 09badc9b source is both best/decoder_verified.py and
-best/decoder_published.py, 988314 bytes. Primary full check 09b34f4e921e49a6:
+Historical09badc9b is archived; both current best decoder files are corrected
+1fb5d05d (988827bytes). For the old source, primary check09b34f4e921e49a6 was
 1.994319167x. Scored confirmation 441eb580f3074669: 1.993956388x, interval
 [1.964047042,2.023865734], full 13 tests/12 benchmarks/integrity. It transfers
 the corrected 33114871 MoE, adds implicit small-token FFN zero padding and early
@@ -329,3 +331,12 @@ router experiment is included. Full evidence:
 results/decoder-attention-bf16-boundaries-20261028/.
 best/decoder_published.py still contains historical09badc9b until confirmation;
 its metadata flags the required precision correction. No withdrawals executed.
+
+
+Corrected Decode publication75f2c7f464f34c61 passed13tests/12benchmarks/
+integrity at1.986659677x, CI[1.956859782,2.016459572]. It is exactly1fb5d05d,
+now both best/decoder_verified.py and best/decoder_published.py. Primary check
+was1.988085030x. Both corrected Attention and Decode have full scored coverage;
+no job/controller pending. Earlier published sources remain pending withdrawal
+approval and must not supply this source's speedup/rank. All sources/results/
+profiles are archived. Top50overall remains unproven and the Goal stays active.

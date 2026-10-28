@@ -14,6 +14,20 @@
   "all_other_ast_unchanged": true,
   "prepare_s": 253.284139757,
   "publication_job": "75f2c7f464f34c61",
-  "publication_status": "pending",
-  "withdrawal": "pending user approval; no withdrawal executed"
+  "publication_status": "passed",
+  "withdrawal": "pending user approval; no withdrawal executed",
+  "scored": {
+    "job": "75f2c7f464f34c61",
+    "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "speedup": 1.986659676841553,
+    "interval": [
+      1.9568597816889297,
+      2.0164595719941762
+    ],
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  }
 }

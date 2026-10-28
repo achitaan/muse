@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Observe corrected Decode score75f2c7f464f34c61; review the new complete profiles before another optimization check. Do not duplicate prior failed parameter trials.",
+  "next_trial": "Develop and prove the two-consumer-warpgroup MoE design before one scoped check; see feasibility and CPU geometry audits. Preserve both remaining MoE/Decode checks. No live job or controller.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -184,7 +184,7 @@
     "tests": 13,
     "benchmarks": 12,
     "integrity": true,
-    "publication": "corrected-source scored confirmation pending:75f2c7f464f34c61",
+    "publication": "fully passed BF16-corrected scored confirmation",
     "fp32_router_precision_preserved": true,
     "sliced_ffn_boundary_tokens": "1..8",
     "sliced_ffn_norm_domain": 8192,
@@ -239,7 +239,23 @@
     "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
     "bf16_attention_boundaries_preserved": true,
     "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
-    "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
+    "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
+    "scored": {
+      "job": "75f2c7f464f34c61",
+      "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+      "speedup": 1.986659676841553,
+      "interval": [
+        1.9568597816889297,
+        2.0164595719941762
+      ],
+      "passed": true,
+      "tests": 13,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
+    },
+    "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "precision_correction_required": false
   },
   "moe_scored": {
     "job": "b6c70c9b83724d2e",
@@ -262,16 +278,18 @@
     }
   },
   "decoder_scored": {
-    "job": "441eb580f3074669",
-    "speedup": 1.9939563882868192,
+    "job": "75f2c7f464f34c61",
+    "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "speedup": 1.986659676841553,
     "interval": [
-      1.964047042462517,
-      2.0238657341111215
+      1.9568597816889297,
+      2.0164595719941762
     ],
     "passed": true,
-    "rank_snapshot": 146,
-    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00",
-    "precision_status": "historical unfixed source; withdrawal approval pending"
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
   },
   "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles.",
   "prefill_checked": {
@@ -488,33 +506,47 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T20:24:27.193153+00:00",
+  "updated_utc": "2026-10-28T20:32:42.606594+00:00",
   "latest_placement_snapshot": {
-    "utc": "2026-10-28T18:24:33.630285+00:00",
+    "utc": "2026-10-28T20:33:00.810441+00:00",
     "boards": {
       "overall": {
         "board": "overall",
         "measure": "rank across the problems; the API gives ranks only",
         "you": {
-          "rank": 146,
+          "rank": 147,
           "team": "achitaan",
           "first": false,
-          "ahead": 145
+          "ahead": 146
         },
-        "ranked": 1438
+        "ranked": 1442,
+        "top50_cutoff": {
+          "rank": 50,
+          "solved": 4,
+          "team": "raulkr"
+        }
       },
       "muse_bf16_proj": {
         "board": "muse_bf16_proj",
         "measure": "speedup over SGLang; higher ranks higher",
         "you": {
-          "rank": 105,
+          "rank": 106,
           "team": "achitaan",
           "speedup": 1.5278,
           "first": false,
-          "ahead": 104,
+          "ahead": 105,
           "to_first": 1.0713
         },
-        "ranked": 1252
+        "ranked": 1255,
+        "top50_cutoff": {
+          "attempts": 31,
+          "job": "f99d77e77f5d4689",
+          "rank": 50,
+          "speedup": 1.5523,
+          "submitted_at": 1793095032.9096017,
+          "team": "mottopanikeiku",
+          "value": 3112.022770526524
+        }
       },
       "muse_moe_w4a16": {
         "board": "muse_moe_w4a16",
@@ -527,33 +559,60 @@
           "ahead": 53,
           "to_first": 1.1435
         },
-        "ranked": 995
+        "ranked": 1001,
+        "top50_cutoff": {
+          "attempts": 20,
+          "job": "6c30a3f6684d49ea",
+          "rank": 50,
+          "speedup": 2.3557,
+          "submitted_at": 1793129725.7604084,
+          "team": "manojkumar1053",
+          "value": 5708.9367389718445
+        }
       },
       "muse_decode_layer": {
         "board": "muse_decode_layer",
         "measure": "speedup over SGLang; higher ranks higher",
         "you": {
-          "rank": 146,
+          "rank": 147,
           "team": "achitaan",
           "speedup": 1.994,
           "first": false,
-          "ahead": 145,
+          "ahead": 146,
           "to_first": 1.2051
         },
-        "ranked": 871
+        "ranked": 874,
+        "top50_cutoff": {
+          "attempts": 30,
+          "job": "3cfadd31be2f4ba8",
+          "rank": 50,
+          "speedup": 2.1456,
+          "submitted_at": 1793171094.2322946,
+          "team": "raulkr",
+          "value": 10542.655200671104
+        }
       },
       "muse_attention_decode": {
         "board": "muse_attention_decode",
         "measure": "speedup over SGLang; higher ranks higher",
         "you": {
-          "rank": 86,
+          "rank": 88,
           "team": "achitaan",
           "speedup": 2.5624,
           "first": false,
-          "ahead": 85,
+          "ahead": 87,
           "to_first": 1.1831
         },
-        "ranked": 954
+        "ranked": 959,
+        "top50_cutoff": {
+          "attempts": 16,
+          "job": "25d20cf2976e472d",
+          "rank": 50,
+          "speedup": 2.6112,
+          "submitted_at": 1793160705.266929,
+          "team": "pegasus1134",
+          "value": 1442.367427468015
+        }
       },
       "muse_prefill_layer": {
         "board": "muse_prefill_layer",
@@ -566,92 +625,22 @@
           "ahead": 124,
           "to_first": 1.2204
         },
-        "ranked": 577
-      }
-    },
-    "quotas": {
-      "muse_bf16_proj": {
-        "scored": {
-          "per_day": 10,
-          "used": 10,
-          "left": 0
-        },
-        "checks": {
-          "per_day": 20,
-          "used": 20,
-          "left": 0
-        }
-      },
-      "muse_attention_decode": {
-        "scored": {
-          "per_day": 10,
-          "used": 2,
-          "left": 8
-        },
-        "checks": {
-          "per_day": 20,
-          "used": 6,
-          "left": 14
-        }
-      },
-      "muse_moe_w4a16": {
-        "scored": {
-          "per_day": 10,
-          "used": 3,
-          "left": 7
-        },
-        "checks": {
-          "per_day": 20,
-          "used": 12,
-          "left": 8
-        }
-      },
-      "muse_decode_layer": {
-        "scored": {
-          "per_day": 10,
-          "used": 5,
-          "left": 5
-        },
-        "checks": {
-          "per_day": 20,
-          "used": 15,
-          "left": 5
-        }
-      },
-      "muse_prefill_layer": {
-        "scored": {
-          "per_day": 10,
-          "used": 1,
-          "left": 9
-        },
-        "checks": {
-          "per_day": 20,
-          "used": 1,
-          "left": 19
+        "ranked": 582,
+        "top50_cutoff": {
+          "attempts": 18,
+          "job": "c0a1e9ad649345c5",
+          "rank": 50,
+          "screening": "screened",
+          "speedup": 1.7982,
+          "submitted_at": 1793042287.4900818,
+          "team": "vjeux",
+          "value": 215434.24926932732
         }
       }
     },
-    "totals": {
-      "checks": {
-        "left": 46,
-        "used": 54,
-        "per_day": 100
-      },
-      "scored": {
-        "left": 29,
-        "used": 21,
-        "per_day": 50
-      }
-    }
+    "precision_note": "API best rows may still reference the five historical omitted-boundary runs; withdrawal awaits explicit approval. Corrected Attention2.541743138 and Decode1.986659677 are separate source-bound scored results."
   },
-  "pending_jobs": [
-    {
-      "track": "muse_decode_layer",
-      "mode": "run",
-      "job": "75f2c7f464f34c61",
-      "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432"
-    }
-  ],
+  "pending_jobs": [],
   "decoder_projection_phase7": {
     "job": "afd35730c7d3476f",
     "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
@@ -1825,7 +1814,7 @@
     "next_step": "Correct inherited attention BF16 boundaries before further publication"
   },
   "attention_precision_audit": {
-    "status": "both full corrected checks pass; Attention scored; Decode confirmation pending",
+    "status": "both BF16 corrections fully checked and scored; five historical withdrawals await approval",
     "document": "ATTENTION_PRECISION_AUDIT.md",
     "attention_draft": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
     "decoder_draft": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
@@ -1881,7 +1870,21 @@
       "publication_job": "75f2c7f464f34c61",
       "publication_status": "pending",
       "withdrawal": "pending user approval; no withdrawal executed"
+    },
+    "corrected_decoder_score": {
+      "job": "75f2c7f464f34c61",
+      "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+      "speedup": 1.986659676841553,
+      "interval": [
+        1.9568597816889297,
+        2.0164595719941762
+      ],
+      "passed": true,
+      "tests": 13,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
     }
   },
-  "next_architecture_review": "experiments/prepared/moe_two_warpgroup_feasibility.md; estimates only, no candidate or evaluation"
+  "next_architecture_review": "experiments/prepared/moe_two_warpgroup_feasibility.md; full-size generated-byte and logical geometry CPU audit passed; no GPU candidate or occupancy evidence"
 }

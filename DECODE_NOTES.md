@@ -1,15 +1,16 @@
-# Current Decode checkpoint - October28,20:28UTC
+# Current Decode checkpoint - October28,20:33UTC
 
 Corrected attention transfer1fb5d05d passed as9a176eaead1a44ec at1.988085030x,
-full13tests/12benchmarks/integrity. Scored confirmation75f2c7f464f34c61 is pending.
+full13tests/12benchmarks/integrity. Confirmation75f2c7f464f34c61 passed at
+1.986659677x, CI[1.956859782,2.016459572], full coverage. No job/controller pending.
 It embeds exact CUDA/fallback from Attention24782695, which passed full
 coverage at2.522139036x and scored2.541743138x. All other Decode AST nodes
 are unchanged from09badc9b. No active controller. Shared-input and Redux router
 trials were rejected; no scores used. Read ATTENTION_PRECISION_AUDIT.md.
 Earlier native publications omit BF16 attention boundaries and need replacement;
 their withdrawal awaits explicit approval after automatic review rejected it.
-best/decoder_verified.py is the correction; best/decoder_published.py remains
-historical09badc9b until confirmation. Next architecture feasibility is in
+Both best/decoder_verified.py and best/decoder_published.py are the correction.
+Next architecture feasibility is in
 experiments/prepared/moe_two_warpgroup_feasibility.md; no candidate/evaluation
 exists for it. MoE dominates the corrected large-token profile.
 
@@ -411,3 +412,12 @@ router experiment is included. Full evidence:
 results/decoder-attention-bf16-boundaries-20261028/.
 best/decoder_published.py still contains historical09badc9b until confirmation;
 its metadata flags the required precision correction. No withdrawals executed.
+
+
+Corrected Decode publication75f2c7f464f34c61 passed13tests/12benchmarks/
+integrity at1.986659677x, CI[1.956859782,2.016459572]. It is exactly1fb5d05d,
+now both best/decoder_verified.py and best/decoder_published.py. Primary check
+was1.988085030x. Both corrected Attention and Decode have full scored coverage;
+no job/controller pending. Earlier published sources remain pending withdrawal
+approval and must not supply this source's speedup/rank. All sources/results/
+profiles are archived. Top50overall remains unproven and the Goal stays active.

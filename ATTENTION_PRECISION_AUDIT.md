@@ -52,9 +52,10 @@ equivalent uint8 view of the bytes; submitted GPU arithmetic is unchanged.
 This model does not establish CUDA FMA equivalence or GPU correctness.
 
 Attention24782695 (170315bytes) passed as1a16e2d658a8400d, with16tests,
-12benchmarks and integrity. Its scored confirmation isd0cdadc0960446ca.
+12benchmarks and integrity. Confirmationd0cdadc0960446ca passed at2.541743138x.
 Decode1fb5d05d (988827bytes) passed as9a176eaead1a44ec at1.988085030x,
-with13tests/12benchmarks/integrity. Confirmation75f2c7f464f34c61 is pending.
+with13tests/12benchmarks/integrity. Confirmation75f2c7f464f34c61 passed at
+1.986659677x. Both current best decoder files contain this corrected source.
 No active autoresearch controller;
 phase11 was archived after its guard rejected the router experiment. These
 are required numerical repairs, retained based on conformance rather than
@@ -98,3 +99,12 @@ router experiment is included. Full evidence:
 results/decoder-attention-bf16-boundaries-20261028/.
 best/decoder_published.py still contains historical09badc9b until confirmation;
 its metadata flags the required precision correction. No withdrawals executed.
+
+
+Corrected Decode publication75f2c7f464f34c61 passed13tests/12benchmarks/
+integrity at1.986659677x, CI[1.956859782,2.016459572]. It is exactly1fb5d05d,
+now both best/decoder_verified.py and best/decoder_published.py. Primary check
+was1.988085030x. Both corrected Attention and Decode have full scored coverage;
+no job/controller pending. Earlier published sources remain pending withdrawal
+approval and must not supply this source's speedup/rank. All sources/results/
+profiles are archived. Top50overall remains unproven and the Goal stays active.

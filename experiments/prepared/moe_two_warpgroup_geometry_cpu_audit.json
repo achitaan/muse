@@ -1,0 +1,50 @@
+{
+  "status": "geometry prototype only; no implemented GPU candidate",
+  "seed": 20261028,
+  "full_packed_weight_bytes_roundtripped": 905969664,
+  "experts_per_phase": 32,
+  "weight_piece_code_bytes": 8192,
+  "weight_piece_scale_bytes": 1024,
+  "stage_order_preserved": true,
+  "whole_pieces_preserved": true,
+  "epilogue_columns": {
+    "A": 4096,
+    "B": 4096
+  },
+  "phase_A_completions_per_B_stage": [
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8,
+    8
+  ],
+  "virtual_gather_columns": 4096,
+  "route_counts_audited": [
+    0,
+    3072
+  ],
+  "route_multiplicity_preserved": true,
+  "estimated_shared_bytes": 110336,
+  "shared_estimate_assumption": "other storage fixed at22272; JMAX/NW sizeof and alignment changes unverified",
+  "estimated_two_CTA_registers": 61440,
+  "unverified": [
+    "actual packing implementation",
+    "GPU epilogue implementation",
+    "resource attributes and two-CTA occupancy",
+    "all cross-CTA/barrier protocols",
+    "fixup/counter/scratch bounds",
+    "full numerical CUDA correctness",
+    "GPU performance"
+  ]
+}

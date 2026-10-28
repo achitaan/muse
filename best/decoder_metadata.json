@@ -10,7 +10,7 @@
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
-  "publication": "corrected-source scored confirmation pending:75f2c7f464f34c61",
+  "publication": "fully passed BF16-corrected scored confirmation",
   "fp32_router_precision_preserved": true,
   "sliced_ffn_boundary_tokens": "1..8",
   "sliced_ffn_norm_domain": 8192,
@@ -65,5 +65,21 @@
   "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
   "bf16_attention_boundaries_preserved": true,
   "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
-  "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
+  "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
+  "scored": {
+    "job": "75f2c7f464f34c61",
+    "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "speedup": 1.986659676841553,
+    "interval": [
+      1.9568597816889297,
+      2.0164595719941762
+    ],
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  },
+  "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "precision_correction_required": false
 }

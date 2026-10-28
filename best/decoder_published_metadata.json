@@ -1,17 +1,16 @@
 {
   "source": "best/decoder_published.py",
-  "sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
-  "checked_job": "09b34f4e921e49a6",
-  "checked_speedup": 1.9943191672336562,
+  "sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "checked_job": "9a176eaead1a44ec",
+  "checked_speedup": 1.9880850297289232,
   "checked_interval": [
-    1.9644043797251514,
-    2.024233954742161
+    1.9582637542829893,
+    2.017906305174857
   ],
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
-  "publication": "passed; one scored confirmation after primary check and three incumbent-only full trial observations",
-  "published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "publication": "fully passed BF16-corrected scored confirmation",
   "fp32_router_precision_preserved": true,
   "sliced_ffn_boundary_tokens": "1..8",
   "sliced_ffn_norm_domain": 8192,
@@ -19,20 +18,7 @@
   "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
   "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
   "workspace_contract": "sequential calls",
-  "independent_timed_repeat": {
-    "job": "afd35730c7d3476f",
-    "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
-    "speedup": 1.9979169351927655,
-    "interval": [
-      1.967948181164874,
-      2.027885689220657
-    ],
-    "tests": 13,
-    "benchmarks": 12,
-    "identity": "projection selector skipped; same timed compute with forwarding wrapper",
-    "new_projection_paths_verified": false
-  },
-  "scored": {
+  "historical_unfixed_scored": {
     "job": "441eb580f3074669",
     "speedup": 1.9939563882868192,
     "interval": [
@@ -43,7 +29,7 @@
     "rank_snapshot": 146,
     "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
   },
-  "publication_support": [
+  "historical_unfixed_publication_support": [
     {
       "job": "09b34f4e921e49a6",
       "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
@@ -62,7 +48,38 @@
       "role": "new output projection choice empty; incumbent retained"
     }
   ],
-  "precision_correction_required": true,
-  "corrected_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
-  "corrected_publication_pending": "75f2c7f464f34c61"
+  "historical_unfixed_published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "historical_unfixed_independent_timed_repeat": {
+    "job": "afd35730c7d3476f",
+    "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+    "speedup": 1.9979169351927655,
+    "interval": [
+      1.967948181164874,
+      2.027885689220657
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "identity": "projection selector skipped; same timed compute with forwarding wrapper",
+    "new_projection_paths_verified": false
+  },
+  "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "bf16_attention_boundaries_preserved": true,
+  "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
+  "scored": {
+    "job": "75f2c7f464f34c61",
+    "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "speedup": 1.986659676841553,
+    "interval": [
+      1.9568597816889297,
+      2.0164595719941762
+    ],
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  },
+  "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "precision_correction_required": false
 }
