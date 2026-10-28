@@ -1,5 +1,10 @@
 # Read-only dense source inspection for quota reset
 
+Follow-up: a plain-BF16 large-token cluster candidate is now CPU-prepared.
+Read `dense_cluster_review.md` and `results/dense-cluster-preflight-20261028/`.
+The codec findings below are a separate earlier screen; the new candidate
+does not compress weights. It remains GPU-unmeasured.
+
 No dense candidate or evaluation in this continuation. Dense quota0/0.
 Retain edc61a1e, sourcebest/verified.py, publication6131bc96427e4486 at1.527771327x.
 No performance claim follows from public source comments or an author's score.

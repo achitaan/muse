@@ -1,0 +1,22 @@
+{
+  "source_sha256": "4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662",
+  "baseline_full_suite_accepted": true,
+  "synthetic_good_oracle_accepted": true,
+  "fault_injections_rejected": [
+    "missing_test",
+    "missing_benchmark",
+    "integrity_failure",
+    "wrong_shape",
+    "wrong_gpu",
+    "prepare_timeout",
+    "nonfinite_oracle",
+    "missing_nearby_case",
+    "false_pair_ratio",
+    "missing_pair",
+    "slow_second_pattern",
+    "worst_row",
+    "missing_or_ambiguous_marker",
+    "missing_or_ambiguous_marker"
+  ],
+  "gpu_evaluation_launched": false
+}

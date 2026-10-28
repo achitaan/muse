@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Read dense_pinned_source_review.md and its CPU codec evidence, then compare public sk2/cg families with rejected Decode alternatives and incumbent Dense profiles before implementing a bounded candidate. Dense/MoE checks exhausted until00UTC. No new candidate justified on other tracks yet; preserve scarce Decode check and no noisy score runs.",
+  "next_trial": "Dense cluster candidate4d443b13 is frozen and CPU-audited; read experiments/prepared/dense_cluster_review.md. Reuse exact scored EDC baseline with scripts/measure_dense_cluster.py and fixed scripts/verify_dense_cluster_evidence.py. Dense checks/scores currently0/0; require positive official quota before one full9/30 GPU check after00UTC reset. No controller/job pending. Preserve other tracks and avoid noisy rescoring.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "source_inspection",
+  "active_track": "dense_cluster_cpu_preflight",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T23:11:12.827614+00:00",
+  "latest_experiment_boundary_utc": "2026-10-28T23:31:09.702686+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2430,5 +2430,35 @@
     "candidate_modified": false,
     "gpu_correctness": "unmeasured",
     "speedup": "unmeasured"
+  },
+  "dense_cluster_preflight": {
+    "source_sha256": "4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662",
+    "parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+    "artifact": "results/dense-cluster-preflight-20261028/submission.py",
+    "status": "cpu-prepared; not GPU evaluated",
+    "target_layers": [
+      "qkv_gate M33..128",
+      "pooler M65..128"
+    ],
+    "no_weight_compression": true,
+    "cpu_dispatch_cases": 5134,
+    "cpu_output_ownership_grids": 256,
+    "cpu_numerical_cases": 20,
+    "evidence_tool_fault_injections_rejected": 14,
+    "official_checks_used": 0,
+    "scored_runs_used": 0,
+    "baseline_speedup": 1.5277713270942548,
+    "review": "experiments/prepared/dense_cluster_review.md",
+    "baseline_suite_reused_without_API": true,
+    "controller_status": "not_initialized",
+    "gpu_job": null
+  },
+  "latest_overall_observation": {
+    "utc": "2026-10-28T23:26:37.049075+00:00",
+    "rank": 150,
+    "ranked": 1450,
+    "solved": 4,
+    "measure": "rank across the problems; the API gives ranks only",
+    "overall_speedup": null
   }
 }

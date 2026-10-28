@@ -1,3 +1,16 @@
+> Latest checkpoint: Dense cluster4d443b13 is CPU-prepared, GPU-unmeasured.
+> See experiments/prepared/dense_cluster_review.md and results/dense-cluster-preflight-20261028/.
+> Exactly two fixed original-BF16 families: QKV M33..128 cluster3, pooler M65..128 cluster2.
+> CPU:5134 dispatch cases,256 ownership grids,20 FP64 screens;14 bad-evidence mutations rejected.
+> Fixed full9/30/integrity + selected-kernel/profile + paired/changed-control guard prepared.
+> Reuse cached EDC1.527771327x baseline without API or new run. Candidate still EDC.
+> Dense quota0/0 until00UTC. After positive API quota, init scope candidates/active.py,
+> verify scripts/measure_dense_cluster.py metric speedup, guard scripts/verify_dense_cluster_evidence.py,
+> copy frozen candidate and finish one trial. No job/controller pending. No GPU used this continuation.
+> Other retained sources unchanged. Overall API150/1450 at23:26:37UTC; no overall speedup field.
+> Expected totals27checks/25scores from last API plus one Attention check; not refreshed.
+> Main chat only. Goal active; top50unmet.
+
 > Latest checkpoint: October28,23:08UTC. Attention QK operand swap469d8b04
 > passed16/12/integrity as e663e5cbca7041b1 at2.500663288x; slower than2.537000514.
 > Changed GM0.984233346, L8controls0.990164299; normalized0.9940101.
