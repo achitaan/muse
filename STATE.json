@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Observe corrected Attention score and Decode full check; retain BF16 repair even if the older omitted-boundary source timed faster. No repeated baseline.",
+  "next_trial": "Observe corrected Decode score75f2c7f464f34c61; review the new complete profiles before another optimization check. Do not duplicate prior failed parameter trials.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -86,8 +86,22 @@
     },
     "integrity": true,
     "bf16_attention_boundaries_preserved": true,
-    "publication": "scored correction pending: d0cdadc0960446ca",
-    "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
+    "publication": "fully passed corrected-source scored confirmation; old publication withdrawal pending approval",
+    "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
+    "scored": {
+      "job": "d0cdadc0960446ca",
+      "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+      "speedup": 2.541743138003351,
+      "interval": [
+        2.5036169909333004,
+        2.579869285073401
+      ],
+      "passed": true,
+      "tests": 16,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
+    }
   },
   "decoder_baseline": {
     "job": "65ab5fffad0c4995",
@@ -104,14 +118,18 @@
     "precision_note": "Previous public-starter BF16 scaled norm rounding is removed in the new baseline."
   },
   "attention_scored": {
-    "job": "20524d06e3894595",
-    "speedup": 2.5624023087539505,
+    "job": "d0cdadc0960446ca",
+    "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "speedup": 2.541743138003351,
     "interval": [
-      2.523966274122641,
-      2.6141994378600057
+      2.5036169909333004,
+      2.579869285073401
     ],
     "passed": true,
-    "precision_status": "historical source requires BF16 correction; withdrawal awaiting approval"
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
   },
   "remaining_track_order": [
     "muse_moe_w4a16",
@@ -156,18 +174,17 @@
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
-    "sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
-    "checked_job": "09b34f4e921e49a6",
-    "checked_speedup": 1.9943191672336562,
+    "sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "checked_job": "9a176eaead1a44ec",
+    "checked_speedup": 1.9880850297289232,
     "checked_interval": [
-      1.9644043797251514,
-      2.024233954742161
+      1.9582637542829893,
+      2.017906305174857
     ],
     "tests": 13,
     "benchmarks": 12,
     "integrity": true,
-    "publication": "passed; one scored confirmation after primary check and three incumbent-only full trial observations",
-    "published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+    "publication": "corrected-source scored confirmation pending:75f2c7f464f34c61",
     "fp32_router_precision_preserved": true,
     "sliced_ffn_boundary_tokens": "1..8",
     "sliced_ffn_norm_domain": 8192,
@@ -175,20 +192,7 @@
     "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
     "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
     "workspace_contract": "sequential calls",
-    "independent_timed_repeat": {
-      "job": "afd35730c7d3476f",
-      "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
-      "speedup": 1.9979169351927655,
-      "interval": [
-        1.967948181164874,
-        2.027885689220657
-      ],
-      "tests": 13,
-      "benchmarks": 12,
-      "identity": "projection selector skipped; same timed compute with forwarding wrapper",
-      "new_projection_paths_verified": false
-    },
-    "scored": {
+    "historical_unfixed_scored": {
       "job": "441eb580f3074669",
       "speedup": 1.9939563882868192,
       "interval": [
@@ -199,7 +203,7 @@
       "rank_snapshot": 146,
       "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
     },
-    "publication_support": [
+    "historical_unfixed_publication_support": [
       {
         "job": "09b34f4e921e49a6",
         "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
@@ -217,7 +221,25 @@
         "job": "008ff9489dec46d2",
         "role": "new output projection choice empty; incumbent retained"
       }
-    ]
+    ],
+    "historical_unfixed_published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+    "historical_unfixed_independent_timed_repeat": {
+      "job": "afd35730c7d3476f",
+      "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+      "speedup": 1.9979169351927655,
+      "interval": [
+        1.967948181164874,
+        2.027885689220657
+      ],
+      "tests": 13,
+      "benchmarks": 12,
+      "identity": "projection selector skipped; same timed compute with forwarding wrapper",
+      "new_projection_paths_verified": false
+    },
+    "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "bf16_attention_boundaries_preserved": true,
+    "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
   },
   "moe_scored": {
     "job": "b6c70c9b83724d2e",
@@ -248,7 +270,8 @@
     ],
     "passed": true,
     "rank_snapshot": 146,
-    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00"
+    "rank_snapshot_utc": "2026-10-28T17:58:08.320902+00:00",
+    "precision_status": "historical unfixed source; withdrawal approval pending"
   },
   "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles.",
   "prefill_checked": {
@@ -465,7 +488,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T20:16:36.966900+00:00",
+  "updated_utc": "2026-10-28T20:24:27.193153+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T18:24:33.630285+00:00",
     "boards": {
@@ -623,15 +646,9 @@
   },
   "pending_jobs": [
     {
-      "track": "muse_attention_decode",
-      "mode": "run",
-      "job": "d0cdadc0960446ca",
-      "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a"
-    },
-    {
       "track": "muse_decode_layer",
-      "mode": "check",
-      "job": "9a176eaead1a44ec",
+      "mode": "run",
+      "job": "75f2c7f464f34c61",
       "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432"
     }
   ],
@@ -1010,7 +1027,7 @@
     }
   },
   "current_quota_snapshot": {
-    "utc": "2026-10-28T18:24:33.630285+00:00",
+    "utc": "2026-10-28T20:28:30.636419+00:00",
     "quotas": {
       "muse_bf16_proj": {
         "scored": {
@@ -1027,13 +1044,13 @@
       "muse_attention_decode": {
         "scored": {
           "per_day": 10,
-          "used": 2,
-          "left": 8
+          "used": 3,
+          "left": 7
         },
         "checks": {
           "per_day": 20,
-          "used": 6,
-          "left": 14
+          "used": 7,
+          "left": 13
         }
       },
       "muse_moe_w4a16": {
@@ -1044,20 +1061,20 @@
         },
         "checks": {
           "per_day": 20,
-          "used": 12,
-          "left": 8
+          "used": 18,
+          "left": 2
         }
       },
       "muse_decode_layer": {
         "scored": {
           "per_day": 10,
-          "used": 5,
-          "left": 5
+          "used": 6,
+          "left": 4
         },
         "checks": {
           "per_day": 20,
-          "used": 15,
-          "left": 5
+          "used": 18,
+          "left": 2
         }
       },
       "muse_prefill_layer": {
@@ -1074,17 +1091,10 @@
       }
     },
     "totals": {
-      "checks": {
-        "left": 46,
-        "used": 54,
-        "per_day": 100
-      },
-      "scored": {
-        "left": 29,
-        "used": 21,
-        "per_day": 50
-      }
-    }
+      "checks_left": 36,
+      "scored_left": 27
+    },
+    "file": "results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json"
   },
   "moe_wgs32_phase7": {
     "job": "47f44d0ff8704a44",
@@ -1815,7 +1825,7 @@
     "next_step": "Correct inherited attention BF16 boundaries before further publication"
   },
   "attention_precision_audit": {
-    "status": "standalone full check passed; scored and Decode confirmations pending",
+    "status": "both full corrected checks pass; Attention scored; Decode confirmation pending",
     "document": "ATTENTION_PRECISION_AUDIT.md",
     "attention_draft": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
     "decoder_draft": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
@@ -1838,6 +1848,40 @@
       "withdrawal": "pending explicit user approval; automatic review rejected; none executed",
       "decode_transfer_source": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
       "decode_transfer_job": "9a176eaead1a44ec"
+    },
+    "corrected_score": {
+      "job": "d0cdadc0960446ca",
+      "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+      "speedup": 2.541743138003351,
+      "interval": [
+        2.5036169909333004,
+        2.579869285073401
+      ],
+      "passed": true,
+      "tests": 16,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries_preserved": true
+    },
+    "corrected_decoder_check": {
+      "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+      "job": "9a176eaead1a44ec",
+      "speedup": 1.9880850297289232,
+      "interval": [
+        1.9582637542829893,
+        2.017906305174857
+      ],
+      "tests": 13,
+      "benchmarks": 12,
+      "integrity": true,
+      "bf16_attention_boundaries": true,
+      "fp32_router": true,
+      "all_other_ast_unchanged": true,
+      "prepare_s": 253.284139757,
+      "publication_job": "75f2c7f464f34c61",
+      "publication_status": "pending",
+      "withdrawal": "pending user approval; no withdrawal executed"
     }
-  }
+  },
+  "next_architecture_review": "experiments/prepared/moe_two_warpgroup_feasibility.md; estimates only, no candidate or evaluation"
 }

@@ -1,10 +1,13 @@
 # Attention Decode checkpoint - October 28, 2026
 
-Best check: **2.589760797x**, job `ea693135be544501`, all 16 tests,
-12 benchmarks and integrity checks passed. Interval: [2.550914385, 2.640640588].
+Current corrected check: **2.522139036x**, job `1a16e2d658a8400d`, all16tests,
+12benchmarks and integrity passed. Interval: [2.484306950,2.559971122].
 Exact source: `best/attention_checked.py`; SHA256
-`b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4`.
-Scored publication `20524d06e3894595` passed at **2.562402309x**.
+`24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a`.
+Scored confirmation `d0cdadc0960446ca` passed at **2.541743138x**,
+interval [2.503616991,2.579869285], full16/12/integrity.
+The older2.562402309x publication20524d06 used omitted BF16 boundaries;
+withdrawal approval is pending. Read ATTENTION_PRECISION_AUDIT.md.
 Do not repeat it for timing noise.
 
 The candidate derives from Vjeux's Apache-2.0 implementation at
@@ -15,14 +18,17 @@ The upstream leaderboard result is not a measurement of our candidate.
 
 The native CUDA path combines Q/K preprocessing, cache writes, paged attention
 and output normalization/gating. It traverses every visible key, retains causal
-and sliding-window masks, and performs stable softmax reduction. Native CUDA
-algorithm payloads are unchanged. Dispatch uses public shapes and device data.
+and sliding-window masks, and performs stable softmax reduction. The CUDA
+prologue/finalizers now restore BF16 norm, RoPE and output materializations.
+Dispatch uses public shapes and device data.
 
 Local cache changes retain scratch per device and launch signature and reuse
 immutable RoPE constants. The first attempt used stream identity in these
 keys. Eager warm-up and graph capture then allocated separate buffers, causing
 initialization to become replayed graph operations. Removing that distinction
-raised the checked result from 2.016854097x to 2.589760797x. Scratch is reset by
+raised the historical unfixed check from2.016854097x to2.589760797x. Those
+numbers predate the BF16 correction and do not measure the current source.
+Scratch is reset by
 the native kernel. Same-signature calls require sequential replay; this source
 does not provide independent scratch for concurrent calls sharing a signature.
 
@@ -59,3 +65,12 @@ See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/
 Withdrawal of five affected historical publications needs explicit approval;
 automatic review rejected it and no withdrawal executed. Do not claim that
 historical unfixed scores belong to these corrected source files.
+
+
+Corrected Attention publication d0cdadc0960446ca passed16tests/12benchmarks/
+integrity at2.541743138x, CI[2.503616991,2.579869285]. It measures exactly
+24782695, the source of the primary2.522139036x check. Historical20524d06
+still belongs to the omitted-boundary source and remains on the board pending
+withdrawal approval; do not report its2.562402309x as this corrected source's
+score. Source, publication result and profiles are saved under
+results/attention-bf16-boundaries-20261028/publication/.

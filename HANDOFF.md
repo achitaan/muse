@@ -1,8 +1,9 @@
-> Current checkpoint: October28,20:17UTC. Read ATTENTION_PRECISION_AUDIT.md.
-> Corrected Attention24782695 passed full coverage at2.522139036x; score
-> d0cdadc0960446ca and Decode check9a176eaead1a44ec are pending. Earlier native
+> Current checkpoint: October28,20:28UTC. Read ATTENTION_PRECISION_AUDIT.md.
+> Corrected Attention24782695 passed full coverage at2.522139036x and scored
+> 2.541743138x asd0cdadc0960446ca. Decode1fb5d05d passed full13/12/integrity
+> at1.988085030x; scored confirmation75f2c7f464f34c61 is pending. Earlier native
 > attention sources omitted BF16 boundaries; withdrawal needs user approval.
-> Decode transfer1fb5d05d is checking. Historical scores below need replacement.
+> Historical Attention/Decode board scores below need replacement.
 > Redux trial passed but failed its
 > performance guard and was discarded. No controller active; top50Goal active.
 
@@ -13,6 +14,8 @@ model and conserve official checks/scores. No subagents, paid GPUs, external
 model providers, global changes, credential output, blind sweeps, repeated
 baselines or cosmetic resubmissions. The ordered MoE -> Decode -> Attention ->
 Prefill pass has full passing coverage. Top 50 overall remains unmet; Goal active.
+
+Historical API snapshot, before the BF16 correction:
 
 | Track | Published speedup | Last observed place | Job |
 | --- | ---: | ---: | --- |
@@ -27,12 +30,12 @@ not a combined speedup; whole-decoder-layer speedup is 1.993956388x. Cutoffs las
 read at 17:58 were Decode 2.1438x and MoE 2.3539x. Prefill does not count toward
 overall. No job or controller is pending.
 
-Current daily quotas at 18:24:33 UTC (checks / scored left): Dense 0/0,
-MoE 8/7, Decode 5/5, Attention 14/8, Prefill 19/9. Totals: 46 checks and
-29 scored runs, 75 evaluations, allocated separately by track and mode. Full
-read-only snapshot: results/resumed-moe-phase6-20261028/quota-and-score-snapshot.json.
+Current daily quotas at20:28:30UTC (checks/scored left): Dense0/0,
+MoE2/7, Decode2/4, Attention13/7, Prefill19/9. Totals:36checks and27scores,
+63evaluations, allocated separately by track and mode. Read-only snapshot:
+results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json.
 
-## Decoder publication and rejected trials
+## Historical decoder publication and rejected trials
 
 Exact 09badc9b source is both best/decoder_verified.py and
 best/decoder_published.py, 988314 bytes. Primary full check 09b34f4e921e49a6:
@@ -304,3 +307,25 @@ See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/
 Withdrawal of five affected historical publications needs explicit approval;
 automatic review rejected it and no withdrawal executed. Do not claim that
 historical unfixed scores belong to these corrected source files.
+
+
+Corrected Attention publication d0cdadc0960446ca passed16tests/12benchmarks/
+integrity at2.541743138x, CI[2.503616991,2.579869285]. It measures exactly
+24782695, the source of the primary2.522139036x check. Historical20524d06
+still belongs to the omitted-boundary source and remains on the board pending
+withdrawal approval; do not report its2.562402309x as this corrected source's
+score. Source, publication result and profiles are saved under
+results/attention-bf16-boundaries-20261028/publication/.
+
+
+## Corrected Decode full pass, October28 20:24UTC
+
+Source1fb5d05d passed13tests/12benchmarks/integrity as9a176eaead1a44ec at
+1.988085030x, CI[1.958263754,2.017906305]. Full guard passed, including BF16
+attention materializations and the original FP32 small router. It is now
+best/decoder_verified.py. Exact-source scored confirmation75f2c7f464f34c61
+is pending. All other Decode AST nodes are unchanged from09badc9b; no rejected
+router experiment is included. Full evidence:
+results/decoder-attention-bf16-boundaries-20261028/.
+best/decoder_published.py still contains historical09badc9b until confirmation;
+its metadata flags the required precision correction. No withdrawals executed.

@@ -1,4 +1,19 @@
-# Next Decode investigation - October 28, 2026, 19:28 UTC
+# Current Decode checkpoint - October28,20:28UTC
+
+Corrected attention transfer1fb5d05d passed as9a176eaead1a44ec at1.988085030x,
+full13tests/12benchmarks/integrity. Scored confirmation75f2c7f464f34c61 is pending.
+It embeds exact CUDA/fallback from Attention24782695, which passed full
+coverage at2.522139036x and scored2.541743138x. All other Decode AST nodes
+are unchanged from09badc9b. No active controller. Shared-input and Redux router
+trials were rejected; no scores used. Read ATTENTION_PRECISION_AUDIT.md.
+Earlier native publications omit BF16 attention boundaries and need replacement;
+their withdrawal awaits explicit approval after automatic review rejected it.
+best/decoder_verified.py is the correction; best/decoder_published.py remains
+historical09badc9b until confirmation. Next architecture feasibility is in
+experiments/prepared/moe_two_warpgroup_feasibility.md; no candidate/evaluation
+exists for it. MoE dominates the corrected large-token profile.
+
+## Historical next investigation - October28,19:28UTC
 
 MoE phases7..12 produced no retained improvement; none is transferred here.
 Decoder09badc9b remains checked/published at1.994319167x/1.993956388x.
@@ -383,3 +398,16 @@ See ATTENTION_PRECISION_AUDIT.md and results/attention-bf16-boundaries-20261028/
 Withdrawal of five affected historical publications needs explicit approval;
 automatic review rejected it and no withdrawal executed. Do not claim that
 historical unfixed scores belong to these corrected source files.
+
+
+## Corrected Decode full pass, October28 20:24UTC
+
+Source1fb5d05d passed13tests/12benchmarks/integrity as9a176eaead1a44ec at
+1.988085030x, CI[1.958263754,2.017906305]. Full guard passed, including BF16
+attention materializations and the original FP32 small router. It is now
+best/decoder_verified.py. Exact-source scored confirmation75f2c7f464f34c61
+is pending. All other Decode AST nodes are unchanged from09badc9b; no rejected
+router experiment is included. Full evidence:
+results/decoder-attention-bf16-boundaries-20261028/.
+best/decoder_published.py still contains historical09badc9b until confirmation;
+its metadata flags the required precision correction. No withdrawals executed.

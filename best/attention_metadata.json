@@ -27,6 +27,20 @@
   },
   "integrity": true,
   "bf16_attention_boundaries_preserved": true,
-  "publication": "scored correction pending: d0cdadc0960446ca",
-  "precision_audit": "ATTENTION_PRECISION_AUDIT.md"
+  "publication": "fully passed corrected-source scored confirmation; old publication withdrawal pending approval",
+  "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
+  "scored": {
+    "job": "d0cdadc0960446ca",
+    "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "speedup": 2.541743138003351,
+    "interval": [
+      2.5036169909333004,
+      2.579869285073401
+    ],
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "bf16_attention_boundaries_preserved": true
+  }
 }

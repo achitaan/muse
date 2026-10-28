@@ -61,5 +61,8 @@
       "job": "008ff9489dec46d2",
       "role": "new output projection choice empty; incumbent retained"
     }
-  ]
+  ],
+  "precision_correction_required": true,
+  "corrected_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "corrected_publication_pending": "75f2c7f464f34c61"
 }

@@ -1,0 +1,69 @@
+# Two-consumer-warpgroup MoE: feasibility, not an implemented candidate
+
+October28. Main chat only. Do not spend another evaluation on a parameter
+variant of the rejected FT_T32, GS4, producer, grid-constant or cache-policy
+trials. MoE33114871 remains retained. This note records a possible architectural
+path after the attention correctness confirmations, not measured improvement.
+
+Corrected Decode1fb5d05d check9a176eaead1a44ec gives the next bottleneck:
+MoE23.7us of85.8us summed profile time at M1,50.9us of115.7us at M8,
+200.3us of331.3us at M256 sliding. Router/pooler already overlap on separate
+streams for M<=8, so speeding router selection alone has limited layer impact.
+The Redux comparison passed bitwise probes but failed its predeclared material
+gain guard; no retry or score. These are profile sums, not measured critical
+path or end-to-end Amdahl predictions.
+
+The current WGS kernel has512 consumer threads plus64 producers (576total),
+four128-thread consumer warpgroups and96 registers. Weight ring:
+3slots *4groups *9216bytes =110592bytes. X ring at FT_T64 and NX3:
+3 *8n-tiles *4096bytes =98304bytes. The measured231168byte dynamic allocation
+leaves22272bytes of other shared storage/alignment in this configuration.
+Reducing consumer groups alone estimates175872bytes, still one CTA per SM;
+it does not by itself establish improved occupancy.
+
+A coherent two-CTA design would require coordinated changes: two consumer
+groups, FT_T32 and two X slots. Keeping the other-storage estimate fixed gives
+55296+32768+22272=110336bytes per CTA. Two320-thread CTAs at96registers would
+need61440 registers. These are feasibility estimates only; changed sizeof/align,
+compiler allocation, local spills, dynamic-shared opt-in and actual occupancy
+must be checked on H200. Do not claim two active CTAs from arithmetic alone.
+FT_T32 alone previously caused local storage and no useful gain; this design
+needs an actual resource advantage, not just smaller source arrays.
+
+Critical coupled work before implementation:
+
+- Current WGS unit contains four64-row weight pieces (256GEMM output rows).
+  PhaseA pairs gate/up, producing128intermediate columns per unit; phaseB
+  produces256output columns. Two groups imply128GEMM rows:64intermediate
+  columns in A and128output columns in B. Do not confuse this WGS unit with
+  the older RB_A=512 scalar-work domain. Read actual epilogue mapping before
+  changing any constant.
+- Repack weights into the new unit layout and double A/B output units to64/32
+  per expert. Preserve every NVFP4/FP8 byte and BF16 gain boundary. Existing
+  four-piece packed weights cannot simply be indexed as two pieces.
+- Generalize unit bit shifts, stage ownership, cost tables, fixup indexing and
+  deferred epilogues. A new A unit writes64intermediate columns: four units
+  fill a256-column B input stage. Two groups times four units still give eight
+  group completion arrivals per stage; verify this from exact writes/acquires.
+- Reduce producer/consumer barrier arrival counts consistently. Simulate ring
+  wraps, pending epilogue drains, unequal expert counts and cross-CTA fixups.
+- A grid above132CTAs requires proven two-CTA residency and larger fixup slot
+  capacity than WGS_SLOTS160. Inspect every136-sized completion array, scratch
+  offset and cooperative barrier before considering a264-CTA launch. If the
+  resource proof fails, do not launch an oversubscribed spin-wait grid.
+- Routing/gather/final output currently assume512 logical consumer threads.
+  Two groups provide256physical consumers. Cover all4096 columns with a
+  justified virtual-thread loop or16elements/thread; preserve FP32 norm domain,
+  every output store, route multiplicity, reset ownership and sequential reuse.
+- Keep skinny paths unchanged, use an independent packed-weight/scratch bank,
+  and account for the300second prepare limit. Avoid default-building both huge
+  banks if one can be selected from static configuration without precision loss.
+
+Acceptance before one MoE check: reversible source ledger; full-size lossless
+pack round trip; all route/job/K-stage coverage with duplicate/empty/skewed and
+nearby shapes; scratch/counter bounds and repeated-call isolation; barrier state
+model; explicit resource/occupancy reporting and a safe launch gate. Require
+full5test/6benchmark/integrity evidence and actual execution of the new path.
+If the design cannot earn a resource advantage, close it without a score.
+
+No implementation, source payload or new evaluation exists for this design.
