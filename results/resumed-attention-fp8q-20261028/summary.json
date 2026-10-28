@@ -1,0 +1,29 @@
+{
+  "source_sha256": "8463eaf3bf9582df2dfb2fda0a97c3a28e4f4c826281457d69d343d5e3394ce2",
+  "job": "60aa54a9feeb49e9",
+  "speedup": 2.542655362900257,
+  "interval": [
+    2.504515532456753,
+    2.5807951933437603
+  ],
+  "passed": true,
+  "tests": 16,
+  "benchmarks": 12,
+  "integrity": true,
+  "changed_six_ratios": [
+    0.9677507843763936,
+    0.9857231538812127,
+    1.0139587343500638,
+    1.002752500376725,
+    1.026844288106152,
+    1.0038401370036651
+  ],
+  "changed_geomean": 0.9999622659712849,
+  "unchanged_geomean": 1.0236281911998697,
+  "outcome": "discard: fixed performance guard failed",
+  "scored_runs_used": 0,
+  "checks_used": 1,
+  "retained_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "trial_commit": "91092e87b436b01beec6da0f8a6efc3e0f69a464",
+  "revert_commit": "04741e8ce588f11783d250db0e98c0d93b6ababf"
+}

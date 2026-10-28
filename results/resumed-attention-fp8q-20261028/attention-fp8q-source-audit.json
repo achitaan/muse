@@ -1,0 +1,34 @@
+{
+  "parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "source_sha256": "8463eaf3bf9582df2dfb2fda0a97c3a28e4f4c826281457d69d343d5e3394ce2",
+  "bytes": 170946,
+  "inverse_exact": true,
+  "other_python_ast_unchanged": true,
+  "edits": [
+    {
+      "before": "__device__ __forceinline__ uint4 lds128",
+      "after": "// FP8 QK for a single query: eight live A rows and eight zero rows.\n__device__ __forceinline__ void mma_f8q(float* c, uint32_t a0, uint32_t a2,\n                                      uint32_t b0, uint32_t b1) {\n  asm volatile(\n      \"mma.sync.aligned.m16n8k32.row.col.f32.e4m3.e4m3.f32 {%0,%1,%2,%3}, {%4,%5,%6,%5}, {%7,%8}, \"\n      \"{%0,%1,%2,%3};\\n\"\n      : \"+f\"(c[0]), \"+f\"(c[1]), \"+f\"(c[2]), \"+f\"(c[3])\n      : \"r\"(a0), \"r\"(0u), \"r\"(a2), \"r\"(b0), \"r\"(b1));\n}\n\n__device__ __forceinline__ uint4 lds128",
+      "count": 1
+    },
+    {
+      "before": "#pragma unroll\n    for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);\n    if constexpr (L == 1) { const uint32_t t1 = qwp[1]; qwp[1] = qwp[2]; qwp[2] = t1; }   // (scout: quad order 0,2,1,3)\n    if constexpr (WS) {   // in place over the raw row (same thread, same 16 bytes)\n      *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * 16) = qw;\n    } else {\n      uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n      *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * 16) = qw;\n    }",
+      "after": "    if constexpr (L == 1) {\n      // Keep each thread's original 16-byte slot: compacting the whole row\n      // here would race another thread's raw BF16 query read in WS mode.\n      const uint2 q8 = make_uint2(e4m3x4f(x[0], x[1], x[2], x[3]),\n                                 e4m3x4f(x[4], x[5], x[6], x[7]));\n      uint8_t* qs = WS ? S.kvq + rr * 128 :\n          (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES + (j * 8 + gg) * 128;\n      *reinterpret_cast<uint2*>(qs + partL * 16) = q8;\n    } else {\n#pragma unroll\n      for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);\n      if constexpr (WS) {\n        *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * 16) = qw;\n      } else {\n        uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n        *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * 16) = qw;\n      }\n    }",
+      "count": 1
+    },
+    {
+      "before": "  // Q A-fragments (f16, pre-scaled to log2 units) for 4 k-steps of 16 dims: thread holds dims\n  // 16*tig + 4*ks + {0,1} (a0) and + {2,3} (a2); the K B-fragments use the same dims.\n  uint32_t qa[4][2];\n  {\n    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n    const uint4 l0 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig);\n    const uint4 l1 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig + 16);\n    // (scout: chunk words stored (0, 2, 1, 3): l0 = {ks0 a0, ks1 a0, ks0 a2, ks1 a2}, l1 the same for ks 2, 3)\n    qa[0][0] = l0.x; qa[0][1] = l0.y; qa[1][0] = l0.z; qa[1][1] = l0.w;\n    qa[2][0] = l1.x; qa[2][1] = l1.y; qa[3][0] = l1.z; qa[3][1] = l1.w;\n  }\n",
+      "after": "  // PTX m16n8k32: A0/A2 are row g, dims 4*tig + {0..3}\n  // and +16; A1/A3 are zero. Two K32 steps cover all 64 dimensions.\n  uint32_t qa[2][2];\n  {\n    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n#pragma unroll\n      for (int r = 0; r < 2; ++r) {\n        const int d = h * 32 + r * 16 + 4 * tig;\n        qa[h][r] = *reinterpret_cast<const uint32_t*>(qs + g * 128 + (d >> 3) * 16 + (d & 7));\n      }\n    }\n  }\n",
+      "count": 1
+    },
+    {
+      "before": "    uint32_t kw[4][4];\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {\n      const int key = 32 * wsub + 8 * nt + g;\n      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));\n      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;\n    }\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)\n      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int h = 0; h < 2; ++h) {\n        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));\n        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));\n      }\n      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;\n    }\n",
+      "after": "    uint32_t kw[4][4];\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {\n      const int key = 32 * wsub + 8 * nt + g;\n#pragma unroll\n      for (int r = 0; r < 4; ++r) {\n        // B0/B1: key g, dimensions 4*tig+{0..3} and +16.\n        // Each warp's 32 words touch 32 distinct shared-memory banks.\n        const int off = key * ROWB + (((hk * 4 + r) ^ (key & 7)) << 4) + 4 * tig;\n        kw[nt][r] = *reinterpret_cast<const uint32_t*>(K + off);\n      }\n    }\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {\n      float sc[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int h = 0; h < 2; ++h)\n        mma_f8q(sc, qa[h][0], qa[h][1], kw[nt][2 * h], kw[nt][2 * h + 1]);\n      // Q stays unit-RMS through E4M3 conversion, including nonunit KV scales.\n      s[nt][0] = sc[0] * sl2; s[nt][1] = sc[1] * sl2;\n      s[nt][2] = 0.f; s[nt][3] = 0.f;\n    }\n",
+      "count": 1
+    },
+    {
+      "before": "attn_kernel",
+      "after": "attn_kernel_fp8q",
+      "count": 14
+    }
+  ]
+}

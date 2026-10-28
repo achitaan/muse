@@ -1,0 +1,101 @@
+"""Register-only FP8 PV; retain corrected baseline FP16 QK and all BF16 stages."""
+import ast
+import hashlib
+import json
+from pathlib import Path
+from build_attention_fp8q import ROOT, BASE_SHA, literal
+
+
+def transform(old):
+    edits=[]
+    def change(before,after,count=1):
+        nonlocal old
+        assert old.count(before)==count,(before[:100],old.count(before))
+        old=old.replace(before,after)
+        edits.append(dict(before=before,after=after,count=count))
+    marker='// the merge / barrier fences as fence.acq_rel.gpu'
+    change(marker,'''// FP8 PV uses the same key permutation in both operands. For each K16
+// half, lane tig supplies physical keys 2*tig + {0,1,8,9}. This keeps
+// the old conflict-free V loads and packs P directly, without shuffles.
+__device__ __forceinline__ void load_v_frags_f8(const uint8_t* V, int kb, int hk, int g, int tig,
+                                              uint32_t* b0, uint32_t* b1) {
+  const int ch = hk * 4 + (g >> 1), off = (g & 1) * 8;
+#pragma unroll
+  for (int h = 0; h < 2; ++h) {
+    const int k0 = kb + 16 * h + 2 * tig;
+    const uint2 v0 = lds64(V + k0 * ROWB + ((ch ^ (k0 & 7)) << 4) + off);
+    const uint2 v1 = lds64(V + (k0 + 1) * ROWB + ((ch ^ ((k0 + 1) & 7)) << 4) + off);
+    const uint2 v2 = lds64(V + (k0 + 8) * ROWB + ((ch ^ ((k0 + 8) & 7)) << 4) + off);
+    const uint2 v3 = lds64(V + (k0 + 9) * ROWB + ((ch ^ ((k0 + 9) & 7)) << 4) + off);
+    uint32_t* dst = h ? b1 : b0;
+#pragma unroll
+    for (int z = 0; z < 2; ++z) {
+      const uint32_t a = z ? v0.y : v0.x, b = z ? v1.y : v1.x;
+      const uint32_t c = z ? v2.y : v2.x, d = z ? v3.y : v3.x;
+      const uint32_t e01 = prmt(a, b, 0x5140), e23 = prmt(c, d, 0x5140);
+      const uint32_t o01 = prmt(a, b, 0x7362), o23 = prmt(c, d, 0x7362);
+      dst[4 * z + 0] = prmt(e01, e23, 0x5410);
+      dst[4 * z + 1] = prmt(e01, e23, 0x7632);
+      dst[4 * z + 2] = prmt(o01, o23, 0x5410);
+      dst[4 * z + 3] = prmt(o01, o23, 0x7632);
+    }
+  }
+}
+
+__device__ __forceinline__ void mma_f8pv(float* c, uint32_t a0, uint32_t a2,
+                                       uint32_t b0, uint32_t b1) {
+  asm volatile(
+      "mma.sync.aligned.m16n8k32.row.col.f32.e4m3.e4m3.f32 {%0,%1,%2,%3}, {%4,%5,%6,%5}, {%7,%8}, "
+      "{%0,%1,%2,%3};\\n"
+      : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
+      : "r"(a0), "r"(0u), "r"(a2), "r"(b0), "r"(b1));
+}
+
+'''+marker)
+    change('const float pv = ex2(s[nt][e] - m_new);',
+           '// FA3 Max_offset=8: exact power-of-two scale extends the FP8 tail.\n'
+           '          const float pv = ex2(s[nt][e] - m_new) * 256.f;')
+    before='''#pragma unroll
+      for (int ks = 0; ks < 2; ++ks) {   // (timing probe only, wrong results)
+        uint32_t b0[8], b1[8];
+        load_v_frags(V, 32 * wsub + 16 * ks, hk, g, tig, b0, b1);
+        const uint32_t a0 = pack_h2(s[2 * ks][0], s[2 * ks][1]);
+        const uint32_t a2 = pack_h2(s[2 * ks + 1][0], s[2 * ks + 1][1]);
+#pragma unroll
+        for (int t = 0; t < 8; ++t) mma_f16(o[0][t], a0, 0u, a2, 0u, b0[t], b1[t]);
+      }'''
+    change(before,'''      uint32_t b0[8], b1[8];
+      load_v_frags_f8(V, 32 * wsub, hk, g, tig, b0, b1);
+      const uint32_t a0 = e4m3x4f(s[0][0], s[0][1], s[1][0], s[1][1]);
+      const uint32_t a2 = e4m3x4f(s[2][0], s[2][1], s[3][0], s[3][1]);
+#pragma unroll
+      for (int t = 0; t < 8; ++t) mma_f8pv(o[0][t], a0, a2, b0[t], b1[t]);''')
+    change('attn_kernel','attn_kernel_fp8pv',old.count('attn_kernel'))
+    return old,edits
+
+
+def build():
+    raw=(ROOT/'best/attention_checked.py').read_bytes()
+    assert hashlib.sha256(raw).hexdigest()==BASE_SHA
+    source=raw.decode('utf8');node,old=literal(source)
+    new,edits=transform(old);reverse=new
+    for e in reversed(edits):
+        assert reverse.count(e['after'])==e['count']
+        reverse=reverse.replace(e['after'],e['before'])
+    assert reverse==old
+    lines=source.splitlines(keepends=True)
+    begin=sum(map(len,lines[:node.value.lineno-1]))+node.value.col_offset
+    end=sum(map(len,lines[:node.value.end_lineno-1]))+node.value.end_col_offset
+    result=source[:begin]+repr(new)+source[end:]
+    tree=ast.parse(result)
+    next(n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='CUDA_SRC' for t in n.targets)).value=node.value
+    assert ast.dump(tree)==ast.dump(ast.parse(source))
+    out=ROOT/'.tools/attention-fp8pv-variant.py';out.write_bytes(result.encode())
+    (ROOT/'.tools/attention-fp8pv.cu').write_bytes(new.encode())
+    report=dict(parent_sha256=BASE_SHA,source_sha256=hashlib.sha256(out.read_bytes()).hexdigest(),bytes=out.stat().st_size,
+                inverse_exact=True,other_python_ast_unchanged=True,edits=edits)
+    (ROOT/'.tools/attention-fp8pv-source-audit.json').write_bytes(json.dumps(report,indent=2).encode())
+    print(json.dumps({k:v for k,v in report.items() if k!='edits'},indent=2))
+
+
+if __name__=='__main__':build()

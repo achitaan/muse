@@ -1,0 +1,11 @@
+{
+  "source_sha256": "8463eaf3bf9582df2dfb2fda0a97c3a28e4f4c826281457d69d343d5e3394ce2",
+  "fragment_matrices": 384,
+  "exact_integer_qk": true,
+  "write_owner_checks": 1536,
+  "conflict_free_warp_loads": 768,
+  "numerical_cases": 32,
+  "max_relative_l2_vs_fp8q_oracle": 0.0009596041636541486,
+  "native_bf16_boundary_guard": true,
+  "scope": "CPU evidence; official GPU check still required"
+}

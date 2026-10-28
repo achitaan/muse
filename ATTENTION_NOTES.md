@@ -74,3 +74,23 @@ still belongs to the omitted-boundary source and remains on the board pending
 withdrawal approval; do not report its2.562402309x as this corrected source's
 score. Source, publication result and profiles are saved under
 results/attention-bf16-boundaries-20261028/publication/.
+
+
+## One-query FP8 QK trial closed at21:25UTC
+
+Job60aa54a9feeb49e9/source8463eaf3 passed16tests/12benchmarks/integrity
+at2.542655363x, CI[2.504515532,2.580795193]. The six changed L1 cases
+had geometric ratio0.999962266 vs corrected247; unchanged L8 controls
+rose2.3628%. Batch-one sliding ratio0.96775 violated the fixed0.98 floor.
+The controller discarded it (trial91092e8, revert04741e8). No scored run
+or Decode transfer. Retain corrected247, scored2.541743138x. One check
+used; expected Attention12checks/7scores left. Full payload, profiles,
+source and CPU audits, fixed guard failure and immutable controller history
+are in results/resumed-attention-fp8q-20261028/. Do not rerun for noise
+or retain a selector based on these small individual fluctuations.
+
+Next inspect L1 PV: its helper loads FP8 V and expands32packed FP16
+registers per32-key block, with16FP16 MMA operations. A register-only
+4x4 byte transpose could feed8FP8 K32 MMAs without extra shared memory.
+Keep the retained FP16 QK path. Before a candidate, audit P scaling,
+PTX A/B/C mapping, every BF16 boundary and actual FA3 internal precision.

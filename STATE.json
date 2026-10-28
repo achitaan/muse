@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One-query FP8 mma.sync QK: prepared8463eaf3; reversible source and CPU fragment/numerical audits pass. Initialize scoped controller with cached corrected247 baseline before one full official check. Decode norm fusion inspection closed as marginal; preserve2checks.",
+  "next_trial": "One-query FP8 PV a310b988: retain corrected247 FP16 QK; register-only byte transpose, common K permutation, FP32 denominator and FA3 probability scale256. CPU256operand/2048transpose/32numerical cases pass; initialize scoped controller with cached baseline, then one full check.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -1982,5 +1982,34 @@
     "lesson": "Two-block occupancy is insufficient. M32 loses even when FT_T32 does not increase job count; do not attribute the loss solely to larger-load weight repetition or retry neighboring geometry blindly.",
     "remaining_moe_checks_expected": 1,
     "next_track": "muse_decode_layer"
+  },
+  "attention_fp8q_trial": {
+    "source_sha256": "8463eaf3bf9582df2dfb2fda0a97c3a28e4f4c826281457d69d343d5e3394ce2",
+    "job": "60aa54a9feeb49e9",
+    "speedup": 2.542655362900257,
+    "interval": [
+      2.504515532456753,
+      2.5807951933437603
+    ],
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "changed_six_ratios": [
+      0.9677507843763936,
+      0.9857231538812127,
+      1.0139587343500638,
+      1.002752500376725,
+      1.026844288106152,
+      1.0038401370036651
+    ],
+    "changed_geomean": 0.9999622659712849,
+    "unchanged_geomean": 1.0236281911998697,
+    "outcome": "discard: fixed performance guard failed",
+    "scored_runs_used": 0,
+    "checks_used": 1,
+    "retained_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "trial_commit": "91092e87b436b01beec6da0f8a6efc3e0f69a464",
+    "revert_commit": "04741e8ce588f11783d250db0e98c0d93b6ababf"
   }
 }

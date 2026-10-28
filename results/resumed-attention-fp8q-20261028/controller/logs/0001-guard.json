@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_fp8q_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.109,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_attention_fp8q_evidence.py\", line 30, in <module>\r\n    assert min(ratios)>=.98,('Changed-path regression',ratios)\r\nAssertionError: ('Changed-path regression', [0.9677507843763936, 0.9857231538812127, 1.0139587343500638, 1.002752500376725, 1.026844288106152, 1.0038401370036651])\r\n",
+  "stdout": "Native attention retains BF16 norm, RoPE and output boundaries in all finalizers and fallback.\r\n",
+  "timed_out": false
+}
