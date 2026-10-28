@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Inspect experiments/prepared/decoder_projection_norm_fusion_review.md before deciding whether a measurable Decode fusion justifies one check. No candidate written. MoE phase13 is closed; one MoE check remains. Move to Attention if the small-token gain ceiling is not credible.",
+  "next_trial": "One-query FP8 mma.sync QK: prepared8463eaf3; reversible source and CPU fragment/numerical audits pass. Initialize scoped controller with cached corrected247 baseline before one full official check. Decode norm fusion inspection closed as marginal; preserve2checks.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_decode_layer",
+  "active_track": "muse_attention_decode",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",

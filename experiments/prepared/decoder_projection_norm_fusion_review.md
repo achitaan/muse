@@ -1,5 +1,12 @@
 # Decode projection/norm fusion: inspection packet only
 
+Inspection closed without a GPU run: O1 uses1024threads,64outputrows/CTA,
+128CTAs; O8 uses256threads,16rows/CTA,512CTAs. A last-block norm replaces
+parallel row finalizers with work on one SM; a full-grid spin would require
+unproven residency after adding registers. The saving ceiling on small-token
+loads is marginal after fences and norm work. Preserve the two Decode checks
+and move to the one-query FP8 QK Attention hypothesis. No fusion implemented.
+
 No candidate or GPU evaluation exists. Retain corrected1fb5d05d, checked
 1.988085030x/scored1.986659677x. Two Decode checks remain. MoE phase13 is
 closed: actual two-CTA occupancy regressed every affected load; no transfer.
