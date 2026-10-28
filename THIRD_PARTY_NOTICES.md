@@ -46,5 +46,5 @@ replay, consistent with this candidate's shared-workspace contract.
 The prepared native MoE hypothesis also derives from the same Vjeux Apache-2.0
 revision. Local changes remove diagnostics and restore Marlin BF16 GEMM outputs,
 BF16 global scales and BF16 effective post-norm weights; norm arithmetic stays
-FP32. It is unmeasured at this checkpoint. The prepared source embeds the full
+FP32. The candidate passed full official coverage at 2.299797371x. The prepared source embeds the full
 Apache license. Shared scratch requires sequential replay.

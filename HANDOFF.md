@@ -42,3 +42,10 @@ Use the existing authenticated free official service; never print tokens.
 No paid GPUs, external providers, subagents or global orchestration mutations.
 Quotas are per track and reset at 00:00 UTC; unused quota need not be consumed
 on weak hypotheses. Commit/push measured evidence at phase boundaries.
+
+Latest MoE update: check 6792a5c832ee4aff passed at 2.299797371x with
+all 5 tests and 6 benchmarks. Exact source best/moe_verified.py. Scored job
+b4a10b76347e4cb0 is pending. Read MOE_NOTES.md; the old 1.2685x result is
+historical. Current next phase is one combined native decoder check, preserving
+the FP32 router and all residual boundaries. Latest overall snapshot: rank 619
+after attention, before the new MoE score. No sweeps; Prefill remains last.

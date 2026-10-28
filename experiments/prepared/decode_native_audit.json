@@ -1,0 +1,11 @@
+{
+  "source_sha256": "374906c67a19b8b295a28dbed7a0779b003b268e073b2db03ccb906d734e1b9d",
+  "moe_sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "attention_sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+  "decoder_base_sha256": "5ed23e1eba17e7abfc5145fbdf5b607f501163517b9869af433363bb48ac10c2",
+  "cuda_string_payloads_preserved": true,
+  "fp32_router_path_preserved": true,
+  "moe_local_ids": "caller rotates expert IDs; native owns 0..31",
+  "new_attention_cache_entries": "same input cache tensors passed to native kernel",
+  "gpu_status": "unmeasured"
+}

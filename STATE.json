@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One native persistent MoE check after CPU lossless-packing audit and restoration of Marlin BF16 boundaries; no sweep.",
+  "next_trial": "One end-to-end decoder check integrating verified native attention and native MoE while preserving the FP32 router and all residual boundaries.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_moe_w4a16",
+  "active_track": "muse_decode_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -115,17 +115,23 @@
   ],
   "moe_checked": {
     "source": "best/moe_verified.py",
-    "sha256": "eab0e08d75f29658ec33a8f370d947ca023a9c10e3d09666684e6df1ef05f92d",
-    "checked_job": "0535f51d98d548ee",
-    "checked_speedup": 1.2689456201126204,
+    "sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+    "checked_job": "6792a5c832ee4aff",
+    "checked_speedup": 2.2997973708634096,
     "checked_interval": [
-      1.2499114358109311,
-      1.2879798044143096
+      2.2653004103004584,
+      2.3342943314263604
     ],
     "tests": 5,
     "benchmarks": 6,
     "fp32_norm_intermediates": true,
-    "scored_job_pending": "650aa66fd3334d8c"
+    "bf16_gemm_boundaries": true,
+    "scored_job_pending": "b4a10b76347e4cb0",
+    "upstream": {
+      "repo": "vjeux/okc-2026",
+      "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "license": "Apache-2.0"
+    }
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
@@ -149,12 +155,11 @@
     "passed": true
   },
   "overall_placement_snapshot": {
-    "utc": "2026-10-28T12:11:35.091814+00:00",
+    "utc": "2026-10-28T13:07:00Z",
     "you": {
-      "rank": 745,
+      "rank": 619,
       "team": "achitaan",
-      "first": false,
-      "ahead": 744
+      "provisional": true
     }
   },
   "decoder_scored": {

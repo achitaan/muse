@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import torch
 
-root = Path(__file__).resolve().parents[1]
+root = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 tree = ast.parse((root / '.tools/vjeux-moe-upstream.py').read_text())
 names = {'_stored_pos', '_split_nibbles', '_scatter_code_bits', '_pack_codes',
          '_pack_scales', '_fat_order', '_unit_order', '_pack_codes_nat', '_wgs_copy'}

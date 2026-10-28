@@ -31,10 +31,15 @@ def main():
         launch.update(source_sha256=digest)
         launch_path.write_text(json.dumps(launch, indent=2))
     job = launch['job_id']
+    result_path = directory / 'result.json'
+    saved = json.loads(result_path.read_text()) if result_path.exists() else None
     previous = None
     while True:
         try:
-            result = cli(['status', job, '--json'])
+            if saved and saved.get('status') in ('done', 'failed', 'rejected'):
+                result, saved = saved, None
+            else:
+                result = cli(['status', job, '--json'])
         except Exception as exc:
             print(f'Observation failed for {job}: {type(exc).__name__}; retaining handle', file=sys.stderr, flush=True)
             time.sleep(20)
@@ -62,7 +67,7 @@ def main():
                               'tests': len(tests), 'benchmarks': len(benches),
                               'interval': body.get('speedup_ci'), 'error': body.get('error')}), flush=True)
             return
-        time.sleep(15)
+        time.sleep(45)
 
 
 if __name__ == '__main__':

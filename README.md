@@ -8,7 +8,7 @@ fully checked candidates.
 | Track | Latest verified result | State |
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
-| MoE W4A16 | 1.268509x scored | Saved; 7 checks and 1 scored run used |
+| MoE W4A16 | 2.299797x checked | One scored publication pending |
 | Whole decoder layer | 1.172780x scored | Saved |
 | Attention decode | 2.562402x scored | Saved |
 | Prefill layer | No run yet | Last in the requested order |

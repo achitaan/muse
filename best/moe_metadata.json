@@ -1,22 +1,20 @@
 {
   "source": "best/moe_verified.py",
-  "sha256": "eab0e08d75f29658ec33a8f370d947ca023a9c10e3d09666684e6df1ef05f92d",
-  "checked_job": "0535f51d98d548ee",
-  "checked_speedup": 1.2689456201126204,
+  "sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "checked_job": "6792a5c832ee4aff",
+  "checked_speedup": 2.2997973708634096,
   "checked_interval": [
-    1.2499114358109311,
-    1.2879798044143096
+    2.2653004103004584,
+    2.3342943314263604
   ],
   "tests": 5,
   "benchmarks": 6,
   "fp32_norm_intermediates": true,
-  "scored": {
-    "job": "650aa66fd3334d8c",
-    "speedup": 1.2685086331610234,
-    "interval": [
-      1.249481003663608,
-      1.2875362626584386
-    ],
-    "passed": true
+  "bf16_gemm_boundaries": true,
+  "scored_job_pending": "b4a10b76347e4cb0",
+  "upstream": {
+    "repo": "vjeux/okc-2026",
+    "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "license": "Apache-2.0"
   }
 }

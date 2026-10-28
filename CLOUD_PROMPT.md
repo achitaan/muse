@@ -30,3 +30,10 @@ Publish evidence at phase boundaries. Use only the existing account and free
 official H200 service; no paid GPUs, external providers, global configuration
 changes or subagents. Never read/print/commit credentials. Report unmet targets
 and provisional placement honestly.
+
+Latest MoE update: check 6792a5c832ee4aff passed at 2.299797371x with
+all 5 tests and 6 benchmarks. Exact source best/moe_verified.py. Scored job
+b4a10b76347e4cb0 is pending. Read MOE_NOTES.md; the old 1.2685x result is
+historical. Current next phase is one combined native decoder check, preserving
+the FP32 router and all residual boundaries. Latest overall snapshot: rank 619
+after attention, before the new MoE score. No sweeps; Prefill remains last.

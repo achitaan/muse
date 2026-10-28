@@ -1,4 +1,40 @@
-# MoE optimization notes — October 28, 2026
+# Latest native MoE checkpoint - October 28, 2026
+
+Check `6792a5c832ee4aff`: **2.299797371x**, all 5 tests, 6 benchmarks and
+integrity checks passed. Exact source `best/moe_verified.py`, SHA256
+`dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3`.
+One scored publication is pending: `b4a10b76347e4cb0`; observe, never duplicate.
+This supersedes the previous 1.268945620x checked Marlin candidate below.
+
+Derived from Vjeux's Apache-2.0 source at revision
+f35a41ee1c13e316dabbf772830d47b23b453393. One persistent native grid performs
+routing, both NVFP4 matrix multiplies, SwiGLU and final norm/weighted sum.
+All local routes remain present; routing is rebuilt from fresh inputs each
+call. Weight layouts are bit/byte repacks, without requantization or persistent
+BF16 expansion. CPU inversion recovered 1,048,576 weight codes and 65,536 scale
+bytes across MMA, natural-K, fat, unit and WGS layouts, with seed 20261028.
+
+Local changes remove diagnostics and restore pinned SGLang Marlin's BF16 GEMM
+outputs: BF16 accumulator boundary, BF16 global scale and BF16 product before
+SwiGLU or post norm. Effective (1+w) norm weights are prepared in BF16; scaled
+norm values and reductions stay FP32 until final BF16 output. This preserves
+Dot's precision correction while using the native scheduler. The structural
+precision guard now recognizes both this source and the prior Triton finalizer.
+CPU/static checks alone do not establish GPU correctness or speed.
+
+Scratch is prepared once, fully overwritten/reset by the kernel, and shared
+between sequential calls. Concurrent calls sharing this state are unsupported.
+Full source/license and exact check evidence are in
+`results/resumed-moe-phase3-20261028/`. The native source includes Apache license
+and local change notices; preserve them. Main-chat-only work, no sweeps.
+
+The next single hypothesis integrates the separately checked native attention
+and MoE into the whole decoder. The FP32 router path, expert ID rotation and
+residual boundaries are preserved. The draft is unmeasured. Prefill stays last.
+
+---
+
+# MoE optimization notes â€” October 28, 2026
 
 Current order: MoE W4A16, Decode Layer, Attention Decode, Prefill Layer last.
 Main chat only. Conserve checks and scored runs; every trial needs a concrete hypothesis.

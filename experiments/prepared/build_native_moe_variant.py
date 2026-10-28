@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-root = Path(__file__).resolve().parents[1]
+root = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 original = (root / '.tools/vjeux-moe-upstream.py').read_text()
 tree = ast.parse(original)
 source_node = next(n for n in tree.body if isinstance(n, ast.Assign)
