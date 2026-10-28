@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T23:31:09.702686+00:00",
+  "latest_experiment_boundary_utc": "2026-10-28T23:39:44.812903+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2460,5 +2460,22 @@
     "solved": 4,
     "measure": "rank across the problems; the API gives ranks only",
     "overall_speedup": null
+  },
+  "moe_skinny16_preflight": {
+    "source_sha256": "921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96",
+    "status": "CPU prototype; original dispatch unchanged; not ready for a GPU performance trial",
+    "review": "experiments/prepared/moe_skinny16_review.md",
+    "original_source_exact_prefix": true,
+    "intended_tokens": [
+      9,
+      16
+    ],
+    "cpu_second_tile_operand_words": 524288,
+    "output_ownership_cases": 16,
+    "dynamic_shared_bytes_abi_model": 214656,
+    "missing_second_store_mutant_detected": true,
+    "gpu_checks_used": 0,
+    "scored_runs_used": 0,
+    "next": "Add bounded prepare-only paired comparator and nearby/analytic GPU probes, then freeze source-bound full5/6 guard. No current dispatch or best-source change."
   }
 }

@@ -1,3 +1,11 @@
+> Additional CPU work: MoE skinny16 prototype921dc83e preserves the complete33114871
+> prefix and dispatch. Its alternate repairs a dormant second-tile store, reuses
+> decoded weights for tokens9..16, and preserves four FP32 accumulators per tile.
+> CPU524288operand words/16ownership grids pass; modeled shared214656bytes.
+> Not dispatched or GPU-tested. Read experiments/prepared/moe_skinny16_review.md;
+> bounded selector/probes/full-suite guard must be added before any GPU trial.
+> No evaluation quota used. Dense4d443b13 remains the next fully prepared trial.
+
 > Latest checkpoint: Dense cluster4d443b13 is CPU-prepared, GPU-unmeasured.
 > See experiments/prepared/dense_cluster_review.md and results/dense-cluster-preflight-20261028/.
 > Exactly two fixed original-BF16 families: QKV M33..128 cluster3, pooler M65..128 cluster2.
