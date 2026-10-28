@@ -133,3 +133,22 @@ b4a10b76347e4cb0 is pending. Read MOE_NOTES.md; the old 1.2685x result is
 historical. Current next phase is one combined native decoder check, preserving
 the FP32 router and all residual boundaries. Latest overall snapshot: rank 619
 after attention, before the new MoE score. No sweeps; Prefill remains last.
+
+Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
+Current decoder fusion draft has passed bitwise codec/layout and Python
+binding audits; GPU correctness and speed remain unmeasured. One check will
+test 9..32-token fusion, preserving the complete FP32 small-token router.
+Publish only if its checked interval excludes the retained interval.
+
+## Live placement snapshot, 2026-10-28 13:55 UTC
+
+| Track | Rank |
+|---|---:|
+| Overall | 221 / 1426 |
+| Dense | 96 / 1239 |
+| MoE | 107 / 988 |
+| Decode | 221 / 862 |
+| Attention | 79 / 942 |
+| Prefill | 118 / 570 |
+
+Read-only board queries; no evaluation quotas were spent.

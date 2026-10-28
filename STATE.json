@@ -230,5 +230,74 @@
     ],
     "passed": true
   },
-  "publication_gate": "Publish fused decoder only if correctness passes and its checked interval lower endpoint exceeds the retained checked interval upper endpoint."
+  "publication_gate": "Publish fused decoder only if correctness passes and its checked interval lower endpoint exceeds the retained checked interval upper endpoint.",
+  "track_placement_snapshot": {
+    "utc": "2026-10-28T13:55:03.534056+00:00",
+    "boards": {
+      "overall": {
+        "you": {
+          "rank": 221,
+          "team": "achitaan",
+          "first": false,
+          "ahead": 220
+        },
+        "ranked": 1426
+      },
+      "muse_bf16_proj": {
+        "you": {
+          "rank": 96,
+          "team": "achitaan",
+          "speedup": 1.5278,
+          "first": false,
+          "ahead": 95,
+          "to_first": 1.0713
+        },
+        "ranked": 1239
+      },
+      "muse_moe_w4a16": {
+        "you": {
+          "rank": 107,
+          "team": "achitaan",
+          "speedup": 2.3126,
+          "first": false,
+          "ahead": 106,
+          "to_first": 1.1612
+        },
+        "ranked": 988
+      },
+      "muse_decode_layer": {
+        "you": {
+          "rank": 221,
+          "team": "achitaan",
+          "speedup": 1.8046,
+          "first": false,
+          "ahead": 220,
+          "to_first": 1.3315
+        },
+        "ranked": 862
+      },
+      "muse_attention_decode": {
+        "you": {
+          "rank": 79,
+          "team": "achitaan",
+          "speedup": 2.5624,
+          "first": false,
+          "ahead": 78,
+          "to_first": 1.1831
+        },
+        "ranked": 942
+      },
+      "muse_prefill_layer": {
+        "you": {
+          "rank": 118,
+          "team": "achitaan",
+          "speedup": 1.6635,
+          "first": false,
+          "ahead": 117,
+          "to_first": 1.2204
+        },
+        "ranked": 570
+      }
+    }
+  }
 }

@@ -3,7 +3,7 @@
 First full check passed at **1.639290758x**, with all 5 tests, 8 benchmarks
 and integrity checks passing. Exact source is best/prefill_verified.py;
 metadata and confidence interval are in best/prefill_metadata.json.
-One scored publication is pending: 23e7c8b4c3e54869. Do not duplicate it.
+Scored publication 23e7c8b4c3e54869 passed at **1.663469245x**. Do not duplicate it.
 The controller's local 1.5x target was reached; that is not completion of the
 native overall Goal. This track is excluded from overall placement.
 Full evidence and immutable phase journal: results/resumed-prefill-20261028/.
@@ -51,3 +51,9 @@ publish a speedup based on CPU checks or a public author's board result.
 Conserve quota: one concrete hypothesis, no parameter sweep. Native launch
 choices remain the public source's defaults. Its full-layer tuning, residual
 recomputation and attention variants were not adopted.
+
+Latest: Prefill scored job 23e7c8b4c3e54869 passed at 1.663469245x.
+Current decoder fusion draft has passed bitwise codec/layout and Python
+binding audits; GPU correctness and speed remain unmeasured. One check will
+test 9..32-token fusion, preserving the complete FP32 small-token router.
+Publish only if its checked interval excludes the retained interval.

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 root = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
-upstream = (root / '.tools/vjeux-decoder-upstream.py').read_text()
+upstream = (root / '.tools/vjeux-decoder-upstream.py').read_text(encoding='utf-8')
 tree = ast.parse(upstream)
 values = {}
 functions = {}
@@ -123,7 +123,7 @@ def prepare(weights):
 '''
 setup = setup.replace('okc_fpr_HASH_', 'okc_fpr_' + hashlib.sha256(cuda.encode()).hexdigest()[:16] + '_')
 
-decoder = (root / 'best/decoder_verified.py').read_text()
+decoder = (root / 'best/decoder_verified.py').read_text(encoding='utf-8')
 start = '    side_stream.wait_stream(main_stream)\n'
 end = '    # This GPU\'s experts start at local_start:'
 assert decoder.count(start) == 1 and decoder.count(end) == 1

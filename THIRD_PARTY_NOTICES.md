@@ -57,3 +57,11 @@ copy already-normalized BF16 inputs without arithmetic, rebuild route metadata
 from fresh inputs, and integrate FP32 post-norm/weighted sum with SGLang. The
 original SGLang full-layer pipeline remains. The candidate passed complete official coverage at 1.639290758x;
 preserve embedded Apache license and this change notice.
+
+## Prepared fused pooler/router component
+
+The new decoder hypothesis extracts Vjeux's same Apache revision's sk2 fused
+pooler/router path. Original native arithmetic is retained; only 9..32 tokens
+use it, while all other shapes retain the previously checked path. Local
+changes isolate compilation, check lossless fallback/workspace bounds, and
+eagerly allocate shared control buffers. No GPU result exists for this draft.

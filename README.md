@@ -11,7 +11,7 @@ fully checked candidates.
 | MoE W4A16 | 2.312613x scored | Saved |
 | Whole decoder layer | 1.804641x scored | Saved |
 | Attention decode | 2.562402x scored | Saved |
-| Prefill layer | 1.639291x checked | One scored publication pending |
+| Prefill layer | 1.663469x scored | Saved |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall
 board rather than treating a historical rank as current.
@@ -39,4 +39,4 @@ remaining quota is capacity, not a reason to launch weak experiments.
 
 Latest overall placement snapshot: **221**, after the scored native MoE and
 decoder improvements. Top 50 remains unmet. All five requested tracks now have
-complete passing coverage. See PREFILL_NOTES.md; its scored job is pending.
+complete passing coverage. See PREFILL_NOTES.md; its scored job passed at 1.663469245x.
