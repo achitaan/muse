@@ -7243,15 +7243,15 @@ def prepare(weights):
  state['fpr'] = _fpr_prepare(weights)
  return state
 from torch.utils.cpp_extension import load_inline as _rf_load_inline
-_RF_CPP = '\n#include <torch/extension.h>\nvoid run(torch::Tensor x, torch::Tensor w, torch::Tensor bias, torch::Tensor parts,\n         torch::Tensor counter, torch::Tensor outw, torch::Tensor outi);\n\nvoid run_incumbent(torch::Tensor x, torch::Tensor w, torch::Tensor bias, torch::Tensor parts,\n         torch::Tensor counter, torch::Tensor outw, torch::Tensor outi);\n'
-_RF_CUDA = "\n#include <ATen/core/Tensor.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <c10/cuda/CUDAException.h>\n#include <cuda_runtime.h>\n#include <math.h>\n#include <limits.h>\n\n// H200: 16 row tiles * 8 K splits = 128 CTAs, approximately one SM wave.\n// Each warp handles two router rows, sharing their weights across all tokens.\ntemplate<int TM>\n__global__ void route_fp32_redux(const float* __restrict__ x, const float* __restrict__ w,\n                          const float* __restrict__ bias, volatile float* parts,\n                          unsigned int* counter, float* outw, int* outi, int M) {\n  const int tid = threadIdx.x, lane = tid & 31, warp = tid >> 5;\n  const int nb = blockIdx.x & 15, ks = blockIdx.x >> 4;\n  const int row0 = nb * 16 + warp * 2, row1 = row0 + 1;\n  float a[TM], b[TM];\n#pragma unroll\n  for (int m = 0; m < TM; ++m) a[m] = b[m] = 0.f;\n#pragma unroll\n  for (int j = 0; j < 32; ++j) {\n    const int k = ks * 1024 + j * 32 + lane;\n    const float w0 = w[(size_t)row0 * 8192 + k], w1 = w[(size_t)row1 * 8192 + k];\n#pragma unroll\n    for (int m = 0; m < TM; ++m) {\n      if (m < M) {\n        const float v = x[(size_t)m * 8192 + k];\n        a[m] = __fmaf_rn(v, w0, a[m]);\n        b[m] = __fmaf_rn(v, w1, b[m]);\n      }\n    }\n  }\n#pragma unroll\n  for (int m = 0; m < TM; ++m) {\n    if (m < M) {\n#pragma unroll\n      for (int d = 16; d > 0; d >>= 1) {\n        a[m] += __shfl_down_sync(0xffffffffu, a[m], d);\n        b[m] += __shfl_down_sync(0xffffffffu, b[m], d);\n      }\n      if (lane == 0) {\n        parts[((size_t)ks * 8 + m) * 256 + row0] = a[m];\n        parts[((size_t)ks * 8 + m) * 256 + row1] = b[m];\n      }\n    }\n  }\n  // Publish all eight producer warps' partials before this CTA's completion.\n  // Fenced stores + volatile partials follow CUDA's last-block reduction pattern:\n  // docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cpp-language-extensions.html\n  if (lane == 0) __threadfence();\n  __syncthreads();\n  __shared__ int last;\n  if (tid == 0) {\n    unsigned int old = atomicAdd(counter, 1u);\n    last = ((old & 127u) == 127u);\n  }\n  __syncthreads();\n  if (!last || warp >= M) return;\n  __threadfence();\n  // The last CTA reduces every split, then routes one token per warp. The\n  // counter advances 128 per invocation; its low seven bits safely cycle even\n  // across uint32 wrap. All consumed partials are overwritten on every call.\n  float score[8], sel[8];\n#pragma unroll\n  for (int j = 0; j < 8; ++j) {\n    const int e = lane + 32 * j;\n    float v = 0.f;\n#pragma unroll\n    for (int s = 0; s < 8; ++s) v += parts[((size_t)s * 8 + warp) * 256 + e];\n    const float z = __fmul_rn(v, 0.1767766952966369f);\n    score[j] = 1.f / (1.f + expf(-z));\n    sel[j] = score[j] + bias[e];\n  }\n  float chosen_score[8];\n  int chosen_id[8];\n  float sum = 0.f;\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    float best = -INFINITY, raw = 0.f;\n    int id = INT_MAX;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) {\n      const int e = lane + j * 32;\n      if (sel[j] > best || (sel[j] == best && e < id)) {\n        best = sel[j]; raw = score[j]; id = e;\n      }\n    }\n    // Local change: an exact order key, not a quantized score. Local\n    // comparisons never select a NaN. Canonicalize only the key for signed\n    // zeros, which compare equal in the original floating-point selector.\n    unsigned bits = __float_as_uint(best);\n    if (best == 0.f) bits = 0u;\n    const unsigned key = (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);\n    const unsigned global_key = __reduce_max_sync(0xffffffffu, key);\n    id = __reduce_min_sync(0xffffffffu, key == global_key ? id : INT_MAX);\n    // The selected expert's owner lane still holds its original raw score.\n    raw = __shfl_sync(0xffffffffu, raw, id & 31);\n    chosen_score[r] = raw; chosen_id[r] = id; sum += raw;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) if (lane + j * 32 == id) sel[j] = -INFINITY;\n  }\n  const float inv = 1.f / (sum + 1e-15f);\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    if (lane == r) {\n      outw[warp * 8 + r] = chosen_score[r] * inv;\n      outi[warp * 8 + r] = chosen_id[r];\n    }\n  }\n}\n\nvoid run(at::Tensor x, at::Tensor w, at::Tensor bias, at::Tensor parts,\n         at::Tensor counter, at::Tensor outw, at::Tensor outi) {\n  TORCH_CHECK(x.is_cuda() && x.is_contiguous() && x.scalar_type() == at::kFloat);\n  TORCH_CHECK(w.is_cuda() && w.is_contiguous() && w.scalar_type() == at::kFloat);\n  TORCH_CHECK(x.dim() == 2 && x.size(0) >= 1 && x.size(0) <= 8 && x.size(1) == 8192);\n  TORCH_CHECK(w.dim() == 2 && w.size(0) == 256 && w.size(1) == 8192);\n  const int M = (int)x.size(0);\n  auto stream = at::cuda::getCurrentCUDAStream();\n  auto* p = (volatile float*)parts.data_ptr<float>();\n  auto* c = reinterpret_cast<unsigned int*>(counter.data_ptr<int>());\n  if (M == 1) route_fp32_redux<1><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  else route_fp32_redux<8><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  C10_CUDA_KERNEL_LAUNCH_CHECK();\n}\n\n// Prepare-only incumbent, with original exact arithmetic.\ntemplate<int TM>\n__global__ void route_fp32_incumbent(const float* __restrict__ x, const float* __restrict__ w,\n                          const float* __restrict__ bias, volatile float* parts,\n                          unsigned int* counter, float* outw, int* outi, int M) {\n  const int tid = threadIdx.x, lane = tid & 31, warp = tid >> 5;\n  const int nb = blockIdx.x & 15, ks = blockIdx.x >> 4;\n  const int row0 = nb * 16 + warp * 2, row1 = row0 + 1;\n  float a[TM], b[TM];\n#pragma unroll\n  for (int m = 0; m < TM; ++m) a[m] = b[m] = 0.f;\n#pragma unroll\n  for (int j = 0; j < 32; ++j) {\n    const int k = ks * 1024 + j * 32 + lane;\n    const float w0 = w[(size_t)row0 * 8192 + k], w1 = w[(size_t)row1 * 8192 + k];\n#pragma unroll\n    for (int m = 0; m < TM; ++m) {\n      if (m < M) {\n        const float v = x[(size_t)m * 8192 + k];\n        a[m] = __fmaf_rn(v, w0, a[m]);\n        b[m] = __fmaf_rn(v, w1, b[m]);\n      }\n    }\n  }\n#pragma unroll\n  for (int m = 0; m < TM; ++m) {\n    if (m < M) {\n#pragma unroll\n      for (int d = 16; d > 0; d >>= 1) {\n        a[m] += __shfl_down_sync(0xffffffffu, a[m], d);\n        b[m] += __shfl_down_sync(0xffffffffu, b[m], d);\n      }\n      if (lane == 0) {\n        parts[((size_t)ks * 8 + m) * 256 + row0] = a[m];\n        parts[((size_t)ks * 8 + m) * 256 + row1] = b[m];\n      }\n    }\n  }\n  // Publish all eight producer warps' partials before this CTA's completion.\n  // Fenced stores + volatile partials follow CUDA's last-block reduction pattern:\n  // docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cpp-language-extensions.html\n  if (lane == 0) __threadfence();\n  __syncthreads();\n  __shared__ int last;\n  if (tid == 0) {\n    unsigned int old = atomicAdd(counter, 1u);\n    last = ((old & 127u) == 127u);\n  }\n  __syncthreads();\n  if (!last || warp >= M) return;\n  __threadfence();\n  // The last CTA reduces every split, then routes one token per warp. The\n  // counter advances 128 per invocation; its low seven bits safely cycle even\n  // across uint32 wrap. All consumed partials are overwritten on every call.\n  float score[8], sel[8];\n#pragma unroll\n  for (int j = 0; j < 8; ++j) {\n    const int e = lane + 32 * j;\n    float v = 0.f;\n#pragma unroll\n    for (int s = 0; s < 8; ++s) v += parts[((size_t)s * 8 + warp) * 256 + e];\n    const float z = __fmul_rn(v, 0.1767766952966369f);\n    score[j] = 1.f / (1.f + expf(-z));\n    sel[j] = score[j] + bias[e];\n  }\n  float chosen_score[8];\n  int chosen_id[8];\n  float sum = 0.f;\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    float best = -INFINITY, raw = 0.f;\n    int id = INT_MAX;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) {\n      const int e = lane + j * 32;\n      if (sel[j] > best || (sel[j] == best && e < id)) {\n        best = sel[j]; raw = score[j]; id = e;\n      }\n    }\n#pragma unroll\n    for (int d = 16; d > 0; d >>= 1) {\n      const float ob = __shfl_xor_sync(0xffffffffu, best, d);\n      const float os = __shfl_xor_sync(0xffffffffu, raw, d);\n      const int oi = __shfl_xor_sync(0xffffffffu, id, d);\n      if (ob > best || (ob == best && oi < id)) { best = ob; raw = os; id = oi; }\n    }\n    chosen_score[r] = raw; chosen_id[r] = id; sum += raw;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) if (lane + j * 32 == id) sel[j] = -INFINITY;\n  }\n  const float inv = 1.f / (sum + 1e-15f);\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    if (lane == r) {\n      outw[warp * 8 + r] = chosen_score[r] * inv;\n      outi[warp * 8 + r] = chosen_id[r];\n    }\n  }\n}\n\nvoid run_incumbent(at::Tensor x, at::Tensor w, at::Tensor bias, at::Tensor parts,\n         at::Tensor counter, at::Tensor outw, at::Tensor outi) {\n  TORCH_CHECK(x.is_cuda() && x.is_contiguous() && x.scalar_type() == at::kFloat);\n  TORCH_CHECK(w.is_cuda() && w.is_contiguous() && w.scalar_type() == at::kFloat);\n  TORCH_CHECK(x.dim() == 2 && x.size(0) >= 1 && x.size(0) <= 8 && x.size(1) == 8192);\n  TORCH_CHECK(w.dim() == 2 && w.size(0) == 256 && w.size(1) == 8192);\n  const int M = (int)x.size(0);\n  auto stream = at::cuda::getCurrentCUDAStream();\n  auto* p = (volatile float*)parts.data_ptr<float>();\n  auto* c = reinterpret_cast<unsigned int*>(counter.data_ptr<int>());\n  if (M == 1) route_fp32_incumbent<1><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  else route_fp32_incumbent<8><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  C10_CUDA_KERNEL_LAUNCH_CHECK();\n}\n"
+_RF_CPP = '\n#include <torch/extension.h>\nvoid run(torch::Tensor x, torch::Tensor w, torch::Tensor bias, torch::Tensor parts,\n         torch::Tensor counter, torch::Tensor outw, torch::Tensor outi);\n'
+_RF_CUDA = "\n#include <ATen/core/Tensor.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <c10/cuda/CUDAException.h>\n#include <cuda_runtime.h>\n#include <math.h>\n#include <limits.h>\n\n// H200: 16 row tiles * 8 K splits = 128 CTAs, approximately one SM wave.\n// Each warp handles two router rows, sharing their weights across all tokens.\ntemplate<int TM>\n__global__ void route_fp32(const float* __restrict__ x, const float* __restrict__ w,\n                          const float* __restrict__ bias, volatile float* parts,\n                          unsigned int* counter, float* outw, int* outi, int M) {\n  const int tid = threadIdx.x, lane = tid & 31, warp = tid >> 5;\n  const int nb = blockIdx.x & 15, ks = blockIdx.x >> 4;\n  const int row0 = nb * 16 + warp * 2, row1 = row0 + 1;\n  float a[TM], b[TM];\n#pragma unroll\n  for (int m = 0; m < TM; ++m) a[m] = b[m] = 0.f;\n#pragma unroll\n  for (int j = 0; j < 32; ++j) {\n    const int k = ks * 1024 + j * 32 + lane;\n    const float w0 = w[(size_t)row0 * 8192 + k], w1 = w[(size_t)row1 * 8192 + k];\n#pragma unroll\n    for (int m = 0; m < TM; ++m) {\n      if (m < M) {\n        const float v = x[(size_t)m * 8192 + k];\n        a[m] = __fmaf_rn(v, w0, a[m]);\n        b[m] = __fmaf_rn(v, w1, b[m]);\n      }\n    }\n  }\n#pragma unroll\n  for (int m = 0; m < TM; ++m) {\n    if (m < M) {\n#pragma unroll\n      for (int d = 16; d > 0; d >>= 1) {\n        a[m] += __shfl_down_sync(0xffffffffu, a[m], d);\n        b[m] += __shfl_down_sync(0xffffffffu, b[m], d);\n      }\n      if (lane == 0) {\n        parts[((size_t)ks * 8 + m) * 256 + row0] = a[m];\n        parts[((size_t)ks * 8 + m) * 256 + row1] = b[m];\n      }\n    }\n  }\n  // Publish all eight producer warps' partials before this CTA's completion.\n  // Fenced stores + volatile partials follow CUDA's last-block reduction pattern:\n  // docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cpp-language-extensions.html\n  if (lane == 0) __threadfence();\n  __syncthreads();\n  __shared__ int last;\n  if (tid == 0) {\n    unsigned int old = atomicAdd(counter, 1u);\n    last = ((old & 127u) == 127u);\n  }\n  __syncthreads();\n  if (!last || warp >= M) return;\n  __threadfence();\n  // The last CTA reduces every split, then routes one token per warp. The\n  // counter advances 128 per invocation; its low seven bits safely cycle even\n  // across uint32 wrap. All consumed partials are overwritten on every call.\n  float score[8], sel[8];\n#pragma unroll\n  for (int j = 0; j < 8; ++j) {\n    const int e = lane + 32 * j;\n    float v = 0.f;\n#pragma unroll\n    for (int s = 0; s < 8; ++s) v += parts[((size_t)s * 8 + warp) * 256 + e];\n    const float z = __fmul_rn(v, 0.1767766952966369f);\n    score[j] = 1.f / (1.f + expf(-z));\n    sel[j] = score[j] + bias[e];\n  }\n  float chosen_score[8];\n  int chosen_id[8];\n  float sum = 0.f;\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    float best = -INFINITY, raw = 0.f;\n    int id = INT_MAX;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) {\n      const int e = lane + j * 32;\n      if (sel[j] > best || (sel[j] == best && e < id)) {\n        best = sel[j]; raw = score[j]; id = e;\n      }\n    }\n#pragma unroll\n    for (int d = 16; d > 0; d >>= 1) {\n      const float ob = __shfl_xor_sync(0xffffffffu, best, d);\n      const float os = __shfl_xor_sync(0xffffffffu, raw, d);\n      const int oi = __shfl_xor_sync(0xffffffffu, id, d);\n      if (ob > best || (ob == best && oi < id)) { best = ob; raw = os; id = oi; }\n    }\n    chosen_score[r] = raw; chosen_id[r] = id; sum += raw;\n#pragma unroll\n    for (int j = 0; j < 8; ++j) if (lane + j * 32 == id) sel[j] = -INFINITY;\n  }\n  const float inv = 1.f / (sum + 1e-15f);\n#pragma unroll\n  for (int r = 0; r < 8; ++r) {\n    if (lane == r) {\n      outw[warp * 8 + r] = chosen_score[r] * inv;\n      outi[warp * 8 + r] = chosen_id[r];\n    }\n  }\n}\n\nvoid run(at::Tensor x, at::Tensor w, at::Tensor bias, at::Tensor parts,\n         at::Tensor counter, at::Tensor outw, at::Tensor outi) {\n  TORCH_CHECK(x.is_cuda() && x.is_contiguous() && x.scalar_type() == at::kFloat);\n  TORCH_CHECK(w.is_cuda() && w.is_contiguous() && w.scalar_type() == at::kFloat);\n  TORCH_CHECK(x.dim() == 2 && x.size(0) >= 1 && x.size(0) <= 8 && x.size(1) == 8192);\n  TORCH_CHECK(w.dim() == 2 && w.size(0) == 256 && w.size(1) == 8192);\n  const int M = (int)x.size(0);\n  auto stream = at::cuda::getCurrentCUDAStream();\n  auto* p = (volatile float*)parts.data_ptr<float>();\n  auto* c = reinterpret_cast<unsigned int*>(counter.data_ptr<int>());\n  if (M == 1) route_fp32<1><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  else route_fp32<8><<<128, 256, 0, stream>>>(x.data_ptr<float>(), w.data_ptr<float>(), bias.data_ptr<float>(),\n      p, c, outw.data_ptr<float>(), outi.data_ptr<int>(), M);\n  C10_CUDA_KERNEL_LAUNCH_CHECK();\n}\n"
 _rf_ext = None
 
 def _rf_get_ext():
-    global _rf_ext
-    if _rf_ext is None:
-        _rf_ext = _rf_load_inline(name='okc_router_fp32_d5a88ed70badd431_90a', cpp_sources=_RF_CPP, cuda_sources=_RF_CUDA, functions=['run', 'run_incumbent'], extra_cuda_cflags=['-O3', '-gencode=arch=compute_90a,code=sm_90a'], no_implicit_headers=True, verbose=False)
-    return _rf_ext
+ global _rf_ext
+ if _rf_ext is None:
+  _rf_ext = _rf_load_inline(name='okc_router_fp32_d5a88ed70badd431_90a', cpp_sources=_RF_CPP, cuda_sources=_RF_CUDA, functions=['run'], extra_cuda_cflags=['-O3', '-gencode=arch=compute_90a,code=sm_90a'], no_implicit_headers=True, verbose=False)
+ return _rf_ext
 
 def _rf_route(x, state):
  x = x.contiguous()
@@ -7385,90 +7385,3 @@ def prepare(weights):
 
 # Additional exact FP4 placement: Copyright 2026 Lee Penkman, lee101/openkernels
 # c565e373d34575c5f7df862b05f8be7619078b0f, Apache-2.0; full license retained above.
-
-# Controlled diagnostics use synthetic inputs only, during prepare.
-"""Prepare-only controlled diagnostics; never touches actual call inputs."""
-import json as _rr_json
-
-
-def _rr_probe(state):
-    rf = state['rf']
-    if rf is None:
-        print('ROUTER_REDUX_BITWISE', False, flush=True)
-        return
-    dev = rf['weight'].device
-    stream = torch.cuda.Stream(device=dev)
-    stream.wait_stream(torch.cuda.current_stream(dev))
-    generator = torch.Generator(device=dev)
-    generator.manual_seed(20261028)  # private generator; no global RNG mutation
-    functions = (rf['ext'].run_incumbent, rf['ext'].run)
-    with torch.cuda.stream(stream):
-        zero_bias = torch.zeros_like(rf['bias'])
-        for m in range(1, 9):
-            for zero in (False, True):
-                x = (torch.zeros((m, 8192), device=dev, dtype=torch.float32) if zero else
-                     torch.randn((m, 8192), device=dev, dtype=torch.float32, generator=generator))
-                bias = zero_bias if zero else rf['bias']
-                outputs = [(torch.empty((m, 8), device=dev, dtype=torch.float32),
-                            torch.empty((m, 8), device=dev, dtype=torch.int32)) for _ in range(2)]
-                for arm in range(2):
-                    functions[arm](x, rf['weight'], bias, rf['parts'], rf['counter'], *outputs[arm])
-                assert torch.equal(outputs[0][0].view(torch.int32), outputs[1][0].view(torch.int32))
-                assert torch.equal(outputs[0][1], outputs[1][1])
-                if zero:
-                    # Analytic: all logits0, sigmoid0=.5, zero bias; lowest IDs
-                    # 0..7 win and eight equal raw scores normalize to1/8.
-                    assert torch.equal(outputs[1][1], torch.arange(8, device=dev, dtype=torch.int32).expand(m, 8))
-                    assert torch.equal(outputs[1][0], torch.full((m, 8), .125, device=dev, dtype=torch.float32))
-        print('ROUTER_REDUX_BITWISE', True, flush=True)
-        #128MiB exceeds H200 L2. This is owned diagnostic storage, not a view
-        #into call data, and no synthetic outputs are returned as state.
-        flush_buffer = torch.zeros(32 * 1024 * 1024, device=dev, dtype=torch.float32)
-        for m in (1, 8):
-            for pattern in ('normal', 'impulse'):
-                if pattern == 'normal':
-                    x = torch.randn((m, 8192), device=dev, dtype=torch.float32, generator=generator)
-                else:
-                    x = torch.zeros((m, 8192), device=dev, dtype=torch.float32)
-                    x[:, 173] = 8192. ** .5  # same per-row RMS1 as normal inputs
-                outputs = [(torch.empty((m, 8), device=dev, dtype=torch.float32),
-                            torch.empty((m, 8), device=dev, dtype=torch.int32)) for _ in range(2)]
-                def call(arm):
-                    functions[arm](x, rf['weight'], rf['bias'], rf['parts'], rf['counter'], *outputs[arm])
-                call(0)
-                call(1)
-                stream.synchronize()
-                graphs = [torch.cuda.CUDAGraph(), torch.cuda.CUDAGraph()]
-                for arm in range(2):
-                    with torch.cuda.graph(graphs[arm], stream=stream):
-                        call(arm)
-                samples = [[], []]
-                for repeat in range(8):
-                    for arm in ((0, 1) if repeat % 2 == 0 else (1, 0)):
-                        flush_buffer.add_(1)
-                        begin = torch.cuda.Event(enable_timing=True)
-                        end = torch.cuda.Event(enable_timing=True)
-                        begin.record(stream)
-                        graphs[arm].replay()
-                        end.record(stream)
-                        end.synchronize()
-                        samples[arm].append(begin.elapsed_time(end) * 1_000_000.)
-                ratios = [a / b for a, b in zip(*samples)]
-                ordered = sorted(ratios)
-                ratio = .5 * (ordered[3] + ordered[4])
-                print('ROUTER_REDUX_AB', _rr_json.dumps({'m': m, 'pattern': pattern,
-                    'incumbent_ns': samples[0], 'redux_ns': samples[1],
-                    'paired_ratios': ratios, 'median_ratio': ratio}), flush=True)
-                del graphs, outputs, x
-    torch.cuda.current_stream(dev).wait_stream(stream)
-    # Every call advances the counter by128; its low7bits still start at0.
-    # Every consumed partial is overwritten by each future actual call.
-
-
-_rr_original_prepare = prepare
-
-
-def prepare(weights):
-    state = _rr_original_prepare(weights)
-    _rr_probe(state)
-    return state
