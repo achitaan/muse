@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Review one four-tile WGS variant for 17..32 tokens, retaining old larger kernels and independent scratch.",
+  "next_trial": "Investigate removal of redundant WGS routing/scheduling work from existing source and profiles before another check. Do not repeat WGS32 or scale-six variants.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -1066,5 +1066,81 @@
         "per_day": 50
       }
     }
+  },
+  "moe_wgs32_phase7": {
+    "job": "47f44d0ff8704a44",
+    "source_sha256": "d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4",
+    "speedup": 2.3536668014132087,
+    "interval": [
+      2.3183617993920107,
+      2.3889718034344067
+    ],
+    "passed": true,
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true,
+    "specialization_enabled": true,
+    "original_resources": [
+      96,
+      96,
+      0,
+      0,
+      0,
+      0,
+      231168
+    ],
+    "specialization_resources": [
+      95,
+      95,
+      8,
+      8,
+      0,
+      0,
+      183552
+    ],
+    "original_prepare_s": 167.35176242599846,
+    "comparisons": [
+      {
+        "bs": 1,
+        "original_speedup": 3.146383311095091,
+        "trial_speedup": 3.075130640356278,
+        "trial_over_original_speedup": 0.9773541035233835
+      },
+      {
+        "bs": 16,
+        "original_speedup": 2.0029663645249736,
+        "trial_speedup": 2.023793845615092,
+        "trial_over_original_speedup": 1.0103983179443246
+      },
+      {
+        "bs": 32,
+        "original_speedup": 1.642387556147249,
+        "trial_speedup": 1.6381910045510293,
+        "trial_over_original_speedup": 0.9974448469360886
+      },
+      {
+        "bs": 8,
+        "original_speedup": 2.2726496055914778,
+        "trial_speedup": 2.2443896388675424,
+        "trial_over_original_speedup": 0.9875651896999844
+      },
+      {
+        "bs": 128,
+        "original_speedup": 2.5906674179713978,
+        "trial_speedup": 2.583566252176907,
+        "trial_over_original_speedup": 0.9972589434887589
+      },
+      {
+        "bs": 256,
+        "original_speedup": 2.8745091518761363,
+        "trial_speedup": 2.8757932065454037,
+        "trial_over_original_speedup": 1.0004467039767222
+      }
+    ],
+    "decision": "discard; no aggregate or 32-token improvement; do not publish",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "known_unpublished_issue": "Extra scratch initialized asynchronously after original prepare synchronization. A future reuse must synchronize after allocation, then independently check the corrected source. Do not spend a repair check on this rejected algorithm.",
+    "comparison_limit": "Two separate official paired jobs, not a same-run controlled A/B; intervals overlap. Resource reduction is measured; causal spill attribution is unproven."
   }
 }

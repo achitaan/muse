@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_moe.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 273.078,
+  "returncode": 0,
+  "stderr": "MoE job 47f44d0ff8704a44: received; source d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4\r\nMoE job 47f44d0ff8704a44: running; source d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4\r\nMoE job 47f44d0ff8704a44: done; source d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4\r\n",
+  "stdout": "{\"speedup\": 2.3536668014132087, \"correct\": true, \"job\": \"47f44d0ff8704a44\", \"source_sha256\": \"d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4\", \"tests\": 5, \"benchmarks\": 6, \"interval\": [2.3183617993920107, 2.3889718034344067], \"error\": null}\r\n",
+  "timed_out": false
+}

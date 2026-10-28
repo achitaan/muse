@@ -1,0 +1,86 @@
+{
+  "source_sha256": "d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4",
+  "seed": 20261028,
+  "original_python_ast_recovered": true,
+  "original_cuda_kernel_bytes_unchanged": true,
+  "alternate_edits_reversible": true,
+  "wide_mma_variants_absent": true,
+  "single_expert_counts_checked": 6146,
+  "route_distribution_cases": 560,
+  "duplicate_routes_preserved": true,
+  "scratch_layouts": [
+    {
+      "fat_tokens": 32,
+      "jmax": 136,
+      "token_tiles": 4,
+      "fixup_counter_offset_from_ybuf": 15204352,
+      "xrows": 4160,
+      "required_elements": [
+        4104,
+        15210880,
+        46661632
+      ]
+    },
+    {
+      "fat_tokens": 64,
+      "jmax": 88,
+      "token_tiles": 8,
+      "fixup_counter_offset_from_ybuf": 17825792,
+      "xrows": 3776,
+      "required_elements": [
+        4104,
+        17832320,
+        43515904
+      ]
+    }
+  ],
+  "scratch_allocated_elements": [
+    4104,
+    17832320,
+    46661632
+  ],
+  "dispatch_cases": 292,
+  "prepare_wrapper_cases": [
+    {
+      "prmt": true,
+      "capability": [
+        9,
+        0
+      ],
+      "elapsed": 100,
+      "enabled": true
+    },
+    {
+      "prmt": false,
+      "capability": [
+        9,
+        0
+      ],
+      "elapsed": 100,
+      "enabled": false
+    },
+    {
+      "prmt": true,
+      "capability": [
+        8,
+        0
+      ],
+      "elapsed": 100,
+      "enabled": false
+    },
+    {
+      "prmt": true,
+      "capability": [
+        9,
+        0
+      ],
+      "elapsed": 236,
+      "enabled": false
+    }
+  ],
+  "global_bindings": true,
+  "real_factory_cache_and_source_isolation": true,
+  "unique_modules_with_specialization": 5,
+  "resource_attributes": "not measured; CPU protocol uses mocks",
+  "gpu_status": "unmeasured"
+}

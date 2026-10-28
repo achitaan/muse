@@ -87,3 +87,29 @@ https://docs.nvidia.com/cuda/cuda-runtime-api/cuda_runtime_api/structcudaFuncAtt
 
 One focused full official check is planned using cached baseline 2.365437416x.
 No geometry sweep, synthetic timing selector or scored intermediate is added.
+
+
+## Phase 7: four-tile WGS rejected (18:41 UTC)
+
+Full check 47f44d0ff8704a44, exact source d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4,
+passed all 5 tests, 6 benchmarks and integrity at 2.353666801x, interval
+[2.318361799,2.388971803]. Specialization was enabled. Baseline remains
+33114871, checked at 2.365437416x and published at 2.348299935x. No score used.
+
+The 32-token speedup was 1.638191005x versus baseline 1.642387556x.
+Actual resource queries: original 96 registers/thread, zero local bytes,
+231168 dynamic shared bytes; specialization 95 registers, 8 local bytes,
+183552 dynamic shared bytes (both BIG instantiations agree). Shared memory
+fell, but register capacity barely moved and a spill appeared. Separate-job
+timings do not isolate the spill's cost. Do not retry tile sizes as a sweep.
+
+The discarded wrapper also lacks a final prepare synchronization after its
+new scratch allocation. It was never published. Any future reuse must fix
+that readiness issue and check the resulting exact source. There is no reason
+to spend another check repairing this losing experiment alone.
+
+Complete frozen source, raw results/profiles, CPU/source audits and immutable
+controller history: results/resumed-moe-phase7-20261028/. Controller reverted
+the candidate to the verified baseline and was archived at 18:43 UTC.
+One MoE check consumed after the 18:24 quota snapshot (expected 7 checks/7
+scores remaining, not a fresh API quota observation). Goal remains active.

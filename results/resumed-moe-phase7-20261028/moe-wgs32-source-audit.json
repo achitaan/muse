@@ -1,0 +1,33 @@
+{
+  "source_sha256": "d0ae4a9a775b28d614fee1768d37fad609024c44ad2189058565263b03c9f9b4",
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "packaged_bytes": 181513,
+  "original_cuda_prefix_bytes_unchanged": true,
+  "alternate_cuda_sha256": "09d8ab9f5e5a91b03fa9f57dff4bee949c103620682bbe9558400cac81f919be",
+  "dispatch_tokens": [
+    17,
+    32
+  ],
+  "original_tokens_elsewhere": true,
+  "max_token_tiles": [
+    8,
+    4
+  ],
+  "x_ring_payload_bytes": [
+    98304,
+    49152
+  ],
+  "packed_weights": "all original; shared with the existing variants",
+  "extra_compiled_variants": 1,
+  "extra_scratch_banks": 1,
+  "resource_fields": [
+    "registers_small",
+    "registers_big",
+    "local_bytes_small",
+    "local_bytes_big",
+    "static_shared_small",
+    "static_shared_big",
+    "dynamic_shared"
+  ],
+  "gpu_status": "unmeasured"
+}
