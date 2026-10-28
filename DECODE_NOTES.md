@@ -1,3 +1,52 @@
+# Current decoder check - October 28, 2026, phase6
+
+Checked source best/decoder_verified.py, SHA256
+`09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67`.
+Job 09b34f4e921e49a6 passed all 13 tests, 12 benchmarks and integrity at
+**1.994319167x**, CI [1.964404380,2.024233955]. This has not been scored: its
+interval overlaps the published source's check. best/decoder_published.py
+retains a61735ee and the 1.965324622x publication 02fd620987114785. No job or
+controller is pending. Overall was 150 at 16:48:43 UTC; top 50 remains unmet.
+
+## Measured phase6
+
+The combined exact-MoE and implicit-padding FFN trial 8589b0fde4344ff4 passed at
+1.972242299x, CI [1.942658665,2.001825934]. It transferred literal native MoE
+CUDA from the fully checked 33114871 source. Other attention/dense/router CUDA
+is unchanged. Global/nonlocal declarations are namespaced and all global
+bindings resolved. This MoE is now separately published at 2.348299935x.
+
+The small-token unpooler retains only its 1024 local output columns. A new
+Triton boundary supplies its known zero tail implicitly, preserving the full
+8192-column RMSNorm domain, BF16 product/normalized-branch round trips, FP32
+residual update and FP32 pre-norm input. The original boundary is retained
+for larger shapes and unsupported layouts. CPU models agreed on 18 cases;
+an analytic constant case catches the erroneous 1024 denominator.
+
+The first profile exposed a latency regression: the new FFN kernel took about
+5.5..5.6 us for one token, versus the old boundary plus padding around 4.4 us.
+One follow-up moved independent stream/gate/pre-weight loads before the first
+reduction. Its statement AST multiset, arithmetic and launch geometry are
+identical. The profile then showed 3.8 us for one token and 3.4..3.8 us for eight.
+The aggregate check rose to 1.994319167x; no geometry sweep or intermediate
+score was used. Individual stage timings across jobs are diagnostic evidence,
+not controlled independent speedup estimates.
+
+The unselected dense WG preparation sweep was removed. Published check/score
+logs both retained all three incumbents; those timed dense paths are unchanged.
+Latest observed preparation was 214.96 s versus 279.08 s in the earlier check;
+these setup observations are not the optimized runtime metric or a controlled
+setup benchmark. The 300-second prepare budget remains important.
+
+Full sources/profiles/CPU audits/controller history:
+results/resumed-decoder-phase6-20261028/. Builders in experiments/prepared/
+reproduce exact 427cebf1 and 09badc9b sources from immutable files. Source size
+988314 bytes. Next: review curated small-batch SK2 projection components in
+experiments/prepared/decoder_small_projection_review.md. No new compressed
+projection candidate has been implemented or measured yet.
+
+---
+
 # Latest decoder publication - October 28, 2026
 
 Scored job **02fd620987114785** passed all 13 tests, 12 benchmarks and integrity

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One whole-decoder check of checked MoE transfer plus sliced FFN boundary fusion (427cebf1), after CPU and source audits; no pending job yet.",
+  "next_trial": "No pending jobs. Review curated public small-batch SK2 projection components, CPU-audit their lossless packing/geometry, and compare against current incumbents before one whole-decoder check.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -125,8 +125,7 @@
     "tests": 5,
     "benchmarks": 6,
     "integrity": true,
-    "publication": "withheld; checked interval overlaps prior published source check",
-    "published_source_sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+    "publication": "passed; supported by two independent full checks of identical timed CUDA",
     "paired_bf16_epilogues": true,
     "exact_dq8_bit_placement": true,
     "fp32_norm_intermediates": true,
@@ -136,59 +135,59 @@
       "native": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
       "dq8": "lee101/openkernels@c565e373d34575c5f7df862b05f8be7619078b0f",
       "license": "Apache-2.0"
+    },
+    "scored": {
+      "job": "b6c70c9b83724d2e",
+      "speedup": 2.348299935218348,
+      "interval": [
+        2.313075436190073,
+        2.383524434246623
+      ],
+      "passed": true,
+      "rank_snapshot": 53,
+      "rank_snapshot_utc": "2026-10-28T16:48:43.060113+00:00"
     }
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
-    "sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
-    "checked_job": "34131378611b46ab",
-    "checked_speedup": 1.9685542293211786,
+    "sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "checked_job": "09b34f4e921e49a6",
+    "checked_speedup": 1.9943191672336562,
     "checked_interval": [
-      1.939025915881361,
-      1.998082542760996
+      1.9644043797251514,
+      2.024233954742161
     ],
     "tests": 13,
     "benchmarks": 12,
     "integrity": true,
+    "publication": "withheld; aggregate interval overlaps published source check",
+    "published_source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
     "fp32_router_precision_preserved": true,
-    "pooler_router_fused_tokens": "9..32",
-    "expert_input_normalization_and_rotation_fused": true,
-    "wide_router_tokens": ">32, original two-GEMM fallback retained",
-    "wide_router_precision": "BF16 hi/lo weights, FP32 accumulation/output",
-    "workspace_contract": "sequential calls",
-    "publication_comparison_source_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
-    "publication_comparison_checked_interval": [
-      1.8571751168677493,
-      1.9137388260109294
-    ],
-    "scored": {
-      "job": "02fd620987114785",
-      "speedup": 1.9653246216579754,
-      "interval": [
-        1.9358447523331057,
-        1.9948044909828448
-      ],
-      "passed": true,
-      "rank_snapshot": 149,
-      "rank_snapshot_utc": "2026-10-28T15:47:59.301571+00:00"
-    }
+    "sliced_ffn_boundary_tokens": "1..8",
+    "sliced_ffn_norm_domain": 8192,
+    "sliced_ffn_early_readonly_loads": true,
+    "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
+    "workspace_contract": "sequential calls"
   },
   "moe_scored": {
-    "job": "b4a10b76347e4cb0",
-    "speedup": 2.3126130842746706,
+    "job": "b6c70c9b83724d2e",
+    "speedup": 2.348299935218348,
     "interval": [
-      2.2779238880105503,
-      2.3473022805387904
+      2.313075436190073,
+      2.383524434246623
     ],
-    "passed": true
+    "passed": true,
+    "rank_snapshot": 53,
+    "rank_snapshot_utc": "2026-10-28T16:48:43.060113+00:00"
   },
   "overall_placement_snapshot": {
-    "utc": "2026-10-28T15:47:59.301571+00:00",
+    "utc": "2026-10-28T16:48:43.060113+00:00",
     "you": {
-      "rank": 149,
+      "rank": 150,
       "team": "achitaan",
       "first": false,
-      "ahead": 148
+      "ahead": 149
     }
   },
   "decoder_scored": {
@@ -238,7 +237,7 @@
     ],
     "passed": true
   },
-  "publication_gate": "Compare the combined candidate against the currently published source, not an unsubmitted intermediate variant. Full correctness and nonoverlapping checked intervals are required.",
+  "publication_gate": "Require full matching-source coverage and a material expected gain. Prefer nonoverlapping intervals; replicated independent jobs of identical timed CUDA may justify one scored confirmation despite overlapping intervals. Never treat repeated replays as independent jobs or resubmit cosmetic changes.",
   "track_placement_snapshot": {
     "utc": "2026-10-28T15:05:01.624465+00:00",
     "boards": {
@@ -345,67 +344,74 @@
   },
   "moe_published": {
     "source": "best/moe_published.py",
-    "sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
-    "checked_job": "6792a5c832ee4aff",
-    "checked_speedup": 2.2997973708634096,
+    "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "checked_job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433,
     "checked_interval": [
-      2.2653004103004584,
-      2.3342943314263604
+      2.3299558548471064,
+      2.4009189773297592
     ],
     "tests": 5,
     "benchmarks": 6,
+    "integrity": true,
+    "publication": "passed; supported by two independent full checks of identical timed CUDA",
+    "paired_bf16_epilogues": true,
+    "exact_dq8_bit_placement": true,
     "fp32_norm_intermediates": true,
     "bf16_gemm_boundaries": true,
+    "workspace_contract": "sequential calls",
     "upstream": {
-      "repo": "vjeux/okc-2026",
-      "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "native": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+      "dq8": "lee101/openkernels@c565e373d34575c5f7df862b05f8be7619078b0f",
       "license": "Apache-2.0"
     },
     "scored": {
-      "job": "b4a10b76347e4cb0",
-      "speedup": 2.3126130842746706,
+      "job": "b6c70c9b83724d2e",
+      "speedup": 2.348299935218348,
       "interval": [
-        2.2779238880105503,
-        2.3473022805387904
+        2.313075436190073,
+        2.383524434246623
       ],
-      "passed": true
+      "passed": true,
+      "rank_snapshot": 53,
+      "rank_snapshot_utc": "2026-10-28T16:48:43.060113+00:00"
     }
   },
   "track_placement_delta_snapshot": {
-    "utc": "2026-10-28T15:47:59.301571+00:00",
+    "utc": "2026-10-28T16:48:43.060113+00:00",
     "boards": {
       "overall": {
         "you": {
-          "rank": 149,
+          "rank": 150,
           "team": "achitaan",
           "first": false,
-          "ahead": 148
+          "ahead": 149
         },
-        "ranked": 1428,
+        "ranked": 1432,
         "rank_50": {
           "rank": 50,
-          "solved": 4,
-          "team": "alygg77"
+          "solved": 2,
+          "team": "alpinevm"
         }
       },
-      "muse_decode_layer": {
+      "muse_moe_w4a16": {
         "you": {
-          "rank": 149,
+          "rank": 53,
           "team": "achitaan",
-          "speedup": 1.9653,
+          "speedup": 2.3483,
           "first": false,
-          "ahead": 148,
-          "to_first": 1.2227
+          "ahead": 52,
+          "to_first": 1.1435
         },
-        "ranked": 869,
+        "ranked": 991,
         "rank_50": {
-          "attempts": 7,
-          "job": "3282d08730524f21",
+          "attempts": 19,
+          "job": "5aaf61cad4dd461c",
           "rank": 50,
-          "speedup": 2.139,
-          "submitted_at": 1793197292.8935144,
-          "team": "alygg77",
-          "value": 10575.346954575129
+          "speedup": 2.3528,
+          "submitted_at": 1793053866.6723778,
+          "team": "shashwatgokhe",
+          "value": 5715.923504119529
         }
       }
     }

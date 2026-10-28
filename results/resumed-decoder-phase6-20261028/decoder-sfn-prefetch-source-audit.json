@@ -1,0 +1,8 @@
+{
+  "source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "base_sha256": "427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5",
+  "change": "read-only stream, gate and pre-norm weight loads moved before the first reduction",
+  "kernel_statements_identical_except_order": true,
+  "arithmetic_launch_geometry_and_other_functions_unchanged": true,
+  "gpu_status": "unmeasured"
+}

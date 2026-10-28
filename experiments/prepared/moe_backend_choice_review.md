@@ -34,3 +34,10 @@ coverage and a recorded nonempty backend selection before keeping an improved
 point result. If no backend is selected, discard the selector even if the new
 point estimate happens to be higher. Scored publication still requires the
 conservative interval gate relative to the actually published source.
+
+Publication follow-up: the selector chose no backend and was discarded. Its
+full passing run independently repeated the simpler 33114871 timed CUDA. An
+AST-folding proof and matching CUDA justified one scored confirmation of that
+simpler candidate despite overlapping individual intervals. This revised the
+earlier nonoverlap-only publication preference; it did not change correctness
+requirements or count individual replays as independent jobs. See MOE_NOTES.md.

@@ -1,3 +1,27 @@
+# Current MoE publication - October 28, 2026
+
+Scored job **b6c70c9b83724d2e** passed all 5 tests, 6 benchmarks and integrity at
+**2.348299935x**, CI [2.313075436,2.383524434]. Source is 33114871 in both
+best/moe_verified.py and best/moe_published.py. It ranked **53/991** at 16:48:43 UTC;
+50th place was 2.3528x, about 0.2% faster. Overall was 150/1432. Top 50 overall
+remains unmet. No job or experiment controller is pending.
+
+Publication used one scored run after two independent full checks of identical
+timed native CUDA: d600231c8a8244cb at 2.365437416x and ca76bcd1b6ce43b4 at
+2.350439250x. The second was the rejected backend selector with no choices.
+Folding that empty metadata branch recovers the first kernel_fn AST exactly;
+CUDA and packing are identical. The individual intervals overlap the old score;
+this was a bounded scored confirmation of a repeated improvement, not a claim
+of formal statistical significance. Replays were not counted as independent jobs.
+The scored point is about 1.5% above the previous 2.312613084x publication.
+
+Proof and full score records: results/resumed-moe-phase4-20261028/ and
+results/resumed-moe-phase5-20261028/. The older withheld-publication statements
+below are superseded. The published decoder still embeds the older dd6049cb
+MoE; its newer unpublished 1.994319167x check includes this 33114871 implementation.
+
+---
+
 # Backend selection rejected - October 28, 2026, phase5
 
 One full check ca76bcd1b6ce43b4 passed all 5 tests and 6 benchmarks at

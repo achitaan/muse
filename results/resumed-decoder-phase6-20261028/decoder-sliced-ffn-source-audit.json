@@ -1,0 +1,12 @@
+{
+  "source_sha256": "8f782fef8bac8f2b11beca250e5321788cd6effaa2f3594d8789e11380dc46c8",
+  "base_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "packaged_bytes": 989925,
+  "enabled_tokens": "1..8",
+  "norm_domain": "8192, including implicit zero tail",
+  "branch_product_and_norm_output": "BF16 boundaries preserved",
+  "residual_and_pre_norm_input": "FP32",
+  "all_original_cuda_unchanged": true,
+  "larger_token_path_unchanged": true,
+  "gpu_status": "unmeasured"
+}

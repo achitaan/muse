@@ -189,3 +189,22 @@ New checked MoE 33114871 and published dd6049cb are separate in best/. The
 current decoder still embeds dd6049cb. MoE phase4 and decoder phase5 are archived
 and exported. Four checks and one scored publication in this continuation; no
 repeated GPU baselines. Top 50 remains unmet; main-chat Goal stays active.
+
+
+## Phase boundary, 16:48 UTC October 28
+
+MoE publication b6c70c9b83724d2e passed at 2.348299935x, rank 53/991; 50th was
+2.3528x. One scored confirmation followed two independent full checks of the
+same timed CUDA, with an AST-folding proof for the empty selector. Individual
+intervals overlap; this is measured point improvement, not claimed significance.
+Overall snapshot 150/1432. All publication jobs are terminal; none pending.
+
+Decoder phase6 passed at 1.972242299x (8589b0fde4344ff4), then early FFN reads
+at 1.994319167x (09b34f4e921e49a6), full 13/12/integrity. No decoder score spent.
+The new FFN kernel fell from 5.5..5.6 us to 3.4..3.8 us; arithmetic and launch
+geometry unchanged. Latest decoder check is 09badc9b; published source stays
+a61735ee at 1.965324622x. Setup observed 215 s after unselected WG sweep removal.
+
+Three checks and one score in this continuation, no repeated baselines. MoE
+selector and decoder phases are archived. Next hypothesis is curated SK2 small
+projection transfer, still unimplemented/unmeasured. Top 50 overall is unmet.

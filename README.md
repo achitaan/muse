@@ -8,7 +8,7 @@ fully checked candidates.
 | Track | Latest verified result | State |
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
-| MoE W4A16 | 2.312613x scored | Saved |
+| MoE W4A16 | 2.348300x scored | Saved |
 | Whole decoder layer | 1.965325x scored | Saved |
 | Attention decode | 2.562402x scored | Saved |
 | Prefill layer | 1.663469x scored | Saved |
@@ -37,14 +37,17 @@ Native attention attribution and full Apache license are preserved. See
 assumptions and exact evidence. User requested fewer checks and submissions;
 remaining quota is capacity, not a reason to launch weak experiments.
 
-Latest overall placement snapshot: **149**, at 15:47:59 UTC October 28 after the latest
-decoder improvement. Top 50 remains unmet. All five requested tracks now have
-complete passing coverage. See PREFILL_NOTES.md; its scored job passed at 1.663469245x.
+Latest overall placement snapshot: **150/1432 at 16:48:43 UTC October 28**.
+MoE is **53rd** at its new **2.348299935x** publication. Top 50 overall is unmet.
+All five requested tracks have complete passing coverage; Prefill is excluded
+from overall placement.
 
-Latest decoder check: **1.968554229x**, full 13/12 coverage; scored job
-02fd620987114785 passed at **1.965324622x**.
-See DECODE_NOTES.md for phase5 fusion and wide-router transfer evidence.
+Latest decoder check: **1.994319167x**, full 13/12/integrity. It remains unpublished;
+the completed published decoder score is **1.965324622x**. See DECODE_NOTES.md
+for implicit-padding FFN fusion, early-load correction and exact MoE transfer.
+MoE's new publication followed two independent checks of identical timed CUDA;
+see MOE_NOTES.md for uncertainty and the rejected backend-selector evidence.
 
-MoE has a newer **2.365437416x check**, with full coverage, saved separately
-from its 2.312613084x publication. Its uncertainty overlaps the earlier check,
-so no scored run or decoder transfer was spent. See MOE_NOTES.md.
+Next unmeasured hypothesis: curated small-batch compressed dense projections,
+described in experiments/prepared/decoder_small_projection_review.md. No job or
+experiment controller is pending. Preserve checked/published source distinctions.

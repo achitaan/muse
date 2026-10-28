@@ -1,0 +1,11 @@
+{
+  "candidates": [],
+  "solutions": [],
+  "restricted_family": [
+    "first fragment direct mask 0x81c081c0",
+    "one plain left shift 1..6",
+    "one rotate 1..31",
+    "remaining fragment from masked low-word multiply"
+  ],
+  "conclusion": "No layout passes the necessary product-bit position bound within this family; not a global dequantization lower bound, no GPU candidate tested."
+}

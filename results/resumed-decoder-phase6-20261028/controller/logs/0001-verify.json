@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decode.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 456.281,
+  "returncode": 0,
+  "stderr": "Decoder-layer job 8589b0fde4344ff4: received; source 427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5\r\nDecoder-layer job 8589b0fde4344ff4: running; source 427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5\r\nDecoder-layer job 8589b0fde4344ff4: done; source 427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5\r\n",
+  "stdout": "{\"speedup\": 1.9722422991922708, \"correct\": true, \"job\": \"8589b0fde4344ff4\", \"source_sha256\": \"427cebf148cb15201b82ce25f38e311047884f22ada1f1b220b35acfe73ec6f5\", \"tests\": 13, \"benchmarks\": 12, \"interval\": [1.9426586647043866, 2.0018259336801547], \"error\": null}\r\n",
+  "timed_out": false
+}

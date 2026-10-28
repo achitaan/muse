@@ -1,28 +1,35 @@
 {
   "source": "best/moe_published.py",
-  "sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
-  "checked_job": "6792a5c832ee4aff",
-  "checked_speedup": 2.2997973708634096,
+  "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "checked_job": "d600231c8a8244cb",
+  "checked_speedup": 2.365437416088433,
   "checked_interval": [
-    2.2653004103004584,
-    2.3342943314263604
+    2.3299558548471064,
+    2.4009189773297592
   ],
   "tests": 5,
   "benchmarks": 6,
+  "integrity": true,
+  "publication": "passed; supported by two independent full checks of identical timed CUDA",
+  "paired_bf16_epilogues": true,
+  "exact_dq8_bit_placement": true,
   "fp32_norm_intermediates": true,
   "bf16_gemm_boundaries": true,
+  "workspace_contract": "sequential calls",
   "upstream": {
-    "repo": "vjeux/okc-2026",
-    "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "native": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
+    "dq8": "lee101/openkernels@c565e373d34575c5f7df862b05f8be7619078b0f",
     "license": "Apache-2.0"
   },
   "scored": {
-    "job": "b4a10b76347e4cb0",
-    "speedup": 2.3126130842746706,
+    "job": "b6c70c9b83724d2e",
+    "speedup": 2.348299935218348,
     "interval": [
-      2.2779238880105503,
-      2.3473022805387904
+      2.313075436190073,
+      2.383524434246623
     ],
-    "passed": true
+    "passed": true,
+    "rank_snapshot": 53,
+    "rank_snapshot_utc": "2026-10-28T16:48:43.060113+00:00"
   }
 }

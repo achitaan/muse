@@ -78,3 +78,15 @@ component. No NOTICE file was present in the pinned root. Local changes derive
 the matching 32-bit packing bijection, integrate it with the native MoE, and
 retain the corrected BF16 epilogues and FP32 norm arithmetic.
 Source: https://github.com/lee101/openkernels/blob/c565e373d34575c5f7df862b05f8be7619078b0f/muse_moe_w4a16/submission.py
+
+
+## Sliced FFN norm/residual boundary
+
+The newer checked decoder's small-token implicit-padding boundary adapts the
+SGLang fused_norm_residual semantics at a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f,
+Apache-2.0. The single-CTA CUDA and Triton sources were verified for the BF16
+round trips and FP32 pre-norm input. Local changes use an implicit zero tail,
+keep the full 8192-column norm domain, and issue independent reads early.
+The full Apache license is retained in the integrated submission and under
+licenses/. The pinned SGLang root had no NOTICE file.
+Source: https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_norm_residual.py

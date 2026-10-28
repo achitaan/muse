@@ -10,8 +10,7 @@
   "tests": 5,
   "benchmarks": 6,
   "integrity": true,
-  "publication": "withheld; checked interval overlaps prior published source check",
-  "published_source_sha256": "dd6049cbf7a2a41666f2d9e46010f81e0dd22c0840881bc5f187ac5f3ba1d3a3",
+  "publication": "passed; supported by two independent full checks of identical timed CUDA",
   "paired_bf16_epilogues": true,
   "exact_dq8_bit_placement": true,
   "fp32_norm_intermediates": true,
@@ -21,5 +20,16 @@
     "native": "vjeux/okc-2026@f35a41ee1c13e316dabbf772830d47b23b453393",
     "dq8": "lee101/openkernels@c565e373d34575c5f7df862b05f8be7619078b0f",
     "license": "Apache-2.0"
+  },
+  "scored": {
+    "job": "b6c70c9b83724d2e",
+    "speedup": 2.348299935218348,
+    "interval": [
+      2.313075436190073,
+      2.383524434246623
+    ],
+    "passed": true,
+    "rank_snapshot": 53,
+    "rank_snapshot_utc": "2026-10-28T16:48:43.060113+00:00"
   }
 }

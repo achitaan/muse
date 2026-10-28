@@ -1,0 +1,23 @@
+{
+  "timed_cuda_identical": true,
+  "kernel_function_ast_identical_after_folding_empty_metadata_selection": true,
+  "independent_official_jobs": [
+    {
+      "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+      "speedup": 2.365437416088433,
+      "interval": [
+        2.3299558548471064,
+        2.4009189773297592
+      ]
+    },
+    {
+      "sha256": "f7958fd73c79ae1b40d64d4a09fcfca4d0fc1f77c1c9657b688376a56cd25c02",
+      "speedup": 2.3504392495001603,
+      "interval": [
+        2.315182660757658,
+        2.3856958382426625
+      ]
+    }
+  ],
+  "publication_decision": "one scored run of the simpler exact DQ8 candidate; overlapping individual intervals acknowledged; no extra check"
+}
