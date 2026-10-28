@@ -40,3 +40,7 @@ remaining quota is capacity, not a reason to launch weak experiments.
 Latest overall placement snapshot: **193**, at 15:05 UTC October 28 after the latest
 decoder improvement. Top 50 remains unmet. All five requested tracks now have
 complete passing coverage. See PREFILL_NOTES.md; its scored job passed at 1.663469245x.
+
+Latest decoder check: **1.968554229x**, full 13/12 coverage; scored job
+02fd620987114785 is pending. The table above retains the last completed scores.
+See DECODE_NOTES.md for phase5 fusion and wide-router transfer evidence.

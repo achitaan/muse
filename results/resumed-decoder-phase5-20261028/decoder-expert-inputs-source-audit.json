@@ -1,0 +1,9 @@
+{
+  "source_sha256": "fd3b27730d02cc4c5ae282b50db87eaba5bc17e4ca1f990400b14379a91e8d1c",
+  "base_sha256": "660f4ac563357a66f3a45632abf3d38113277734025cb0ad10a51a728f0ba1ff",
+  "packaged_bytes": 985932,
+  "changed_calls": "pre-expert RMSNorm and global-to-local ID rotation only",
+  "all_previous_cuda_literals_unchanged": true,
+  "normalization": "BF16 input/gain/output, FP32 intermediate and reduction",
+  "gpu_status": "unmeasured"
+}

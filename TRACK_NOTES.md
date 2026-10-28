@@ -167,3 +167,13 @@ Read-only official leaderboard queries; no evaluation runs consumed.
 | Prefill | 122 / 573 | 1.6635x |
 
 Decode now appears at 1.8749x on the leaderboard. Retrieve the already-launched scored job e5b95129043d442d for full result evidence; do not resubmit.
+
+
+## Decoder phase5 checkpoint
+
+Two checks, no repeated baseline: normalization/ID fusion passed at 1.939554165x;
+adding the existing wide router passed at 1.968554229x, CI [1.939025916,1.998082543].
+Both have full 13-test/12-benchmark/integrity coverage. Only the combined source
+was published: job 02fd620987114785 pending. Do not duplicate. Exact evidence is
+in results/resumed-decoder-phase5-20261028; current checked source a61735ee and
+previous published source 660f4ac5 are separate in best/. Top 50 remains unmet.

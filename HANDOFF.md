@@ -14,8 +14,12 @@ passing coverage on every track. The overall Goal remains active and top 50 unme
 | Prefill | 1.663469245x | 122/573 | 23e7c8b4c3e54869 |
 
 Overall: 193/1427. Prefill is excluded from overall by its official TASK.
-All scored jobs above are terminal and passing. No pending publication.
-No experiment controller is active; phase4 Decode is archived and exported.
+All scored jobs in the table are terminal and passing. New decoder check
+34131378611b46ab passed at 1.968554229x; scored job **02fd620987114785** is pending.
+Observe that handle without duplication. Its source is best/decoder_verified.py,
+a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d.
+best/decoder_published.py remains the earlier passing 660f4ac5 source.
+No experiment controller is active; phase5 Decode is archived and exported.
 
 Read STATE.json, per-track NOTES.md, THIRD_PARTY_NOTICES.md and applicable
 TASK.md/AGENTS.md. best/ holds exact measured source bytes and metadata; results/
@@ -24,7 +28,10 @@ The latest decoder combines fused pooler/router for 9..32 tokens and full-FP32
 router/top-8 for 1..8. Original F.linear is retained as fallback. See DECODE_NOTES.md
 for numerical boundaries, exact hashes, CPU audits and clone reproduction.
 
-Next: inspect profiles for a material MoE improvement. Do not spend a run on a
+Next: collect the pending scored result, then inspect native MoE epilogue pairing
+for a material improvement. Phase5 fused expert input normalization/ID rotation
+and transferred the already-prepared wide router above 32 tokens. No new CUDA
+payloads or precision changes were introduced. Do not spend a run on a
 weak tile sweep. Current expert weights remain exact NVFP4; BF16 GEMM/global-scale
 boundaries and effective norm weights are preserved, with FP32 norm arithmetic.
 Keep every route/key, fresh input, cache write and residual output. Shared native

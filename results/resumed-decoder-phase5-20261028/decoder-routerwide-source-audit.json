@@ -1,0 +1,11 @@
+{
+  "source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "base_sha256": "fd3b27730d02cc4c5ae282b50db87eaba5bc17e4ca1f990400b14379a91e8d1c",
+  "packaged_bytes": 986551,
+  "prior_cuda_and_packing_unchanged": true,
+  "extra_prepare_compilations": 0,
+  "router_input_threshold": ">32; original branch is fallback",
+  "router_precision": "BF16 hi/lo weights and input, FP32 accumulation/output",
+  "small_fp32_router_unchanged": true,
+  "gpu_status": "unmeasured"
+}

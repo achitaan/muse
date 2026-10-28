@@ -1,3 +1,59 @@
+# Latest decoder check - October 28, 2026, phase5
+
+Checked source: best/decoder_verified.py, SHA256
+`a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d`.
+Job 34131378611b46ab: **1.968554229x**, interval
+[1.939025916, 1.998082543], all 13 tests, 12 benchmarks and integrity passed.
+One scored publication is pending: **02fd620987114785**. Preserve that handle;
+do not submit again. Until it passes, best/decoder_published.py retains the
+previous 660f4ac5 source and 1.874889991x publication. Overall rank 193 is the
+last observed snapshot for that earlier publication, not a rank for this check.
+
+## Two checks, one publication
+
+First, pre-expert RMSNorm and expert-ID rotation were fused into one Triton row
+kernel. It reads the existing prepared BF16 effective norm gain, uses FP32
+intermediates/reduction and writes BF16 normalized input plus int32 local IDs.
+The positive modulus 256 is implemented exactly as a bit mask. No input-derived
+values persist between calls. CPU audit: 50 manufactured numerical cases,
+maximum relative L2 0.001993 to analytical FP64 after BF16 rounding, and all
+2,048 ID/start combinations exact. H200 check 90e0e5d105eb4773 passed fully at
+1.939554165x, interval [1.910460852, 1.968647477]. Its 1.6..2.6 us kernel replaces
+normalization at 4.4..6.1 us and a separate rotation launch. The interval still
+overlapped the earlier source's check, so this intermediate was not scored.
+
+Second, the whole decoder now actually uses the wide-router kernels already
+prepared by its checked dense component. Above 32 tokens it chooses the
+existing 128-row arm up to 128 rows and 256-row arm thereafter. Both use dynamic
+M, TMA boundary handling and masked output stores; complete whole-layer tests
+include nearby 33/40-row cases. Unsupported device, layout or prepared state
+retains the original two-GEMM path. No new CUDA payload, weight layout or prepare
+compilation was introduced. BF16 hi/lo router weights and input have FP32
+accumulation/output. Small-token full-FP32 routing and the 9..32-token fusion
+are unchanged. CPU inverse recovered all 4,194,304 hi/lo words; the permitted
+matrix approximation's maximum relative L2 to FP64 was 2.611e-6 in seven row
+sizes, including 257. This model does not emulate wgmma reduction order.
+Profiles show the transferred wide router at 6.3..8.6 us, replacing the
+separate GEMMs and their reductions on large verify shapes.
+
+The combined lower interval 1.939025916 exceeds the published source's checked
+upper interval 1.913738826. That is the publication gate; the intermediate
+check is not an independent baseline or replication. Both phases use the
+service's paired SGLang timings and cold L2, with complete official coverage.
+No repeated baseline, blind sweep or scored intermediate was used.
+
+Full sources, profiles, CPU audits and controller history:
+results/resumed-decoder-phase5-20261028/. Promoted builders and CPU audits are
+in experiments/prepared/ and read immutable measured sources. The phase is
+archived; no controller is active. The overall Goal remains active, top 50 unmet.
+MoE is still the largest component of several whole-layer shapes. A possible
+next investigation is pairing scalar BF16 GEMM-output epilogues while preserving
+every rounding boundary; no such change has been implemented or measured.
+
+Earlier checkpoints below are historical.
+
+---
+
 # Current decoder checkpoint - October 28, 2026
 
 Current checked and published source: `best/decoder_verified.py` and

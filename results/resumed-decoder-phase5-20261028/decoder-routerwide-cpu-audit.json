@@ -1,0 +1,18 @@
+{
+  "source_sha256": "a61735ee0cb7774ae8e187526d2e104f3df4e2e95453f66ee3b46fdc33f9186d",
+  "seed": 20261028,
+  "exact_hi_lo_word_recovery": 4194304,
+  "fp32_matrix_model_max_relative_l2_to_fp64": 2.6109310128578734e-06,
+  "row_cases": [
+    1,
+    3,
+    33,
+    40,
+    128,
+    256,
+    257
+  ],
+  "native_kernel_inherits_passing_dense_coverage": "6131bc96427e4486",
+  "new_whole_layer_gpu_status": "unmeasured",
+  "limitation": "CPU matrix model does not emulate wgmma instruction or reduction order"
+}

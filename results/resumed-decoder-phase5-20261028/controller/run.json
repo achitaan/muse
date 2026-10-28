@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T15:14:55Z",
+  "goal": "Approach top 50 overall in main chat; test profile-backed pre-expert normalization and ID fusion; conserve official runs",
+  "guard": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_decode_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decode.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_decoder_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "996f9758336c457fb35dec7cbe9517be",
+  "schema_version": 1,
+  "scope": [
+    "candidates/decode_active.py"
+  ],
+  "target": 2.4,
+  "timeout_seconds": 1800
+}

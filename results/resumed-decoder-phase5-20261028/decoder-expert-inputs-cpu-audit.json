@@ -1,0 +1,9 @@
+{
+  "source_sha256": "fd3b27730d02cc4c5ae282b50db87eaba5bc17e4ca1f990400b14379a91e8d1c",
+  "seed": 20261028,
+  "manufactured_cases": 50,
+  "max_relative_l2_to_analytical_fp64": 0.001992974523043428,
+  "route_rotations_exact": 2048,
+  "every_output_row_and_column_written": true,
+  "gpu_correctness_and_performance": "unmeasured"
+}
