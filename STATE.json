@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Read experiments/prepared/attention_fp8pv_three_cta_review.md. Parent a310 check/scored full16/12 passed but effective tie; no score repeat. Audit L1 flat3CTA61440regs/187392shared and partition invariants before one check; stronger control-normalized performance guard. Preserve2Decode checks: transfer screen only~0.5%. Prefill last.",
+  "next_trial": "Prepared65527644: L1 flat3CTA, complete512segment storage and public int32 prefix-space guard. CPU660partition/144675segment/434025page/256plan audit passes. Initialize scoped controller with cacheda310 baseline then one full check; fixed control-normalized guard. If discarded, retain segment-capacity/index-bound correctness repair separately.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",

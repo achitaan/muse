@@ -5,6 +5,37 @@ Unimplemented, unmeasured. First finish the exact-source scored confirmation
 claiming a new gain or spending a run before the resource/dispatch audit.
 Main chat only. Retain all BF16 boundaries and the same FP32/FP8 math.
 
+Update at21:59UTC: source65527644 is prepared and CPU audited, not GPU
+measured. Parent publication finished2.548282764x with full16/12/integrity.
+The following inspection prediction is superseded where noted below.
+
+The audit found an inherited64-segment truncation for skewed large batches.
+L1 flat seg storage and its B>32 loop now cover MAXB512; segment count is at
+most B, so capacity suffices for all supported B. All other Smem fields,
+L8/nonflat sizes and arithmetic are unchanged. Actual modeled new L1 flat
+sizeof66,560, dynamic67,584, three-CTA shared202,752bytes. This remains
+below233,472. Register budget remains61,440. An additional public-shape
+_fits bound protects total prefix+virtual-padding space from int32 overflow,
+falling back when B*(max_pages*P+L+600)>=2^31. No host tensor values read.
+This correctness fix is necessary even if the occupancy hypothesis loses;
+preserve it separately rather than silently restoring a known truncation.
+
+CPU audit:660 partitions,144,675 segments,434,025 paged-end checks and256
+actual Python shape plans; old truncation reproduced30times, maximum366
+segments in a CTA. New intervals exactly cover every request with no gaps or
+duplicates, every new cache key is owned once, and counters total n_keys.
+The forty actual Smem declarations are parsed for ABI offsets/alignments.
+Parent sizeof61,440 is reproduced; unchanged layouts are exactly equal.
+Warpgroup budgets use legal multiples of8; each producer releases3,072
+registers, exactly its consumer's requested increment, within its CTA pool.
+NVIDIA semantics: https://docs.nvidia.com/cuda/parallel-thread-execution/#miscellaneous-instructions-setmaxnreg
+
+Predeclared guard requires full16/12/integrity, actual occupancy>=3, exact
+resource layout, actual new full B16/B32 profiles, affected/control ratio>1.03,
+neither changed ratio below0.99, and aggregate ratio>1.015 vs cacheda310.
+Local-memory size is reported rather than assumed. These are empirical
+admission thresholds, not proof of significance. One full H200 check next.
+
 FP8Q was a closed negative result. FP8PV a310 passed16/12/integrity and its
 fixed guard at2.580662730x. Changed six-case GM1.032137 vs unchanged-control
 GM1.030139 means the cross-run points do not isolate a causal gain. Do not
