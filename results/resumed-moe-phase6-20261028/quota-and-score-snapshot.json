@@ -1,0 +1,155 @@
+{
+  "utc": "2026-10-28T18:24:33.630285+00:00",
+  "boards": {
+    "overall": {
+      "board": "overall",
+      "measure": "rank across the problems; the API gives ranks only",
+      "you": {
+        "rank": 146,
+        "team": "achitaan",
+        "first": false,
+        "ahead": 145
+      },
+      "ranked": 1438
+    },
+    "muse_bf16_proj": {
+      "board": "muse_bf16_proj",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "you": {
+        "rank": 105,
+        "team": "achitaan",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 104,
+        "to_first": 1.0713
+      },
+      "ranked": 1252
+    },
+    "muse_moe_w4a16": {
+      "board": "muse_moe_w4a16",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "you": {
+        "rank": 54,
+        "team": "achitaan",
+        "speedup": 2.3483,
+        "first": false,
+        "ahead": 53,
+        "to_first": 1.1435
+      },
+      "ranked": 995
+    },
+    "muse_decode_layer": {
+      "board": "muse_decode_layer",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "you": {
+        "rank": 146,
+        "team": "achitaan",
+        "speedup": 1.994,
+        "first": false,
+        "ahead": 145,
+        "to_first": 1.2051
+      },
+      "ranked": 871
+    },
+    "muse_attention_decode": {
+      "board": "muse_attention_decode",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "you": {
+        "rank": 86,
+        "team": "achitaan",
+        "speedup": 2.5624,
+        "first": false,
+        "ahead": 85,
+        "to_first": 1.1831
+      },
+      "ranked": 954
+    },
+    "muse_prefill_layer": {
+      "board": "muse_prefill_layer",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "you": {
+        "rank": 125,
+        "team": "achitaan",
+        "speedup": 1.6635,
+        "first": false,
+        "ahead": 124,
+        "to_first": 1.2204
+      },
+      "ranked": 577
+    }
+  },
+  "quotas": {
+    "muse_bf16_proj": {
+      "scored": {
+        "per_day": 10,
+        "used": 10,
+        "left": 0
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
+    },
+    "muse_attention_decode": {
+      "scored": {
+        "per_day": 10,
+        "used": 2,
+        "left": 8
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 6,
+        "left": 14
+      }
+    },
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 12,
+        "left": 8
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 5,
+        "left": 5
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 15,
+        "left": 5
+      }
+    },
+    "muse_prefill_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 1,
+        "left": 9
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 1,
+        "left": 19
+      }
+    }
+  },
+  "totals": {
+    "checks": {
+      "left": 46,
+      "used": 54,
+      "per_day": 100
+    },
+    "scored": {
+      "left": 29,
+      "used": 21,
+      "per_day": 50
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "source_sha256": "4d91bbd6d6dc8043ee96c20b07b6afaf5a6156567c53a15b1a99a23ab3b305f0",
+  "seed": 20261028,
+  "full_layout_cases": [
+    {
+      "rows": 8192,
+      "row_order": "gate_up_interleaved",
+      "scale_bytes_recovered": 2097152,
+      "nvfp4_code_bytes_unchanged": 16777216,
+      "original_pack_bytes": 18874368,
+      "compressed_pack_bytes": 18350080,
+      "fallback_bytes_exact": true
+    },
+    {
+      "rows": 4096,
+      "row_order": "natural",
+      "scale_bytes_recovered": 1048576,
+      "nvfp4_code_bytes_unchanged": 8388608,
+      "original_pack_bytes": 9437184,
+      "compressed_pack_bytes": 9175040,
+      "fallback_bytes_exact": true
+    },
+    {
+      "rows": 512,
+      "row_order": "permuted",
+      "scale_bytes_recovered": 131072,
+      "nvfp4_code_bytes_unchanged": 1048576,
+      "original_pack_bytes": 1179648,
+      "compressed_pack_bytes": 1146880,
+      "fallback_bytes_exact": true
+    }
+  ],
+  "original_python_ast_recovered_after_enumerated_edits": true,
+  "all_original_cuda_bytes_recovered": true,
+  "kernel_fn_unchanged": true,
+  "eligibility_bytes_exhausted": 256,
+  "prepare_policy_cases": [
+    {
+      "scale_byte": 80,
+      "prmt_setting": true,
+      "s6": true,
+      "compiled_variants": 4,
+      "wgs_main": true
+    },
+    {
+      "scale_byte": 63,
+      "prmt_setting": true,
+      "s6": false,
+      "compiled_variants": 4,
+      "wgs_main": true
+    },
+    {
+      "scale_byte": 0,
+      "prmt_setting": true,
+      "s6": false,
+      "compiled_variants": 4,
+      "wgs_main": false
+    },
+    {
+      "scale_byte": 80,
+      "prmt_setting": false,
+      "s6": false,
+      "compiled_variants": 4,
+      "wgs_main": false
+    }
+  ],
+  "no_extra_compiled_variants": true,
+  "global_bindings": true,
+  "factory_flag_isolation_and_reuse": true,
+  "cuda_intrinsic_reference": "https://docs.nvidia.com/cuda/archive/12.5.0/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__INT.html",
+  "gpu_status": "unmeasured"
+}

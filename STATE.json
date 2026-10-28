@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Implement and audit the lossless six-bit WGS scale layout from experiments/prepared/moe_scale6_review.md before one MoE check; GPU source not yet written.",
+  "next_trial": "Review one four-tile WGS variant for 17..32 tokens, retaining old larger kernels and independent scratch.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -459,25 +459,50 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T17:58:51.968737+00:00",
+  "updated_utc": "2026-10-28T18:25:30.706641+00:00",
   "latest_placement_snapshot": {
-    "utc": "2026-10-28T17:58:08.320902+00:00",
+    "utc": "2026-10-28T18:24:33.630285+00:00",
     "boards": {
       "overall": {
+        "board": "overall",
+        "measure": "rank across the problems; the API gives ranks only",
         "you": {
           "rank": 146,
           "team": "achitaan",
           "first": false,
           "ahead": 145
         },
-        "ranked": 1436,
-        "rank_50": {
-          "rank": 50,
-          "solved": 4,
-          "team": "cu788"
-        }
+        "ranked": 1438
+      },
+      "muse_bf16_proj": {
+        "board": "muse_bf16_proj",
+        "measure": "speedup over SGLang; higher ranks higher",
+        "you": {
+          "rank": 105,
+          "team": "achitaan",
+          "speedup": 1.5278,
+          "first": false,
+          "ahead": 104,
+          "to_first": 1.0713
+        },
+        "ranked": 1252
+      },
+      "muse_moe_w4a16": {
+        "board": "muse_moe_w4a16",
+        "measure": "speedup over SGLang; higher ranks higher",
+        "you": {
+          "rank": 54,
+          "team": "achitaan",
+          "speedup": 2.3483,
+          "first": false,
+          "ahead": 53,
+          "to_first": 1.1435
+        },
+        "ranked": 995
       },
       "muse_decode_layer": {
+        "board": "muse_decode_layer",
+        "measure": "speedup over SGLang; higher ranks higher",
         "you": {
           "rank": 146,
           "team": "achitaan",
@@ -486,36 +511,107 @@
           "ahead": 145,
           "to_first": 1.2051
         },
-        "ranked": 869,
-        "rank_50": {
-          "attempts": 13,
-          "job": "e8d22fb25b3a4e8b",
-          "rank": 50,
-          "speedup": 2.1438,
-          "submitted_at": 1793133144.5350077,
-          "team": "cu788",
-          "value": 10551.679254337867
+        "ranked": 871
+      },
+      "muse_attention_decode": {
+        "board": "muse_attention_decode",
+        "measure": "speedup over SGLang; higher ranks higher",
+        "you": {
+          "rank": 86,
+          "team": "achitaan",
+          "speedup": 2.5624,
+          "first": false,
+          "ahead": 85,
+          "to_first": 1.1831
+        },
+        "ranked": 954
+      },
+      "muse_prefill_layer": {
+        "board": "muse_prefill_layer",
+        "measure": "speedup over SGLang; higher ranks higher",
+        "you": {
+          "rank": 125,
+          "team": "achitaan",
+          "speedup": 1.6635,
+          "first": false,
+          "ahead": 124,
+          "to_first": 1.2204
+        },
+        "ranked": 577
+      }
+    },
+    "quotas": {
+      "muse_bf16_proj": {
+        "scored": {
+          "per_day": 10,
+          "used": 10,
+          "left": 0
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 20,
+          "left": 0
+        }
+      },
+      "muse_attention_decode": {
+        "scored": {
+          "per_day": 10,
+          "used": 2,
+          "left": 8
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 6,
+          "left": 14
         }
       },
       "muse_moe_w4a16": {
-        "you": {
-          "rank": 53,
-          "team": "achitaan",
-          "speedup": 2.3483,
-          "first": false,
-          "ahead": 52,
-          "to_first": 1.1435
+        "scored": {
+          "per_day": 10,
+          "used": 3,
+          "left": 7
         },
-        "ranked": 994,
-        "rank_50": {
-          "attempts": 7,
-          "job": "262c7268203949c6",
-          "rank": 50,
-          "speedup": 2.3539,
-          "submitted_at": 1793153876.7036498,
-          "team": "morganmcg1",
-          "value": 5713.23693694692
+        "checks": {
+          "per_day": 20,
+          "used": 12,
+          "left": 8
         }
+      },
+      "muse_decode_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 5,
+          "left": 5
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 15,
+          "left": 5
+        }
+      },
+      "muse_prefill_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 1,
+          "left": 9
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 1,
+          "left": 19
+        }
+      }
+    },
+    "totals": {
+      "checks": {
+        "left": 46,
+        "used": 54,
+        "per_day": 100
+      },
+      "scored": {
+        "left": 29,
+        "used": 21,
+        "per_day": 50
       }
     }
   },
@@ -771,6 +867,204 @@
     "review": "experiments/prepared/moe_scale6_review.md",
     "scale_values_roundtripped": 1310720,
     "eligibility_byte_values_exhausted": 256,
-    "gpu_status": "not implemented or measured"
+    "gpu_status": "implemented, full check passed, rejected for lower speed; do not retry encoding tweaks"
+  },
+  "moe_scale6_phase6": {
+    "job": "daa5323ad4644c26",
+    "source_sha256": "4d91bbd6d6dc8043ee96c20b07b6afaf5a6156567c53a15b1a99a23ab3b305f0",
+    "speedup": 2.1980813196483178,
+    "interval": [
+      2.165110099853593,
+      2.2310525394430423
+    ],
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true,
+    "compressed_path_enabled": true,
+    "prepare_s": 164.985266929,
+    "original_checked_speedup": 2.365437416088433,
+    "original_interval": [
+      2.3299558548471064,
+      2.4009189773297592
+    ],
+    "comparisons": [
+      {
+        "bs": 1,
+        "original_speedup": 3.146383311095091,
+        "trial_speedup": 3.095994767860566,
+        "trial_over_original_speedup": 0.9839852496493863
+      },
+      {
+        "bs": 8,
+        "original_speedup": 2.2726496055914778,
+        "trial_speedup": 2.2598315441538235,
+        "trial_over_original_speedup": 0.9943598602238912
+      },
+      {
+        "bs": 16,
+        "original_speedup": 2.0029663645249736,
+        "trial_speedup": 2.004758096099783,
+        "trial_over_original_speedup": 1.0008945390229926
+      },
+      {
+        "bs": 32,
+        "original_speedup": 1.642387556147249,
+        "trial_speedup": 1.453157460419162,
+        "trial_over_original_speedup": 0.8847835305255312
+      },
+      {
+        "bs": 128,
+        "original_speedup": 2.5906674179713978,
+        "trial_speedup": 2.2467438324226077,
+        "trial_over_original_speedup": 0.867245180464694
+      },
+      {
+        "bs": 256,
+        "original_speedup": 2.8745091518761363,
+        "trial_speedup": 2.4629638521231447,
+        "trial_over_original_speedup": 0.8568293652902848
+      }
+    ],
+    "comparison_limit": "different full paired jobs; no controlled isolated instruction attribution",
+    "decision": "discard; all three changed WGS loads regressed, unchanged small loads stayed close",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "next_step": "Review one four-tile WGS variant for 17..32 tokens, retaining old larger kernels and independent scratch."
+  },
+  "previous_placement_snapshot": {
+    "utc": "2026-10-28T17:58:08.320902+00:00",
+    "boards": {
+      "overall": {
+        "you": {
+          "rank": 146,
+          "team": "achitaan",
+          "first": false,
+          "ahead": 145
+        },
+        "ranked": 1436,
+        "rank_50": {
+          "rank": 50,
+          "solved": 4,
+          "team": "cu788"
+        }
+      },
+      "muse_decode_layer": {
+        "you": {
+          "rank": 146,
+          "team": "achitaan",
+          "speedup": 1.994,
+          "first": false,
+          "ahead": 145,
+          "to_first": 1.2051
+        },
+        "ranked": 869,
+        "rank_50": {
+          "attempts": 13,
+          "job": "e8d22fb25b3a4e8b",
+          "rank": 50,
+          "speedup": 2.1438,
+          "submitted_at": 1793133144.5350077,
+          "team": "cu788",
+          "value": 10551.679254337867
+        }
+      },
+      "muse_moe_w4a16": {
+        "you": {
+          "rank": 53,
+          "team": "achitaan",
+          "speedup": 2.3483,
+          "first": false,
+          "ahead": 52,
+          "to_first": 1.1435
+        },
+        "ranked": 994,
+        "rank_50": {
+          "attempts": 7,
+          "job": "262c7268203949c6",
+          "rank": 50,
+          "speedup": 2.3539,
+          "submitted_at": 1793153876.7036498,
+          "team": "morganmcg1",
+          "value": 5713.23693694692
+        }
+      }
+    }
+  },
+  "current_quota_snapshot": {
+    "utc": "2026-10-28T18:24:33.630285+00:00",
+    "quotas": {
+      "muse_bf16_proj": {
+        "scored": {
+          "per_day": 10,
+          "used": 10,
+          "left": 0
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 20,
+          "left": 0
+        }
+      },
+      "muse_attention_decode": {
+        "scored": {
+          "per_day": 10,
+          "used": 2,
+          "left": 8
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 6,
+          "left": 14
+        }
+      },
+      "muse_moe_w4a16": {
+        "scored": {
+          "per_day": 10,
+          "used": 3,
+          "left": 7
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 12,
+          "left": 8
+        }
+      },
+      "muse_decode_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 5,
+          "left": 5
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 15,
+          "left": 5
+        }
+      },
+      "muse_prefill_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 1,
+          "left": 9
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 1,
+          "left": 19
+        }
+      }
+    },
+    "totals": {
+      "checks": {
+        "left": 46,
+        "used": 54,
+        "per_day": 100
+      },
+      "scored": {
+        "left": 29,
+        "used": 21,
+        "per_day": 50
+      }
+    }
   }
 }

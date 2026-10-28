@@ -1,0 +1,62 @@
+{
+  "job": "daa5323ad4644c26",
+  "source_sha256": "4d91bbd6d6dc8043ee96c20b07b6afaf5a6156567c53a15b1a99a23ab3b305f0",
+  "speedup": 2.1980813196483178,
+  "interval": [
+    2.165110099853593,
+    2.2310525394430423
+  ],
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "compressed_path_enabled": true,
+  "prepare_s": 164.985266929,
+  "original_checked_speedup": 2.365437416088433,
+  "original_interval": [
+    2.3299558548471064,
+    2.4009189773297592
+  ],
+  "comparisons": [
+    {
+      "bs": 1,
+      "original_speedup": 3.146383311095091,
+      "trial_speedup": 3.095994767860566,
+      "trial_over_original_speedup": 0.9839852496493863
+    },
+    {
+      "bs": 8,
+      "original_speedup": 2.2726496055914778,
+      "trial_speedup": 2.2598315441538235,
+      "trial_over_original_speedup": 0.9943598602238912
+    },
+    {
+      "bs": 16,
+      "original_speedup": 2.0029663645249736,
+      "trial_speedup": 2.004758096099783,
+      "trial_over_original_speedup": 1.0008945390229926
+    },
+    {
+      "bs": 32,
+      "original_speedup": 1.642387556147249,
+      "trial_speedup": 1.453157460419162,
+      "trial_over_original_speedup": 0.8847835305255312
+    },
+    {
+      "bs": 128,
+      "original_speedup": 2.5906674179713978,
+      "trial_speedup": 2.2467438324226077,
+      "trial_over_original_speedup": 0.867245180464694
+    },
+    {
+      "bs": 256,
+      "original_speedup": 2.8745091518761363,
+      "trial_speedup": 2.4629638521231447,
+      "trial_over_original_speedup": 0.8568293652902848
+    }
+  ],
+  "comparison_limit": "different full paired jobs; no controlled isolated instruction attribution",
+  "decision": "discard; all three changed WGS loads regressed, unchanged small loads stayed close",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "next_step": "Review one four-tile WGS variant for 17..32 tokens, retaining old larger kernels and independent scratch."
+}

@@ -1,3 +1,17 @@
+# Latest MoE checkpoint - October 28, 18:24 UTC
+
+The scale-six layout passed full 5/6/integrity but regressed to 2.198081320x
+and was discarded without scoring. Retained MoE remains 2.348299935x (54th).
+Overall is 146/1438; whole-decoder-layer speedup 1.993956388x. The overall API
+does not expose a combined speedup number. No job/controller is pending.
+
+Quotas left: Dense 0 checks/0 scored, MoE 8/7, Decode 5/5, Attention 14/8,
+Prefill 19/9. Totals 46 checks and 29 scored. See HANDOFF.md, STATE.json and
+the phase6 snapshot. Next source review: moe_wgs32_review.md, not implemented.
+All older checkpoint statements below are historical.
+
+---
+
 # Latest checkpoint - October 28, 17:58 UTC
 
 Overall 146/1436. Decode publication 441eb580f3074669 passed 13/12/integrity at

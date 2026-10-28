@@ -1,3 +1,20 @@
+# Scale-six rejected - October 28, phase6
+
+Check daa5323ad4644c26 passed all 5 tests, 6 benchmark cases and integrity with
+the compressed path enabled. Speedup fell to 2.198081320x, interval
+[2.165110100,2.231052539], versus retained 2.365437416x. All three WGS loads
+regressed; unchanged small paths stayed close. The controller discarded it.
+One check used, no score. Both best files and candidate retain exact 33114871.
+Full evidence and audits: results/resumed-moe-phase6-20261028/.
+
+The lossless representation is correct, but its extra decode cost outweighed
+the 2.7778% lower weight traffic. No encoding sweep or partial fallback-only
+retention. Next read experiments/prepared/moe_wgs32_review.md for one bounded
+17..32-token WGS specialization using original byte scales. GPU implementation
+is not written or measured. All controllers archived; no job pending.
+
+---
+
 # Next MoE work - October 28, 17:58 UTC
 
 MoE remains 53/994 at 2.348299935x; exact 33114871 is checked and published.

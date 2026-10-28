@@ -2,7 +2,8 @@
 
 This began as a CPU-audited representation prototype. A GPU candidate is now
 implemented and CPU-audited as described below; its GPU correctness and speed
-remain unverified. Retain 33114871 as the verified/published MoE source.
+were measured and the candidate was rejected for lower speed (see outcome).
+Retain 33114871 as the verified/published MoE source.
 The native CUDA is extracted for inspection in .tools/moe-current-inspect.cu.
 Its original source/license and the DQ8 modifications must remain intact.
 
@@ -87,3 +88,23 @@ MOE_SCALE6_WGS diagnostic from prepare. One full H200 check is planned, using
 the cached 2.365437416x baseline. Nine MoE checks and seven scored runs remained
 at 18:08:22 UTC. No synthetic selector or tile sweep is added to this candidate.
 No scored publication is planned without a material measured improvement.
+
+## Outcome: correct but slower; rejected
+
+Check daa5323ad4644c26 enabled MOE_SCALE6_WGS and passed all five tests, six
+benchmark cases and integrity. It scored 2.198081320x, interval
+[2.165110100,2.231052539], versus the retained check's 2.365437416x, interval
+[2.329955855,2.400918977]. The aggregate intervals do not overlap. Preparation
+took 164.99 seconds. The controller discarded the trial; no score was spent.
+
+All three changed WGS loads regressed: new/old speedup ratios were 0.885 at
+32 tokens, 0.867 at 128 and 0.857 at 256. Unchanged small paths stayed close
+(ratios 0.984,0.994,1.001 at 1,8,16). These are different paired jobs, so they
+do not isolate individual instruction or register costs. They reject this
+format in its current form: lower traffic did not outweigh decode cost.
+Do not retry packing variants or retain only an unchanged fallback.
+
+Exact sources, raw results, profiles, full audits, quota observation and
+controller history: results/resumed-moe-phase6-20261028/. Retained and published
+sources remain 33114871. Next review moe_wgs32_review.md for a separate
+four-tile specialization hypothesis, with no six-bit compression.

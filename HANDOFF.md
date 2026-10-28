@@ -8,15 +8,21 @@ Prefill pass has full passing coverage. Top 50 overall remains unmet; Goal activ
 
 | Track | Published speedup | Last observed place | Job |
 | --- | ---: | ---: | --- |
-| Dense | 1.527771327x | 99/1245, 17:04 UTC | 6131bc96427e4486 |
-| MoE | 2.348299935x | 53/994, 17:58 UTC | b6c70c9b83724d2e |
-| Decode | 1.993956388x | 146/869, 17:58 UTC | 441eb580f3074669 |
-| Attention | 2.562402309x | 82/951, 17:04 UTC | 20524d06e3894595 |
-| Prefill | 1.663469245x | 123/576, 17:04 UTC | 23e7c8b4c3e54869 |
+| Dense | 1.527771327x | 105/1252, 18:24 UTC | 6131bc96427e4486 |
+| MoE | 2.348299935x | 54/995, 18:24 UTC | b6c70c9b83724d2e |
+| Decode | 1.993956388x | 146/871, 18:24 UTC | 441eb580f3074669 |
+| Attention | 2.562402309x | 86/954, 18:24 UTC | 20524d06e3894595 |
+| Prefill | 1.663469245x | 125/577, 18:24 UTC | 23e7c8b4c3e54869 |
 
-Overall: **146/1436 at 17:58:08 UTC**. Decode's 50th-place score was 2.1438x;
-MoE's was 2.3539x, about 0.24% above ours. Placements change. Prefill does not
-count toward overall. No job or controller is pending.
+Overall: **146/1438 at 18:24:33 UTC**. The overall API gives ranks only,
+not a combined speedup; whole-decoder-layer speedup is 1.993956388x. Cutoffs last
+read at 17:58 were Decode 2.1438x and MoE 2.3539x. Prefill does not count toward
+overall. No job or controller is pending.
+
+Current daily quotas at 18:24:33 UTC (checks / scored left): Dense 0/0,
+MoE 8/7, Decode 5/5, Attention 14/8, Prefill 19/9. Totals: 46 checks and
+29 scored runs, 75 evaluations, allocated separately by track and mode. Full
+read-only snapshot: results/resumed-moe-phase6-20261028/quota-and-score-snapshot.json.
 
 ## Decoder publication and rejected trials
 
@@ -47,31 +53,33 @@ The ~14.6 us dd_cap2_b_cpssm stage is unpooling. Resolve dispatch and symbols
 before attributing truncated profile names. Do not repeat the mistaken O16
 bottleneck attribution or the rejected projection comparisons.
 
-## Next: MoE lossless scale layout
+## Next: bounded 32-token WGS specialization
 
 MoE 33114871 remains checked and published at 2.348299935x, full 5/6/integrity.
 Paired BF16 epilogues and exact DQ8 placement preserve original GEMM rounding
 and FP32 norm arithmetic. The prior mixed skinny/fat selector also chose none.
 
-Read experiments/prepared/moe_scale6_review.md. A new CPU prototype packs
-eligible FP8 scale bytes into six bits without changing values, reducing WGS
-stage weight bytes by 2.7778%. Its audit round-tripped 1,310,720 scale values,
-exhausted adjacent six-bit field pairs and all 256 eligibility byte values,
-and verified two-word load bounds and alignment. The GPU kernel is NOT yet
-implemented or measured. Added decoding can erase the bandwidth gain.
+The phase6 scale-six candidate passed all 5/6/integrity with compression enabled
+but regressed to 2.198081320x, interval [2.165110100,2.231052539]. All three WGS
+loads lost 11..14% relative speedup; unchanged small paths stayed close. It was
+discarded; one check and no score used. Full sources, profiles, reversible
+source ledger, full-size byte audits and controller history are preserved in
+results/resumed-moe-phase6-20261028/. Retain 33114871 and original byte scales.
+Do not retry scale encodings: lower traffic did not overcome added decoding.
 
-Implement only the WGS scale tail and corresponding exact CUDA load/decode,
-with original fallback for any scale outside 0x40..0x7e. Keep non-WGS layouts,
-NVFP4 code bits, all BF16/FP32 math, routing and norms unchanged. Audit actual
-full-layout inversion, compile variants, transaction sizes and factory bindings
-before one full MoE check. No geometry sweep. Require evidence the compressed
-path actually ran; fallback-only timing cannot establish a new optimization.
+Read experiments/prepared/moe_wgs32_review.md. One source-backed next hypothesis
+is a four-tile main WGS module for 17..32 tokens, while retaining the original
+kernel elsewhere. Current WGS_NT is eight even for this band. No new candidate
+is implemented or measured yet. Prune wider MMA variants consistently, preserve
+all jobs/routes and precision, and use a separate scratch bank because counter
+offsets change. The existing allocation is sized for both capacities; prove
+launcher offsets and alternating-shape isolation before one focused check.
+Reuse original packed weights, at most one extra module, no geometry sweep.
 
 Read STATE.json, per-track notes, official TASK.md/AGENTS.md and notices. All
 controllers are archived; initialize one scoped phase with cached baseline
 before trials. Preserve handles across observation failures and push complete
-evidence at boundaries. Query quotas only when needed. The last MoE observation
-before phases8/9 had nine checks and seven scores left; none used on MoE since.
+evidence at boundaries. Query quotas only when needed. Latest per-track quotas are saved above; query them again only when needed.
 
 Preserve every route/key, fresh inputs, cache writes and residual outputs.
 No persistent higher-precision weight expansion, input/output caching or

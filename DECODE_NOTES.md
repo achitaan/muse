@@ -15,7 +15,8 @@ results/resumed-decoder-phase9-20261028/.
 
 One scored confirmation followed the primary 09badc9b check and three full
 incumbent-only observations. Intervals overlap, so no formal significance claim.
-Next focus is the lossless MoE scale-six prototype described in HANDOFF.md.
+MoE's later scale-six trial passed correctness but was slower and discarded.
+Next focus is the WGS32 specialization review described in HANDOFF.md.
 
 ---
 
