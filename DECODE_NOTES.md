@@ -1,3 +1,13 @@
+> Latest checkpoint: 2026-10-28T22:34:05.967226+00:00. Attention9e922c35 scored2.537000514x,
+> full16/12/integrity; retained segment/index-domain repair. DecodeD9FE7558
+> checked1.990224880x as9560c915e85f4f50, full13/12/integrity. Unscored repair;
+> previous published Decode remains1fb5 at1.986659677x. Keep source-bound scores separate.
+> ThreeCTA was discarded (real3/no spills, no normalized gain). No pending job/controller.
+> Overall API150/1447; no combined-speedup field. Best rows may still reference old sources.
+> Checks/scores left: Dense0/0,MoE1/7,Decode1/4,Attention9/5,Prefill19/9; totals30/25.
+> Next: prefill_small_expert_mma_review.md. Zero-row plan deferred before GPU use.
+> Main chat only; no score reruns for noise. Top50Goal remains active.
+
 # Current Decode checkpoint - October28,20:33UTC
 
 Corrected attention transfer1fb5d05d passed as9a176eaead1a44ec at1.988085030x,
@@ -460,3 +470,18 @@ This is a correctness repair, not a demonstrated speedup. Prior scores
 segment-domain limitation; do not claim their coverage extends to these
 skewed large batches. Full evidence: results/attention-segment-repair-20261028/.
 Do not repeat scored submissions for timing noise.
+
+
+## Retained embedded segment-domain repair
+
+D9FE7558, exact source989,018bytes, checked9560c915e85f4f50 at
+1.990224880x [1.960371506,2.020078253], all13tests/12benchmarks/integrity.
+Only embedded Attention seg capacity512, public int32 prefix-space bound
+and L8B>64 fallback guard changed. Native Attention remains FP16 QK/PV;
+MoE331, dense choices, router, residuals and sliced FFN boundary unchanged.
+No scored submission: this is a correctness repair with tied timing.
+Best/decoder_verified.py is D9; best/decoder_published.py remains historical
+1fb5, scored1.986659677x. Do not attribute that score to D9 or optimize
+from the older source without carrying its coverage repair. Evidence and
+immutable initialization history: results/decoder-segment-repair-20261028/.
+One Decode check remains. No pending job/controller.

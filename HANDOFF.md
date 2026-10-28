@@ -1,3 +1,13 @@
+> Latest checkpoint: 2026-10-28T22:34:05.967226+00:00. Attention9e922c35 scored2.537000514x,
+> full16/12/integrity; retained segment/index-domain repair. DecodeD9FE7558
+> checked1.990224880x as9560c915e85f4f50, full13/12/integrity. Unscored repair;
+> previous published Decode remains1fb5 at1.986659677x. Keep source-bound scores separate.
+> ThreeCTA was discarded (real3/no spills, no normalized gain). No pending job/controller.
+> Overall API150/1447; no combined-speedup field. Best rows may still reference old sources.
+> Checks/scores left: Dense0/0,MoE1/7,Decode1/4,Attention9/5,Prefill19/9; totals30/25.
+> Next: prefill_small_expert_mma_review.md. Zero-row plan deferred before GPU use.
+> Main chat only; no score reruns for noise. Top50Goal remains active.
+
 > Checkpoint: Attention coverage repair9e922c35 is fully validated and retained.
 > Scored8b767ea7b2b74de6 passed16/12/integrity at2.537000514x; native CUDA parent
 > c05090e2 checked2.594354656x. Large-L8 fallback guarded and CPU validated.

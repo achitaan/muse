@@ -93,3 +93,6 @@ Source: https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe
 
 
 Attention a310b988 (October28): local FP8 probability/value MMA and register-only byte transpose preserve inherited V load ordering, FP32 accumulation, BF16 Q/K/RoPE/output boundaries and Apache-2.0 notices. Probability scale256 follows the FA3 numerical approach; implementation and CPU permutation audits are local. Full measured payload and source edit ledger are archived in results/resumed-attention-fp8pv-20261028/.
+
+
+October28 segment-domain repair: local changes enlarge the L1 flat segment list to512, protect int32 prefix-space limits, and use the existing general fallback for L8B>64. Apache-2.0 attribution retained. Decode keeps its original FP16 QK/PV; no standalone FP8PV transfer was made. Exact source payloads and inverse ledgers are archived in the two segment-repair result folders.

@@ -423,3 +423,11 @@ MoE check for a stronger idea. Full source, result, profiles, edits, CPU audits
 and controller history: results/resumed-moe-phase13-20261028/.
 No job/controller pending. Next ordered focus is Decode; corrected1fb5d05d
 remains checked1.988085030x/published1.986659677x.
+
+
+Padding inspection: retained331 WGS gather already stores only r<cnt rows
+(d[k] nonnull); padded rows are counted in xready but not globally written.
+Producer bulk copies ceil(cnt/8)*8 rows, not FT_T rows. There is no easy
+full-padding zero-fill removal to spend the last MoE check on. No new MoE
+evaluation used. Native local expert count is32 of256 global experts;
+MMAX384 is a token-capacity constant, not the expert count.

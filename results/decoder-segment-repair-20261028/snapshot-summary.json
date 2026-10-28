@@ -1,0 +1,36 @@
+{
+  "utc": "2026-10-28T22:34:05.967226+00:00",
+  "limits_left": {
+    "muse_bf16_proj": {
+      "scored": 0,
+      "checks": 0
+    },
+    "muse_attention_decode": {
+      "scored": 5,
+      "checks": 9
+    },
+    "muse_moe_w4a16": {
+      "scored": 7,
+      "checks": 1
+    },
+    "muse_decode_layer": {
+      "scored": 4,
+      "checks": 1
+    },
+    "muse_prefill_layer": {
+      "scored": 9,
+      "checks": 19
+    }
+  },
+  "total_checks_left": 30,
+  "total_scored_left": 25,
+  "overall": {
+    "rank": 150,
+    "team": "achitaan",
+    "first": false,
+    "ahead": 149
+  },
+  "ranked": 1447,
+  "overall_speedup": null,
+  "overall_measure": "rank across the problems; the API gives ranks only"
+}

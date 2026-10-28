@@ -1,4 +1,4 @@
-# Next Prefill hypothesis: compact structurally zero MoE rows before unpooling
+# Deferred Prefill hypothesis: compact structurally zero MoE rows before unpooling
 
 Inspection only: no candidate, GPU evaluation, speedup or readiness claim.
 Parent93e57ab4 passed5/8/integrity; scored23e7c8b4c3e54869 at1.663469245x.
@@ -21,10 +21,11 @@ The original implementation still runs a dense projection on these rows.
 This is an exact structural zero, not a small-value threshold. Preserve
 every nonzero/local expert, all routing outputs and all BF16 boundaries.
 
-With uniform top8 routing among384experts and32local experts, a rough
-prior for zero rows is(352/384)^8, about50%. Actual routers are correlated;
-this is a hypothesis, not a measurement of challenge inputs. Never change
-routing or cache activations to increase this fraction.
+The supplied reference has256experts,32local experts and selects the
+busiest local range for each input. The initial384-expert/50%prior was
+incorrect. A uniform fixed-range prior would instead be(224/256)^8,
+about34.36%, before the busiest-range selection and routing correlations.
+Never change routing or cache activations to increase this fraction.
 
 Proposed bounded feature:
 
@@ -72,7 +73,7 @@ integration. No input-dependent host allocation/branching or host sync.
 Performance risk: vendor cuBLAS is fast; half as many rows helps only if
 the custom projection's efficiency stays competitive. Full-active inputs
 must remain correct and may be slower. Include this in nearby-shape checks
-and retain all samples, rather than assuming the50% routing prior. Profile
+and retain all samples, rather than assuming the uniform routing prior. Profile
 the actual new kernel in every affected benchmark. Require full5tests/
 8benchmarks/integrity and a material whole-layer gain before a single score.
 An unchanged fallback that times faster by noise is not a selected new path.
@@ -80,3 +81,23 @@ An unchanged fallback that times faster by noise is not a selected new path.
 Potential later Decode transfer is a separate decision. At small T the
 projection can be bandwidth bound, so FLOP reduction may not help. Use its
 actual unpooler fractions and controlled evidence before a scarce check.
+
+
+## Preflight decision: defer without a GPU evaluation
+
+Eight independent CPU synthetic router draws using the actual public
+256-expert router constants, mean direction, low-rank structure and busiest-
+range selection gave zero fractions3.19..20.19%, mean11.59%. This proxy
+omits the attention/residual update, pre-FFN gain and run router-load
+calibration, so it does not measure challenge zero fractions. It does
+undermine the initial50% assumption. No custom kernel has been implemented
+and no Prefill check/score was spent. The existing Prefill source already
+overlaps pooler with BF16-hi/lo router work; do not reimplement that overlap.
+
+At an11.6%zero fraction, compaction requires the custom projection to
+retain roughly88.4%of vendor dense throughput before queue/scatter
+overhead. Evidence for a material whole-layer win is insufficient. Revisit
+only with stronger distribution/performance evidence; do not launch the
+proposed kernel merely because the detailed implementation sketch exists.
+CPU script: experiments/prepared/audit_prefill_zero_row_proxy_cpu.py.
+Saved results: results/decoder-segment-repair-20261028/prefill-zero-row-proxy.json.

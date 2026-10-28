@@ -1,0 +1,19 @@
+{
+  "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "parent_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "job": "9560c915e85f4f50",
+  "passed": true,
+  "tests": 13,
+  "benchmarks": 12,
+  "integrity": true,
+  "speedup": 1.9902248796281297,
+  "interval": [
+    1.9603715064337077,
+    2.0200782528225516
+  ],
+  "outcome": "retained correctness repair; timing tied; no scored run",
+  "checks_used": 1,
+  "scored_runs_used": 0,
+  "attention_fp8pv_transferred": false,
+  "all_other_layer_math_unchanged": true
+}

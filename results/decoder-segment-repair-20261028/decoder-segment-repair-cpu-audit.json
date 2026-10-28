@@ -1,0 +1,11 @@
+{
+  "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "cuda_repair_identical_after_removing_standalone_fp8pv": true,
+  "fits_guard_ast_identical": true,
+  "fallback_ast_identical": true,
+  "bf16_guard": true,
+  "reused_cpu_evidence": "Standalone156native partitions/28835segments;66guard cases; B65L8 fallback FP64 oracle",
+  "numerical_dtype_router_and_residual_unchanged": true,
+  "bytes": 989018,
+  "gpu_verified": false
+}

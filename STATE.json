@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Exact Decode correctness repaird9fe7558: original1fb5 math including FP16 QK/PV, only segment512/public prefix bound/L8large fallback guard. CPU source/guard/fallback equivalence passes. One full13/12 check, then Prefill zero-row unpooler compaction inspection; no occupancy-neighbor or identical-score repeats.",
+  "next_trial": "Read prefill_small_expert_mma_review.md. Inspect actual Prefill persistent small-N MMA32 dispatch, corrected BF16 epilogues and upstream negative evidence before any candidate. Zero-row compaction deferred: CPU proxy11.6%zeros, actual256experts/busiest range; router/pooler already overlapped. MoE padding stores already omitted. No blind flag sweep, 3CTA repeats or score-only reruns. Best Attention9e922 and DecodeD9 repaired, no pending jobs/controller.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_attention_decode",
+  "active_track": "muse_prefill_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -167,17 +167,17 @@
   },
   "decoder_checked": {
     "source": "best/decoder_verified.py",
-    "sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
-    "checked_job": "9a176eaead1a44ec",
-    "checked_speedup": 1.9880850297289232,
+    "sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "checked_job": "9560c915e85f4f50",
+    "checked_speedup": 1.9902248796281297,
     "checked_interval": [
-      1.9582637542829893,
-      2.017906305174857
+      1.9603715064337077,
+      2.0200782528225516
     ],
     "tests": 13,
     "benchmarks": 12,
     "integrity": true,
-    "publication": "fully passed BF16-corrected scored confirmation",
+    "publication": "Unscored correctness repair; no score used for tied timing",
     "fp32_router_precision_preserved": true,
     "sliced_ffn_boundary_tokens": "1..8",
     "sliced_ffn_norm_domain": 8192,
@@ -229,11 +229,14 @@
       "identity": "projection selector skipped; same timed compute with forwarding wrapper",
       "new_projection_paths_verified": false
     },
-    "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
     "bf16_attention_boundaries_preserved": true,
     "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
     "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
-    "scored": {
+    "scored": null,
+    "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "precision_correction_required": false,
+    "parent_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "historical_parent_scored": {
       "job": "75f2c7f464f34c61",
       "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
       "speedup": 1.986659676841553,
@@ -247,8 +250,9 @@
       "integrity": true,
       "bf16_attention_boundaries_preserved": true
     },
-    "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
-    "precision_correction_required": false
+    "general_attention_domain_repair": true,
+    "native_attention_parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "large_l8_limit": "B>64 uses the unchanged general fallback; common scored B<=32 native paths preserved"
   },
   "moe_scored": {
     "job": "b6c70c9b83724d2e",
@@ -633,15 +637,7 @@
     },
     "precision_note": "API best rows may still reference the five historical omitted-boundary runs; withdrawal awaits explicit approval. Corrected Attention2.541743138 and Decode1.986659677 are separate source-bound scored results."
   },
-  "pending_jobs": [
-    {
-      "track": "muse_decode_layer",
-      "mode": "check",
-      "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
-      "status": "ready_to_launch",
-      "launch": ".decode-measurements/d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988/launch.json"
-    }
-  ],
+  "pending_jobs": [],
   "decoder_projection_phase7": {
     "job": "afd35730c7d3476f",
     "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
@@ -2057,43 +2053,40 @@
     }
   },
   "quota_snapshot_all_tracks": {
-    "utc": "2026-10-28T21:47:09.515854+00:00",
-    "provenance": "Normalized summary of read-only official CLI responses observed in this turn",
-    "overall": {
-      "rank": 149,
-      "ranked": 1445,
-      "measure": "rank across the problems; the API gives ranks only"
-    },
-    "attention": {
-      "rank": 91,
-      "ranked": 960,
-      "api_best_speedup": 2.5624,
-      "precision_note": "API best still historical omitted-boundary20524d06; this rank is not a source-bound rank for a310."
-    },
+    "utc": "2026-10-28T22:34:05.967226+00:00",
     "limits_left": {
       "muse_bf16_proj": {
-        "checks": 0,
-        "scored": 0
-      },
-      "muse_moe_w4a16": {
-        "checks": 1,
-        "scored": 7
-      },
-      "muse_decode_layer": {
-        "checks": 2,
-        "scored": 4
+        "scored": 0,
+        "checks": 0
       },
       "muse_attention_decode": {
-        "checks": 11,
-        "scored": 6
+        "scored": 5,
+        "checks": 9
+      },
+      "muse_moe_w4a16": {
+        "scored": 7,
+        "checks": 1
+      },
+      "muse_decode_layer": {
+        "scored": 4,
+        "checks": 1
       },
       "muse_prefill_layer": {
-        "checks": 19,
-        "scored": 9
+        "scored": 9,
+        "checks": 19
       }
     },
-    "total_checks_left": 33,
-    "total_scored_left": 26
+    "total_checks_left": 30,
+    "total_scored_left": 25,
+    "overall": {
+      "rank": 150,
+      "team": "achitaan",
+      "first": false,
+      "ahead": 149
+    },
+    "ranked": 1447,
+    "overall_speedup": null,
+    "overall_measure": "rank across the problems; the API gives ranks only"
   },
   "attention_three_cta_trial": {
     "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
@@ -2197,5 +2190,98 @@
       }
     ],
     "gpu_verified": false
+  },
+  "decoder_segment_repair": {
+    "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "parent_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "job": "9560c915e85f4f50",
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "speedup": 1.9902248796281297,
+    "interval": [
+      1.9603715064337077,
+      2.0200782528225516
+    ],
+    "outcome": "retained correctness repair; timing tied; no scored run",
+    "checks_used": 1,
+    "scored_runs_used": 0,
+    "attention_fp8pv_transferred": false,
+    "all_other_layer_math_unchanged": true
+  },
+  "prefill_zero_row_screen": {
+    "kind": "CPU synthetic proxy, not actual challenge zero fractions",
+    "public_router_constants": true,
+    "total_experts": 256,
+    "local_experts": 32,
+    "uniform_range_prior": 0.34360891580581665,
+    "busiest_range_selected": true,
+    "omitted": [
+      "attention/residual update",
+      "private pre-FFN gain",
+      "run router-load calibration"
+    ],
+    "records": [
+      {
+        "seed": 20261028,
+        "tokens": 753,
+        "busiest_bucket": 2,
+        "zero_fraction": 0.2018592357635498,
+        "routes_per_token": 1.577689290046692
+      },
+      {
+        "seed": 20261029,
+        "tokens": 753,
+        "busiest_bucket": 7,
+        "zero_fraction": 0.04515272378921509,
+        "routes_per_token": 2.2815403938293457
+      },
+      {
+        "seed": 20261030,
+        "tokens": 753,
+        "busiest_bucket": 4,
+        "zero_fraction": 0.13413015007972717,
+        "routes_per_token": 1.492695927619934
+      },
+      {
+        "seed": 20261031,
+        "tokens": 753,
+        "busiest_bucket": 1,
+        "zero_fraction": 0.03187251091003418,
+        "routes_per_token": 1.6374502182006836
+      },
+      {
+        "seed": 20261032,
+        "tokens": 753,
+        "busiest_bucket": 6,
+        "zero_fraction": 0.2005312144756317,
+        "routes_per_token": 1.3678618669509888
+      },
+      {
+        "seed": 20261033,
+        "tokens": 753,
+        "busiest_bucket": 7,
+        "zero_fraction": 0.08233731985092163,
+        "routes_per_token": 1.772908329963684
+      },
+      {
+        "seed": 20261034,
+        "tokens": 753,
+        "busiest_bucket": 2,
+        "zero_fraction": 0.1155378520488739,
+        "routes_per_token": 1.5312085151672363
+      },
+      {
+        "seed": 20261035,
+        "tokens": 753,
+        "busiest_bucket": 0,
+        "zero_fraction": 0.1155378520488739,
+        "routes_per_token": 1.667994737625122
+      }
+    ],
+    "mean_zero_fraction": 0.11586985737085342,
+    "min_zero_fraction": 0.03187251091003418,
+    "max_zero_fraction": 0.2018592357635498
   }
 }

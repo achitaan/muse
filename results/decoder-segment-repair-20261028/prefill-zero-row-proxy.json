@@ -1,0 +1,74 @@
+{
+  "kind": "CPU synthetic proxy, not actual challenge zero fractions",
+  "public_router_constants": true,
+  "total_experts": 256,
+  "local_experts": 32,
+  "uniform_range_prior": 0.34360891580581665,
+  "busiest_range_selected": true,
+  "omitted": [
+    "attention/residual update",
+    "private pre-FFN gain",
+    "run router-load calibration"
+  ],
+  "records": [
+    {
+      "seed": 20261028,
+      "tokens": 753,
+      "busiest_bucket": 2,
+      "zero_fraction": 0.2018592357635498,
+      "routes_per_token": 1.577689290046692
+    },
+    {
+      "seed": 20261029,
+      "tokens": 753,
+      "busiest_bucket": 7,
+      "zero_fraction": 0.04515272378921509,
+      "routes_per_token": 2.2815403938293457
+    },
+    {
+      "seed": 20261030,
+      "tokens": 753,
+      "busiest_bucket": 4,
+      "zero_fraction": 0.13413015007972717,
+      "routes_per_token": 1.492695927619934
+    },
+    {
+      "seed": 20261031,
+      "tokens": 753,
+      "busiest_bucket": 1,
+      "zero_fraction": 0.03187251091003418,
+      "routes_per_token": 1.6374502182006836
+    },
+    {
+      "seed": 20261032,
+      "tokens": 753,
+      "busiest_bucket": 6,
+      "zero_fraction": 0.2005312144756317,
+      "routes_per_token": 1.3678618669509888
+    },
+    {
+      "seed": 20261033,
+      "tokens": 753,
+      "busiest_bucket": 7,
+      "zero_fraction": 0.08233731985092163,
+      "routes_per_token": 1.772908329963684
+    },
+    {
+      "seed": 20261034,
+      "tokens": 753,
+      "busiest_bucket": 2,
+      "zero_fraction": 0.1155378520488739,
+      "routes_per_token": 1.5312085151672363
+    },
+    {
+      "seed": 20261035,
+      "tokens": 753,
+      "busiest_bucket": 0,
+      "zero_fraction": 0.1155378520488739,
+      "routes_per_token": 1.667994737625122
+    }
+  ],
+  "mean_zero_fraction": 0.11586985737085342,
+  "min_zero_fraction": 0.03187251091003418,
+  "max_zero_fraction": 0.2018592357635498
+}

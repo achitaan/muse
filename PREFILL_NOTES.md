@@ -70,3 +70,11 @@ likely bandwidth bound; audit the exact stream/router output byte traffic
 before assuming a launch fusion removes their work. Prioritize an
 algorithmic expert/dense improvement for a material Prefill gain. This
 track stays last and does not improve overall placement.
+
+
+Prefill zero-row unpooler proposal deferred without a GPU run. Public reference
+has256experts and selects the busiest32-expert range; the earlier384/50%
+assumption was wrong. Eight CPU routing proxies gave3.19..20.19%zero rows,
+mean11.59%; these omit attention/gain/router calibration and are not actual
+challenge measurements. Custom matmul benefit is unproven. Pooler/router
+overlap already exists in this source. Next read prefill_small_expert_mma_review.md.

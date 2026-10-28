@@ -1,16 +1,16 @@
 {
   "source": "best/decoder_verified.py",
-  "sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
-  "checked_job": "9a176eaead1a44ec",
-  "checked_speedup": 1.9880850297289232,
+  "sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "checked_job": "9560c915e85f4f50",
+  "checked_speedup": 1.9902248796281297,
   "checked_interval": [
-    1.9582637542829893,
-    2.017906305174857
+    1.9603715064337077,
+    2.0200782528225516
   ],
   "tests": 13,
   "benchmarks": 12,
   "integrity": true,
-  "publication": "fully passed BF16-corrected scored confirmation",
+  "publication": "Unscored correctness repair; no score used for tied timing",
   "fp32_router_precision_preserved": true,
   "sliced_ffn_boundary_tokens": "1..8",
   "sliced_ffn_norm_domain": 8192,
@@ -62,11 +62,14 @@
     "identity": "projection selector skipped; same timed compute with forwarding wrapper",
     "new_projection_paths_verified": false
   },
-  "native_attention_source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
   "bf16_attention_boundaries_preserved": true,
   "historical_unfixed_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
   "precision_audit": "ATTENTION_PRECISION_AUDIT.md",
-  "scored": {
+  "scored": null,
+  "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "precision_correction_required": false,
+  "parent_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "historical_parent_scored": {
     "job": "75f2c7f464f34c61",
     "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
     "speedup": 1.986659676841553,
@@ -80,6 +83,7 @@
     "integrity": true,
     "bf16_attention_boundaries_preserved": true
   },
-  "published_source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
-  "precision_correction_required": false
+  "general_attention_domain_repair": true,
+  "native_attention_parent_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "large_l8_limit": "B>64 uses the unchanged general fallback; common scored B<=32 native paths preserved"
 }
