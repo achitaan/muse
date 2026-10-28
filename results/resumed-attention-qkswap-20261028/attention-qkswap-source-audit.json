@@ -1,0 +1,27 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "source_sha256": "469d8b04a043de71efe3425559692e8c8c880f36db0fa4faef3b06217141c0ad",
+  "bytes": 173589,
+  "inverse_recovers_parent": true,
+  "edits": [
+    {
+      "before": "__device__ __forceinline__ uint4 lds128(const uint8_t* p)",
+      "after": "// L1 QK: two 8x8 matrices of FP8 pairs. Lane group g receives rows g/g+8,\n// four adjacent FP8 K elements each. Conversion maps K by (2*t+e)->(4*t+e),\n// (8+2*t+e)->(4*t+2+e); the Q B fragments use the same permutation.\n__device__ __forceinline__ void qkswap_ld2(uint32_t addr, uint32_t& lo, uint32_t& hi) {\n  asm volatile(\"ldmatrix.sync.aligned.m8n8.x2.shared.b16 {%0, %1}, [%2];\" : \"=r\"(lo), \"=r\"(hi) : \"r\"(addr));\n}\n\n__device__ __forceinline__ uint4 lds128(const uint8_t* p)"
+    },
+    {
+      "before": "  // Q A-fragments (f16, pre-scaled to log2 units) for 4 k-steps of 16 dims: thread holds dims\n  // 16*tig + 4*ks + {0,1} (a0) and + {2,3} (a2); the K B-fragments use the same dims.\n  uint32_t qa[4][2];\n  {\n    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n    const uint4 l0 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig);\n    const uint4 l1 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig + 16);\n    // (scout: chunk words stored (0, 2, 1, 3): l0 = {ks0 a0, ks1 a0, ks0 a2, ks1 a2}, l1 the same for ks 2, 3)\n    qa[0][0] = l0.x; qa[0][1] = l0.y; qa[1][0] = l0.z; qa[1][1] = l0.w;\n    qa[2][0] = l1.x; qa[2][1] = l1.y; qa[3][0] = l1.z; qa[3][1] = l1.w;\n  }\n",
+      "after": "  // Q as the eight columns of K Q^T. Original FP16 bits and log2 scaling.\n  uint32_t qb[4][2];\n  {\n    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;\n#pragma unroll\n    for (int ks = 0; ks < 4; ++ks) {\n      const int pair0 = 8 * ks + 2 * tig;\n      // Undo only the inherited query staging's (0,2,1,3) word order.\n      const int p0 = (pair0 & ~3) + ((pair0 & 1) << 1) + ((pair0 & 2) >> 1);\n      const int pair1 = pair0 + 1;\n      const int p1 = (pair1 & ~3) + ((pair1 & 1) << 1) + ((pair1 & 2) >> 1);\n      qb[ks][0] = *reinterpret_cast<const uint32_t*>(qs + g * 128 + 4 * p0);\n      qb[ks][1] = *reinterpret_cast<const uint32_t*>(qs + g * 128 + 4 * p1);\n    }\n  }\n  // All consumers have read their queries before any warp reuses S.kvq.\n  csync<WS, NT>();\n  float* qk_transpose = reinterpret_cast<float*>(S.kvq) + warp * 128;\n"
+    },
+    {
+      "before": "    float s[4][4];\n    uint32_t kw[4][4];\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {\n      const int key = 32 * wsub + 8 * nt + g;\n      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));\n      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;\n    }\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)\n      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int h = 0; h < 2; ++h) {\n        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));\n        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));\n      }\n      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;\n    }",
+      "after": "    float s[4][4];\n#pragma unroll\n    for (int kt = 0; kt < 2; ++kt) {\n      float c[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int ks = 0; ks < 4; ++ks) {\n        // All32lanes participate. Lower16lanes supply row addresses; upper16\n        // repeat valid addresses. The existing128Bswizzle is unchanged.\n        const int key = 32 * wsub + 16 * kt + (lane & 15);\n        const uint32_t addr = smem_u32(K + key * ROWB + (((hk * 4 + ks) ^ (key & 7)) << 4));\n        uint32_t kl, kh;\n        qkswap_ld2(addr, kl, kh);\n        mma_f16(c, cvt2(kl), cvt2(kh), cvt2h(kl), cvt2h(kh), qb[ks][0], qb[ks][1]);\n      }\n      // C is16keys x8queries. Warp-private XOR layout: conflict-free scalar\n      // stores and two128Btransactions for each32-lane float2 read.\n      const int head0 = 2 * tig, key0 = g;\n      qk_transpose[((head0 * 16 + key0) ^ (tig * 8))] = c[0];\n      qk_transpose[(((head0 + 1) * 16 + key0) ^ (tig * 8))] = c[1];\n      qk_transpose[((head0 * 16 + key0 + 8) ^ (tig * 8))] = c[2];\n      qk_transpose[(((head0 + 1) * 16 + key0 + 8) ^ (tig * 8))] = c[3];\n      __syncwarp();\n#pragma unroll\n      for (int half = 0; half < 2; ++half) {\n        const int ix = (g * 16 + 8 * half + 2 * tig) ^ ((g >> 1) * 8);\n        const float2 v = *reinterpret_cast<const float2*>(qk_transpose + ix);\n        s[2 * kt + half][0] = v.x;\n        s[2 * kt + half][1] = v.y;\n        s[2 * kt + half][2] = 0.f;\n        s[2 * kt + half][3] = 0.f;\n      }\n      __syncwarp();  // every read is complete before the next16key tile reuses it\n    }"
+    }
+  ],
+  "bf16_boundaries_and_fp16_qk": true,
+  "fp8_pv_unchanged": true,
+  "routing_cache_partition_geometry_l8_unchanged": true,
+  "qk_mma_per_warp_tile_before": 16,
+  "qk_mma_per_warp_tile_after": 8,
+  "reused_query_smem_bytes": 2048,
+  "gpu_status": "unmeasured"
+}

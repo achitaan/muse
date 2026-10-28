@@ -1,0 +1,53 @@
+{
+  "upstream_sha256": "c1dd241c0c08b42fddfa7bc9656d0f596b59bb13005c50c0db4418d9f2f1dc7e",
+  "window_cases": [
+    {
+      "base": 0,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 1,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 16,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 31,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 63,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 96,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    },
+    {
+      "base": 119,
+      "codes": 4096,
+      "direct_fragment_bits_exact": true
+    }
+  ],
+  "directly_inverted_bf16_values": 28672,
+  "escaped_negative_zero": {
+    "original_bits": 32768,
+    "corrected_bits": 0,
+    "accepted_by_upstream": true,
+    "numeric_equal": true,
+    "bitwise_equal": false
+  },
+  "required_local_eligibility": "Reject this encoding when reconstructed BF16 bits differ, including signed zero; retain original fallback",
+  "other_sk2_cg_codecs": "not yet audited",
+  "candidate_modified": false,
+  "gpu_correctness": "unmeasured",
+  "speedup": "unmeasured"
+}

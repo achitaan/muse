@@ -96,3 +96,8 @@ Attention a310b988 (October28): local FP8 probability/value MMA and register-onl
 
 
 October28 segment-domain repair: local changes enlarge the L1 flat segment list to512, protect int32 prefix-space limits, and use the existing general fallback for L8B>64. Apache-2.0 attribution retained. Decode keeps its original FP16 QK/PV; no standalone FP8PV transfer was made. Exact source payloads and inverse ledgers are archived in the two segment-repair result folders.
+
+Pinned public dense source from Vjeux's same f35a41ee revision is retained
+unmodified under results/dense-pinned-codec-screen-20261028/upstream_dense.py
+for CPU codec inspection. Apache-2.0 applies; full license is under licenses/.
+It is a research reference, not a new Dense candidate or measured result.

@@ -46,3 +46,5 @@ No causal statistical-significance claim from cross-job controls. A score is
 allowed only if the passing check's lowerCI clears parent upper2.575055522.
 If it loses, preserve the negative result; no neighbor tile/bank sweep. Phase
 2.70x is only an experiment checkpoint, not the overall top50Goal.
+
+Closed23:08UTC: full16/12/integrity passed at2.500663288x [2.463153339,2.546515796]. ChangedGM.984233346, controls.990164299, normalized.9940101. Reverted before guard; no score. B1fullratio.9394 and the large full profiles87.1/168.6us do not support retention. Fewer MMA instructions alone did not improve the whole path. X4load fusion/interleaving is unimplemented; no measured critical-path evidence justifies another check yet. No selective shape retention.

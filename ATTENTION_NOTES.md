@@ -1,3 +1,13 @@
+> Latest checkpoint: October28,23:08UTC. Attention QK operand swap469d8b04
+> passed16/12/integrity as e663e5cbca7041b1 at2.500663288x; slower than2.537000514.
+> Changed GM0.984233346, L8controls0.990164299; normalized0.9940101.
+> Controller discarded before guard, no score. Retain9e922c35. All other bests unchanged.
+> No pending job/controller. Checks/scores left: Dense0/0,MoE0/7,Decode1/4,
+> Attention8/5,Prefill18/9; total27/25, derived from22:53API and one check.
+> Dense CPU preflight inverted28672BF16codes and exposed escaped-negative-zero
+> sign loss in public codec equality check; no Dense candidate/GPU evaluation.
+> Read dense_pinned_source_review.md for next bounded source investigation. Goal active.
+
 > Latest checkpoint: October28,22:53UTC. No pending job/controller. Goal active; top50unmet.
 > Two checks this continuation, no scored runs. Prefill28d04382 passed5/8/integrity
 > at1.680162079x but fixed normalized-profile guard failed1.004422(<1.02); reverted.

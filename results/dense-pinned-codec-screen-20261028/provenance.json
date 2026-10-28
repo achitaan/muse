@@ -1,0 +1,9 @@
+{
+  "repo": "vjeux/okc-2026",
+  "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+  "path": "muse_bf16_proj.py",
+  "sha256": "c1dd241c0c08b42fddfa7bc9656d0f596b59bb13005c50c0db4418d9f2f1dc7e",
+  "license": "Apache-2.0",
+  "license_file": "licenses/vjeux-Apache-2.0.txt",
+  "role": "unmodified research reference, not a candidate or measured result"
+}

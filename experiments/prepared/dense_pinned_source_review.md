@@ -32,9 +32,10 @@ standalone workload will be faster or slower.
 
 prepare() currently builds a CUTLASS pooler route on a Python background thread,
 and runs24cold-L2 graph-replay tuning repetitions for six M values over many
-backends. This conflicts with our bounded main-chat experiment discipline if
-copied blindly. A future port should omit that optional build and narrow the
-candidate family before full-source preparation; preserve the300second limit.
+backends. These add compilation/dependency and preparation costs. A future port
+should omit the optional build and narrow the candidate family before full-source
+preparation; preserve the300second limit. The main-chat instruction concerns
+agent delegation and does not itself prohibit ordinary Python build threads.
 Do not install tools or libraries for it. CPU audit first, one meaningful full
 check after quota is available, fixed guard, then score only a material gain.
 
@@ -42,3 +43,13 @@ Attention page-table follow-up was also screened from the exact retained source:
 L1flat already bulk-loads64page indices via TMA, PD3ahead/PS4slots. The comments
 record a0.7%loss for that strategy on L8. It is not a fresh global-load-removal
 hypothesis; do not spend another run adding the existing optimization.
+
+CPU codec preflight completed: audit_dense_pinned_codec_cpu.py independently
+inverts fragment ordering and all4096sign/window/mantissa combinations in each
+of seven exponent windows,28672BF16bit patterns total, exactly. An escaped
+negative-zero counterexample is accepted by the upstream numeric equality
+check yet reconstructs+0 (0x0000instead of0x8000). A future integration must
+reject such encodings by bitwise reconstruction and retain its original fallback.
+This is a public-codec counterexample, not evidence of a current submission
+failure. sk2/cg formats still need auditing. Full pinned source/provenance and
+CPU evidence: results/dense-pinned-codec-screen-20261028/. No GPU run or candidate.

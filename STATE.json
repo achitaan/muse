@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Main-chat source inspection only before another justified evaluation. Dense0/0,MoE0/7; Decode1/4 should be conserved, SiLU transfer declined. Attention9/5,Prefill18/9 available, but no blind repeat of occupancy, FP8Q, page-table TMA, MMA32, CIT or lossless-decode trials. Read dense_pinned_source_review.md for quota-reset investigation; numerical packing/eligibility audit required, no dense candidate yet.",
+  "next_trial": "Read dense_pinned_source_review.md and its CPU codec evidence, then compare public sk2/cg families with rejected Decode alternatives and incumbent Dense profiles before implementing a bounded candidate. Dense/MoE checks exhausted until00UTC. No new candidate justified on other tracks yet; preserve scarce Decode check and no noisy score runs.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -503,7 +503,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T22:54:12.042379+00:00",
+  "updated_utc": "2026-10-28T23:11:12.827614+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T20:33:00.810441+00:00",
     "boards": {
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T22:54:12.042379+00:00",
+  "latest_experiment_boundary_utc": "2026-10-28T23:11:12.827614+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2061,7 +2061,7 @@
       },
       "muse_attention_decode": {
         "scored": 5,
-        "checks": 9
+        "checks": 8
       },
       "muse_moe_w4a16": {
         "scored": 7,
@@ -2076,10 +2076,12 @@
         "checks": 18
       }
     },
-    "total_checks_left": 28,
+    "total_checks_left": 27,
     "total_scored_left": 25,
     "source": "results/resumed-moe-silu-20261028/quota-api.json",
-    "reset_utc": "2026-10-29T00:00:00Z"
+    "reset_utc": "2026-10-29T00:00:00Z",
+    "derived_update_utc": "2026-10-28T23:11:12.827614+00:00",
+    "note": "22:53official API minus exactly one Attention checke663e5cb; no scored run, no quota API refresh"
   },
   "attention_three_cta_trial": {
     "source_sha256": "65527644786bf6d32307b92e34e19da39a5967e7975c9b7118c7d14a1d5ab87e",
@@ -2340,5 +2342,93 @@
     "checks_used": 1,
     "scored_runs_used": 0,
     "decode_transfer": false
+  },
+  "attention_qkswap_trial": {
+    "source_sha256": "469d8b04a043de71efe3425559692e8c8c880f36db0fa4faef3b06217141c0ad",
+    "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "job": "e663e5cbca7041b1",
+    "passed": true,
+    "tests": 16,
+    "benchmarks": 12,
+    "integrity": true,
+    "speedup": 2.5006632879951574,
+    "interval": [
+      2.46315333867523,
+      2.5465157956936495
+    ],
+    "per_case_ratios": {
+      "0": 0.9650074064084778,
+      "1": 0.939409699622101,
+      "2": 1.055580014183222,
+      "3": 0.9799597691580907,
+      "4": 0.984735205019184,
+      "5": 0.9844278530848672,
+      "6": 0.9785329503498629,
+      "7": 0.9796956540121914,
+      "8": 0.9788507093482612,
+      "9": 1.006828883501028,
+      "10": 0.9987825904352198,
+      "11": 0.998697256723824
+    },
+    "changed_geomean": 0.9842333461012692,
+    "unchanged_control_geomean": 0.9901642994269194,
+    "normalized_geomean": 0.9940101321274835,
+    "outcome": "discarded; aggregate declined, guard not run",
+    "checks_used": 1,
+    "scored_runs_used": 0,
+    "performance_gain_claim": false
+  },
+  "dense_pinned_codec_screen": {
+    "upstream_sha256": "c1dd241c0c08b42fddfa7bc9656d0f596b59bb13005c50c0db4418d9f2f1dc7e",
+    "window_cases": [
+      {
+        "base": 0,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 1,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 16,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 31,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 63,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 96,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      },
+      {
+        "base": 119,
+        "codes": 4096,
+        "direct_fragment_bits_exact": true
+      }
+    ],
+    "directly_inverted_bf16_values": 28672,
+    "escaped_negative_zero": {
+      "original_bits": 32768,
+      "corrected_bits": 0,
+      "accepted_by_upstream": true,
+      "numeric_equal": true,
+      "bitwise_equal": false
+    },
+    "required_local_eligibility": "Reject this encoding when reconstructed BF16 bits differ, including signed zero; retain original fallback",
+    "other_sk2_cg_codecs": "not yet audited",
+    "candidate_modified": false,
+    "gpu_correctness": "unmeasured",
+    "speedup": "unmeasured"
   }
 }

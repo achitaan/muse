@@ -1,0 +1,19 @@
+{
+  "source_sha256": "469d8b04a043de71efe3425559692e8c8c880f36db0fa4faef3b06217141c0ad",
+  "seed": 20261028,
+  "exact_int64_complete_matrix_oracles": 64,
+  "operand_k_coverage_exact": true,
+  "ld_matrix_x2_and_original_swizzle_addresses": true,
+  "inherited_q_word_order_inverted": true,
+  "warp_transpose_bijective": true,
+  "warp_private_bytes": 2048,
+  "modeled_bank_conflicts": "none beyond ideal transactions",
+  "query_to_transpose_reuse_order": "one128consumer barrier; perwarp write/read/reuse syncwarp",
+  "max_fp32_accum_relative_l2_vs_fp64": 4.5487228284917765e-08,
+  "numerical_cases": 16,
+  "fp32_model_not_hardware_accumulation": true,
+  "parent_cuda_inverse": true,
+  "full_bf16_precision_guard": true,
+  "gpu_correctness": "unmeasured",
+  "speedup": "unmeasured"
+}

@@ -1,0 +1,35 @@
+{
+  "source_sha256": "469d8b04a043de71efe3425559692e8c8c880f36db0fa4faef3b06217141c0ad",
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "job": "e663e5cbca7041b1",
+  "passed": true,
+  "tests": 16,
+  "benchmarks": 12,
+  "integrity": true,
+  "speedup": 2.5006632879951574,
+  "interval": [
+    2.46315333867523,
+    2.5465157956936495
+  ],
+  "per_case_ratios": {
+    "0": 0.9650074064084778,
+    "1": 0.939409699622101,
+    "2": 1.055580014183222,
+    "3": 0.9799597691580907,
+    "4": 0.984735205019184,
+    "5": 0.9844278530848672,
+    "6": 0.9785329503498629,
+    "7": 0.9796956540121914,
+    "8": 0.9788507093482612,
+    "9": 1.006828883501028,
+    "10": 0.9987825904352198,
+    "11": 0.998697256723824
+  },
+  "changed_geomean": 0.9842333461012692,
+  "unchanged_control_geomean": 0.9901642994269194,
+  "normalized_geomean": 0.9940101321274835,
+  "outcome": "discarded; aggregate declined, guard not run",
+  "checks_used": 1,
+  "scored_runs_used": 0,
+  "performance_gain_claim": false
+}
