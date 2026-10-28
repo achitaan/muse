@@ -17,6 +17,15 @@ assert len(tests) == 13 and len(benches) == 12
 assert all(r.get('status') == 'pass' for r in tests + benches)
 assert body.get('checks', {}).get('ok') is True
 tree = ast.parse(source)
+router_cuda = next((ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+                   and any(isinstance(t, ast.Name) and t.id == '_RF_CUDA' for t in n.targets)), '')
+if 'route_fp32_xshared' in router_cuda:
+    profiles = {r['index']: r.get('report', '') for r in records if r.get('event') == 'profile'}
+    assert all('route_fp32_xshared<' in profiles.get(i, '') for i in (0, 1, 6, 7)), \
+        'Require the new FP32 router in every small-token benchmark profile'
+    assert '__shared__ float xshared[TM * 1024]' in router_cuda
+    assert router_cuda.count('__fmaf_rn') == 2
+    print('Shared-input FP32 router observed in all four small-token profiles.')
 if any(isinstance(n, ast.FunctionDef) and n.name == '_sp_select' for n in tree.body):
     selections = [line.split('SMALL_PROJ_CHOICES', 1)[1].strip()
                   for line in body.get('log_tail', '').splitlines()

@@ -1,6 +1,6 @@
 # Next Decode hypothesis: one FP32 router input copy per CTA
 
-Status: inspected design, not implemented or evaluated. Retain decoder09badc9b
+Status: implemented and CPU-audited; GPU unmeasured. Retain decoder09badc9b
 (1.994319167x checked,1.993956388x published) and MoE33114871. All recent MoE
 changes lost and are excluded. Main chat only; conserve evaluations.
 
@@ -60,3 +60,24 @@ Implementation boundaries:
 The kernel source is ordinary native CUDA embedded in best/decoder_verified.py;
 extract _RF_CUDA with ast.literal_eval for inspection. Existing resource APIs
 and load_inline compilation are sufficient; no paid GPU, provider or subagent.
+
+## Implemented draft and CPU evidence
+
+Draft41d475ae9a1003e04957cc28b28e8de76c7285e3a6aa070a7cd695f46b0018cb
+is988688bytes. build_decoder_router_shared.py changes only _RF_CUDA; its
+inverse recovers the complete original module AST. The whole CUDA edit also
+reverses exactly: one cooperative input-copy/barrier block, one input read
+expression and the three kernel identifiers. Every FMA, reduction, sigmoid,
+top8/tie operation and counter/fence/output instruction remains original.
+
+audit_decoder_router_shared_cpu.py checks M1..8, all8Ksplits and two changing
+replays with random uint32payloads plus signed zero, subnormals, infinities
+and NaN bit patterns. All589824active shared words have unique writers and
+overwrite fresh values. All4718592warp-operand comparisons equal the original
+input slice bitwise. Every warp's lane map has32distinct shared banks; full
+expert-row and8192-column coverage is unchanged. These are representation and
+control proofs, not GPU numerical results or a speed claim.
+
+The full-evidence guard requires the new kernel name in profiles0/1/6/7
+in addition to13tests/12benchmarks/integrity and the original FP32/norm checks.
+One official evaluation remains to establish CUDA compilation and timing.
