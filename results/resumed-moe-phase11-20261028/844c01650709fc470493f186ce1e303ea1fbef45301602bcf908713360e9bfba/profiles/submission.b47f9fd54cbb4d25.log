@@ -1,0 +1,40 @@
+[1/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/main.cpp -o main.o 
+[2/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -Xptxas=-v -std=c++20 -c /tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+/tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(129): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = 0 ? 4 : 2;
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(144): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+/tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(144): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+/tmp/muse_moe_w4a16-6_lz1p0j/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(147): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE'
+ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE'
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 3237.657 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 3169.176 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+[3/3] ccache c++ main.o cuda.cuda.o -shared -L/opt/sglang/lib/python3.12/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o okc_moe_w4a16_v216x_pair1dq8regsplit_okc_nw16_okc_fast10_okc_epi40_okc_wgs1_okc_prmtsc1_okc_dq71_sm90a.so
+MOE_REGSPLIT_RESOURCES (640, 96, 96, 0, 0, 231168, 1, 1, 65536, 132)
+MOE_REGSPLIT_ENABLED True

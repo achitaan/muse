@@ -20,6 +20,13 @@ for event, count in [('test', 5), ('benchmark', 6)]:
     records = [r for r in body['records'] if r.get('event') == event]
     assert len(records) == count and all(r.get('status') == 'pass' for r in records)
 tree = ast.parse(raw)
+cuda = next((ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+             and any(isinstance(t, ast.Name) and t.id == 'CUDA_SRC' for t in n.targets)), '')
+if '#define WGS_WEIGHT_L2H_ARG' in cuda:
+    enabled = re.findall(r'^MOE_WEIGHT_NORMAL_ENABLED (True|False)$', body.get('log_tail', ''), flags=re.MULTILINE)
+    assert enabled == ['True'], 'Require an active WGS path for the weight-priority trial'
+    assert '#define WGS_WEIGHT_L2H_ARG , "l"(0x1000000000000000ull)' in cuda
+    print('WGS-only normal-priority weight copies enabled in the full official check.')
 cpp = next((ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
             and any(isinstance(t, ast.Name) and t.id == 'CPP_SRC' for t in n.targets)), '')
 if 'okc_regsplit_resources' in cpp:

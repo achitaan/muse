@@ -330,3 +330,32 @@ at96registers; GS4 needs16more live A-fragment registers, matching the reviewed
 geometry, original layouts and GSFCI3; capture ordinary compiler diagnostics.
 Do not retry tile/encoding/grid parameters or score a flat result. Expected
 MoE quota4checks/7scores after four checks since18:24 (not a fresh API query).
+
+
+## Phase11: GS4 serialized, rejected (19:16 UTC)
+
+Checkb47f9fd54cbb4d25/source844c0165 passed5tests/6benchmarks/integrity at
+2.282485686x, CI[2.248248401,2.316722971]. Compiler diagnostics explicitly
+report C7512 for both BIG instantiations: WGMMA serialized due to insufficient
+register resources. Initial96registers, zero reported local bytes, one resident
+640-thread block/SM. Full result/audit/source/profiles/controller preserved in
+results/resumed-moe-phase11-20261028/. Reverted, no score, no Decode transfer.
+Close the GS/allocation tuning path; do not sweep group sizes or register counts.
+
+A two-compute-warpgroup design was assessed, not implemented/evaluated. It
+would need128-row WGS units and a repack, double phase-A/B units/staged X reads,
+change readiness indexing, and preserve512virtual gather/finalizer threads to
+cover4096columns and the old FP32 norm tree. Extra activation traffic makes
+this a poor next check without stronger bottleneck evidence.
+
+Next: one isolated WGS-weight cache policy from retained33114871. Fat jobs
+split at64tokens, so multiple jobs on a hot expert reread identical weights
+within a launch; the existing evict-first comment assumes weights stream once.
+Own NumPy public-formula routing draws (seed20261028,64draws/shape) found repeats
+in50/64draws atM256, mean logical load/unique-weight ratio1.07969, and17/64
+atM128, ratio1.01287. These are synthetic opportunity counts, not official
+inputs, cache-hit measurements or a speedup prediction. CPU model is saved
+in phase11. Preserve intermediate evict-last stores and all numerical work.
+
+No job/controller pending at this boundary. Expected MoE3checks/7scores left
+after five checks since18:24, not a new quota API observation. Goal active.

@@ -1,0 +1,62 @@
+{
+  "seed": 20261028,
+  "numpy_version": "1.25.1",
+  "method": "Own NumPy routing draws using the public reference popularity formula and busiest-rank rotation, not official inputs/seeds; torch RNG/results will differ",
+  "summary": [
+    {
+      "m": 1,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 0,
+      "mean_active_experts": 2.75,
+      "mean_wgs_jobs": 2.75,
+      "mean_job_over_unique_weight_loads": 1.0,
+      "largest_expert_count": 1
+    },
+    {
+      "m": 8,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 0,
+      "mean_active_experts": 8.671875,
+      "mean_wgs_jobs": 8.671875,
+      "mean_job_over_unique_weight_loads": 1.0,
+      "largest_expert_count": 8
+    },
+    {
+      "m": 16,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 0,
+      "mean_active_experts": 11.875,
+      "mean_wgs_jobs": 11.875,
+      "mean_job_over_unique_weight_loads": 1.0,
+      "largest_expert_count": 16
+    },
+    {
+      "m": 32,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 0,
+      "mean_active_experts": 16.0,
+      "mean_wgs_jobs": 16.0,
+      "mean_job_over_unique_weight_loads": 1.0,
+      "largest_expert_count": 32
+    },
+    {
+      "m": 128,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 17,
+      "mean_active_experts": 23.1875,
+      "mean_wgs_jobs": 23.453125,
+      "mean_job_over_unique_weight_loads": 1.012874401463414,
+      "largest_expert_count": 128
+    },
+    {
+      "m": 256,
+      "draws": 64,
+      "draws_with_repeated_expert_weights": 50,
+      "mean_active_experts": 24.234375,
+      "mean_wgs_jobs": 26.046875,
+      "mean_job_over_unique_weight_loads": 1.0796875667093415,
+      "largest_expert_count": 256
+    }
+  ],
+  "interpretation": "Logical weight-source repetition only; no measured L2 hits or speedup prediction"
+}

@@ -1,0 +1,69 @@
+{
+  "job": "b47f9fd54cbb4d25",
+  "source_sha256": "844c01650709fc470493f186ce1e303ea1fbef45301602bcf908713360e9bfba",
+  "speedup": 2.2824856860012726,
+  "interval": [
+    2.2482484007112533,
+    2.3167229712912913
+  ],
+  "passed": true,
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "resource_preflight": [
+    640,
+    96,
+    96,
+    0,
+    0,
+    231168,
+    1,
+    1,
+    65536,
+    132
+  ],
+  "compiler_diagnostic": "C7512: both BIG=false and BIG=true WGMMA instructions serialized due to insufficient register resources",
+  "comparisons": [
+    {
+      "bs": 1,
+      "baseline_speedup": 3.146383311095091,
+      "trial_speedup": 3.0731993400422617,
+      "ratio": 0.9767402875565857
+    },
+    {
+      "bs": 16,
+      "baseline_speedup": 2.0029663645249736,
+      "trial_speedup": 1.9939473841508544,
+      "ratio": 0.9954971883033802
+    },
+    {
+      "bs": 32,
+      "baseline_speedup": 1.642387556147249,
+      "trial_speedup": 1.5597830461747997,
+      "ratio": 0.9497046177296758
+    },
+    {
+      "bs": 8,
+      "baseline_speedup": 2.2726496055914778,
+      "trial_speedup": 2.2182531240834926,
+      "ratio": 0.9760647301835921
+    },
+    {
+      "bs": 128,
+      "baseline_speedup": 2.5906674179713978,
+      "trial_speedup": 2.4528776527755287,
+      "ratio": 0.946813024226875
+    },
+    {
+      "bs": 256,
+      "baseline_speedup": 2.8745091518761363,
+      "trial_speedup": 2.718897069981574,
+      "ratio": 0.9458648159832793
+    }
+  ],
+  "decision": "discard; close GS/register-budget tuning path; no Decode transfer",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "two_warpgroup_redesign": "Not implemented: would double staged activation reads and requires independent virtual512-thread gather/finalizer, unit-address and readiness redesign. No evidence justifies that check now.",
+  "next_step": "One WGS-weight-only cache-priority experiment from33114871: repeated expert jobs can reuse weights within a launch; preserve all other eviction hints."
+}

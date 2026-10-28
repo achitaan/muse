@@ -1,0 +1,121 @@
+{
+  "source_sha256": "844c01650709fc470493f186ce1e303ea1fbef45301602bcf908713360e9bfba",
+  "parent_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
+  "retained_baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "packaged_bytes": 180849,
+  "parent_module_ast_recovered": true,
+  "cuda_only_changed_macro": "OKC_WGSGS:2to4",
+  "diagnostics": "main-only verbose build and ptxas-v",
+  "fixed_register_budgets": [
+    96,
+    32,
+    112
+  ],
+  "schedules": {
+    "2": {
+      "k16_steps": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "commit_groups": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          14,
+          15
+        ]
+      ],
+      "deferred_flush_commit": 3,
+      "a_fragment_registers": 16
+    },
+    "4": {
+      "k16_steps": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "commit_groups": [
+        [
+          0,
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          12,
+          13,
+          14,
+          15
+        ]
+      ],
+      "deferred_flush_commit": 3,
+      "a_fragment_registers": 32
+    }
+  },
+  "gpu_status": "unmeasured; static schedule equivalence does not establish GPU correctness or a speedup"
+}
