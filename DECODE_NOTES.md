@@ -1,4 +1,29 @@
-# Current decoder check - October 28, 2026, phase6
+# Phase7 checkpoint - October 28, 2026
+
+The small-projection trial afd35730c7d3476f passed all 13 tests, 12 benchmark
+cases and integrity at **1.997916935x**, CI [1.967948181,2.027885689]. The
+230-second safety gate skipped the new paths: old preparation took 257.03 s.
+No new packing, extension build or projection comparison ran on GPU. Their GPU
+correctness and performance are unverified despite the whole-decoder pass.
+
+The guard correctly discarded the trial because it lacked an explicit nonempty
+SMALL_PROJ_CHOICES tuple. Retained 09badc9b and published a61735ee remain unchanged.
+The trial is an independent timing observation of the retained computation with
+an empty-choice forwarding wrapper, not a new speedup. No score was submitted.
+Source, result, profiles, CPU audits and controller: results/resumed-decoder-phase7-20261028/.
+One check used; no job/controller is pending. Overall was 150/1432 at 17:04:44 UTC.
+
+The prepared builder adds three fixed public SK2 configurations in a separate
+extension. CPU tests recover 1,441,792 BF16 values and 233 correction entries
+exactly, prove stream bijections and test fallback, dispatch and store geometry.
+Trial source 92fe19e2 is 995430 bytes. All previous source bytes are unchanged.
+Next, reduce preparation overhead or share the existing extension build before
+spending another check; do not simply increase the safety cutoffs. The baseline
+prepare observations of 215 s and 257 s show that headroom varies materially.
+
+---
+
+# Current retained decoder check - October 28, 2026, phase6
 
 Checked source best/decoder_verified.py, SHA256
 `09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67`.

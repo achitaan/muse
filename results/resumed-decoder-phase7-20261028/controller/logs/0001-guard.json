@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_decode_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.25,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_decode_evidence.py\", line 24, in <module>\r\n    assert len(selections) == 1, 'Require explicit evidence of projection selection'\r\nAssertionError: Require explicit evidence of projection selection\r\n",
+  "stdout": "",
+  "timed_out": false
+}

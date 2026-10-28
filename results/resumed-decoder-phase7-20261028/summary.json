@@ -1,0 +1,21 @@
+{
+  "job": "afd35730c7d3476f",
+  "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+  "speedup": 1.9979169351927655,
+  "interval": [
+    1.967948181164874,
+    2.027885689220657
+  ],
+  "tests": 13,
+  "benchmarks": 12,
+  "integrity": true,
+  "prepare_s": 257.031664075,
+  "selection": "skipped before packing or extension compilation",
+  "discarded": true,
+  "reason": "New paths not exercised; no explicit nonempty selection",
+  "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "scored_runs_used": 0,
+  "timed_compute": "independent repeat of baseline; new wrapper forwards to incumbent with empty choices",
+  "new_projection_gpu_correctness_and_performance": "unverified",
+  "next_step": "Reduce prepare overhead or integrate new instantiations into the existing extension before another check; do not simply raise cutoffs."
+}

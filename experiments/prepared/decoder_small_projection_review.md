@@ -72,3 +72,20 @@ router contract and an explicit nonempty SMALL_PROJ_CHOICES tuple. An empty
 selection cannot be retained as a measured optimization. One full official
 check is planned; no tile sweep or scored submission is authorized by evidence
 yet. Reuse the cached baseline check without a new GPU job.
+
+## Official outcome
+
+Check afd35730c7d3476f passed 13/12/integrity at 1.997916935x with interval
+[1.967948181,2.027885689]. However, preparation took 257.03 seconds and printed
+SMALL_PROJ_SKIP_BUDGET. None of the new paths was packed, built or selected.
+The nonempty-selection guard discarded the trial. Keep the original 09badc9b
+source and treat this only as an independent observation of its timed compute.
+No scored submission was made. GPU correctness and performance of the new
+projection kernels remain unverified. Full records and archived controller are
+in results/resumed-decoder-phase7-20261028/.
+
+Before another check, reduce preparation overhead or integrate instantiations
+into the existing extension build. Do not merely raise the cutoffs: observed
+baseline setup varies from about 215 to 257 seconds. The pinned source also
+offers o32h_r100 for output projection, a possible later target for the profiled
+16-token output cost (~15 us). It has not been implemented or audited here.

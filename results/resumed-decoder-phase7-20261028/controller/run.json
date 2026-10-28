@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T17:07:56Z",
+  "goal": "Approach top 50 overall by testing three curated lossless small-token projection paths in Decode",
+  "guard": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_decode_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decode.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_decoder_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "191f37b964fb41cdb10729143e498e55",
+  "schema_version": 1,
+  "scope": [
+    "candidates/decode_active.py"
+  ],
+  "target": 2.4,
+  "timeout_seconds": 1800
+}

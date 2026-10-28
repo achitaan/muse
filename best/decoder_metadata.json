@@ -18,5 +18,18 @@
   "sliced_ffn_early_readonly_loads": true,
   "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
   "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
-  "workspace_contract": "sequential calls"
+  "workspace_contract": "sequential calls",
+  "independent_timed_repeat": {
+    "job": "afd35730c7d3476f",
+    "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+    "speedup": 1.9979169351927655,
+    "interval": [
+      1.967948181164874,
+      2.027885689220657
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "identity": "projection selector skipped; same timed compute with forwarding wrapper",
+    "new_projection_paths_verified": false
+  }
 }

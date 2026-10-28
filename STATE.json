@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "No pending jobs. Review curated public small-batch SK2 projection components, CPU-audit their lossless packing/geometry, and compare against current incumbents before one whole-decoder check.",
+  "next_trial": "Reduce prepare overhead or integrate new instantiations into the existing extension before another check; do not simply raise cutoffs.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -168,7 +168,20 @@
     "sliced_ffn_early_readonly_loads": true,
     "native_moe_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
     "dense_timed_dispatch": "previous incumbents; removed unselected preparation sweep",
-    "workspace_contract": "sequential calls"
+    "workspace_contract": "sequential calls",
+    "independent_timed_repeat": {
+      "job": "afd35730c7d3476f",
+      "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+      "speedup": 1.9979169351927655,
+      "interval": [
+        1.967948181164874,
+        2.027885689220657
+      ],
+      "tests": 13,
+      "benchmarks": 12,
+      "identity": "projection selector skipped; same timed compute with forwarding wrapper",
+      "new_projection_paths_verified": false
+    }
   },
   "moe_scored": {
     "job": "b6c70c9b83724d2e",
@@ -415,5 +428,147 @@
         }
       }
     }
+  },
+  "updated_utc": "2026-10-28T17:17:21.185729+00:00",
+  "latest_placement_snapshot": {
+    "utc": "2026-10-28T17:04:44.923429+00:00",
+    "boards": {
+      "overall": {
+        "you": {
+          "rank": 150,
+          "team": "achitaan",
+          "first": false,
+          "ahead": 149
+        },
+        "ranked": 1432,
+        "rank_50": {
+          "rank": 50,
+          "solved": 2,
+          "team": "alpinevm"
+        }
+      },
+      "muse_bf16_proj": {
+        "you": {
+          "rank": 99,
+          "team": "achitaan",
+          "speedup": 1.5278,
+          "first": false,
+          "ahead": 98,
+          "to_first": 1.0713
+        },
+        "ranked": 1245,
+        "rank_50": {
+          "attempts": 25,
+          "job": "07723d57aa634ed8",
+          "rank": 50,
+          "speedup": 1.5484,
+          "submitted_at": 1793152227.128026,
+          "team": "Maher4Ever",
+          "value": 3119.824855477137
+        }
+      },
+      "muse_moe_w4a16": {
+        "you": {
+          "rank": 53,
+          "team": "achitaan",
+          "speedup": 2.3483,
+          "first": false,
+          "ahead": 52,
+          "to_first": 1.1435
+        },
+        "ranked": 990,
+        "rank_50": {
+          "attempts": 7,
+          "job": "262c7268203949c6",
+          "rank": 50,
+          "speedup": 2.3539,
+          "submitted_at": 1793153876.7036498,
+          "team": "morganmcg1",
+          "value": 5713.23693694692
+        }
+      },
+      "muse_decode_layer": {
+        "you": {
+          "rank": 150,
+          "team": "achitaan",
+          "speedup": 1.9653,
+          "first": false,
+          "ahead": 149,
+          "to_first": 1.2227
+        },
+        "ranked": 869,
+        "rank_50": {
+          "attempts": 3,
+          "job": "1b7b8b122b514f7f",
+          "rank": 50,
+          "speedup": 2.1421,
+          "submitted_at": 1793044059.2187085,
+          "team": "alpinevm",
+          "value": 10559.659639941665
+        }
+      },
+      "muse_attention_decode": {
+        "you": {
+          "rank": 82,
+          "team": "achitaan",
+          "speedup": 2.5624,
+          "first": false,
+          "ahead": 81,
+          "to_first": 1.1831
+        },
+        "ranked": 951,
+        "rank_50": {
+          "attempts": 2,
+          "job": "e73722a6dcd44906",
+          "rank": 50,
+          "speedup": 2.6081,
+          "submitted_at": 1793128764.119016,
+          "team": "Dagmawi-Beyene",
+          "value": 1444.1025678997785
+        }
+      },
+      "muse_prefill_layer": {
+        "you": {
+          "rank": 123,
+          "team": "achitaan",
+          "speedup": 1.6635,
+          "first": false,
+          "ahead": 122,
+          "to_first": 1.2204
+        },
+        "ranked": 576,
+        "rank_50": {
+          "attempts": 13,
+          "job": "b56a2de452b54d82",
+          "rank": 50,
+          "speedup": 1.7957,
+          "submitted_at": 1793135548.5924423,
+          "team": "manojkumar1053",
+          "value": 215745.3417097847
+        }
+      }
+    }
+  },
+  "pending_jobs": [],
+  "decoder_projection_phase7": {
+    "job": "afd35730c7d3476f",
+    "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
+    "speedup": 1.9979169351927655,
+    "interval": [
+      1.967948181164874,
+      2.027885689220657
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "prepare_s": 257.031664075,
+    "selection": "skipped before packing or extension compilation",
+    "discarded": true,
+    "reason": "New paths not exercised; no explicit nonempty selection",
+    "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "scored_runs_used": 0,
+    "timed_compute": "independent repeat of baseline; new wrapper forwards to incumbent with empty choices",
+    "new_projection_gpu_correctness_and_performance": "unverified",
+    "next_step": "Reduce prepare overhead or integrate new instantiations into the existing extension before another check; do not simply raise cutoffs."
   }
 }
