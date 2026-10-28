@@ -15,7 +15,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 LINUX_ROOT = ("/mnt/" + ROOT.drive[0].lower() + ROOT.as_posix()[2:]) if os.name == "nt" else str(ROOT)
-DEADLINE = datetime(2026, 10, 23, 17, tzinfo=timezone.utc)
+DEADLINE = datetime(2026, 10, 28, 8, tzinfo=timezone.utc)
 
 
 def cli(args):

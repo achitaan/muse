@@ -10,12 +10,12 @@
   "id": "05a52f7e67084663",
   "mode": "check",
   "output": {
-    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/best/profiles/starter.05a52f7e67084663.log"
+    "log": "profiles/05a52f7e67084663.log"
   },
   "payload_ref": "muse_bf16_proj/3ace1c6b6e36834dc6a8de2c1bf1167ab019f70669f98056facf994a1a7cf2ea.py",
   "profile": {
-    "json": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/best/profiles/starter.05a52f7e67084663.json",
-    "text": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/best/profiles/starter.05a52f7e67084663.txt"
+    "json": "profiles/05a52f7e67084663.json",
+    "text": "profiles/05a52f7e67084663.txt"
   },
   "result": {
     "baseline_us": 4830.8,

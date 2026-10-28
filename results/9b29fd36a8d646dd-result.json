@@ -10,12 +10,12 @@
   "id": "9b29fd36a8d646dd",
   "mode": "check",
   "output": {
-    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/candidates/profiles/small_batch.9b29fd36a8d646dd.log"
+    "log": "profiles/9b29fd36a8d646dd.log"
   },
   "payload_ref": "muse_bf16_proj/4167a661c22083f396439f6d04e665e8469a405887438a5a9e874968c7b5a4eb.py",
   "profile": {
-    "json": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/candidates/profiles/small_batch.9b29fd36a8d646dd.json",
-    "text": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse/candidates/profiles/small_batch.9b29fd36a8d646dd.txt"
+    "json": "profiles/9b29fd36a8d646dd.json",
+    "text": "profiles/9b29fd36a8d646dd.txt"
   },
   "result": {
     "baseline_us": 4830.8,
