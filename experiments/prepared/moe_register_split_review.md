@@ -1,6 +1,6 @@
 # Next investigation: complete producer warpgroup and register redistribution
 
-Status: design only, not implemented or measured. Retain33114871. The scale-six,
+Status: implemented and CPU-audited; GPU unmeasured. Retain33114871. The scale-six,
 WGS32, scheduler-quotient and grid-parameter trials did not produce a retained
 gain. Do not combine any of those losing edits into this investigation.
 
@@ -39,7 +39,7 @@ the main OKC_WGS build; tiny/mid/non-PRMT variants retain original code and
 launch sizes. The ordinary host launcher derives block size fromNTL, so both
 normal and PDL launchers must use640for this exact specialization.
 
-Before any GPU check: enumerate every thread's role, warpgroup and barrier
+Before any new kernel launch: enumerate every thread's role, warpgroup and barrier
 participation; model arbitrary legal arrival order and register-pool admission;
 check WS_JOIN count640, routing barrier7count544, all consumer barriers512,
 all sixteen consumer warp arrivals, and no second setmaxnreg after a partial
@@ -47,6 +47,7 @@ group exits. Audit the entire Params/control/math diff and reverse it to the
 baseline. Check padding threads never touch scratch/output/counters and that
 grid-wide completion still has one consumer contribution per block. Prove
 all132blocks remain resident with the unchanged near-maximum shared memory.
+The ordinary prepare-time resource query must confirm residency before launch.
 Record actual compiler attributes, but distinguish static attributes from
 dynamic register ownership.32register producer code could spill; measure it.
 
@@ -62,3 +63,36 @@ https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/primitives.html
 https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html
 The checked attention kernel provides a local example of complete producer
 warpgroups and register redistribution; it is not proof of this MoE design.
+
+## Implemented preflight and CPU evidence
+
+Frozen draft17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824,
+180781bytes. Builder and CPU audit are build_moe_regsplit.py and
+audit_moe_regsplit_cpu.py. The exact ledger reverses two CUDA edits (NTL and
+the WGS-only role block), the appended host resource query/export and the
+prepare-only admission code to recover the complete baseline module AST.
+All numerical CUDA helper bytes, GS2, jobs, scratch layouts and host dispatch
+are unchanged. The tiny/mid/fallback builds retain288/288/288/256threads;
+only main WGS changes576to640. No extra compiled variants or buffers.
+
+The independent register-conservation graph explored45reachable states and
+68transitions, allowing each producer warp to release and each consumer warp
+to acquire in any legal order. Only the final state has no next action; no
+blocked consumer can prevent a remaining producer from releasing before its
+barriers. Every warpgroup has one uniform action and no later setmaxnreg.
+Barrier membership is640(full),544(routing),512(compute). Padding enters
+only the full join and returns before any input/output/scratch operations.
+
+Actual cudaFuncGetAttributes and cudaOccupancyMaxActiveBlocksPerMultiprocessor
+queries run in prepare after the existing synchronization and before any
+kernel launch. They opt in to dynamic shared memory first. Require both
+kernel instantiations to report exactly96initial registers and at least one
+resident640-thread block per SM, and the whole persistent grid to fit. A
+different allocation fails preparation explicitly rather than risking a
+register-pool wait. CPU mocks exercised admitted/non-PRMT and seven rejection
+cases (allocation, residency, register-file size, grid size, architecture).
+The resource/enable diagnostics are also required by the full-evidence guard.
+
+Use cached baseline2.365437416x and one full official check. A passing result
+must include all5tests/6benchmarks/integrity and an enabled split; only then
+compare the timing. Do not score a flat result or transfer unmeasured code.

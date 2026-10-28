@@ -20,6 +20,18 @@ for event, count in [('test', 5), ('benchmark', 6)]:
     records = [r for r in body['records'] if r.get('event') == event]
     assert len(records) == count and all(r.get('status') == 'pass' for r in records)
 tree = ast.parse(raw)
+cpp = next((ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == 'CPP_SRC' for t in n.targets)), '')
+if 'okc_regsplit_resources' in cpp:
+    enabled = re.findall(r'^MOE_REGSPLIT_ENABLED (True|False)$', body.get('log_tail', ''), flags=re.MULTILINE)
+    assert enabled == ['True'], 'Require the actual main WGS register split, not a fallback-only pass'
+    resources = re.findall(r'^MOE_REGSPLIT_RESOURCES (\([^\n]*\))$', body.get('log_tail', ''), flags=re.MULTILINE)
+    assert len(resources) == 1, 'Require one real-kernel resource preflight'
+    values = ast.literal_eval(resources[0])
+    assert len(values) == 10 and all(isinstance(v, int) and v >= 0 for v in values)
+    assert values[0] == 640 and values[1] == values[2] == 96
+    assert min(values[6:8]) >= 1 and values[8] >= 61440 and values[9] > 0
+    print('Full producer warpgroup admitted with real resource attributes:', values)
 if any(isinstance(n, ast.FunctionDef) and n.name == '_wgs32_cuda_source' for n in tree.body):
     enabled = re.findall(r'^MOE_WGS32_ENABLED (True|False)$', body.get('log_tail', ''), flags=re.MULTILINE)
     assert 'True' in enabled, 'Require evidence that the four-tile WGS module was enabled'
