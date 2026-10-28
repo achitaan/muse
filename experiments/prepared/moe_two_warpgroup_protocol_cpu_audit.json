@@ -1,0 +1,509 @@
+{
+  "scope": "count/readiness simulation only, no CUDA memory model or numerical verification",
+  "cases": [
+    {
+      "jobs": 0,
+      "grid": 1,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 4,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 1,
+      "seed": 17,
+      "stages": 0,
+      "actions": 4,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 2,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 8,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 2,
+      "seed": 17,
+      "stages": 0,
+      "actions": 8,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 8,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 32,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 8,
+      "seed": 17,
+      "stages": 0,
+      "actions": 32,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 31,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 124,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 31,
+      "seed": 17,
+      "stages": 0,
+      "actions": 124,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 132,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 528,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 132,
+      "seed": 17,
+      "stages": 0,
+      "actions": 528,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 0,
+      "actions": 1056,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 0,
+      "grid": 264,
+      "seed": 17,
+      "stages": 0,
+      "actions": 1056,
+      "fair_rounds": 2
+    },
+    {
+      "jobs": 1,
+      "grid": 1,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12292,
+      "fair_rounds": 4611
+    },
+    {
+      "jobs": 1,
+      "grid": 1,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12292,
+      "fair_rounds": 4611
+    },
+    {
+      "jobs": 1,
+      "grid": 2,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12296,
+      "fair_rounds": 2307
+    },
+    {
+      "jobs": 1,
+      "grid": 2,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12296,
+      "fair_rounds": 2307
+    },
+    {
+      "jobs": 1,
+      "grid": 8,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12320,
+      "fair_rounds": 579
+    },
+    {
+      "jobs": 1,
+      "grid": 8,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12320,
+      "fair_rounds": 579
+    },
+    {
+      "jobs": 1,
+      "grid": 31,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12412,
+      "fair_rounds": 157
+    },
+    {
+      "jobs": 1,
+      "grid": 31,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12412,
+      "fair_rounds": 156
+    },
+    {
+      "jobs": 1,
+      "grid": 132,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12816,
+      "fair_rounds": 41
+    },
+    {
+      "jobs": 1,
+      "grid": 132,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12816,
+      "fair_rounds": 41
+    },
+    {
+      "jobs": 1,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 13344,
+      "fair_rounds": 23
+    },
+    {
+      "jobs": 1,
+      "grid": 264,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 13344,
+      "fair_rounds": 23
+    },
+    {
+      "jobs": 1,
+      "grid": 1,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12292,
+      "fair_rounds": 4611
+    },
+    {
+      "jobs": 1,
+      "grid": 1,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12292,
+      "fair_rounds": 4611
+    },
+    {
+      "jobs": 1,
+      "grid": 2,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12296,
+      "fair_rounds": 2307
+    },
+    {
+      "jobs": 1,
+      "grid": 2,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12296,
+      "fair_rounds": 2307
+    },
+    {
+      "jobs": 1,
+      "grid": 8,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12320,
+      "fair_rounds": 579
+    },
+    {
+      "jobs": 1,
+      "grid": 8,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12320,
+      "fair_rounds": 579
+    },
+    {
+      "jobs": 1,
+      "grid": 31,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12412,
+      "fair_rounds": 157
+    },
+    {
+      "jobs": 1,
+      "grid": 31,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12412,
+      "fair_rounds": 156
+    },
+    {
+      "jobs": 1,
+      "grid": 132,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 12816,
+      "fair_rounds": 41
+    },
+    {
+      "jobs": 1,
+      "grid": 132,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 12816,
+      "fair_rounds": 41
+    },
+    {
+      "jobs": 1,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 1536,
+      "actions": 13344,
+      "fair_rounds": 23
+    },
+    {
+      "jobs": 1,
+      "grid": 264,
+      "seed": 17,
+      "stages": 1536,
+      "actions": 13344,
+      "fair_rounds": 23
+    },
+    {
+      "jobs": 5,
+      "grid": 1,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61444,
+      "fair_rounds": 23043
+    },
+    {
+      "jobs": 5,
+      "grid": 1,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61444,
+      "fair_rounds": 23043
+    },
+    {
+      "jobs": 5,
+      "grid": 2,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61448,
+      "fair_rounds": 12366
+    },
+    {
+      "jobs": 5,
+      "grid": 2,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61448,
+      "fair_rounds": 12365
+    },
+    {
+      "jobs": 5,
+      "grid": 8,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61472,
+      "fair_rounds": 3375
+    },
+    {
+      "jobs": 5,
+      "grid": 8,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61472,
+      "fair_rounds": 3375
+    },
+    {
+      "jobs": 5,
+      "grid": 31,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61564,
+      "fair_rounds": 876
+    },
+    {
+      "jobs": 5,
+      "grid": 31,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61564,
+      "fair_rounds": 877
+    },
+    {
+      "jobs": 5,
+      "grid": 132,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61968,
+      "fair_rounds": 211
+    },
+    {
+      "jobs": 5,
+      "grid": 132,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61968,
+      "fair_rounds": 211
+    },
+    {
+      "jobs": 5,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 62496,
+      "fair_rounds": 110
+    },
+    {
+      "jobs": 5,
+      "grid": 264,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 62496,
+      "fair_rounds": 110
+    },
+    {
+      "jobs": 5,
+      "grid": 1,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61444,
+      "fair_rounds": 23043
+    },
+    {
+      "jobs": 5,
+      "grid": 1,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61444,
+      "fair_rounds": 23043
+    },
+    {
+      "jobs": 5,
+      "grid": 2,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61448,
+      "fair_rounds": 11751
+    },
+    {
+      "jobs": 5,
+      "grid": 2,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61448,
+      "fair_rounds": 11750
+    },
+    {
+      "jobs": 5,
+      "grid": 8,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61472,
+      "fair_rounds": 3411
+    },
+    {
+      "jobs": 5,
+      "grid": 8,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61472,
+      "fair_rounds": 3410
+    },
+    {
+      "jobs": 5,
+      "grid": 31,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61564,
+      "fair_rounds": 885
+    },
+    {
+      "jobs": 5,
+      "grid": 31,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61564,
+      "fair_rounds": 886
+    },
+    {
+      "jobs": 5,
+      "grid": 132,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 61968,
+      "fair_rounds": 214
+    },
+    {
+      "jobs": 5,
+      "grid": 132,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 61968,
+      "fair_rounds": 213
+    },
+    {
+      "jobs": 5,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 7680,
+      "actions": 62496,
+      "fair_rounds": 110
+    },
+    {
+      "jobs": 5,
+      "grid": 264,
+      "seed": 17,
+      "stages": 7680,
+      "actions": 62496,
+      "fair_rounds": 110
+    },
+    {
+      "jobs": 32,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 49152,
+      "actions": 394272,
+      "fair_rounds": 567
+    },
+    {
+      "jobs": 127,
+      "grid": 264,
+      "seed": 20261028,
+      "stages": 195072,
+      "actions": 1561632,
+      "fair_rounds": 2803
+    }
+  ],
+  "all_complete": true,
+  "total_actions": 3742896,
+  "partial_slots_unique_per_CTA_phase": true,
+  "deferred_finalizers_drained": true,
+  "phase_A_completions_per_B_stage": 8,
+  "all_fixup_counters_zero_after_calls": true,
+  "requires_every_CTA_resident": true,
+  "actual_CUDA_occupancy_unverified": true
+}

@@ -1,0 +1,19 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "8f6b8c761309a6fb25ab61fc8a4b7d044a53dce51ddf64bd1a4d59ab251ff77f",
+  "source_bytes": 315166,
+  "alternate_cuda_sha256": "6a5b7e555fd4575fa0f0fde4e86a4c1011792244666bbdef09c82c90009d4ee1",
+  "inverse_exact": true,
+  "original_cuda_unchanged": true,
+  "modified_python_functions": [
+    "_ext",
+    "kernel_fn",
+    "prepare wrapper"
+  ],
+  "main_fast_geometry": "2consumer groups; FT_T32; NX2; NW8; NTL320; launch_bounds min2",
+  "main_fast_grid": "min(2*SMs, actual capacity,271); reject promotion if occupancy<2",
+  "original_tiny_mid_and_ineligible_fallback": true,
+  "independent_main_weight_and_scratch_bank": true,
+  "compiled_main_modules": "new main replaces old fast main; no extra fast-main compilation",
+  "gpu_verified": false
+}

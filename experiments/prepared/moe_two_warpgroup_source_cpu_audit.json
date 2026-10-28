@@ -1,0 +1,17 @@
+{
+  "source_sha256": "8f6b8c761309a6fb25ab61fc8a4b7d044a53dce51ddf64bd1a4d59ab251ff77f",
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "cuda_inverse_exact": true,
+  "unchanged_original_cuda": true,
+  "unrelated_base_AST_unchanged": true,
+  "unchanged_BF16_epilogues_and_FP32_norm": true,
+  "compile_wiring_tests": 5,
+  "torch_repack_bytes_verified": 56623104,
+  "gather_cursor_checks": 1760,
+  "stale_cursor_mutant_detected": true,
+  "missing_half_finalizer_mutant_detected": true,
+  "max_FP32_norm_relative_error_to_FP64": 1.1076039718899714e-07,
+  "host_dispatch_cases": 24,
+  "gpu_verified": false,
+  "scope": "CPU wiring, integer/layout and separate-FP32 arithmetic model only"
+}

@@ -390,3 +390,14 @@ shared-input cache per CTA:4KB atM1,32KB atM2..8, fresh each launch. Preserve
 FP32weights/input, every __fmaf_rn and shuffle/reduction order, sigmoid/top8/ties,
 128block counter protocol, output format and side-stream ordering. No BF16
 router approximation. No new Decode source or check yet.
+
+
+## Two-consumer-group architecture prepared
+
+Draft8f6b8c76 has exact inverse/source wiring, full-size weight permutation,
+CPU ABI/shared-memory, wide-integer scheduler and fair protocol audits. See
+experiments/prepared/moe_two_warpgroup_review.md. It replaces the fast main
+module with320threads, FT_T32, NX2, half weight units and an occupancy-checked
+two-CTA grid. Tiny/MID/ineligible fallback paths remain original. GPU resources,
+correctness and speed are unverified. One primary check is authorized next; no
+new baseline, no parameter sweep, no score until the full guard passes.

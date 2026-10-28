@@ -1,0 +1,122 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "old_layout": {
+    "size": 22232,
+    "alignment": 8,
+    "base": 22272,
+    "offsets": {
+      "lut": 0,
+      "red": 1024,
+      "bars": 1040,
+      "wglast": 1232,
+      "wcp": 1248,
+      "wcpB": 1604,
+      "jrow": 1960,
+      "wtot": 2316,
+      "wtotB": 2320,
+      "wgr": 2324,
+      "seq": 2340,
+      "fseq": 2344,
+      "preissued": 2348,
+      "preissuedB": 2352,
+      "fcnt": 2356,
+      "xbuf_ptr": 2488,
+      "cnt": 2496,
+      "off": 2752,
+      "wc": 3008,
+      "jE": 5056,
+      "jS": 5408,
+      "jC": 5760,
+      "forder": 6112,
+      "njF": 6464,
+      "njS": 6468,
+      "gen": 6472,
+      "ssp": 6480,
+      "uslot": 6488,
+      "dync": 6520,
+      "eid": 6872,
+      "ent": 9944,
+      "pos": 16088
+    },
+    "jmax": 88
+  },
+  "new_layout": {
+    "size": 22744,
+    "alignment": 8,
+    "base": 22784,
+    "offsets": {
+      "lut": 0,
+      "red": 1024,
+      "bars": 1040,
+      "wglast": 1232,
+      "wcp": 1248,
+      "wcpB": 1796,
+      "jrow": 2344,
+      "wtot": 2892,
+      "wtotB": 2896,
+      "wgr": 2900,
+      "seq": 2916,
+      "fseq": 2920,
+      "preissued": 2924,
+      "preissuedB": 2928,
+      "fcnt": 2932,
+      "xbuf_ptr": 3064,
+      "cnt": 3072,
+      "off": 3328,
+      "wc": 3584,
+      "jE": 4608,
+      "jS": 5152,
+      "jC": 5696,
+      "forder": 6240,
+      "njF": 6784,
+      "njS": 6788,
+      "gen": 6792,
+      "ssp": 6800,
+      "uslot": 6808,
+      "dync": 6840,
+      "eid": 7384,
+      "ent": 10456,
+      "pos": 16600
+    },
+    "jmax": 136
+  },
+  "old_observed_dynamic_shared_bytes": 231168,
+  "proposed_dynamic_shared_bytes": 110848,
+  "proposed_register_upper_bound": 61440,
+  "actual_cuda_resources_unknown": true,
+  "old_allocation_fix_floats": 5246336,
+  "new_required_fix_floats": 2231488,
+  "integer_overflow_counterexample": {
+    "jobs": 127,
+    "routes": 3072,
+    "total": 19040256,
+    "grid": 264,
+    "product": 5026627584
+  },
+  "corrected_division_checks": 5797128,
+  "max_tested_float_correction": 5,
+  "local_ring_models": [
+    {
+      "states": 87,
+      "transitions": 168,
+      "deadends": 0
+    },
+    {
+      "states": 110,
+      "transitions": 230,
+      "deadends": 0
+    },
+    {
+      "states": 124,
+      "transitions": 269,
+      "deadends": 0
+    }
+  ],
+  "missing_x_slot_mutant_detected": true,
+  "unverified": [
+    "CUDA ABI/resource attributes",
+    "cross-CTA fixup liveness and memory order",
+    "GPU implementation and all numerical behavior",
+    "performance"
+  ]
+}
