@@ -1,0 +1,11 @@
+{
+  "seed": 20261028,
+  "numpy_version": "1.25.1",
+  "score_vectors": 404,
+  "eight_round_selections": 3232,
+  "old_shuffle_and_redux_match_scalar_oracle": true,
+  "raw_score_bits_unchanged": true,
+  "signed_zero_ties_canonicalized": true,
+  "covers": "ties, adjacent/extreme/subnormal values, +/-infinity, NaNs ignored by original comparisons, changing inputs",
+  "scope_limit": "CPU selection algebra only; CUDA implementation, compilation and speed unverified"
+}

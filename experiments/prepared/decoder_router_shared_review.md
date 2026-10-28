@@ -81,3 +81,34 @@ control proofs, not GPU numerical results or a speed claim.
 The full-evidence guard requires the new kernel name in profiles0/1/6/7
 in addition to13tests/12benchmarks/integrity and the original FP32/norm checks.
 One official evaluation remains to establish CUDA compilation and timing.
+
+
+## Decode phase10: shared router input rejected after causal review (19:46 UTC)
+
+Checka2960d1516fc4243/source41d475ae passed13tests/12benchmarks/integrity at
+2.003057078x, CI[1.973011222,2.033102934]. New xshared kernel appears in all
+four small-token profiles. Its affected load speedup ratios against09badc9b
+were0.98336/0.99071/0.97434/0.97027: every changed load lost. Router spans
+were12.7/11.0/17.0/18.3us versus11.6/11.6/14.9/17.9us. The whole-layer point
+gain came from unchanged controls, notably32-token loads. Do not claim a gain.
+
+The controller correctly recorded its numeric keep by the configured whole-layer
+metric; its immutable log remains intact. After archiving, review explicitly
+restored09badc9b in commit2324c43. No score and no best-source promotion.
+Full source/profile/audits/history: results/resumed-decoder-phase10-20261028/.
+This demonstrates why future router guards must require affected-load and
+component improvement, in addition to full correctness and selected-path proof.
+
+Next: replace top8's repeated float/ID/raw shuffle tree with exact unsigned
+ordered-FP32-key max plus integer ID min and one raw-score broadcast. This
+changes selection implementation, not score precision. Signed zeros need one
+canonical key because float comparisons equate them; NaNs never win the
+original local comparisons. A preliminary CPU proof matched old shuffle and
+scalar global selection on404vectors/3232picks, including ties/extremes and
+NaNs, with raw-score bits unchanged. No CUDA candidate yet. Preserve all
+FP32FMA, split reduction, sigmoid, normalization, counters/fences and shape
+dispatch. Main chat only; one check after complete review, no repeated baseline.
+
+No job/controller pending at this boundary. Decode quota expected4checks/5scores
+after one new check; not a fresh API observation. Published09badc9b remains
+1.993956388x. Native top50Goal active; no updated rank claim.

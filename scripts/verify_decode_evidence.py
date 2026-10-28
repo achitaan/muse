@@ -2,7 +2,9 @@
 import ast
 import hashlib
 import json
+import math
 from pathlib import Path
+import re
 
 root = Path(__file__).resolve().parents[1]
 source = (root / 'candidates/decode_active.py').read_bytes()
@@ -26,6 +28,31 @@ if 'route_fp32_xshared' in router_cuda:
     assert '__shared__ float xshared[TM * 1024]' in router_cuda
     assert router_cuda.count('__fmaf_rn') == 2
     print('Shared-input FP32 router observed in all four small-token profiles.')
+if 'route_fp32_redux' in router_cuda:
+    profiles = {r['index']: r.get('report', '') for r in records if r.get('event') == 'profile'}
+    assert all('route_fp32_redux<' in profiles.get(i, '') for i in (0, 1, 6, 7)), \
+        'Require the redux router in all four actual small-token profiles'
+    log = body.get('log_tail', '')
+    assert re.findall(r'^ROUTER_REDUX_BITWISE (True|False)$', log, re.MULTILINE) == ['True']
+    pairs = [json.loads(line.split(' ', 1)[1]) for line in log.splitlines() if line.startswith('ROUTER_REDUX_AB ')]
+    assert {(p['m'], p['pattern']) for p in pairs} == {(m, kind) for m in (1, 8) for kind in ('normal', 'impulse')}
+    assert len(pairs) == 4
+    for p in pairs:
+        assert len(p['incumbent_ns']) == len(p['redux_ns']) == len(p['paired_ratios']) == 8
+        assert all(math.isfinite(x) and x > 0 for x in p['incumbent_ns'] + p['redux_ns'])
+        ratios = [a / b for a, b in zip(p['incumbent_ns'], p['redux_ns'])]
+        assert all(abs(a-b) < 1e-6 for a, b in zip(ratios, p['paired_ratios']))
+        ordered = sorted(ratios)
+        median = .5 * (ordered[3] + ordered[4])
+        assert abs(median-p['median_ratio']) < 1e-6 and median > 1.03, \
+            'Require a material controlled router gain on both fixed input patterns'
+    baseline = json.loads((root / '.decode-measurements' /
+        '09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67' / 'result.json').read_text(encoding='utf8'))['result']
+    old_benches = {r['index']: r['speedup'] for r in baseline['records'] if r.get('event') == 'benchmark'}
+    new_benches = {r['index']: r['speedup'] for r in benches}
+    affected_ratio = math.prod(new_benches[i] / old_benches[i] for i in (0, 1, 6, 7)) ** .25
+    assert affected_ratio > 1.0, 'Reject a whole-layer point gain caused only by unchanged controls'
+    print('Controlled router pairs and actual affected loads improved:', affected_ratio)
 if any(isinstance(n, ast.FunctionDef) and n.name == '_sp_select' for n in tree.body):
     selections = [line.split('SMALL_PROJ_CHOICES', 1)[1].strip()
                   for line in body.get('log_tail', '').splitlines()

@@ -1,0 +1,18 @@
+{
+  "source_sha256": "41d475ae9a1003e04957cc28b28e8de76c7285e3a6aa070a7cd695f46b0018cb",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "packaged_bytes": 988688,
+  "original_module_ast_recovered": true,
+  "only_changed_literal": "_RF_CUDA",
+  "cuda_patch_reversible": true,
+  "kernel_name": "route_fp32_xshared",
+  "cta_grid": 128,
+  "threads": 256,
+  "shared_input_bytes_by_template": {
+    "1": 4096,
+    "8": 32768
+  },
+  "fp32_fma_reduction_routing_bytes_unchanged": true,
+  "no_new_module_or_state_buffers": true,
+  "gpu_status": "unmeasured"
+}

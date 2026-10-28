@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Move to Decode; inspect/reduce eightfold duplicate FP32-router input loads inside each CTA while preserving all FP32 FMA/reduction/top-k operations.",
+  "next_trial": "Exact warp integer reductions for top8 selection, preserving FP32 dot/sigmoid/raw scores and canonicalizing signed zero only in ordered selection keys.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -1451,5 +1451,124 @@
     "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
     "decoder_draft": "4c910181,988840bytes,outside-MoE AST unchanged; inactive, never evaluated/promoted",
     "next_step": "Move to Decode; inspect/reduce eightfold duplicate FP32-router input loads inside each CTA while preserving all FP32 FMA/reduction/top-k operations."
+  },
+  "decoder_router_shared_phase10": {
+    "job": "a2960d1516fc4243",
+    "source_sha256": "41d475ae9a1003e04957cc28b28e8de76c7285e3a6aa070a7cd695f46b0018cb",
+    "speedup": 2.003057077741275,
+    "interval": [
+      1.9730112215751556,
+      2.0331029339073936
+    ],
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "new_router_observed": true,
+    "baseline_router_us": [
+      11.6,
+      11.6,
+      14.9,
+      17.9
+    ],
+    "trial_router_us": [
+      12.7,
+      11.0,
+      17.0,
+      18.3
+    ],
+    "comparisons": [
+      {
+        "index": 0,
+        "baseline_speedup": 2.0294290282283383,
+        "trial_speedup": 1.9956518798290235,
+        "ratio": 0.9833563293273666,
+        "changed_router": true
+      },
+      {
+        "index": 1,
+        "baseline_speedup": 1.9841662767727912,
+        "trial_speedup": 1.9657265525251346,
+        "ratio": 0.9907065630216998,
+        "changed_router": true
+      },
+      {
+        "index": 2,
+        "baseline_speedup": 1.8779452469652271,
+        "trial_speedup": 1.9008849697305783,
+        "ratio": 1.0122153309860455,
+        "changed_router": false
+      },
+      {
+        "index": 3,
+        "baseline_speedup": 2.026161739645156,
+        "trial_speedup": 2.0457891473102037,
+        "ratio": 1.0096869895828184,
+        "changed_router": false
+      },
+      {
+        "index": 4,
+        "baseline_speedup": 1.5772956067020105,
+        "trial_speedup": 1.638068834321842,
+        "ratio": 1.0385300176844485,
+        "changed_router": false
+      },
+      {
+        "index": 5,
+        "baseline_speedup": 1.9392018183049409,
+        "trial_speedup": 2.1010021497686857,
+        "ratio": 1.0834365613400543,
+        "changed_router": false
+      },
+      {
+        "index": 6,
+        "baseline_speedup": 2.0369709348905842,
+        "trial_speedup": 1.9846944073334223,
+        "ratio": 0.9743361445852098,
+        "changed_router": true
+      },
+      {
+        "index": 7,
+        "baseline_speedup": 2.0048287809415073,
+        "trial_speedup": 1.9452188911400106,
+        "ratio": 0.9702668425512613,
+        "changed_router": true
+      },
+      {
+        "index": 8,
+        "baseline_speedup": 2.0532602280553194,
+        "trial_speedup": 2.0944277467013874,
+        "ratio": 1.0200498300622414,
+        "changed_router": false
+      },
+      {
+        "index": 9,
+        "baseline_speedup": 2.091472545114666,
+        "trial_speedup": 2.069217922205229,
+        "ratio": 0.9893593521170432,
+        "changed_router": false
+      },
+      {
+        "index": 10,
+        "baseline_speedup": 2.255715831558715,
+        "trial_speedup": 2.2359293736404275,
+        "ratio": 0.9912283020576156,
+        "changed_router": false
+      },
+      {
+        "index": 11,
+        "baseline_speedup": 2.2133262237701756,
+        "trial_speedup": 2.1971449065240023,
+        "ratio": 0.9926891404112087,
+        "changed_router": false
+      }
+    ],
+    "changed_load_geomean_ratio": 0.9796343172750807,
+    "controller_outcome": "keep based on aggregate2.003057078>1.994319167",
+    "review_decision": "reject: all four affected loads regressed; aggregate gain from unchanged controls; explicit restoration after archiving",
+    "restoration_commit": "2324c43",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "next_step": "Exact warp integer reductions for top8 selection, preserving FP32 dot/sigmoid/raw scores and canonicalizing signed zero only in ordered selection keys."
   }
 }

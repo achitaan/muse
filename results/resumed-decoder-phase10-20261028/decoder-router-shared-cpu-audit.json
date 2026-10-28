@@ -1,0 +1,74 @@
+{
+  "source_sha256": "41d475ae9a1003e04957cc28b28e8de76c7285e3a6aa070a7cd695f46b0018cb",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "original_module_ast_recovered": true,
+  "complete_cuda_edit_reversible": true,
+  "seed": 20261028,
+  "numpy_version": "1.25.1",
+  "active_cases": [
+    {
+      "m": 1,
+      "template": 1,
+      "shared_bytes": 4096,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 2,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 3,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 4,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 5,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 6,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 7,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    },
+    {
+      "m": 8,
+      "template": 8,
+      "shared_bytes": 32768,
+      "replays": 2,
+      "k_splits": 8
+    }
+  ],
+  "bitwise_operand_comparisons": 4718592,
+  "shared_words_written": 589824,
+  "unique_writers_and_no_uninitialized_active_reads": true,
+  "bank_conflict_free_lane_map": true,
+  "fresh_replay_overwrite": true,
+  "all_expert_rows_and_k_columns_covered": true,
+  "fma_shuffle_routing_counter_protocol_unchanged": true,
+  "scope_limit": "CPU representation/control proof; actual CUDA compilation, resource use, numerical results and timing unverified"
+}
