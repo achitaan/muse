@@ -1,0 +1,75 @@
+{
+  "job": "0fb1da41657d4346",
+  "source_sha256": "8f6b8c761309a6fb25ab61fc8a4b7d044a53dce51ddf64bd1a4d59ab251ff77f",
+  "speedup": 2.0455568970372977,
+  "interval": [
+    2.0148735435817384,
+    2.076240250492857
+  ],
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "resources": [
+    320,
+    22744,
+    110848,
+    96,
+    0,
+    2,
+    96,
+    0,
+    2,
+    132,
+    65536,
+    233472,
+    264
+  ],
+  "analytic_zero_probes_passed": true,
+  "new_path_observed_in_all_changed_profiles": true,
+  "comparisons": [
+    {
+      "index": 0,
+      "speedup": 3.092518296856122,
+      "relative": 0.9828803394522768,
+      "changed": false
+    },
+    {
+      "index": 1,
+      "speedup": 2.011413866106526,
+      "relative": 1.0042174954762937,
+      "changed": false
+    },
+    {
+      "index": 2,
+      "speedup": 1.3146616724912834,
+      "relative": 0.8004576432466691,
+      "changed": true
+    },
+    {
+      "index": 3,
+      "speedup": 2.2247917301300744,
+      "relative": 0.9789418151642659,
+      "changed": false
+    },
+    {
+      "index": 4,
+      "speedup": 1.934728990576908,
+      "relative": 0.7468071652716746,
+      "changed": true
+    },
+    {
+      "index": 5,
+      "speedup": 2.0812879182075195,
+      "relative": 0.7240498492930882,
+      "changed": true
+    }
+  ],
+  "changed_load_geomean_ratio": 0.756435263357232,
+  "outcome": "discard; genuine two-block residency but all changed loads slower",
+  "controller_guard": "not_run: whole metric lost before guard",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "lesson": "Two-block occupancy is insufficient. M32 loses even when FT_T32 does not increase job count; do not attribute the loss solely to larger-load weight repetition or retry neighboring geometry blindly.",
+  "remaining_moe_checks_expected": 1,
+  "next_track": "muse_decode_layer"
+}

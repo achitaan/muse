@@ -1,7 +1,8 @@
-> Current checkpoint: October28,19:28UTC. MoE33114871 remains2.365437416x
-> checked/2.348299935x published; phases7..12 were rejected without scores.
-> No job/controller pending. Next focus: full-FP32 router input reuse in Decode.
-> See phase12 at the end of this file. The top50Goal remains active.
+> Current checkpoint: October28,21:00UTC. MoE33114871 remains2.365437416x
+> checked/2.348299935x published. Phase13's two-group design passed full5/6,
+> actual two-CTA occupancy and zero spills, but slowed every changed load.
+> Discarded at2.045556897x with no score; one MoE check remains. No pending
+> job/controller. Next ordered focus: Decode. The top50Goal remains active.
 
 # Scale-six rejected - October 28, phase6
 
@@ -401,3 +402,24 @@ module with320threads, FT_T32, NX2, half weight units and an occupancy-checked
 two-CTA grid. Tiny/MID/ineligible fallback paths remain original. GPU resources,
 correctness and speed are unverified. One primary check is authorized next; no
 new baseline, no parameter sweep, no score until the full guard passes.
+
+
+## MoE phase13: two consumer groups rejected, October28 20:59UTC
+
+Check0fb1da41657d4346, source8f6b8c76, passed5tests/6benchmarks/integrity
+and analytic all-remote probes. Actual resources match the CPU layout:
+320threads, Smem22744bytes, dynamic110848bytes,96registers,0local bytes,
+2active CTAs/SM for both variants,132SMs and264CTA capacity. The new path
+ran in all M32/128/256 profiles. This proves the intended resource change,
+not a speedup: whole point2.045556897x, CI[2.014873544,2.076240250].
+Affected relative speedups were0.80046,0.74681,0.72405. Controller discarded
+and reverted; guard was not run because whole metric already lost. No score.
+Retain33114871 (checked2.365437416x/published2.348299935x).
+
+All changed loads lost, including M32 where smaller job capacity need not
+increase jobs. Do not blame the result solely on larger-load repeated weights
+or try neighboring occupancy geometry without new evidence. Preserve the last
+MoE check for a stronger idea. Full source, result, profiles, edits, CPU audits
+and controller history: results/resumed-moe-phase13-20261028/.
+No job/controller pending. Next ordered focus is Decode; corrected1fb5d05d
+remains checked1.988085030x/published1.986659677x.

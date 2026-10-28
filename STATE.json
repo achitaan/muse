@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One scoped WGS2 primary check after source/layout/protocol audits; review experiments/prepared/moe_two_warpgroup_review.md. Draft8f6b8c76 has no GPU result yet.",
+  "next_trial": "Inspect experiments/prepared/decoder_projection_norm_fusion_review.md before deciding whether a measurable Decode fusion justifies one check. No candidate written. MoE phase13 is closed; one MoE check remains. Move to Attention if the small-token gain ceiling is not credible.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "muse_moe_w4a16",
+  "active_track": "muse_decode_layer",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -506,7 +506,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T20:52:58.665924+00:00",
+  "updated_utc": "2026-10-28T21:01:54.238011+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T20:33:00.810441+00:00",
     "boards": {
@@ -1083,7 +1083,8 @@
       "checks_left": 36,
       "scored_left": 27
     },
-    "file": "results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json"
+    "file": "results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json",
+    "note": "Snapshot20:28predates phase13; one further MoE check consumed, expected MoE1check/7scores left; other limits unchanged."
   },
   "moe_wgs32_phase7": {
     "job": "47f44d0ff8704a44",
@@ -1904,6 +1905,82 @@
     "original_tiny_mid_and_ineligible_fallback": true,
     "independent_main_weight_and_scratch_bank": true,
     "compiled_main_modules": "new main replaces old fast main; no extra fast-main compilation",
-    "gpu_verified": false
+    "gpu_verified": false,
+    "gpu_result": "Full5/6/integrity passed as0fb1da41657d4346; discarded for performance"
+  },
+  "moe_two_warpgroup_phase13": {
+    "job": "0fb1da41657d4346",
+    "source_sha256": "8f6b8c761309a6fb25ab61fc8a4b7d044a53dce51ddf64bd1a4d59ab251ff77f",
+    "speedup": 2.0455568970372977,
+    "interval": [
+      2.0148735435817384,
+      2.076240250492857
+    ],
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true,
+    "resources": [
+      320,
+      22744,
+      110848,
+      96,
+      0,
+      2,
+      96,
+      0,
+      2,
+      132,
+      65536,
+      233472,
+      264
+    ],
+    "analytic_zero_probes_passed": true,
+    "new_path_observed_in_all_changed_profiles": true,
+    "comparisons": [
+      {
+        "index": 0,
+        "speedup": 3.092518296856122,
+        "relative": 0.9828803394522768,
+        "changed": false
+      },
+      {
+        "index": 1,
+        "speedup": 2.011413866106526,
+        "relative": 1.0042174954762937,
+        "changed": false
+      },
+      {
+        "index": 2,
+        "speedup": 1.3146616724912834,
+        "relative": 0.8004576432466691,
+        "changed": true
+      },
+      {
+        "index": 3,
+        "speedup": 2.2247917301300744,
+        "relative": 0.9789418151642659,
+        "changed": false
+      },
+      {
+        "index": 4,
+        "speedup": 1.934728990576908,
+        "relative": 0.7468071652716746,
+        "changed": true
+      },
+      {
+        "index": 5,
+        "speedup": 2.0812879182075195,
+        "relative": 0.7240498492930882,
+        "changed": true
+      }
+    ],
+    "changed_load_geomean_ratio": 0.756435263357232,
+    "outcome": "discard; genuine two-block residency but all changed loads slower",
+    "controller_guard": "not_run: whole metric lost before guard",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "lesson": "Two-block occupancy is insufficient. M32 loses even when FT_T32 does not increase job count; do not attribute the loss solely to larger-load weight repetition or retry neighboring geometry blindly.",
+    "remaining_moe_checks_expected": 1,
+    "next_track": "muse_decode_layer"
   }
 }

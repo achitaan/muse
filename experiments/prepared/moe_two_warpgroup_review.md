@@ -1,5 +1,9 @@
 # Fixed two-warpgroup WGS experiment
 
+> Closed: check0fb1da41657d4346 passed full5/6/integrity with real two-CTA
+> occupancy and no local storage, but lost on all three changed loads. Whole
+> speedup2.045556897x; discarded, no score. Retain33114871. See phase13 evidence.
+
 Main chat only. Parent is MoE33114871, checked2.365437416x/published2.348299935x.
 No controller or GPU job is active when preparing this packet. The top50overall
 Goal remains active. Latest API MoE rank54/top50cutoff2.3557; Decode/overall147,
@@ -72,6 +76,8 @@ two active CTAs for both real variants and changed-load geometric speedup>1.02
 with no affected ratio below0.99. Controller additionally requires whole metric
 improvement. Report local/spill bytes honestly; no post-result threshold changes.
 
-No GPU result exists yet. Primarycheck promotion does not complete the overall
-Goal. If retained, consider one scored confirmation and exact Decode transfer
-after solving its1MB source cap without changing kernel semantics.
+The result is archived in results/resumed-moe-phase13-20261028/. The achieved
+resource change did not improve performance: changed-load ratios0.80046,
+0.74681,0.72405; geometric ratio0.75644. No scored confirmation or Decode
+transfer is justified. The overall Goal remains active. Do not repeat this
+architecture or blame only FT_T32 weight repetition: M32 also lost sharply.

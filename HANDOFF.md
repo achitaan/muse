@@ -1,10 +1,11 @@
-> Current checkpoint: October28,20:33UTC. Read ATTENTION_PRECISION_AUDIT.md.
+> Current checkpoint: October28,21:00UTC. Read ATTENTION_PRECISION_AUDIT.md.
 > Corrected Attention24782695 passed full coverage at2.522139036x and scored
 > 2.541743138x asd0cdadc0960446ca. Decode1fb5d05d passed full13/12/integrity
 > at1.988085030x and scored1.986659677x as75f2c7f464f34c61. Earlier native
 > attention sources omitted BF16 boundaries; withdrawal needs user approval.
 > No job/controller pending. Redux was discarded by its performance guard.
-> MoE two-group geometry CPU audit passed; no GPU implementation/evaluation.
+> MoE phase13 two-group design passed full5/6 but regressed to2.045556897x;
+> discarded without a score. Actual occupancy2/SM, no spills. One MoE check left.
 > Top50Goal active. API overall147/1442 still includes older publications.
 
 # Current handoff - October 28, 2026
@@ -33,8 +34,9 @@ Attention2.6112,Prefill1.7982. Prefill does not count toward overall.
 Snapshot: results/decoder-attention-bf16-boundaries-20261028/placement-20261028-203300.json.
 
 Current daily quotas at20:28:30UTC (checks/scored left): Dense0/0,
-MoE2/7, Decode2/4, Attention13/7, Prefill19/9. Totals:36checks and27scores,
-63evaluations, allocated separately by track and mode. Read-only snapshot:
+MoE2/7, Decode2/4, Attention13/7, Prefill19/9. Phase13 then consumed one MoE
+check, so expected remaining MoE1/7 and totals35checks/27scores (62evaluations).
+Limits are separate by track and mode. Original read-only snapshot:
 results/decoder-attention-bf16-boundaries-20261028/quotas-20261028-202830.json.
 
 ## Historical decoder publication and rejected trials
@@ -340,3 +342,24 @@ was1.988085030x. Both corrected Attention and Decode have full scored coverage;
 no job/controller pending. Earlier published sources remain pending withdrawal
 approval and must not supply this source's speedup/rank. All sources/results/
 profiles are archived. Top50overall remains unproven and the Goal stays active.
+
+
+## MoE phase13: two consumer groups rejected, October28 20:59UTC
+
+Check0fb1da41657d4346, source8f6b8c76, passed5tests/6benchmarks/integrity
+and analytic all-remote probes. Actual resources match the CPU layout:
+320threads, Smem22744bytes, dynamic110848bytes,96registers,0local bytes,
+2active CTAs/SM for both variants,132SMs and264CTA capacity. The new path
+ran in all M32/128/256 profiles. This proves the intended resource change,
+not a speedup: whole point2.045556897x, CI[2.014873544,2.076240250].
+Affected relative speedups were0.80046,0.74681,0.72405. Controller discarded
+and reverted; guard was not run because whole metric already lost. No score.
+Retain33114871 (checked2.365437416x/published2.348299935x).
+
+All changed loads lost, including M32 where smaller job capacity need not
+increase jobs. Do not blame the result solely on larger-load repeated weights
+or try neighboring occupancy geometry without new evidence. Preserve the last
+MoE check for a stronger idea. Full source, result, profiles, edits, CPU audits
+and controller history: results/resumed-moe-phase13-20261028/.
+No job/controller pending. Next ordered focus is Decode; corrected1fb5d05d
+remains checked1.988085030x/published1.986659677x.

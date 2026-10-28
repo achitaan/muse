@@ -1,4 +1,10 @@
-# Two-consumer-warpgroup MoE: feasibility, not an implemented candidate
+# Two-consumer-warpgroup MoE: historical feasibility and rejected result
+
+> Implemented and tested as8f6b8c76/check0fb1da41657d4346. Real resources
+> matched the later CPU model:110848dynamic bytes,96registers,0local bytes,
+> two active blocks/SM. Full correctness passed; performance fell to2.04556x.
+> Discarded without a score. Historical estimates below are superseded by
+> moe_two_warpgroup_review.md and results/resumed-moe-phase13-20261028/.
 
 October28. Main chat only. Do not spend another evaluation on a parameter
 variant of the rejected FT_T32, GS4, producer, grid-constant or cache-policy
