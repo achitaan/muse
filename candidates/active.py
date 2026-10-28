@@ -7072,3 +7072,6 @@ def kernel_fn(data: Inputs,state: dict) -> torch.Tensor:
 
 SELECTED_ROUTES=[r for r in SELECTED_ROUTES if (r['m'],r['layer']) not in {(x['m'],x['layer']) for x in V18_ROUTES}]+V18_ROUTES
 
+
+# Local experiment: retain four total K partitions, using two cooperating CTAs.
+dd_decodediet_tt_mw_CONFIGS[(32,'unpooler')] = ((32,64,2,2,2,True,2),2)
