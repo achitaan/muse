@@ -1,7 +1,7 @@
 {
   "snapshot_utc": "2026-10-28T06:07:59.460789+00:00",
   "status": "active",
-  "objective": "Get as close as possible to top 50 by 4 AM Toronto, main chat only",
+  "objective": "Get as close as possible to top 50 overall; main chat only; no deadline",
   "deadline_utc": null,
   "branch": "codex/h200-2-5x-20261028",
   "best_source": "best/verified.py",
@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Reuse cached attention baseline; check partitioned online-softmax attention with exact raw FP8 reads and fused output norm/gate.",
+  "next_trial": "Conserve evaluations. Audit and profile before any further check; no blind sweeps or repeat baseline measurements.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -58,11 +58,23 @@
   "active_track": "muse_attention_decode",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
-    "job": "89f9f7d227424d20",
     "source": "best/attention_checked.py",
-    "sha256": "481e472af7daac9e079547ad3b15614596e6cc650b23c4ac2486013dfc314bc0",
-    "speedup": 1.1204413294897262,
-    "scored_job_pending": "f6b899f674914ef2"
+    "sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+    "checked_job": "ea693135be544501",
+    "checked_speedup": 2.5897607970798813,
+    "checked_interval": [
+      2.550914385123683,
+      2.6406405883740645
+    ],
+    "tests": 16,
+    "benchmarks": 12,
+    "scored_job_pending": "20524d06e3894595",
+    "upstream": {
+      "repo": "vjeux/okc-2026",
+      "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "license": "Apache-2.0"
+    },
+    "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported."
   },
   "decoder_baseline": {
     "job": "65ab5fffad0c4995",
@@ -113,8 +125,7 @@
       1.186168294918969
     ],
     "tests": 13,
-    "benchmarks": 12,
-    "scored_job_pending": "88f8b06932fa43b7"
+    "benchmarks": 12
   },
   "moe_scored": {
     "job": "650aa66fd3334d8c",
@@ -133,5 +144,15 @@
       "first": false,
       "ahead": 744
     }
-  }
+  },
+  "decoder_scored": {
+    "job": "88f8b06932fa43b7",
+    "speedup": 1.1727801897410768,
+    "interval": [
+      1.1551884868949607,
+      1.190371892587193
+    ],
+    "passed": true
+  },
+  "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles."
 }

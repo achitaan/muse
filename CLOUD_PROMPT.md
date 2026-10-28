@@ -1,7 +1,32 @@
-Continue toward top 50 overall, main chat only, in this order: MoE W4A16, Decode Layer, Attention Decode, Prefill last. The original deadline was removed. Current focus is Attention Decode. Conserve evaluations: inspect evidence and make each check test a concrete hypothesis; publish only fully checked improvements.
+Continue toward top 50 overall in this main chat only. No deadline. Requested
+track order: MoE W4A16, Decode Layer, Attention Decode, Prefill last. Be sparing
+with checks and scored runs: no blind sweeps, repeated baselines or frequent
+quota queries. Review source and existing profiles before spending a run; aim
+for material gains. Unused quota is not a reason to test weak hypotheses.
 
-Read HANDOFF.md, STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md, THIRD_PARTY_NOTICES.md and the active problem's TASK.md/AGENTS.md. Validate the current controller and live job handles before launching anything. Existing decoder scored job 88f8b06932fa43b7 must be observed, not duplicated. MoE scored job 650aa66fd3334d8c passed at 1.268508633x; attention f6b899f674914ef2 passed at 1.116457695x; dense 6131bc96427e4486 passed at 1.527771327x.
+Read HANDOFF.md, STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md,
+ATTENTION_NOTES.md, THIRD_PARTY_NOTICES.md and the problem TASK.md/AGENTS.md.
+Attention check ea693135be544501 passed 16 tests and 12 benchmarks at
+2.589760797x. Exact source best/attention_checked.py, SHA256
+b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4.
+Scored attention job 20524d06e3894595 is already running: observe, never duplicate.
+Decoder scored 88f8b06932fa43b7 passed at 1.172780190x. MoE scored
+650aa66fd3334d8c passed at 1.268508633x. Dense 6131bc96427e4486 passed at
+1.527771327x and both daily quotas are exhausted. Top 50 overall remains unmet.
+Prefill has no run yet and does not count toward the overall board per TASK.
 
-Retain the stricter FP32 MoE norm intermediates. The decoder's checked source is 1.168638714x with 13 tests and 12 benchmarks passing; its FP32 router-input path remains intact. Prepared partitioned attention is unmeasured despite passing CPU coverage/merge/FP8 audits. Use the full official GPU checks and honest keep/revert history. Do not infer speedups from CPU checks or narrow tests.
+Preserve stricter FP32 MoE norm intermediates and the decoder FP32 router path.
+Attention derives from Vjeux's Apache source. Cache changes remove redundant
+initialization from graph replay and retain buffers per launch signature.
+Same-signature calls require sequential replay. Preserve Apache/MIT licenses,
+precision boundaries, all routes/keys, fresh inputs, cache writes and outputs.
+No output caching, harness/timing changes or persistent BF16 expert expansion.
+Two custom split-attention attempts were correct but slower; do not repeat them.
 
-Use only the existing native Codex subscription and free official H200 service. No paid GPUs, external model providers, global configuration changes, output caches, dropped routes/keys, harness/timing modifications, or persistent BF16 expansion of NVFP4 weights. Preserve all original precision, activation boundaries and licenses. Never print/commit credentials. Archive controller phases before publishing documentation or changing scope; retain immutable source hashes and complete raw results. Report actual placement and unmet targets honestly.
+The attention experiment controller is archived; native overall Goal remains
+active. Validate controller state and existing job handles before starting a
+new scoped phase, reusing cached evidence. Never edit controller events by hand.
+Publish evidence at phase boundaries. Use only the existing account and free
+official H200 service; no paid GPUs, external providers, global configuration
+changes or subagents. Never read/print/commit credentials. Report unmet targets
+and provisional placement honestly.

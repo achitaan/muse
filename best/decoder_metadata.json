@@ -9,5 +9,13 @@
   ],
   "tests": 13,
   "benchmarks": 12,
-  "scored_job_pending": "88f8b06932fa43b7"
+  "scored": {
+    "job": "88f8b06932fa43b7",
+    "speedup": 1.1727801897410768,
+    "interval": [
+      1.1551884868949607,
+      1.190371892587193
+    ],
+    "passed": true
+  }
 }

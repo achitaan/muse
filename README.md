@@ -9,8 +9,8 @@ fully checked candidates.
 |---|---:|---|
 | Dense projections | 1.527771x scored | Both daily quotas exhausted |
 | MoE W4A16 | 1.268509x scored | Saved; 7 checks and 1 scored run used |
-| Whole decoder layer | 1.168639x checked | One scored publication pending |
-| Attention decode | 1.116458x scored | Current optimization focus |
+| Whole decoder layer | 1.172780x scored | Saved |
+| Attention decode | 2.589761x checked | One scored publication pending |
 | Prefill layer | No run yet | Last in the requested order |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall
@@ -31,3 +31,8 @@ GPU measurements use the free official H200 service. No paid infrastructure or
 external model provider is provisioned. Credentials and local caches are ignored.
 The dense implementation derives from Nathen Fernandes' MIT-licensed v18;
 preserve [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and embedded notices.
+
+Native attention attribution and full Apache license are preserved. See
+[ATTENTION_NOTES.md](ATTENTION_NOTES.md) for cache lifetime, sequential replay
+assumptions and exact evidence. User requested fewer checks and submissions;
+remaining quota is capacity, not a reason to launch weak experiments.

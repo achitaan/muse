@@ -1,47 +1,44 @@
-# Current handoff — October 28, 2026
+# Current handoff - October 28, 2026
 
 Pursue top 50 overall in the main chat only. Original 04:00 deadline was removed.
-The requested order is MoE, Decode Layer, Attention Decode, Prefill last. Current
-focus is Attention Decode; conserve checks and scored submissions. Native Goal
-remains active and is the sole foreground continuation controller.
+Requested order: MoE W4A16, Decode Layer, Attention Decode, Prefill last.
+Native Goal remains active. Top 50 remains unmet. The latest user instruction
+is to be more sparing with checks and runs. Require a concrete unresolved
+question and a material expected improvement; avoid blind sweeps, repeated
+baseline measurements and repeated quota/board queries.
 
-Read STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md and the current
-problem's TASK.md and AGENTS.md before changing code. Validate the active
-experiment controller and existing official job handles before launching work.
-Never resubmit a job because observation timed out.
+Read STATE.json, TRACK_NOTES.md, MOE_NOTES.md, DECODE_NOTES.md,
+ATTENTION_NOTES.md and the relevant official TASK.md/AGENTS.md before changes.
+Reuse exact frozen sources and existing official job handles after timeouts.
 
-Dense projections: exact best source best/verified.py, scored job
-6131bc96427e4486, 1.527771327x. Both daily quotas are exhausted. Historical rank
-85 is not a live placement claim.
+| Track | Current evidence |
+|---|---|
+| Dense | best/verified.py; scored 6131bc96427e4486, 1.527771327x; both daily quotas exhausted |
+| MoE | best/moe_verified.py; scored 650aa66fd3334d8c, 1.268508633x |
+| Whole decoder | best/decoder_verified.py; scored 88f8b06932fa43b7, 1.172780190x |
+| Attention | best/attention_checked.py; check ea693135be544501, 2.589760797x; scored 20524d06e3894595 pending |
+| Prefill | No GPU evaluation yet; official TASK says it does not count toward overall |
 
-MoE: best/moe_verified.py and best/moe_metadata.json identify the stricter FP32
-norm candidate. Scored job 650aa66fd3334d8c passed at 1.268508633x. The older
-1.271471562x check followed the public starter's extra BF16 norm rounding; the
-current candidate preserves pinned SGLang's FP32 norm intermediates instead.
-Do not revert that precision contract for timing noise. See MOE_NOTES.md for
-Dot's review and negative CUDA/grouped-kernel evidence.
+MoE preserves pinned SGLang's FP32 post-norm intermediates. Do not restore the
+older extra BF16 rounding for timing noise. Decoder retains the FP32 router
+path, incorporates checked dense/MoE improvements and fused Q/K preprocessing.
+Attention derives from Vjeux's Apache source; native CUDA algorithms are
+unchanged. Cache changes eliminate initialization from graph replay. Scratch
+requires sequential replay for calls sharing a device/launch signature.
+All current sources pass the complete official correctness/benchmark coverage.
 
-Whole decoder: best/decoder_verified.py and best/decoder_metadata.json identify
-the 1.168638714x checked source, passing all 13 tests, 12 benchmarks and integrity
-checks. Scored job 88f8b06932fa43b7 is pending; observe it rather than launching
-another. The candidate integrates lossless dense kernels, the checked MoE changes,
-and fused Q/K preprocessing while preserving the original FP32 router path.
-
-Attention: best/attention_checked.py passed 16 tests and 12 benchmark cases at
-1.120441329x; scored job f6b899f674914ef2 passed at 1.116457695x. Next hypothesis
-is partitioned online-softmax attention with every visible key included, exact
-raw-byte FP8 reads and fused output norm/gate. CPU interval coverage, stable
-merge and FP8-value preservation were checked; GPU correctness/speed are untested.
-Read the prepared addon and audits under experiments/prepared/.
-
-Preserve original BF16/NVFP4 weight formats, permitted FP32-router hi/lo splitting,
-FP32 accumulation, all activation boundaries, every attention key, fresh inputs,
+Preserve every attention key, weight codes/scales, activation boundaries,
 cache updates, routing and residual outputs. No output caching, harness access,
-timing changes, dropped routes or persistent predecoded BF16 expert weights.
-Preserve the dense upstream MIT notices. Full official tests are authoritative;
-CPU proofs and static guards do not establish H200 correctness or performance.
+dropped routes, timing changes or persistent BF16 expert-weight expansion.
+Preserve dense MIT and attention Apache licenses and local change notices.
 
-Use the existing signed-in free official service; never print or commit tokens.
-No paid GPUs, external providers or global orchestration changes are authorized.
-Commit/push measured evidence at phase boundaries. Do not edit run.json/events by
-hand or commit outside a controller's approved path scope during an active run.
+The attention controller phase is archived under
+results/resumed-attention-phase2-20261028/controller/. No experiment controller
+is currently active. Do not hand-edit immutable controller events. Initialize
+the next scoped phase from cached evidence before any new trial. Publish
+checkpoint documentation outside active candidate-only scopes.
+
+Use the existing authenticated free official service; never print tokens.
+No paid GPUs, external providers, subagents or global orchestration mutations.
+Quotas are per track and reset at 00:00 UTC; unused quota need not be consumed
+on weak hypotheses. Commit/push measured evidence at phase boundaries.

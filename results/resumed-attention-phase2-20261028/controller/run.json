@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-28T12:11:41Z",
+  "goal": "Approach top 50 overall, main chat only; Attention Decode phase after MoE and Decode Layer, Prefill last; conserve checks and retain full attention semantics",
+  "guard": null,
+  "max_iterations": null,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_attention.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_attention_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "e9c4740981f042ba99f362c5d518f936",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.65,
+  "timeout_seconds": 1200
+}

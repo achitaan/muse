@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_attention.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 323.609,
+  "returncode": 0,
+  "stderr": "Attention job cdc1670c333d4ceb: received; source ca57113d29141879d3c38ff698ac5e770ba6d7f53e65c86c3c51bddc941a2c5d\r\nAttention job cdc1670c333d4ceb: running; source ca57113d29141879d3c38ff698ac5e770ba6d7f53e65c86c3c51bddc941a2c5d\r\nAttention job cdc1670c333d4ceb: done; source ca57113d29141879d3c38ff698ac5e770ba6d7f53e65c86c3c51bddc941a2c5d\r\n",
+  "stdout": "{\"speedup\": 0.6995542162553545, \"correct\": true, \"job\": \"cdc1670c333d4ceb\", \"source_sha256\": \"ca57113d29141879d3c38ff698ac5e770ba6d7f53e65c86c3c51bddc941a2c5d\", \"tests\": 16, \"benchmarks\": 12, \"interval\": [0.6890609030115242, 0.7100475294991848], \"error\": null}\r\n",
+  "timed_out": false
+}

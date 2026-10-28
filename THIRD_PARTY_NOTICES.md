@@ -29,3 +29,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+
+## Native attention source
+
+Attention derives from Vjeux, https://github.com/vjeux/okc-2026, pinned commit
+f35a41ee1c13e316dabbf772830d47b23b453393, under Apache License 2.0.
+The complete license is in licenses/vjeux-Apache-2.0.txt and embedded in the
+submission. No NOTICE file was present at that revision.
+
+Local changes replace scratch caching with a device/launch-signature cache and
+reuse immutable RoPE constants across streams. This removes initialization
+from captured graph replays and preserves buffers for captured shapes. Native
+CUDA algorithms are unchanged. Calls sharing one signature require sequential
+replay, consistent with this candidate's shared-workspace contract.

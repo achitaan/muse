@@ -1,5 +1,15 @@
 # Challenge track handoff — October 28, 2026
 
+## Latest checkpoint (supersedes historical sections below)
+
+User requested fewer checks and runs. Reuse cached evidence and require a
+material expected gain before another GPU experiment. Read ATTENTION_NOTES.md:
+attention checks at 2.589760797x; scored job 20524d06e3894595 is pending.
+Whole decoder scored at 1.172780190x; MoE at 1.268508633x. Dot's precision review
+has arrived and is incorporated. Prefill remains last and does not count toward
+overall. Native Goal remains active; the attention controller is archived.
+
+
 ## Current direction
 
 The user removed the original 04:00 Toronto deadline and wants the best possible

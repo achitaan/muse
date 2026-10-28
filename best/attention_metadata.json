@@ -1,0 +1,19 @@
+{
+  "source": "best/attention_checked.py",
+  "sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+  "checked_job": "ea693135be544501",
+  "checked_speedup": 2.5897607970798813,
+  "checked_interval": [
+    2.550914385123683,
+    2.6406405883740645
+  ],
+  "tests": 16,
+  "benchmarks": 12,
+  "scored_job_pending": "20524d06e3894595",
+  "upstream": {
+    "repo": "vjeux/okc-2026",
+    "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "license": "Apache-2.0"
+  },
+  "workspace_contract": "Sequential replay; scratch cached per device and launch signature; same-signature concurrent calls are not supported."
+}

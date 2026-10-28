@@ -1,0 +1,107 @@
+okc run 449fd95cf481493a on muse_attention_decode
+submission  /mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.attention-measurements/02087dcc1ef4e23509549109b1c573a5eede0048729ad6696b5a497aca9d7657/submission.py
+status      ok
+passed      true
+speedup     0.8256140052166605
+speedup_ci  [0.8132297951384105 0.8379982152949104]
+score_us    4561.816994627695
+tests       16/16 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1      20.19       9.55   2.114x       0.11  
+batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1      31.68      22.30   1.421x       4.27  
+batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic      27.23      14.23   1.913x       1.65  
+batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic     200.96     168.44   1.193x      63.18  
+batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic      31.28      17.91   1.746x       3.29  
+batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic     385.98     409.80   0.942x     126.35  
+batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8      22.80      12.47   1.828x       0.12  
+batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 1 page=1 q_len=8      36.32      53.85   0.674x       4.28  
+batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 16 page=1 q_len=8 spread=agentic      29.60      31.02   0.954x       1.86  
+batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 16 page=1 q_len=8 spread=agentic     205.73     679.18   0.303x      63.39  
+batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 32 page=1 q_len=8 spread=agentic      34.70      60.65   0.572x       3.72  
+batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 32 page=1 q_len=8 spread=agentic     390.37    1476.22   0.264x     126.78  
+
+profile 0: batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                            3.6 µs  51.1%      1
+_achita_attention_merge                                            1.8 µs  25.8%      1
+_achita_qkv_preprocess                                             1.6 µs  23.1%      1
+total                                                              7.1 µs
+
+profile 1: batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                           13.2 µs  79.5%      1
+_achita_attention_merge                                            2.1 µs  12.5%      1
+_achita_qkv_preprocess                                             1.3 µs   8.1%      1
+total                                                             16.7 µs
+
+profile 2: batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                            6.7 µs  66.1%      1
+_achita_qkv_preprocess                                             1.8 µs  17.4%      1
+_achita_attention_merge                                            1.7 µs  16.5%      1
+total                                                             10.1 µs
+
+profile 3: batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                          163.7 µs  97.2%      1
+_achita_attention_merge                                            2.6 µs   1.5%      1
+_achita_qkv_preprocess                                             2.1 µs   1.3%      1
+total                                                            168.4 µs
+
+profile 4: batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                           11.6 µs  74.9%      1
+_achita_qkv_preprocess                                             2.0 µs  13.1%      1
+_achita_attention_merge                                            1.9 µs  12.0%      1
+total                                                             15.4 µs
+
+profile 5: batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                          387.0 µs  98.8%      1
+_achita_attention_merge                                            2.4 µs   0.6%      1
+_achita_qkv_preprocess                                             2.4 µs   0.6%      1
+total                                                            391.8 µs
+
+profile 6: batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                            5.4 µs  55.8%      1
+_achita_attention_merge                                            2.4 µs  24.6%      1
+_achita_qkv_preprocess                                             1.9 µs  19.6%      1
+total                                                              9.6 µs
+
+profile 7: batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                           42.3 µs  90.7%      1
+_achita_attention_merge                                            2.8 µs   6.0%      1
+_achita_qkv_preprocess                                             1.6 µs   3.4%      1
+total                                                             46.7 µs
+
+profile 8: batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                           20.3 µs  72.3%      1
+_achita_attention_merge                                            4.7 µs  16.6%      1
+_achita_qkv_preprocess                                             3.1 µs  11.0%      1
+total                                                             28.1 µs
+
+profile 9: batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                          670.7 µs  98.8%      1
+_achita_attention_merge                                            5.0 µs   0.7%      1
+_achita_qkv_preprocess                                             3.2 µs   0.5%      1
+total                                                            678.9 µs
+
+profile 10: batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                           45.9 µs  79.7%      1
+_achita_attention_merge                                            6.7 µs  11.6%      1
+_achita_qkv_preprocess                                             5.0 µs   8.7%      1
+total                                                             57.5 µs
+
+profile 11: batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+_achita_attention_parts                                         1462.6 µs  99.2%      1
+_achita_attention_merge                                            7.3 µs   0.5%      1
+_achita_qkv_preprocess                                             4.5 µs   0.3%      1
+total                                                           1474.4 µs
