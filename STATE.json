@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Reduce prepare overhead or integrate new instantiations into the existing extension before another check; do not simply raise cutoffs.",
+  "next_trial": "One curated SK2 output projection for 9..16 tokens; retire the three rejected small projection alternatives. Audit before one check.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -570,5 +570,69 @@
     "timed_compute": "independent repeat of baseline; new wrapper forwards to incumbent with empty choices",
     "new_projection_gpu_correctness_and_performance": "unverified",
     "next_step": "Reduce prepare overhead or integrate new instantiations into the existing extension before another check; do not simply raise cutoffs."
+  },
+  "decoder_projection_phase8": {
+    "source_sha256": "ced7a4b9fa1aef6a51549706acf5eccaa44d012b27f83f4ca25e124d5f42b610",
+    "job": "50eae88b3dd744ae",
+    "speedup": 1.998784201450112,
+    "interval": [
+      1.9688024384283602,
+      2.0287659644718636
+    ],
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "prepare_s": 254.60530812,
+    "decisions": [
+      {
+        "layer": "pooler",
+        "tokens": 1,
+        "ratio": 1.043513346979536,
+        "worst_pattern_ratio": 1.0464744346160972,
+        "retained": "incumbent"
+      },
+      {
+        "layer": "pooler",
+        "tokens": 8,
+        "ratio": 1.0320512458748003,
+        "worst_pattern_ratio": 1.0367412152457953,
+        "retained": "incumbent"
+      },
+      {
+        "layer": "qkv_gate",
+        "tokens": 1,
+        "ratio": 0.9989743511674143,
+        "worst_pattern_ratio": 1.0,
+        "retained": "incumbent"
+      },
+      {
+        "layer": "qkv_gate",
+        "tokens": 8,
+        "ratio": 1.0082559366181656,
+        "worst_pattern_ratio": 1.0082987579427192,
+        "retained": "incumbent"
+      },
+      {
+        "layer": "unpooler",
+        "tokens": 1,
+        "ratio": 1.0477876143574503,
+        "worst_pattern_ratio": 1.0640570161674376,
+        "retained": "incumbent"
+      },
+      {
+        "layer": "unpooler",
+        "tokens": 8,
+        "ratio": 1.0328719704889178,
+        "worst_pattern_ratio": 1.0416666792985372,
+        "retained": "incumbent"
+      }
+    ],
+    "max_synthetic_relative_l2": 0.00018700456712394953,
+    "new_selections": [],
+    "discarded": true,
+    "reason": "All fixed projection alternatives tied or lost to incumbents",
+    "runtime_claim": "no new speedup; same incumbent timed compute",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67"
   }
 }

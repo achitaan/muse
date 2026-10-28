@@ -24,9 +24,12 @@ constants = {n.targets[0].id: n.value.value for n in tree.body
 configs = ast.literal_eval(next(n.value for n in tree.body if isinstance(n, ast.Assign)
                                and any(isinstance(t, ast.Name) and t.id == '_SP_CONFIGS' for t in n.targets)))
 shared = '_SP_DISPATCH' not in constants
+tokr = constants.get('_SP_TOKR', 8)
+output_only = tokr == 16
+symbol = 'sk2output' if output_only else 'sk2small'
 helpers = {'_fpr_bfp_sk2_tileunits', '_fpr_bfp_sk2_compress', '_fpr_bfp_sk2_stream',
            '_fpr_bfp_sk2_table', '_sp_pack', '_sp_module', '_fpr_get_ext'}
-ns = {'torch': torch, 'hashlib': hashlib}
+ns = {'torch': torch, 'hashlib': hashlib, '_SP_TOKR': tokr}
 for n in tree.body:
     if isinstance(n, ast.FunctionDef) and n.name in helpers:
         exec(compile(ast.Module(body=[n], type_ignores=[]), '<audited-helper>', 'exec'), ns)
@@ -79,7 +82,7 @@ for config in configs:
     assert torch.equal(plan['packed'], stream) and torch.equal(plan['table'], table)
     # Each epilogue writes exactly M*N values, with no dependence on padded rows.
     # PK is enabled for TOKR=8; the TMA descriptor uses M rows and masks ldmatrix.
-    for m in range(1, 9):
+    for m in range(1, tokr + 1):
         local = [(idx // (rows // 4), (idx % (rows // 4)) * 4 + j)
                  for idx in range(m * (rows // 4)) for j in range(4)]
         assert len(set(local)) == m * rows
@@ -107,14 +110,18 @@ assert 'if (TOKR == 8 || M < TOKR) go(std::true_type{})' in cuda
 assert '(PK && trow[mt] >= M) ? zrow' in cuda
 assert 'PK ? (uint32_t)M : (uint32_t)TOKR' in cuda
 assert 'for (int idx = tid; idx < R4 * M; idx += NC)' in cuda
-assert cuda.count('launch_sk2<1, 8,') == 3 and '@@' not in cuda
+if output_only:
+    assert cuda.split('\nvoid sk2output(', 1)[1].count('launch_sk2<1, 16,') == 1
+else:
+    assert cuda.count('launch_sk2<1, 8,') == 3
+assert '@@' not in cuda
 cpp = constants['_fpr_CPP'] if shared else constants['_SP_CPP']
 assert cpp.startswith('#include <torch/extension.h>\n')
 calls = []
 extension = types.SimpleNamespace(sk2_set_pdl=lambda value: calls.append(('pdl', value)))
 def loader(**kwargs):
     assert kwargs['cuda_sources'] == cuda and kwargs['cpp_sources'] == cpp
-    assert kwargs['functions'] == (['sk2f', 'sk2_set_pdl', 'sk2small'] if shared else ['sk2small'])
+    assert kwargs['functions'] == (['sk2f', 'sk2_set_pdl', symbol] if shared else [symbol])
     calls.append(1)
     return extension
 ns.update(_sp_ext=None, _SP_CUDA=cuda, _SP_CPP=cpp, _fpr_load_inline=loader,
@@ -131,14 +138,15 @@ dispatch_ns = {'torch': torch, '_sp_incumbent_project': lambda *args: sentinel_o
 exec(compile(ast.Module(body=[wrapper], type_ignores=[]), '<dispatch>', 'exec'), dispatch_ns)
 for ci, layer, n, k, *_ in configs:
     plan = {'n': n, 'k': k, 'packed': types.SimpleNamespace(device='cuda:0')}
-    state = {'small_projection_choices': {(layer, 1): plan, (layer, 8): plan},
+    state = {'small_projection_choices': ({(layer, 16): plan} if output_only else {(layer, 1): plan, (layer, 8): plan}),
              'dense': {layer: types.SimpleNamespace(shape=(8192 if layer == 'unpooler' else n, k))}}
-    for m in (1, 2, 3, 4, 7, 8, 9, 16, 32, 128):
+    for m in (1, 2, 3, 4, 7, 8, *range(9, 18), 32, 128):
         x = types.SimpleNamespace(shape=(m, k), dtype=torch.bfloat16, device='cuda:0',
                                   is_contiguous=lambda: True, data_ptr=lambda: 256)
         rows_arg = n if layer == 'unpooler' else None
         got = dispatch_ns['_achita_dense_project'](x, layer, state, rows_arg)
-        assert got is (sentinel_new if m <= 8 else sentinel_old)
+        eligible = 8 < m <= 16 if output_only else m <= 8
+        assert got is (sentinel_new if eligible else sentinel_old)
         x.dtype = torch.float32
         assert dispatch_ns['_achita_dense_project'](x, layer, state, rows_arg) is sentinel_old
     if layer == 'unpooler':

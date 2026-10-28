@@ -25,9 +25,10 @@ if any(isinstance(n, ast.FunctionDef) and n.name == '_sp_select' for n in tree.b
     choices = ast.literal_eval(selections[0])
     assert isinstance(choices, tuple) and choices, 'Unselected projection trials change no timed compute'
     assert len(set(choices)) == len(choices)
-    assert all(isinstance(key, tuple) and len(key) == 2
-               and key[0] in ('pooler', 'qkv_gate', 'unpooler') and key[1] in (1, 8)
-               for key in choices)
+    output_only = any(isinstance(n, ast.Assign) and isinstance(n.value, ast.Constant) and n.value.value == 16
+                      and any(isinstance(t, ast.Name) and t.id == '_SP_TOKR' for t in n.targets) for n in tree.body)
+    allowed = {('o', 16)} if output_only else {(layer, tokens) for layer in ('pooler', 'qkv_gate', 'unpooler') for tokens in (1, 8)}
+    assert all(key in allowed for key in choices)
 fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kernel_fn')
 text = ast.unparse(fn)
 assert "F.linear(router_input, state['router'])" in text

@@ -43,3 +43,19 @@ One full official check is planned, reusing the cached baseline. Keep only
 with full 13/12/integrity and explicit nonempty SMALL_PROJ_CHOICES. New GPU
 kernel correctness, setup duration and runtime speed remain unverified until
 that result. No tile sweep or scored intermediate is planned.
+
+## Official result
+
+Check 50eae88b3dd744ae passed all 13 tests, 12 benchmarks and integrity at
+1.998784201x, CI [1.968802438,2.028765964]. Preparation took 254.61 seconds;
+the six comparisons completed and selected no alternate. Pooler ratios were
+1.044 and 1.032, QKV 0.999 and 1.008, and sliced unpooler 1.048 and 1.033 for
+one/eight tokens. Lower is better; none meets the 0.97 retention threshold.
+The largest synthetic relative L2 was 0.0001871. These comparisons exercised
+the new kernels on synthetic inputs, while full official calls retained the
+incumbents. Do not claim full held-out coverage of an unselected new kernel.
+
+The guard discarded the trial. No scored run was used. Setup observations
+254.61 versus the prior 257.03 seconds do not establish a setup speedup across
+machines/runs. Retained 09badc9b and published a61735ee remain unchanged.
+Full evidence/controller is in results/resumed-decoder-phase8-20261028/.

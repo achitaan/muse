@@ -1,4 +1,5 @@
 """Audit precise setup edits and prove retired router branches unreachable."""
+import argparse
 import ast
 import collections
 import copy
@@ -9,9 +10,14 @@ from pathlib import Path
 import types
 
 root = next(p for p in Path(__file__).resolve().parents if (p / '.git').exists())
+parser = argparse.ArgumentParser()
+parser.add_argument('--source', default='.tools/decoder-shared-projections-variant.py')
+parser.add_argument('--output', default='.tools/decoder-shared-prepare-cpu-audit.json')
+args = parser.parse_args()
 base = ast.parse((root / 'best/decoder_verified.py').read_bytes())
-raw = (root / '.tools/decoder-shared-projections-variant.py').read_bytes()
+raw = (root / args.source).read_bytes()
 tree = ast.parse(raw)
+symbol = 'sk2output' if any(isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == '_SP_TOKR' for t in n.targets) for n in tree.body) else 'sk2small'
 restored = copy.deepcopy(tree.body[:len(base.body)])
 edits = collections.Counter()
 for old, node in zip(base.body, restored):
@@ -26,11 +32,11 @@ for old, node in zip(base.body, restored):
         edits[name] += 1
     elif isinstance(node, ast.FunctionDef) and node.name == '_fpr_get_ext':
         for child in ast.walk(node):
-            if isinstance(child, ast.Constant) and isinstance(child.value, str) and child.value.startswith('okc_fpr_sp_'):
+            if isinstance(child, ast.Constant) and isinstance(child.value, str) and child.value.startswith(('okc_fpr_sp_', 'okc_fpr_op_')):
                 child.value = 'okc_fpr_f68f77c0d29cc56b_'
                 edits['factory_name'] += 1
             elif isinstance(child, ast.keyword) and child.arg == 'functions':
-                assert ast.literal_eval(child.value) == ['sk2f', 'sk2_set_pdl', 'sk2small']
+                assert ast.literal_eval(child.value) == ['sk2f', 'sk2_set_pdl', symbol]
                 child.value.elts.pop()
                 edits['factory_exports'] += 1
     elif isinstance(node, ast.FunctionDef) and node.name == '_achita_dense_prepare':
@@ -123,5 +129,5 @@ result = {'source_sha256': hashlib.sha256(raw).hexdigest(), 'enumerated_edits': 
           'all_original_cuda_bytes_preserved': True, 'dense_projection_call_families': sorted(families),
           'dispatch_fallthrough_cases': cases, 'retired_router_accesses': 0,
           'actual_disabled_prepare_functions': 3, 'numerical_status': 'see codec audit; GPU unmeasured'}
-(root / '.tools/decoder-shared-prepare-cpu-audit.json').write_bytes((json.dumps(result, indent=2) + '\n').encode())
+(root / args.output).write_bytes((json.dumps(result, indent=2) + '\n').encode())
 print(json.dumps(result))

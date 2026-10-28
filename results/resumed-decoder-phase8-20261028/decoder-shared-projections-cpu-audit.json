@@ -1,0 +1,38 @@
+{
+  "source_sha256": "ced7a4b9fa1aef6a51549706acf5eccaa44d012b27f83f4ca25e124d5f42b610",
+  "seed": 20261028,
+  "cases": [
+    {
+      "layer": "pooler",
+      "values_recovered": 524288,
+      "corrections": 83,
+      "stages": 3,
+      "sample_pmax": 28,
+      "sample_dynamic_shared_bytes": 66160
+    },
+    {
+      "layer": "qkv_gate",
+      "values_recovered": 786432,
+      "corrections": 119,
+      "stages": 6,
+      "sample_pmax": 34,
+      "sample_dynamic_shared_bytes": 167696
+    },
+    {
+      "layer": "unpooler",
+      "values_recovered": 131072,
+      "corrections": 31,
+      "stages": 4,
+      "sample_pmax": 12,
+      "sample_dynamic_shared_bytes": 118336
+    }
+  ],
+  "lossless_cpu_recovery": true,
+  "streams_bijective": true,
+  "correction_tables_exact": true,
+  "fallbacks_and_token_store_geometry": true,
+  "factory_reuse": true,
+  "global_bindings": true,
+  "baseline_bytes_unchanged": false,
+  "gpu_status": "unmeasured"
+}

@@ -1,0 +1,23 @@
+{
+  "source_sha256": "ced7a4b9fa1aef6a51549706acf5eccaa44d012b27f83f4ca25e124d5f42b610",
+  "enumerated_edits": {
+    "routertail_job": 1,
+    "router_jobs": 2,
+    "_fpr_CUDA": 1,
+    "_fpr_CPP": 1,
+    "factory_exports": 1,
+    "factory_name": 1
+  },
+  "reversing_only_enumerated_edits_recovers_entire_baseline_ast": true,
+  "all_original_cuda_bytes_preserved": true,
+  "dense_projection_call_families": [
+    "o",
+    "pooler",
+    "qkv_gate",
+    "unpooler"
+  ],
+  "dispatch_fallthrough_cases": 1208,
+  "retired_router_accesses": 0,
+  "actual_disabled_prepare_functions": 3,
+  "numerical_status": "see codec audit; GPU unmeasured"
+}

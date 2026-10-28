@@ -1,3 +1,23 @@
+# Phase8 checkpoint - October 28, 2026
+
+Shared-build trial 50eae88b3dd744ae passed 13/12/integrity at 1.998784201x,
+CI [1.968802438,2.028765964]. All six bounded projection comparisons ran.
+None selected a new path: pooler and sliced unpooler were about 3..5% slower,
+QKV tied/slightly lost. Maximum synthetic relative L2 was 0.0001871. The guard
+discarded the trial; no score was used. The full official calls still used
+incumbents, so this is not full official numerical coverage of new paths.
+
+Prepare took 254.61 s. Existing CUDA bytes and router precision remain exact;
+three unused router setups were disabled. Retained 09badc9b and published
+a61735ee are unchanged. Full source, profiles, CPU audits and controller:
+results/resumed-decoder-phase8-20261028/. No job is pending at this checkpoint.
+
+Next prepared trial replaces the three rejected instantiations with one fixed
+output projection for 9..16 tokens, targeting its profiled ~15 us at 16 tokens.
+See experiments/prepared/decoder_output_projection_review.md. GPU unmeasured.
+
+---
+
 # Phase7 checkpoint - October 28, 2026
 
 The small-projection trial afd35730c7d3476f passed all 13 tests, 12 benchmark
