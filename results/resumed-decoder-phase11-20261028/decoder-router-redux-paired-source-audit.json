@@ -1,0 +1,13 @@
+{
+  "source_sha256": "c378ea501dcb2adde88d6d607ecb9e75951dbb677e763609532be1bd03758962",
+  "core_sha256": "0d98e250defee491e4dc69c42cf7c42948408f6d21abe7c8ce111a19170f08a6",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "packaged_bytes": 998174,
+  "core_ast_recovered": true,
+  "incumbent_cuda_bytes_recovered": true,
+  "prepare_probes": "M1..8 normal plus analytic zero-input/zero-bias ties",
+  "controlled_timings": "M1/8,normal/impulse,8alternating cold CUDA-graph pairs each",
+  "always_timed_router": "redux; no timing selector or actual-input work during prepare",
+  "new_module_or_weight_copies": 0,
+  "gpu_status": "unmeasured"
+}

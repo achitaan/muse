@@ -62,7 +62,7 @@ def main():
                               'tests': len(tests), 'benchmarks': len(benches),
                               'interval': body.get('speedup_ci'), 'error': body.get('error')}), flush=True)
             return
-        time.sleep(15)
+        time.sleep(45)
 
 
 if __name__ == '__main__':

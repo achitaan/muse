@@ -1,0 +1,38 @@
+{
+  "parent_sha256": "b56e07b1dbc930ef8fd4adaeba108e6d17b62a0f390d68c024b98d3cd608aee4",
+  "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "bytes": 170315,
+  "inverse_exact": true,
+  "other_ast_unchanged": true,
+  "changed_python_functions": [
+    "_fallback"
+  ],
+  "replacements": [
+    {
+      "before": "// conformance sensitivity probe only : round the attention output, which SGLang keeps in\n// BF16 before rmsnorm * gate, to e4m3 -- the precision check must reject that build\n__device__ __forceinline__ float pr8(float x) {\n  return x;\n}",
+      "after": "// Pinned SGLang materializes BF16 Q/K and BF16 attention output.\n__device__ __forceinline__ float bf16_round(float x) {\n  return __bfloat162float(__float2bfloat16_rn(x));\n}\n__device__ __forceinline__ float pr8(float x) {\n  return bf16_round(x);\n}",
+      "count": 1
+    },
+    {
+      "before": "pr8(",
+      "after": "attn_out_bf16(",
+      "count": 16
+    },
+    {
+      "before": "x[e] *= r;",
+      "after": "x[e] = bf16_round(x[e] * r);",
+      "count": 3
+    },
+    {
+      "before": "x[2 * e] = a0 * c - a1 * sn;",
+      "after": "x[2 * e] = bf16_round(a0 * c - a1 * sn);",
+      "count": 3
+    },
+    {
+      "before": "x[2 * e + 1] = a0 * sn + a1 * c;",
+      "after": "x[2 * e + 1] = bf16_round(a0 * sn + a1 * c);",
+      "count": 3
+    }
+  ],
+  "pinned_sglang": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f"
+}

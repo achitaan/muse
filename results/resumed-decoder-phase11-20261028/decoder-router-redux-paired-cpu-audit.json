@@ -1,0 +1,18 @@
+{
+  "source_sha256": "c378ea501dcb2adde88d6d607ecb9e75951dbb677e763609532be1bd03758962",
+  "core_sha256": "0d98e250defee491e4dc69c42cf7c42948408f6d21abe7c8ce111a19170f08a6",
+  "core_module_ast_recovered": true,
+  "incumbent_kernel_bytes_recovered": true,
+  "actual_timed_router_always_redux": true,
+  "synthetic_data_or_choice_not_returned_as_state": true,
+  "private_generator_not_global_rng": true,
+  "paired_order_balanced": true,
+  "cold_flush_owned_bytes": 134217728,
+  "correctness_probes": 16,
+  "analytic_tie_probes": 8,
+  "timed_pairs": 32,
+  "both_arms_per_pair": true,
+  "shared_original_counter_protocol": "every kernel advances128; low7bits remain0; all consumed partials overwritten",
+  "global_bindings": true,
+  "scope_limit": "CPU/static protocol audit; GPU probe truth/timings and full-layer correctness unverified"
+}

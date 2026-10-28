@@ -5,6 +5,7 @@ import json
 import math
 from pathlib import Path
 import re
+from verify_attention_precision import verify as verify_attention_precision
 
 root = Path(__file__).resolve().parents[1]
 source = (root / 'candidates/decode_active.py').read_bytes()
@@ -18,6 +19,7 @@ assert result['status'] == 'done' and body.get('passed') is True
 assert len(tests) == 13 and len(benches) == 12
 assert all(r.get('status') == 'pass' for r in tests + benches)
 assert body.get('checks', {}).get('ok') is True
+verify_attention_precision(source, '_native_attn_')
 tree = ast.parse(source)
 router_cuda = next((ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                    and any(isinstance(t, ast.Name) and t.id == '_RF_CUDA' for t in n.targets)), '')

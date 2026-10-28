@@ -1,0 +1,19 @@
+{
+  "source_sha256": "0d98e250defee491e4dc69c42cf7c42948408f6d21abe7c8ce111a19170f08a6",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "packaged_bytes": 988656,
+  "only_changed_literal": "_RF_CUDA",
+  "original_module_ast_recovered": true,
+  "cuda_patch_reversible": true,
+  "kernel_name": "route_fp32_redux",
+  "dot_split_sigmoid_normalization_bytes_unchanged": true,
+  "selection": "unsigned monotone FP32 key max; ascending signed ID min; unchanged raw-score broadcast",
+  "signed_zero": "canonicalized in key only; score bits unchanged",
+  "collective_source_operations_per_eight_picks": {
+    "old_shuffles": 120,
+    "new_redux": 16,
+    "new_shuffles": 8
+  },
+  "scope_limit": "Source operation count, not measured SASS instruction count or speedup",
+  "gpu_status": "unmeasured"
+}

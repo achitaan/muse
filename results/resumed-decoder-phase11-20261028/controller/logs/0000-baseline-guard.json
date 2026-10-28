@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_decode_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.281,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Full decoder evidence matches current source; FP32 router path is preserved.\r\n",
+  "timed_out": false
+}

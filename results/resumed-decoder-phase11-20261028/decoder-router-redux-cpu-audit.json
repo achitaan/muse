@@ -1,0 +1,17 @@
+{
+  "source_sha256": "0d98e250defee491e4dc69c42cf7c42948408f6d21abe7c8ce111a19170f08a6",
+  "base_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "original_module_ast_recovered": true,
+  "complete_cuda_edit_reversible": true,
+  "dot_and_split_reduction_bytes_unchanged": true,
+  "seed": 20261028,
+  "numpy_version": "1.25.1",
+  "score_vectors": 404,
+  "eight_round_selections": 3232,
+  "old_shuffle_and_redux_match_scalar_oracle": true,
+  "raw_score_bits_unchanged": true,
+  "signed_zero_ties_canonicalized": true,
+  "missing_zero_canonicalization_mutant_detected": true,
+  "covers": "ties, adjacent/extreme/subnormal values, +/-infinity, NaNs ignored by original comparisons, changing inputs",
+  "scope_limit": "CPU selection algebra only; CUDA implementation, compilation and speed unverified"
+}

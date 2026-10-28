@@ -1,0 +1,11 @@
+{
+  "source_sha256": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+  "bytes": 988827,
+  "parent_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+  "attention_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+  "attention_cuda_exact": true,
+  "fallback_ast_exact": true,
+  "all_other_ast_unchanged": true,
+  "router": "original full FP32 small router; rejected Redux excluded",
+  "gpu_verified": false
+}

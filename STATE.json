@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Exact warp integer reductions for top8 selection, preserving FP32 dot/sigmoid/raw scores and canonicalizing signed zero only in ordered selection keys.",
+  "next_trial": "Finish corrected Attention check; if full coverage passes, evaluate exact BF16-boundary transfer in Decode1fb5d05d. Do not score inherited sources with omitted boundaries.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -459,7 +459,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-28T18:25:30.706641+00:00",
+  "updated_utc": "2026-10-28T20:11:19.653710+00:00",
   "latest_placement_snapshot": {
     "utc": "2026-10-28T18:24:33.630285+00:00",
     "boards": {
@@ -615,7 +615,14 @@
       }
     }
   },
-  "pending_jobs": [],
+  "pending_jobs": [
+    {
+      "track": "muse_attention_decode",
+      "mode": "check",
+      "job": "1a16e2d658a8400d",
+      "source_sha256": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a"
+    }
+  ],
   "decoder_projection_phase7": {
     "job": "afd35730c7d3476f",
     "source_sha256": "92fe19e2e94211b479baf0b8b5ab2bd2a705cd8c50ce09e5060479614d6a68aa",
@@ -1570,5 +1577,236 @@
     "scored_runs_used": 0,
     "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
     "next_step": "Exact warp integer reductions for top8 selection, preserving FP32 dot/sigmoid/raw scores and canonicalizing signed zero only in ordered selection keys."
+  },
+  "decoder_router_redux_phase11": {
+    "job": "95d566e83fa74e33",
+    "source_sha256": "c378ea501dcb2adde88d6d607ecb9e75951dbb677e763609532be1bd03758962",
+    "speedup": 2.020471502484871,
+    "interval": [
+      1.990164429947598,
+      2.050778575022144
+    ],
+    "passed": true,
+    "tests": 13,
+    "benchmarks": 12,
+    "integrity": true,
+    "prepare_s": 255.532877179,
+    "gpu_bitwise": true,
+    "paired_comparisons": [
+      {
+        "m": 1,
+        "pattern": "normal",
+        "incumbent_ns": [
+          16351.999714970589,
+          16607.999801635742,
+          15807.999297976494,
+          16319.9994713068,
+          17055.999487638474,
+          17023.999243974686,
+          16000.00075995922,
+          15776.000916957855
+        ],
+        "redux_ns": [
+          15519.999898970127,
+          15424.000099301338,
+          15904.000028967857,
+          16416.000202298164,
+          15680.000185966492,
+          15712.00042963028,
+          15871.99978530407,
+          16448.000445961952
+        ],
+        "paired_ratios": [
+          1.0536082359160113,
+          1.0767634656841085,
+          0.993963736744435,
+          0.9941520023264909,
+          1.0877550564638063,
+          1.0835029772447173,
+          1.008064577645324,
+          0.9591439986147936
+        ],
+        "median_ratio": 1.0308364067806677
+      },
+      {
+        "m": 1,
+        "pattern": "impulse",
+        "incumbent_ns": [
+          16224.000602960587,
+          16863.999888300896,
+          16287.999227643013,
+          16480.00068962574,
+          15936.000272631645,
+          16992.000862956047,
+          15968.000516295433,
+          15712.00042963028
+        ],
+        "redux_ns": [
+          15039.999969303608,
+          16063.999384641647,
+          14944.000169634819,
+          15007.99972563982,
+          15904.000028967857,
+          15456.000342965126,
+          16224.000602960587,
+          16000.00075995922
+        ],
+        "paired_ratios": [
+          1.0787234465474405,
+          1.049800830073743,
+          1.0899356961156297,
+          1.0980810894786424,
+          1.002012087751855,
+          1.099378913425687,
+          0.9842209025424692,
+          0.9819999802093963
+        ],
+        "median_ratio": 1.0642621383105917
+      },
+      {
+        "m": 8,
+        "pattern": "normal",
+        "incumbent_ns": [
+          25919.999927282333,
+          25952.00017094612,
+          26240.000501275063,
+          27295.999228954315,
+          27135.999873280525,
+          26623.99969995022,
+          26847.999542951584,
+          26464.00034427643
+        ],
+        "redux_ns": [
+          26272.00074493885,
+          26111.99952661991,
+          26272.00074493885,
+          27200.0003606081,
+          25887.999683618546,
+          25919.999927282333,
+          25087.999179959297,
+          25216.00015461445
+        ],
+        "paired_ratios": [
+          0.9866016744946869,
+          0.9938725735840077,
+          0.9987819639632908,
+          1.0035293701129961,
+          1.0482076716978521,
+          1.027160485132829,
+          1.0701530779863149,
+          1.0494923930048279
+        ],
+        "median_ratio": 1.0153449276229125
+      },
+      {
+        "m": 8,
+        "pattern": "impulse",
+        "incumbent_ns": [
+          25728.000327944756,
+          27648.000046610832,
+          25439.999997615814,
+          25887.999683618546,
+          26464.00034427643,
+          26272.00074493885,
+          26784.000918269157,
+          26432.00010061264
+        ],
+        "redux_ns": [
+          27103.999629616737,
+          27327.999472618103,
+          25087.999179959297,
+          25567.999109625816,
+          25119.999423623085,
+          26784.000918269157,
+          25952.00017094612,
+          25760.000571608543
+        ],
+        "paired_ratios": [
+          0.949232610667231,
+          1.0117096231033436,
+          1.01403064529505,
+          1.0125156674411904,
+          1.0535032225912169,
+          0.9808841041003297,
+          1.032059214775071,
+          1.0260869376588735
+        ],
+        "median_ratio": 1.01327315636812
+      }
+    ],
+    "benchmark_ratios": [
+      {
+        "index": 0,
+        "ratio": 1.004759060514403,
+        "changed": true
+      },
+      {
+        "index": 1,
+        "ratio": 1.0160027436155425,
+        "changed": true
+      },
+      {
+        "index": 2,
+        "ratio": 1.0004788880894528,
+        "changed": false
+      },
+      {
+        "index": 3,
+        "ratio": 1.0192808615094813,
+        "changed": false
+      },
+      {
+        "index": 4,
+        "ratio": 1.0277655830720436,
+        "changed": false
+      },
+      {
+        "index": 5,
+        "ratio": 1.0260441977824888,
+        "changed": false
+      },
+      {
+        "index": 6,
+        "ratio": 1.0069262317269594,
+        "changed": true
+      },
+      {
+        "index": 7,
+        "ratio": 1.008646953858756,
+        "changed": true
+      },
+      {
+        "index": 8,
+        "ratio": 1.0387796668774463,
+        "changed": false
+      },
+      {
+        "index": 9,
+        "ratio": 1.0142240578255495,
+        "changed": false
+      },
+      {
+        "index": 10,
+        "ratio": 1.000230279875645,
+        "changed": false
+      },
+      {
+        "index": 11,
+        "ratio": 0.9999226250778458,
+        "changed": false
+      }
+    ],
+    "changed_load_geomean_ratio": 1.009074919696082,
+    "controller_outcome": "discard: predeclared controlled router guard failed at M8",
+    "scored_runs_used": 0,
+    "retained_source_sha256": "09badc9b956d00795ff2eeb61c63244b25347736ff5819e20a8f692a863d5a67",
+    "next_step": "Correct inherited attention BF16 boundaries before further publication"
+  },
+  "attention_precision_audit": {
+    "status": "correction checking",
+    "document": "ATTENTION_PRECISION_AUDIT.md",
+    "attention_draft": "24782695e507801dcf4e753349a97de723d99e3463b2aac0c67a645ff53a884a",
+    "decoder_draft": "1fb5d05d7ed5ed6ee490ee0e5ba3b612b24895448b4c86d4f298620d6ae32432",
+    "earlier_published_sources_require_correction": true
   }
 }

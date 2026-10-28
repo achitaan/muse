@@ -1,0 +1,123 @@
+--- attention-before.cu
++++ attention-bf16-boundaries.cu
+@@ -161,10 +161,12 @@
+ __device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
+   return pack_h2(ex2(lo), ex2(hi));
+ }
+-// conformance sensitivity probe only : round the attention output, which SGLang keeps in
+-// BF16 before rmsnorm * gate, to e4m3 -- the precision check must reject that build
+-__device__ __forceinline__ float pr8(float x) {
+-  return x;
++// Pinned SGLang materializes BF16 Q/K and BF16 attention output.
++__device__ __forceinline__ float bf16_round(float x) {
++  return __bfloat162float(__float2bfloat16_rn(x));
++}
++__device__ __forceinline__ float attn_out_bf16(float x) {
++  return bf16_round(x);
+ }
+ __device__ __forceinline__ uint8_t to_e4m3(float x) {
+   return (uint8_t)__nv_cvt_float_to_fp8(x, __NV_SATFINITE, __NV_E4M3);
+@@ -628,7 +630,7 @@
+       const float lsum = act ? RL[rl] : 0.f;
+       const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
+       const float4 a = act ? *reinterpret_cast<const float4*>(&RB[e * 4]) : make_float4(0.f, 0.f, 0.f, 0.f);
+-      float y[4] = {pr8(a.x * inv), pr8(a.y * inv), pr8(a.z * inv), pr8(a.w * inv)};
++      float y[4] = {attn_out_bf16(a.x * inv), attn_out_bf16(a.y * inv), attn_out_bf16(a.z * inv), attn_out_bf16(a.w * inv)};
+       float ss = y[0] * y[0] + y[1] * y[1] + y[2] * y[2] + y[3] * y[3];
+       ss += __shfl_xor_sync(0xffffffffu, ss, 1);
+       ss += __shfl_xor_sync(0xffffffffu, ss, 2);
+@@ -783,8 +785,8 @@
+         if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;
+       }
+       const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;
+-      float y[8] = {pr8(xa[u].x * inv), pr8(xa[u].y * inv), pr8(xa[u].z * inv), pr8(xa[u].w * inv),
+-                    pr8(xb[u].x * inv), pr8(xb[u].y * inv), pr8(xb[u].z * inv), pr8(xb[u].w * inv)};
++      float y[8] = {attn_out_bf16(xa[u].x * inv), attn_out_bf16(xa[u].y * inv), attn_out_bf16(xa[u].z * inv), attn_out_bf16(xa[u].w * inv),
++                    attn_out_bf16(xb[u].x * inv), attn_out_bf16(xb[u].y * inv), attn_out_bf16(xb[u].z * inv), attn_out_bf16(xb[u].w * inv)};
+       float ss = 0.f;
+ #pragma unroll
+       for (int e = 0; e < 8; ++e) ss += y[e] * y[e];
+@@ -1269,15 +1271,15 @@
+       ss += __shfl_xor_sync(0xffffffffu, ss, 2);
+       const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
+ #pragma unroll
+-      for (int e = 0; e < 16; ++e) x[e] *= r;
++      for (int e = 0; e < 16; ++e) x[e] = bf16_round(x[e] * r);
+       if (p.rope) {
+ #pragma unroll
+         for (int e = 0; e < 8; ++e) {
+           const int i = q4 * 8 + e;
+           const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
+           const float a0 = x[2 * e], a1 = x[2 * e + 1];
+-          x[2 * e] = a0 * c - a1 * sn;
+-          x[2 * e + 1] = a0 * sn + a1 * c;
++          x[2 * e] = bf16_round(a0 * c - a1 * sn);
++          x[2 * e + 1] = bf16_round(a0 * sn + a1 * c);
+         }
+       }
+       const int hk4 = hh >> 3, gg4 = hh & 7;
+@@ -1306,15 +1308,15 @@
+     ss = oct_sum(ss);
+     const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
+ #pragma unroll
+-    for (int e = 0; e < 8; ++e) x[e] *= r;
++    for (int e = 0; e < 8; ++e) x[e] = bf16_round(x[e] * r);
+     if (p.rope) {
+ #pragma unroll
+       for (int e = 0; e < 4; ++e) {
+         const int i = partL * 4 + e;
+         const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
+         const float a0 = x[2 * e], a1 = x[2 * e + 1];
+-        x[2 * e] = a0 * c - a1 * sn;
+-        x[2 * e + 1] = a0 * sn + a1 * c;
++        x[2 * e] = bf16_round(a0 * c - a1 * sn);
++        x[2 * e + 1] = bf16_round(a0 * sn + a1 * c);
+       }
+     }
+     // f16 query pre-scaled to log2 units, staged in the (still free) last pipeline stage
+@@ -1368,15 +1370,15 @@
+       if (kind == 0) {
+         const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
+ #pragma unroll
+-        for (int e = 0; e < 8; ++e) x[e] *= r;
++        for (int e = 0; e < 8; ++e) x[e] = bf16_round(x[e] * r);
+         if (p.rope && live) {
+ #pragma unroll
+           for (int e = 0; e < 4; ++e) {
+             const int i = partL * 4 + e;
+             const float c = S.cs[jj * 32 + i], sn = S.sn[jj * 32 + i];
+             const float a0 = x[2 * e], a1 = x[2 * e + 1];
+-            x[2 * e] = a0 * c - a1 * sn;
+-            x[2 * e + 1] = a0 * sn + a1 * c;
++            x[2 * e] = bf16_round(a0 * c - a1 * sn);
++            x[2 * e + 1] = bf16_round(a0 * sn + a1 * c);
+           }
+         }
+         sc = __fdividef(1.f, kscale);   // (MUFU.RCP: no IEEE slow-path call and its branches on the once-path;
+@@ -2180,7 +2182,7 @@
+       const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
+       float ss = 0.f;
+ #pragma unroll
+-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
++      for (int e = 0; e < 8; ++e) { y[e] = attn_out_bf16(y[e] * inv); ss += y[e] * y[e]; }
+       ss += __shfl_xor_sync(0xffffffffu, ss, 1);
+       ss += __shfl_xor_sync(0xffffffffu, ss, 2);
+       ss += __shfl_xor_sync(0xffffffffu, ss, 4);
+@@ -2226,7 +2228,7 @@
+       const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
+       float ss = 0.f;
+ #pragma unroll
+-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
++      for (int e = 0; e < 8; ++e) { y[e] = attn_out_bf16(y[e] * inv); ss += y[e] * y[e]; }
+       ss = oct_sum(ss);
+       const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
+       const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
+@@ -2319,7 +2321,7 @@
+     const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
+     float ss = 0.f;
+ #pragma unroll
+-    for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
++    for (int e = 0; e < 8; ++e) { y[e] = attn_out_bf16(y[e] * inv); ss += y[e] * y[e]; }
+     ss += __shfl_xor_sync(0xffffffffu, ss, 1);
+     ss += __shfl_xor_sync(0xffffffffu, ss, 2);
+     ss += __shfl_xor_sync(0xffffffffu, ss, 4);

@@ -359,3 +359,15 @@ dispatch. Main chat only; one check after complete review, no repeated baseline.
 No job/controller pending at this boundary. Decode quota expected4checks/5scores
 after one new check; not a fresh API observation. Published09badc9b remains
 1.993956388x. Native top50Goal active; no updated rank claim.
+
+
+## Decode phase11: exact warp reductions, October28 20:09UTC
+
+Check95d566e83fa74e33 passed13tests/12benchmarks/integrity at2.020471502x,
+CI[1.990164430,2.050778575]. All GPU router bitwise probes passed. Controlled
+eight-pair cold graph medians for incumbent/new were1.03084/1.06426 at M1
+normal/impulse,1.01534/1.01327 at M8. The predeclared guard required every
+median>1.03; M8 failed. Controller discarded/reverted automatically. No score
+used, no threshold revision or repeat. Prepare255.533s. Complete evidence:
+results/resumed-decoder-phase11-20261028/. Original09badc9b remains retained
+pending the attention precision correction documented in ATTENTION_PRECISION_AUDIT.md.
