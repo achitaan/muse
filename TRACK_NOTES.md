@@ -84,3 +84,7 @@ honest keep/revert history. User requested main-chat-only work; do not delegate.
 Use the existing authenticated free official H200 service. Never print or commit
 credentials. Quotas are per problem and reset at 00:00 UTC. No paid GPU service
 or external model provider is authorized.
+
+## Latest MoE update
+
+Read MOE_NOTES.md for measured progress, Dot review, precision correction, and remaining track order. Attention scored result is 1.116457695x; its earlier pending status above is historical.

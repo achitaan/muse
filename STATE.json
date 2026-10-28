@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Establish Marlin MoE baseline; inspect padding and alignment overhead before one focused hypothesis.",
+  "next_trial": "Rebaseline with FP32 scaled norm intermediates matching pinned SGLang before further tuning.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -70,5 +70,23 @@
     "tests": 13,
     "benchmarks": 12,
     "status": "set_aside_at_user_request"
-  }
+  },
+  "moe_phase1": {
+    "best_checked_job": "bd37e0d81b0542fa",
+    "speedup": 1.2714715622447,
+    "checks_used": 4,
+    "scored_used": 0,
+    "precision_note": "Previous public-starter BF16 scaled norm rounding is removed in the new baseline."
+  },
+  "attention_scored": {
+    "job": "f6b899f674914ef2",
+    "speedup": 1.1164576945411764,
+    "passed": true
+  },
+  "remaining_track_order": [
+    "muse_moe_w4a16",
+    "muse_decode_layer",
+    "muse_attention_decode",
+    "muse_prefill_layer"
+  ]
 }

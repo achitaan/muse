@@ -1,0 +1,66 @@
+{
+  "seed": 20261028,
+  "cases": [
+    {
+      "m": 1,
+      "distribution": "normal",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 1,
+      "distribution": "zero_local",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 1,
+      "distribution": "outliers",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 4,
+      "distribution": "normal",
+      "relative_l2": 0.002988166408613324
+    },
+    {
+      "m": 4,
+      "distribution": "zero_local",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 4,
+      "distribution": "outliers",
+      "relative_l2": 0.00352497398853302
+    },
+    {
+      "m": 8,
+      "distribution": "normal",
+      "relative_l2": 0.0029626928735524416
+    },
+    {
+      "m": 8,
+      "distribution": "zero_local",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 8,
+      "distribution": "outliers",
+      "relative_l2": 0.002951538423076272
+    },
+    {
+      "m": 16,
+      "distribution": "normal",
+      "relative_l2": 0.00296021462418139
+    },
+    {
+      "m": 16,
+      "distribution": "zero_local",
+      "relative_l2": 0.0
+    },
+    {
+      "m": 16,
+      "distribution": "outliers",
+      "relative_l2": 0.0028748062904924154
+    }
+  ],
+  "gpu_verified": false
+}

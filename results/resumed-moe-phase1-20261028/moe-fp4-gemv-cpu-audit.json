@@ -1,0 +1,12 @@
+{
+  "seed": 20261028,
+  "e4m3fn_all_256_codes_equal": true,
+  "e2m1_all_16_codes_bit_exact": true,
+  "packed_little_nibble_order_exact": true,
+  "all_4096_k_indices_once": true,
+  "all_4096_output_rows_once": true,
+  "fp32_reduction_relative_l2_vs_fp64": 1.0077961331851571e-07,
+  "gpu_compilation_verified": false,
+  "gpu_correctness_verified": false,
+  "speedup_measured": false
+}

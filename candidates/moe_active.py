@@ -170,10 +170,11 @@ def _achita_moe_small_finalize(Y, WEIGHT, NORM, IDS, OUT,
                      mask=active[:, None], other=0).to(tl.float32)
     norm = tl.load(NORM + dim).to(tl.float32)
     # SGLang applies the effective BF16 norm weight before normalizing.
-    scaled = (values * norm[None, :]).to(tl.bfloat16).to(tl.float32)
+    scaled = values * norm[None, :]
     inv = tl.rsqrt(tl.sum(scaled * scaled, 1) / H + EPS)
     weights = tl.load(WEIGHT + token * K + expert, mask=active, other=0)
-    result = tl.sum(scaled * (inv * weights)[:, None], 0)
+    normalized = scaled * inv[:, None]
+    result = tl.sum(normalized * weights[:, None], 0)
     tl.store(OUT + token * H + dim, result)
 
 

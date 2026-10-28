@@ -1,0 +1,47 @@
+[
+  {
+    "m": 1,
+    "baseline_block_m": 8,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 4,
+    "baseline_block_m": 8,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 8,
+    "baseline_block_m": 8,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 16,
+    "baseline_block_m": 8,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 32,
+    "baseline_block_m": 16,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 33,
+    "baseline_block_m": 16,
+    "candidate_block_m": 8
+  },
+  {
+    "m": 128,
+    "baseline_block_m": 48,
+    "candidate_block_m": 16
+  },
+  {
+    "m": 256,
+    "baseline_block_m": 64,
+    "candidate_block_m": 16
+  },
+  {
+    "m": 257,
+    "baseline_block_m": 64,
+    "candidate_block_m": 16
+  }
+]
