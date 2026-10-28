@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_moe_backend_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.156,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Native BF16 GEMM boundaries and FP32 norm storage verified structurally; GPU evidence remains authoritative.\r\nComplete MoE evidence matches the current source.\r\n",
+  "timed_out": false
+}

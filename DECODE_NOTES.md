@@ -1,3 +1,14 @@
+# Next Decode investigation - October 28, 2026, 19:28 UTC
+
+MoE phases7..12 produced no retained improvement; none is transferred here.
+Decoder09badc9b remains checked/published at1.994319167x/1.993956388x.
+No job or controller is pending. Read
+experiments/prepared/decoder_router_shared_review.md before implementation.
+The proposed change caches each FP32 router K-split once per CTA, reducing
+eightfold duplicate logical input loads while retaining the exact original
+FP32 FMA/reduction/top8 computation. No new Decode candidate/check exists yet.
+The earlier SK2 projection trials and profile misattribution stay rejected.
+
 # Latest publication - October 28, 2026, 17:58 UTC
 
 Retained 09badc9b is now also the published source. Scored job

@@ -1,0 +1,86 @@
+{
+  "source_sha256": "273c1f1a6d2aae2fd602cb20e5a7de965ac12686c86fdca614d8031c17b4c6a0",
+  "base_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "packaged_bytes": 178345,
+  "original_module_ast_recovered": true,
+  "cuda_patch_reversible": true,
+  "changed_policy": "WGS weight TMA only: evict_first to evict_normal",
+  "all_other_cache_hints_unchanged": true,
+  "all_addresses_barriers_math_layouts_unchanged": true,
+  "registers_threads_pipeline": "original576threads/GS2, no dynamic redistribution",
+  "address_cases": [
+    {
+      "route_count": 0,
+      "jobs": 0,
+      "unique_weight_stages": 0,
+      "issued_weight_stages": 0
+    },
+    {
+      "route_count": 1,
+      "jobs": 1,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 768
+    },
+    {
+      "route_count": 8,
+      "jobs": 1,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 768
+    },
+    {
+      "route_count": 32,
+      "jobs": 1,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 768
+    },
+    {
+      "route_count": 64,
+      "jobs": 1,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 768
+    },
+    {
+      "route_count": 65,
+      "jobs": 2,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 1536
+    },
+    {
+      "route_count": 128,
+      "jobs": 2,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 1536
+    },
+    {
+      "route_count": 129,
+      "jobs": 3,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 2304
+    },
+    {
+      "route_count": 256,
+      "jobs": 4,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 3072
+    },
+    {
+      "route_count": 257,
+      "jobs": 5,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 3840
+    },
+    {
+      "route_count": 384,
+      "jobs": 6,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 4608
+    },
+    {
+      "route_count": 3072,
+      "jobs": 48,
+      "unique_weight_stages": 768,
+      "issued_weight_stages": 36864
+    }
+  ],
+  "gpu_status": "unmeasured; logical reuse is not a measured cache hit or speedup"
+}

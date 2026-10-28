@@ -1,0 +1,58 @@
+{
+  "job": "7b9052f66cab49a2",
+  "source_sha256": "273c1f1a6d2aae2fd602cb20e5a7de965ac12686c86fdca614d8031c17b4c6a0",
+  "speedup": 2.3128090105855947,
+  "interval": [
+    2.278116875426811,
+    2.3475011457443786
+  ],
+  "passed": true,
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": true,
+  "weight_normal_enabled": true,
+  "compiler_diagnostic": "GS2 cache-policy variant reports96registers/16barriers/zero spill or stack; no C7512 in captured log. No SASS or cache-hit attribution.",
+  "comparisons": [
+    {
+      "bs": 1,
+      "baseline_speedup": 3.146383311095091,
+      "trial_speedup": 3.0587833345677917,
+      "ratio": 0.9721585172987679
+    },
+    {
+      "bs": 16,
+      "baseline_speedup": 2.0029663645249736,
+      "trial_speedup": 2.023088159479184,
+      "ratio": 1.0100459974319054
+    },
+    {
+      "bs": 32,
+      "baseline_speedup": 1.642387556147249,
+      "trial_speedup": 1.5838756314157263,
+      "ratio": 0.9643738626047671
+    },
+    {
+      "bs": 8,
+      "baseline_speedup": 2.2726496055914778,
+      "trial_speedup": 2.2335265605431402,
+      "ratio": 0.9827852718905361
+    },
+    {
+      "bs": 128,
+      "baseline_speedup": 2.5906674179713978,
+      "trial_speedup": 2.507699553289271,
+      "ratio": 0.9679743281184684
+    },
+    {
+      "bs": 256,
+      "baseline_speedup": 2.8745091518761363,
+      "trial_speedup": 2.787965526159344,
+      "ratio": 0.9698927291080959
+    }
+  ],
+  "decision": "discard; all changed WGS loads lost about3percent relative speedup versus primary baseline; no cache-policy sweep",
+  "scored_runs_used": 0,
+  "retained_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "decoder_draft": "4c910181,988840bytes,outside-MoE AST unchanged; inactive, never evaluated/promoted",
+  "next_step": "Move to Decode; inspect/reduce eightfold duplicate FP32-router input loads inside each CTA while preserving all FP32 FMA/reduction/top-k operations."
+}

@@ -1,7 +1,7 @@
-> Current checkpoint: October28,18:57UTC. MoE33114871 retained:2.365437416x
-> checked,2.348299935x published. Latest three trials lost/tied and were reverted;
-> no score used. No pending job/controller. Read phase9 at the end of this file
-> and experiments/prepared/moe_register_split_review.md for next work. Goal active.
+> Current checkpoint: October28,19:28UTC. MoE33114871 remains2.365437416x
+> checked/2.348299935x published; phases7..12 were rejected without scores.
+> No job/controller pending. Next focus: full-FP32 router input reuse in Decode.
+> See phase12 at the end of this file. The top50Goal remains active.
 
 # Scale-six rejected - October 28, phase6
 
@@ -359,3 +359,34 @@ in phase11. Preserve intermediate evict-last stores and all numerical work.
 
 No job/controller pending at this boundary. Expected MoE3checks/7scores left
 after five checks since18:24, not a new quota API observation. Goal active.
+
+
+## Phase12: WGS normal weight priority rejected; move to Decode (19:28 UTC)
+
+Check7b9052f66cab49a2/source273c1f1a passed5tests/6benchmarks/integrity at
+2.312809011x, CI[2.278116875,2.347501146]. WGS-normal-enabledTrue. All changed
+WGS loads lost about3% relative speedup against primary33114871. Reverted, no
+score. Do not sweep eviction constants or transfer this change. Full frozen
+source/results/profiles, CPU audits and history: results/resumed-moe-phase12-20261028/.
+The GS2cache variant's captured compiler log reports96registers/16barriers,
+zero stack/spills and no C7512. This is not SASS or cache-hit attribution.
+
+Inactive Decode cache draft4c910181 is988840bytes and has unchanged non-MoE
+AST; it was never evaluated/promoted because standalone timing lost. Both
+Decode09badc9b and MoE33114871 stay published/retained.
+
+Six MoE checks and zero scores used since18:24. Expected MoE2checks/7scores
+left (accounting estimate, not fresh API observation); reserve those for new
+evidence rather than more register/cache tuning. Other track quotas unchanged
+by this work. No job/controller pending. Overall remains last observed146
+at18:24, no new rank claim. Native top50Goal stays active.
+
+Next in the requested order: Decode. Correct profile attribution at one token:
+router_fp32~11.6us, pooler v18s_gemv~13.4us, unpooler smtrace_gemv~4.0us.
+At8tokens router~14.9..17.9us. Do not attribute pooler time to unpooling or
+spend a check on pruning a tiny zero unpooler path. The full-FP32 router input
+currently reloads the same1024-column K-split for all8warps/CTA. Assess one
+shared-input cache per CTA:4KB atM1,32KB atM2..8, fresh each launch. Preserve
+FP32weights/input, every __fmaf_rn and shuffle/reduction order, sigmoid/top8/ties,
+128block counter protocol, output format and side-stream ordering. No BF16
+router approximation. No new Decode source or check yet.
