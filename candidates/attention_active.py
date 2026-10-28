@@ -1,8 +1,10 @@
 # okc: problem=muse_attention_decode
 # Upstream: vjeux/okc-2026, commit f35a41ee1c13e316dabbf772830d47b23b453393.
 # Reused under Apache License 2.0, reproduced below.
-# Local modifications: cache scratch per device/size/stream for graph lifetime,
-# and cache derived RoPE frequencies per stream. CUDA algorithm is unchanged.
+# Local modifications: scratch cache per device/size/launch signature preserves
+# captured-buffer lifetime. Eagerly warmed immutable RoPE constants are shared.
+# Calls sharing scratch follow the interface's sequential replay order.
+# CUDA algorithm is unchanged.
 #                                  Apache License
 #                            Version 2.0, January 2004
 #                         http://www.apache.org/licenses/
@@ -3180,12 +3182,12 @@ def _inv_freq(theta, device, n_pairs=HEAD_DIM // 2):
             t = torch.zeros(n_pairs, device=device)
         return t.float().contiguous()
 
-    return _cached(_INV_FREQ, (float(theta), str(device), int(torch.cuda.current_stream(device).cuda_stream), n_pairs), make)
+    return _cached(_INV_FREQ, (float(theta), str(device), n_pairs), make)
 
 
-def _workspace(n_rows, device):
+def _workspace(n_rows, device, signature=None):
     """Persistent FP32 accumulators (zero between calls: the last CTA resets them)."""
-    key = (str(device), int(n_rows), int(torch.cuda.current_stream(device).cuda_stream))
+    key = (str(device), int(n_rows), signature)
     ws = _WS.get(key)
     if ws is None or ws[0].numel() < n_rows * HEAD_DIM:
         n = max(n_rows, WORKSPACE_MIN_ROWS)
@@ -3306,7 +3308,8 @@ def _launch(data, dbg=None, _mod=None, pdl=None, **override):
     tma = int(plan.get("tma", 0)) | (coop << COOP_BIT) | (int(use_pdl) << PDL_BIT)
     if flat or cs <= 1:
         cs, ncl = 0, 1
-    ws_acc, ws_l, ws_cnt = _workspace(B * pairs * nc * L * Q_HEADS_PER_PAIR, device)
+    ws_acc, ws_l, ws_cnt = _workspace(B * pairs * nc * L * Q_HEADS_PER_PAIR, device,
+                                        (B, pairs, L, window, P, n_splits, flat, cs, nc, coop))
     scale_log2 = cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E
     (_mod or _module()).run(qkv, data["seq_lens"], data["cache_loc"], data["k_cache"], data["v_cache"], page_table,
                   data["k_scale"], data["v_scale"], _inv_freq(cfg["rope_theta"], device), out, ws_acc, ws_l,
