@@ -7335,18 +7335,18 @@ def _sfn_kernel(Branch, Stream, PostWeight, PreWeight, Alpha, Beta, Output, NewS
     col = _sfn_tl.arange(0, H)
     branch = _sfn_tl.load(Branch + row * BranchStride + col, col < Slice, 0).to(_sfn_tl.float32)
     post_weight = _sfn_tl.load(PostWeight + col).to(_sfn_tl.float32)
+    stream = _sfn_tl.load(Stream + row * StreamStride + col).to(_sfn_tl.float32)
+    alpha = _sfn_tl.load(Alpha + col).to(_sfn_tl.float32)
+    beta = _sfn_tl.load(Beta + col).to(_sfn_tl.float32)
+    pre_weight = _sfn_tl.load(PreWeight + col).to(_sfn_tl.float32)
     post_input = (branch * post_weight).to(_sfn_tl.bfloat16).to(_sfn_tl.float32)
     # The implicit zero tail is part of the 8192-column RMSNorm domain.
     post_inv = _sfn_tl.rsqrt(_sfn_tl.sum(post_input * post_input, 0) / H + PostEps)
     norm_branch = (post_input * post_inv).to(_sfn_tl.bfloat16).to(_sfn_tl.float32)
-    stream = _sfn_tl.load(Stream + row * StreamStride + col).to(_sfn_tl.float32)
-    alpha = _sfn_tl.load(Alpha + col).to(_sfn_tl.float32)
-    beta = _sfn_tl.load(Beta + col).to(_sfn_tl.float32)
     updated = alpha * stream + beta * norm_branch
     _sfn_tl.store(NewStream + row * H + col, updated)
     # Default pre_norm_dtype=None: keep the residual input in FP32 here.
     pre_inv = _sfn_tl.rsqrt(_sfn_tl.sum(updated * updated, 0) / H + PreEps)
-    pre_weight = _sfn_tl.load(PreWeight + col).to(_sfn_tl.float32)
     _sfn_tl.store(Output + row * H + col, (updated * pre_inv) * pre_weight)
 
 
