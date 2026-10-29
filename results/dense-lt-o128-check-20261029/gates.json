@@ -1,0 +1,24 @@
+{
+  "experiment": "D3 Dense cuBLASLt algorithm selector for (128, 'o')",
+  "frozen_before_launch_utc": "2026-10-29T23:00:00Z",
+  "parent": {
+    "sha256": "edc61a1e...765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "candidate_sha256": "38aeb4867237bc3d927a3334bebada7c011cc952183fcc38e0f0c14e3f61fd7f",
+  "evidence_basis": "(128,'o') is the only M=128/256 Dense shape without a fixed cuBLASLt descriptor; verify 16 o 6.91 us vs floor 3.99",
+  "affected": [
+    [
+      "verify 16",
+      "o"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks",
+    "selection": ">=3% faster in prepare, FP64 error <= 1.5x incumbent",
+    "retention": "verify 16 o normalized >= 1.03"
+  },
+  "noise_note": "D1 showed 5-11% run-to-run moves on unchanged tiny Dense shapes; a single-run win needs confirmation"
+}
