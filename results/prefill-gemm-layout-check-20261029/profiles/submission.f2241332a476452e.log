@@ -1,0 +1,13 @@
+P3_CANDIDATE qkv_gate m753 transposed 46.0us base 42.0us err 0.00e+00
+P3_CANDIDATE qkv_gate m3012 transposed 148.8us base 149.0us err 0.00e+00
+P3_CANDIDATE qkv_gate m16384 transposed 784.0us base 774.6us err 0.00e+00
+P3_CANDIDATE o m753 transposed 24.3us base 24.2us err 0.00e+00
+P3_CANDIDATE o m3012 transposed 76.4us base 75.9us err 0.00e+00
+P3_CANDIDATE o m16384 transposed 388.3us base 377.9us err 0.00e+00
+P3_CANDIDATE pooler m753 transposed 68.7us base 68.8us err 0.00e+00
+P3_CANDIDATE pooler m3012 transposed 259.2us base 259.1us err 0.00e+00
+P3_CANDIDATE pooler m16384 transposed 1396.2us base 1397.5us err 0.00e+00
+P3_CANDIDATE unpooler m753 transposed 78.2us base 78.2us err 0.00e+00
+P3_CANDIDATE unpooler m3012 transposed 273.7us base 273.4us err 0.00e+00
+P3_CANDIDATE unpooler m16384 transposed 1440.4us base 1417.6us err 0.00e+00
+P3_SELECTOR selected=0 s=0.4

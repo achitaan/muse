@@ -1,0 +1,77 @@
+{
+  "experiment": "P3 Prefill GEMM layout selector",
+  "job": "f2241332a476452e",
+  "candidate_sha256": "a7289eb1465e81590cdc7c9a1e57f934f57e263e85a7a59e481bb0bd376236a9",
+  "official": {
+    "passed": true,
+    "speedup": 1.6497239742719778,
+    "ci": [
+      1.624978114657898,
+      1.6744698338860573
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "selector_us": {
+    "qkv_gate": {
+      "753": [
+        42.0,
+        46.0
+      ],
+      "3012": [
+        149.0,
+        148.8
+      ],
+      "16384": [
+        774.6,
+        784.0
+      ]
+    },
+    "o": {
+      "753": [
+        24.2,
+        24.3
+      ],
+      "3012": [
+        75.9,
+        76.4
+      ],
+      "16384": [
+        377.9,
+        388.3
+      ]
+    },
+    "pooler": {
+      "753": [
+        68.8,
+        68.7
+      ],
+      "3012": [
+        259.1,
+        259.2
+      ],
+      "16384": [
+        1397.5,
+        1396.2
+      ]
+    },
+    "unpooler": {
+      "753": [
+        78.2,
+        78.2
+      ],
+      "3012": [
+        273.4,
+        273.7
+      ],
+      "16384": [
+        1417.6,
+        1440.4
+      ]
+    },
+    "format": "[incumbent, transposed]"
+  },
+  "decision": "measurement only: pre-transposed layout never >=3% faster (best +0.1%); nothing selected; track change is run noise. Not retained."
+}
