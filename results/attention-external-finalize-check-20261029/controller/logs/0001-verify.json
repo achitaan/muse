@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_attention_external.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 634.734,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nAttention external-finalizer check 4c2b701a8d284b71: received\r\nAttention external-finalizer check 4c2b701a8d284b71: running\r\nAttention external-finalizer check 4c2b701a8d284b71: done\r\n",
+  "stdout": "{\"speedup\": 2.575983342517925, \"correct\": true, \"job\": \"4c2b701a8d284b71\", \"source_sha256\": \"88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794\", \"error\": null}\r\n",
+  "timed_out": false
+}

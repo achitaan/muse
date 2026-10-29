@@ -4,6 +4,7 @@ import json
 import math
 from pathlib import Path
 import sys
+import hashlib
 
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'STATE.json').exists())
 sys.path.insert(0,str(ROOT/'scripts'))
@@ -51,6 +52,11 @@ def set_gains(result,affected,controls=1.):
 
 def main():
     positive=fixture();verify_trial(positive,verbose=False)
+    truncated=copy.deepcopy(positive)
+    for row in truncated['result']['records']:
+        if row['event']=='profile' and row['index'] in CHANGED:
+            row['report']=row['report'].replace('<8,true,16>','<8,true,16...')
+    verify_trial(truncated,verbose=False)
     mutations={
       'missing_resource':lambda r:r['result'].update(log_tail=''),
       'duplicate_resource':lambda r:r['result'].update(log_tail=r['result']['log_tail']*2),
@@ -72,6 +78,8 @@ def main():
       'controls_explain_point':lambda r:set_gains(r,{9:1.03,11:1.03},1.04),
       'one_weak_affected_case':lambda r:set_gains(r,{9:1.1,11:1.005}),
       'wrong_weighted_aggregate':lambda r:r['result'].update(speedup=99.),
+      'wrong_flat_mode_untruncated':lambda r:profile(r,9,'attn_kernel_fp8pv<8,true,160>\nattn_external_finalize8'),
+      'wrong_partial_flat_mode':lambda r:profile(r,9,'attn_kernel_fp8pv<8,true,1...\nattn_external_finalize8'),
     }
     rejected=[]
     for name,mutation in mutations.items():
@@ -79,9 +87,11 @@ def main():
         try:verify_trial(result,verbose=False)
         except (AssertionError,ValueError,KeyError,TypeError):rejected.append(name)
         else:raise AssertionError('Broken fixture accepted: '+name)
-    report=dict(source_sha256=TRIAL,CPU_only=True,GPU_jobs=0,positive_fixture_passed=True,
+    report=dict(revision=2,source_sha256=TRIAL,CPU_only=True,GPU_jobs=0,positive_fixture_passed=True,
+                source_bound_actual_truncated_spelling_passed=True,
+                guard_sha256=hashlib.sha256((ROOT/'scripts/attention_external_evidence.py').read_bytes()).hexdigest(),
                 rejected_mutants=rejected,synthetic_fixture_is_not_measurement=True)
-    path=PACKET/'guard-CPU-audit.json';data=(json.dumps(report,indent=2)+'\n').encode()
+    path=PACKET/'guard-CPU-audit-v2.json';data=(json.dumps(report,indent=2)+'\n').encode()
     assert not path.exists() or path.read_bytes()==data
     path.write_bytes(data)
     assert validate_packet()==(PACKET/'admission-v2/submission.py').read_bytes()

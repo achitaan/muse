@@ -1,3 +1,24 @@
+# October29: external finalizer closed; no retained gain
+
+Check4c2b701a8d284b71/source88026272 passes full16/12/integrity, native
+resources, and actual MODE16 plus parallel finalizer on9/11. Aggregate
+2.575983343x is not a retained gain: affected GM1.028889596, controls
+1.013136108, normalized1.015549232 below fixed1.02; case11normalized
+1.006150219 below1.01. The initial profiler16... parser failure was fixed
+offline, preserving all criteria/history and spending no new GPU job.
+Retain9e, no score/retry/selector/Decode transfer. Complete packet:
+results/attention-external-finalize-check-20261029/; review
+experiments/prepared/attention_external_finalize_review.md.
+
+Source audit reminder: retained L8 already uses FP8 QK SS-WGMMA via q8s
+and wgmma_m64n64k32_e4m3_ss, as well as FP8 PV. Do not propose enabling
+these again. The older8463 FP8QK trial affected only L1, not L8. A future
+L8 overlap design must change the actual score/softmax dependency (for
+example two distinct score banks with an explicit resource model), beyond
+the previously rejected wait moves. This is a hypothesis, no implementation
+or GPU ticket yet. Preserve all BF16 materializations, complete key coverage,
+old stage barriers and numerical/replay/fallback checks.
+
 # October29: fixed L1-flat wide-tile check rejected
 
 Finalf5d5b04b ran asfa78c34851144383, passed16tests/12benchmarks/integrity.

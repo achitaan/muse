@@ -1,0 +1,29 @@
+{
+  "source_sha256": "88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "positive_fixture_passed": true,
+  "rejected_mutants": [
+    "missing_resource",
+    "duplicate_resource",
+    "baseline_occupancy_not_proven",
+    "new_main_local_memory",
+    "new_main_shared_size_wrong",
+    "finalizer_local_memory",
+    "wrong_main_geometry",
+    "wrong_mode",
+    "missing_new_main",
+    "missing_parallel_finalizer",
+    "duplicate_old_and_new_work",
+    "changed_control",
+    "control_backend_absent",
+    "missing_test",
+    "integrity_false",
+    "wrong_device",
+    "no_affected_gain",
+    "controls_explain_point",
+    "one_weak_affected_case",
+    "wrong_weighted_aggregate"
+  ],
+  "synthetic_fixture_is_not_measurement": true
+}

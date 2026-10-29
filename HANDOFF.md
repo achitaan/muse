@@ -1,3 +1,34 @@
+> Precision clarification from actual D9 source: L8 already uses FP8 QK SS
+> and FP8 PV row-sum WGMMA; only its L1 QK/PV path remains FP16. The broad
+> earlier "D9 FP16-PV source" wording is superseded by decoder-transfer-
+> inspection-v2.json in the latest result packet. Do not propose FP8 enabling
+> for L8 or transplant the tied standalone L1 FP8-PV change. No source edited.
+>
+> LATEST TERMINAL RESULT, October29: Attention88026272 check4c2b701a8d284b71
+> full16tests/12benchmarks/integrity and new main/finalizer paths9/11 pass.
+> Native old/new80regs,zero local/static,2blocks/SM,114688dynamic;
+> final31regs,zero local/static,16blocks/SM,132SMs. Point2.575983343x.
+> Original controller falsely missed table-truncated16...; preserved original
+> rejection, repaired parser offline (22negative fixtures), no GPU retry.
+> Fixed performance gates still fail: affected1.028889596,controls1.013136108,
+> normalized1.015549232<1.02; case11normalized1.006150219<1.01. Retain9e.
+> No score, noise rerun, batch selector or Decode transfer. Trial025b9f2,
+> revert76657fb, controllerd945eea5, archive20261029-135849. Complete packet
+> results/attention-external-finalize-check-20261029/ contains source/result/
+> profiles/controller/both guards/CPU repair/public API/transfer inspection.
+> All44protected hashes restored; no active job/controller. Derived checks
+> Dense19,Attention17,MoE12,Decode19,Prefill20=87;10scores each=50. Next new
+> check>=14:50:51.779806UTC=10:50Toronto;20Toronto window/reserves stay intact.
+> Latest overall API snapshot189/1545, published board only. Its measure says
+> ranks across problems; API gives ranks only. No aggregate overall speedup.
+> Source inspection prevents an obsolete idea: retained L8 already performs
+> FP8 QK SS-WGMMA and FP8 PV. The rejectedFP8QK8463 trial changed only L1,
+> but this does not make FP8QK a new L8 proposal. Simple L8 wait moves also
+> closed. Next inspect an actual pipeline dependency bottleneck; dual score
+> banks for next-QK/current-softmax overlap would be a distinct architecture
+> requiring one fixed dependency/resource model first, not another wait flag.
+> Main-only, no model switch. Broad top50 goal remains active.
+>
 > READY FOR ONE PACED CHECK: Attention88026272, CUDAc02c053a,179965B;
 > results/attention-external-finalize-preflight-20261029/admission-v2/.
 > Independent mainloop/precision/barrier/fallback proof and20negative result

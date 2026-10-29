@@ -1,5 +1,17 @@
 # L8 full Attention: parallel finalization after a normal stream join
 
+Terminal outcome: check4c2b701a8d284b71 passed16tests/12benchmarks/integrity,
+native resources and real MODE16+finalizer execution. Point2.575983343x,
+CI[2.537343592,2.614623093], does not pass the fixed performance guard:
+affected GM1.028889596, controls1.013136108, normalized1.015549232<1.02;
+case11normalized1.006150219<1.01. Retain9e, no score/rerun/selector/Decode port.
+The controller initially rejected the profiler's truncated16... spelling;
+an offline source-bound parser repair confirms the performance rejection with
+all thresholds unchanged. Original controller/guard history and22negative
+repaired-guard fixtures are preserved in
+results/attention-external-finalize-check-20261029/. No extra GPU job was used.
+The readiness discussion below is historical and superseded by this result.
+
 Retained parent:9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f,
 native CUDA241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db.
 No active source changed and no GPU job was used for this study. The top50
@@ -120,8 +132,9 @@ not establish statistical significance or automatically authorize publication.
 Reject failures/ties without a noise rerun or neighbor sweep. No check before
 13:50:40.319601UTC on October29; preserve four checks/scores per track and
 the20Toronto deadline. A future justified Decode transfer must port only this
-control/finalization mechanism onto D9's own FP16-PV source. It must not import
-the tied standalone FP8-PV mainloop or associate its score with the new source.
+control/finalization mechanism onto D9's own native source. D9 already uses
+FP8 QK/PV for L8; its L1 QK/PV path is FP16. It must not import the tied
+standalone L1 FP8-PV change or associate its score with the new source.
 
 
 Admission completion, before any GPU launch: independent source/precision

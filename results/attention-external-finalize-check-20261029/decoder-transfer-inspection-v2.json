@@ -1,0 +1,25 @@
+{
+  "decoder_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "decoder_native_CUDA_sha256": "db68e6abbc1daa9a594005de05713f8aa5370599d30d12d04a0433aa5bb9fd8d",
+  "standalone_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "retained_finalizer_byte_identical": true,
+  "finalizer_sha256": "df56a31abd4c3c89d298e85bce43c9b573793ade8cb243b4c5d77a0732180ed3",
+  "decoder_main_symbol": "attn_kernel",
+  "standalone_main_symbol": "attn_kernel_fp8pv",
+  "transfer_code_written": false,
+  "GPU_jobs": 0,
+  "viable_mechanism": "A future accepted component may port only a new control/finalization mechanism onto D9 own native arithmetic. This failed external-finalizer design is not transferred.",
+  "anchors": {
+    "if (p.coop) flat_finalize<": 2,
+    "segment<L, FLAT, R>(p, S,": 1,
+    "const bool mode1 =": 1,
+    "void launch(": 1
+  },
+  "revision": 2,
+  "supersedes": "decoder-transfer-inspection.json broad FP16-PV module label is clarified here; original retained as historical evidence",
+  "decoder_native_L8_source_calls": {
+    "FP8_QK_SS_WGMMA": 2,
+    "FP8_PV_row_sum_WGMMA": 3
+  },
+  "precision_scope": "D9 L8 already uses FP8 QK/PV; D9 L1 QK/PV remains FP16. Standalone L1 FP8-PV publication was tied and is not transferred."
+}

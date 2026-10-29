@@ -128,7 +128,7 @@ def validate_packet():
     for row in identity['files']:
         assert row['exact'] and row['fresh_sha256']==row['pinned_sha256']
         assert hashlib.sha256((ROOT/'muse_attention_decode'/row['file']).read_bytes()).hexdigest()==row['pinned_sha256']
-    guard=read(PACKET/'guard-CPU-audit.json')
+    guard=read(PACKET/'guard-CPU-audit-v2.json')
     assert guard['source_sha256']==TRIAL and guard['positive_fixture_passed'] and len(guard['rejected_mutants'])>=15
     return raw
 
@@ -146,10 +146,15 @@ def verify_trial(result,verbose=True):
     profiles={row['index']:row.get('report','').replace(' ','') for row in body['records'] if row.get('event')=='profile'}
     assert set(profiles)==set(range(12))
     for i in CHANGED:
-        assert 'attn_kernel_fp8pv<8,true,16>' in profiles[i],'Deferred main path absent'
+        # The fixed-width official report truncates this exact source's MODE16
+        # spelling after "16". Only modes0/16 are instantiated for L8 flat;
+        # source/resource bindings and finalizer presence remain mandatory.
+        assert ('attn_kernel_fp8pv<8,true,16>' in profiles[i]
+                or 'attn_kernel_fp8pv<8,true,16...' in profiles[i]),'Deferred main path absent'
         assert 'attn_external_finalize8' in profiles[i],'Parallel finalizer absent'
         assert 'attn_kernel_fp8pv<8,true,0>' not in profiles[i],'Retained and experimental main both executed'
-    assert all('attn_kernel_fp8pv<8,true,16>' not in profiles[i] and 'attn_external_finalize8' not in profiles[i] for i in CONTROLS),'Control path changed'
+    assert all('attn_kernel_fp8pv<8,true,16>' not in profiles[i] and 'attn_kernel_fp8pv<8,true,16...' not in profiles[i]
+               and 'attn_external_finalize8' not in profiles[i] for i in CONTROLS),'Control path changed'
     assert all('attn_kernel_fp8pv<' in profiles[i] for i in CONTROLS),'Retained control backend absent'
     old,old_rows=full_result(bound_result(PARENT))
     prior={row['index']:row['speedup'] for row in old_rows}

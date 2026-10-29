@@ -1,0 +1,105 @@
+{
+  "job_id": "4c2b701a8d284b71",
+  "source_sha256": "88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794",
+  "CUDA_sha256": "c02c053a7afcab82fb1d09df7b74361855d6c24c6b664633db3dec675d06eeb7",
+  "full_tests": 16,
+  "full_benchmarks": 12,
+  "integrity_ok": true,
+  "GPU": "H200",
+  "actual_new_main_and_finalizer_execute_in_cases": [
+    9,
+    11
+  ],
+  "all_ten_control_profiles_retain_original_backend": true,
+  "source_resource_and_execution_gates_pass_after_name_parser_repair": true,
+  "speedup": 2.575983342517925,
+  "speedup_ci": [
+    2.537343592380156,
+    2.6146230926556937
+  ],
+  "performance": {
+    "source_sha256": "88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794",
+    "affected_case_geomean": 1.028889596047797,
+    "controls_case_geomean": 1.0131361081408423,
+    "normalized_affected": 1.0155492315201984,
+    "aggregate_ratio": 1.0153657155612865,
+    "per_case_ratios": {
+      "0": 1.0117805338054877,
+      "1": 1.0152976352667564,
+      "2": 1.0321336880603602,
+      "3": 1.002567389163311,
+      "4": 1.0008804043537485,
+      "5": 0.9973233808689974,
+      "6": 1.0261189184117314,
+      "7": 1.0147081189238532,
+      "8": 1.011148197936525,
+      "9": 1.0385010302087476,
+      "10": 1.019945315949616,
+      "11": 1.0193671167014715
+    },
+    "resources": [
+      80,
+      0,
+      0,
+      2,
+      80,
+      0,
+      0,
+      2,
+      114688,
+      31,
+      0,
+      0,
+      16,
+      132,
+      64,
+      384,
+      128,
+      16
+    ],
+    "statistical_significance_claim": false
+  },
+  "original_controller_failure": "Deferred main path absent: exact name expectation missed official fixed-width16... spelling",
+  "offline_parser_repair": "Accept only the fixed source-bound16... spelling in addition to full MODE16 name; all source, resource, execution and gain criteria retained",
+  "offline_fixed_guard_failure": "Insufficient affected/control gain",
+  "failed_precommitted_performance_requirements": [
+    "normalized affected1.015549232 <1.02",
+    "normalized case11 1.006150219 <1.01"
+  ],
+  "CPU_guard_revision2_negative_fixtures": 22,
+  "new_GPU_jobs_for_parser_repair": 0,
+  "controller_run_id": "d945eea56dd94d74985d825e895b9ca2",
+  "trial_commit": "025b9f2a597cbb4ab3020b7bbace0984a480d887",
+  "revert_commit": "76657fbcfb89709f481cd3149f5c7315149ab5fe",
+  "controller_archive": "20261029-135849",
+  "retained_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "retained_speedup": 2.5370005142373167,
+  "all_44_protected_hashes_restored": true,
+  "new_scored_submissions": 0,
+  "derived_quotas_after_accepted_check": {
+    "muse_bf16_proj": {
+      "checks": 19,
+      "scores": 10
+    },
+    "muse_attention_decode": {
+      "checks": 17,
+      "scores": 10
+    },
+    "muse_moe_w4a16": {
+      "checks": 12,
+      "scores": 10
+    },
+    "muse_decode_layer": {
+      "checks": 19,
+      "scores": 10
+    },
+    "muse_prefill_layer": {
+      "checks": 20,
+      "scores": 10
+    }
+  },
+  "quota_scope": "Fresh pre-launch API minus this accepted check; not a new post-result API snapshot",
+  "next_new_check_not_before_utc": "2026-10-29T14:50:51.779806+00:00",
+  "decision": "Retain9e; close this fixed external-finalizer design without score, noise rerun, batch selector or Decode transfer",
+  "limitations": "Raw aggregate and affected point gains do not establish a retained speedup; controls also moved. No statistical-significance claim. Overall API reports rank only, no aggregate speedup."
+}
