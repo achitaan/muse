@@ -4,7 +4,7 @@ Uses the main checkout's authenticated okc binary and its shared pacing ledger,
 so the 60-minute spacing, reserve and window rules in EVALUATION_POLICY.json
 apply across both lanes. Never reads or prints credentials.
 
-usage: python scripts/measure_decode_lane.py <candidate.py> <result-dir>
+usage: python scripts/measure_decode_lane.py <candidate.py> <result-dir> [check|submit] [problem]
 """
 from datetime import datetime, timezone
 import hashlib
@@ -58,6 +58,7 @@ def pacing():
 def main():
     source, folder = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
     action = sys.argv[3] if len(sys.argv) > 3 else 'check'
+    problem_name = sys.argv[4] if len(sys.argv) > 4 else 'muse_decode_layer'
     assert action in ('check', 'submit')
     raw = source.read_bytes()
     sha = hashlib.sha256(raw).hexdigest()
@@ -82,17 +83,17 @@ def main():
             raise RuntimeError('An official job is still live')
         quotas = cli(['problems', '--json'])
         save(folder / f'quota-before-{action}.json', dict(utc=datetime.now(timezone.utc).isoformat(), response=quotas))
-        problem = next(p for p in quotas['problems'] if p['name'] == 'muse_decode_layer')
+        problem = next(p for p in quotas['problems'] if p['name'] == problem_name)
         if action == 'check' and problem['limits']['checks']['left'] <= policy['minimum_checks_reserved_per_track']:
-            raise RuntimeError('Decode check reserve reached')
+            raise RuntimeError(f'{problem_name} check reserve reached')
         if action == 'submit' and problem['limits']['scored']['left'] <= policy['minimum_scores_reserved_per_track']:
-            raise RuntimeError('Decode scored reserve reached')
+            raise RuntimeError(f'{problem_name} scored reserve reached')
         save(intent_path, dict(source_sha256=sha, action=action, utc=datetime.now(timezone.utc).isoformat()))
-        launch = cli([action, 'muse_decode_layer', linux(frozen), '--no-wait', '--json'])
+        launch = cli([action, problem_name, linux(frozen), '--no-wait', '--json'])
         launch.update(source_sha256=sha, submitted_utc=datetime.now(timezone.utc).isoformat())
         save(launch_path, launch)
         with LEDGER.open('a', encoding='utf-8') as out:
-            out.write(json.dumps(dict(problem='muse_decode_layer', job_id=launch['job_id'], source_sha256=sha,
+            out.write(json.dumps(dict(problem=problem_name, job_id=launch['job_id'], source_sha256=sha,
                                       submitted_utc=launch['submitted_utc'], action=action)) + '\n')
         print(f'{action} launched {launch["job_id"]} for {sha}', flush=True)
     job = launch.get('resolved_job_id', launch['job_id'])

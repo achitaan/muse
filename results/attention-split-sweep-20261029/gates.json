@@ -1,0 +1,14 @@
+{
+  "experiment": "A1 attention sliding split sweep (configuration only)",
+  "lane": "omos/decode-fresh-20261029",
+  "frozen_before_launch_utc": "2026-10-29T20:15:00Z",
+  "parent": {"path": "best/attention_checked.py", "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f", "job": "8b767ea7b2b74de6", "scored_speedup": 2.5370005142373167},
+  "parent_profile": "results/attention-segment-repair-20261028/publication/9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f/profiles/submission.8b767ea7b2b74de6.json",
+  "candidate": "candidates/attention_split_sweep.py",
+  "change": "_TUNED overrides only: decode1 sliding n_splits 32->16; decode16 sliding 16->8; decode32 sliding 8->4; verify1 sliding 33->16 (coop); verify16 sliding 8->4 (coop). Kernel, arithmetic and all other shapes unchanged.",
+  "affected": [["decode 1", "sliding"], ["decode 16", "sliding"], ["decode 32", "sliding"], ["verify 1", "sliding"], ["verify 16", "sliding"]],
+  "controls": "all six full shapes and verify 32 sliding (already tuned, unchanged)",
+  "per_shape_win": 1.03,
+  "decision_rule": "a shape's new split is a winner if its parent/candidate ratio normalized by the control geometric mean is >= 1.03; winners only are combined into a confirmation candidate; retention needs the confirmation check to pass with affected normalized GM >= 1.02 and track speedup >= 2.537 x 1.01 = 2.5624",
+  "sweep_is_not_publication": true
+}
