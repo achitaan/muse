@@ -1,0 +1,37 @@
+{
+  "problem": "muse_bf16_proj",
+  "observed_utc": "2026-10-29T17:28:04.651919+00:00",
+  "files": [
+    {
+      "file": "TASK.md",
+      "pinned_sha256": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+      "fresh_sha256": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+      "exact": true
+    },
+    {
+      "file": "reference.py",
+      "pinned_sha256": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+      "fresh_sha256": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+      "exact": true
+    },
+    {
+      "file": "checks.py",
+      "pinned_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "fresh_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "exact": true
+    },
+    {
+      "file": "baseline.py",
+      "pinned_sha256": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+      "fresh_sha256": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+      "exact": true
+    },
+    {
+      "file": "AGENTS.md",
+      "pinned_sha256": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc",
+      "fresh_sha256": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc",
+      "exact": true
+    }
+  ],
+  "GPU_jobs": 0
+}

@@ -1,0 +1,14 @@
+{
+  "source_sha256": "e48cba9a0a58be1953bf2f135ead88a5806ee079f5605f0b2dd348d1c8446652",
+  "previous_draft_sha256": "7de2abc394419b2c80a866765dbd6b6a855828b8ab1aedbb0d35e7f862221139",
+  "only_resource_marker_moved_to_compact_tail": true,
+  "removal_line": "    print('DENSE_CLUSTER_RESOURCES '+_lg_json.dumps(resources,separators=(',',':')),flush=True)\n",
+  "insertion_anchor": "    print('DENSE_CLUSTER_EVIDENCE', _lg_json.dumps(evidence, separators=(',', ':')), flush=True)",
+  "original_entry": "    resources=[ext.lg_info(kind) for kind in range(2)]\n",
+  "inverse_restores_previous_draft": true,
+  "all_timed_AST_unchanged": true,
+  "CUDA_unchanged": true,
+  "diagnostic_compact_bytes_bound": 14365,
+  "CPU_only": true,
+  "GPU_jobs": 0
+}

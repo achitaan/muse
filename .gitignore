@@ -30,3 +30,4 @@ site.html
 /.attention-two-score-measurements/
 /.decoder-cluster-norm-measurements/
 /.decoder-cluster-norm-dual-order-measurements/
+/.dense-cluster-resource-measurements/

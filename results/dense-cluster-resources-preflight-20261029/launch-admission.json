@@ -1,0 +1,8 @@
+{
+  "source_sha256": "e48cba9a0a58be1953bf2f135ead88a5806ee079f5605f0b2dd348d1c8446652",
+  "GPU_admitted": true,
+  "reason": "One bounded trial of the existing fixed QKV cluster3 and pooler cluster2 families. Source equivalence preserves original BF16 weights, both timed kernels, dispatch, numerical probes and nearby paired gates. Offline device proxy has90/120registers and zero spills;45bad-result fixtures are rejected; five fresh official files match. Native resources, race freedom, numerical outcomes and performance still require H200 evidence. No baseline GPU rerun, geometry sweep or empty-choice acceptance. Enforce the existing global spacing, one-live-job, quota-reserve and deadline rules.",
+  "GPU_jobs_at_admission": 0,
+  "native_resource_and_performance_unverified": true,
+  "publication_requires_full_source_bound_material_gain": true
+}

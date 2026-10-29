@@ -1,3 +1,15 @@
+> LATEST ADMITTED PREPARATION, October29: Densee48cba9a/native69acf3cd.
+> Fixed QKVcluster3/poolercluster2, originalBF16 weights; exact inverse
+> restores13224d30through7de2abc3. Timed kernels/dispatch/oracle/nearby
+> selection AST unchanged. Native resource query+compact report added;
+> 14365byte diagnostic bound. OfflineGQX90/GQ120regs/zero spills;45guard
+> faults rejected;5fresh official identities exact. Existing accuracy and
+> performance gates retained; added weighted-load/control normalization.
+> One paced check admitted, no earlier18:03:10.328859UTC. No GPU result
+> or candidate installation at admission. New paced driver/guard:
+> scripts/measure_dense_cluster_resources.py and verify_dense_cluster_resources_evidence.py.
+> Packet: results/dense-cluster-resources-preflight-20261029/.
+>
 > LATEST TERMINAL RESULT, October29: Decode1c23cdc6 check545f0b524917423b
 > native all4modes56regs/0local/16static/248clusters/132SMs;36numerical
 > probes/eight changing-input replays pass. All8paired boundaries lose;

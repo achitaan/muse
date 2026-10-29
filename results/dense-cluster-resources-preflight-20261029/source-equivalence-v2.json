@@ -1,0 +1,13 @@
+{
+  "source_sha256": "e48cba9a0a58be1953bf2f135ead88a5806ee079f5605f0b2dd348d1c8446652",
+  "previous_prepared_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+  "previous_resource_draft_sha256": "7de2abc394419b2c80a866765dbd6b6a855828b8ab1aedbb0d35e7f862221139",
+  "original_parent_prefix_exact": true,
+  "inverse_restores_previous_source": true,
+  "all_timed_dispatch_numerical_paired_AST_unchanged": true,
+  "original_CUDA_exact_prefix": true,
+  "CUDA_sha256": "69acf3cdf0b87c697c9c7c458ec1a56b92185ed4d9d695e544eb9e853d157541",
+  "extra_host_export": "lg_info(int kind)",
+  "CPU_only": true,
+  "GPU_jobs": 0
+}
