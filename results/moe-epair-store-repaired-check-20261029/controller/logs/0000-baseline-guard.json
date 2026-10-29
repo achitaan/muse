@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/verify_moe_epair_store_repaired_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.141,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Exact cached MoE33114871: full5/6/integrity; no fresh baseline run.\r\n",
+  "timed_out": false
+}

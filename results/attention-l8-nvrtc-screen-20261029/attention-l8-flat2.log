@@ -1,0 +1,167 @@
+device-preflight.cu(2380): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(2451): warning #177-D: variable "w0g_rank" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+        ^
+
+device-preflight.cu(2451): warning #177-D: variable "w0g_par" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                      ^
+
+device-preflight.cu(2451): warning #177-D: variable "w0g_gen" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                                   ^
+
+device-preflight.cu(2452): warning #177-D: variable "w0_smid" was declared but never referenced
+    unsigned w0_smid = 0;
+             ^
+
+device-preflight.cu(2453): warning #177-D: variable "w0_rank" was declared but never referenced
+    int w0_rank = 0;
+        ^
+
+device-preflight.cu(696): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(588): warning #607-D: this pragma must immediately precede a statement
+  #pragma unroll 1
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(568): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1476): error: identifier "INFINITY" is undefined
+    for (int r = 0; r < NROW; ++r) { m_r[r] = -INFINITY; l_r[r] = 0.f; }
+                                               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1534): error: identifier "INFINITY" is undefined
+            if (pos >= end) s[nt][e] = -INFINITY;
+                                        ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1537): error: identifier "INFINITY" is undefined
+      float mx = -INFINITY;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1812): error: identifier "INFINITY" is undefined
+              if (pos < vlo || pos > vhi) s[4 * nt + 2 * hf + e] = -INFINITY;
+                                                                    ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1821): error: identifier "INFINITY" is undefined
+      float mlo = -INFINITY, mhi = -INFINITY;
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1749): warning #177-D: variable "V16t" was declared but never referenced
+      uint8_t* V16t = V16 + 0;   // PV reads it asynchronously: double buffer
+               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(2031): error: identifier "INFINITY" is undefined
+    m_r[0] = first ? -INFINITY : cr[0];
+                      ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1618): warning #177-D: variable "thr" was declared but never referenced
+    float thr[2] = {0.f, 0.f};
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1628): warning #177-D: variable "ckey" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+              ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1628): warning #177-D: variable "cq" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+                               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1671): warning #177-D: variable "i_lo" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+             ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1671): warning #177-D: variable "i_span" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+                       ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1690): warning #177-D: variable "i_cur" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+        ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(1690): warning #177-D: variable "cnt2" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(2057): error: identifier "INFINITY" is undefined
+        const float f0 = (m_r[0] == -INFINITY) ? 0.f : ex2(m_r[0] - mm);
+                                     ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(2087): error: identifier "INFINITY" is undefined
+          const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
+                                      ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(2119): error: identifier "INFINITY" is undefined
+      const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
+                                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=8, FLAT=true, MODE=0]" 
+
+device-preflight.cu(21): warning #177-D: member "<unnamed>::Cfg<L, F>::MINB [with L=8, F=false]" was declared but never referenced
+    static constexpr int MINB = 2;   // CTAs per SM the registers must allow
+                         ^
+
+device-preflight.cu(25): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=8, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+device-preflight.cu(39): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+
+device-preflight.cu(120): warning #177-D: function "<unnamed>::bar_sync_n" was declared but never referenced
+  __device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(121): warning #177-D: function "<unnamed>::bar_arrive_n" was declared but never referenced
+  __device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(158): warning #177-D: function "<unnamed>::ex2h2" was declared but never referenced
+  __device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
+                                      ^
+
+device-preflight.cu(186): warning #177-D: function "<unnamed>::load_v_frags" was declared but never referenced
+  __device__ __forceinline__ void load_v_frags(const uint8_t* V, int kb, int hk, int g, int tig, uint32_t* b0,
+                                  ^
+
+device-preflight.cu(289): warning #177-D: function "<unnamed>::desc_sw128" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
+                                      ^
+
+device-preflight.cu(293): warning #177-D: function "<unnamed>::wgmma_m64n64k32_e4m3" was declared but never referenced
+  __device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
+                                  ^
+
+device-preflight.cu(426): warning #177-D: function "<unnamed>::cl_gid" was declared but never referenced
+  __device__ __forceinline__ int cl_gid(const Params& p) {
+                                 ^
+
+9 errors detected in the compilation of "device-preflight.cu".

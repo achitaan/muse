@@ -92,9 +92,24 @@
     "ranked": 1467,
     "overall_speedup_exposed": false,
     "aggregation_formula_verified": false,
-    "moe": {"rank": 66, "speedup": 2.3483, "job": "b6c70c9b83724d2e", "retained_source": true},
-    "decode": {"rank": 162, "speedup": 1.994, "job": "441eb580f3074669", "retained_corrected_source": false},
-    "attention": {"rank": 104, "speedup": 2.5624, "job": "20524d06e3894595", "retained_corrected_source": false},
+    "moe": {
+      "rank": 66,
+      "speedup": 2.3483,
+      "job": "b6c70c9b83724d2e",
+      "retained_source": true
+    },
+    "decode": {
+      "rank": 162,
+      "speedup": 1.994,
+      "job": "441eb580f3074669",
+      "retained_corrected_source": false
+    },
+    "attention": {
+      "rank": 104,
+      "speedup": 2.5624,
+      "job": "20524d06e3894595",
+      "retained_corrected_source": false
+    },
     "decode_rank50_speedup": 2.158,
     "caveat": "Account board snapshot; do not assign historical Attention/Decode bests or account rank to corrected retained sources"
   },
@@ -2996,5 +3011,72 @@
     "total_checks": 94,
     "total_scores": 50,
     "next_new_check_not_before_utc": "2026-10-29T05:22:50.375730+00:00"
+  },
+  "latest_runtime_experiment": {
+    "observed_utc": "2026-10-29T06:37:20.890482+00:00",
+    "track": "moe",
+    "job": "5262c2c560c94197",
+    "source_sha256": "9fc2993a9cc3b3723ad24c8016cca6bf9915d53958b821da222f5ebe240d944d",
+    "result_directory": "results/moe-epair-store-repaired-check-20261029/",
+    "status": "discarded_material_gain_gate_failed",
+    "synthetic_cases_passed": 18,
+    "changed_input_graph_replays_passed": 2,
+    "all_remote_exact_zero_cases": 4,
+    "duplicate_route_probe_passed": true,
+    "selected_main": false,
+    "official_full_suite_passed_on_retained_paths": true,
+    "official_speedup_on_retained_paths": 2.3355836325321384,
+    "new_candidate_official_full_suite_validation": false,
+    "normal_paired_new_over_old": {
+      "32": 1.0029758218044218,
+      "128": 1.0038825079867926,
+      "256": 0.9923029964640414
+    },
+    "resources": [
+      96,
+      96,
+      0,
+      0,
+      0,
+      0,
+      231168,
+      1,
+      1,
+      576
+    ],
+    "prepare_s": 218.74804340093397,
+    "retained_moe_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "revert_commit": "d228b6ecc69c49bbe36120903e95c593afb9a4ad",
+    "active_job": false,
+    "active_controller": false,
+    "scored_submissions_used": 0,
+    "decode_transfer": false
+  },
+  "latest_expected_quotas": {
+    "kind": "Fresh prelaunch snapshot minus one accepted check; not a later live API query",
+    "checks": {
+      "dense": 19,
+      "moe": 14,
+      "attention": 19,
+      "decode": 20,
+      "prefill": 20
+    },
+    "scores_per_track": 10,
+    "total_checks": 92,
+    "total_scores": 50,
+    "next_new_check_not_before_utc": "2026-10-29T07:28:00.763398Z",
+    "window_end_local": "2026-10-29 20:00 America/Toronto"
+  },
+  "attention_l8_compiler_screen": {
+    "directory": "results/attention-l8-nvrtc-screen-20261029/",
+    "kind": "CPU-only NVRTC13.0.88 Windows sm_90a proxy",
+    "retained_source": "9e922c35",
+    "gpu_jobs": 0,
+    "kernel_execution": false,
+    "simple_wait_removal": "rejected_C7514_serialization",
+    "wait_removal_and_delayed_accumulator_fences": "rejected_C7514_serialization",
+    "decode_D9_matrix_wait_sequence_matches_retained_L8_in_proxy": true,
+    "next_runtime_candidate_qualified": false,
+    "numerical_and_performance_validation": false
   }
 }

@@ -1,0 +1,10 @@
+{
+  "decoder_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "attention_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "identical_matrix_and_wait_instruction_sequence_in_proxy": true,
+  "complete_emitted_instruction_text_equal_ignoring_addresses": false,
+  "decoder_sass_sha256": "fb9952efb12db07c6658e4e3e2eb4b489e9497badcf32db2822f93a866f81e85",
+  "compiler": "NVRTC13.0.88 Windows sm_90a; same documented proxy adaptations",
+  "official_gpu_jobs": 0,
+  "scope": "Exact retained L8 device-template proxy comparison only; host wrappers/other template paths/performance not compared"
+}

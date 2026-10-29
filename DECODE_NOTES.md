@@ -1,3 +1,13 @@
+# October 29: no paired-store transfer
+
+MoE `9fc2993a` compiled and passed its synthetic probes but failed the fixed
+performance gate as job `5262c2c560c94197`. Retain Decode D9 and preparation
+draft `307dd791`; no runtime integration or GPU Decode check follows.
+CPU NVRTC comparison of the retained embedded L8 attention kernel produces the
+same matrix/wait sequence as standalone L8. Simple end-wait removal, with or
+without delayed accumulator fences, serializes matrix issues in that proxy.
+Do not transfer those edits. Evidence: `results/attention-l8-nvrtc-screen-20261029/`.
+
 > Attention identity-rescale trial failed its material affected/control gate.
 > CPU transfer5af9 remains parked, with no Decode GPU job or promotion.
 > See results/decoder-skipscale-draft-20261029/. Verified D9 is unchanged.

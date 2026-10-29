@@ -1,3 +1,17 @@
+> LATEST RESULT, October 29 at 06:33 UTC: MoE repaired paired-store check
+> 5262c2c560c94197 compiled and passed all 18 synthetic comparisons, changing
+> graph replays and analytic probes, but failed its fixed performance gate.
+> M32/M128 were 0.30%/0.39% slower; M256 was 0.77% faster. selected_main=false;
+> the official full-suite 2.335584x point timed retained paths. Controller
+> reverted d228b6e and is archived; no score or Decode transfer. All 44 protected
+> files are exact. Packet: results/moe-epair-store-repaired-check-20261029/.
+> No job/controller active. Derived 92 checks/50 scores remain, MoE 14 checks.
+> Next new check not before 07:28 UTC / 03:28 Toronto; 20:00 window unchanged.
+> CPU-only Attention L8 wait-removal and delayed-fence variants both trigger
+> C7514 and serialize matrix issues; do not GPU-test these exact edits. Packet:
+> results/attention-l8-nvrtc-screen-20261029/, including Decode L8 comparison.
+> No next runtime candidate is qualified yet. The broad top-50 goal stays active.
+
 > CPU COMPILER PREFLIGHT, October29: local NVRTC13.0.88 compiled retained and
 > candidate device prefixes for both BIG variants without a GPU. Static assembly
 > confirms108oldU16 stores become54new32bit stores at the phase-A helper line.

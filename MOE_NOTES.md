@@ -1,3 +1,13 @@
+# October 29: paired epilogue store trial closed
+
+Repaired check `5262c2c560c94197` / source `9fc2993a` compiled, used 96
+registers with zero runtime local/static shared bytes, and passed all fixed
+synthetic correctness/replay probes. It failed the timing gate: M32/M128
+were 0.30%/0.39% slower, M256 0.77% faster. No new backend was selected in the
+official suite. The controller reverted it; retain `33114871`. No score,
+Decode transfer or nearby-shape selector follows. Full source-bound evidence:
+`results/moe-epair-store-repaired-check-20261029/`. Later entries below are history.
+
 > LATEST RESULT, October29: e8e3086d/check98e3538e85244c1d failed resource-query
 > compilation (okc_epair_y vs actual okc_epair). No device correctness or timing
 > evidence. Original33114871 restored, no score or Decode transfer. One check.

@@ -1,0 +1,125 @@
+--- D9 embedded
+
++++ 9e standalone
+
+@@ -204,4 +204,41 @@
+
+   x = prmt(v2.y, v3.y, 0x5140); b1[4] = cvt2(x); b1[5] = cvt2h(x);
+   x = prmt(v2.y, v3.y, 0x7362); b1[6] = cvt2(x); b1[7] = cvt2h(x);
++}
++
++// FP8 PV uses the same key permutation in both operands. For each K16
++// half, lane tig supplies physical keys 2*tig + {0,1,8,9}. This keeps
++// the old conflict-free V loads and packs P directly, without shuffles.
++__device__ __forceinline__ void load_v_frags_f8(const uint8_t* V, int kb, int hk, int g, int tig,
++                                              uint32_t* b0, uint32_t* b1) {
++  const int ch = hk * 4 + (g >> 1), off = (g & 1) * 8;
++#pragma unroll
++  for (int h = 0; h < 2; ++h) {
++    const int k0 = kb + 16 * h + 2 * tig;
++    const uint2 v0 = lds64(V + k0 * ROWB + ((ch ^ (k0 & 7)) << 4) + off);
++    const uint2 v1 = lds64(V + (k0 + 1) * ROWB + ((ch ^ ((k0 + 1) & 7)) << 4) + off);
++    const uint2 v2 = lds64(V + (k0 + 8) * ROWB + ((ch ^ ((k0 + 8) & 7)) << 4) + off);
++    const uint2 v3 = lds64(V + (k0 + 9) * ROWB + ((ch ^ ((k0 + 9) & 7)) << 4) + off);
++    uint32_t* dst = h ? b1 : b0;
++#pragma unroll
++    for (int z = 0; z < 2; ++z) {
++      const uint32_t a = z ? v0.y : v0.x, b = z ? v1.y : v1.x;
++      const uint32_t c = z ? v2.y : v2.x, d = z ? v3.y : v3.x;
++      const uint32_t e01 = prmt(a, b, 0x5140), e23 = prmt(c, d, 0x5140);
++      const uint32_t o01 = prmt(a, b, 0x7362), o23 = prmt(c, d, 0x7362);
++      dst[4 * z + 0] = prmt(e01, e23, 0x5410);
++      dst[4 * z + 1] = prmt(e01, e23, 0x7632);
++      dst[4 * z + 2] = prmt(o01, o23, 0x5410);
++      dst[4 * z + 3] = prmt(o01, o23, 0x7632);
++    }
++  }
++}
++
++__device__ __forceinline__ void mma_f8pv(float* c, uint32_t a0, uint32_t a2,
++                                       uint32_t b0, uint32_t b1) {
++  asm volatile(
++      "mma.sync.aligned.m16n8k32.row.col.f32.e4m3.e4m3.f32 {%0,%1,%2,%3}, {%4,%5,%6,%5}, {%7,%8}, "
++      "{%0,%1,%2,%3};\n"
++      : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
++      : "r"(a0), "r"(0u), "r"(a2), "r"(b0), "r"(b1));
+ }
+ 
+@@ -1514,5 +1551,6 @@
+
+ #pragma unroll
+         for (int e = 0; e < 2; ++e) {
+-          const float pv = ex2(s[nt][e] - m_new);
++          // FA3 Max_offset=8: exact power-of-two scale extends the FP8 tail.
++          const float pv = ex2(s[nt][e] - m_new) * 256.f;
+           s[nt][e] = pv;
+           ls += pv;
+@@ -1525,13 +1563,10 @@
+
+         for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }
+       }
+-#pragma unroll
+-      for (int ks = 0; ks < 2; ++ks) {   // (timing probe only, wrong results)
+-        uint32_t b0[8], b1[8];
+-        load_v_frags(V, 32 * wsub + 16 * ks, hk, g, tig, b0, b1);
+-        const uint32_t a0 = pack_h2(s[2 * ks][0], s[2 * ks][1]);
+-        const uint32_t a2 = pack_h2(s[2 * ks + 1][0], s[2 * ks + 1][1]);
+-#pragma unroll
+-        for (int t = 0; t < 8; ++t) mma_f16(o[0][t], a0, 0u, a2, 0u, b0[t], b1[t]);
+-      }
++      uint32_t b0[8], b1[8];
++      load_v_frags_f8(V, 32 * wsub, hk, g, tig, b0, b1);
++      const uint32_t a0 = e4m3x4f(s[0][0], s[0][1], s[1][0], s[1][1]);
++      const uint32_t a2 = e4m3x4f(s[2][0], s[2][1], s[3][0], s[3][1]);
++#pragma unroll
++      for (int t = 0; t < 8; ++t) mma_f8pv(o[0][t], a0, a2, b0[t], b1[t]);
+     }
+     if constexpr (WS) {   // this warp is done with the stage
+@@ -2343,5 +2378,5 @@
+
+ 
+ template <int L, bool FLAT, int MODE = 0>
+-__global__ void __launch_bounds__(Cfg<L, FLAT>::NTX, Cfg<L, FLAT>::MINB) attn_kernel(const __grid_constant__ Params p) {
++__global__ void __launch_bounds__(Cfg<L, FLAT>::NTX, Cfg<L, FLAT>::MINB) attn_kernel_fp8pv(const __grid_constant__ Params p) {
+   constexpr int NT = Cfg<L, FLAT>::NT;
+   constexpr int STAGES = Cfg<L, FLAT>::STAGES;
+@@ -2650,9 +2685,9 @@
+
+   typedef void (*KernFn)(const Params);
+   // per-request kernels, one build per launch mode (1 plain split-KV, 2 clusters, 3 cooperative)
+-  static const KernFn kn[4] = {attn_kernel<L, false, 2>, attn_kernel<L, false, 1>,
+-                               attn_kernel<L, false, 2>, attn_kernel<L, false, 3>};
+-  static const KernFn kn1[4] = {0, attn_kernel<L, false, 5>, 0, attn_kernel<L, false, 7>};
+-  static const KernFn ksp[4] = {0, attn_kernel<L, false, 9>, 0, attn_kernel<L, false, 11>};
+-  static const KernFn ksp1[4] = {0, attn_kernel<L, false, 13>, 0, attn_kernel<L, false, 15>};
++  static const KernFn kn[4] = {attn_kernel_fp8pv<L, false, 2>, attn_kernel_fp8pv<L, false, 1>,
++                               attn_kernel_fp8pv<L, false, 2>, attn_kernel_fp8pv<L, false, 3>};
++  static const KernFn kn1[4] = {0, attn_kernel_fp8pv<L, false, 5>, 0, attn_kernel_fp8pv<L, false, 7>};
++  static const KernFn ksp[4] = {0, attn_kernel_fp8pv<L, false, 9>, 0, attn_kernel_fp8pv<L, false, 11>};
++  static const KernFn ksp1[4] = {0, attn_kernel_fp8pv<L, false, 13>, 0, attn_kernel_fp8pv<L, false, 15>};
+   if (!init) {
+     for (int m = 1; m < 4; ++m)
+@@ -2664,5 +2699,5 @@
+
+       cudaFuncSetAttribute(ksp1[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
+     }
+-    cudaFuncSetAttribute(attn_kernel<L, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm_f);
++    cudaFuncSetAttribute(attn_kernel_fp8pv<L, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm_f);
+     cudaFuncSetAttribute(kn[2], cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
+     cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_c, kn[3], Cfg<L, false>::NTX, sm_n);
+@@ -2670,5 +2705,5 @@
+
+     cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp, ksp[3], Cfg<L, false>::NTX, sm_n);
+     cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp1, ksp1[3], Cfg<L, false>::NTX, sm_n);
+-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel<L, true>, Cfg<L, true>::NTX, sm_f);
++    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel_fp8pv<L, true>, Cfg<L, true>::NTX, sm_f);
+     int dev;
+     cudaGetDevice(&dev);
+@@ -2680,5 +2715,5 @@
+
+   if (q.coop && (long long)grid.x * grid.y * grid.z > (long long)(p.flat ? occ_f : occ_c) * nsm) q.coop = 0;
+   const bool cl = cs > 1;
+-  KernFn kern = p.flat ? (KernFn)attn_kernel<L, true> : kn[cl ? 2 : (q.coop ? 3 : 1)];
++  KernFn kern = p.flat ? (KernFn)attn_kernel_fp8pv<L, true> : kn[cl ? 2 : (q.coop ? 3 : 1)];
+   if (!p.flat && !cl) {
+     // every split holds at most one tile: whole tiles per split (TCHUNK) and at least as many splits as the longest

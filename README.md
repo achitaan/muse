@@ -1,13 +1,13 @@
 # Muse Open Kernel Challenge
 
 Current goal: approach top 50 overall, with all work in the main chat. The user
-removed the original deadline and requested this order: MoE W4A16, whole Decode
+authorized paced GPU checks through October 29 at 8 p.m. Toronto and requested this order: MoE W4A16, whole Decode
 Layer, Attention Decode, Prefill last. Conserve evaluations and publish only
 fully checked candidates.
 
 | Track | Latest verified result | State |
 |---|---:|---|
-| Dense projections | 1.527771x scored | Retained; new cluster candidate CPU-prepared |
+| Dense projections | 1.527771x scored | Retained; cluster candidate rejected |
 | MoE W4A16 | 2.348300x scored | Saved |
 | Whole decoder layer | 1.990225x checked | Corrected retained repair; unscored |
 | Attention decode | 2.537001x scored | Corrected retained source |
@@ -38,13 +38,21 @@ Native attention attribution and full Apache license are preserved. See
 assumptions and exact evidence. User requested fewer checks and submissions;
 remaining quota is capacity, not a reason to launch weak experiments.
 
-Latest saved public overall row: **155/1451**, October29UTC / October28Toronto.
+Latest saved public overall row: **162/1467**, October 29 at about 05:17 UTC.
 The overall API supplies ranks only; exact composition is not established.
 Prefill is excluded. Decode/Attention API best rows still reference older
 publications, not the corrected retained sources shown above.
 
-MoE skinny16 passed its GPU probes but lost all paired timings and was reverted.
-Two checks including a compiler repair, zero scores. Next is the prepared Dense
-cluster packet, with corrected timing units, cached exact baseline and full9/30
-guard. No job or controller is pending at this pre-launch checkpoint. See
-OPTIMIZATION_PLAN.md for the whole-layer impact criteria before any transfer.
+Latest completed check: MoE paired-store repair `5262c2c560c94197`. It compiled
+and passed its synthetic probes but failed the performance gate, so the controller
+reverted it. No score or Decode transfer follows. Raw source, paired samples,
+profiles and review are in `results/moe-epair-store-repaired-check-20261029/`.
+Two simple Attention L8 overlap edits were rejected by CPU compiler inspection;
+both serialize matrix instructions. No GPU evaluation was used for that screen.
+
+No job or controller is active. Derived balances after the latest accepted check:
+Dense 19, MoE 14, Attention 19, Decode 20, Prefill 20 checks; 10 scored submissions
+per track (92 checks and 50 scores total). These are the fresh prelaunch limits
+minus that check, not a later live query. No new check before 07:28 UTC / 3:28 a.m.
+Toronto. Preserve hourly spacing and reserves; no next runtime candidate is
+qualified yet. See OPTIMIZATION_PLAN.md and the latest HANDOFF.md entries.

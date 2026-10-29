@@ -1,3 +1,13 @@
+# October 29: simple L8 overlap formulations rejected locally
+
+NVRTC 13.0.88 sm_90a proxy inspection finds C7514 serialization after removing
+the tile-end drain. Moving output-accumulator fences to the next full QK wait
+does not fix it. Both variants emit a wait-zero between every matrix issue;
+the retained kernel preserves grouped issues and partial waits. No GPU run,
+correctness claim, performance measurement or source promotion follows.
+Retain `9e922c35`. Exact proxy adaptations, full assembly, Decode comparison
+and reproducible scripts: `results/attention-l8-nvrtc-screen-20261029/`.
+
 > LATEST TERMINAL RESULT, October29: Attention787962a762c24249/ed810c7a
 > passed16tests/12benchmarks/integrity at2.640210548x with128registers,
 > zero local bytes and two resident blocks. Affected GM1.043242463 versus

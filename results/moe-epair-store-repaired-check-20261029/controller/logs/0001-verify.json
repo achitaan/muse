@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_moe_epair_store_repaired.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1339.531,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nMoE paired-store check 5262c2c560c94197: received\r\nMoE paired-store check 5262c2c560c94197: running\r\nMoE paired-store check 5262c2c560c94197: done\r\n",
+  "stdout": "{\"speedup\": 2.3355836325321384, \"correct\": true, \"job\": \"5262c2c560c94197\", \"source_sha256\": \"9fc2993a9cc3b3723ad24c8016cca6bf9915d53958b821da222f5ebe240d944d\", \"error\": null}\r\n",
+  "timed_out": false
+}

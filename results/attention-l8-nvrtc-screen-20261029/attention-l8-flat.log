@@ -1,0 +1,6 @@
+C:\Users\Achita\Documents\ChatGPT\Muse 2\.tools\cuda-compiler-13.0\nvidia\cu13\include\cuda.h(56): catastrophic error: cannot open source file "stdlib.h"
+  #include <stdlib.h>
+                     ^
+
+1 catastrophic error detected in the compilation of "device-preflight.cu".
+Compilation terminated.
