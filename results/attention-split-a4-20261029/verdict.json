@@ -1,0 +1,18 @@
+{
+  "experiment": "A4 attention probes on top of A3",
+  "job": "1ff88c24d1ef4932",
+  "candidate_sha256": "3e8ff2b3e8676c1756ad4072bc178ede9bc816e7802d8de228d299fa1b5ae260",
+  "official": {
+    "passed": true,
+    "speedup": 2.3880790597648014
+  },
+  "control_gm": 0.9871,
+  "normalized": {
+    "decode16 sliding n_splits=8 (A3 setting)": 1.0992,
+    "decode1 full nc 8->4": 0.9409,
+    "decode16 full flat 264->396": 0.8332,
+    "verify1 full 252->132": 0.9157,
+    "verify1 sliding coop 1->0": 0.8565
+  },
+  "decision": "all four probes rejected; A3 setting won a fourth time; retained Attention settings for these shapes confirmed in the tested directions"
+}
