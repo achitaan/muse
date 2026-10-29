@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_moe_skinny16_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.14,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_moe_skinny16_evidence.py\", line 90, in <module>\r\n    main()\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_moe_skinny16_evidence.py\", line 70, in main\r\n    assert ast.literal_eval(marker(log, 'MOE_SKINNY16_CHOICES ')) == (16,)\r\nAssertionError\r\n",
+  "stdout": "",
+  "timed_out": false
+}

@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-29T00:08:07Z",
+  "goal": "Approach top50 overall in main chat; one diagnosed skinny16 compiler-guard retry, with unchanged math, geometry, probes, pairing and material-gain thresholds. Broader Goal remains active.",
+  "guard": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_moe_skinny16_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_moe_skinny16.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "official_moe_h200_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "e477283844cf42419e9c0c87d22f7039",
+  "schema_version": 1,
+  "scope": [
+    "candidates/moe_active.py"
+  ],
+  "target": 2.5,
+  "timeout_seconds": 1200
+}

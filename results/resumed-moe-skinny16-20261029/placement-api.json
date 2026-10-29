@@ -1,0 +1,184 @@
+{
+  "utc": "2026-10-29T00:16:24.642910+00:00",
+  "boards": {
+    "overall": {
+      "board": "overall",
+      "measure": "rank across the problems; the API gives ranks only",
+      "ranked": 1451,
+      "leader": {
+        "rank": 1,
+        "team": "pjmullin3",
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 153,
+        "team": "achitaan",
+        "first": false,
+        "ahead": 152
+      },
+      "your_rows": [
+        {
+          "rank": 153,
+          "solved": 4,
+          "team": "achitaan"
+        }
+      ]
+    },
+    "muse_bf16_proj": {
+      "board": "muse_bf16_proj",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "ranked": 1263,
+      "leader": {
+        "rank": 1,
+        "team": "colinlikescode",
+        "speedup": 1.6367,
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 110,
+        "team": "achitaan",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 109,
+        "to_first": 1.0713
+      },
+      "your_rows": [
+        {
+          "attempts": 10,
+          "job": "6131bc96427e4486",
+          "rank": 110,
+          "speedup": 1.5278,
+          "submitted_at": 1793165403.547755,
+          "team": "achitaan",
+          "value": 3161.9915325861903
+        }
+      ]
+    },
+    "muse_moe_w4a16": {
+      "board": "muse_moe_w4a16",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "ranked": 1007,
+      "leader": {
+        "rank": 1,
+        "team": "pjmullin3",
+        "speedup": 2.6853,
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 60,
+        "team": "achitaan",
+        "speedup": 2.3483,
+        "first": false,
+        "ahead": 59,
+        "to_first": 1.1435
+      },
+      "your_rows": [
+        {
+          "attempts": 3,
+          "job": "b6c70c9b83724d2e",
+          "rank": 60,
+          "speedup": 2.3483,
+          "submitted_at": 1793205478.832516,
+          "team": "achitaan",
+          "value": 5726.908985648607
+        }
+      ]
+    },
+    "muse_decode_layer": {
+      "board": "muse_decode_layer",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "ranked": 881,
+      "leader": {
+        "rank": 1,
+        "team": "pjmullin3",
+        "speedup": 2.4029,
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 153,
+        "team": "achitaan",
+        "speedup": 1.994,
+        "first": false,
+        "ahead": 152,
+        "to_first": 1.2051
+      },
+      "your_rows": [
+        {
+          "attempts": 6,
+          "job": "441eb580f3074669",
+          "rank": 153,
+          "speedup": 1.994,
+          "submitted_at": 1793209817.5672622,
+          "team": "achitaan",
+          "value": 11344.430667029312
+        }
+      ]
+    },
+    "muse_attention_decode": {
+      "board": "muse_attention_decode",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "ranked": 966,
+      "leader": {
+        "rank": 1,
+        "team": "LeshengJin",
+        "speedup": 3.0542,
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 97,
+        "team": "achitaan",
+        "speedup": 2.5624,
+        "first": false,
+        "ahead": 96,
+        "to_first": 1.1919
+      },
+      "your_rows": [
+        {
+          "attempts": 5,
+          "job": "20524d06e3894595",
+          "rank": 97,
+          "speedup": 2.5624,
+          "submitted_at": 1793192232.0437248,
+          "team": "achitaan",
+          "value": 1469.8316447550671
+        }
+      ]
+    },
+    "muse_prefill_layer": {
+      "board": "muse_prefill_layer",
+      "measure": "speedup over SGLang; higher ranks higher",
+      "ranked": 586,
+      "leader": {
+        "rank": 1,
+        "team": "zzz0906",
+        "speedup": 2.0325,
+        "first": true,
+        "ahead": 0
+      },
+      "you": {
+        "rank": 126,
+        "team": "achitaan",
+        "speedup": 1.6635,
+        "first": false,
+        "ahead": 125,
+        "to_first": 1.2218
+      },
+      "your_rows": [
+        {
+          "attempts": 1,
+          "job": "23e7c8b4c3e54869",
+          "rank": 126,
+          "speedup": 1.6635,
+          "submitted_at": 1793194820.672735,
+          "team": "achitaan",
+          "value": 232889.12690511512
+        }
+      ]
+    }
+  }
+}

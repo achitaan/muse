@@ -1,0 +1,43 @@
+{
+  "job": "0b76ce2c3856496e",
+  "source_sha256": "50dfae559fc8ce4bb6224d0dce6e7fc1ccc7a9097b7b4e19a66ea8a456efd3cd",
+  "official_passed": true,
+  "official_tests": 5,
+  "official_benchmarks": 6,
+  "integrity": true,
+  "speedup": 2.3800235495606,
+  "interval": [
+    2.344323196317191,
+    2.4157239028040087
+  ],
+  "selected": false,
+  "probe_cases": 12,
+  "gpu_probes_passed": true,
+  "preparation_elapsed_s": 208.38209191299393,
+  "paired_geomean": 1.4106287595001392,
+  "paired": [
+    {
+      "pattern": 0,
+      "median_incumbent_us": 223.13600033521652,
+      "median_alternate_us": 300.33600330352783,
+      "paired_new_over_old": 1.3461003362699993
+    },
+    {
+      "pattern": 1,
+      "median_incumbent_us": 171.88800126314163,
+      "median_alternate_us": 250.04800409078598,
+      "paired_new_over_old": 1.456263876442382
+    },
+    {
+      "pattern": 2,
+      "median_incumbent_us": 110.20799726247787,
+      "median_alternate_us": 158.08000415563583,
+      "paired_new_over_old": 1.4319263870107077
+    }
+  ],
+  "raw_timing_units": "The raw previous_ns/candidate_ns fields contain microseconds: CUDA elapsed_time(ms)*1000. Names were wrong; dimensionless selection ratios are unaffected. Preserve raw records unchanged.",
+  "outcome": "discard: alternate34.6..45.6%slower, choice empty, official suite timed the original kernels. Higher aggregate point is not a gain from this alternate.",
+  "scored_runs_used": 0,
+  "decode_transfer": false,
+  "retained_source": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50"
+}

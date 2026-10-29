@@ -1,3 +1,17 @@
+> MoE skinny16 CLOSED: retry0b76ce2c3856496e/50dfae55 passed all12GPUprobes,
+> but new/old paired ratios1.3461/1.4563/1.4319 all lost; choice empty.
+> Official5/6/integrity2.38002355x timed incumbents; no new-algorithm gain claim.
+> Guard failed and reverted; controller archived20261029-001547. Retain33114871.
+> Two MoE checks total including compiler failure; no score/Decode transfer.
+> Evidence results/resumed-moe-skinny16-20261029/, including current placement.
+> API00:16:24UTC overall153/1451; Dense110,MoE60,Decode153,Attention97,Prefill126.
+> Derived remaining quotas MoE18/10, other tracks20/10;98checks/50scores total.
+> Next Dense cluster trial: fix event-time unit labels BEFORE first launch:
+> elapsed_time returnsms; multiply1e6forns fields (old*1000values wereus).
+> Ratios/selection unaffected. Rebuild/re-audit/rebind exact new source, cachedEDC
+> baseline and fixed full9/30 guard, then one GPU check. No active job/controller.
+> Main chat only; top50Goal remains active. All retained kernels unchanged.
+
 > First post-reset MoE check46ded9fefcb844db/f20caadb failed compilation before
 > tests or timing: two helper-only barrier init blocks lacked OKC_WS guards.
 > Controller discarded/reverted; history archived20261029-000431, no job pending.
