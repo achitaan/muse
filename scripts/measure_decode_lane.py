@@ -82,7 +82,7 @@ def main():
         policy = pacing()
         jobs = cli(['jobs', '--json'])
         save(folder / f'jobs-before-{action}.json', jobs)
-        live = [r for r in jobs if r.get('status') not in TERMINAL]
+        live = [r for r in jobs if r.get('status') not in TERMINAL and (os.environ.get('LANE_PER_PROBLEM') != '1' or r.get('problem') == problem_name)]
         if live:
             raise RuntimeError('An official job is still live')
         quotas = cli(['problems', '--json'])
