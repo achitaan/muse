@@ -1,0 +1,27 @@
+{
+  "experiment": "D6 Dense olayer configuration selector for O at 128 and 256 tokens",
+  "frozen_before_launch_utc": "2026-10-29T23:12:00Z",
+  "parent": {
+    "sha256": "edc61a1e...765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "candidate_sha256": "af3a3c2c1ba7df10500d4323a2e53bee95966420a9a5417609edb5124652ebb7",
+  "evidence_basis": "D5 run 3b13fab22b2b4480: O m256 9.27 us vs SOL 4.48 (1.028x, weakest Dense shape; cuBLASLt fixed, run_olayer limited to m<=224); O m128 7.02 vs 3.99 (1.048x)",
+  "affected": [
+    [
+      "verify 32",
+      "o"
+    ],
+    [
+      "verify 16",
+      "o"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks",
+    "selection": ">=3% faster in prepare, FP64 error <= 1.5x incumbent",
+    "retention": "affected normalized >= 1.03 vs parent profile; single-run wins need a confirming run"
+  }
+}
