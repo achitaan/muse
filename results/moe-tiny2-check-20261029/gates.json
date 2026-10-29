@@ -1,0 +1,26 @@
+{
+  "experiment": "M2 MoE: TINY2 build for 1..4 tokens (threshold only)",
+  "frozen_before_launch_utc": "2026-10-29T22:27:00Z",
+  "parent": {
+    "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "checked_job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "parent_profile": "results/resumed-moe-phase4-20261028/331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50/profiles/submission.d600231c8a8244cb.json",
+  "candidate": "candidates/moe_tiny2.py",
+  "candidate_sha256": "6e1643db357ad2f862b7e5a9c7bcec4a6fd88046777dec8bee179c64aa09e352",
+  "evidence_basis": "M1 d746cb32bcc045f4 prepare timing at M=1: TINY2 84.42 vs TINY 85.98 us (sum of 3 draws), output rel-L2 1.8e-8",
+  "affected": [
+    [
+      "decode 1",
+      ""
+    ]
+  ],
+  "per_shape_win": 1.015,
+  "gates": {
+    "correctness": "5 tests + 6 benchmarks pass",
+    "shape": "decode 1 normalized ratio >= 1.015",
+    "track": ">= parent checked 2.3654 - interval (no regression claim beyond noise)"
+  },
+  "note": "expected effect ~+0.3% track; evidence is per shape"
+}
