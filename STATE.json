@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One prepare-only MoE phase diagnostic db0f6481, no earlier than 2026-10-29T02:21:46.196044Z; calibrate resources/overhead before interpreting synthetic traces. No diagnostic promotion/score. D1 closed; Decode df68deb6 is CPU-only setup cleanup for a later justified integration.",
+  "next_trial": "Follow MoE diagnostic e66873fa2adc4030 to terminal status; assess resource and overhead calibration before synthetic phase interpretation. No new check before 2026-10-29T03:22:01.371647Z. One-stage ownership idea remains parked; Decode307dd791 is a CPU-only preparation draft.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_phase_diagnostic_preflight",
+  "active_track": "moe_phase_diagnostic_running",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2709,7 +2709,7 @@
   "moe_phase_diagnostic": {
     "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
     "artifact": "results/moe-phase-diagnostic-db0f-preflight-20261029/submission.py",
-    "status": "CPU audited, not yet launched",
+    "status": "GPU check accepted; following the same handle",
     "earliest_new_check_utc": "2026-10-29T02:21:46.196044+00:00",
     "review": "experiments/prepared/moe_phase_diagnostic_review.md",
     "synthetic_shapes": [
@@ -2719,7 +2719,9 @@
     ],
     "timed_incumbent_source_unchanged": true,
     "performance_improvement_claim": false,
-    "scoring_permitted": false
+    "scoring_permitted": false,
+    "job": "e66873fa2adc4030",
+    "submitted_utc": "2026-10-29T02:22:01.371647+00:00"
   },
   "decoder_router_prepare_prune_cpu": {
     "source_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
@@ -2751,5 +2753,17 @@
     "gpu_verified": false,
     "preparation_savings_s": null,
     "timed_speedup_claim": false
+  },
+  "latest_work_snapshot_utc": "2026-10-29T02:22:01.371647+00:00",
+  "expected_quotas_after_moe_phase_diagnostic": {
+    "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
+    "dense_checks_left": 19,
+    "moe_checks_left": 17,
+    "decode_checks_left": 20,
+    "attention_checks_left": 20,
+    "prefill_checks_left": 20,
+    "scores_left_each": 10,
+    "checks_total": 96,
+    "scores_total": 50
   }
 }

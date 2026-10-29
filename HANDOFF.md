@@ -1,3 +1,11 @@
+> LIVE GPU CHECK: MoE e66873fa2adc4030 / db0f6481 accepted at02:22:01UTC,
+> October29. Follow the same handle; do not upload again. No score/promotion.
+> Driver scripts/check_moe_phase_diagnostic.py resumes the saved handle.
+> Next new check cannot start before03:22:01UTC. Expected quotas from the
+> fresh prelaunch snapshot minus this check: Dense19,MoE17,others20 checks,
+> scores10each;96checks/50scores total. These are derived postlaunch counts.
+> Prior local-waiter checkpoint below is historical. Main chat only.
+
 > CURRENT NEXT STEP, 2026-10-29 02:03UTC: one MoE prepare-only diagnostic,
 > source db0f6481, is frozen and CPU-audited. Next new check is eligible at
 > 02:21:46UTC; no GPU job is running at this checkpoint. Use
