@@ -1,0 +1,60 @@
+{
+  "experiment": "D7 Dense cuBLASLt neighborhood search for M=128/256 unpooler",
+  "job": "96bc324b987a4c44",
+  "candidate_sha256": "f2bb94589ab113e9a9816b4e5e8032afac4682e3c1d42ff10577621e25abb1ef",
+  "official": {
+    "passed": true,
+    "speedup": 1.5094800235262982,
+    "ci": [
+      1.4868378231734036,
+      1.5321222238791925
+    ]
+  },
+  "parent": {
+    "job": "6131bc96427e4486",
+    "speedup": 1.5277713270942548
+  },
+  "selector_us": {
+    "m128": {
+      "incumbent": 22.69,
+      "fixed_restored": 22.85,
+      "best": 22.24,
+      "best_config": [
+        66,
+        18,
+        1,
+        0,
+        0,
+        4,
+        35,
+        0,
+        5,
+        0
+      ],
+      "variants": 87
+    },
+    "m256": {
+      "incumbent": 27.84,
+      "fixed_restored": 28.1,
+      "best": 27.81,
+      "best_config": [
+        66,
+        20,
+        1,
+        0,
+        0,
+        4,
+        35,
+        0,
+        3,
+        0
+      ],
+      "variants": 86
+    }
+  },
+  "official_shapes_us": {
+    "verify16 unpooler": 18.96,
+    "verify32 unpooler": 23.03
+  },
+  "decision": "measurement only: best neighbor 2.0% (m128, custom option 3->4) and 0.1% (m256); below the 3% gate; fixed descriptors are local optima. Not retained."
+}
