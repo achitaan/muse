@@ -1,0 +1,67 @@
+{
+  "parent_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "factor_cuda_sha256": "30d46586137332537599fd7db75df3c7e019bdfcbdceab7865e44841404947c1",
+  "original_cuda_inverse_exact": true,
+  "norm_route_expression_and_barriers_unchanged": true,
+  "empty_job_range_returns_before_job_read_or_divide": true,
+  "all_bf16_pack_promote_bit_patterns": 65536,
+  "finite_product_comparisons_to_fp64_RN_oracle": 1566720,
+  "signed_zero_subnormal_overflow_covered": true,
+  "phase_B_tile_unique_stores": 262144,
+  "finalizer_unique_columns": 4096,
+  "compact_last_byte": 25165823,
+  "unchanged_fixup_first_byte": 50331648,
+  "fixtures": [
+    {
+      "m": 1,
+      "active_routes": 0,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    },
+    {
+      "m": 17,
+      "active_routes": 31,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    },
+    {
+      "m": 32,
+      "active_routes": 53,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    },
+    {
+      "m": 128,
+      "active_routes": 198,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    },
+    {
+      "m": 256,
+      "active_routes": 439,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    },
+    {
+      "m": 385,
+      "active_routes": 613,
+      "invalid_nan_slots_masked": true,
+      "factor_products_bitwise_exact": true,
+      "all_nonlocal_output_exact_zero": true
+    }
+  ],
+  "rejected_mutants": [
+    "extra_bf16_product_round",
+    "packed_half_swap"
+  ],
+  "numpy": "1.25.1",
+  "python": "3.10.4",
+  "cpu_only": true,
+  "gpu_verified": false,
+  "limitations": "Representation and source/ownership proofs; no CUDA compilation, register allocation, graph replay or GPU timing proof"
+}

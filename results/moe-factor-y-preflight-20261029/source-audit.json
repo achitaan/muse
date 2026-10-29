@@ -1,0 +1,23 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "original_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "factor_cuda_sha256": "30d46586137332537599fd7db75df3c7e019bdfcbdceab7865e44841404947c1",
+  "cuda_bytes": 141684,
+  "reversible_edits": 45,
+  "factor_representation_edits": 3,
+  "empty_job_guard_edits": 1,
+  "namespace_reference_renames": 40,
+  "original_cuda_inverse_exact": true,
+  "phase_A_math_exact_ignoring_namespace": true,
+  "nonempty_routing_weights_readiness_fixups_and_grid_barrier_exact_ignoring_namespace": true,
+  "scratch_capacity_and_fixup_offsets_exact": true,
+  "numerical_contract": "Same BF16 GEMM accumulator/global-scale/product; same BF16 effective gain; explicit FP32 gain product before identical norm/route reductions",
+  "logical_y_traffic_bytes_per_route_before": 49152,
+  "logical_y_traffic_bytes_per_route_after": 16384,
+  "traffic_is_not_measured_HBM": true,
+  "gpu_verified": false,
+  "runtime_wrapper_built": true,
+  "source_sha256": "85a317b7bd44cad6f34bf0e3d6d83fc62569867acc7f46c223822d44c36fa741",
+  "source_bytes": 336922,
+  "original_parent_prefix_exact": true
+}

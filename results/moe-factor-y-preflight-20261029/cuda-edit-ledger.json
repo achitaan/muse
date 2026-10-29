@@ -1,0 +1,272 @@
+[
+  {
+    "name": "BF16-bit-product and FP32 reconstruction helpers",
+    "offset": 18819,
+    "old": "__device__ __forceinline__ float probe_q(float v) {",
+    "new": "// Preserve the incumbent's two BF16 boundaries, retaining the product bits.\n__device__ __forceinline__ __nv_bfloat162 factor_marlin_bits2(float a, float b, float scale) {\n  const __nv_bfloat162 acc = __floats2bfloat162_rn(a * TWO62, b * TWO62);\n  const __nv_bfloat16 gs = __float2bfloat16_rn(scale * 0x1p-62f);\n  return __hmul2_rn(acc, __bfloat162bfloat162(gs));\n}\n\n// BF16-to-FP32 is exact bit extension. Explicit RN multiplication preserves\n// the old FP32 product materialization before squares or route-weight FMAs.\n__device__ __forceinline__ void factor_product(uint4 p, const float* gain, float4& a, float4& b) {\n  a = make_float4(__fmul_rn(__uint_as_float(p.x << 16), gain[0]),\n                 __fmul_rn(__uint_as_float(p.x & 0xffff0000u), gain[1]),\n                 __fmul_rn(__uint_as_float(p.y << 16), gain[2]),\n                 __fmul_rn(__uint_as_float(p.y & 0xffff0000u), gain[3]));\n  b = make_float4(__fmul_rn(__uint_as_float(p.z << 16), gain[4]),\n                 __fmul_rn(__uint_as_float(p.z & 0xffff0000u), gain[5]),\n                 __fmul_rn(__uint_as_float(p.w << 16), gain[6]),\n                 __fmul_rn(__uint_as_float(p.w & 0xffff0000u), gain[7]));\n}\n\n__device__ __forceinline__ float probe_q(float v) {"
+  },
+  {
+    "name": "WGS phase B stores exact BF16 pre-gain product bits",
+    "offset": 102398,
+    "old": "template <bool PB>\n__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {\n  const int lane = threadIdx.x & 31, g = lane >> 2, t = lane & 3;\n  const int cnt = S.jC[j], jst = S.jS[j], e = S.jE[j];\n  if (!PB) {\n    // SwiGLU straight into xB (phase B's per-stage wgmma B layout) instead of row-major inter\n    const int col = r16 * 8 + g, ntt = (cnt + 7) >> 3;\n    const float gsc = p.gsA[e] * TWO62;\n    __nv_bfloat16* xb = p.xB + (size_t)S.jrow[j] * HD + (col & 7);\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = nt * 8 + 2 * t + h;\n      if (tk < cnt) {\n        const float2 achita_pair_9 = achita_marlin_out2(d4[h], d4[2 + h], gsc);\n        const float gt = achita_pair_9.x, up = achita_pair_9.y;\n        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;\n        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),\n                     __float2bfloat16(probe_q(v)));\n      }\n    }\n  } else {\n    // y rows only: the per-route sum of squares is formed by the final pass from these rows (no shuffles / atomics)\n    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;\n    const float gsc = p.gsB[e] * TWO62;\n    const float w0 = __bfloat162float(__ldg(p.normw + n0)), w1 = __bfloat162float(__ldg(p.normw + n0 + 8));\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = tok0 + h;\n      if (tk < cnt) {\n        const float2 achita_pair_wgs = achita_marlin_out2(d4[h], d4[2 + h], gsc);\n        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), achita_pair_wgs.x * w0);\n        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), achita_pair_wgs.y * w1);\n      }\n    }\n  }\n}\n",
+    "new": "template <bool PB>\n__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {\n  const int lane = threadIdx.x & 31, g = lane >> 2, t = lane & 3;\n  const int cnt = S.jC[j], jst = S.jS[j], e = S.jE[j];\n  if (!PB) {\n    // SwiGLU straight into xB (phase B's per-stage wgmma B layout) instead of row-major inter\n    const int col = r16 * 8 + g, ntt = (cnt + 7) >> 3;\n    const float gsc = p.gsA[e] * TWO62;\n    __nv_bfloat16* xb = p.xB + (size_t)S.jrow[j] * HD + (col & 7);\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = nt * 8 + 2 * t + h;\n      if (tk < cnt) {\n        const float2 achita_pair_9 = achita_marlin_out2(d4[h], d4[2 + h], gsc);\n        const float gt = achita_pair_9.x, up = achita_pair_9.y;\n        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;\n        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),\n                     __float2bfloat16(probe_q(v)));\n      }\n    }\n  } else {\n    // y rows only: the per-route sum of squares is formed by the final pass from these rows (no shuffles / atomics)\n    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;\n    const float gsc = p.gsB[e] * TWO62;\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = tok0 + h;\n      if (tk < cnt) {\n        const __nv_bfloat162 product = factor_marlin_bits2(d4[h], d4[2 + h], gsc);\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __low2bfloat16(product));\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __high2bfloat16(product));\n      }\n    }\n  }\n}\n"
+  },
+  {
+    "name": "WGS finalizer caches all eight BF16-factor rows in registers",
+    "offset": 130503,
+    "old": "#if OKC_WGS && OKC_WGSFINSS\n  // item = one token's whole row (thread = 8 columns): pass 1 sums each local route's y^2 over the row (warp\n  // shuffles, then the 16 warps' partials through smem: the ring is free now), pass 2 re-reads the rows (L2 hits)\n  {\n    static_assert(HD == NT * 8, \"8 columns per thread\");\n    float* red = reinterpret_cast<float*>(xbuf);\n    const int lane = tid & 31, warp = WARP_IDX(tid);\n    for (int tk = blockIdx.x; tk < p.M; tk += gridDim.x) {\n      int qv[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];\n      float ps[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) {\n        ps[sl] = 0.f;\n        if (qv[sl] >= 0) {\n          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;\n          const float4 a = __ldcg(src), b = __ldcg(src + 1);\n          ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;\n        }\n      }\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {  // uniform over the CTA (one token)\n#pragma unroll\n          for (int o = 16; o > 0; o >>= 1) ps[sl] += __shfl_xor_sync(0xffffffffu, ps[sl], o);\n        }\n      if (lane == 0) {\n#pragma unroll\n        for (int sl = 0; sl < 8; ++sl) red[warp * 8 + sl] = ps[sl];\n      }\n      CTA_SYNC();\n      if (tid < 8) {\n        float tsum = 0.f;\n        for (int w = 0; w < NW; ++w) tsum += red[w * 8 + tid];\n        red[NW * 8 + tid] = tsum;\n      }\n      CTA_SYNC();\n      float acc[8];\n#pragma unroll\n      for (int i = 0; i < 8; ++i) acc[i] = 0.f;\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {\n          const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);\n          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;\n          const float4 a = __ldcg(src), b = __ldcg(src + 1);\n          acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;\n          acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;\n        }\n      uint4 o;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&o);\n#pragma unroll\n      for (int i = 0; i < 4; ++i) {\n        __nv_bfloat162 v = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);\n        ow[i] = *reinterpret_cast<uint32_t*>(&v);\n      }\n      *reinterpret_cast<uint4*>(p.out + (size_t)tk * HD + tid * 8) = o;\n      CTA_SYNC();  // red is reused by the next token\n    }\n  }\n",
+    "new": "#if OKC_WGS && OKC_WGSFINSS\n  {\n    static_assert(HD == NT * 8, \"8 columns per thread\");\n    float* red = reinterpret_cast<float*>(xbuf);\n    const int lane = tid & 31, warp = WARP_IDX(tid);\n    const uint4 gb = __ldg(reinterpret_cast<const uint4*>(p.normw) + tid);\n    const float gain[8] = {__uint_as_float(gb.x << 16), __uint_as_float(gb.x & 0xffff0000u),\n                           __uint_as_float(gb.y << 16), __uint_as_float(gb.y & 0xffff0000u),\n                           __uint_as_float(gb.z << 16), __uint_as_float(gb.z & 0xffff0000u),\n                           __uint_as_float(gb.w << 16), __uint_as_float(gb.w & 0xffff0000u)};\n    for (int tk = blockIdx.x; tk < p.M; tk += gridDim.x) {\n      int qv[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];\n      uint4 saved[8];\n      float ps[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) {\n        ps[sl] = 0.f;\n        saved[sl] = make_uint4(0u, 0u, 0u, 0u);\n        if (qv[sl] >= 0) {\n          const __nv_bfloat16* row = reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD;\n          saved[sl] = __ldcg(reinterpret_cast<const uint4*>(row) + tid);\n          float4 a, b;\n          factor_product(saved[sl], gain, a, b);\n          ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;\n        }\n      }\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {\n#pragma unroll\n          for (int o = 16; o > 0; o >>= 1) ps[sl] += __shfl_xor_sync(0xffffffffu, ps[sl], o);\n        }\n      if (lane == 0) {\n#pragma unroll\n        for (int sl = 0; sl < 8; ++sl) red[warp * 8 + sl] = ps[sl];\n      }\n      CTA_SYNC();\n      if (tid < 8) {\n        float tsum = 0.f;\n        for (int w = 0; w < NW; ++w) tsum += red[w * 8 + tid];\n        red[NW * 8 + tid] = tsum;\n      }\n      CTA_SYNC();\n      float acc[8];\n#pragma unroll\n      for (int i = 0; i < 8; ++i) acc[i] = 0.f;\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {\n          const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);\n          float4 a, b;\n          factor_product(saved[sl], gain, a, b);\n          acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;\n          acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;\n        }\n      uint4 o;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&o);\n#pragma unroll\n      for (int i = 0; i < 4; ++i) {\n        __nv_bfloat162 v = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);\n        ow[i] = *reinterpret_cast<uint32_t*>(&v);\n      }\n      *reinterpret_cast<uint4*>(p.out + (size_t)tk * HD + tid * 8) = o;\n      CTA_SYNC();\n    }\n  }\n"
+  },
+  {
+    "name": "Explicit empty-job range, preserving every nonempty range",
+    "offset": 115481,
+    "old": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n",
+    "new": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  if (nj == 0) return 0;  // no job-table read or divide for all-nonlocal inputs\n"
+  },
+  {
+    "name": "Distinct device namespace",
+    "offset": 3434,
+    "old": "namespace okc {",
+    "new": "namespace okc_factor_y {"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136747,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136824,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136847,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136882,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136905,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 136965,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137015,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137038,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137088,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137108,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137147,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137168,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 137610,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 138531,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 138560,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 138581,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 138600,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139367,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139496,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139632,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139665,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139692,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139802,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139823,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139865,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139891,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 139989,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140010,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140041,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140071,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140101,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140456,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 140585,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141056,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141376,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141445,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141520,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141563,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141603,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  },
+  {
+    "name": "Host references distinct device namespace",
+    "offset": 141647,
+    "old": "okc::",
+    "new": "okc_factor_y::"
+  }
+]

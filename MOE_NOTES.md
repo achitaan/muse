@@ -1,3 +1,13 @@
+> CURRENT CANDIDATE, October29 03:07UTC: MoE BF16-factor scratch/cache
+> source85a317b7 is implemented and CPU-audited; no GPU result or speedup yet.
+> Frozen packet: results/moe-factor-y-preflight-20261029/. Review and fixed
+> numerical/resource/performance gates: experiments/prepared/moe_factor_y_review.md.
+> One paced check is eligible no earlier than03:22:01.371647UTC. No GPU job
+> is active at this checkpoint. The previous diagnostic missed resource
+> admission; its timestamps remain inadmissible as incumbent phase fractions.
+> Preserve33114871 and all other incumbents; score only a verified material gain.
+> Earlier running/waiter headers below are historical. Main chat only.
+
 > Latest checkpoint: October28,22:53UTC. No pending job/controller. Goal active; top50unmet.
 > Two checks this continuation, no scored runs. Prefill28d04382 passed5/8/integrity
 > at1.680162079x but fixed normalized-profile guard failed1.004422(<1.02); reverted.

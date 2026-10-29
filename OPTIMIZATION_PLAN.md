@@ -1,3 +1,13 @@
+> CURRENT CANDIDATE, October29 03:07UTC: MoE BF16-factor scratch/cache
+> source85a317b7 is implemented and CPU-audited; no GPU result or speedup yet.
+> Frozen packet: results/moe-factor-y-preflight-20261029/. Review and fixed
+> numerical/resource/performance gates: experiments/prepared/moe_factor_y_review.md.
+> One paced check is eligible no earlier than03:22:01.371647UTC. No GPU job
+> is active at this checkpoint. The previous diagnostic missed resource
+> admission; its timestamps remain inadmissible as incumbent phase fractions.
+> Preserve33114871 and all other incumbents; score only a verified material gain.
+> Earlier running/waiter headers below are historical. Main chat only.
+
 > CURRENT GPU AUTHORIZATION: checks enabled sparingly through October29,2026
 > at20:00Toronto (2026-10-30T00:00Z). EVALUATION_POLICY.json governs pacing:
 > one active GPU job, >=60minutes between new checks, four checks/track reserved.
