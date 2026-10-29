@@ -1,0 +1,38 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "source_sha256": "b8ebf2834e638165b7b26fa8b089c9ec62e4bcce8f443159a8f0bf35a33fac04",
+  "CUDA_sha256": "c84debd7016155722eda211709914721b254f8383d091e9154a72f97807e87c6",
+  "bytes": 906803,
+  "standalone_device_CUDA_sha256": "49e61e6a225b9a9ec245aeeb41554ff8b717c06cf8053d387dc1ddd6eaa72653",
+  "addon_sha256": "25ea5a6a75b50dd5eaea3d0595d92913621636240d319de9c018d0a98f3ea1cd",
+  "packaged_parent_exact_prefix": true,
+  "original_projections_and_dense_geometry_unchanged": true,
+  "candidate_scope": "Only attention/FFN boundaries at M1..32; sliced FFN only M1..8; one shared admission decision for the whole family",
+  "causal_prepare_gate": {
+    "each_combined_boundary_speedup_at_least": 1.03,
+    "each_combined_net_saving_ns_at_least": 1000,
+    "no_individual_boundary_ratio_above": 1.02,
+    "canonical_tokens": [
+      1,
+      8,
+      16,
+      32
+    ]
+  },
+  "native_requirements": {
+    "cluster_CTAs": 4,
+    "threads_per_CTA": 256,
+    "local_bytes": 0,
+    "static_shared_bytes": 72,
+    "register_ceiling": 64,
+    "active_clusters_at_least": 32,
+    "SMs_at_least": 132
+  },
+  "numerical_probes": 20,
+  "changed_input_graph_replays": 8,
+  "all_untouched_fallbacks_retained": true,
+  "GPU_jobs": 0,
+  "full_layer_gate": "13tests/12benchmarks/integrity, real new paths in all eight small cases, controls unchanged, material affected/control weighted gain",
+  "not_admitted_for_GPU_until": "independent source/precision/packet proof, source-bound fault-injected result guard, current evaluator identity and clean cached baseline controller"
+}

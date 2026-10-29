@@ -1,3 +1,19 @@
+# October29: boundary-only cluster4 candidate prepared, not GPU-verified
+
+Candidatef382e1af, nativec84debd7, uses the source-preserving307dd791pack and
+leaves all projection/MoE/Attention kernels untouched. Two residual/norm
+boundaries at M1..32 split complete8192rows across four CTAs in a cluster,
+preserving BF16 materializations and FP32 residual/router results. Only T<=8
+has the task's1024implicit zero tail; above8the full unpooler is mandatory.
+
+Offline4semantic modes compile32regs/72static/zero stack or spills. CPU60numeric
+and256DSM schedules pass; source/host/fallback audit and27bad result fixtures
+pass; fresh6official files match. No native H200 resource, graph or timing
+evidence yet. Selection is all-or-none across M1/8/16/32 after paired boundary
+gates; full13/12/integrity and weighted actual-path gains remain mandatory.
+Review: experiments/prepared/decoder_cluster_norm_review.md. No active source
+changed or GPU used during preparation. PreserveD9; top50goal remains active.
+
 # October29: no FP32-cache transfer; flat attention already balances lengths
 
 MoE FP32 finalizer cachef200e6e0 passed synthetic H200 correctness/resources as

@@ -1,3 +1,12 @@
+> Prepared Decoder boundary-only cluster4 candidatef382e1af/nativec84debd7.
+> Original projections/MoE/Attention unchanged;307dd791pack exact prefix.
+> M1..32norm/residual rows split across4CTAs,full8192norms,BF16branch/gain,
+> FP32residual and small-router input; implicit zero-tail onlyT<=8. Offline
+> 32regs/72static/zero spills; CPU60numeric/256DSM/27guard mutants;6fresh
+> official files exact. No GPU result yet; exact source/probes/gates in
+> results/decoder-cluster-norm-preflight-20261029/ and review MD. Native
+> resource/graph/paired materiality/full13/12/integrity are still required.
+>
 > Return audit at15:10UTC confirms9accepted private checks in the preceding
 > 11hours and zero retained performance wins; all5best source files match
 > commit8a6b1a22 at the start. This is investigation, not verified optimization

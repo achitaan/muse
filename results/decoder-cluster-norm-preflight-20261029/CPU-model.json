@@ -1,0 +1,634 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CUDA_sha256": "49e61e6a225b9a9ec245aeeb41554ff8b717c06cf8053d387dc1ddd6eaa72653",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "full_row_ownership_columns": 8192,
+  "DSM_random_schedules": 256,
+  "hazards_detected": {
+    "reuse_stat_bank": true,
+    "omit_DSM_lifetime_join": true
+  },
+  "numerical_cases": [
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        1.2384406859305728e-07
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        9.009419995612229e-08
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        1.1917411269949005e-07
+      ]
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        1.1247205559944452e-07
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        6.946287823566733e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.347917725230216e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.2874999050886e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "outlier",
+      "relative_L2": [
+        4.8047493414911986e-05,
+        0.0,
+        7.035450219254184e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "small",
+      "relative_L2": [
+        1.3476824602542657e-05,
+        0.0,
+        7.00312716568153e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.3118043335409486e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.316624906567071e-08
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "outlier",
+      "relative_L2": [
+        2.261590671022859e-05,
+        0.0,
+        1.1098383748004892e-07
+      ]
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        6.71364254096382e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        7.408922314765438e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.17950688348093e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.964411317900927e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.2429163982570254e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "random",
+      "relative_L2": [
+        1.489125770678021e-05,
+        0.0,
+        7.430139124438891e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        1.6547479777255592e-05,
+        0.0,
+        5.5927417291939056e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.596410303914887e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.918693793463806e-08
+      ]
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "small",
+      "relative_L2": [
+        1.8088576898654936e-09,
+        0.0,
+        7.161781480224601e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "random",
+      "relative_L2": [
+        1.0486854164389192e-05,
+        0.0,
+        6.021157764578643e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.235669822557209e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.541528281337879e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.076721037166215e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "small",
+      "relative_L2": [
+        2.609238423385904e-06,
+        0.0,
+        6.027836813687861e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "random",
+      "relative_L2": [
+        2.9512486309170167e-05,
+        0.0,
+        6.017119612422024e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        1.0473330110375585e-05,
+        0.0,
+        3.984189399827289e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        2.0894050107440292e-05,
+        0.0,
+        5.0814006603031914e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.3761928088784023e-08
+      ]
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.097712336981675e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "random",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.7619031712242094e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.621350673809306e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        7.57644306702674e-06,
+        0.0,
+        5.2083632760686746e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "outlier",
+      "relative_L2": [
+        3.911924208171491e-06,
+        0.0,
+        6.78531957064447e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "small",
+      "relative_L2": [
+        1.5070511908596751e-05,
+        0.0,
+        4.888302530675894e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "random",
+      "relative_L2": [
+        7.533824415013123e-06,
+        0.0,
+        6.482095836893866e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.7085658074426955e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        1.6814267538096147e-05,
+        0.0,
+        6.129282926338509e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "outlier",
+      "relative_L2": [
+        8.430621738146602e-06,
+        0.0,
+        6.095291929132532e-08
+      ]
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.8990131221861695e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "random",
+      "relative_L2": [
+        7.396518168093743e-06,
+        0.0,
+        5.618806235370365e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        1.6532055894605964e-05,
+        0.0,
+        5.119875468575305e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        1.843231302441913e-06,
+        0.0,
+        5.087438386264587e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "outlier",
+      "relative_L2": [
+        2.2334726737585214e-05,
+        0.0,
+        5.9079655561186746e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        5.281953833855979e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "random",
+      "relative_L2": [
+        7.414910152721611e-06,
+        0.0,
+        6.806138257021803e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "relative_L2": [
+        0.0,
+        0.0,
+        3.9474525787411276e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "relative_L2": [
+        4.13379752796949e-06,
+        0.0,
+        5.07874599543997e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "outlier",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.7188716699262096e-08
+      ]
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "small",
+      "relative_L2": [
+        0.0,
+        0.0,
+        4.3276190166530156e-08
+      ]
+    }
+  ],
+  "wrong_1024_domain_detected": true,
+  "conditional_payoff_scenarios": [
+    {
+      "hypothetical_net_saving_per_changed_layer_us": 1.0,
+      "weighted_track_ratio": 1.005135900537834
+    },
+    {
+      "hypothetical_net_saving_per_changed_layer_us": 2.0,
+      "weighted_track_ratio": 1.0103424374430436
+    },
+    {
+      "hypothetical_net_saving_per_changed_layer_us": 3.0,
+      "weighted_track_ratio": 1.0156212759803258
+    },
+    {
+      "hypothetical_net_saving_per_changed_layer_us": 4.0,
+      "weighted_track_ratio": 1.020974139031632
+    }
+  ],
+  "limits": "CPU sum tree and FP64 row oracle are finite screens, not CUDA graph correctness or a performance forecast. Profile sums are separate-run durations, not measured critical-path fractions."
+}

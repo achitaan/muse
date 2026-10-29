@@ -1,0 +1,6 @@
+device-preflight.cu(6): catastrophic error: cannot open source file "stdint.h"
+  #include <stdint.h>
+                     ^
+
+1 catastrophic error detected in the compilation of "device-preflight.cu".
+Compilation terminated.
