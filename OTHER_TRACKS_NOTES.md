@@ -69,6 +69,7 @@ new small-M kernel.
 | D3 Dense cuBLASLt algorithms for (128, 'o') | `7287935eb7d34f7b` | 1.5170751x pass | 1.5277713x | nothing selected: incumbent 10.75 us beat all 32 algorithms (4 layouts x 8; best 11.10 us) |
 | P3 Prefill GEMM layout (x@W^T vs pre-transposed W) | `f2241332a476452e` | 1.6497240x pass | 1.6392908x | nothing selected: best alternative +0.1%; qkv_gate at 753 tokens 46.0 vs 42.0 us |
 | D5 Dense olayer configs for O at 1/8/16/32 tokens | `3b13fab22b2b4480` | 1.5196641x pass | 1.5277713x | nothing selected: incumbent 9.25/9.44/9.82/10.11 us vs best config 10.14/10.24/10.18/10.14 us |
+| D6 Dense olayer configs for O at 128/256 tokens (weakest Dense shape: O m256 1.028x) | `4e8fda34635040e6` | 1.4949033x pass | 1.5277713x | nothing selected: m256 best olayer 12.90 us ties fixed cuBLASLt 12.90; m128 incumbent 10.75 vs 10.82 |
 
 D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
 Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
@@ -79,7 +80,8 @@ P2 `245a5d4cc417dd1d0640a274b0e3e595173ced336ca537c8467f21aa550504fa`,
 M3 `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795`,
 D3 `38aeb4867237bc3d927a3334bebada7c011cc952183fcc38e0f0c14e3f61fd7f`,
 P3 `a7289eb1465e81590cdc7c9a1e57f934f57e263e85a7a59e481bb0bd376236a9`,
-D5 `a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39`.
+D5 `a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39`,
+D6 `af3a3c2c1ba7df10500d4323a2e53bee95966420a9a5417609edb5124652ebb7`.
 Each result directory holds `gates.json` (frozen before launch), `result.json` and `verdict.json`.
 
 Track-level moves in these runs (-1.5% to +1.6%) occur with no device-path change (every
