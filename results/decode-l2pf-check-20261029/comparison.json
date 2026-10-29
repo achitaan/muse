@@ -1,0 +1,262 @@
+{
+  "rows": [
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "tokens": 1,
+      "parent_us": 92.28,
+      "cand_us": 93.28,
+      "ratio": 0.9893,
+      "cand_speedup": 1.9543,
+      "parent_speedup": 1.9741,
+      "group": "affected"
+    },
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "tokens": 1,
+      "parent_us": 84.64,
+      "cand_us": 85.19,
+      "ratio": 0.9935,
+      "cand_speedup": 2.0005,
+      "parent_speedup": 2.0212,
+      "group": "affected"
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "tokens": 16,
+      "parent_us": 219.75,
+      "cand_us": 211.64,
+      "ratio": 1.0383,
+      "cand_speedup": 2.0175,
+      "parent_speedup": 2.0159,
+      "group": "control"
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "tokens": 16,
+      "parent_us": 138.35,
+      "cand_us": 138.93,
+      "ratio": 0.9958,
+      "cand_speedup": 1.8673,
+      "parent_speedup": 1.9005,
+      "group": "affected"
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "tokens": 32,
+      "parent_us": 312.97,
+      "cand_us": 314.91,
+      "ratio": 0.9938,
+      "cand_speedup": 1.9573,
+      "parent_speedup": 1.9375,
+      "group": "control"
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "tokens": 32,
+      "parent_us": 157.79,
+      "cand_us": 163.03,
+      "ratio": 0.9679,
+      "cand_speedup": 1.5594,
+      "parent_speedup": 1.6016,
+      "group": "affected"
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "tokens": 8,
+      "parent_us": 135.69,
+      "cand_us": 147.92,
+      "ratio": 0.9174,
+      "cand_speedup": 1.896,
+      "parent_speedup": 2.0224,
+      "group": "affected"
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "tokens": 8,
+      "parent_us": 127.15,
+      "cand_us": 128.08,
+      "ratio": 0.9927,
+      "cand_speedup": 2.0208,
+      "parent_speedup": 2.0373,
+      "group": "affected"
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "tokens": 128,
+      "parent_us": 349.59,
+      "cand_us": 339.03,
+      "ratio": 1.0311,
+      "cand_speedup": 2.0577,
+      "parent_speedup": 2.0531,
+      "group": "control"
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "tokens": 128,
+      "parent_us": 262.52,
+      "cand_us": 262.0,
+      "ratio": 1.002,
+      "cand_speedup": 2.0771,
+      "parent_speedup": 2.0482,
+      "group": "affected"
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "tokens": 256,
+      "parent_us": 495.64,
+      "cand_us": 483.84,
+      "ratio": 1.0244,
+      "cand_speedup": 2.1886,
+      "parent_speedup": 2.1813,
+      "group": "control"
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "tokens": 256,
+      "parent_us": 331.85,
+      "cand_us": 332.79,
+      "ratio": 0.9972,
+      "cand_speedup": 2.1654,
+      "parent_speedup": 2.2088,
+      "group": "affected"
+    }
+  ],
+  "per_load": {
+    "decode 1": {
+      "parent": 2.008247052328487,
+      "cand": 1.9928584171569752
+    },
+    "decode 16": {
+      "parent": 1.9415708326958758,
+      "cand": 1.962000527166733
+    },
+    "decode 32": {
+      "parent": 1.7387452476961895,
+      "cand": 1.7010024169069016
+    },
+    "verify 1": {
+      "parent": 2.0333110673320687,
+      "cand": 1.9746022356155433
+    },
+    "verify 16": {
+      "parent": 2.049728748266074,
+      "cand": 2.0723215439214027
+    },
+    "verify 32": {
+      "parent": 2.199410813217623,
+      "cand": 2.213288707967885
+    }
+  },
+  "summary": {
+    "affected_gm": 0.9815932416627662,
+    "control_gm": 1.0217834809870723,
+    "n_affected": 8,
+    "n_control": 4,
+    "track_speedup": 1.9708513142782014,
+    "speedup_ci": [
+      1.9412885445640282,
+      2.000414083992374
+    ],
+    "passed": true,
+    "tests": 13,
+    "reconstructed_parent_track": 1.9902248796281297,
+    "reconstructed_cand_track_on_parent_baselines": 1.9798968061149071,
+    "l2pf_log": [
+      "[l2pf] plans=256 MiB={1: [12.0, 8.0, 20.0], 8: [12.0, 8.0, 20.0], 16: [12.0, 8.0, 20.0], 32: [16.0, 8.0, 16.0], 128: [16.0, 8.0], 256: [8.0]} s=0.66",
+      "[l2pf] probe={'m1_o_cold': 36.67, 'm1_o_pf': 33.89, 'm1_pooler_cold': 34.85, 'm1_pooler_pf': 35.01, 'm8_o_cold': 29.31, 'm8_o_pf': 30.11, 'm8_pooler_cold': 37.73, 'm8_pooler_pf': 39.97}"
+    ],
+    "profile_prefetch_kernel": [
+      {
+        "load": "decode 1",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                              10.8 \u00b5s  11.1%      1"
+        ]
+      },
+      {
+        "load": "decode 1",
+        "layer": "full",
+        "prefetch_kernel": [
+          "_pfk                                                              10.3 \u00b5s  10.6%      1"
+        ]
+      },
+      {
+        "load": "decode 16",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                               9.9 \u00b5s   7.7%      1"
+        ]
+      },
+      {
+        "load": "decode 16",
+        "layer": "full",
+        "prefetch_kernel": []
+      },
+      {
+        "load": "decode 32",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                               9.9 \u00b5s   5.6%      1"
+        ]
+      },
+      {
+        "load": "decode 32",
+        "layer": "full",
+        "prefetch_kernel": []
+      },
+      {
+        "load": "verify 1",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                               9.7 \u00b5s   7.8%      1"
+        ]
+      },
+      {
+        "load": "verify 1",
+        "layer": "full",
+        "prefetch_kernel": [
+          "_pfk                                                              10.0 \u00b5s   8.3%      1"
+        ]
+      },
+      {
+        "load": "verify 16",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                               6.4 \u00b5s   2.4%      1"
+        ]
+      },
+      {
+        "load": "verify 16",
+        "layer": "full",
+        "prefetch_kernel": []
+      },
+      {
+        "load": "verify 32",
+        "layer": "sliding",
+        "prefetch_kernel": [
+          "_pfk                                                               3.0 \u00b5s   0.9%      1"
+        ]
+      },
+      {
+        "load": "verify 32",
+        "layer": "full",
+        "prefetch_kernel": []
+      }
+    ],
+    "gate_affected": false,
+    "gate_control": true,
+    "gate_track": false
+  }
+}

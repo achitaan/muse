@@ -57,38 +57,44 @@ def pacing():
 
 def main():
     source, folder = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
+    action = sys.argv[3] if len(sys.argv) > 3 else 'check'
+    assert action in ('check', 'submit')
     raw = source.read_bytes()
     sha = hashlib.sha256(raw).hexdigest()
     folder.mkdir(parents=True, exist_ok=True)
     frozen = folder / 'submission.py'
     assert not frozen.exists() or frozen.read_bytes() == raw, 'a different candidate is already frozen here'
     frozen.write_bytes(raw)
-    launch_path = folder / 'launch.json'
+    launch_path = folder / ('launch.json' if action == 'check' else 'submit-launch.json')
+    intent_path = folder / ('launch-intent.json' if action == 'check' else 'submit-intent.json')
+    result_path = folder / ('result.json' if action == 'check' else 'submit-result.json')
     if launch_path.exists():
         launch = json.loads(launch_path.read_bytes())
         assert launch['source_sha256'] == sha
     else:
-        if (folder / 'launch-intent.json').exists():
+        if intent_path.exists():
             raise RuntimeError('Unknown prior upload outcome: reconcile official jobs before any new upload')
         policy = pacing()
         jobs = cli(['jobs', '--json'])
-        save(folder / 'jobs-before-launch.json', jobs)
+        save(folder / f'jobs-before-{action}.json', jobs)
         live = [r for r in jobs if r.get('status') not in TERMINAL]
         if live:
             raise RuntimeError('An official job is still live')
         quotas = cli(['problems', '--json'])
-        save(folder / 'quota-before-launch.json', dict(utc=datetime.now(timezone.utc).isoformat(), response=quotas))
+        save(folder / f'quota-before-{action}.json', dict(utc=datetime.now(timezone.utc).isoformat(), response=quotas))
         problem = next(p for p in quotas['problems'] if p['name'] == 'muse_decode_layer')
-        if problem['limits']['checks']['left'] <= policy['minimum_checks_reserved_per_track']:
+        if action == 'check' and problem['limits']['checks']['left'] <= policy['minimum_checks_reserved_per_track']:
             raise RuntimeError('Decode check reserve reached')
-        save(folder / 'launch-intent.json', dict(source_sha256=sha, utc=datetime.now(timezone.utc).isoformat()))
-        launch = cli(['check', 'muse_decode_layer', linux(frozen), '--no-wait', '--json'])
+        if action == 'submit' and problem['limits']['scored']['left'] <= policy['minimum_scores_reserved_per_track']:
+            raise RuntimeError('Decode scored reserve reached')
+        save(intent_path, dict(source_sha256=sha, action=action, utc=datetime.now(timezone.utc).isoformat()))
+        launch = cli([action, 'muse_decode_layer', linux(frozen), '--no-wait', '--json'])
         launch.update(source_sha256=sha, submitted_utc=datetime.now(timezone.utc).isoformat())
         save(launch_path, launch)
         with LEDGER.open('a', encoding='utf-8') as out:
             out.write(json.dumps(dict(problem='muse_decode_layer', job_id=launch['job_id'], source_sha256=sha,
-                                      submitted_utc=launch['submitted_utc'], action='check')) + '\n')
-        print(f'launched {launch["job_id"]} for {sha}', flush=True)
+                                      submitted_utc=launch['submitted_utc'], action=action)) + '\n')
+        print(f'{action} launched {launch["job_id"]} for {sha}', flush=True)
     job = launch.get('resolved_job_id', launch['job_id'])
     previous = None
     while True:
@@ -98,7 +104,7 @@ def main():
             print(f'observation failed for {job}: {type(exc).__name__}', file=sys.stderr, flush=True)
             time.sleep(30)
             continue
-        save(folder / 'result.json', result)
+        save(result_path, result)
         if result.get('status') != previous:
             previous = result.get('status')
             print(f'{datetime.now(timezone.utc).strftime("%H:%M:%S")} {job}: {previous}', flush=True)

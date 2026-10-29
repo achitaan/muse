@@ -1,0 +1,29 @@
+{
+  "experiment": "E1 idle-DRAM L2 weight prefetch",
+  "job": "2a9eba681e444075",
+  "candidate_sha256": "650b53a7498ca259e54933bfcf57790ea74774818077c994eac5c86ad3518abe",
+  "official": {
+    "passed": true,
+    "tests": 13,
+    "speedup": 1.9708513142782014,
+    "ci": [
+      1.9412885445640282,
+      2.000414083992374
+    ]
+  },
+  "parent": {
+    "job": "9560c915e85f4f50",
+    "speedup": 1.9902248796281297
+  },
+  "gates": {
+    "affected_gm": 0.9816,
+    "control_gm": 1.0218,
+    "track": 1.9709,
+    "affected_pass": false,
+    "control_pass": true,
+    "track_pass": false
+  },
+  "decision": "rejected; retained D9 unchanged; no publication",
+  "mechanism": "profile: next GEMVs 0.4-1.7 us faster (L2 hits), but the bandwidth-paced prefetch kernel stayed resident ~10 us and slowed critical-path kernels (attention 9.2->11.6 us at T=32 sliding, route_fp32<8> 15.2->17.6 us); in-prepare probe timed eager calls and is not usable evidence",
+  "note": "MoE kernel times differ across profile passes because routing is re-seeded per run; compare paired benchmark ratios only"
+}
