@@ -1,0 +1,18 @@
+{
+  "experiment": "D8 Dense cuBLASLt neighborhood search for qkv_gate/pooler at M=128/256 and o at M=256",
+  "frozen_before_launch_utc": "2026-10-29T23:55:00Z",
+  "parent": {
+    "sha256": "edc61a1e...765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "candidate_sha256": "f75b7b8ad18d729a717c0cd48d0f679f3b1aa79fcf87392003fb2f840f024e8c",
+  "evidence_basis": "weakest Dense loads verify 32 (1.252x) / verify 16 (1.302x); qkv_gate m256 17.59 us vs SOL 9.77 (1.137x), pooler m256 24.49 vs 17.37, qkv m128 13.91 vs 8.42; D7 showed the method works (2.0% best on unpooler); these descriptors were never neighborhood-searched here",
+  "affected_rule": "shapes D8_SELECTed in the log",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks",
+    "selection": ">=3% faster in prepare, FP64 error <= 1.5x incumbent",
+    "retention": "affected normalized >= 1.03 vs same-night Dense runs and a confirming run"
+  }
+}
