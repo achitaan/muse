@@ -1,0 +1,28 @@
+{
+  "source_sha256": "88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794",
+  "CUDA_sha256": "c02c053a7afcab82fb1d09df7b74361855d6c24c6b664633db3dec675d06eeb7",
+  "draft_sha256": "4cbe02668aaf52bd5c514f470c1cec3b7b433932fbbed5a87abc7078daa74432",
+  "bytes": 179965,
+  "only_native_resource_query_and_build_admission_added": true,
+  "exact_draft_AST_restored": true,
+  "numerical_device_prefix_unchanged": true,
+  "required_old_and_new_main_dynamic_bytes": 114688,
+  "required_old_and_new_main_blocks_per_SM": 2,
+  "required_old_and_new_main_register_limit": 80,
+  "required_local_and_static_bytes": 0,
+  "finalizer_threads": 128,
+  "mode": 16,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "performance_gate": {
+    "affected_case_GM": 1.02,
+    "normalized_affected_GM": 1.02,
+    "minimum_each_affected_normalized_case": 1.01,
+    "minimum_weighted_track_ratio": 1.005,
+    "controls_range": [
+      0.95,
+      1.05
+    ]
+  },
+  "not_admitted_for_GPU_until": "fresh evaluator identity, independent result guard with fault injection, source/precision inverse proof and cached baseline binding"
+}

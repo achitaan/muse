@@ -1,0 +1,82 @@
+{
+  "parent_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "parent_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "source_sha256": "4cbe02668aaf52bd5c514f470c1cec3b7b433932fbbed5a87abc7078daa74432",
+  "CUDA_sha256": "7e81b545e3db554884265a3e890c818bcf9c634ac9db3a24f740fadd91184560",
+  "bytes": 177564,
+  "exact_inverse_restores_retained_CUDA": true,
+  "Python_AST_unchanged": true,
+  "edits": [
+    {
+      "label": "skip_external_counter_and_in_kernel_finalization",
+      "old": "  // (last-CTA finalizes): no per-thread fences; one acq_rel atomic by thread 0 after the CTA barrier",
+      "new": "  if constexpr (!(FLAT && L == 8 && (MODE & 16))) {\n  // (last-CTA finalizes): no per-thread fences; one acq_rel atomic by thread 0 after the CTA barrier",
+      "count": 1
+    },
+    {
+      "label": "retain_full_segment_end_barrier",
+      "old": "     // consumers' shared memory is reused by the next segment",
+      "new": "  } // external merge preserves the following producer/consumer CTA join\n     // consumers' shared memory is reused by the next segment",
+      "count": 1
+    },
+    {
+      "label": "skip_unused_external_epoch_copy",
+      "old": "if constexpr (FLAT && (L == 8)) {\n    if (p.coop && threadIdx.x == 0)",
+      "new": "if constexpr (FLAT && (L == 8) && !(MODE & 16)) {\n    if (p.coop && threadIdx.x == 0)",
+      "count": 1
+    },
+    {
+      "label": "empty_external_CTA_needs_no_grid_wait",
+      "old": "if (p.coop) {   // still part of the grid-wide finalize",
+      "new": "if (p.coop && !(MODE & 16)) {   // still part of the grid-wide finalize",
+      "count": 1
+    },
+    {
+      "label": "skip_external_flat_grid_join",
+      "old": "if (p.coop) flat_finalize<",
+      "new": "if (p.coop && !(MODE & 16)) flat_finalize<",
+      "count": 2
+    },
+    {
+      "label": "propagate_fixed_external_mode_to_segments",
+      "old": "segment<L, FLAT, R>(p, S,",
+      "new": "segment<L, FLAT, R, MODE>(p, S,",
+      "count": 1
+    },
+    {
+      "label": "parallel_token_finalizer_reuses_exact_retained_norm_math",
+      "old": "template <int L, int NT>\n__device__ __forceinline__ void fin_nc1(const Params& p, const int b, const int pair, const int bp, const float vscale,\n                                     const int dry) {\n  const int tid = threadIdx.x;\n  // loads of a group of passes first (one L2 round trip per group), then math and stores; groups of 2 passes in a\n  // rolled loop (this runs once per launch from a cold instruction cache: q_len 8 has 4 passes)\n  constexpr int PASSES = L * 16 / (NT / 8);\n  constexpr int GP = PASSES >= 2 ? 2 : 1;\n  const int part = tid & 7;\n#pragma unroll 1\n  for (int p0 = 0; p0 < PASSES; p0 += GP) {\n    float4 xa[GP], xb[GP];\n    float lc[GP];\n    uint4 graw[GP];\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      const float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));\n      xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);\n      lc[u] = __ldcg(p.ws_l + (bp * L + j) * 16 + hh);\n      graw[u] = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);\n    }\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      if (!dry) {\n        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);\n        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);\n        if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;\n      }\n      const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;\n      float y[8] = {attn_out_bf16(xa[u].x * inv), attn_out_bf16(xa[u].y * inv), attn_out_bf16(xa[u].z * inv), attn_out_bf16(xa[u].w * inv),\n                    attn_out_bf16(xb[u].x * inv), attn_out_bf16(xb[u].y * inv), attn_out_bf16(xb[u].z * inv), attn_out_bf16(xb[u].w * inv)};\n      float ss = 0.f;\n#pragma unroll\n      for (int e = 0; e < 8; ++e) ss += y[e] * y[e];\n      ss = oct_sum(ss);\n      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);\n      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw[u]);\n      uint4 ov;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);\n#pragma unroll\n      for (int e = 0; e < 4; ++e) {\n        const float2 gt = __bfloat1622float2(g2[e]);\n        const float s0 = sigm(gt.x), s1 = sigm(gt.y);\n        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);\n        ow[e] = *reinterpret_cast<uint32_t*>(&r2);\n      }\n      if (!dry) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;\n    }\n  }\n}\n",
+      "new": "template <int L, int NT>\n__device__ __forceinline__ void fin_nc1(const Params& p, const int b, const int pair, const int bp, const float vscale,\n                                     const int dry) {\n  const int tid = threadIdx.x;\n  // loads of a group of passes first (one L2 round trip per group), then math and stores; groups of 2 passes in a\n  // rolled loop (this runs once per launch from a cold instruction cache: q_len 8 has 4 passes)\n  constexpr int PASSES = L * 16 / (NT / 8);\n  constexpr int GP = PASSES >= 2 ? 2 : 1;\n  const int part = tid & 7;\n#pragma unroll 1\n  for (int p0 = 0; p0 < PASSES; p0 += GP) {\n    float4 xa[GP], xb[GP];\n    float lc[GP];\n    uint4 graw[GP];\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      const float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));\n      xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);\n      lc[u] = __ldcg(p.ws_l + (bp * L + j) * 16 + hh);\n      graw[u] = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);\n    }\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      if (!dry) {\n        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);\n        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);\n        if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;\n      }\n      const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;\n      float y[8] = {attn_out_bf16(xa[u].x * inv), attn_out_bf16(xa[u].y * inv), attn_out_bf16(xa[u].z * inv), attn_out_bf16(xa[u].w * inv),\n                    attn_out_bf16(xb[u].x * inv), attn_out_bf16(xb[u].y * inv), attn_out_bf16(xb[u].z * inv), attn_out_bf16(xb[u].w * inv)};\n      float ss = 0.f;\n#pragma unroll\n      for (int e = 0; e < 8; ++e) ss += y[e] * y[e];\n      ss = oct_sum(ss);\n      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);\n      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw[u]);\n      uint4 ov;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);\n#pragma unroll\n      for (int e = 0; e < 4; ++e) {\n        const float2 gt = __bfloat1622float2(g2[e]);\n        const float s0 = sigm(gt.x), s1 = sigm(gt.y);\n        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);\n        ow[e] = *reinterpret_cast<uint32_t*>(&r2);\n      }\n      if (!dry) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;\n    }\n  }\n}\n\ntemplate <int L, int NT>\n__device__ __forceinline__ void external_fin_nc1(const Params& p, const int b, const int pair, const int bp, const float vscale,\n                                     const int dry) {\n  const int tid = threadIdx.x;\n  // loads of a group of passes first (one L2 round trip per group), then math and stores; groups of 2 passes in a\n  // rolled loop (this runs once per launch from a cold instruction cache: q_len 8 has 4 passes)\n  constexpr int PASSES = L * 16 / (NT / 8);\n  constexpr int GP = PASSES >= 2 ? 2 : 1;\n  const int part = tid & 7;\n#pragma unroll 1\n  for (int p0 = 0; p0 < PASSES; p0 += GP) {\n    float4 xa[GP], xb[GP];\n    float lc[GP];\n    uint4 graw[GP];\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      const float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));\n      xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);\n      lc[u] = __ldcg(p.ws_l + (bp * L + j) * 16 + hh);\n      graw[u] = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);\n    }\n    __syncwarp(0xffffffffu); // all eight lanes read lsum before part0 clears it\n#pragma unroll\n    for (int u = 0; u < GP; ++u) {\n      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);\n      const int j = rr >> 4, hh = rr & 15;\n      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;\n      if (!dry) {\n        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);\n        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);\n        if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;\n      }\n      const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;\n      float y[8] = {attn_out_bf16(xa[u].x * inv), attn_out_bf16(xa[u].y * inv), attn_out_bf16(xa[u].z * inv), attn_out_bf16(xa[u].w * inv),\n                    attn_out_bf16(xb[u].x * inv), attn_out_bf16(xb[u].y * inv), attn_out_bf16(xb[u].z * inv), attn_out_bf16(xb[u].w * inv)};\n      float ss = 0.f;\n#pragma unroll\n      for (int e = 0; e < 8; ++e) ss += y[e] * y[e];\n      ss = oct_sum(ss);\n      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);\n      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw[u]);\n      uint4 ov;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);\n#pragma unroll\n      for (int e = 0; e < 4; ++e) {\n        const float2 gt = __bfloat1622float2(g2[e]);\n        const float s0 = sigm(gt.x), s1 = sigm(gt.y);\n        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);\n        ow[e] = *reinterpret_cast<uint32_t*>(&r2);\n      }\n      if (!dry) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;\n    }\n  }\n}\n\n// A normal stream edge joins the completed atomic partials. Each CTA owns one\n// token/KV-pair's sixteen heads; no grid barrier or cross-CTA spin is needed.\n__global__ void __launch_bounds__(128)\nattn_external_finalize8(const __grid_constant__ Params p) {\n  const int token = blockIdx.x, pair = blockIdx.z;\n  const int pairs = p.Hkv >> 1;\n  const int request = token >> 3, query = token & 7;\n  const int workspace_row = (request * pairs + pair) * 8 + query;\n  const float vscale = __ldg(p.v_scale);\n  // L=1 is only an indexing adaptation here: token indexes the original\n  // flattened [B,8] qkv/output while workspace_row indexes [B,pairs,8].\n  // All sixteen heads and their full64-element norm domains stay intact.\n  external_fin_nc1<1,128>(p,token,pair,workspace_row,vscale,0);\n}\n",
+      "count": 1
+    },
+    {
+      "label": "native_external_resource_slot",
+      "old": "  static int occ_c = 0, occ_f = 0, nsm = 0;",
+      "new": "  static int occ_c = 0, occ_f = 0, nsm = 0;\n  static int external_occ = 0;",
+      "count": 1
+    },
+    {
+      "label": "configure_exact_external_main_instance",
+      "old": "    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel_fp8pv<L, true>, Cfg<L, true>::NTX, sm_f);",
+      "new": "    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel_fp8pv<L, true>, Cfg<L, true>::NTX, sm_f);\n    if constexpr (L == 8) {\n      auto external = attn_kernel_fp8pv<8,true,16>;\n      cudaError_t err = cudaFuncSetAttribute(external,cudaFuncAttributeMaxDynamicSharedMemorySize,sm_f);\n      TORCH_CHECK((err == cudaSuccess),\"external attention shared-memory admission failed\");\n      err = cudaOccupancyMaxActiveBlocksPerMultiprocessor(&external_occ,external,Cfg<8,true>::NTX,sm_f);\n      TORCH_CHECK((err == cudaSuccess),\"external attention occupancy query failed\");\n    }\n",
+      "count": 1
+    },
+    {
+      "label": "normal_stream_dependency_and_parallel_output_pass",
+      "old": "  if (cl || pdl) {\n    // cluster dims and / or programmatic stream serialization",
+      "new": "  if constexpr (L == 8) {\n    // Match only retained full-context cooperative flat/nc1 launches. All\n    // shapes outside this fixed family and all PDL/debug calls remain old.\n    if (p.flat && q.coop && p.window == 0 && p.B > 1 && p.nc == 1 &&\n        !pdl && !p.dbg && external_occ >= 2) {\n      attn_kernel_fp8pv<8,true,16><<<grid,Cfg<8,true>::NTX,sm_f,stream>>>(q);\n      TORCH_CHECK((cudaGetLastError() == cudaSuccess),\"external attention main launch failed\");\n      attn_external_finalize8<<<dim3(p.B*8,1,p.Hkv/2),128,0,stream>>>(q);\n      TORCH_CHECK((cudaGetLastError() == cudaSuccess),\"external attention finalizer launch failed\");\n      return;\n    }\n  }\n  if (cl || pdl) {\n    // cluster dims and / or programmatic stream serialization",
+      "count": 1
+    }
+  ],
+  "scope": "L8 full,flat,nc1,cooperative baseline selection,B>1,no PDL/debug,external occupancy>=2",
+  "untouched": "L1, L8 sliding/single-request/other copies/PDL/debug/non-native fallbacks",
+  "extra_scratch_bytes": 0,
+  "extra_timed_launches": 1,
+  "extra_expanded_weights": false,
+  "full_end_of_segment_barriers_retained": true,
+  "all_numerical_mainloop_source_unchanged": true,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "remaining": "ownership/replay/numerical traffic model, compiler/resource/control-body proof, fresh evaluator identity, native resource and execution guards"
+}

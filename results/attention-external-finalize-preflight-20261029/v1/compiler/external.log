@@ -1,0 +1,177 @@
+device-preflight.cu(2455): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(2526): warning #177-D: variable "w0g_rank" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+        ^
+
+device-preflight.cu(2526): warning #177-D: variable "w0g_par" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                      ^
+
+device-preflight.cu(2526): warning #177-D: variable "w0g_gen" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                                   ^
+
+device-preflight.cu(2527): warning #177-D: variable "w0_smid" was declared but never referenced
+    unsigned w0_smid = 0;
+             ^
+
+device-preflight.cu(2528): warning #177-D: variable "w0_rank" was declared but never referenced
+    int w0_rank = 0;
+        ^
+
+device-preflight.cu(696): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(588): warning #607-D: this pragma must immediately precede a statement
+  #pragma unroll 1
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(568): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1822): warning #177-D: variable "V16t" was declared but never referenced
+      uint8_t* V16t = V16 + 0;   // PV reads it asynchronously: double buffer
+               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1691): warning #177-D: variable "thr" was declared but never referenced
+    float thr[2] = {0.f, 0.f};
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1701): warning #177-D: variable "ckey" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+              ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1701): warning #177-D: variable "cq" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+                               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1744): warning #177-D: variable "i_lo" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+             ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1744): warning #177-D: variable "i_span" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+                       ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1763): warning #177-D: variable "i_cur" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+        ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(1763): warning #177-D: variable "cnt2" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+device-preflight.cu(25): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=8, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+device-preflight.cu(25): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+device-preflight.cu(39): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+
+device-preflight.cu(120): warning #177-D: function "<unnamed>::bar_sync_n" was declared but never referenced
+  __device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(121): warning #177-D: function "<unnamed>::bar_arrive_n" was declared but never referenced
+  __device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(158): warning #177-D: function "<unnamed>::ex2h2" was declared but never referenced
+  __device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
+                                      ^
+
+device-preflight.cu(186): warning #177-D: function "<unnamed>::load_v_frags" was declared but never referenced
+  __device__ __forceinline__ void load_v_frags(const uint8_t* V, int kb, int hk, int g, int tig, uint32_t* b0,
+                                  ^
+
+device-preflight.cu(289): warning #177-D: function "<unnamed>::desc_sw128" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
+                                      ^
+
+device-preflight.cu(293): warning #177-D: function "<unnamed>::wgmma_m64n64k32_e4m3" was declared but never referenced
+  __device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
+                                  ^
+
+device-preflight.cu(426): warning #177-D: function "<unnamed>::cl_gid" was declared but never referenced
+  __device__ __forceinline__ int cl_gid(const Params& p) {
+                                 ^
+
+ptxas info    : 172 bytes gmem
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb1ELi16EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb1ELi16EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN54_INTERNAL_00000000_19_device_preflight_cu_43a1cf1b_75656_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75611ws_patch_niILi8ELi256ELb0ENS0_4SmemILi8ELb1EEEEEbPT2_iiiiii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb1ELi0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN54_INTERNAL_00000000_19_device_preflight_cu_43a1cf1b_75656_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75611ws_patch_niILi8ELi256ELb0ENS0_4SmemILi8ELb1EEEEEbPT2_iiiiii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for _ZN54_INTERNAL_00000000_19_device_preflight_cu_43a1cf1b_75656_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_7569spin_failEv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb0ELi3EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb0ELi3EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 120 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN54_INTERNAL_00000000_19_device_preflight_cu_43a1cf1b_75656_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_7569spin_failEv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb0ELi15EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi8ELb0ELi15EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN54_INTERNAL_00000000_19_device_preflight_cu_43a1cf1b_75656_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_7569spin_failEv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb0ELi9EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb0ELi9EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 123 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75617attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 102 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75623attn_external_finalize8ENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN56_GLOBAL__N__00000000_19_device_preflight_cu_43a1cf1b_75623attn_external_finalize8ENS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 31 registers, used 0 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z18layout_bytes_probeILi114688EEvv' for 'sm_90a'
+ptxas info    : Function properties for _Z18layout_bytes_probeILi114688EEvv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 4 registers, used 0 barriers
+ptxas info    : Compile time = 0.000 ms

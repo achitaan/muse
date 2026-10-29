@@ -1,0 +1,75 @@
+{
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "GPU_kernels_loaded": false,
+  "exact_judge_toolchain": false,
+  "arms": {
+    "baseline": {
+      "cubin_sha256": "eccc2a4839fc6589020cd3617e30de91cbeff3ed3ed3a0c1e06f6e4ca403bb94",
+      "zero_stack_spill_fields": true,
+      "registers_in_log": [
+        80,
+        120,
+        96,
+        128,
+        123,
+        102,
+        4
+      ],
+      "dynamic_shared_probes": [
+        114688
+      ],
+      "instruction_counts": {
+        "attn_kernel_fp8pvILi8ELb1ELi0E": 6672,
+        "attn_kernel_fp8pvILi8ELb0ELi3E": 2872,
+        "attn_kernel_fp8pvILi8ELb0ELi15E": 2344,
+        "attn_kernel_fp8pvILi1ELb1ELi0E": 3560,
+        "attn_kernel_fp8pvILi1ELb0ELi9E": 2864,
+        "attn_kernel_fp8pvILi1ELb0ELi13E": 2208
+      }
+    },
+    "external": {
+      "cubin_sha256": "a865f4c8e5595f313ff7bbafe14ba3a0990a6696286812f39d9afe49829bad2e",
+      "zero_stack_spill_fields": true,
+      "registers_in_log": [
+        80,
+        80,
+        120,
+        96,
+        128,
+        123,
+        102,
+        31,
+        4
+      ],
+      "dynamic_shared_probes": [
+        114688
+      ],
+      "instruction_counts": {
+        "attn_kernel_fp8pvILi8ELb1ELi16E": 4304,
+        "attn_kernel_fp8pvILi8ELb1ELi0E": 6672,
+        "attn_kernel_fp8pvILi8ELb0ELi3E": 2872,
+        "attn_kernel_fp8pvILi8ELb0ELi15E": 2344,
+        "attn_kernel_fp8pvILi1ELb1ELi0E": 3560,
+        "attn_kernel_fp8pvILi1ELb0ELi9E": 2864,
+        "attn_kernel_fp8pvILi1ELb0ELi13E": 2208,
+        "attn_external_finalize8": 216
+      }
+    }
+  },
+  "six_instantiated_control_instruction_and_branch_bodies_equal": {
+    "attn_kernel_fp8pvILi8ELb1ELi0E": true,
+    "attn_kernel_fp8pvILi8ELb0ELi3E": true,
+    "attn_kernel_fp8pvILi8ELb0ELi15E": true,
+    "attn_kernel_fp8pvILi1ELb1ELi0E": true,
+    "attn_kernel_fp8pvILi1ELb0ELi9E": true,
+    "attn_kernel_fp8pvILi1ELb0ELi13E": true
+  },
+  "new_main_integer_global_atomic_instructions": 0,
+  "old_main_integer_global_atomic_instructions": 3,
+  "FP32_payload_global_reds_retained": true,
+  "normalization": "Names of section-defined symbols only; preserve every target instruction offset and all appended helper instruction bodies. External symbols/constants are unchanged.",
+  "native_actual_occupancy_not_verified": true,
+  "candidate_installed": false,
+  "remaining": "CPU row/index/replay and numerical model; exact native resource/dispatch gates; official full correctness/performance"
+}

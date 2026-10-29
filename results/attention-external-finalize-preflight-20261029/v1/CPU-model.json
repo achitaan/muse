@@ -1,0 +1,360 @@
+{
+  "source_sha256": "4cbe02668aaf52bd5c514f470c1cec3b7b433932fbbed5a87abc7078daa74432",
+  "CUDA_sha256": "7e81b545e3db554884265a3e890c818bcf9c634ac9db3a24f740fadd91184560",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "ownership_shapes": 44,
+  "largest_head_rows_checked": 524288,
+  "per_CTA_values_written_once": 1024,
+  "sequential_old_external_epoch_cases": 35,
+  "numerical_proxy_cases": [
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "random",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "random",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "random",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "zero",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "zero",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "zero",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "constant",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "constant",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "constant",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "small",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "small",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "small",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "outlier",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "outlier",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 2,
+      "pairs": 1,
+      "fixture": "outlier",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 3.0904540652350855e-06
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "random",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "random",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 2.25402493166419e-07
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "random",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "zero",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "zero",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "zero",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "constant",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "constant",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "constant",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "small",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "small",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "small",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 6.1198892284562974e-06
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "outlier",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "outlier",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 1.786757110662392e-06
+    },
+    {
+      "batch": 3,
+      "pairs": 2,
+      "fixture": "outlier",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "random",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 2.95970971584146e-06
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "random",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "random",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 1.746642354026093e-05
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "zero",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "zero",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "zero",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "constant",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "constant",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "constant",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "small",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 1.6305318461271385e-05
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "small",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 1.6297362706486336e-05
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "small",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 5.103781116625275e-07
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "outlier",
+      "vscale": 0.00390625,
+      "relative_L2_vs_row_oracle": 0.0
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "outlier",
+      "vscale": 0.03125,
+      "relative_L2_vs_row_oracle": 4.376443227525763e-06
+    },
+    {
+      "batch": 4,
+      "pairs": 4,
+      "fixture": "outlier",
+      "vscale": 1.0,
+      "relative_L2_vs_row_oracle": 8.685803044102792e-06
+    }
+  ],
+  "mutants_detected": {
+    "skip_attention_BF16": 27,
+    "round_norm_before_gate": 27,
+    "wrong_norm_domain": 31
+  },
+  "pair_sensitive_index_mutant_detected": true,
+  "extra_timed_kernel_launches": 1,
+  "extra_workspace_bytes": 0,
+  "per_workspace_head_row_payload_bytes_read": 260,
+  "per_workspace_head_row_payload_bytes_zeroed": 260,
+  "per_workspace_head_row_BF16_gate_read_bytes": 128,
+  "per_workspace_head_row_BF16_output_write_bytes": 128,
+  "traffic_scope": "Representation payload only; scalar-broadcast requests/cache-line traffic excluded. Same payload as old nc1 finalizer; no measured HBM claim.",
+  "optimistic_net_saving_screens": [
+    {
+      "hypothetical_net_full_case_saving_us": 1.0,
+      "track_gain": 1.0019581404146873
+    },
+    {
+      "hypothetical_net_full_case_saving_us": 2.0,
+      "track_gain": 1.0039324801805907
+    },
+    {
+      "hypothetical_net_full_case_saving_us": 4.0,
+      "track_gain": 1.0079307484954958
+    }
+  ],
+  "limitations": [
+    "CPU mathematical/indexing screens do not establish GPU accuracy, race freedom or speed",
+    "Global FP32 partial reduction order may differ; GPU full suite remains mandatory",
+    "Original/native scope still excludes L8 B>64; large mathematical ownership cases do not enable those paths",
+    "Native actual resource/old cooperative selection must be observed; comments/planner alone are not proof"
+  ]
+}

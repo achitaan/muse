@@ -1,3 +1,27 @@
+> CPU FOLLOW-UP, October29: distinct Attention L8-full two-kernel merge draft
+> 4cbe0266; resource-admission88026272 (179965B), CUDAc02c053a. Existing FP32
+> payload reductions/mainloop/keys/scales/precision retained; MODE16 skips
+> completion/grid join, then normal stream ordering launches128-thread finalizer
+> per token/pair. Full producer/consumer end-of-segment barrier stays intact.
+> No extra workspace; one added launch. Fixed scope cases9/11 only, old coop
+> selection/nc1/B>1/no PDL/debug. Other cases and B>64 fallback unchanged.
+> Offline main80regs/114688dynamic; final31regs/0dynamic; all stack/spills0.
+> Six instantiated control+helper instruction bodies match after preserving
+> target offsets while normalizing only section-local symbol names. New main
+> integer global arrivals0vsold3; FP32 payload reds remain. No runtime proof.
+> CPU44ownership/35epoch/45numerical cases; max oracle relativeL2~1.747e-5.
+> Fresh5official files exact. No GPU check or incumbent change. Packet
+> results/attention-external-finalize-preflight-20261029/, review
+> experiments/prepared/attention_external_finalize_review.md. Native resource
+> query/build checks are frozen in admission-v2; still finish independent
+> source/precision/result guards with fault injection + cached9e baseline
+> before launch. Fixed gains: affected/normalized>=1.02, each normalized>=1.01,
+> controls.95..1.05, weighted track>=1.005; not a significance claim.
+> Next new check>=13:50:40.319601UTC;88derived checks/50scores unchanged.
+> No live job/controller. All44protected sources intact. Broad top50 goal
+> active through20Toronto, main only. Any later Decode transfer ports only
+> this mechanism onto D9's FP16-PV source; no tied FP8-PV mainloop import.
+>
 > LATEST TERMINAL RESULT, October29: cooperative Decodead7b55cf check
 > 7f85bd70a3484dc7 passed actual native resources and80synthetic probes
 > including16fresh graph replays/both formats/nearbyM2..7. Projection BF16

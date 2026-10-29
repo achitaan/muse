@@ -146,8 +146,8 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "Attention inspection",
-  "resume_note": "Cooperative Decode7f85 terminal: resources/80synthetic probes pass, both fused families slower, selected none; full-suite1.996929052x retained paths, no new-kernel gain. D9 restored, controller archived20261029-125933. Inspect retained Attention partial-output/finalizer ownership for a distinct hypothesis before next new check>=13:50:40.319601UTC. Broad top50 goal active.",
+  "active_track": "Attention external finalizer CPU admission",
+  "resume_note": "New L8 full two-kernel finalizer88026272 survives CPU ownership/numerical/epoch/compiler screens. Preserve full segment barriers and FP32 payload reductions; no global arrival atomics in new MODE16. Finish independent source/precision/result fault-injection guards and cached9e binding before one paced check >=13:50:40.319601UTC. No current job/controller. D9 and9e remain incumbents; broad top50 goal active.",
   "attention_checked": {
     "source": "best/attention_checked.py",
     "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
@@ -2856,7 +2856,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T13:04:13.730618+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T13:37:55.725327+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -3512,5 +3512,29 @@
     "next_new_check_not_before_utc": "2026-10-29T13:50:40.319601+00:00",
     "decision": "Close cooperative O1/O8 whole-grid boundary fusion; retain D9; no score, noise rerun, tile sweep or transfer",
     "limitations": "Warm synthetic component measurements are not cold-L2 whole-layer gains. Full-suite point changes use retained paths. Barrier cost has not been separately measured."
+  },
+  "attention_external_finalize_CPU": {
+    "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "draft_sha256": "4cbe02668aaf52bd5c514f470c1cec3b7b433932fbbed5a87abc7078daa74432",
+    "admission_sha256": "88026272155440d2dce8c565ac2bcbbe28a4fef97c0cf4909a3b5d6a90fdf794",
+    "CUDA_sha256": "c02c053a7afcab82fb1d09df7b74361855d6c24c6b664633db3dec675d06eeb7",
+    "packet": "results/attention-external-finalize-preflight-20261029",
+    "review": "experiments/prepared/attention_external_finalize_review.md",
+    "CPU_ownership_shapes": 44,
+    "CPU_numerical_cases": 45,
+    "CPU_replay_epoch_cases": 35,
+    "six_control_instruction_bodies_match": true,
+    "compiler_main_registers": 80,
+    "compiler_finalizer_registers": 31,
+    "compiler_stack_and_spill_fields_zero": true,
+    "extra_workspace_bytes": 0,
+    "extra_timed_kernel_launches": 1,
+    "fresh_official_files_exact": 5,
+    "GPU_jobs": 0,
+    "status": "not_admitted_until_independent_source_precision_and_result_guards_pass",
+    "scope_cases": [
+      9,
+      11
+    ]
   }
 }
