@@ -1,0 +1,38 @@
+{
+  "experiment": "D1 Dense Triton row-parallel GEMV selector",
+  "job": "4edf30f7aa6142e7",
+  "candidate_sha256": "6776a4c41152fd6378625dd967bcd50816d7e44aad4ff26dfd31841364810a54",
+  "official": {
+    "passed": true,
+    "speedup": 1.504844911021817,
+    "ci": [
+      1.4822722373564896,
+      1.527417584687144
+    ]
+  },
+  "parent": {
+    "job": "6131bc96427e4486",
+    "speedup": 1.5277713270942548
+  },
+  "selector_us_prepare_graph": {
+    "router m1": [
+      7.97,
+      8.26
+    ],
+    "router m8": [
+      8.48,
+      12.9
+    ],
+    "unpooler m1": [
+      8.45,
+      8.61
+    ],
+    "unpooler m8": [
+      8.51,
+      16.9
+    ],
+    "format": "[incumbent, best Triton]"
+  },
+  "decision": "measurement only: nothing selected, device path identical to the parent; -1.5% track and 5-11% moves on unchanged tiny shapes are run variance (controls 0.980). Not retained.",
+  "finding": "incumbent small-token Dense kernels beat a whole-row Triton GEMV at 1 and 8 tokens"
+}

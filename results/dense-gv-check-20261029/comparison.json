@@ -1,0 +1,317 @@
+{
+  "rows": [
+    {
+      "load": "decode 1",
+      "layer": "o",
+      "parent_us": 4.99,
+      "cand_us": 5.21,
+      "ratio": 0.9585,
+      "normalized": 0.9777,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 1",
+      "layer": "pooler",
+      "parent_us": 13.4,
+      "cand_us": 13.54,
+      "ratio": 0.9897,
+      "normalized": 1.0095,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 1",
+      "layer": "qkv_gate",
+      "parent_us": 9.46,
+      "cand_us": 9.42,
+      "ratio": 1.0045,
+      "normalized": 1.0246,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 1",
+      "layer": "router",
+      "parent_us": 3.89,
+      "cand_us": 4.25,
+      "ratio": 0.9168,
+      "normalized": 0.9351,
+      "affected": true,
+      "win": false
+    },
+    {
+      "load": "decode 1",
+      "layer": "unpooler",
+      "parent_us": 3.91,
+      "cand_us": 4.47,
+      "ratio": 0.8743,
+      "normalized": 0.8918,
+      "affected": true,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "o",
+      "parent_us": 5.48,
+      "cand_us": 5.87,
+      "ratio": 0.9342,
+      "normalized": 0.953,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "pooler",
+      "parent_us": 14.13,
+      "cand_us": 14.15,
+      "ratio": 0.9986,
+      "normalized": 1.0186,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "qkv_gate",
+      "parent_us": 10.35,
+      "cand_us": 10.33,
+      "ratio": 1.002,
+      "normalized": 1.0221,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "router",
+      "parent_us": 4.25,
+      "cand_us": 4.6,
+      "ratio": 0.925,
+      "normalized": 0.9435,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "unpooler",
+      "parent_us": 13.92,
+      "cand_us": 13.69,
+      "ratio": 1.0164,
+      "normalized": 1.0368,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "o",
+      "parent_us": 5.56,
+      "cand_us": 6.03,
+      "ratio": 0.9216,
+      "normalized": 0.9401,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "pooler",
+      "parent_us": 16.15,
+      "cand_us": 16.85,
+      "ratio": 0.9586,
+      "normalized": 0.9779,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "qkv_gate",
+      "parent_us": 11.57,
+      "cand_us": 12.35,
+      "ratio": 0.9367,
+      "normalized": 0.9555,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "router",
+      "parent_us": 4.85,
+      "cand_us": 5.3,
+      "ratio": 0.9158,
+      "normalized": 0.9341,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "unpooler",
+      "parent_us": 17.05,
+      "cand_us": 16.82,
+      "ratio": 1.0137,
+      "normalized": 1.034,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "o",
+      "parent_us": 5.14,
+      "cand_us": 5.15,
+      "ratio": 0.9973,
+      "normalized": 1.0173,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "pooler",
+      "parent_us": 13.17,
+      "cand_us": 13.19,
+      "ratio": 0.9987,
+      "normalized": 1.0187,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "qkv_gate",
+      "parent_us": 9.58,
+      "cand_us": 9.64,
+      "ratio": 0.9933,
+      "normalized": 1.0132,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "router",
+      "parent_us": 3.9,
+      "cand_us": 4.2,
+      "ratio": 0.9307,
+      "normalized": 0.9493,
+      "affected": true,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "unpooler",
+      "parent_us": 4.09,
+      "cand_us": 4.19,
+      "ratio": 0.9763,
+      "normalized": 0.9958,
+      "affected": true,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "o",
+      "parent_us": 6.91,
+      "cand_us": 6.81,
+      "ratio": 1.0143,
+      "normalized": 1.0347,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "pooler",
+      "parent_us": 19.75,
+      "cand_us": 19.89,
+      "ratio": 0.9934,
+      "normalized": 1.0133,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "qkv_gate",
+      "parent_us": 13.42,
+      "cand_us": 13.99,
+      "ratio": 0.9591,
+      "normalized": 0.9784,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "router",
+      "parent_us": 6.21,
+      "cand_us": 6.29,
+      "ratio": 0.987,
+      "normalized": 1.0068,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "unpooler",
+      "parent_us": 19.45,
+      "cand_us": 18.68,
+      "ratio": 1.0411,
+      "normalized": 1.062,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "o",
+      "parent_us": 8.94,
+      "cand_us": 9.26,
+      "ratio": 0.9655,
+      "normalized": 0.9849,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "pooler",
+      "parent_us": 24.27,
+      "cand_us": 24.22,
+      "ratio": 1.0023,
+      "normalized": 1.0224,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "qkv_gate",
+      "parent_us": 17.32,
+      "cand_us": 17.44,
+      "ratio": 0.9931,
+      "normalized": 1.013,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "router",
+      "parent_us": 7.91,
+      "cand_us": 8.16,
+      "ratio": 0.9689,
+      "normalized": 0.9884,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "unpooler",
+      "parent_us": 23.2,
+      "cand_us": 22.88,
+      "ratio": 1.0141,
+      "normalized": 1.0344,
+      "affected": false,
+      "win": false
+    }
+  ],
+  "summary": {
+    "control_gm": 0.9803399150403729,
+    "affected_gm": 0.9237851434873874,
+    "affected_gm_normalized": 0.9423110589650362,
+    "track_speedup": 1.504844911021817,
+    "speedup_ci": [
+      1.4822722373564896,
+      1.527417584687144
+    ],
+    "passed": true,
+    "tests": 9,
+    "winners": []
+  }
+}

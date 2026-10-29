@@ -15,5 +15,23 @@
     "correctness": "all Dense tests + 30 benchmarks pass (router 1e-4 FP64 tolerance)",
     "selection": "GV_SELECT only when >=3% faster in prepare and FP64 error <= 1.5x incumbent",
     "retention": "affected normalized >= 1.03 and track not regressed beyond its interval"
-  }
+  },
+  "affected": [
+    [
+      "decode 1",
+      "unpooler"
+    ],
+    [
+      "decode 1",
+      "router"
+    ],
+    [
+      "verify 1",
+      "unpooler"
+    ],
+    [
+      "verify 1",
+      "router"
+    ]
+  ]
 }

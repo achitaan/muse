@@ -1,0 +1,37 @@
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 22.6879995316267 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.49599927663803 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 18.624000251293182 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 24.064000695943832 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 26.43200010061264 baseline 14.655999839305878
+WG_KEEP 16 qkv_gate baseline 13.887999579310417 best 18.49599927663803
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 24.288000538945198 baseline 15.647999942302704
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 18.49599927663803 baseline 15.647999942302704
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 19.392000511288643 baseline 15.647999942302704
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 24.639999493956566 baseline 15.647999942302704
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.23200060427189 baseline 15.647999942302704
+WG_KEEP 32 qkv_gate baseline 15.519999898970127 best 18.49599927663803
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.048000246286392 baseline 20.255999639630318
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 26.623999699950218 baseline 20.255999639630318
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 32.287999987602234 baseline 20.255999639630318
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 31.42400085926056 baseline 20.255999639630318
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 44.99199986457825 baseline 20.255999639630318
+WG_KEEP 32 unpooler baseline 20.255999639630318 best 22.048000246286392
+GV_CANDIDATE router m1 rows1 warps8 8.26us err 1.02e-07 base 7.97us err 1.01e-07
+GV_CANDIDATE router m1 rows1 warps4 9.18us err 1.03e-07 base 7.97us err 1.01e-07
+GV_CANDIDATE router m1 rows2 warps8 9.60us err 1.02e-07 base 7.97us err 1.01e-07
+GV_KEEP router m1 base 7.97 best 8.26
+GV_CANDIDATE router m8 rows1 warps8 12.90us err 9.81e-08 base 8.48us err 2.44e-06
+GV_CANDIDATE router m8 rows1 warps4 17.95us err 1.00e-07 base 8.48us err 2.44e-06
+GV_CANDIDATE router m8 rows2 warps8 17.28us err 9.81e-08 base 8.48us err 2.44e-06
+GV_KEEP router m8 base 8.48 best 12.9
+GV_CANDIDATE unpooler m1 rows4 warps8 9.41us err 1.70e-03 base 8.51us err 1.70e-03
+GV_CANDIDATE unpooler m1 rows2 warps8 8.61us err 1.70e-03 base 8.51us err 1.70e-03
+GV_CANDIDATE unpooler m1 rows4 warps4 12.22us err 1.70e-03 base 8.51us err 1.70e-03
+GV_CANDIDATE unpooler m1 rows8 warps8 12.06us err 1.70e-03 base 8.51us err 1.70e-03
+GV_KEEP unpooler m1 base 8.45 best 8.61
+GV_CANDIDATE unpooler m8 rows4 warps8 20.67us err 1.66e-03 base 8.54us err 1.66e-03
+GV_CANDIDATE unpooler m8 rows2 warps8 16.90us err 1.66e-03 base 8.54us err 1.66e-03
+GV_CANDIDATE unpooler m8 rows4 warps4 22.94us err 1.66e-03 base 8.54us err 1.66e-03
+GV_CANDIDATE unpooler m8 rows8 warps8 30.88us err 1.66e-03 base 8.54us err 1.66e-03
+GV_KEEP unpooler m8 base 8.51 best 16.9
+GV_SELECTOR selected=[] s=3.8
