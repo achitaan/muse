@@ -1,0 +1,34 @@
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 22.943999618291855 baseline 14.62399959564209
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.49599927663803 baseline 14.62399959564209
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 19.26399953663349 baseline 14.62399959564209
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 24.320000782608986 baseline 14.62399959564209
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 26.91200003027916 baseline 14.62399959564209
+WG_KEEP 16 qkv_gate baseline 14.62399959564209 best 18.49599927663803
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 22.784000262618065 baseline 16.287999227643013
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 18.848000094294548 baseline 16.287999227643013
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 19.711999222636223 baseline 16.287999227643013
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 23.93599972128868 baseline 16.287999227643013
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.807999402284622 baseline 16.287999227643013
+WG_KEEP 32 qkv_gate baseline 16.127999871969223 best 18.848000094294548
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.592000663280487 baseline 20.959999412298203
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 27.35999971628189 baseline 20.959999412298203
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 33.15199911594391 baseline 20.959999412298203
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 31.42400085926056 baseline 20.959999412298203
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 44.95999962091446 baseline 20.959999412298203
+WG_KEEP 32 unpooler baseline 20.959999412298203 best 22.592000663280487
+D8_FIXED m256 qkv_gate 21.70us base 21.60us
+D8_SEARCH m256 qkv_gate timed 39 of 39 (expanded 23) base 21.44us err 1.66e-03 best 21.7 [66, 124, 1, 0, 0, 0, 35, 0, 2, 0]
+D8_KEEP m256 qkv_gate
+D8_FIXED m128 qkv_gate 20.00us base 18.14us
+D8_SEARCH m128 qkv_gate timed 55 of 55 (expanded 39) base 18.02us err 1.67e-03 best 19.55 [66, 92, 1, 0, 0, 0, 35, 0, 2, 0]
+D8_KEEP m128 qkv_gate
+D8_FIXED m256 pooler 28.16us base 28.10us
+D8_SEARCH m256 pooler timed 87 of 87 (expanded 71) base 28.10us err 1.66e-03 best 28.16 [66, 18, 1, 0, 0, 0, 35, 0, 2, 0]
+D8_KEEP m256 pooler
+D8_FIXED m128 pooler 24.00us base 24.83us
+D8_SEARCH m128 pooler timed 87 of 87 (expanded 71) base 24.22us err 1.67e-03 best 23.9 [66, 15, 1, 0, 0, 6, 35, 0, 5, 0]
+D8_KEEP m128 pooler
+D8_FIXED m256 o 13.18us base 13.15us
+D8_SEARCH m256 o timed 86 of 86 (expanded 70) base 12.90us err 1.66e-03 best 13.09 [66, 17, 1, 0, 0, 0, 35, 0, 5, 0]
+D8_KEEP m256 o
+D8_SELECTOR s=1.8

@@ -1,0 +1,34 @@
+{
+  "experiment": "D8 Dense cuBLASLt neighborhood search for qkv_gate/pooler/o",
+  "job": "e793260539cb4877",
+  "candidate_sha256": "f75b7b8ad18d729a717c0cd48d0f679f3b1aa79fcf87392003fb2f840f024e8c",
+  "official": {
+    "passed": true,
+    "speedup": 1.525970656244744
+  },
+  "selector_us": {
+    "m256 qkv_gate": [
+      21.44,
+      21.7
+    ],
+    "m128 qkv_gate": [
+      18.02,
+      19.55
+    ],
+    "m256 pooler": [
+      28.1,
+      28.16
+    ],
+    "m128 pooler": [
+      24.22,
+      23.9
+    ],
+    "m256 o": [
+      12.9,
+      13.09
+    ],
+    "format": "[incumbent, best variant]",
+    "variants_timed": 354
+  },
+  "decision": "measurement only: nothing selected (best 1.3%, m128 pooler); with D7 every fixed cuBLASLt descriptor in the Dense file is at a local optimum. Not retained."
+}
