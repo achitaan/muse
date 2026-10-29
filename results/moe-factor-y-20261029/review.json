@@ -1,0 +1,196 @@
+{
+  "reviewed_utc": "2026-10-29T03:27:51.235663+00:00",
+  "job": "92577a6426f74605",
+  "source_sha256": "85a317b7bd44cad6f34bf0e3d6d83fc62569867acc7f46c223822d44c36fa741",
+  "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "status": "done",
+  "full5tests_6benchmarks_integrity": true,
+  "official_speedup": 2.3253550160674656,
+  "selected_main": false,
+  "resources": [
+    96,
+    96,
+    0,
+    0,
+    0,
+    0,
+    231168,
+    1,
+    1,
+    576
+  ],
+  "skip": null,
+  "prepare_s": 218.05062730400823,
+  "marker_count": 1,
+  "profiles_using_factor": [],
+  "paired_synthetic_cases": [
+    {
+      "m": 17,
+      "mode": "normal",
+      "old_median_ns": 122848.00037741661,
+      "new_median_ns": 123231.99957609177,
+      "median_ratio": 1.0036377298138779,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 31,
+      "mode": "normal",
+      "old_median_ns": 113039.99647498131,
+      "new_median_ns": 113871.9990849495,
+      "median_ratio": 1.0089675494422963,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 32,
+      "mode": "normal",
+      "old_median_ns": 111584.00028944016,
+      "new_median_ns": 112704.00136709213,
+      "median_ratio": 1.0077346405807066,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 33,
+      "mode": "normal",
+      "old_median_ns": 153711.99697256088,
+      "new_median_ns": 154847.99444675446,
+      "median_ratio": 1.0063074355673165,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 63,
+      "mode": "normal",
+      "old_median_ns": 137759.9984407425,
+      "new_median_ns": 138047.993183136,
+      "median_ratio": 1.0046400838244391,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 64,
+      "mode": "normal",
+      "old_median_ns": 174720.00420093536,
+      "new_median_ns": 174639.9998664856,
+      "median_ratio": 0.9976180226951601,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 65,
+      "mode": "normal",
+      "old_median_ns": 158767.99821853638,
+      "new_median_ns": 160496.00392580032,
+      "median_ratio": 1.008340213251067,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 127,
+      "mode": "normal",
+      "old_median_ns": 171551.99497938156,
+      "new_median_ns": 171471.9980955124,
+      "median_ratio": 1.0025058233429025,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 128,
+      "mode": "normal",
+      "old_median_ns": 171808.00437927246,
+      "new_median_ns": 173055.998980999,
+      "median_ratio": 1.0084129635378638,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 129,
+      "mode": "normal",
+      "old_median_ns": 170128.0027627945,
+      "new_median_ns": 170575.99872350693,
+      "median_ratio": 1.0030175119550715,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 191,
+      "mode": "normal",
+      "old_median_ns": 200127.9965043068,
+      "new_median_ns": 200127.9965043068,
+      "median_ratio": 1.0013632987439323,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 192,
+      "mode": "normal",
+      "old_median_ns": 215456.00146055222,
+      "new_median_ns": 214816.00403785706,
+      "median_ratio": 0.9963621744854905,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 255,
+      "mode": "normal",
+      "old_median_ns": 218575.99914073944,
+      "new_median_ns": 219071.99919223785,
+      "median_ratio": 0.999413339146724,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 256,
+      "mode": "normal",
+      "old_median_ns": 195327.9972076416,
+      "new_median_ns": 195440.00178575516,
+      "median_ratio": 1.0036109150844323,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 257,
+      "mode": "normal",
+      "old_median_ns": 213679.9991130829,
+      "new_median_ns": 214015.99794626236,
+      "median_ratio": 1.0021022186251,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 384,
+      "mode": "normal",
+      "old_median_ns": 259984.00151729584,
+      "new_median_ns": 260256.00731372833,
+      "median_ratio": 1.0029629697159899,
+      "relative": 0.0,
+      "worst": 0.0
+    },
+    {
+      "m": 385,
+      "mode": "normal",
+      "old_median_ns": 273888.0068063736,
+      "new_median_ns": 274351.9991636276,
+      "median_ratio": 1.0015359947091311,
+      "relative": 2.8524439130706014e-06,
+      "worst": 2.9911996534792706e-05
+    },
+    {
+      "m": 128,
+      "mode": "skewed",
+      "old_median_ns": 99471.99746966362,
+      "new_median_ns": 100607.99866914749,
+      "median_ratio": 1.0130114455036345,
+      "relative": 0.0,
+      "worst": 0.0
+    }
+  ],
+  "material_guard_passed": false,
+  "material_summary": null,
+  "rejection": "AssertionError: ",
+  "official_speedup_is_new_path_evidence": false,
+  "statistical_significance_claim": false,
+  "recommended_action": "Retain33114871; no score, no transfer, no unmotivated retry"
+}

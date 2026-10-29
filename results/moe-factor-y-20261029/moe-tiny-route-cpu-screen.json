@@ -1,0 +1,15 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "cpu_only": true,
+  "cases": 85620,
+  "exhaustive_m1_four_symbol_patterns": 65536,
+  "random_cases": 20000,
+  "all_duplicate_counts_0_through_32": true,
+  "stable_expert_entries_positions_jobs_and_fat_order_equal": true,
+  "original_route_CTA_barriers": 4,
+  "per_warp_count_workspace_unread_outside_route": true,
+  "cuda_implementation_written": false,
+  "gpu_verified": false,
+  "expected_speedup": null,
+  "decision": "Park pending exposed tiny-routing cost and resource model; do not spend a GPU check on this CPU screen"
+}

@@ -1,3 +1,14 @@
+> LATEST RESULT, October29: MoE factor trial92577a6426f74605/85a317b7
+> compiled at96registers/0local bytes and passed its new-path synthetic probes,
+> but paired M32/128/256 were0.36..0.84%slower. selected_main=false.
+> Official full5/6/integrity at2.325355016x timed incumbents, not the new kernel.
+> Controller discarded/reverted33114871; no score or Decode transfer. Evidence:
+> results/moe-factor-y-20261029/. No GPU job/controller is active now.
+> Derived remaining checks: Dense19,MoE16,Decode20,Attention20,Prefill20;
+> ten scores per track. No new check before04:22:28.724212UTC.
+> Continue distinct source/profile-led work, prioritizing whole-layer value.
+> All earlier candidate/running/waiter headers below are historical. Goal active.
+
 > CURRENT CANDIDATE, October29 03:07UTC: MoE BF16-factor scratch/cache
 > source85a317b7 is implemented and CPU-audited; no GPU result or speedup yet.
 > Frozen packet: results/moe-factor-y-preflight-20261029/. Review and fixed

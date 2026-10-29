@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One fixed MoE BF16 factor scratch/register-cache candidate85a317b7. CPU/source/host/guard audits pass, GPU unverified. Freeze review and launch via foreground controller no earlier than03:22:01.371647UTC; one job, no sweep. Reject missing new backend, resource failure, numerical failure or insufficient paired/full-track material gain. Preserve incumbents.",
+  "next_trial": "Factor scratch/cache85a317b7 rejected: resources and synthetic numerical probes passed, but paired main shapes lost0.36..0.84%; official suite selected incumbents. No score/transfer/retry. Inspect remaining Decode boundaries and distinct mechanisms offline; next new check no earlier than04:22:28.724212UTC and only when justified.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_factor_y_preflight",
+  "active_track": "decode_remaining_boundary_audit_after_moe_factor_rejection",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2765,7 +2765,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T03:04:38.838930+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T03:30:27.928230+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -2794,12 +2794,53 @@
     "review": "experiments/prepared/moe_factor_y_review.md",
     "cpu_verified": true,
     "gpu_verified": false,
-    "job_id": null,
+    "job_id": "92577a6426f74605",
     "next_new_check_not_before_utc": "2026-10-29T03:22:01.371647+00:00",
     "logical_y_bytes_per_route_before": 49152,
     "logical_y_bytes_per_route_after": 16384,
     "measured_HBM_bytes": false,
     "extra_scratch_bank_bytes": 164668960,
-    "performance_gain_claimed": false
+    "performance_gain_claimed": false,
+    "status": "rejected",
+    "gpu_probe_verified": true,
+    "official_full_suite_new_path_verified": false,
+    "selected_main": false,
+    "official_incumbent_speedup": 2.3253550160674656,
+    "paired_main_ratios": {
+      "32": 1.0077346405807066,
+      "128": 1.0084129635378638,
+      "256": 1.0036109150844323
+    },
+    "resources": [
+      96,
+      96,
+      0,
+      0,
+      0,
+      0,
+      231168,
+      1,
+      1,
+      576
+    ],
+    "prepare_diagnostic_s": 218.05062730400823,
+    "result_directory": "results/moe-factor-y-20261029/",
+    "controller_archive": "autoresearch-results/archive/20261029-032818/",
+    "score_used": false,
+    "transferred_to_decode": false
+  },
+  "expected_quotas_after_moe_factor": {
+    "kind": "fresh prelaunch quota minus one check; not a later live observation",
+    "checks": {
+      "dense": 19,
+      "moe": 16,
+      "decode": 20,
+      "attention": 20,
+      "prefill": 20
+    },
+    "scores_per_track": 10,
+    "total_checks": 95,
+    "total_scores": 50,
+    "next_new_check_not_before_utc": "2026-10-29T04:22:28.724212+00:00"
   }
 }

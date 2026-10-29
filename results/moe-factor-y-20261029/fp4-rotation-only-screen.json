@@ -1,0 +1,8 @@
+{
+  "mask": "0x81c081c0",
+  "unique_rotations": 16,
+  "disjoint_triples": 48,
+  "four_disjoint_rotation_covers": 0,
+  "cpu_only": true,
+  "no_global_instruction_lower_bound": true
+}
