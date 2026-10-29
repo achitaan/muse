@@ -1,0 +1,8 @@
+{
+  "run": "actl1 (Attention parent control repeat)",
+  "job": "c6c556ff92a54b36",
+  "speedup": 2.5402292459084483,
+  "passed": true,
+  "readout_after": "decode16 sliding 16/8 normalized mean 0.9933 (min 0.9403, 4 pairs: A3/A5 vs A6/actl1)",
+  "attention_rule": "NOT MET (needs >= 1.03); with two same-night 16-split controls the 8-split setting is not faster. A3 rejected."
+}
