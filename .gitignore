@@ -27,3 +27,4 @@ site.html
 /.decoder-cooperative-measurements/
 
 /.attention-external-measurements/
+/.attention-two-score-measurements/

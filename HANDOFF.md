@@ -1,3 +1,13 @@
+> Prepared October29: two-score-bank L8 full Attention pipeline, sourcec51f843e,
+> native375726fd, frozen under results/attention-two-score-pipeline-preflight-20261029/.
+> CPU445event cases/7hazards,360partition cases,256epochs; source inverse and
+> unchanged numerical block verified. First152-consumer budget spilled; one
+> bounded232-consumer repair compiled168initial regs,zero stack/spills,distinct
+> R60/R92 banks,no C751,6control bodies equal. Native admission must prove
+> 168regs/zero local/static/114688dynamic/1block per SM, all KV pairs resident.
+> Fixed guard25negative fixtures; fresh5official files exact. No GPU job yet,
+> no speedup claim, retain9e/D9. Review: experiments/prepared/attention_two_score_pipeline_review.md.
+>
 > Precision clarification from actual D9 source: L8 already uses FP8 QK SS
 > and FP8 PV row-sum WGMMA; only its L1 QK/PV path remains FP16. The broad
 > earlier "D9 FP16-PV source" wording is superseded by decoder-transfer-

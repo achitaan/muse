@@ -1,0 +1,24 @@
+{
+  "parent_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "parent_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "prototype_CUDA_sha256": "01c5718d63ab7e5f1d293233273aa5fd0a4545866a63935dc1d1ffda2aa57c6c",
+  "compiler_prefix_sha256": "0fbd05549d9a6e516e72fc78e5c399c1739ec12debc1b2b43c199a99ac530de8",
+  "original_source_exact_after_deleting_two_additions": true,
+  "numerical_tile_block_exact": true,
+  "numerical_tile_block_sha256": "45f06128c10542455f9d25fd95fdd31161af3fc8bd6a110b0144fd6828e981a1",
+  "producer_calls_original_segment": true,
+  "cooperative_finalizer_unchanged": true,
+  "score_banks": 2,
+  "producer_register_target": 32,
+  "consumer_register_target": 152,
+  "minimum_blocks_launch_bound": 1,
+  "intended_native_initial_registers": [
+    112,
+    152
+  ],
+  "CUDA_prototype_written": true,
+  "host_dispatch_written": false,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "outstanding": "Offline compilation and generated-code audit; native resource admission, grid/split host integration, numerical/replay/coverage proof and performance remain unverified"
+}

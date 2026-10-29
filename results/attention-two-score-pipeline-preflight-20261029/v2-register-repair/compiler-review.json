@@ -1,0 +1,31 @@
+{
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "exact_judge_toolchain": false,
+  "compiler_prefix_sha256": "582e1d628523bde0b7df1af0378bb0853ad4c18e8082ce26e5cea668a7c3a3ab",
+  "cubin_sha256": "eee20bdb3475ec44f15905a3a9790c6432122f9f2c715e204d79c28c0e3a588a",
+  "all_compiled_entries_zero_stack_and_spills": true,
+  "no_C751_warnings": true,
+  "offline_initial_registers": 168,
+  "producer_target": 32,
+  "consumer_target": 232,
+  "initial_CTA_pool": 64512,
+  "redistributed_need": 63488,
+  "remaining_pool_registers": 1024,
+  "score_accumulator_bases": [
+    60,
+    92
+  ],
+  "distinct_32_register_score_ranges": true,
+  "partial_wait_and_exponential_instructions_present": true,
+  "six_control_instruction_and_branch_bodies_equal": {
+    "attn_kernel_fp8pvILi8ELb1ELi0E": true,
+    "attn_kernel_fp8pvILi8ELb0ELi3E": true,
+    "attn_kernel_fp8pvILi8ELb0ELi15E": true,
+    "attn_kernel_fp8pvILi1ELb1ELi0E": true,
+    "attn_kernel_fp8pvILi1ELb0ELi9E": true,
+    "attn_kernel_fp8pvILi1ELb0ELi13E": true
+  },
+  "pipeline_instruction_count": 7600,
+  "limitations": "Instruction presence is not a complete control-flow overlap proof. Actual H200 function attributes/occupancy and timing remain unverified; host dispatch not written yet."
+}

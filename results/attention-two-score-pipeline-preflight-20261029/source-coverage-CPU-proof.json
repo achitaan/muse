@@ -1,0 +1,16 @@
+{
+  "source_sha256": "c51f843e34f0780ed77483bcb864574e2dc3d69f0b0deb987eb2b75ffe1f3d61",
+  "CUDA_sha256": "375726fddea48bc8641167f3c9b4a458b585125ddb4d3987b4e766e88a036816",
+  "exact_original_CUDA_restored": true,
+  "exact_tile_arithmetic": true,
+  "exact_segment_prefix_suffix": true,
+  "exact_original_outer_kernel_after_reversing_three_changes": true,
+  "other_Python_AST_exact": true,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "partition_cases": 360,
+  "largest_segments_per_CTA": 64,
+  "changing_grid_epochs": 256,
+  "seed": 20261029,
+  "limitations": "CPU/source proof only: changed FP8 split rounding, CUDA memory order, actual resources, graph replay and performance still require official GPU validation"
+}
