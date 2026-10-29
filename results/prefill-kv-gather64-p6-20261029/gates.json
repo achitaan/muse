@@ -1,0 +1,18 @@
+{
+  "experiment": "P6 contiguous-KV FA3 selector with 8-byte-wide row gather (P4 gathered bytes)",
+  "frozen_before_launch_utc": "2026-10-29T23:22:00Z",
+  "parent": {
+    "sha256": "93e57ab4...aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "candidate_sha256": "bb7168f60b258c7247d54efab1ac53219ba9f6b5033d155b0d4ecc491e3c3f55",
+  "evidence_basis": "P4 37a3e45b4e4b431d: gathered call +93 us at turn 1 80k (423.1 -> 515.9) suggests a slow byte-wise index_select; selected first-turn shapes gained 3.8% incl. gather",
+  "affected_rule": "full-layer loads whose key is P4_SELECTed and P4_USE at runtime",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks",
+    "selection": ">=3% faster in prepare incl. gather, rel-L2 < 1e-2",
+    "retention": "affected normalized >= 1.03 vs same-night references; together with P4/P5 decides retention of the mechanism"
+  }
+}
