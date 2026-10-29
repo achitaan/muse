@@ -1,0 +1,22 @@
+{
+  "experiment": "A6 same-night control: parent Attention code unchanged",
+  "job": "33d4e44dec7249f9",
+  "candidate_sha256": "1f6544f64a6745c14aa16ebb45fb0928ca3204bf30432c9f22fcd5b26e8a3c36",
+  "official": {
+    "passed": true,
+    "speedup": 2.554316622277407
+  },
+  "decode16_sliding_us": {
+    "A6 (16 splits, tonight)": 8.87,
+    "A3 8347b4ca3b1e42e5 (8 splits) normalized": 8.46,
+    "A5 7768919e099446cf (8 splits) normalized": 8.86,
+    "parent 8b767ea7b2b74de6 (16 splits, Oct 28)": 9.31
+  },
+  "excluded": "A1/A2/A4 normalizations are biased (probe changes on control shapes)",
+  "ratio_16_over_8": {
+    "A3": 1.048,
+    "A5": 1.001,
+    "mean": 1.024
+  },
+  "decision": "A3 downgraded to unconfirmed: the clean 8-split runs are on average 2.4% faster than tonight's 16-split control (gate 3%), and A5 in-process timing showed 12.38 vs 12.32 us. Most of the earlier per-shape win came from the Oct 28 parent run measuring this shape slow (9.31 us). No confirmed Attention improvement."
+}
