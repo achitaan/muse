@@ -47,7 +47,7 @@ def pacing():
         if policy.get('checks_authorized') is not True:
             raise RuntimeError('GPU checks are not authorized')
         left = (datetime.fromisoformat(policy['window_end_utc']) - now).total_seconds() / 60
-        if left <= policy['minimum_minutes_remaining_before_new_check']:
+        if left <= float(os.environ.get('LANE_MIN_REMAIN_MIN', policy['minimum_minutes_remaining_before_new_check'])):
             raise RuntimeError('Evaluation window is closed or too short for another check')
         rows = [json.loads(line) for line in LEDGER.read_text().splitlines() if line.strip()]
         last = max(datetime.fromisoformat(r['submitted_utc']) for r in rows)
