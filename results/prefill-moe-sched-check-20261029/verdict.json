@@ -1,0 +1,32 @@
+{
+  "experiment": "P2 Prefill MoE schedule selector",
+  "job": "b5556364aff148f9",
+  "candidate_sha256": "245a5d4cc417dd1d0640a274b0e3e595173ced336ca537c8467f21aa550504fa",
+  "official": {
+    "passed": true,
+    "speedup": 1.6647947918610944,
+    "ci": [
+      1.6398228699831778,
+      1.6897667137390107
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "selector_us": {
+    "T753": {
+      "incumbent(small,fine0)": 359.6,
+      "best": 356.5
+    },
+    "T3012": {
+      "incumbent(small,fine1)": 844.0,
+      "best_alt": 844.6
+    },
+    "T16384": {
+      "incumbent(large,fine1)": 4001.1,
+      "best_alt": 4186.4
+    }
+  },
+  "decision": "measurement only: incumbent thresholds (8192/2048) best or within 0.9%; nothing selected; +1.6% track is run noise. Not retained."
+}

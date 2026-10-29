@@ -1,0 +1,16 @@
+PG_CANDIDATE T=753 large=1 fine=1 356.5us err 1.90e-04 incumbent 359.6us
+PG_CANDIDATE T=753 large=1 fine=0 358.9us err 5.83e-05 incumbent 359.6us
+PG_CANDIDATE T=753 large=0 fine=1 358.3us err 1.90e-04 incumbent 359.6us
+PG_CANDIDATE T=753 large=0 fine=0 359.6us err 0.00e+00 incumbent 359.6us
+PG_KEEP T=753
+PG_CANDIDATE T=3012 large=1 fine=1 844.6us err 3.98e-05 incumbent 844.0us
+PG_CANDIDATE T=3012 large=1 fine=0 874.5us err 2.22e-04 incumbent 844.0us
+PG_CANDIDATE T=3012 large=0 fine=1 844.0us err 0.00e+00 incumbent 844.0us
+PG_CANDIDATE T=3012 large=0 fine=0 874.4us err 2.15e-04 incumbent 844.0us
+PG_KEEP T=3012
+PG_CANDIDATE T=16384 large=1 fine=1 4001.1us err 0.00e+00 incumbent 4001.1us
+PG_CANDIDATE T=16384 large=1 fine=0 4223.8us err 1.33e-04 incumbent 4001.1us
+PG_CANDIDATE T=16384 large=0 fine=1 4220.3us err 8.37e-05 incumbent 4001.1us
+PG_CANDIDATE T=16384 large=0 fine=0 4186.4us err 1.25e-04 incumbent 4001.1us
+PG_KEEP T=16384
+PG_SELECTOR selected=[] s=1.4
