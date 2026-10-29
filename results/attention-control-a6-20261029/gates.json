@@ -1,0 +1,13 @@
+{
+  "experiment": "A6 same-night control: parent Attention code unchanged (trailing comment only)",
+  "frozen_before_launch_utc": "2026-10-29T23:13:00Z",
+  "parent": {
+    "sha256": "9e922c35...412f",
+    "job": "8b767ea7b2b74de6",
+    "speedup": 2.5370005142373167
+  },
+  "candidate_sha256": "1f6544f64a6745c14aa16ebb45fb0928ca3204bf30432c9f22fcd5b26e8a3c36",
+  "purpose": "A5 in-process timing showed decode16 sliding 8 vs 16 splits within 0.5%, conflicting with four official runs (8 splits 5-10% faster normalized). This measures 16 splits tonight.",
+  "readout": "decode16 sliding us in A6 (16 splits) vs A3 8347b4ca3b1e42e5 / A4 1ff88c24d1ef4932 / A5 7768919e099446cf (8 splits), each normalized by its own control shapes",
+  "decision_rule": "A3 stays retained in the lane only if the 8-split runs remain >= 3% faster than A6 on decode16 sliding after control normalization; otherwise A3 is downgraded to unconfirmed"
+}
