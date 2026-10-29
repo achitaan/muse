@@ -1,0 +1,39 @@
+{
+  "repair": "Only recognize official fixed-width false rendered as fals...; original rejection/log preserved",
+  "GPU_reruns": 0,
+  "scientific_thresholds_changed": false,
+  "format_corrected_guard_passed": false,
+  "rejection": "Insufficient affected/control gain",
+  "performance": {
+    "affected_geomean": 1.0432424628446315,
+    "controls_geomean": 1.0378617765245979,
+    "normalized_affected": 1.005184395881744,
+    "aggregate_ratio": 1.0406819127655922,
+    "per_case_ratios": {
+      "0": 1.1247978248445645,
+      "1": 0.9859970258690084,
+      "2": 1.1324468507208196,
+      "3": 1.0384755557295873,
+      "4": 0.9918835454860222,
+      "5": 1.0480312514602255,
+      "6": 1.0084083682020204,
+      "7": 1.0042268846108369,
+      "8": 1.03951207192209,
+      "9": 1.0415348838705996,
+      "10": 1.029346451555252,
+      "11": 1.031414838152486
+    },
+    "resources": [
+      128,
+      0,
+      2,
+      67584,
+      66560,
+      2,
+      128,
+      200,
+      132
+    ],
+    "statistical_significance_claim": false
+  }
+}

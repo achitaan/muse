@@ -1,0 +1,14 @@
+{
+  "format_fixture_passed": true,
+  "rejected": [
+    "changed_to_flat",
+    "unrecognized_word",
+    "missing_truncation_mark"
+  ],
+  "original_13_guard_mutants_still_rejected": true,
+  "only_one_backend_assert_AST_changed": true,
+  "scientific_thresholds_unchanged": true,
+  "no_gpu_jobs": true,
+  "no_api_calls": true,
+  "fixtures_are_not_measurements": true
+}

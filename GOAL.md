@@ -1,3 +1,14 @@
+> LATEST TERMINAL RESULT, October29: Attention787962a762c24249/ed810c7a
+> passed16tests/12benchmarks/integrity at2.640210548x with128registers,
+> zero local bytes and two resident blocks. Affected GM1.043242463 versus
+> controls1.037861777 gives only1.005184396 normalized gain: fixed gate failed.
+> Retain9e922c35/scored2.537000514x. No score or Decode transfer;5af9 CPU
+> draft parked. Original parser-format rejection is preserved; recognizing
+> fals... locally changes no scientific threshold and uses no GPU rerun.
+> Evidence: results/attention-skipscale-20261029/. Controller archived.
+> No GPU job/waiter is active. Derived94checks/50scores remain; next new
+> check no earlier than05:22:50.375730UTC. All older live headers are historical.
+
 > CURRENT CANDIDATE, October29: Attention identity-rescale short circuit
 > ed810c7a is frozen and CPU-audited; no GPU result or speedup yet. It changes
 > only L1 flat update control, preserving all keys, precision and geometry.

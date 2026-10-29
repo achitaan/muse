@@ -1,3 +1,8 @@
+> October29 offline screen: pre-expert norm/gather fusion removes one BF16
+> write/read per input token, not per route. No net timing bound or overall
+> transfer is established; GPU evaluation parked. No Prefill run used.
+> See results/attention-offline-screens-20261029/prefill-norm-gather-review.md.
+
 > Latest checkpoint: October28,22:53UTC. No pending job/controller. Goal active; top50unmet.
 > Two checks this continuation, no scored runs. Prefill28d04382 passed5/8/integrity
 > at1.680162079x but fixed normalized-profile guard failed1.004422(<1.02); reverted.

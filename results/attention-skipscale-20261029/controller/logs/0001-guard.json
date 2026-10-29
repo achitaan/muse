@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_skipscale_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.14,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\verify_attention_skipscale_evidence.py\", line 10, in <module>\r\n    verify_trial(bound_result(sha))\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\attention_skipscale_evidence.py\", line 107, in verify_trial\r\n    assert all('attn_kernel_skipscale<1,false' in profiles[i] for i in (0,1,2,4)), 'Nonflat L1 backend changed'\r\nAssertionError: Nonflat L1 backend changed\r\n",
+  "stdout": "Native attention retains BF16 norm, RoPE and output boundaries in all finalizers and fallback.\r\n",
+  "timed_out": false
+}

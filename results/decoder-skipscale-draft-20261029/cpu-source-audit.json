@@ -1,0 +1,36 @@
+{
+  "parent_package_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "source_sha256": "5af9eb556ffbb5d38c7ce5a3e77d063a0e7f0f4b007ffac4ed252a580ca6ac39",
+  "bytes": 893421,
+  "source_headroom": 106579,
+  "original_D9_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "parent_attention_cuda_sha256": "db68e6abbc1daa9a594005de05713f8aa5370599d30d12d04a0433aa5bb9fd8d",
+  "attention_cuda_sha256": "3422e7e6aeba7ffe8b9a2b80535e69b0f37c4f35d2d7e535a717fc08c5b7f233",
+  "arithmetic_edits": [
+    {
+      "offset": 76022,
+      "old": "    const float m_new = fmaxf(m_r[0], mx);\n",
+      "new": "    const float m_new = fmaxf(m_r[0], mx);\n    // Warp-uniform test, before any per-row finite-state branch.\n    const bool rescale = !FLAT || __any_sync(0xffffffffu, m_new != m_r[0]);\n"
+    },
+    {
+      "offset": 76237,
+      "old": "      const float alpha = ex2(m_r[0] - m_new);\n",
+      "new": "      float alpha = 1.f;\n      if (rescale) alpha = ex2(m_r[0] - m_new);\n"
+    },
+    {
+      "offset": 76705,
+      "old": "        l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n",
+      "new": "        if (rescale) {\n          l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n          for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n        } else {\n          // ex2(+/-0) is exactly1; FMA(l,1,ls) equals RN(l+ls).\n          l_r[0] += ls;\n        }\n"
+    }
+  ],
+  "all_other_package_Python_AST_exact": true,
+  "inverse_attention_CUDA_and_parent_package_bytes_exact": true,
+  "original_FP16_PV_preserved": true,
+  "standalone_tied_FP8_PV_not_transferred": true,
+  "BF16_boundary_guard_passed": true,
+  "cpu_only": true,
+  "GPU_submission_ready": false,
+  "active_decode_candidate_changed": false,
+  "gpu_verified": false,
+  "next_condition": "Attention standalone source-bound material-gain gate first; then exact resource/actual-execution binding and full whole-layer correctness/weighted latency evaluation. No GPU job from this draft alone."
+}

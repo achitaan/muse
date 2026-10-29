@@ -1,3 +1,7 @@
+> Attention identity-rescale trial failed its material affected/control gate.
+> CPU transfer5af9 remains parked, with no Decode GPU job or promotion.
+> See results/decoder-skipscale-draft-20261029/. Verified D9 is unchanged.
+
 > October29 CPU audit: results/decode-boundary-audit-20261029/ binds the
 > final D9 call graph, existing fusions and main/side stream joins. It adds
 > no runtime code or GPU result. The MoE factor trial was rejected and will

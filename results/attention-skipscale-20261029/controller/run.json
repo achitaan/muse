@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-29T03:58:38Z",
+  "goal": "Attention exact L1-flat identity-rescale phase toward top50 overall; reuse active Goal, main chat only, one frozen source and paced official check",
+  "guard": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/verify_attention_skipscale_evidence.py",
+  "max_iterations": null,
+  "metric": {
+    "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_attention_skipscale.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "attention_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "feed8855d7624c4385aceb1c1469bf7c",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.57505552195088,
+  "timeout_seconds": 7200
+}

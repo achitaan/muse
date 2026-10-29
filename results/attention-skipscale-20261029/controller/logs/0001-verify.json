@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_attention_skipscale.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1804.422,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nAttention identity-rescale check 787962a762c24249: received\r\nAttention identity-rescale check 787962a762c24249: running\r\nAttention identity-rescale check 787962a762c24249: done\r\n",
+  "stdout": "Native attention retains BF16 norm, RoPE and output boundaries in all finalizers and fallback.\r\n{\"speedup\": 2.6402105478437816, \"correct\": true, \"job\": \"787962a762c24249\", \"source_sha256\": \"ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd\", \"error\": null}\r\n",
+  "timed_out": false
+}

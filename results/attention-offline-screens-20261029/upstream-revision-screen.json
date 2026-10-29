@@ -1,0 +1,46 @@
+{
+  "recorded_utc": "2026-10-29T04:34:36.961851+00:00",
+  "public_source_only": true,
+  "new_gpu_jobs": 0,
+  "vjeux": {
+    "repository": "https://github.com/vjeux/okc-2026",
+    "observed_head": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "matches_existing_pin": true
+  },
+  "dense": {
+    "repository": "https://github.com/NathenFernandes/muse-bf16-proj",
+    "pinned": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
+    "observed_head": "86aff75e6aca72511bf9b41b6dc190bf1e763373",
+    "comparison_url": "https://github.com/NathenFernandes/muse-bf16-proj/compare/7385e5d8f70980cfd5322ea254edc0b2b8ca90f7...86aff75e6aca72511bf9b41b6dc190bf1e763373",
+    "ahead_by": 3,
+    "comparison_response_sha256": "01c5dbb37c83d658d352114a0dc981235cc84222a903b9f232c349042cce6d22",
+    "changed_files": [
+      {
+        "filename": "README.md",
+        "status": "modified"
+      },
+      {
+        "filename": "checkpoints/v10.py",
+        "status": "removed"
+      },
+      {
+        "filename": "results/ranking-history.md",
+        "status": "modified"
+      },
+      {
+        "filename": "results/source_hashes.json",
+        "status": "modified"
+      },
+      {
+        "filename": "results/v10.json",
+        "status": "removed"
+      },
+      {
+        "filename": "results/v9.json",
+        "status": "removed"
+      }
+    ],
+    "submission_py_changed": false
+  },
+  "decision": "No newer kernel found in these two inspected upstreams; no source adoption or check justified. Preserve existing pins and licenses."
+}

@@ -1,0 +1,9 @@
+{
+  "command": "C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe scripts/measure_moe_factor_y.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1309.219,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nMoE factor check 92577a6426f74605: received\r\nMoE factor check 92577a6426f74605: running\r\nMoE factor check 92577a6426f74605: done\r\n",
+  "stdout": "{\"speedup\": 2.3253550160674656, \"correct\": true, \"job\": \"92577a6426f74605\", \"source_sha256\": \"85a317b7bd44cad6f34bf0e3d6d83fc62569867acc7f46c223822d44c36fa741\", \"error\": null}\r\n",
+  "timed_out": false
+}

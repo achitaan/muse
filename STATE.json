@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One exact L1-flat identity-rescale short circuited810c7a, frozen CPU/source/numerical/resource-layout/result-guard packet. Use foreground reversible controller, cached9e922c35 baseline, one official check no earlier than04:22:28.724212UTC. No GPU win claimed. Reject resources/backends/numerics or insufficient weighted/control gain; no blind retry.",
+  "next_trial": "Attentioned810c7a passed full16/12 at2.640210548x but failed fixed material affected/control gain: normalized1.005184396. No score/Decode transfer/retry. Inspect distinct source-backed MoE/Decode mechanisms and primary upstream updates offline. Prefill norm/gather and L8 overlap remain parked pending net-cost/compiler/ownership evidence. No new check before05:22:50.375730UTC.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "attention_identity_rescale_preflight",
+  "active_track": "moe_decode_new_mechanism_source_research",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2765,7 +2765,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T03:57:40.654210+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T04:39:28.375829+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -2857,10 +2857,68 @@
     "bytes": 173419,
     "packet": "results/attention-skipscale-preflight-20261029/",
     "review": "experiments/prepared/attention_skip_identity_scale_review.md",
-    "status": "prepared_cpu_only",
-    "gpu_verified": false,
-    "job_id": null,
+    "status": "rejected_performance_guard",
+    "gpu_verified": true,
+    "job_id": "787962a762c24249",
     "target_phase_speedup": 2.575055521950876,
-    "overall_goal_met": false
+    "overall_goal_met": false,
+    "official_check_speedup": 2.6402105478437816,
+    "official_interval": [
+      2.600607389626125,
+      2.690219647546711
+    ],
+    "full_tests": 16,
+    "full_benchmarks": 12,
+    "integrity": true,
+    "affected_geomean": 1.0432424628446315,
+    "controls_geomean": 1.0378617765245979,
+    "normalized_affected": 1.005184395881744,
+    "resource_info": [
+      128,
+      0,
+      2,
+      67584,
+      66560,
+      2,
+      128,
+      200,
+      132
+    ],
+    "scientific_thresholds_changed": false,
+    "format_repair_gpu_reruns": 0,
+    "scored": false,
+    "transferred_to_decode": false,
+    "result_directory": "results/attention-skipscale-20261029/",
+    "controller_archive": "autoresearch-results/archive/20261029-043111/"
+  },
+  "decoder_skipscale_draft": {
+    "source_sha256": "5af9eb556ffbb5d38c7ce5a3e77d063a0e7f0f4b007ffac4ed252a580ca6ac39",
+    "bytes": 893421,
+    "directory": "results/decoder-skipscale-draft-20261029/",
+    "status": "parked_parent_material_gain_not_established",
+    "cpu_only": true,
+    "GPU_submission_ready": false,
+    "active_candidate_changed": false
+  },
+  "offline_attention_wait_screens": {
+    "directory": "results/attention-offline-screens-20261029/",
+    "new_gpu_jobs": 0,
+    "prefill_norm_gather": "parked; logical buffer removal per token, no net timing bound or overall transfer",
+    "attention_L8_overlap": "parked; complete operand/compiler lifetime proof needed",
+    "upstream_revisions": "Vjeux unchanged f35a; Dense86aff differs only docs/old checkpoint removal from pinned7385, no new submission.py kernel"
+  },
+  "expected_quotas_after_attention_skipscale": {
+    "kind": "fresh prelaunch minus one Attention check; not a later live quota query",
+    "checks": {
+      "dense": 19,
+      "moe": 16,
+      "attention": 19,
+      "decode": 20,
+      "prefill": 20
+    },
+    "scores_per_track": 10,
+    "total_checks": 94,
+    "total_scores": 50,
+    "next_new_check_not_before_utc": "2026-10-29T05:22:50.375730+00:00"
   }
 }

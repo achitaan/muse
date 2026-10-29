@@ -104,7 +104,12 @@ def verify_trial(result):
     profiles = {r['index']:r.get('report','').replace(' ','') for r in body['records'] if r.get('event') == 'profile'}
     assert set(profiles) == set(range(12))
     assert all('attn_kernel_skipscale<1,true' in profiles[i] for i in CHANGED), 'New flat L1 backend absent'
-    assert all('attn_kernel_skipscale<1,false' in profiles[i] for i in (0,1,2,4)), 'Nonflat L1 backend changed'
+    # The official fixed-width table truncates this five-letter bool to
+    # "fals...". Recognize that exact, unambiguous spelling; keep every
+    # execution, resource and performance requirement unchanged.
+    assert all(('attn_kernel_skipscale<1,false' in profiles[i]
+                or 'attn_kernel_skipscale<1,fals...' in profiles[i])
+               for i in (0,1,2,4)), 'Nonflat L1 backend changed'
     assert all('attn_kernel_skipscale<8,' in profiles[i] for i in range(6,12)), 'L8 backend changed'
     old, old_rows = full_result(bound_result(PARENT))
     previous = {r['index']:r['speedup'] for r in old_rows}
