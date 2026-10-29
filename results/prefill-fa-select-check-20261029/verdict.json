@@ -1,0 +1,56 @@
+{
+  "experiment": "P1 Prefill FA3 num_splits/pack_gqa selector",
+  "job": "bb9ce14d3ad8490b",
+  "candidate_sha256": "6d1f43575637910e3d047c496b5833f28ac45c6f10e6f1558b63f4c3531665e0",
+  "official": {
+    "passed": true,
+    "speedup": 1.6564053241310706,
+    "ci": [
+      1.6315592442691045,
+      1.6812514039930364
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "selector_log_us": {
+    "turn1 sliding": [
+      34.43,
+      34.43
+    ],
+    "turn1 full": [
+      423.65,
+      423.14
+    ],
+    "turn4 sliding": [
+      66.5,
+      66.5
+    ],
+    "turn4 full": [
+      1621.66,
+      1619.97
+    ],
+    "first ctx0 full": [
+      897.95,
+      899.55
+    ],
+    "first ctx32768 sliding": [
+      304.67,
+      305.28
+    ],
+    "first ctx32768 full": [
+      4465.57,
+      4391.9
+    ],
+    "first ctx65536 full": [
+      8038.46,
+      7873.57
+    ],
+    "format": "[FA3 heuristic, best alternative]",
+    "selected": 0,
+    "prepare_s": 3.1
+  },
+  "decision": "measurement only: no option beat FA3's heuristic by 3% (best 2.1% at ctx 65536); timed path equals the parent; +1.0% is within the run CI. Not retained, not published.",
+  "finding": "FA3 num_splits/pack_gqa tuning does not help the Prefill attention shapes"
+}

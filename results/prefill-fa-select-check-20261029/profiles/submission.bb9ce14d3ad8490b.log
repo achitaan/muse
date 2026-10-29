@@ -1,0 +1,145 @@
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 0, 'pack_gqa': True} 34.46 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 0, 'pack_gqa': False} 34.91 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 1} 38.56 err 5.11e-03 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 1, 'pack_gqa': True} 39.33 err 5.11e-03 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 1, 'pack_gqa': False} 38.40 err 5.11e-03 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 2} 34.43 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 2, 'pack_gqa': True} 34.91 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 2, 'pack_gqa': False} 34.98 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 3} 34.85 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 3, 'pack_gqa': True} 34.91 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 3, 'pack_gqa': False} 34.78 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 4} 35.94 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 4, 'pack_gqa': True} 35.01 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 4, 'pack_gqa': False} 34.88 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 8} 34.50 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 8, 'pack_gqa': True} 34.85 err 0.00e+00 base 34.94
+FA_CANDIDATE (1, 753, True, 80753) {'num_splits': 8, 'pack_gqa': False} 34.82 err 0.00e+00 base 34.94
+FA_KEEP (1, 753, True, 80753) base 34.43 best 34.43
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 0, 'pack_gqa': True} 424.77 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 0, 'pack_gqa': False} 424.80 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 1} 823.23 err 5.67e-03 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 1, 'pack_gqa': True} 822.66 err 5.67e-03 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 1, 'pack_gqa': False} 821.95 err 5.67e-03 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 2} 423.68 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 2, 'pack_gqa': True} 424.67 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 2, 'pack_gqa': False} 423.78 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 3} 423.26 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 3, 'pack_gqa': True} 423.36 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 3, 'pack_gqa': False} 423.49 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 4} 423.58 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 4, 'pack_gqa': True} 423.14 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 4, 'pack_gqa': False} 423.52 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 8} 423.62 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 8, 'pack_gqa': True} 423.62 err 0.00e+00 base 424.00
+FA_CANDIDATE (1, 753, False, 80753) {'num_splits': 8, 'pack_gqa': False} 423.23 err 0.00e+00 base 424.00
+FA_KEEP (1, 753, False, 80753) base 423.65 best 423.14
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 0, 'pack_gqa': True} 66.91 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 0, 'pack_gqa': False} 66.78 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 1} 66.94 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 1, 'pack_gqa': True} 66.50 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 1, 'pack_gqa': False} 66.72 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 2} 68.06 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 2, 'pack_gqa': True} 67.90 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 2, 'pack_gqa': False} 68.22 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 3} 68.35 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 3, 'pack_gqa': True} 68.54 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 3, 'pack_gqa': False} 68.32 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 4} 67.55 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 4, 'pack_gqa': True} 67.94 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 4, 'pack_gqa': False} 68.58 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 8} 68.00 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 8, 'pack_gqa': True} 68.22 err 0.00e+00 base 66.78
+FA_CANDIDATE (4, 753, True, 80753) {'num_splits': 8, 'pack_gqa': False} 68.38 err 0.00e+00 base 66.78
+FA_KEEP (4, 753, True, 80753) base 66.50 best 66.5
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 0, 'pack_gqa': True} 1631.49 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 0, 'pack_gqa': False} 1631.42 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 1} 1637.66 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 1, 'pack_gqa': True} 1626.82 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 1, 'pack_gqa': False} 1620.86 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 2} 1619.97 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 2, 'pack_gqa': True} 1620.67 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 2, 'pack_gqa': False} 1620.54 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 3} 1621.28 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 3, 'pack_gqa': True} 1621.34 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 3, 'pack_gqa': False} 1623.39 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 4} 1625.25 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 4, 'pack_gqa': True} 1625.50 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 4, 'pack_gqa': False} 1624.16 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 8} 1624.64 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 8, 'pack_gqa': True} 1624.74 err 0.00e+00 base 1632.83
+FA_CANDIDATE (4, 753, False, 80753) {'num_splits': 8, 'pack_gqa': False} 1622.18 err 0.00e+00 base 1632.83
+FA_KEEP (4, 753, False, 80753) base 1621.66 best 1619.97
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 0, 'pack_gqa': True} 899.65 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 0, 'pack_gqa': False} 900.32 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 1} 899.55 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 1, 'pack_gqa': True} 899.87 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 1, 'pack_gqa': False} 899.74 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 2} 916.54 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 2, 'pack_gqa': True} 916.83 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 2, 'pack_gqa': False} 916.16 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 3} 916.83 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 3, 'pack_gqa': True} 915.62 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 3, 'pack_gqa': False} 917.18 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 4} 916.29 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 4, 'pack_gqa': True} 916.86 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 4, 'pack_gqa': False} 916.61 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 8} 917.28 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 8, 'pack_gqa': True} 915.20 err 0.00e+00 base 900.03
+FA_CANDIDATE (1, 16384, False, 16384) {'num_splits': 8, 'pack_gqa': False} 915.20 err 0.00e+00 base 900.03
+FA_KEEP (1, 16384, False, 16384) base 897.95 best 899.55
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 0, 'pack_gqa': True} 306.24 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 0, 'pack_gqa': False} 306.40 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 1} 305.28 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 1, 'pack_gqa': True} 305.98 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 1, 'pack_gqa': False} 305.34 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 2} 312.80 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 2, 'pack_gqa': True} 313.25 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 2, 'pack_gqa': False} 312.54 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 3} 312.10 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 3, 'pack_gqa': True} 312.80 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 3, 'pack_gqa': False} 312.83 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 4} 313.12 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 4, 'pack_gqa': True} 313.12 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 4, 'pack_gqa': False} 313.41 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 8} 313.12 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 8, 'pack_gqa': True} 313.06 err 0.00e+00 base 304.67
+FA_CANDIDATE (1, 16384, True, 49152) {'num_splits': 8, 'pack_gqa': False} 313.95 err 0.00e+00 base 304.67
+FA_KEEP (1, 16384, True, 49152) base 304.67 best 305.28
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 0, 'pack_gqa': True} 4463.42 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 0, 'pack_gqa': False} 4458.24 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 1} 4460.19 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 1, 'pack_gqa': True} 4467.90 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 1, 'pack_gqa': False} 4466.85 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 2} 4393.79 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 2, 'pack_gqa': True} 4392.70 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 2, 'pack_gqa': False} 4404.10 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 3} 4404.58 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 3, 'pack_gqa': True} 4404.61 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 3, 'pack_gqa': False} 4394.27 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 4} 4391.90 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 4, 'pack_gqa': True} 4403.68 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 4, 'pack_gqa': False} 4405.12 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 8} 4405.38 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 8, 'pack_gqa': True} 4394.11 err 0.00e+00 base 4465.57
+FA_CANDIDATE (1, 16384, False, 49152) {'num_splits': 8, 'pack_gqa': False} 4393.47 err 0.00e+00 base 4465.57
+FA_KEEP (1, 16384, False, 49152) base 4465.57 best 4391.9
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 0, 'pack_gqa': True} 8021.09 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 0, 'pack_gqa': False} 8041.34 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 1} 8026.82 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 1, 'pack_gqa': True} 8022.62 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 1, 'pack_gqa': False} 8039.62 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 2} 7873.57 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 2, 'pack_gqa': True} 7893.09 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 2, 'pack_gqa': False} 7897.50 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 3} 7876.22 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 3, 'pack_gqa': True} 7898.85 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 3, 'pack_gqa': False} 7883.62 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 4} 7876.64 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 4, 'pack_gqa': True} 7896.48 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 4, 'pack_gqa': False} 7875.62 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 8} 7881.50 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 8, 'pack_gqa': True} 7896.93 err 0.00e+00 base 8043.26
+FA_CANDIDATE (1, 16384, False, 81920) {'num_splits': 8, 'pack_gqa': False} 7876.38 err 0.00e+00 base 8043.26
+FA_KEEP (1, 16384, False, 81920) base 8038.46 best 7873.57
+FA_SELECTOR selected=0 s=3.1
