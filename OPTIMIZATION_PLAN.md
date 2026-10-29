@@ -1,3 +1,10 @@
+> CURRENT GPU AUTHORIZATION: checks enabled sparingly through October29,2026
+> at20:00Toronto (2026-10-30T00:00Z). EVALUATION_POLICY.json governs pacing:
+> one active GPU job, >=60minutes between new checks, four checks/track reserved.
+> Score only after material source-bound gains; quota is not a spending target.
+> This supersedes earlier no-GPU and review-only holds below. Main chat only.
+> Next: one Dense13224d30 check, unchanged CUDA plus nearby-band selection gates.
+
 # Optimization plan
 
 Goal: get as close as possible to top50 overall. Main chat only, no deadline,

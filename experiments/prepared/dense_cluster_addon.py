@@ -8,6 +8,8 @@ _lg_original_prepare = _achita_wg_base_prepare
 _lg_original_kernel = _achita_wg_base_kernel
 _LG_CONFIGS = {'qkv_gate': (33, 128, 2304, 8192, 'gqx', 3),
                'pooler': (65, 128, 4096, 8192, 'gq', 2)}
+_LG_COMPARE_ROWS = {'qkv_gate': (33, 64, 65, 96, 127, 128),
+                    'pooler': (65, 96, 127, 128)}
 
 
 def _lg_module():
@@ -89,48 +91,50 @@ def _lg_compare(plan, state, started):
     sink = torch.empty((1024,), dtype=torch.float32, device=dev)
     stream = torch.cuda.Stream(device=dev)
     stream.wait_stream(torch.cuda.current_stream(dev))
-    ratios, records = [], []
+    records = []
     with torch.cuda.stream(stream):
-        for pattern in (0, 1):
-            if _lg_time.monotonic() - started > 270:
-                return {'ok': False, 'budget': True, 'patterns': records}
-            x = _lg_input(128, plan['k'], dev, 20261028 + pattern, pattern)
-            data = {'x': x, 'config': {'m': 128, 'n': plan['n'], 'k': plan['k'], 'layer': plan['layer']}}
+        for m in _LG_COMPARE_ROWS[plan['layer']]:
+            for pattern in (0, 1):
+                if _lg_time.monotonic() - started > 270:
+                    return {'ok': False, 'budget': True, 'cases': records}
+                x = _lg_input(m, plan['k'], dev, 20261028 + m + 31 * pattern, pattern)
+                data = {'x': x, 'config': {'m': m, 'n': plan['n'], 'k': plan['k'], 'layer': plan['layer']}}
 
-            def call(arm):
-                return _lg_original_kernel(data, state) if arm == 0 else _lg_run(x, plan)
+                def call(arm):
+                    return _lg_original_kernel(data, state) if arm == 0 else _lg_run(x, plan)
 
-            outputs = []
-            graphs = [torch.cuda.CUDAGraph(), torch.cuda.CUDAGraph()]
-            for arm in (0, 1):
-                call(arm)
-            stream.synchronize()
-            for arm in (0, 1):
-                with torch.cuda.graph(graphs[arm], stream=stream):
-                    outputs.append(call(arm))
-            events = []
-            for repeat in range(7):
-                for arm in ((0, 1) if repeat % 2 == 0 else (1, 0)):
-                    torch.sum(flush, dim=0, out=sink)
-                    start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-                    start.record(stream)
-                    graphs[arm].replay()
-                    end.record(stream)
-                    events.append((repeat, arm, start, end))
-            stream.synchronize()
-            pairs = {r: {} for r in range(7)}
-            for repeat, arm, start, end in events:
-                pairs[repeat][arm] = start.elapsed_time(end) * 1_000_000  # CUDA ms -> ns
-            samples = [pairs[r][1] / pairs[r][0] for r in range(7)]
-            ratio = sorted(samples)[3]
-            ratios.append(ratio)
-            records.append(dict(pattern=pattern, ratio=ratio, samples=samples,
-                                previous_ns=[pairs[r][0] for r in range(7)],
-                                candidate_ns=[pairs[r][1] for r in range(7)]))
-            print('DENSE_CLUSTER_PAIR', dict(layer=plan['layer'], pattern=pattern, ratio=ratio,
-                  paired_ratios=samples, times_ns=pairs), flush=True)
+                outputs = []
+                graphs = [torch.cuda.CUDAGraph(), torch.cuda.CUDAGraph()]
+                for arm in (0, 1):
+                    call(arm)
+                stream.synchronize()
+                for arm in (0, 1):
+                    with torch.cuda.graph(graphs[arm], stream=stream):
+                        outputs.append(call(arm))
+                events = []
+                for repeat in range(7):
+                    for arm in ((0, 1) if repeat % 2 == 0 else (1, 0)):
+                        torch.sum(flush, dim=0, out=sink)
+                        start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+                        start.record(stream)
+                        graphs[arm].replay()
+                        end.record(stream)
+                        events.append((repeat, arm, start, end))
+                stream.synchronize()
+                pairs = {r: {} for r in range(7)}
+                for repeat, arm, start, end in events:
+                    pairs[repeat][arm] = start.elapsed_time(end) * 1_000_000  # CUDA ms -> ns
+                samples = [pairs[r][1] / pairs[r][0] for r in range(7)]
+                ratio = sorted(samples)[3]
+                records.append(dict(m=m, pattern=pattern, ratio=ratio,
+                                    previous_ns=[pairs[r][0] for r in range(7)],
+                                    candidate_ns=[pairs[r][1] for r in range(7)]))
+                print('DENSE_CLUSTER_PAIR', dict(layer=plan['layer'], m=m, pattern=pattern,
+                      ratio=ratio), flush=True)
     torch.cuda.current_stream(dev).wait_stream(stream)
-    return {'ok': max(ratios) < .97, 'patterns': records}
+    nearby_ok = all(c['ratio'] <= 1.02 for c in records)
+    selected_ok = all(c['ratio'] < .97 for c in records if c['m'] == 128)
+    return {'ok': nearby_ok and selected_ok, 'cases': records}
 
 
 def prepare(weights):

@@ -1,0 +1,44 @@
+{
+  "parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+  "upstream_sha256": "c1dd241c0c08b42fddfa7bc9656d0f596b59bb13005c50c0db4418d9f2f1dc7e",
+  "bytes": 687638,
+  "original_source_is_exact_prefix": true,
+  "cuda_piece_sha256": {
+    "header": "8958d86ecfb4c7ac94195bc09b91ef8d176be1c0d2e3862f9d2b2b5299df86f8",
+    "mbar": "2f6c0e2a8e20b836fe7e41e1698ca3421f8e44cd4b6e77c8ac0fc0e4491a18c0",
+    "warpgroup": "02f5b1b67087b0634a4e595010980d30fa63f53533464fe9a4dd8d9e95e11f0f",
+    "maps": "2501a8a8b68ff2e5c5e0affab83a9c6198a8c307bf531be3980566fe66895457",
+    "mma": "cbf6e4ab518c39b9d64a9eca591e7ef8b09c93f3711f06d4b8dcb1966a13ca0d",
+    "gq": "d0d931b7146d35b219b2018a14b683af23a19222c064fc6943085bcf4b495397",
+    "gqx": "8e883182aa5ba65ea98d88407f4fd197f13a0677b71687ec8bdcce5685110ad0"
+  },
+  "configs": {
+    "qkv_gate": {
+      "kind": "gqx",
+      "bn": 128,
+      "nwg": 1,
+      "stages": 8,
+      "cluster": 3,
+      "m": [
+        33,
+        128
+      ]
+    },
+    "pooler": {
+      "kind": "gq",
+      "bn": 128,
+      "nwg": 1,
+      "stages": 8,
+      "cluster": 2,
+      "m": [
+        65,
+        128
+      ]
+    }
+  },
+  "weights": "original BF16, no compression/requantization/new weight copies",
+  "router_and_all_small_paths": "original incumbents",
+  "removed_preparation": "only the unselected final WG sweep, via existing base aliases",
+  "gpu_status": "unmeasured; require positive official check quota before launch"
+}

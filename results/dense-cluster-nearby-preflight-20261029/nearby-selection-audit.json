@@ -1,0 +1,44 @@
+{
+  "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+  "prior_packet_sha256": "169dbce77be377eea3c49b05428d67d3141c0a6f506f8dd23e57ad4cd7e269e3",
+  "all_nonselection_ast_unchanged": true,
+  "cuda_unchanged": true,
+  "compared_rows": {
+    "qkv_gate": [
+      33,
+      64,
+      65,
+      96,
+      127,
+      128
+    ],
+    "pooler": [
+      65,
+      96,
+      127,
+      128
+    ]
+  },
+  "paired_cases": 20,
+  "paired_repeats": 7,
+  "maximum_nearby_new_over_old": 1.02,
+  "maximum_m128_new_over_old_exclusive": 0.97,
+  "diagnostic_bytes_bound": 13534,
+  "guard_mutations_rejected": [
+    "qkv_gate:missing_case",
+    "qkv_gate:missing_sample",
+    "qkv_gate:nonfinite_sample",
+    "qkv_gate:forged_ratio",
+    "qkv_gate:insufficient_m128_win",
+    "qkv_gate:nearby_regression",
+    "qkv_gate:numerical_row_error",
+    "pooler:missing_case",
+    "pooler:missing_sample",
+    "pooler:nonfinite_sample",
+    "pooler:forged_ratio",
+    "pooler:insufficient_m128_win",
+    "pooler:nearby_regression",
+    "pooler:numerical_row_error"
+  ],
+  "gpu_verified": false
+}

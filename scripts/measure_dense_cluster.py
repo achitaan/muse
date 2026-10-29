@@ -1,7 +1,7 @@
 """One full Dense check, cached exact scored baseline, and persistent job handles.
 
-This has no elapsed optimization deadline. New launches require a positive
-official quota. Observation failures retain the handle and never re-upload.
+New launches obey the user's evaluation window, pacing and quota reserve.
+Observation failures retain the handle and never re-upload.
 """
 from datetime import datetime, timezone
 import json
@@ -10,6 +10,7 @@ import time
 
 from official import LINUX_ROOT, cli
 from dense_cluster_evidence import ROOT, PARENT, source, directory, bound_result, full_result
+from evaluation_pacing import authorize_check, record_check
 
 
 def save(path, value):
@@ -39,11 +40,13 @@ def main():
             problem = next(p for p in quotas['problems'] if p['name'] == 'muse_bf16_proj')
             if problem['limits']['checks']['left'] <= 0:
                 raise RuntimeError('Dense daily check quota exhausted; no evaluation launched')
+            authorize_check(problem)
             # After an unknown upload outcome, reconcile official jobs before any retry.
             launch = cli(['check', 'muse_bf16_proj',
                           f'{LINUX_ROOT}/{frozen.relative_to(ROOT).as_posix()}', '--no-wait', '--json'])
             launch.update(source_sha256=digest, submitted_utc=datetime.now(timezone.utc).isoformat())
             save(launch_path, launch)
+            record_check(launch, 'muse_bf16_proj')
         job = launch.get('resolved_job_id', launch['job_id'])
         previous = None
         visited = {job}

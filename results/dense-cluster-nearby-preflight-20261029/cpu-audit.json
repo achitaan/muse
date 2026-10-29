@@ -1,0 +1,195 @@
+{
+  "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+  "seed": 20261028,
+  "original_parent_prefix_exact": true,
+  "cuda_pieces_pinned": true,
+  "old_wg_choices_proven_empty_from_published_log": true,
+  "global_bindings_checked": 44,
+  "dispatch_cases": 5134,
+  "resources": {
+    "gq": {
+      "cluster": 2,
+      "dynamic_shared_bytes": 215184,
+      "k_intervals": [
+        [
+          0,
+          4096
+        ],
+        [
+          4096,
+          8192
+        ]
+      ],
+      "payloads_fit": true,
+      "output_ownership_exact": true,
+      "n_blocks": 128
+    },
+    "gqx": {
+      "cluster": 3,
+      "dynamic_shared_bytes": 230544,
+      "k_intervals": [
+        [
+          0,
+          2688
+        ],
+        [
+          2688,
+          5440
+        ],
+        [
+          5440,
+          8192
+        ]
+      ],
+      "payloads_fit": true,
+      "output_ownership_exact": true,
+      "n_blocks": 108
+    }
+  },
+  "output_ownership_cases": 256,
+  "numerical_cases": [
+    {
+      "cluster": 2,
+      "m": 33,
+      "owner": 0,
+      "relative_l2": 0.0016584755293291595,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 33,
+      "owner": 1,
+      "relative_l2": 0.0016584755293291595,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 65,
+      "owner": 0,
+      "relative_l2": 0.0016409574083040882,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 65,
+      "owner": 1,
+      "relative_l2": 0.0016409574083040882,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 127,
+      "owner": 0,
+      "relative_l2": 0.0016600123658472364,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 127,
+      "owner": 1,
+      "relative_l2": 0.0016600123658472364,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 128,
+      "owner": 0,
+      "relative_l2": 0.001641843321613918,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 2,
+      "m": 128,
+      "owner": 1,
+      "relative_l2": 0.001641843321613918,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 33,
+      "owner": 0,
+      "relative_l2": 0.0017179058547618657,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 33,
+      "owner": 1,
+      "relative_l2": 0.0017179058547618657,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 33,
+      "owner": 2,
+      "relative_l2": 0.0017179058547618657,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 65,
+      "owner": 0,
+      "relative_l2": 0.001652246633753654,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 65,
+      "owner": 1,
+      "relative_l2": 0.001652246633753654,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 65,
+      "owner": 2,
+      "relative_l2": 0.001652246633753654,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 127,
+      "owner": 0,
+      "relative_l2": 0.0016581712085698697,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 127,
+      "owner": 1,
+      "relative_l2": 0.0016581712085698697,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 127,
+      "owner": 2,
+      "relative_l2": 0.0016581712085698697,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 128,
+      "owner": 0,
+      "relative_l2": 0.0016622298280037978,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 128,
+      "owner": 1,
+      "relative_l2": 0.0016622298280037978,
+      "impulse_l2": 0.0
+    },
+    {
+      "cluster": 3,
+      "m": 128,
+      "owner": 2,
+      "relative_l2": 0.0016622298280037978,
+      "impulse_l2": 0.0
+    }
+  ],
+  "no_weight_requantization": true,
+  "limitations": "CPU models, not CUDA memory/race/compilation/performance verification",
+  "gpu_status": "unmeasured"
+}

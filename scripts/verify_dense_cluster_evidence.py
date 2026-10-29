@@ -25,15 +25,18 @@ def verify_oracle(layer, record):
         assert relative <= .004 and impulse <= .001 and worst <= .02 and worst_impulse <= .005
     paired = record['paired']
     assert paired['ok'] is True and not paired.get('budget')
-    assert [p['pattern'] for p in paired['patterns']] == [0, 1]
-    for pattern in paired['patterns']:
-        old, new, samples = pattern['previous_ns'], pattern['candidate_ns'], pattern['samples']
-        assert len(old) == len(new) == len(samples) == 7
-        assert all(math.isfinite(v) and v > 0 for v in old + new + samples)
+    compared_rows = (33, 64, 65, 96, 127, 128) if layer == 'qkv_gate' else (65, 96, 127, 128)
+    assert [(p['m'], p['pattern']) for p in paired['cases']] == [
+        (m, p) for m in compared_rows for p in (0, 1)]
+    for pattern in paired['cases']:
+        old, new = pattern['previous_ns'], pattern['candidate_ns']
+        assert len(old) == len(new) == 7
+        assert all(math.isfinite(v) and v > 0 for v in old + new)
         computed = [n / o for n, o in zip(new, old)]
-        assert all(math.isclose(x, y, rel_tol=1e-10) for x, y in zip(computed, samples))
         assert math.isclose(statistics.median(computed), pattern['ratio'], rel_tol=1e-10)
-        assert pattern['ratio'] < .97, ('Synthetic paired comparison did not win', layer, pattern)
+        assert pattern['ratio'] <= 1.02, ('Nearby shape regressed', layer, pattern)
+        if pattern['m'] == 128:
+            assert pattern['ratio'] < .97, ('Synthetic M128 comparison did not win', layer, pattern)
 
 
 def main():
@@ -53,7 +56,15 @@ def main():
     assert len(cpu['numerical_cases']) == 20
     units = read_json(PREFLIGHT / 'timing-unit-audit.json')
     assert units['source_sha256'] == digest and units['cuda_unchanged']
-    assert units['restored_prepared_sha256'] == '4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662'
+    assert units['prior_packet_sha256'] == '169dbce77be377eea3c49b05428d67d3141c0a6f506f8dd23e57ad4cd7e269e3'
+    assert units['units'] == 'nanoseconds' and units['cuda_event_multiplier'] == 1_000_000
+    nearby = read_json(PREFLIGHT / 'nearby-selection-audit.json')
+    assert nearby['source_sha256'] == digest and nearby['all_nonselection_ast_unchanged']
+    assert nearby['paired_cases'] == 20 and nearby['diagnostic_bytes_bound'] < 15000
+    identity = read_json(PREFLIGHT / 'evaluator-identity.json')
+    assert identity['problem'] == 'muse_bf16_proj'
+    assert {r['file'] for r in identity['files']} == {'TASK.md', 'reference.py', 'checks.py', 'baseline.py', 'AGENTS.md'}
+    assert all(r['exact'] and r['pinned_sha256'] == r['fresh_sha256'] for r in identity['files'])
     log = body.get('log_tail', '')
     choices = ast.literal_eval(one_marker(log, 'DENSE_CLUSTER_CHOICES '))
     assert choices and tuple(sorted(set(choices))) == choices

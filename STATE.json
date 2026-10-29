@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Local implementation and CPU verification only. Source package bc528949 recovers 95649 bytes; preserve all active/verified sources. Whole-layer preparation headroom, D1 nearby performance and transfer value remain unresolved. No GPU checks, profiling jobs or submissions are authorized.",
+  "next_trial": "One Dense13224d30 full check after CPU nearby-band guard passed; reuse exact cached EDC baseline. One active GPU job, at least60minutes between new checks, four checks reserved per track, no cosmetic scores. Continue CPU Decode preparation work between runs.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "decode_layer_cpu_preparation",
+  "active_track": "dense_cluster_nearby_guard",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -288,7 +288,7 @@
     "integrity": true,
     "bf16_attention_boundaries_preserved": true
   },
-  "evaluation_policy": "Use fewer checks and scored runs. Require a concrete correctness or performance question and a material expected gain; reuse cached evidence and existing job handles.",
+  "evaluation_policy": "EVALUATION_POLICY.json",
   "prefill_checked": {
     "source": "best/prefill_verified.py",
     "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
@@ -2606,18 +2606,18 @@
   "user_plan_pending": {
     "requested_utc": "2026-10-29T00:28:49.731842+00:00",
     "instruction": "User said: I will soon give you a plan to work on",
-    "new_gpu_evaluations": "Not authorized by the latest human reply; older launch directions are superseded",
+    "new_gpu_evaluations": "Authorized under EVALUATION_POLICY.json; original review-only and no-GPU holds superseded by explicit human reply",
     "goal_status": "active; no native pause requested",
     "status": "received_and_reviewed"
   },
   "latest_authorization": {
-    "recorded_utc": "2026-10-29T01:00:32.769737+00:00",
-    "human_reply": "Authorize local implementation; no GPU runs",
+    "recorded_utc": "2026-10-29T01:19:56.426616+00:00",
+    "human_reply": "Enable gpu runs; use sparingly and spread until 8 p.m. October 29 Toronto",
     "local_repository_implementation": true,
     "cpu_verification": true,
-    "gpu_checks": false,
-    "profiling_jobs": false,
-    "submissions": false,
+    "gpu_checks": true,
+    "profiling_jobs": "Only as a justified part of a bounded candidate; no open sweep",
+    "submissions": "Only after convincing source-bound check results and material gain",
     "main_chat_only": true,
     "preserve_selected_model": true,
     "global_environment_changes": false,
@@ -2641,5 +2641,14 @@
     "historical_parent_prepare_s": 256.896945766,
     "gpu_runs_used": 0,
     "active_and_verified_files_changed": false
+  },
+  "evaluation_window_end_utc": "2026-10-30T00:00:00+00:00",
+  "dense_cluster_nearby_preflight": {
+    "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+    "artifact": "results/dense-cluster-nearby-preflight-20261029/submission.py",
+    "cuda_identical_to169": true,
+    "paired_cases": 20,
+    "guard_mutations_rejected": 14,
+    "gpu_status": "not launched yet"
   }
 }
