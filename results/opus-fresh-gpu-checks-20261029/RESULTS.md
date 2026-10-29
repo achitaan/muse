@@ -50,3 +50,32 @@ required precision boundaries. **No speedup is claimed.**
 
 The overall rank fell from the 18:55 snapshot (207) because other teams improved, not because of these runs.
 
+
+## Second round (23:00–23:19 UTC)
+
+| Job | Mode | Source | Result |
+|---|---|---|---|
+| `8b815afb4e784187` | check | `decoder_fp8pv.py` `1a695121`: D9 plus the retained standalone Attention CUDA (FP8 P·V for one-query attention; the Python launch code is identical) | 13/13 passed, **1.9958x** CI [1.9659, 2.0258]. Tied with D9. |
+| `30184c638e2c43ea` | check | `decoder_finreg_fp8pv.py` `648f8cee`: FINREG plus FP8-PV | 13/13 passed, **2.0064x** CI [1.9763, 2.0365]. |
+| `646774bad23e4c7f` | **scored** | `decoder_finreg_fp8pv.py` | 13/13 passed, **2.0071x** CI [1.9770, 2.0372]. The board Decode row changed from 1.9940 to 2.0071. |
+
+Several upload attempts failed with a TLS `bad record MAC` transport error and
+created no job; retries succeeded.
+
+**Leaderboard at 23:19 UTC:**
+
+- Decode: rank 219 of 999, speedup 2.0071.
+- MoE: rank 87 of 1,130, speedup 2.3507.
+- Overall: rank 219 of 1,627, up from 225 earlier this evening.
+
+**Interpretation:**
+
+- The combined Decode source's interval overlaps D9's (1.9902, CI
+  [1.9604, 2.0201]). Each component was tied on its own, so the board increase
+  is not established as a real kernel speedup. It may be measurement variation.
+- The published Decode source is now a fully corrected source with the BF16
+  precision boundaries. The previous board row came from an older source that
+  lacked them.
+
+The source SHA256 for `experiments/opus_fresh/candidates/decoder_finreg_fp8pv.py`
+is `648f8cee7eb0292f6b1e1bb80a7f1e945802a5bdd68ba2df17bf70d9ad1bd1c5`.
