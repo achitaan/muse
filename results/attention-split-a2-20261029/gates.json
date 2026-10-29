@@ -1,0 +1,30 @@
+{
+  "experiment": "A2 attention split confirmation + opposite-direction probe (configuration only)",
+  "frozen_before_launch_utc": "2026-10-29T21:00:00Z",
+  "parent": {
+    "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "job": "8b767ea7b2b74de6",
+    "scored_speedup": 2.5370005142373167
+  },
+  "candidate": "candidates/attention_split_a2.py",
+  "candidate_sha256": "513af2884589912f9d04b31c34d26eff39e9bffc5639ad0e42240bc24dca851f",
+  "change": "decode16 sliding n_splits 16->8 (A1 winner, confirm); decode32 sliding 8->16; verify16 sliding 8->16 (coop). All else unchanged.",
+  "evidence_basis": "A1 d18f02619ca44b65: decode16 sliding 8 splits normalized 1.0554; halving lost on decode32 (0.869) and verify16 (0.854)",
+  "affected": [
+    [
+      "decode 16",
+      "sliding"
+    ],
+    [
+      "decode 32",
+      "sliding"
+    ],
+    [
+      "verify 16",
+      "sliding"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "decision_rule": "retain only shapes whose normalized ratio >= 1.03 in this run (decode16 then has two independent wins); retention of the combined table needs track speedup >= 2.537 x 1.005 and all tests passing",
+  "status": "frozen; not launched in the October 29 window (slots used by M1/P1)"
+}
