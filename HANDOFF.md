@@ -1,4 +1,22 @@
-> LATEST ADMITTED PREPARATION, October29: dual-order Decode repair1c23cdc6
+> LATEST TERMINAL RESULT, October29: Decode1c23cdc6 check545f0b524917423b
+> native all4modes56regs/0local/16static/248clusters/132SMs;36numerical
+> probes/eight changing-input replays pass. All8paired boundaries lose;
+> combined M1/8/16/32new/old=3.066/2.833/1.723/1.866. Selectionfalse.
+> Full13/12/integrity1.977485326x uses retained fallback, not new kernels.
+> No score; controller e680f141 trialddbb2653/revertcc881431/archive171355.
+> All44protected hashes restored; no live job/controller. Close design;
+> no occupancy/flag retry justified. Full raw/source/guards/controller:
+> results/decoder-cluster-norm-dual-order-check-20261029/.
+> Fresh checks Dense19/Attention16/MoE12/Decode17/Prefill20=84; scores50.
+> Nextnew check>=18:03:10.328859UTC(14:03Toronto). Goal remains active.
+> Next Dense draft7de2abc3 preserves fixed13224d30timed kernels/selection;
+> adds untimed native resource query. Offline device proxyGQX90/GQ120regs,
+> zero spills; no GPU admission yet. Rawsource/edit ledger/proxy failures
+> and success: results/dense-cluster-resource-draft-20261029/. Bind source
+> guards/native mutants/current identity and modern paced driver before use.
+>
+> Historical preparation, superseded by terminal rejection:
+> dual-order Decode repair1c23cdc6
 > (native5d189e9a,combined65b393c4), all4modes/M1..32scope. Offline exact
 > retained tiny-FFN source under officialTriton3.9.0 proves strided/nonfused
 > balanced tree; CUDA/model now distinguish it from scalar vec8/FMA order.

@@ -1,0 +1,40 @@
+{
+  "nvrtc_version": [
+    13,
+    0
+  ],
+  "package_hashes": {
+    "nvidia_cuda_nvrtc-13.0.88-py3-none-win_amd64.whl": "6bcd4e7f8e205cbe644f5a98f2f799bef9556fefc89dd786e79a16312ce49872",
+    "nvidia_cuda_runtime-13.0.88-py3-none-win_amd64.whl": "0156cf8f3453025938aab80bcca909506f4e82f1584a17736df7edeba882cc02",
+    "nvidia_cuda_cccl-13.0.85-py3-none-win_amd64.whl": "e160c6f031687b913fbe6e82e43f1788c3dd2a2a6378d3a8b15a31934b3ab285"
+  },
+  "platform": "Windows x86_64",
+  "original_source_sha256": "cfb002b84cf94ae721d3e98a06d95db1d98b2e5200ed34467bf4346096c2a2b1",
+  "compiled_prefix_sha256": "cfb002b84cf94ae721d3e98a06d95db1d98b2e5200ed34467bf4346096c2a2b1",
+  "source_bytes": 22778,
+  "host_torch_launcher_omitted": false,
+  "added_forward_declaration": null,
+  "virtual_type_traits_header": "namespace std {\ntemplate<class T, T V> struct integral_constant {\n  static constexpr T value = V;\n  using value_type = T;\n  using type = integral_constant;\n  __host__ __device__ constexpr operator value_type() const noexcept { return value; }\n  __host__ __device__ constexpr value_type operator()() const noexcept { return value; }\n};\nusing true_type = integral_constant<bool, true>;\nusing false_type = integral_constant<bool, false>;\n}\n",
+  "virtual_stdint_header": "typedef signed char int8_t;\ntypedef unsigned char uint8_t;\ntypedef signed short int16_t;\ntypedef unsigned short uint16_t;\ntypedef signed int int32_t;\ntypedef unsigned int uint32_t;\ntypedef signed long long int64_t;\ntypedef unsigned long long uint64_t;\ntypedef int64_t intptr_t;\ntypedef uint64_t uintptr_t;\n",
+  "name_expressions": [
+    "&gq_kernel<128,1,8,2>",
+    "&gqx_kernel<128,1,8,3>"
+  ],
+  "flags": [
+    "--gpu-architecture=sm_90a",
+    "--std=c++20",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--ptxas-options=-v",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl"
+  ],
+  "return_code": 0,
+  "cubin_bytes": 120640,
+  "compile_seconds": 0.5,
+  "log_file": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\dense-cluster-device-screen-20261029\\compile-header-proxy.log",
+  "gpu_kernels_loaded_or_launched": false,
+  "official_checks_used": 0,
+  "exact_judge_toolchain": false,
+  "scope": "Device-code proxy preflight only; no host-extension ABI, occupancy, correctness or performance validation"
+}

@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decoder_cluster_norm_dual_order.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1042.657,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nDecode dual-order cluster-norm check 545f0b524917423b: received\r\nDecode dual-order cluster-norm check 545f0b524917423b: running\r\nDecode dual-order cluster-norm check 545f0b524917423b: done\r\n",
+  "stdout": "{\"speedup\": 1.9774853258475018, \"correct\": true, \"job\": \"545f0b524917423b\", \"source_sha256\": \"1c23cdc6dbcf3583cfcae023bef6281059fd1db04347f00cfcf28b95268dcfff\", \"error\": null}\r\n",
+  "timed_out": false
+}

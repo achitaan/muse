@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_decoder_cluster_norm_dual_order.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.156,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"speedup\": 1.9902248796281297, \"correct\": true, \"job\": \"9560c915e85f4f50\", \"source_sha256\": \"d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988\", \"error\": null}\r\n",
+  "timed_out": false
+}

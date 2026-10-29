@@ -1,0 +1,21 @@
+device-preflight.cu(281): warning #177-D: variable "JM" was declared but never referenced
+    constexpr int JM = (NB + CL - 1) / CL;     // most blocks a rank owns
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(292): warning #177-D: variable "recv" was declared but never referenced
+    float* recv = reinterpret_cast<float*>(gbase);   // [CL][NTH][4 JM] (the ring, once every rank is done with it)
+           ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z10gqx_kernelILi128ELi1ELi8ELi3EEv14CUtensorMap_stS0_P13__nv_bfloat16iii' for 'sm_90a'
+ptxas info    : Function properties for _Z10gqx_kernelILi128ELi1ELi8ELi3EEv14CUtensorMap_stS0_P13__nv_bfloat16iii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9gq_kernelILi128ELi1ELi8ELi2EEv14CUtensorMap_stS0_P13__nv_bfloat16iii' for 'sm_90a'
+ptxas info    : Function properties for _Z9gq_kernelILi128ELi1ELi8ELi2EEv14CUtensorMap_stS0_P13__nv_bfloat16iii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 120 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms
