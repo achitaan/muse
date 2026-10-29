@@ -1,3 +1,11 @@
+> CPU COMPILER PREFLIGHT, October29: local NVRTC13.0.88 compiled retained and
+> candidate device prefixes for both BIG variants without a GPU. Static assembly
+> confirms108oldU16 stores become54new32bit stores at the phase-A helper line.
+> This proxy omits the Torch host/query and uses documented header/lookup
+> adaptations; it is not NVCC runtime-resource, correctness or timing evidence.
+> Packet: results/moe-epair-nvrtc-preflight-20261029/. Repaired9fc2993a remains
+> unchanged, eligible for one check after06:27:37.228843UTC. All best files exact.
+
 > LATEST TERMINAL RESULT, October29: MoE98e3538e85244c1d/e8e3086d failed
 > compilation in the resource query (wrong namespace), before tests/timing.
 > One check used; no performance result or score. Controller reverted fe81752,

@@ -1,0 +1,8 @@
+{
+  "negative_control": "Only store-helper definition renamed; original call remains unresolved",
+  "mutant_source_sha256": "8b78cacc0cc554558e1f918e32eba60776d3ea1699ef3bda94fbfc0ef3649c0e",
+  "compile_failure_detected": true,
+  "nvrtc_return_code": 6,
+  "gpu_jobs": 0,
+  "no_frozen_source_changes": true
+}

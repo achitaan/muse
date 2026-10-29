@@ -65,6 +65,19 @@
     "gpu_verified": false,
     "next_check_not_before_utc": "2026-10-29T06:27:37.228843Z"
   },
+  "moe_epair_nvrtc_proxy_preflight": {
+    "packet": "results/moe-epair-nvrtc-preflight-20261029/",
+    "compiler": "Workspace-only Windows NVRTC13.0.88",
+    "baseline_and_candidate_device_cubins_compiled": true,
+    "host_extension_compiled": false,
+    "candidate_cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+    "static_helper_stores_per_kernel_before": 108,
+    "static_helper_stores_per_kernel_after": 54,
+    "gpu_jobs": 0,
+    "performance_claim": false,
+    "official_resource_gate_unchanged": true,
+    "limitations": "Host launcher/query omitted; explicit proxy headers/default-device/forward declaration; not exact judge NVCC or runtime resource evidence"
+  },
   "epair_upload_transport_recovery": {
     "packet": "results/moe-epair-upload-error-20261029/",
     "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",

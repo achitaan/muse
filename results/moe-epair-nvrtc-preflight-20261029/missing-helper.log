@@ -1,0 +1,48 @@
+device-preflight.cu(1925): error: identifier "epair_st_keep_u32" is undefined
+        epair_st_keep_u32(reinterpret_cast<uint32_t*>(dst), packed);
+        ^
+          detected during:
+            instantiation of "void okc_epair::wgs_flush<PB>(const okc_epair::Params &, okc_epair::Smem &, okc_epair::WgsPend &) [with PB=false]" at line 2087
+            instantiation of "void okc_epair::wgs_seg<PB,NTT>(const okc_epair::Params &, okc_epair::Smem &, unsigned char *, int, int, int, int, int &, okc_epair::WgsPend &) [with PB=false, NTT=1]" at line 2126
+            instantiation of "void okc_epair::wgs_phase<PB>(const okc_epair::Params &, okc_epair::Smem &, unsigned char *, int, int, int &) [with PB=false]" at line 2427
+            instantiation of "void okc_epair::moe_fused<BIG>(okc_epair::Params) [with BIG=false]" 
+
+device-preflight.cu(134): warning #177-D: variable "okc_epair::NRB" was declared but never referenced
+  constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(149): warning #177-D: variable "okc_epair::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+device-preflight.cu(149): warning #177-D: variable "okc_epair::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+device-preflight.cu(152): warning #177-D: variable "okc_epair::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+device-preflight.cu(159): warning #177-D: variable "okc_epair::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+device-preflight.cu(540): warning #177-D: variable "okc_epair::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+device-preflight.cu(950): warning #177-D: variable "okc_epair::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+device-preflight.cu(1653): warning #177-D: variable "okc_epair::WGS_FIXF" was declared but never referenced
+  constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;  // + doneAs
+                   ^
+
+device-preflight.cu(1806): warning #177-D: variable "okc_epair::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
+                ^
+
+1 error detected in the compilation of "device-preflight.cu".

@@ -1,0 +1,50 @@
+{
+  "scope": "Workspace-only compiler/disassembler; no Python installation, PATH mutation or GPU kernel launch",
+  "compiler": "NVRTC13.0.88",
+  "disassembler": "cuobjdump/nvdisasm13.4.92",
+  "wheels": [
+    {
+      "filename": "nvidia_cuda_cccl-13.0.85-py3-none-win_amd64.whl",
+      "bytes": 3120508,
+      "sha256": "e160c6f031687b913fbe6e82e43f1788c3dd2a2a6378d3a8b15a31934b3ab285"
+    },
+    {
+      "filename": "nvidia_cuda_cuobjdump-13.4.92-py3-none-win_amd64.whl",
+      "bytes": 6637510,
+      "sha256": "afc7262c94e131295fe356f7231b336e183d22a2ebcecc0eaa643fa8bae94aa4"
+    },
+    {
+      "filename": "nvidia_cuda_nvdisasm-13.4.92-py3-none-win_amd64.whl",
+      "bytes": 5470680,
+      "sha256": "600c43bde6b323be4d950e33a248aa97ff9cdea28a4b7dae083680f092bdd230"
+    },
+    {
+      "filename": "nvidia_cuda_nvrtc-13.0.88-py3-none-win_amd64.whl",
+      "bytes": 76807835,
+      "sha256": "6bcd4e7f8e205cbe644f5a98f2f799bef9556fefc89dd786e79a16312ce49872"
+    },
+    {
+      "filename": "nvidia_cuda_runtime-13.0.88-py3-none-win_amd64.whl",
+      "bytes": 2926776,
+      "sha256": "0156cf8f3453025938aab80bcca909506f4e82f1584a17736df7edeba882cc02"
+    }
+  ],
+  "binaries": {
+    "nvidia/cu13/bin/x86_64/nvrtc64_130_0.dll": {
+      "bytes": 90965024,
+      "sha256": "28d1021a82003f4aed742ea36ece1d595e32a107f915dfbd07d3ee8764858bce"
+    },
+    "nvidia/cu13/bin/x86_64/nvrtc-builtins64_130.dll": {
+      "bytes": 4471328,
+      "sha256": "cd4ce3e0351b0d10f43b07c667782028420e03858999fab65207c40a28546d19"
+    },
+    "nvidia/cu13/bin/cuobjdump.exe": {
+      "bytes": 19424880,
+      "sha256": "fbe2b7ba92d15b514d9e707b6b033bbf3640de73eb57a5c8f0d1f75cb101614d"
+    },
+    "nvidia/cu13/bin/nvdisasm.exe": {
+      "bytes": 6049392,
+      "sha256": "0653b0c7b415ca5fd89129da036f7bac3d4608a3285e91d40d04a67c702ff470"
+    }
+  }
+}
