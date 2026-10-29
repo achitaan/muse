@@ -1,0 +1,22 @@
+{
+  "source_sha256": "bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+  "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "inverse_parent_bytes_exact": true,
+  "mutation_rejections": [
+    "decoded_cuda_byte",
+    "loader_body",
+    "precision_dispatch_boundary"
+  ],
+  "bytes": 893369,
+  "source_headroom_bytes": 106631,
+  "submission_code_executed": false,
+  "gpu_jobs_launched": 0,
+  "evaluated": false,
+  "decoded_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "decoded_cuda_bytes": 139873,
+  "exact_expanded_module_ast": true,
+  "existing_loader_ast_exact": true,
+  "all_runtime_functions_and_fallbacks_unchanged": true,
+  "all_prepare_functions_unchanged": true,
+  "all_expanded_cuda_unchanged": true
+}

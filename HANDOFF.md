@@ -1,3 +1,25 @@
+> CURRENT AUTHORIZATION, October29UTC: local implementation and CPU verification
+> are authorized. GPU checks, profiling jobs and submissions remain unauthorized.
+> The user plan has been reviewed. This header supersedes older launch directions.
+> Main chat only; preserve selected model and all verified/active incumbents.
+>
+> Decode source package bc528949 is893369bytes, saving95649bytes with106631bytes
+> of source headroom. Exact decoded MoE CUDA, normalized full module AST and
+> inverse D9 bytes pass CPU verification; three semantic mutations are rejected.
+> It has NO GPU result and is not promoted. D9 remains checked1.990224880x.
+> Frozen source/audits/preparation map: results/decoder-source-package-20261029/.
+> Review/reproduction: experiments/prepared/decoder_source_package_review.md.
+> The preparation map identifies21dense jobs/four workers; the old WG sweep is
+> already disabled. Historical D9 setup256.897s leaves43.103s, not guaranteed
+> headroom. No setup optimization or fresh setup measurement is claimed.
+>
+> Review corrections: D1 needs about5.62us saved on the historical M128 Dense
+> load to meet its1.5% track gate; 3% in both projections yields only~0.25%.
+> Retained MoE already has per-job/per-stage A-to-B readiness. Decode overlaps
+> router/pooler at large shapes too. D1 remains conditional, not cleared to run.
+>
+> HISTORICAL CHECKPOINTS BELOW; their next-step directions are superseded above.
+
 > USER PLAN PENDING: hold new GPU evaluations until the promised plan arrives
 > and is reviewed. No job/controller is active. Dense169dbce7 is prepared only.
 > Retained bests unchanged. Keep the broad top50Goal intact; do not launch the

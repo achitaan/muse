@@ -5,6 +5,11 @@ preserve the selected model, and conserve official checks and scores.
 The ordered MoE -> Decode -> Attention -> Prefill pass is complete. The goal
 remains unmet; completed experiments do not establish that optimization is done.
 
+Current authorization, October 29 UTC: local implementation and CPU verification
+only. GPU checks, profiling jobs and submissions remain unauthorized. The
+user's evidence-led plan has been reviewed; the corrections below supersede
+older automatic launch directions. Preserve every verified and active source.
+
 ## What the evidence says
 
 The latest saved public overall row is155/1451. The official API reference
@@ -28,9 +33,9 @@ separate from board positions.
 
 | Priority | Work | Measured reason | Decision before another run |
 | --- | --- | --- | --- |
-| 1 | One prepared Dense cluster check | M128 QKV/pooler profiles are13.7/19.8us. Two fixed original-BF16 WGMMA cluster kernels target these spans. | Full9/30, nearby FP64 probes, nonempty choices, actual new profile symbols, paired wins, >3% affected/control and >1.5% aggregate gain. |
-| 2 | Diagnose the larger MoE WGS path | MoE is about46% of corrected Decode's M16 sliding profile and about46–64% of M128 profiles. This offers greater whole-layer potential than tiny boundary changes. | Require a specific measured bottleneck and a distinct algorithmic hypothesis. Deeper GPU counters or focused external code/profile evidence would help. No new macro sweep. |
-| 3 | Integrate compatible verified gains into Decode | Improving the actual whole layer directly tests the requested serving computation. Source989018bytes and last prepare256.897s leave little room. | Quantify expected whole-layer gain, preserve BF16/FP32 contracts, prove size/preparation feasibility, then one full13/12 check. Do not transfer a rejected standalone path. |
+| 1 | Review D1's value and integration feasibility before any run | Two fixed original-BF16 cluster families target M128 QKV/pooler. A 3% win in both gives only about 0.25% Dense track gain under unchanged controls. | Explain a credible 5.62us load saving for the existing 1.5% track gate, or a worthwhile Decode transfer. Resolve preparation and nearby-band performance first. Any GPU use requires new authorization. |
+| 2 | Diagnose exposed MoE WGS readiness/fixup waits | Historical summed profiles motivate investigation but do not establish a critical-path fraction. Per-job/per-stage phase overlap already exists. | Identify exposed waits or fixups beyond existing deferred work and overlap. No global-join replacement premise, occupancy rerun or macro sweep. |
+| 3 | Prepare compatible verified gains for Decode | CPU-only package bc528949 reduces source to 893369 bytes; setup remains the historical 256.897s. | Preserve exact numerical contracts and whole-layer state. Solve the 300s whole-layer preparation budget before an authorized 13/12 check. Do not transfer a rejected standalone path. |
 | 4 | Attention, then Prefill | Large full attention approaches its bandwidth floor; recent arithmetic rearrangements did not show causal wins. Prefill is outside overall. | Need new evidence beyond a nearby parameter change. Retain the user's order and leave Prefill last. |
 
 Dense is a bounded component experiment, not a claim that its score alone
@@ -38,6 +43,38 @@ improves overall. Its optimistic listed-floor screen suggests roughly2.8%
 standalone improvement, with much smaller whole-Decode impact. If it wins,
 evaluate integration alongside other compatible verified gains rather than
 spending a full-layer check on a negligible transfer.
+
+The recorded 65.731us M128 Dense load needs about 5.617us saved to yield 1.5%
+track gain when it is the only changed load: 1.015^6 =1.09344 load speedup.
+The listed QKV-only and pooler-only floors yield about 1.33% and 1.37% track
+gain; both together about 2.84%. These are historical arithmetic screens,
+not forecasts. Preserve the existing aggregate retain guard.
+
+MoE already releases phase-A completion through `doneAs[job,stage]`; phase B
+acquires each required 256-column slice. Its global completion barrier follows
+phase B. Future overlap work must target waits inside that existing protocol.
+Tiny routing changes must preserve the initial weight prefetch that overlaps
+routing. Decode's router/pooler stream overlap also covers M128/M256; account
+for the join when estimating D1 transfer value.
+
+## CPU-only Decode package
+
+Source `bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43`
+losslessly encodes one static CUDA literal using the existing loader. It saves
+95649 bytes and leaves 106631 bytes under the decimal 1MB cap. Independent static
+verification recovers D9's CUDA, complete module AST and every original byte;
+three mutations are rejected. The package is unmeasured and unpromoted.
+
+Review: experiments/prepared/decoder_source_package_review.md.
+Frozen evidence: results/decoder-source-package-20261029/.
+The static preparation map records 21 dense jobs with four workers. Repeated
+factory names have different inputs/options and do not prove duplicate builds.
+The WG sweep is already disabled. No compilation/preparation work was removed,
+and no setup speedup is claimed. Historical remaining setup time is 43.103s.
+
+The raw D1 increment would fit this package at 943068 bytes before adaptation.
+Its complete preparation feasibility, state integration and performance across
+enabled bands remain unresolved. No GPU job is authorized by this packet.
 
 For skinny16 MoE, a profile-based transfer screen estimated only0.66% whole
 Decode gain from10% faster affected MoE, or1.75% from30% faster affected MoE.
@@ -71,8 +108,9 @@ Evidence: results/dense-cluster-preflight-20261029/.
 Metric: scripts/measure_dense_cluster.py; guard: scripts/verify_dense_cluster_evidence.py.
 Scope: candidates/active.py. Baseline: exact scored EDC1.527771327x, cached
 locally or in the tracked sprint evidence. No baseline API call or GPU rerun.
-The driver must confirm positive official quota before launching one check.
-At most one scored confirmation after material gain and all evidence gates.
+After explicit GPU authorization and the readiness gates above, the driver
+must confirm positive official quota before one check. Any scored confirmation
+also requires authorization, material gain and every evidence gate.
 
 ## Planning inputs that would help
 

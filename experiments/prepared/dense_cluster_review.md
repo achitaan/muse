@@ -1,6 +1,10 @@
 # Dense large-token cluster experiment
 
-Prepared source: `4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662`.
+Prepared source: `169dbce77be377eea3c49b05428d67d3141c0a6f506f8dd23e57ad4cd7e269e3`.
+This supersedes unsubmitted `4d443b13` only by correcting event ms-to-ns
+conversion; the earlier source and its evidence remain archived. Current
+authorization permits local implementation/CPU checks only, with no GPU runs.
+D1 remains conditional on preparation, nearby performance and whole-layer value.
 GPU status: unmeasured. CPU evidence cannot establish CUDA compilation,
 synchronization correctness, or performance. The retained publication is
 `6131bc96427e4486`, source `edc61a1e`, at 1.527771327x.

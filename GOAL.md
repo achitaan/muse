@@ -3,7 +3,12 @@
 Get as close as possible to top 50 overall in the Open Kernel Challenge, using
 the current account and free official H200 service. Work in this main chat only
 and preserve the selected model. The user removed the original 04:00 Toronto
-deadline; the native Goal remains active, with no deadline. Top 50 is unmet.
+deadline. The objective has no deadline and remains unmet.
+
+Current authorization, October 29 UTC: local implementation and CPU checks.
+GPU checks, profiling jobs and submissions remain unauthorized. The supplied
+plan has been reviewed; older instructions to launch the next Dense check are
+superseded. No subagents, model changes, paid services or global changes.
 
 The requested ordered pass MoE -> Decode -> Attention -> Prefill is complete
 with full passing coverage. Continue justified optimization, conserving checks
@@ -19,8 +24,11 @@ Decode/Attention API best rows; preserve that distinction.
 
 MoE skinny16 is closed: one compiler repair, passing GPU probes, all three
 paired timing patterns slower, no selected bucket or score. Retain33114871.
-Next is one prepared Dense cluster check against cachedEDC, using exact source
-binding and the fixed full9/30/numerical/paired/affected-control guard. The
-source's event timing units have been corrected before its first GPU run.
-No job or controller is pending at this saved pre-launch checkpoint.
+Decode packaging is now CPU-verified at bc528949: 893369 bytes, with all D9
+CUDA and the expanded executable AST exact. It remains an unevaluated draft;
+best/decoder_verified.py and candidates/decode_active.py remain D9. See
+experiments/prepared/decoder_source_package_review.md for frozen evidence.
+Preparation remains unresolved: historical D9 setup was 256.897s/300s, with
+no new measurement or setup optimization. D1 stays conditional on preparation,
+nearby performance and whole-layer value. No GPU run is authorized or launched.
 Preserve numerical precision, exact weights, all routes/keys and fresh outputs.

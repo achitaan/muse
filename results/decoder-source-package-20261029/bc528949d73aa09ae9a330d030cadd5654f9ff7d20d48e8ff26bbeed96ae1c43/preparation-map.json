@@ -1,0 +1,251 @@
+{
+  "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "packaged_source_sha256": "bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+  "method": "static AST and exact source-bound cached result; no submission code executed",
+  "preparation_functions_dependency_first": [
+    {
+      "function": "prepare",
+      "parent_line": 6934,
+      "function_ast_sha256": "1f9e4e724900fc984098668e672e3e8dd32c3096c39f5084c2949ef83e4fc930"
+    },
+    {
+      "function": "_achita_dense_prepare",
+      "parent_line": 6253,
+      "function_ast_sha256": "fc05223ebf9b4b2f450385fba9686d7c02bd03bb75c2b9db57406b3d8d9483e9"
+    },
+    {
+      "function": "v18d_prepare_small_m",
+      "parent_line": 6505,
+      "function_ast_sha256": "0842368121012959601f18fd43c7f116a57ce8126c42631d66980394f3fdeb90"
+    },
+    {
+      "function": "prepare_v18_extra",
+      "parent_line": 6742,
+      "function_ast_sha256": "e8ee2d3b4905228bf1985f8023cb151af06b148d1964c5ebbb6f5107b3885433"
+    },
+    {
+      "function": "_achita_dense_prepare",
+      "parent_line": 6774,
+      "function_ast_sha256": "85777027d779b03d7beb06397413b2acd57308b1a2c8b37195ff11ad93562b4c"
+    },
+    {
+      "function": "_achita_dense_prepare",
+      "parent_line": 6806,
+      "function_ast_sha256": "e511dd13d59ec27d238caf3d96efeece4114d5c2bcbf3544c0d5ef2a8df67cea"
+    },
+    {
+      "function": "prepare",
+      "parent_line": 7049,
+      "function_ast_sha256": "f90c3c24f32c1ff6684ff4f018487b787506872edfdaf4748d501b5e90986c88"
+    },
+    {
+      "function": "_native_moe_prepare",
+      "parent_line": 418,
+      "function_ast_sha256": "354670172afc1d05d4d2ed526b0942e3825dc571735a1d8e0013cdf962428929"
+    },
+    {
+      "function": "prepare",
+      "parent_line": 7094,
+      "function_ast_sha256": "c356f4564db864b3632ef321afbf7e4cc0f713e74b57d83f2e49070b9227f0e4"
+    },
+    {
+      "function": "_fpr_prepare",
+      "parent_line": 7211,
+      "function_ast_sha256": "124b6d041516251a6b67c71c0f92ec481d6cf93eec314b567a1b6535599d6490"
+    },
+    {
+      "function": "prepare",
+      "parent_line": 7241,
+      "function_ast_sha256": "d76631e674e2b753ae9d07514dde887ea9bd363e6ae3ca65559edb5303e5e687"
+    },
+    {
+      "function": "prepare",
+      "parent_line": 7264,
+      "function_ast_sha256": "278b8e179b882a1fb68a3395900573ee4e1584635fa3c9c4963acb0b61e7f064"
+    },
+    {
+      "function": "prepare",
+      "parent_line": 7372,
+      "function_ast_sha256": "1a5e6440e1c99fd70edbf4f2e11f5f3b66433250e3fc07ec4d039677e834093f"
+    }
+  ],
+  "parallel_jobs": [
+    {
+      "name": "sm",
+      "function": "prepare_small_m",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "m32",
+      "function": "prepare_m32",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "wide2",
+      "function": "prepare_wide2",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "router",
+      "function": "prepare_router",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "qkv",
+      "function": "prepare_qkv",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "router2",
+      "function": "prepare_router2",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "olayer",
+      "function": "prepare_olayer",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "cps",
+      "function": "prepare_cps",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "new_lt",
+      "function": "tt_lt_prepare_cublaslt",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "new_mw",
+      "function": "tt_mw_prepare_m32w",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v10_sm2",
+      "function": "tt_v10_sm2_prepare_smallm2",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v10_warps",
+      "function": "tt_v10_warps_prepare_warps",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v10_tune",
+      "function": "prepare_v10_tune",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v10_m32x",
+      "function": "tt_v10_m32x_prepare_m32x",
+      "weight_expression": "weights",
+      "options": {
+        "include_unpooler": false
+      }
+    },
+    {
+      "name": "v11_m32x",
+      "function": "tt_v10_m32x_prepare_m32x",
+      "weight_expression": "{'unpooler': weights['unpooler']}",
+      "options": {
+        "include_unpooler": true
+      }
+    },
+    {
+      "name": "v12_smtrace1",
+      "function": "tt_v12_smtrace1_prepare_smtrace",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v12_o1",
+      "function": "prepare_v12_o1",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v13_smtrace8",
+      "function": "tt_v13_smtrace8_prepare_smtrace",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "v14_qkv",
+      "function": "tt_v14_qkv_prepare_qkvbig",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "bundle",
+      "function": "prepare_bundle",
+      "weight_expression": "weights",
+      "options": {}
+    },
+    {
+      "name": "bundle2",
+      "function": "prepare_bundle2",
+      "weight_expression": "weights",
+      "options": {}
+    }
+  ],
+  "parallel_jobs_parent_line": 6261,
+  "parallel_workers": 4,
+  "wg_preparation_sweep_already_disabled": true,
+  "same_function_different_inputs_not_deduplicated": [
+    {
+      "name": "v10_m32x",
+      "function": "tt_v10_m32x_prepare_m32x",
+      "weight_expression": "weights",
+      "options": {
+        "include_unpooler": false
+      }
+    },
+    {
+      "name": "v11_m32x",
+      "function": "tt_v10_m32x_prepare_m32x",
+      "weight_expression": "{'unpooler': weights['unpooler']}",
+      "options": {
+        "include_unpooler": true
+      }
+    }
+  ],
+  "historical_setup": {
+    "job": "9560c915e85f4f50",
+    "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "prepare_s": 256.896945766,
+    "cached_result": ".decode-measurements\\d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988\\result.json"
+  },
+  "prepare_limit_s": 300,
+  "historical_remaining_s": 43.10305423400001,
+  "new_prepare_measurement": null,
+  "per_stage_gpu_times_available": false,
+  "preparation_optimized": false,
+  "source_capacity_screen": {
+    "packaged_bytes": 893369,
+    "standalone_dense_increment_bytes": 49699,
+    "raw_append_total_bytes": 943068,
+    "remaining_bytes_before_adaptation": 56932,
+    "integration_built": false
+  },
+  "conclusions": [
+    "Source representation now has capacity for the raw D1 increment; no adapter has been built.",
+    "The 300-second whole-layer preparation budget remains unresolved.",
+    "Removing the already disabled WG sweep yields no additional savings.",
+    "Repeated factory names do not prove duplicate builds or equivalent weight layouts.",
+    "D1 must use one whole-layer budget and preserve the existing Decode state and dispatch."
+  ],
+  "gpu_jobs_launched": 0
+}

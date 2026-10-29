@@ -1,0 +1,48 @@
+{
+  "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "source_sha256": "bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+  "parent_bytes": 989018,
+  "bytes": 893369,
+  "saved_bytes": 95649,
+  "source_cap_bytes": 1000000,
+  "source_headroom_bytes": 106631,
+  "encoded_symbol": "_native_moe_CUDA_SRC",
+  "decoded_cuda_bytes": 139873,
+  "decoded_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "encoding": "base64(zlib(level=9))",
+  "zlib_runtime": "1.2.11",
+  "patches": [
+    {
+      "kind": "move_loader_before_first_use",
+      "parent_start": 16108,
+      "parent_end": 16108,
+      "candidate_start": 16108,
+      "candidate_end": 16258,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "replacement_sha256": "ad3b5478768a88064f85e6b953dde7e06aa11f7f2ee18f092fe09a49b62dd3ab"
+    },
+    {
+      "kind": "encode_one_cuda_literal",
+      "parent_start": 16131,
+      "parent_end": 158914,
+      "candidate_start": 16281,
+      "candidate_end": 63414,
+      "original_sha256": "56968e232f5e73ed9d2b7ee172f63eba5fe5b691048434f6ccd3a745bb0aa9eb",
+      "replacement_sha256": "900b943ddae31a1a48c0a3fde1311b8861d71169fb95729a6ab0362e5065db4d"
+    },
+    {
+      "kind": "remove_old_loader_location",
+      "parent_start": 324171,
+      "parent_end": 324320,
+      "candidate_start": 228671,
+      "candidate_end": 228671,
+      "original_sha256": "7fa0c5847b35308b5baf079dd3fcba778e3249592a283d41ab728ea565bb667d",
+      "replacement_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scope": "source representation only; existing loader moved before its first new use",
+  "gpu_verified": false,
+  "evaluated": false,
+  "active_candidate_changed": false,
+  "preparation_time_improvement": "unmeasured; no compilation or preparation work removed"
+}

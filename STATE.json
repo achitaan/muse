@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "User will provide a plan shortly. Hold new GPU evaluations until it is received and reviewed. Prepared Dense169dbce7 is CPU-reverified, with fixed guard and cachedbaseline ready; no job/controller active. Preserve retained kernels and resume the existing broad Goal after incorporating the user plan.",
+  "next_trial": "Local implementation and CPU verification only. Source package bc528949 recovers 95649 bytes; preserve all active/verified sources. Whole-layer preparation headroom, D1 nearby performance and transfer value remain unresolved. No GPU checks, profiling jobs or submissions are authorized.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "awaiting_user_plan",
+  "active_track": "decode_layer_cpu_preparation",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2606,7 +2606,40 @@
   "user_plan_pending": {
     "requested_utc": "2026-10-29T00:28:49.731842+00:00",
     "instruction": "User said: I will soon give you a plan to work on",
-    "new_gpu_evaluations": "hold until plan received and reviewed",
-    "goal_status": "active; no native pause requested"
+    "new_gpu_evaluations": "Not authorized by the latest human reply; older launch directions are superseded",
+    "goal_status": "active; no native pause requested",
+    "status": "received_and_reviewed"
+  },
+  "latest_authorization": {
+    "recorded_utc": "2026-10-29T01:00:32.769737+00:00",
+    "human_reply": "Authorize local implementation; no GPU runs",
+    "local_repository_implementation": true,
+    "cpu_verification": true,
+    "gpu_checks": false,
+    "profiling_jobs": false,
+    "submissions": false,
+    "main_chat_only": true,
+    "preserve_selected_model": true,
+    "global_environment_changes": false,
+    "verified_sources_must_be_preserved": true
+  },
+  "decoder_source_package_cpu": {
+    "source_sha256": "bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+    "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "artifact": "results/decoder-source-package-20261029/bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43/submission.py",
+    "bytes": 893369,
+    "saved_bytes": 95649,
+    "headroom_bytes": 106631,
+    "status": "CPU source equivalence verified; GPU unevaluated; unpromoted",
+    "evidence": "results/decoder-source-package-20261029/bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+    "review": "experiments/prepared/decoder_source_package_review.md",
+    "expanded_module_ast_exact": true,
+    "decoded_cuda_exact": true,
+    "inverse_parent_bytes_exact": true,
+    "mutation_rejections": 3,
+    "preparation_optimized": false,
+    "historical_parent_prepare_s": 256.896945766,
+    "gpu_runs_used": 0,
+    "active_and_verified_files_changed": false
   }
 }
