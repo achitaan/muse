@@ -1,0 +1,19 @@
+{
+  "experiment": "P1 Prefill FA3 num_splits/pack_gqa prepare-time selector",
+  "lane": "omos/other-tracks-20261029",
+  "frozen_before_launch_utc": "2026-10-29T20:32:00Z",
+  "parent": {"path": "best/prefill_verified.py", "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7", "checked_job": "9ca79c7f676f4b63", "checked_speedup": 1.6392907576020057, "scored_job": "23e7c8b4c3e54869", "scored_speedup": 1.6634692445639083},
+  "parent_profile": "results/resumed-prefill-20261028/93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7/profiles/submission.9ca79c7f676f4b63.json",
+  "candidate": "candidates/prefill_fa_select.py",
+  "candidate_sha256": "6d1f43575637910e3d047c496b5833f28ac45c6f10e6f1558b63f4c3531665e0",
+  "change": "prepare times FA3 num_splits in {0,1,2,3,4,8} x pack_gqa in {None,True,False} per scored attention shape (graph replay, cold L2, synthetic inputs with the reference's page layout); a variant is used only if >=3% faster than FA3's heuristic and output rel-L2 < 1e-2. Everything else unchanged.",
+  "affected_rule": "affected = shapes whose key is FA_SELECTed in the run log; controls = the remaining scored shapes",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks pass",
+    "new_path": "log shows FA_CANDIDATE timings and at least one FA_SELECT, else the run is a measurement only",
+    "affected_gm_normalized_min": 1.02,
+    "track_speedup_min": 1.6557
+  },
+  "counts_toward_overall": false
+}
