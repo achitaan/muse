@@ -1,0 +1,35 @@
+{
+  "experiment": "D5 Dense olayer configuration selector for O at 1/8/16/32 tokens",
+  "frozen_before_launch_utc": "2026-10-29T23:06:00Z",
+  "parent": {
+    "sha256": "edc61a1e...765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "candidate_sha256": "a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39",
+  "evidence_basis": "O projection 4.99/5.14/5.48/5.56 us vs 3.5-3.6 us floor at M=1/8/16/32 (6131bc96427e4486); stores guarded by m, TMA reads sized to m",
+  "affected": [
+    [
+      "decode 1",
+      "o"
+    ],
+    [
+      "verify 1",
+      "o"
+    ],
+    [
+      "decode 16",
+      "o"
+    ],
+    [
+      "decode 32",
+      "o"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks",
+    "selection": ">=3% faster in prepare, FP64 error <= 1.5x incumbent",
+    "retention": "affected normalized >= 1.03; single-run wins need confirmation (Dense tiny-shape noise 5-11%)"
+  }
+}
