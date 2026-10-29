@@ -120,7 +120,7 @@ def _lg_compare(plan, state, started):
             stream.synchronize()
             pairs = {r: {} for r in range(7)}
             for repeat, arm, start, end in events:
-                pairs[repeat][arm] = start.elapsed_time(end) * 1000
+                pairs[repeat][arm] = start.elapsed_time(end) * 1_000_000  # CUDA ms -> ns
             samples = [pairs[r][1] / pairs[r][0] for r in range(7)]
             ratio = sorted(samples)[3]
             ratios.append(ratio)

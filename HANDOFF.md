@@ -1,3 +1,20 @@
+> USER PLAN PENDING: hold new GPU evaluations until the promised plan arrives
+> and is reviewed. No job/controller is active. Dense169dbce7 is prepared only.
+> Retained bests unchanged. Keep the broad top50Goal intact; do not launch the
+> next candidate automatically from older next-step instructions below.
+
+> Current plan: OPTIMIZATION_PLAN.md, with ranked work and closed hypotheses.
+> Overall API is ranks-only; simple aggregate models do not establish the exact
+> formula. Do not infer a combined speedup or assume standalone Dense improves
+> overall directly. Public snapshots/cutoffs: results/overall-ranking-screen-20261029/.
+> Dense prepared169dbce7 is now687291bytes. Only ms->ns conversion changed vs
+> unsubmitted4d443b13; CUDA byte-identical, thresholds unchanged, CPUaudit rerun.
+> Evidence: results/dense-cluster-preflight-20261029/. CachedEDC1.527771327x
+> baseline/guard pass without API or new GPU. Next: init candidates/active.py
+> scope with scripts/measure_dense_cluster.py and verify_dense_cluster_evidence.py,
+> then one quota-gated full9/30check. No active job/controller at this checkpoint.
+> All retained bests unchanged. Top50Goal active; main chat only.
+
 > MoE skinny16 CLOSED: retry0b76ce2c3856496e/50dfae55 passed all12GPUprobes,
 > but new/old paired ratios1.3461/1.4563/1.4319 all lost; choice empty.
 > Official5/6/integrity2.38002355x timed incumbents; no new-algorithm gain claim.

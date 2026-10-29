@@ -10,13 +10,17 @@ with full passing coverage. Continue justified optimization, conserving checks
 and scores. Do not run blind sweeps, repeated baselines or cosmetic submissions.
 No paid infrastructure, external model routing, subagents or credential output.
 
-Latest snapshot: overall 146/1438 at 18:24:33 UTC October 28. Decoder publication
-441eb580f3074669 passed full 13/12/integrity at 1.993956388x. MoE remains 54th
-at 2.348299935x. See HANDOFF.md and STATE.json for source identities, evidence,
-remaining work and per-track timestamps. No job or controller is pending.
+Use OPTIMIZATION_PLAN.md for current priorities and closed hypotheses, and
+STATE.json/HANDOFF.md for exact source identities, job handles and snapshots.
+The latest saved overall row is155/1451; the API gives ranks only and its exact
+composition is not established. Do not treat an average of track speedups as
+an official combined speedup. Corrected retained sources differ from older
+Decode/Attention API best rows; preserve that distinction.
 
-The lossless six-bit scale trial passed full correctness but was slower and
-discarded without scoring. Next inspect experiments/prepared/moe_wgs32_review.md
-for one bounded 17..32-token WGS specialization with separate scratch. Its GPU
-implementation and speed are unverified; no new candidate is written yet.
+MoE skinny16 is closed: one compiler repair, passing GPU probes, all three
+paired timing patterns slower, no selected bucket or score. Retain33114871.
+Next is one prepared Dense cluster check against cachedEDC, using exact source
+binding and the fixed full9/30/numerical/paired/affected-control guard. The
+source's event timing units have been corrected before its first GPU run.
+No job or controller is pending at this saved pre-launch checkpoint.
 Preserve numerical precision, exact weights, all routes/keys and fresh outputs.

@@ -1,0 +1,115 @@
+{
+  "models": {
+    "sum_component_times_plus_fixed_remainder": {
+      "exact_rank_matches": 6,
+      "mean_absolute_rank_error": 60.771881461061334,
+      "top50_overlap": 28,
+      "our_predicted_rank": 55,
+      "first10": [
+        "pjmullin3",
+        "colinlikescode",
+        "zzz0906",
+        "mgpai22",
+        "Lurrobert",
+        "mpeng19",
+        "abhishekgahlot2",
+        "olety",
+        "harshagundala",
+        "Maher4Ever"
+      ]
+    },
+    "whole_decode_when_present_else_components": {
+      "exact_rank_matches": 98,
+      "mean_absolute_rank_error": 29.849758787043417,
+      "top50_overlap": 50,
+      "our_predicted_rank": 156,
+      "first10": [
+        "pjmullin3",
+        "colinlikescode",
+        "abhishekgahlot2",
+        "mpeng19",
+        "Aspect5",
+        "mgpai22",
+        "zzz0906",
+        "bomboclatdaru",
+        "PierreNowak",
+        "ntovas"
+      ]
+    },
+    "best_of_aggregate_whole_and_components": {
+      "exact_rank_matches": 102,
+      "mean_absolute_rank_error": 28.815988973121986,
+      "top50_overlap": 50,
+      "our_predicted_rank": 126,
+      "first10": [
+        "pjmullin3",
+        "colinlikescode",
+        "abhishekgahlot2",
+        "mpeng19",
+        "Aspect5",
+        "mgpai22",
+        "zzz0906",
+        "bomboclatdaru",
+        "PierreNowak",
+        "ntovas"
+      ]
+    },
+    "geomean_four_problem_speedups": {
+      "exact_rank_matches": 16,
+      "mean_absolute_rank_error": 69.60303239145416,
+      "top50_overlap": 34,
+      "our_predicted_rank": 88,
+      "first10": [
+        "pjmullin3",
+        "colinlikescode",
+        "zzz0906",
+        "mgpai22",
+        "abhishekgahlot2",
+        "mpeng19",
+        "Lurrobert",
+        "olety",
+        "harshagundala",
+        "Aspect5"
+      ]
+    },
+    "sum_four_problem_times": {
+      "exact_rank_matches": 10,
+      "mean_absolute_rank_error": 49.71330117160579,
+      "top50_overlap": 36,
+      "our_predicted_rank": 105,
+      "first10": [
+        "pjmullin3",
+        "colinlikescode",
+        "zzz0906",
+        "abhishekgahlot2",
+        "mgpai22",
+        "mpeng19",
+        "Lurrobert",
+        "Aspect5",
+        "ntovas",
+        "olety"
+      ]
+    },
+    "best_single_problem_speedup": {
+      "exact_rank_matches": 21,
+      "mean_absolute_rank_error": 129.63749138525156,
+      "top50_overlap": 20,
+      "our_predicted_rank": 100,
+      "first10": [
+        "LeshengJin",
+        "pjmullin3",
+        "zzz0906",
+        "colinlikescode",
+        "mgpai22",
+        "abhishekgahlot2",
+        "Lurrobert",
+        "olety",
+        "schrepa",
+        "harshagundala"
+      ]
+    }
+  },
+  "decode_teams": 881,
+  "decode_relative_order_mismatches": 456,
+  "limitations": "Exploratory fit to public aggregate data; server may combine per-load values unavailable here. No formula is established by correlation."
+}

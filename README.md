@@ -7,10 +7,10 @@ fully checked candidates.
 
 | Track | Latest verified result | State |
 |---|---:|---|
-| Dense projections | 1.527771x scored | Both daily quotas exhausted |
+| Dense projections | 1.527771x scored | Retained; new cluster candidate CPU-prepared |
 | MoE W4A16 | 2.348300x scored | Saved |
-| Whole decoder layer | 1.965325x scored | Saved |
-| Attention decode | 2.562402x scored | Saved |
+| Whole decoder layer | 1.990225x checked | Corrected retained repair; unscored |
+| Attention decode | 2.537001x scored | Corrected retained source |
 | Prefill layer | 1.663469x scored | Saved |
 
 Top 50 remains unmet. Placements are provisional; refresh the official overall
@@ -18,6 +18,7 @@ board rather than treating a historical rank as current.
 
 ## Retrieval and reproduction
 
+- [OPTIMIZATION_PLAN.md](OPTIMIZATION_PLAN.md): ranked next work, measured bottlenecks, closed hypotheses and keep criteria.
 - [STATE.json](STATE.json): exact sources, hashes, job IDs and latest snapshot.
 - [TRACK_NOTES.md](TRACK_NOTES.md): cross-track handoff.
 - [MOE_NOTES.md](MOE_NOTES.md) and [DECODE_NOTES.md](DECODE_NOTES.md): hypotheses,
@@ -37,17 +38,13 @@ Native attention attribution and full Apache license are preserved. See
 assumptions and exact evidence. User requested fewer checks and submissions;
 remaining quota is capacity, not a reason to launch weak experiments.
 
-Latest overall placement snapshot: **150/1432 at 16:48:43 UTC October 28**.
-MoE is **53rd** at its new **2.348299935x** publication. Top 50 overall is unmet.
-All five requested tracks have complete passing coverage; Prefill is excluded
-from overall placement.
+Latest saved public overall row: **155/1451**, October29UTC / October28Toronto.
+The overall API supplies ranks only; exact composition is not established.
+Prefill is excluded. Decode/Attention API best rows still reference older
+publications, not the corrected retained sources shown above.
 
-Latest decoder check: **1.994319167x**, full 13/12/integrity. It remains unpublished;
-the completed published decoder score is **1.965324622x**. See DECODE_NOTES.md
-for implicit-padding FFN fusion, early-load correction and exact MoE transfer.
-MoE's new publication followed two independent checks of identical timed CUDA;
-see MOE_NOTES.md for uncertainty and the rejected backend-selector evidence.
-
-Next unmeasured hypothesis: curated small-batch compressed dense projections,
-described in experiments/prepared/decoder_small_projection_review.md. No job or
-experiment controller is pending. Preserve checked/published source distinctions.
+MoE skinny16 passed its GPU probes but lost all paired timings and was reverted.
+Two checks including a compiler repair, zero scores. Next is the prepared Dense
+cluster packet, with corrected timing units, cached exact baseline and full9/30
+guard. No job or controller is pending at this pre-launch checkpoint. See
+OPTIMIZATION_PLAN.md for the whole-layer impact criteria before any transfer.

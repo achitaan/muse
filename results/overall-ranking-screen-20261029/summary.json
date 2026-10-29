@@ -1,0 +1,44 @@
+{
+  "observed_utc": "2026-10-29T00:26:38.861507+00:00",
+  "public_endpoints": [
+    "https://openkernelchallenge.dev/api/leaderboard/muse_bf16_proj",
+    "https://openkernelchallenge.dev/api/leaderboard/muse_moe_w4a16",
+    "https://openkernelchallenge.dev/api/leaderboard/muse_attention_decode",
+    "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+    "https://openkernelchallenge.dev/api/leaderboard"
+  ],
+  "official_reference": "https://openkernelchallenge.dev/llms.txt",
+  "official_client": "https://openkernelchallenge.dev/assets/index-VBg5pvCv.js",
+  "official_client_sha256": "25be306883059fe907ffba40f3f303427b9f88f861ae9ff62afec57762b72358",
+  "finding": "Overall endpoint returns ranks only; exact composition is not established. Tested simple aggregate formulas fail to reproduce all ranks. A rank coincidence is not evidence of a formula.",
+  "cutoffs": {
+    "muse_bf16_proj": {
+      "rank50_speedup": 1.5542050392599467,
+      "rank50_team": "jurajselep",
+      "our_api_speedup": 1.5277713270942548
+    },
+    "muse_moe_w4a16": {
+      "rank50_speedup": 2.3611191430567233,
+      "rank50_team": "all-seeing-code",
+      "our_api_speedup": 2.348299935218348
+    },
+    "muse_attention_decode": {
+      "rank50_speedup": 2.61323404366052,
+      "rank50_team": "heartkilla",
+      "our_api_speedup": 2.5624023087539505
+    },
+    "muse_decode_layer": {
+      "rank50_speedup": 2.1480019230329894,
+      "rank50_team": "Dagmawi-Beyene",
+      "our_api_speedup": 1.9939563882868192
+    }
+  },
+  "remaining_unknown": "Backend per-load combination/selection and screening policy may matter. Do not treat a simple sum or geomean of track scores as official overall speedup.",
+  "snapshot_file_fetch_utc": {
+    "overall": "2026-10-29T00:21:55.885479+00:00",
+    "muse_bf16_proj": "2026-10-29T00:21:55.016343+00:00",
+    "muse_moe_w4a16": "2026-10-29T00:21:55.217975+00:00",
+    "muse_attention_decode": "2026-10-29T00:21:55.466418+00:00",
+    "muse_decode_layer": "2026-10-29T00:21:55.672098+00:00"
+  }
+}

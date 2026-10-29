@@ -78,7 +78,7 @@ void gqx(at::Tensor W, at::Tensor x, at::Tensor out, int64_t M, int64_t N, int64
                   weights='original BF16, no compression/requantization/new weight copies',
                   router_and_all_small_paths='original incumbents',
                   removed_preparation='only the unselected final WG sweep, via existing base aliases',
-                  gpu_status='unmeasured; Dense check quota currently exhausted')
+                  gpu_status='unmeasured; require positive official check quota before launch')
     (ROOT / '.tools/dense-cluster-source-audit.json').write_bytes(json.dumps(report, indent=2).encode())
     print(json.dumps(report))
 

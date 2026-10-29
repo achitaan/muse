@@ -51,6 +51,9 @@ def main():
     assert cpu['old_wg_choices_proven_empty_from_published_log'] and cpu['no_weight_requantization']
     assert cpu['output_ownership_cases'] == 256 and cpu['dispatch_cases'] == 5134
     assert len(cpu['numerical_cases']) == 20
+    units = read_json(PREFLIGHT / 'timing-unit-audit.json')
+    assert units['source_sha256'] == digest and units['cuda_unchanged']
+    assert units['restored_prepared_sha256'] == '4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662'
     log = body.get('log_tail', '')
     choices = ast.literal_eval(one_marker(log, 'DENSE_CLUSTER_CHOICES '))
     assert choices and tuple(sorted(set(choices))) == choices

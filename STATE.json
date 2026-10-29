@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE skinny16 closed after one compiler repair: all12GPUprobes passed but all three timing patterns lost34.6..45.6%, so no selection/score/Decode transfer. Next: prepared Dense cluster trial. Correct event timing fields to actual ns before first GPU launch, rebuild/re-audit/rebind source, then one full9/30 check with cachedEDCbaseline and fixed guard.",
+  "next_trial": "User will provide a plan shortly. Hold new GPU evaluations until it is received and reviewed. Prepared Dense169dbce7 is CPU-reverified, with fixed guard and cachedbaseline ready; no job/controller active. Preserve retained kernels and resume the existing broad Goal after incorporating the user plan.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "dense_cluster_preparation",
+  "active_track": "awaiting_user_plan",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-29T00:17:11.535651+00:00",
+  "latest_experiment_boundary_utc": "2026-10-29T00:28:22.075821+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2584,5 +2584,29 @@
     "scores_left_each": 10,
     "checks_total": 98,
     "scores_total": 50
+  },
+  "dense_cluster_preflight_20261029": {
+    "source_sha256": "169dbce77be377eea3c49b05428d67d3141c0a6f506f8dd23e57ad4cd7e269e3",
+    "artifact": "results/dense-cluster-preflight-20261029/submission.py",
+    "status": "CPU-reverified; GPU-unmeasured",
+    "timing_units": "nanoseconds, CUDA event ms*1e6",
+    "inverse_recovers_unsubmitted4d_source": true,
+    "cuda_unchanged": true,
+    "acceptance_thresholds_unchanged": true,
+    "baseline": "exact cached scoredEDC1.527771327x"
+  },
+  "planning_document": "OPTIMIZATION_PLAN.md",
+  "overall_formula_investigation": {
+    "evidence": "results/overall-ranking-screen-20261029",
+    "exact_formula": "unverified",
+    "api": "ranks only; no aggregate speedup",
+    "simple_aggregate_models": "insufficient to establish composition",
+    "decision": "Prefer measured whole-Decode impact; component win does not automatically establish overall placement gain"
+  },
+  "user_plan_pending": {
+    "requested_utc": "2026-10-29T00:28:49.731842+00:00",
+    "instruction": "User said: I will soon give you a plan to work on",
+    "new_gpu_evaluations": "hold until plan received and reviewed",
+    "goal_status": "active; no native pause requested"
   }
 }

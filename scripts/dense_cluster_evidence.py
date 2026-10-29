@@ -6,8 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PARENT = 'edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b'
-TRIAL = '4d443b130defa8570503a1dd018e608c23a69f9e635320b81cd31ba4f82e2662'
-PREFLIGHT = ROOT / 'results/dense-cluster-preflight-20261028'
+TRIAL = '169dbce77be377eea3c49b05428d67d3141c0a6f506f8dd23e57ad4cd7e269e3'
+PREFLIGHT = ROOT / 'results/dense-cluster-preflight-20261029'
 TESTS = [('qkv_gate', 1), ('pooler', 7), ('o', 33), ('unpooler', 130),
          ('unpooler', 5), ('router', 8), ('router', 9), ('qkv_gate', 512), ('unpooler', 1000)]
 LAYERS = ('qkv_gate', 'o', 'pooler', 'unpooler', 'router')

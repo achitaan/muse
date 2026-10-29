@@ -1,0 +1,4 @@
+{
+  "previous_evidence_tool_audit": "results/dense-cluster-preflight-20261028/evidence-tool-audit.json",
+  "reason": "Guard evidence schema, full suite and corruption detection unchanged; timing conversion inverse restores the full earlier candidate. Full CPU source/dispatch/ownership/numerical audit rerun for new hash."
+}
