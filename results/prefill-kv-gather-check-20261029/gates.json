@@ -1,0 +1,18 @@
+{
+  "experiment": "P4 Prefill contiguous-KV FA3 selector for full-attention layers",
+  "frozen_before_launch_utc": "2026-10-29T23:14:00Z",
+  "parent": {
+    "sha256": "93e57ab4...aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "candidate_sha256": "5d08eb926b36b190ae789d26db849340b2744fb8d5ad4f4d70f9f906487b5e53",
+  "evidence_basis": "P3 run f2241332a476452e: full-layer shapes weakest (1.427-1.536x); turn 1 80k full: FA3 419 us = 39% of 1068 us; page size 1 forces FA3's non-TMA paged gather",
+  "affected_rule": "full-layer loads whose key is P4_SELECTed and reported P4_USE at runtime",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks",
+    "selection": ">=3% faster in prepare incl. gather, rel-L2 < 1e-2 vs paged output",
+    "retention": "affected normalized >= 1.03; confirmation needed"
+  }
+}
