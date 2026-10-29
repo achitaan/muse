@@ -3092,5 +3092,38 @@
     "decision": "These formulations do not support a GPU diagnostic retry; preserve verified source and seek a distinct runtime mechanism",
     "GPU_jobs_used": 0,
     "runtime_source_changed": false
+  },
+  "moe_disjoint_cut_screen": {
+    "directory": "results/moe-disjoint-cut-screen-20261029/",
+    "models_checked": 53960,
+    "worst_pair_cost_nonincrease_proven_in_model": true,
+    "median_split_units_removed": "0..2 per phase",
+    "median_fixup_participation_reduction": "0..1.64% of fixups, not kernel time",
+    "decision": "park_no_GPU_check",
+    "new_runtime_source": false
+  },
+  "moe_cluster_x_feasibility": {
+    "observed_utc": "2026-10-29T07:48:13.601934+00:00",
+    "review": "experiments/prepared/moe_cluster_x_review.md",
+    "directory": "results/moe-cluster-x-feasibility-20261029/",
+    "models_checked": 1658,
+    "fixed_cluster_CTAs": 2,
+    "initial_proposed_eligibility": "M>=64, PRMT eligible; other paths retained",
+    "logical_source_requests_halved_in_model": true,
+    "destination_bytes_unchanged_in_model": true,
+    "median_max_estimated_CTA_cost_ratio": 1.0,
+    "worst_saved_skew_cost_ratio": 1.0432692307692308,
+    "Hopper_instruction_encoding_preflight_passed": true,
+    "kernel_execution": false,
+    "full_CUDA_candidate_implemented": false,
+    "GPU_job_queued": false,
+    "next_work": [
+      "three-slot event/interleaving model with negative controls",
+      "complete reversible device-source patch",
+      "both BIG NVRTC/SASS preflight",
+      "cooperative-cluster residency/host/query/graph audits before any GPU evaluation"
+    ],
+    "speedup_estimate": null,
+    "HBM_measurement": false
   }
 }

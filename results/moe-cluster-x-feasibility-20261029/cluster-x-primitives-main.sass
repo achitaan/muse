@@ -1,0 +1,176 @@
+	.target	sm_90a
+
+	.elftype	@"ET_EXEC"
+
+
+//--------------------- .text._Z15cluster_x_probePKhPj --------------------------
+	.section	.text._Z15cluster_x_probePKhPj,"ax",@progbits
+	.align	128
+        .global         _Z15cluster_x_probePKhPj
+        .type           _Z15cluster_x_probePKhPj,@function
+        .size           _Z15cluster_x_probePKhPj,(.L_x_8 - _Z15cluster_x_probePKhPj)
+        .other          _Z15cluster_x_probePKhPj,@"STO_CUDA_ENTRY STV_DEFAULT"
+_Z15cluster_x_probePKhPj:
+.text._Z15cluster_x_probePKhPj:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 13
+        /*0000*/                   LDC R1, c[0x0][0x28] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0010*/                   S2R R0, SR_TID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 16
+        /*0020*/                   S2UR UR9, SR_CgaCtaId ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 18
+        /*0030*/                   UMOV UR5, 0x1 ;
+        /*0040*/                   UMOV UR6, 0x8 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 8
+        /*0050*/                   BSSY B0, `(.L_x_0) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0060*/                   ISETP.NE.AND P2, PT, R0, RZ, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 21
+        /*0070*/                   LOP3.LUT P1, RZ, R0, UR9, RZ, 0xfc, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 18
+        /*0080*/                   VOTEU.ALL UP0, P2 ;
+        /*0090*/                   VOTEU.ALL UP1, P2 ;
+        /*00a0*/                   @!UP0 UMOV UR4, 0x400 ;
+        /*00b0*/                   @!UP0 UIADD3 UR6, -UR6, 0x100000, URZ ;
+        /*00c0*/                   @!UP0 USHF.L.U32 UR7, UR6, 0xb, URZ ;
+        /*00d0*/                   @!UP0 USHF.L.U32 UR6, UR6, 0x1, URZ ;
+        /*00e0*/                   @!UP0 ULEA UR8, UR9, UR4, 0x18 ;
+        /*00f0*/                   @!UP0 UIADD3 UR4, -UR5, 0x100000, URZ ;
+        /*0100*/                   @!UP0 USHF.L.U32 UR5, UR4, 0xb, URZ ;
+        /*0110*/                   @!UP0 USHF.L.U32 UR4, UR4, 0x1, URZ ;
+        /*0120*/                   @!UP0 UIADD3 UR10, UR8, 0x8, URZ ;
+        /*0130*/                   VOTEU.ALL UP0, P2 ;
+        /*0140*/                   @!UP0 SYNCS.EXCH.64 URZ, [UR8], UR4 ;
+        /*0150*/                   @!UP1 SYNCS.EXCH.64 URZ, [UR10], UR6 ;
+        /*0160*/              @!P2 NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 20
+        /*0170*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 8
+        /*0180*/                   MEMBAR.ALL.CTA ;
+        /*0190*/                   MEMBAR.ALL.GPU ;
+        /*01a0*/                   ERRBAR;
+        /*01b0*/                   CGAERRBAR ;
+        /*01c0*/                   UCGABAR_ARV ;
+        /*01d0*/                   UCGABAR_WAIT ;
+        /*01e0*/                   CCTL.IVALL ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 21
+        /*01f0*/               @P1 BRA `(.L_x_1) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0200*/                   UMOV UR4, 0x400 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 23
+        /*0210*/                   IMAD.MOV.U32 R2, RZ, RZ, 0x1000 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0220*/                   ULEA UR7, UR9, UR4, 0x18 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0230*/                   PLOP3.LUT P0, PT, PT, PT, PT, 0x80, 0x0 ;
+        /*0240*/                   UMOV UR8, 0x30100 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0250*/                   UMOV UR4, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0260*/                   UIADD3 UR6, UR7, 0x80, URZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0270*/                   UPRMT UR4, UR4, 0x654, UR7 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 23
+        /*0280*/                   MEMBAR.ALL.CTA ;
+        /*0290*/                   MEMBAR.ALL.GPU ;
+        /*02a0*/                   ERRBAR;
+        /*02b0*/                   CGAERRBAR ;
+        /*02c0*/                   SYNCS.ARRIVE.TRANS64 RZ, [UR7], R2 ;
+        /*02d0*/                   MEMBAR.ALL.CTA ;
+        /*02e0*/                   MEMBAR.ALL.GPU ;
+        /*02f0*/                   ERRBAR;
+        /*0300*/                   CGAERRBAR ;
+        /*0310*/                   SYNCS.ARRIVE.TRANS64.RED RZ, [UR4], R2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0320*/                   ULDC.64 UR4, c[0x0][0x210] ;
+.L_x_2:
+        /*0330*/               @P0 ELECT P3, URZ, PT ;
+        /*0340*/                   UBLKCP.S.G.MULTICAST [UR6], [UR4], UR8 ;
+        /*0350*/               @P3 PLOP3.LUT P0, PT, P3, PT, PT, 0x8, 0x0 ;
+        /*0360*/                   PLOP3.LUT P3, PT, PT, PT, PT, 0x8, 0x0 ;
+        /*0370*/               @P0 BRA.U.ANY `(.L_x_2) ;
+.L_x_1:
+        /*0380*/                   BSYNC B0 ;
+.L_x_0:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 11
+        /*0390*/                   UMOV UR4, 0x400 ;
+        /*03a0*/                   SHF.L.U32 R4, RZ, 0x1f, RZ ;
+        /*03b0*/                   ULEA UR4, UR9, UR4, 0x18 ;
+        /*03c0*/                   SYNCS.PHASECHK.TRANS64.TRYWAIT P0, [UR4], R4 ;
+        /*03d0*/               @P0 CCTL.IVALL ;
+        /*03e0*/              @!P0 BRA `(.L_x_3) ;
+.L_x_6:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 27
+        /*03f0*/              @!P2 LDS R5, [UR4+0x80] ;
+        /*0400*/              @!P2 LDC.64 R2, c[0x0][0x218] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0410*/                   IMAD.U32 R6, RZ, RZ, UR4 ;
+        /*0420*/                   ULDC.64 UR4, c[0x0][0x208] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 27
+        /*0430*/                   S2R R7, SR_CgaCtaId ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 29
+        /*0440*/                   LOP3.LUT P0, RZ, R0, 0x1f, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 5
+        /*0450*/              @!P0 VIADD R0, R6, 0x8 ;
+        /*0460*/              @!P0 PRMT R0, RZ, 0x654, R0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 27
+        /*0470*/              @!P2 IMAD.WIDE.U32 R2, R7, 0x4, R2 ;
+        /*0480*/              @!P2 STG.E desc[UR4][R2.64], R5 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 28
+        /*0490*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 31
+        /*04a0*/              @!P0 MEMBAR.ALL.CTA ;
+        /*04b0*/              @!P0 MEMBAR.ALL.GPU ;
+        /*04c0*/              @!P0 ERRBAR;
+        /*04d0*/              @!P0 CGAERRBAR ;
+        /*04e0*/              @!P0 SYNCS.ARRIVE.TRANS64.RED.A1T0 RZ, [R0+URZ], RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 33
+        /*04f0*/               @P1 BRA `(.L_x_4) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 11
+        /*0500*/                   VIADD R3, R6, 0x8 ;
+        /*0510*/                   SYNCS.PHASECHK.TRANS64.TRYWAIT P0, [R3+URZ], R4 ;
+        /*0520*/               @P0 CCTL.IVALL ;
+        /*0530*/              @!P0 BRA `(.L_x_5) ;
+.L_x_4:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 34
+        /*0540*/                   WARPSYNC.ALL ;
+        /*0550*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 8
+        /*0560*/                   MEMBAR.ALL.CTA ;
+        /*0570*/                   MEMBAR.ALL.GPU ;
+        /*0580*/                   ERRBAR;
+        /*0590*/                   CGAERRBAR ;
+        /*05a0*/                   UCGABAR_ARV ;
+        /*05b0*/                   UCGABAR_WAIT ;
+        /*05c0*/                   CCTL.IVALL ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 35
+        /*05d0*/                   EXIT ;
+.L_x_3:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 11
+        /*05e0*/                   SYNCS.PHASECHK.TRANS64.TRYWAIT P0, [UR4], R4 ;
+        /*05f0*/               @P0 CCTL.IVALL ;
+        /*0600*/              @!P0 BRA `(.L_x_3) ;
+        /*0610*/                   BRA `(.L_x_6) ;
+.L_x_5:
+        /*0620*/                   YIELD ;
+        /*0630*/                   SYNCS.PHASECHK.TRANS64.TRYWAIT P0, [R3+URZ], R4 ;
+        /*0640*/               @P0 CCTL.IVALL ;
+        /*0650*/              @!P0 BRA `(.L_x_5) ;
+        /*0660*/                   BRA `(.L_x_4) ;
+.L_x_7:
+        /*0670*/                   BRA `(.L_x_7);
+        /*0680*/                   NOP;
+        /*0690*/                   NOP;
+        /*06a0*/                   NOP;
+        /*06b0*/                   NOP;
+        /*06c0*/                   NOP;
+        /*06d0*/                   NOP;
+        /*06e0*/                   NOP;
+        /*06f0*/                   NOP;
+.L_x_8:
+
+
+//--------------------- SYMBOLS --------------------------
+
+	.type		.nv.reservedSmem.offset0,@object
+	.size		.nv.reservedSmem.offset0,0x4

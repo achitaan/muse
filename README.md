@@ -56,3 +56,9 @@ per track (92 checks and 50 scores total). These are the fresh prelaunch limits
 minus that check, not a later live query. No new check before 07:28 UTC / 3:28 a.m.
 Toronto. Preserve hourly spacing and reserves; no next runtime candidate is
 qualified yet. See OPTIMIZATION_PLAN.md and the latest HANDOFF.md entries.
+
+Current local investigation: two-CTA MoE activation multicast. Its paired-unit
+CPU model and isolated Hopper instruction preflight pass; ring lifetime, full
+kernel resources, cooperative residency and graph validation remain open. No
+speedup or GPU-ready candidate is claimed. See
+[the feasibility review](experiments/prepared/moe_cluster_x_review.md).

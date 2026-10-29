@@ -1,3 +1,18 @@
+> CURRENT LOCAL INVESTIGATION, October 29: cluster2 activation multicast.
+> Source-backed paired-output-unit model passes1658 ownership/capacity fixtures;
+> it halves logical X source requests with unchanged destination bytes. Median
+> maximum estimated CTA cost matches baseline; worst saved skew ratio1.04327.
+> Isolated Hopper multicast/remote-barrier instructions compile, never executed.
+> No full kernel/host candidate or GPU job exists yet. Next: three-slot event
+> model with negative controls, complete reversible source patch, both BIG
+> compiler/resource preflights and cooperative-cluster graph/residency gates.
+> Review: experiments/prepared/moe_cluster_x_review.md. Packet:
+> results/moe-cluster-x-feasibility-20261029/. Initial planned scope M>=64/PRMT;
+> all smaller/ineligible paths retained. No performance prediction or HBM claim.
+> Disjoint cut alignment is parked after53960 models: only0..2 split units
+> removed per phase; see results/moe-disjoint-cut-screen-20261029/.
+> Quota unchanged14MoE/92total checks and50scores. Main chat only; goal active.
+
 > CPU FOLLOW-UP, October 29: three trace-resource formulations compiled locally.
 > DEBUG64 and low-word timers each add eight offline stack bytes relative to
 > the retained proxy; pointer-rematerialization adds sixteen. None earns a GPU

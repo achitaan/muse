@@ -1,0 +1,8 @@
+{
+  "primitive_source_sha256": "7af60f057e9a1415ceed0030858889f3c8f87ed156598d517476f3ed58eca555",
+  "cubin_sha256": "ba623aa7a078dd049100438d95bc9e4a7d89cdb79dcffaeb5921ee359089bd4e",
+  "sass_sha256": "77fd2be8b4c15c09c30e8fca5583752dac7247d469aafbb0cfdf37f90a678cb8",
+  "GPU_jobs": 0,
+  "kernel_execution": false,
+  "scope": "sm_90a instruction-encoding preflight only; one 4096-byte multicast, remote expect_tx and remote empty arrivals. No ring, graph, numerical or full-kernel validation."
+}

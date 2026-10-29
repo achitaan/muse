@@ -1,3 +1,10 @@
+> CURRENT LOCAL PATH: fixed cluster2 activation multicast, initially M>=64/PRMT.
+> Paired-unit CPU ownership model and Hopper instruction-encoding probe pass;
+> three-slot lifetime/progress, full native patch, resources and cooperative
+> graph launch remain unfinished. No GPU candidate/job is ready or queued.
+> Read experiments/prepared/moe_cluster_x_review.md and the latest HANDOFF.md.
+> Disjoint cut alignment is parked after a small logical-work reduction.
+
 > LATEST CHECKPOINT, October 29: repaired MoE paired stores compiled and passed
 > synthetic correctness but failed the fixed material performance gate as
 > 5262c2c560c94197. Reverted to33114871; no score or Decode transfer. Evidence:

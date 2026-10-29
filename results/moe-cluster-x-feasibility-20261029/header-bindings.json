@@ -1,0 +1,13 @@
+{
+  "pinned_header_sha256": {
+    "driver_types.h": "4732502ab4f6fbc349ebdc7a52c3c3ef7963540a5d1647b2a22ddf888757eb8a",
+    "cuda_runtime_api.h": "1bf6712fb60127d784534ec99f78d25166a4030c9e483bfcb715e4ac99d580e7",
+    "cccl/cuda/__ptx/instructions/generated/mbarrier_arrive_expect_tx.h": "93e556c2d49d4e389ea2ccb5dc6e8184b6e90eb8212ff1d7bda58326a7b0bab1"
+  },
+  "attributes_declared_for_graph_nodes_and_launches": [
+    "cudaLaunchAttributeCooperative",
+    "cudaLaunchAttributeClusterDimension"
+  ],
+  "combined_launch_runtime_validation": false,
+  "relaxed_operations_not_selected_or_proven_safe_by_existence": true
+}

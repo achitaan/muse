@@ -1,0 +1,880 @@
+
+64-bit ELF: type=ET_EXEC, ABI=8, sm=90a, toolkit=13.0, flags=0xa005a04
+Sections:
+Index Offset   Size ES Align                      Type    Flags Link     Info Name
+    1     40    221  0  1                       STRTAB        0    0        0 .shstrtab
+    2    299    289  0  1                       STRTAB        0    0        0 .strtab
+    3    528    168 18  8                       SYMTAB        0    2        f .symtab
+    4    690     68  0  1                     PROGBITS        0    0        0 .debug_frame
+    5    6f8    18d  0  1                     PROGBITS        0    0        0 .debug_line
+    6    885     36  0  1                     PROGBITS        0    0        0 .debug_str
+    7    8bb     dc  0  1                     PROGBITS        0    0        0 .nv_debug_line_sass
+    8    997    98a  0  1                     PROGBITS        0    0        0 .nv_debug_ptx_txt
+    9   1324     b4  0  4                         NOTE  2000000    0        0 .note.nv.tkinfo
+    a   13d8     20  0  4                         NOTE  1000040    9        c .note.nv.cuinfo
+    b   13f8     24  0  4                    CUDA_INFO        0    3        0 .nv.info
+    c   141c     24  0  4             CUDA_COMPAT_INFO        0    0        0 .nv.compat
+    d   1440     fc  0  4                    CUDA_INFO       40    3       13 .nv.info._Z15cluster_x_probePKhPj
+    e   153c     20  8  4               CUDA_CALLGRAPH        0    3        0 .nv.callgraph
+    f   1560      0 18  8                         RELA       40    3       13 .rela.text._Z15cluster_x_probePKhPj
+   10   1560     18 18  8                         RELA       40    3        5 .rela.debug_line
+   11   1578     18 18  8                         RELA       40    3        7 .rela.nv_debug_line_sass
+   12   1590     18 18  8                         RELA       40    3        4 .rela.debug_frame
+   13   1600    700  0 80                     PROGBITS        6    3        d .text._Z15cluster_x_probePKhPj
+   14   1d00    400  0 80                       NOBITS       43    0       13 .nv.shared._Z15cluster_x_probePKhPj
+   15   1d00      0  0  1                       NOBITS        3    0        0 .nv.shared.reserved.0
+   16   1d00    220  0  4                     PROGBITS       42    0       13 .nv.constant0._Z15cluster_x_probePKhPj
+
+.section .strtab
+
+.section .shstrtab
+
+.section .symtab
+ index           value           size      info    other  shndx    name  
+   0               0               0        0        0      0     (null)
+ 0x1               0               0      0x3        0    0x9     .note.nv.tkinfo
+ 0x2               0               0      0x3        0    0xa     .note.nv.cuinfo
+ 0x3               0               0      0x3        0   0x13     .text._Z15cluster_x_probePKhPj
+ 0x4               0             0x4     0x21        0      0     .nv.reservedSmem.offset0
+ 0x5               0               0     0x20     0xa0   0x15     __nv_reservedSMEM_offset_0_alias
+ 0x6               0               0        0      0x1      0     (null)
+ 0x7               0               0      0x3        0    0x4     .debug_frame
+ 0x8               0               0      0x3        0    0x5     .debug_line
+ 0x9               0               0      0x3        0    0x6     .debug_str
+ 0xa               0               0      0x3        0    0x7     .nv_debug_line_sass
+ 0xb               0               0      0x3        0    0x8     .nv_debug_ptx_txt
+ 0xc               0               0      0x3        0    0xe     .nv.callgraph
+ 0xd               0           0x700     0x12     0x10   0x13     _Z15cluster_x_probePKhPj
+ 0xe               0               0      0x3        0   0x16     .nv.constant0._Z15cluster_x_probePKhPj
+
+
+.nv.shared._Z15cluster_x_probePKhPj
+   No data to be dumped. 
+
+
+.nv.shared.reserved.0
+   No data to be dumped. 
+
+
+.nv.constant0._Z15cluster_x_probePKhPj
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+0x00000000 0x00000000 0x00000000 0x00000000
+
+
+
+.section .note.nv.tkinfo
+Entry: 1
+  Owner                  Data size        Description
+  NVIDIA Corp            156              NVIDIA CUDA Toolkit Information
+	Note Version: 2
+	Tool Name: ptxas
+	Tool Version: Cuda compilation tools, release 13.0, V13.0.88
+	Tool Branch: Build system must define TOOLS_VERSION_EXTENDED
+	Tool Command Line Arguments: -v  -lineinfo  -arch sm_90a 
+
+
+.section .note.nv.cuinfo
+Entry: 1
+  Owner                  Data size        Description
+  NVIDIA Corp            8                NVIDIA CUDA Information
+	Note Version: 2
+	CUDA Virtual SM: sm_90
+	CUDA Tool Kit Version: 13.0
+
+
+.nv.info
+	<0x1>
+	Attribute:	EIATTR_REGCOUNT
+	Format:	EIFMT_SVAL
+	Value:	function: _Z15cluster_x_probePKhPj(0xd)	register count: 10
+	<0x2>
+	Attribute:	EIATTR_FRAME_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z15cluster_x_probePKhPj(0xd)	frame size: 0x0
+	<0x3>
+	Attribute:	EIATTR_MIN_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	function: _Z15cluster_x_probePKhPj(0xd)	min stack size: 0x0
+
+
+.nv.compat
+	<0x1>
+	Attribute:	EICOMPAT_ATTR_CUDA_ACCELERATOR_TARGET
+	Format:	EIFMT_BVAL
+	Value:	0x1
+	<0x2>
+	Attribute:	EICOMPAT_ATTR_ISA_CLASS
+	Format:	EIFMT_BVAL
+	Value:	0x2
+	<0x3>
+	Attribute:	EICOMPAT_ATTR_INST_TCGEN05_MMA
+	Format:	EIFMT_BVAL
+	Value:	0x5
+	<0x4>
+	Attribute:	unknown Attribute
+	Format:	EIFMT_HVAL
+	Value:	0x101
+	<0x5>
+	Attribute:	EICOMPAT_ATTR_INST_TENSORMAP_V1
+	Format:	EIFMT_BVAL
+	Value:	0x0
+	<0x6>
+	Attribute:	EICOMPAT_ATTR_ENABLE_OPPORTUNISTIC_FINALIZATION
+	Format:	EIFMT_BVAL
+	Value:	0x1
+	<0x7>
+	Attribute:	EICOMPAT_ATTR_CAN_FASTPATH_FINALIZE
+	Format:	EIFMT_SVAL
+	Value:	0x0 0x0 
+
+
+.nv.info._Z15cluster_x_probePKhPj
+	<0x1>
+	Attribute:	EIATTR_CUDA_API_VERSION
+	Format:	EIFMT_SVAL
+	Value:	0x82 
+	<0x2>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x1	Offset  : 0x8	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x3>
+	Attribute:	EIATTR_KPARAM_INFO
+	Format:	EIFMT_SVAL
+	Value:	Index : 0x0	Ordinal : 0x0	Offset  : 0x0	Size    : 0x8
+		Pointee's logAlignment : 0x0	Space : 0x0	cbank : 0x1f	Parameter Space : CBANK	
+	<0x4>
+	Attribute:	EIATTR_EXPLICIT_CLUSTER
+	Format:	EIFMT_NVAL
+	<0x5>
+	Attribute:	EIATTR_CTA_PER_CLUSTER
+	Format:	EIFMT_SVAL
+	Value:	0x2 0x1 0x1 
+	<0x6>
+	Attribute:	EIATTR_SPARSE_MMA_MASK
+	Format:	EIFMT_HVAL
+	Value:	0x0
+	<0x7>
+	Attribute:	EIATTR_MAXREG_COUNT
+	Format:	EIFMT_HVAL
+	Value:	0xff
+	<0x8>
+	Attribute:	EIATTR_NUM_BARRIERS
+	Format:	EIFMT_BVAL
+	Value:	0x1
+	<0x9>
+	Attribute:	unknown Attribute
+	Format:	EIFMT_HVAL
+	Value:	0x101
+	<0x10>
+	Attribute:	EIATTR_INT_WARP_WIDE_INSTR_OFFSETS
+	Format:	EIFMT_SVAL
+	Value:	0x80 0x90 0x130 
+	<0x11>
+	Attribute:	EIATTR_MBARRIER_INSTR_OFFSETS
+	Format:	EIFMT_SVAL
+	Value:	
+	0x140	:	Instruction Kind : MBARRIER_INIT	(R255 + UR8)	Stride : MBARRIER_STRIDE_X4
+	0x150	:	Instruction Kind : MBARRIER_INIT	(R255 + UR10)	Stride : MBARRIER_STRIDE_X4
+	0x3c0	:	Instruction Kind : MBARRIER_TRY_WAIT_PARITY	(R255 + UR4)	Stride : MBARRIER_STRIDE_X4
+	0x4e0	:	Instruction Kind : MBARRIER_ARRIVE	(R0 + UR63)	Stride : MBARRIER_STRIDE_X4
+	0x510	:	Instruction Kind : MBARRIER_TRY_WAIT_PARITY	(R3 + UR63)	Stride : MBARRIER_STRIDE_X4
+	0x5e0	:	Instruction Kind : MBARRIER_TRY_WAIT_PARITY	(R255 + UR4)	Stride : MBARRIER_STRIDE_X4
+	0x630	:	Instruction Kind : MBARRIER_TRY_WAIT_PARITY	(R3 + UR63)	Stride : MBARRIER_STRIDE_X4
+	<0x12>
+	Attribute:	EIATTR_NUM_MBARRIERS
+	Format:	EIFMT_HVAL
+	Value:	0x2
+	<0x13>
+	Attribute:	EIATTR_EXIT_INSTR_OFFSETS
+	Format:	EIFMT_SVAL
+	Value:	0x5d0 
+	<0x14>
+	Attribute:	EIATTR_CRS_STACK_SIZE
+	Format:	EIFMT_SVAL
+	Value:	0x0 
+	<0x15>
+	Attribute:	EIATTR_CBANK_PARAM_SIZE
+	Format:	EIFMT_HVAL
+	Value:	0x10
+	<0x16>
+	Attribute:	EIATTR_PARAM_CBANK
+	Format:	EIFMT_SVAL
+	Value:	0xe 0x100210 
+	<0x17>
+	Attribute:	EIATTR_SW_WAR
+	Format:	EIFMT_SVAL
+	Value:	0x8 
+
+
+.nv.callgraph
+ <0,-1>
+ <0,-2>
+ <0,-3>
+ <0,-4>
+
+
+.text._Z15cluster_x_probePKhPj
+lmem=0	smem=1024
+0xff017b82 0x00000a00 0x00000800 0x000fe200
+0x00007919 0x00000000 0x00002100 0x000e2e00
+0x000979c3 0x00000000 0x00008800 0x000e6200
+0x00057882 0x00000001 0x00000000 0x000fe200
+0x00067882 0x00000008 0x00000000 0x000fe200
+0x00007945 0x00000330 0x03800000 0x000fe200
+0x0000720c 0x000000ff 0x03f45270 0x001fc400
+0x00ff7c12 0x00000009 0x0f82fcff 0x002fd600
+0x003f7886 0x00000000 0x01000000 0x000fe200
+0x003f7886 0x00000000 0x01020000 0x000fc800
+0x00048882 0x00000400 0x00000000 0x000fe200
+0x06068890 0x00100000 0x0fffe13f 0x000fc800
+0x06078899 0x0000000b 0x0800063f 0x000fe400
+0x06068899 0x00000001 0x0800063f 0x000fe400
+0x09088291 0x00000004 0x0f8ec03f 0x000fe400
+0x05048890 0x00100000 0x0fffe13f 0x000fc800
+0x04058899 0x0000000b 0x0800063f 0x000fe400
+0x04048899 0x00000001 0x0800063f 0x000fe400
+0x080a8890 0x00000008 0x0fffe03f 0x000fe200
+0x003f7886 0x00000000 0x01000000 0x000fd200
+0x083f85b2 0x00000004 0x08000100 0x00006400
+0x0a3f95b2 0x00000006 0x08000100 0x00006200
+0x0000a918 0x00000000 0x00000000 0x000fe200
+0x00007b1d 0x00000000 0x00010000 0x002fec00
+0x00007992 0x00000000 0x00008000 0x0003ec00
+0x00007992 0x00000000 0x0000a000 0x002fec00
+0x000079ab 0x00000000 0x00000000 0x000fc000
+0x000075ab 0x00000000 0x00000000 0x000ff000
+0x000079c7 0x00000000 0x08000000 0x000fec00
+0x00007dc7 0x00000000 0x08000000 0x000fe200
+0xff00798f 0x00000000 0x02000000 0x000fe200
+0x00601947 0x00000000 0x03800000 0x001fea00
+0x00047882 0x00000400 0x00000000 0x000fe200
+0xff027424 0x00001000 0x078e00ff 0x000fe200
+0x09077291 0x00000004 0x0f8ec03f 0x000fe200
+0x0000781c 0x00000000 0x03f0f070 0x000fe200
+0x00087882 0x00030100 0x00000000 0x000fe200
+0x00047882 0x00000001 0x00000000 0x000fe200
+0x07067890 0x00000080 0x0fffe03f 0x000fe400
+0x04047896 0x00000654 0x08000007 0x000fe200
+0x00007992 0x00000000 0x00008000 0x0001ec00
+0x00007992 0x00000000 0x0000a000 0x001fec00
+0x000079ab 0x00000000 0x00000000 0x000fc000
+0x000075ab 0x00000000 0x00000000 0x000fec00
+0xffff79a7 0x00000002 0x08000007 0x0001e200
+0x00007992 0x00000000 0x00008000 0x0003ec00
+0x00007992 0x00000000 0x0000a000 0x002fec00
+0x000079ab 0x00000000 0x00000000 0x000fc000
+0x000075ab 0x00000000 0x00000000 0x000fec00
+0xffff79a7 0x00000002 0x08000404 0x0001e200
+0x00047ab9 0x00008400 0x00000a00 0x000fca00
+0x003f082f 0x00000000 0x03860000 0x000fe200
+0x040073ba 0x00000006 0x08000a08 0x0003d800
+0x0000381c 0x00000000 0x01f0e170 0x000fe400
+0x0000781c 0x00000000 0x03f6e170 0x000fd600
+0x00ec0947 0xfffffffd 0x0393ffff 0x002fea00
+0x00007941 0x00000000 0x03800000 0x000fea00
+0x00047882 0x00000400 0x00000000 0x000fe200
+0xff047819 0x0000001f 0x000006ff 0x000fe200
+0x09047291 0x00000004 0x0f8ec03f 0x000fd200
+0xff0075a7 0x00000004 0x08000144 0x000e6400
+0xff00098f 0x00000000 0x02000000 0x002fe200
+0x007c8947 0x00000000 0x03800000 0x000fea00
+0xff05a984 0x00008004 0x08000800 0x000e6200
+0xff02ab82 0x00008600 0x00000a00 0x001e2200
+0xff067e24 0x00000004 0x0f8e00ff 0x000fe200
+0x00047ab9 0x00008200 0x00000a00 0x000fe200
+0x00077919 0x00000000 0x00008800 0x000e2200
+0x00ff7812 0x0000001f 0x0780c0ff 0x000fda00
+0x06008836 0x00000008 0x00000000 0x000fca00
+0xff008816 0x00000654 0x00000000 0x000fe200
+0x0702a825 0x00000004 0x078e0002 0x001fca00
+0x0200a986 0x00000005 0x0c101904 0x0021e200
+0x00007b1d 0x00000000 0x00010000 0x000fec00
+0x00008992 0x00000000 0x00008000 0x0003ec00
+0x00008992 0x00000000 0x0000a000 0x002fec00
+0x000089ab 0x00000000 0x00000000 0x000fc000
+0x000085ab 0x00000000 0x00000000 0x000fec00
+0x00ff89a7 0x000000ff 0x0810043f 0x0001e200
+0x00101947 0x00000000 0x03800000 0x000fea00
+0x06037836 0x00000008 0x00000000 0x001fc800
+0x030075a7 0x00000004 0x0800017f 0x000e2400
+0xff00098f 0x00000000 0x02000000 0x001fe200
+0x00388947 0x00000000 0x03800000 0x000fea00
+0x00007948 0x00000000 0x03800000 0x000fea00
+0x00007b1d 0x00000000 0x00010000 0x000fec00
+0x00007992 0x00000000 0x00008000 0x0003ec00
+0x00007992 0x00000000 0x0000a000 0x002fec00
+0x000079ab 0x00000000 0x00000000 0x000fc000
+0x000075ab 0x00000000 0x00000000 0x000ff000
+0x000079c7 0x00000000 0x08000000 0x000fec00
+0x00007dc7 0x00000000 0x08000000 0x000fe200
+0xff00798f 0x00000000 0x02000000 0x000fe200
+0x0000794d 0x00000000 0x03800000 0x000fea00
+0xff0075a7 0x00000004 0x08000144 0x000e6400
+0xff00098f 0x00000000 0x02000000 0x002fe200
+0x00f48947 0xfffffffc 0x0383ffff 0x000fea00
+0x00747947 0xfffffffc 0x0383ffff 0x000fea00
+0x00007946 0x00000000 0x03800000 0x000fea00
+0x030075a7 0x00000004 0x0800017f 0x000e2400
+0xff00098f 0x00000000 0x02000000 0x001fe200
+0x00f08947 0xfffffffc 0x0383ffff 0x000fea00
+0x00b47947 0xfffffffc 0x0383ffff 0x000fea00
+0x00fc7947 0xfffffffc 0x0383ffff 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+0x00007918 0x00000000 0x00000000 0x000fc000
+
+
+.section .rela.text._Z15cluster_x_probePKhPj	RELA
+
+.section .debug_str
+_Z12cluster_syncv
+_Z11remote_addrjj
+_Z12cluster_waitj
+
+.section .debug_line
+  Offset:                         0
+  Length:                         393
+  DWARF Version:                   2
+  Prologue Length:                90
+  Minimum instruction length:      1
+  Initial value of is_stmt:        1
+  Line base:                       -5
+  Line range:                      14
+  Opcode base:                     10
+
+Opcodes:
+  Opcode 1 has 0 args
+  Opcode 2 has 1 args
+  Opcode 3 has 1 args
+  Opcode 4 has 1 args
+  Opcode 5 has 1 args
+  Opcode 6 has 0 args
+  Opcode 7 has 0 args
+  Opcode 8 has 0 args
+  Opcode 9 has 1 args
+
+The Directory Table:
+ C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\
+
+The File Name Table:
+ Entry   Dir         Time    Size     Name
+     1     1            0       0     device-preflight.cu
+
+Offset in .debug_str:            0
+
+Line Number Statements:
+  Extended opcode 2: set Address to 0x0
+  Set File Name to entry 1 in the File Name Table
+  Advance Line by 12 to 13
+  Copy
+  Special opcode 233: advance Address by 16 to 0x10 and Line by 4 to 17
+  Special opcode 228: advance Address by 16 to 0x20 and Line by -1 to 16
+  Special opcode 231: advance Address by 16 to 0x30 and Line by 2 to 18
+  Advance Line by 2 to 20
+  Advance PC by 32 to 0x50
+  Copy
+  Extended opcode 144: Set context to 5 and function offset to 0x0
+  Advance Line by -12 to 8
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 9 to 17
+  Advance PC by 16 to 0x60
+  Copy
+  Special opcode 233: advance Address by 16 to 0x70 and Line by 4 to 21
+  Special opcode 226: advance Address by 16 to 0x80 and Line by -3 to 18
+  Advance Line by 2 to 20
+  Advance PC by 240 to 0x170
+  Copy
+  Extended opcode 144: Set context to 5 and function offset to 0x0
+  Advance Line by -12 to 8
+  Advance PC by 16 to 0x180
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 13 to 21
+  Advance PC by 112 to 0x1f0
+  Copy
+  Special opcode 230: advance Address by 16 to 0x200 and Line by 1 to 22
+  Extended opcode 144: Set context to 13 and function offset to 0x12
+  Advance Line by -17 to 5
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 18 to 23
+  Advance PC by 16 to 0x210
+  Copy
+  Extended opcode 144: Set context to 13 and function offset to 0x12
+  Advance Line by -18 to 5
+  Advance PC by 16 to 0x220
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 19 to 24
+  Advance PC by 16 to 0x230
+  Copy
+  Extended opcode 144: Set context to 13 and function offset to 0x12
+  Advance Line by -19 to 5
+  Advance PC by 32 to 0x250
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 19 to 24
+  Advance PC by 16 to 0x260
+  Copy
+  Extended opcode 144: Set context to 13 and function offset to 0x12
+  Advance Line by -19 to 5
+  Advance PC by 16 to 0x270
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 18 to 23
+  Advance PC by 16 to 0x280
+  Copy
+  Advance Line by 1 to 24
+  Advance PC by 160 to 0x320
+  Copy
+  Advance Line by 2 to 26
+  Advance PC by 112 to 0x390
+  Copy
+  Extended opcode 144: Set context to 23 and function offset to 0x24
+  Advance Line by -15 to 11
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 16 to 27
+  Advance PC by 96 to 0x3f0
+  Copy
+  Advance Line by 3 to 30
+  Advance PC by 32 to 0x410
+  Copy
+  Extended opcode 144: Set context to 26 and function offset to 0x12
+  Advance Line by -25 to 5
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 22 to 27
+  Advance PC by 32 to 0x430
+  Copy
+  Special opcode 231: advance Address by 16 to 0x440 and Line by 2 to 29
+  Extended opcode 144: Set context to 26 and function offset to 0x12
+  Advance Line by -24 to 5
+  Advance PC by 16 to 0x450
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 22 to 27
+  Advance PC by 32 to 0x470
+  Copy
+  Advance Line by 1 to 28
+  Advance PC by 32 to 0x490
+  Copy
+  Special opcode 232: advance Address by 16 to 0x4a0 and Line by 3 to 31
+  Advance Line by 2 to 33
+  Advance PC by 80 to 0x4f0
+  Copy
+  Advance PC by 16 to 0x500
+  Copy
+  Extended opcode 144: Set context to 35 and function offset to 0x24
+  Advance Line by -22 to 11
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 23 to 34
+  Advance PC by 64 to 0x540
+  Copy
+  Advance PC by 32 to 0x560
+  Copy
+  Extended opcode 144: Set context to 38 and function offset to 0x0
+  Advance Line by -26 to 8
+  Copy
+  Extended opcode 144: Set context to 0 and function offset to 0x0
+  Advance Line by 27 to 35
+  Advance PC by 112 to 0x5d0
+  Copy
+  Extended opcode 144: Set context to 23 and function offset to 0x24
+  Advance Line by -24 to 11
+  Advance PC by 16 to 0x5e0
+  Copy
+  Advance PC by 288 to 0x700
+  Extended opcode 1: End of Sequence
+
+
+
+.section .rela.debug_line	RELA
+0x67    _Z15cluster_x_probePKhPj    R_CUDA_64    0x0
+
+.section .nv_debug_line_sass
+  Offset:                         0
+  Length:                         216
+  DWARF Version:                   2
+  Prologue Length:                16
+  Minimum instruction length:      1
+  Initial value of is_stmt:        1
+  Line base:                       -5
+  Line range:                      14
+  Opcode base:                     10
+
+Opcodes:
+  Opcode 1 has 0 args
+  Opcode 2 has 1 args
+  Opcode 3 has 1 args
+  Opcode 4 has 1 args
+  Opcode 5 has 1 args
+  Opcode 6 has 0 args
+  Opcode 7 has 0 args
+  Opcode 8 has 0 args
+  Opcode 9 has 1 args
+
+The Directory Table:
+
+The File Name Table:
+ Entry   Dir         Time    Size     Name
+
+Line Number Statements:
+  Extended opcode 2: set Address to 0x0
+  Set File Name to entry 0 in the File Name Table
+  Advance Line by 21 to 22
+  Copy
+  Advance Line by 15 to 37
+  Advance PC by 16 to 0x10
+  Copy
+  Special opcode 226: advance Address by 16 to 0x20 and Line by -3 to 34
+  Advance Line by 13 to 47
+  Advance PC by 16 to 0x30
+  Copy
+  Advance Line by 9 to 56
+  Advance PC by 32 to 0x50
+  Copy
+  Advance Line by -18 to 38
+  Advance PC by 16 to 0x60
+  Copy
+  Advance Line by 22 to 60
+  Advance PC by 16 to 0x70
+  Copy
+  Advance Line by -18 to 42
+  Advance PC by 16 to 0x80
+  Copy
+  Special opcode 234: advance Address by 16 to 0x90 and Line by 5 to 47
+  Special opcode 224: advance Address by 16 to 0xa0 and Line by -5 to 42
+  Special opcode 234: advance Address by 16 to 0xb0 and Line by 5 to 47
+  Advance Line by -5 to 42
+  Advance PC by 48 to 0xe0
+  Copy
+  Special opcode 234: advance Address by 16 to 0xf0 and Line by 5 to 47
+  Advance Line by -3 to 44
+  Advance PC by 48 to 0x120
+  Copy
+  Special opcode 232: advance Address by 16 to 0x130 and Line by 3 to 47
+  Advance Line by 5 to 52
+  Advance PC by 64 to 0x170
+  Copy
+  Special opcode 233: advance Address by 16 to 0x180 and Line by 4 to 56
+  Advance Line by 5 to 61
+  Advance PC by 112 to 0x1f0
+  Copy
+  Special opcode 233: advance Address by 16 to 0x200 and Line by 4 to 65
+  Special opcode 237: advance Address by 16 to 0x210 and Line by 8 to 73
+  Advance Line by -8 to 65
+  Advance PC by 16 to 0x220
+  Copy
+  Advance Line by 15 to 80
+  Advance PC by 16 to 0x230
+  Copy
+  Advance Line by -11 to 69
+  Advance PC by 32 to 0x250
+  Copy
+  Special opcode 236: advance Address by 16 to 0x260 and Line by 7 to 76
+  Advance Line by -7 to 69
+  Advance PC by 16 to 0x270
+  Copy
+  Special opcode 233: advance Address by 16 to 0x280 and Line by 4 to 73
+  Advance Line by 7 to 80
+  Advance PC by 160 to 0x320
+  Copy
+  Advance Line by 6 to 86
+  Advance PC by 112 to 0x390
+  Copy
+  Special opcode 230: advance Address by 16 to 0x3a0 and Line by 1 to 87
+  Special opcode 228: advance Address by 16 to 0x3b0 and Line by -1 to 86
+  Special opcode 230: advance Address by 16 to 0x3c0 and Line by 1 to 87
+  Advance Line by 7 to 94
+  Advance PC by 48 to 0x3f0
+  Copy
+  Special opcode 234: advance Address by 16 to 0x400 and Line by 5 to 99
+  Advance Line by 13 to 112
+  Advance PC by 16 to 0x410
+  Copy
+  Advance Line by -90 to 22
+  Advance PC by 16 to 0x420
+  Copy
+  Advance Line by 77 to 99
+  Advance PC by 16 to 0x430
+  Copy
+  Special opcode 237: advance Address by 16 to 0x440 and Line by 8 to 107
+  Special opcode 234: advance Address by 16 to 0x450 and Line by 5 to 112
+  Special opcode 233: advance Address by 16 to 0x460 and Line by 4 to 116
+  Advance Line by -17 to 99
+  Advance PC by 16 to 0x470
+  Copy
+  Special opcode 230: advance Address by 16 to 0x480 and Line by 1 to 100
+  Special opcode 233: advance Address by 16 to 0x490 and Line by 4 to 104
+  Advance Line by 16 to 120
+  Advance PC by 16 to 0x4a0
+  Copy
+  Advance Line by 5 to 125
+  Advance PC by 80 to 0x4f0
+  Copy
+  Special opcode 233: advance Address by 16 to 0x500 and Line by 4 to 129
+  Special opcode 230: advance Address by 16 to 0x510 and Line by 1 to 130
+  Advance Line by 7 to 137
+  Advance PC by 48 to 0x540
+  Copy
+  Advance Line by 4 to 141
+  Advance PC by 32 to 0x560
+  Copy
+  Advance Line by 3 to 144
+  Advance PC by 112 to 0x5d0
+  Copy
+  Advance Line by -55 to 89
+  Advance PC by 16 to 0x5e0
+  Copy
+  Advance Line by 41 to 130
+  Advance PC by 64 to 0x620
+  Copy
+  Special opcode 231: advance Address by 16 to 0x630 and Line by 2 to 132
+  Advance PC by 208 to 0x700
+  Extended opcode 1: End of Sequence
+
+
+
+.section .rela.nv_debug_line_sass	RELA
+0x1d    _Z15cluster_x_probePKhPj    R_CUDA_64    0x0
+
+.section .nv_debug_ptx_txt
+
+
+
+
+
+
+
+
+.version 9.0
+.target sm_90a
+.address_size 64
+
+
+.extern .shared .align 128 .b8 raw[];
+
+.visible .entry _Z15cluster_x_probePKhPj(
+.param .u64 _Z15cluster_x_probePKhPj_param_0,
+.param .u64 _Z15cluster_x_probePKhPj_param_1
+)
+.explicitcluster
+.reqnctapercluster 2, 1, 1
+{
+.reg .pred 	%p<6>;
+.reg .b16 	%rs<2>;
+.reg .b32 	%r<22>;
+.reg .b64 	%rd<16>;
+
+
+
+ld.param.u64 	%rd1, [_Z15cluster_x_probePKhPj_param_0];
+ld.param.u64 	%rd2, [_Z15cluster_x_probePKhPj_param_1];
+
+
+mov.u32 %r4, %cluster_ctarank;
+
+
+mov.u32 	%r2, %tid.x;
+setp.ne.s32 	%p1, %r2, 0;
+@%p1 bra 	$L__BB0_2;
+
+
+mov.u64 	%rd3, raw;
+cvt.u32.u64 	%r5, %rd3;
+add.s64 	%rd4, %rd3, 8;
+cvt.u32.u64 	%r6, %rd4;
+
+mbarrier.init.shared::cta.b64 [%r5], 1; mbarrier.init.shared::cta.b64 [%r6], 8; fence.mbarrier_init.release.cluster;
+
+
+$L__BB0_2:
+
+bar.sync 	0;
+
+
+
+barrier.cluster.arrive.aligned; barrier.cluster.wait.aligned;
+
+
+or.b32  	%r3, %r4, %r2;
+setp.ne.s32 	%p2, %r3, 0;
+@%p2 bra 	$L__BB0_4;
+
+
+
+mov.u64 	%rd6, raw;
+cvt.u32.u64 	%r13, %rd6;
+mov.u32 	%r9, 1;
+
+mapa.shared::cluster.u32 %r7, %r13, %r9;
+
+
+
+mbarrier.arrive.expect_tx.release.cluster.shared::cta.b64 _, [%r13], 4096; mbarrier.arrive.expect_tx.release.cluster.shared::cluster.b64 _, [%r7], 4096;
+
+
+add.s64 	%rd7, %rd6, 128;
+cvt.u32.u64 	%r12, %rd7;
+mov.u16 	%rs1, 3;
+
+cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.multicast::cluster [%r12], [%rd1], 4096, [%r13], %rs1;
+
+
+$L__BB0_4:
+
+
+mov.u64 	%rd8, raw;
+cvt.u32.u64 	%r14, %rd8;
+
+{ .reg .pred done; AGAIN: mbarrier.try_wait.parity.acquire.cluster.shared::cta.b64 done, [%r14], 0; @!done bra AGAIN; }
+
+
+@%p1 bra 	$L__BB0_6;
+
+ld.shared.u32 	%r15, [raw+128];
+
+cvta.to.global.u64 	%rd9, %rd2;
+
+mul.wide.u32 	%rd10, %r4, 4;
+add.s64 	%rd11, %rd9, %rd10;
+st.global.u32 	[%rd11], %r15;
+
+$L__BB0_6:
+
+bar.sync 	0;
+
+and.b32  	%r16, %r2, 31;
+setp.ne.s32 	%p4, %r16, 0;
+@%p4 bra 	$L__BB0_8;
+
+
+
+add.s64 	%rd13, %rd8, 8;
+cvt.u32.u64 	%r18, %rd13;
+mov.u32 	%r19, 0;
+
+mapa.shared::cluster.u32 %r17, %r18, %r19;
+
+
+
+mbarrier.arrive.release.cluster.shared::cluster.b64 _, [%r17];
+
+
+$L__BB0_8:
+
+@%p2 bra 	$L__BB0_10;
+
+
+
+add.s64 	%rd15, %rd8, 8;
+cvt.u32.u64 	%r21, %rd15;
+
+{ .reg .pred done; AGAIN: mbarrier.try_wait.parity.acquire.cluster.shared::cta.b64 done, [%r21], 0; @!done bra AGAIN; }
+
+
+$L__BB0_10:
+
+bar.sync 	0;
+
+
+
+barrier.cluster.arrive.aligned; barrier.cluster.wait.aligned;
+
+
+ret;
+
+}
+
+.section	.debug_str
+{
+$L__info_string0:
+
+$L__info_string1:
+
+$L__info_string2:
+
+
+}
+
+.section .debug_frame
+decodeDebugFrame, frameBuf 0xffffffff, total_length 104
+CIE length 36, cie_id -1
+version 3
+augmentation slen 1
+augmentation 
+code_align_factor slen 1
+data_align_factor slen 1
+ Debug Frame Common Information Entry
+  length:                 36
+  CIE_id :                -1
+  version:                3
+  augmentation:           
+  code align factor:      4
+  data align factor:      -4
+  return address register 0xffffffff
+  initial instructions: 19 bytes, ptr = 0x8080810c, frameBuf = 0xffffffff
+  DW_CFA_def_cfa register R1, offset 0
+  DW_CFA_same_value R255
+  DW_CFA_same_value R1
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+ Debug Frame Description Entry
+  length:                 44
+  CIE_pointer:            0
+  initial_location:       0x0
+  address_range:          0x700
+  function:               _Z15cluster_x_probePKhPj
+  instructions: 20 bytes
+  DW_CFA_advance_loc4 delta 128
+  DW_CFA_def_cfa register R1, offset 0
+  DW_CFA_advance_loc4 delta 272
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+
+.section .rela.debug_frame	RELA
+0x44    _Z15cluster_x_probePKhPj    R_CUDA_64    0x0

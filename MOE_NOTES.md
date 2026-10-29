@@ -1,3 +1,17 @@
+# October 29: cluster activation multicast feasibility
+
+The current local investigation is a fixed two-CTA cluster design pairing output
+units at equal K stages, preserving stream-K. The source/model halves logical
+activation-copy requests, with unchanged destination bytes and median maximum
+estimated CTA work. Some skewed cost maxima rise4.33%. Hopper primitives compile
+locally; no kernel has executed and no full runtime candidate exists yet.
+Review: `experiments/prepared/moe_cluster_x_review.md`; CPU evidence:
+`results/moe-cluster-x-feasibility-20261029/`. Ring lifetime, full-source resources,
+cooperative cluster progress and graphs remain open. All verified code is exact.
+
+The separate disjoint-cut model passed53960 ownership/cost cases but removed
+only0..2 split units per phase; it is parked without a GPU trial.
+
 # October 29: paired epilogue store trial closed
 
 Repaired check `5262c2c560c94197` / source `9fc2993a` compiled, used 96
