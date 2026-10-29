@@ -1,0 +1,75 @@
+{
+  "source_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "final_runtime_bindings_audited": true,
+  "no_dynamic_root_state_indexing": true,
+  "no_whole_root_state_escape": true,
+  "no_root_state_aliases": true,
+  "cos_sin_unread_in_all_root_state_consumers": true,
+  "functions": [
+    {
+      "function": "kernel_fn",
+      "root_keys": [
+        "attn_boundary",
+        "dense",
+        "ffn_boundary",
+        "fpr",
+        "rf",
+        "router",
+        "router_hi_t",
+        "router_lo_t",
+        "routing",
+        "side_stream"
+      ],
+      "whole_state_transfers": [
+        "_achita_dense_project",
+        "_achita_dense_project",
+        "_pn_expert_inputs",
+        "_experts",
+        "_achita_dense_project",
+        "_achita_dense_project",
+        "_sfn_boundary",
+        "_achita_dense_project",
+        "_achita_wide_router"
+      ]
+    },
+    {
+      "function": "_achita_dense_project",
+      "root_keys": [
+        "achita_dense",
+        "dense"
+      ],
+      "whole_state_transfers": []
+    },
+    {
+      "function": "_pn_expert_inputs",
+      "root_keys": [
+        "pre_expert_norm"
+      ],
+      "whole_state_transfers": []
+    },
+    {
+      "function": "_experts",
+      "root_keys": [
+        "native_moe"
+      ],
+      "whole_state_transfers": []
+    },
+    {
+      "function": "_sfn_boundary",
+      "root_keys": [
+        "ffn_boundary",
+        "sliced_ffn_boundary"
+      ],
+      "whole_state_transfers": []
+    },
+    {
+      "function": "_achita_wide_router",
+      "root_keys": [
+        "achita_dense"
+      ],
+      "whole_state_transfers": []
+    }
+  ],
+  "cpu_only": true,
+  "gpu_verified": false
+}

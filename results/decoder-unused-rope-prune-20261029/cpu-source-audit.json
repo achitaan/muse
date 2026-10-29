@@ -1,0 +1,21 @@
+{
+  "source_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "parent_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
+  "bytes": 893102,
+  "exact_cos_sin_key_occurrences": 1,
+  "unused_state_key_retained_as_none": true,
+  "removed_base_prepare_statements": 3,
+  "all_other_module_ast_exact": true,
+  "all_runtime_functions_exact": true,
+  "all_native_attention_and_fallback_source_exact": true,
+  "table_positions": 2097152,
+  "table_columns": 64,
+  "element_bytes": 4,
+  "persistent_table_bytes": 536870912,
+  "table_expression_tensor_payload_peak_bytes": 1342177280,
+  "peak_scope": "freqs + separate cos/sin + concatenated output; excludes allocator/workspace and other state",
+  "peak_is_representation_arithmetic_not_measurement": true,
+  "preparation_savings_s": null,
+  "gpu_verified": false,
+  "timed_speedup_claim": false
+}

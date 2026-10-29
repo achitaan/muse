@@ -7,6 +7,10 @@
 > synthetic timestamps. Packet: results/moe-phase-diagnostic-db0f-preflight-20261029/.
 > CPU Decode draft df68deb6 also bypasses two unreachable dense-router setup
 > factories; no timed functions changed and preparation savings are unmeasured.
+> Follow-up307dd791 bypasses the unread512MiB root-state RoPE table. A separate
+> root-state escape audit covers all final runtime consumers; all numerical
+> source/fallbacks/runtime functions stay exact. No GPU result or promotion.
+> Review: experiments/prepared/decoder_unused_rope_prune_review.md.
 > Offline full-unit MoE ownership screening showed a tail-balance risk, not
 > a GPU result. Reproducer: experiments/prepared/screen_moe_unit_ownership.py.
 > All older next-step and authorization headers below are historical.

@@ -2738,5 +2738,18 @@
     "synthetic_cpu_only": true,
     "decision": "Do not GPU-test unconditional unit alignment: model raises maximum CTA work substantially; diagnose real phase costs first",
     "measured_gpu_performance": false
+  },
+  "decoder_unused_rope_prune_cpu": {
+    "source_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+    "parent_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
+    "artifact": "results/decoder-unused-rope-prune-20261029/submission.py",
+    "review": "experiments/prepared/decoder_unused_rope_prune_review.md",
+    "bytes": 893102,
+    "persistent_tensor_payload_removed_bytes": 536870912,
+    "all_runtime_functions_exact": true,
+    "root_state_consumers_audited": 6,
+    "gpu_verified": false,
+    "preparation_savings_s": null,
+    "timed_speedup_claim": false
   }
 }
