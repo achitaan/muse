@@ -1,3 +1,16 @@
+> Return audit at15:10UTC confirms9accepted private checks in the preceding
+> 11hours and zero retained performance wins; all5best source files match
+> commit8a6b1a22 at the start. This is investigation, not verified optimization
+> progress. Official overall snapshot193/1561, exact time/raw response in
+> results/optimization-return-audit-20261029-1510/report.json. No overall
+> speedup field/formula is inferred. User explicitly challenged this poor return.
+>
+> MoE direct-stage gather is now parked without a GPU check: three native
+> drafts compile96regs/no C751 but48/316/668stack/store/load fields vs matched
+> control16/56/124. Row-lookup hoisting and producer completion did not repair
+> it. No Python candidate installed. All native/inverse/model/compiler evidence
+> at results/moe-direct-stage-gather-preflight-20261029/. Preserve33114871.
+>
 > LATEST TERMINAL RESULT, October29 at15:02UTC: two-score L8 full Attention
 > sourcec51f843e/check4e8836d4ff934fce passed16tests/12benchmarks/integrity,
 > real paths9/11,168regs/zero local/static/114688dynamic/1block per SM.
@@ -10,7 +23,8 @@
 > this accepted job: Dense19,Attention16,MoE12,Decode19,Prefill20=86;10scores
 > each=50. Next new check>=15:55:34.212782UTC (11:55Toronto), not a launch target.
 >
-> Next CPU study returns to MoE: direct phase-A stage gather instead of global
+> Historical preparation below, superseded by the parked decision above:
+> direct phase-A stage gather instead of global
 > xA repacking. Model1024layouts/1,179,648uint4 destinations/256arrival orders
 > passes; early-release mutant rejected. No CUDA prototype/GPU/speedup evidence
 > yet. More producer instructions may outweigh removed traffic; modeled bytes

@@ -1,0 +1,15 @@
+{
+  "parent_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "CUDA_sha256": "f4c8cc2ffeb0e3b8d46f65fab7e254e50f2912d8e2d7631cb2f0ca35a5c41d0f",
+  "shared_edits": [
+    "namespace",
+    "namespace comment",
+    "host references",
+    "empty job guard",
+    "empty range guard"
+  ],
+  "original_activation_gather_and_copy_preserved": true,
+  "CPU_only": true,
+  "GPU_jobs": 0
+}

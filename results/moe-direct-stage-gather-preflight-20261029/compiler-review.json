@@ -1,0 +1,102 @@
+{
+  "parent_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "GPU_kernels_loaded": false,
+  "Python_submission_written": false,
+  "candidate_installed": false,
+  "revisions": {
+    "matched-control": {
+      "resources": [
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_store_bytes": 56,
+          "spill_load_bytes": 124
+        },
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_store_bytes": 56,
+          "spill_load_bytes": 124
+        }
+      ],
+      "serialization_warnings": [],
+      "cubin_sha256": "d59fc3265d8ca0f045aad75ac4a9b09736184d0f60d1290dff651af86b761351",
+      "exact_judge_toolchain": false
+    },
+    "v1": {
+      "resources": [
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        },
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        }
+      ],
+      "serialization_warnings": [],
+      "cubin_sha256": "9a18234d4f321ce58ee5b7049c8b52b2664b840c3b248b2742678c490c8d430d",
+      "exact_judge_toolchain": false
+    },
+    "v2-stripmined-copy": {
+      "resources": [
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        },
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        }
+      ],
+      "serialization_warnings": [],
+      "cubin_sha256": "25eddeeef7ae44bf2f57d8290e0322479dcd36b008c633e0fa26aaeca9d35d7e",
+      "exact_judge_toolchain": false
+    },
+    "v3-publisher-completion": {
+      "resources": [
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        },
+        {
+          "symbol": "_ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 48,
+          "spill_store_bytes": 316,
+          "spill_load_bytes": 668
+        }
+      ],
+      "serialization_warnings": [],
+      "cubin_sha256": "1bcbe0b36c0748defa91c9629090706265ad5b34a4dea678b9dcef80ff76c9ab",
+      "exact_judge_toolchain": false
+    }
+  },
+  "stripmined_uint4_destinations_checked": 1179648,
+  "decision": "Park without a GPU check: static spill burden is higher than the matched control and recoverable complete-load time is unmeasured.",
+  "native_timing_or_actual_LocalSizeBytes_verified": false,
+  "known_cost": "Direct stage copies issue8..64rounds instead of one bulk operation; v3 also waits for completion in the producer.",
+  "no_flag_or_register_sweep": true,
+  "source_and_precision_contract_preserved": true,
+  "unresolved": "Offline stack/spill counters do not establish native H200 traffic or speed. No performance gain is claimed."
+}

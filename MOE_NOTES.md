@@ -1,4 +1,21 @@
-# October29: direct phase-A stage gather, CPU model only
+# October29: direct phase-A gather parked after compiler screening
+
+Native drafts d2eb1957/a58c6719/ef6cee4a preserve exact inverse provenance,
+weights/math/epilogues and original scratch. All compile96base registers,
+no C751 warnings, but48stack/316spill-store/668spill-load bytes per BIG entry.
+Matched control with identical namespace and empty guards retains16/56/124.
+Hoisting a row lookup across eight copies and moving completion/fencing to
+the producer did not fix the increase. The latter also adds producer waiting.
+
+Park without a GPU check: no measured recoverable whole-load time offsets
+those costs. Offline counters are not actual H200LocalSizeBytes or latency.
+Original model1024layouts/1,179,648vectors/256arrival orders and independent
+strip-mining1,179,648vectors pass; they do not prove profitable execution.
+No Python submission or active source change. All drafts/inverse ledgers and
+matched compiler evidence: results/moe-direct-stage-gather-preflight-20261029/.
+Retain33114871. No geometry/register/cache-policy sweep to force admission.
+
+# October29: direct phase-A stage gather, original CPU hypothesis
 
 New bounded hypothesis: the existing activation producer's32lanes could gather
 phase-A x directly into its shared ring instead of globally repacking xA first.

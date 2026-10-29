@@ -1,0 +1,68 @@
+{
+  "parent_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "CUDA_sha256": "d2eb1957fa48f81d9b4b63588e6388eb60162c00dacbad2cfbac102018a8778a",
+  "bytes": 141523,
+  "exact_inverse_restores_entire_retained_CUDA": true,
+  "edits": [
+    {
+      "name": "namespace",
+      "old": "namespace okc {",
+      "new": "namespace okc_direct {",
+      "count": 1
+    },
+    {
+      "name": "namespace comment",
+      "old": "}  // namespace okc",
+      "new": "}  // namespace okc_direct",
+      "count": 1
+    },
+    {
+      "name": "host references",
+      "old": "okc::",
+      "new": "okc_direct::",
+      "count": 40
+    },
+    {
+      "name": "all32 activation lanes; direct phaseA; original phaseB bulk",
+      "old": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  if ((threadIdx.x & 31) == 0) wgs_ranges(p, S);\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((threadIdx.x & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.xready + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.doneAs + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}\n",
+      "new": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  if ((threadIdx.x & 31) == 0) wgs_ranges(p, S);\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  const int lane = threadIdx.x & 31;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        // Phase A reads fresh original activations directly; no xA publication wait.\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.doneAs + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      if (!pb) {\n        const int count = S.jC[j];\n        const int entry_start = S.jS[j];\n        // uint4 destination order: [row/8][k8][row%8]. Every warp\n        // iteration writes512 consecutive shared bytes; invalid rows are\n        // zero-filled without reading an entry or constructing a bad pointer.\n        for (int v = lane; v < npad * 32; v += 32) {\n          const int row = (v >> 8) * 8 + (v & 7);\n          const int k8 = (v >> 3) & 31;\n          const bool valid = row < count;\n          int token = 0;\n          if (valid) token = S.ent[entry_start + row] >> 3;\n          const __nv_bfloat16* input = p.x + (size_t)token * HD + st * 256 + k8 * 8;\n          cp_async16(xring + xs * WGS_XS + v * 16, input, valid);\n        }\n        // Default form increments pending count before the deferred arrival.\n        // All32 registrations precede the explicit release of initial count1.\n        asm volatile(\"cp.async.mbarrier.arrive.shared.b64 [%0];\\n\" ::\"r\"(smem_u32(bar)) : \"memory\");\n        __syncwarp(0xffffffffu);\n        if (lane == 0) mbar_arrive1(bar);\n      } else if (lane == 0) {\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      }\n      __syncwarp(0xffffffffu);\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}\n",
+      "count": 1
+    },
+    {
+      "name": "remove initial global activation gather",
+      "old": "  wgs_gather(p, S);",
+      "new": "  // Direct phase-A stage producer replaces global xA gathering.\n  // The following full producer/consumer WS_JOIN is retained.",
+      "count": 1
+    },
+    {
+      "name": "consumer proxy ordering after completed direct copies",
+      "old": "    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);",
+      "new": "    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);\n    if constexpr (!PB) asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+      "count": 1
+    },
+    {
+      "name": "empty job guard",
+      "old": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  const int* pre",
+      "new": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  if (nj == 0) return 0;\n  const int* pre",
+      "count": 1
+    },
+    {
+      "name": "empty range guard",
+      "old": "__device__ __forceinline__ int wgs_split(int pb, int g0, int g1) {\n  const int ue",
+      "new": "__device__ __forceinline__ int wgs_split(int pb, int g0, int g1) {\n  if (g1 <= g0) return g0;\n  const int ue",
+      "count": 1
+    }
+  ],
+  "matrix_math_weights_epilogues_and_global_finalizer_unchanged": true,
+  "initial_global_gather_removed": true,
+  "phaseB_bulk_copy_unchanged": true,
+  "full_producer_consumer_join_retained": true,
+  "shared_layout_and_ring_capacity_unchanged": true,
+  "extra_scratch_bytes": 0,
+  "old_scratch_allocation_retained": true,
+  "GPU_jobs": 0,
+  "CPU_only": true,
+  "Python_submission_written": false,
+  "remaining": "Compiler/resource and lifetime/replay proof, whole-load opportunity screen, and native numerical/performance validation"
+}

@@ -1,0 +1,53 @@
+device-preflight.cu(126): warning #177-D: variable "okc_direct::NRB" was declared but never referenced
+  constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(141): warning #177-D: variable "okc_direct::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+device-preflight.cu(141): warning #177-D: variable "okc_direct::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+device-preflight.cu(144): warning #177-D: variable "okc_direct::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+device-preflight.cu(151): warning #177-D: variable "okc_direct::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+device-preflight.cu(532): warning #177-D: variable "okc_direct::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+device-preflight.cu(942): warning #177-D: variable "okc_direct::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+device-preflight.cu(1645): warning #177-D: variable "okc_direct::WGS_FIXF" was declared but never referenced
+  constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;  // + doneAs
+                   ^
+
+device-preflight.cu(1799): warning #177-D: variable "okc_direct::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
+                ^
+
+ptxas info    : 250 bytes gmem
+ptxas info    : Compiling entry function '_ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN10okc_direct9moe_fusedILb1EEEvNS_6ParamsE
+ptxas         .     48 bytes stack frame, 316 bytes spill stores, 668 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 48 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN10okc_direct10wgs_rangesERKNS_6ParamsERNS_4SmemE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN10okc_direct9moe_fusedILb0EEEvNS_6ParamsE
+ptxas         .     48 bytes stack frame, 316 bytes spill stores, 668 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 48 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN10okc_direct10wgs_rangesERKNS_6ParamsERNS_4SmemE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
