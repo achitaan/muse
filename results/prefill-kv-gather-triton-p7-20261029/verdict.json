@@ -1,0 +1,80 @@
+{
+  "experiment": "P7 contiguous-KV FA3 selector with a Triton row-gather kernel",
+  "job": "5e0ba944f9d24191",
+  "candidate_sha256": "8d3005442ab10ca92adfeaaa27e4f3c9e54b3a43270edb20d7c1956367619773",
+  "official": {
+    "passed": true,
+    "speedup": 1.660677766270742,
+    "ci": [
+      1.6357675997766807,
+      1.685587932764803
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "gather_us_both_caches": {
+    "(1,753,80753)": 14.8,
+    "(4,753,80753)": 41.6,
+    "(1,16384,16384)": 7.6,
+    "(1,16384,49152)": 11.0,
+    "(1,16384,81920)": 15.0,
+    "torch_index_select_P6_reference": "~110 us at 81,920 rows"
+  },
+  "selector_us": {
+    "(1,753,80753)": {
+      "paged": 423.7,
+      "gathered": 418.8,
+      "selected": false
+    },
+    "(4,753,80753)": {
+      "paged": 1629.6,
+      "gathered": 1580.5,
+      "selected": true
+    },
+    "(1,16384,16384)": {
+      "paged": 906.5,
+      "gathered": 866.8,
+      "selected": true
+    },
+    "(1,16384,49152)": {
+      "paged": 4476.3,
+      "gathered": 4277.1,
+      "selected": true
+    },
+    "(1,16384,81920)": {
+      "paged": 8017.2,
+      "gathered": 7617.9,
+      "selected": true
+    }
+  },
+  "runtime_applied": [
+    "P7_USE (4, 753, 80753)",
+    "P7_USE (1, 16384, 16384)",
+    "P7_USE (1, 16384, 49152)",
+    "P7_USE (1, 16384, 81920)"
+  ],
+  "affected_normalized": {
+    "vs P1": {
+      "first turn ctx0": 0.9469,
+      "first turn ctx32768": 0.9829,
+      "first turn ctx65536": 1.0007,
+      "turn 4 ctx80000": 1.0025
+    },
+    "vs P2": {
+      "first turn ctx0": 0.9849,
+      "first turn ctx32768": 1.0167,
+      "first turn ctx65536": 1.0144,
+      "turn 4 ctx80000": 1.0062
+    },
+    "vs P3": {
+      "first turn ctx0": 1.0184,
+      "first turn ctx32768": 1.0435,
+      "first turn ctx65536": 1.0435,
+      "turn 4 ctx80000": 1.0321
+    }
+  },
+  "expected_shape_gain": "0.4% (first turn ctx0), 1.4% (ctx32768), 2.3% (ctx65536), 1.4% (turn 4): below the 2-5% run-to-run spread of these shapes",
+  "decision": "not retained (frozen rule: >= 1.02 vs each same-night reference plus a later confirming run). The Triton gather is 7x faster than index_select and makes contiguous FA3 win on four full shapes in-process (3.1-5.2%), but the per-shape effect is below single-run resolution."
+}
