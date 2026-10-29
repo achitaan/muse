@@ -70,6 +70,9 @@ new small-M kernel.
 | P3 Prefill GEMM layout (x@W^T vs pre-transposed W) | `f2241332a476452e` | 1.6497240x pass | 1.6392908x | nothing selected: best alternative +0.1%; qkv_gate at 753 tokens 46.0 vs 42.0 us |
 | D5 Dense olayer configs for O at 1/8/16/32 tokens | `3b13fab22b2b4480` | 1.5196641x pass | 1.5277713x | nothing selected: incumbent 9.25/9.44/9.82/10.11 us vs best config 10.14/10.24/10.18/10.14 us |
 | D6 Dense olayer configs for O at 128/256 tokens (weakest Dense shape: O m256 1.028x) | `4e8fda34635040e6` | 1.4949033x pass | 1.5277713x | nothing selected: m256 best olayer 12.90 us ties fixed cuBLASLt 12.90; m128 incumbent 10.75 vs 10.82 |
+| D7 Dense cuBLASLt neighborhood (restore + expand: split-K, stages, swizzle x custom x cluster, + 16 exhaustive heuristics) for unpooler M=128/256 | `96bc324b987a4c44` | 1.5094800x pass | 1.5277713x | nothing selected: m128 best 22.24 vs 22.69 us (2.0%, custom option 3->4), m256 27.81 vs 27.84; fixed descriptors are local optima |
+| M4 MoE ring depth OKC_NS 3->4 (MID at 16, MAIN at 32 tokens) | `0e1634cf0bc245a1` | 2.3391587x pass | 2.3654374x | M16 MID+NS4 0.5% faster (kept incumbent); M32 skipped by the 200 s prepare guard (one compile ~38 s, parent prepare ~167 s) -> M5 |
+| P4 Prefill FA3 on a contiguous KV copy (gathered by page table) for full layers | `37a3e45b4e4b431d` | 1.6531207x pass | 1.6392908x | **selected and applied** for first turn full ctx 32768 / 65536 (FA3 4474.3->4304.9 us, 8071.5->7766.6 us in prepare); slower at 753 tokens (423->516 us, kept paged). Affected shapes normalized vs same-night P1/P2/P3: 1.011-1.056; provisional pending P5 |
 
 D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
 Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
@@ -81,7 +84,12 @@ M3 `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795`,
 D3 `38aeb4867237bc3d927a3334bebada7c011cc952183fcc38e0f0c14e3f61fd7f`,
 P3 `a7289eb1465e81590cdc7c9a1e57f934f57e263e85a7a59e481bb0bd376236a9`,
 D5 `a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39`,
-D6 `af3a3c2c1ba7df10500d4323a2e53bee95966420a9a5417609edb5124652ebb7`.
+D6 `af3a3c2c1ba7df10500d4323a2e53bee95966420a9a5417609edb5124652ebb7`,
+D7 `f2bb94589ab113e9a9816b4e5e8032afac4682e3c1d42ff10577621e25abb1ef`,
+M4 `8ec4dc7d2f7dfe055d6b131aecb7c0d73495e969c877b1e16f82bfe4b8c64c50`,
+M5 `6ee2ac8447775985328659015c3cee13a4aa81b30bc62700cf0a85164e85d8fc`,
+P4 `5d08eb926b36b190ae789d26db849340b2744fb8d5ad4f4d70f9f906487b5e53`,
+P5 (P4 + trailing comment) `15cc2a942f13312b3a5f92fcd15d22b6d5807df7331ef672501aecfe51049992`.
 Each result directory holds `gates.json` (frozen before launch), `result.json` and `verdict.json`.
 
 Track-level moves in these runs (-1.5% to +1.6%) occur with no device-path change (every
