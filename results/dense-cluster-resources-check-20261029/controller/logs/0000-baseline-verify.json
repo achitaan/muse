@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_dense_cluster_resources.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.172,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"speedup\": 1.5277713270942548, \"correct\": true, \"job\": \"6131bc96427e4486\", \"source_sha256\": \"edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b\", \"error\": null}\r\n",
+  "timed_out": false
+}

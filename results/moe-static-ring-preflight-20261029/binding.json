@@ -1,0 +1,27 @@
+{
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "new_CUDA_sha256": "1bc90fd680b1339a61e38d1fbde004c472b209f49ee0419030cd1cb26234bf18",
+  "inverse_restores_source": true,
+  "scope": "wgs_seg ring address/index recurrence only; same geometry, stages, arithmetic, waits, commits and epilogues",
+  "edits": [
+    {
+      "old": "  auto stage = [&](auto first) {\n    constexpr bool FIRST = decltype(first)::value;\n    const int ws = seq % WGS_NS, xs = seq % WGS_NX;",
+      "new": "  static_assert(WGS_NS == 3 && WGS_NX == 3, \"static ring requires the retained three-slot geometry\");\n  auto stage = [&](auto first, auto slot_tag, uint32_t ring_phase) {\n    constexpr bool FIRST = decltype(first)::value;\n    constexpr int SLOT = decltype(slot_tag)::value;\n    const int ws = FIRST ? seq % WGS_NS : SLOT, xs = FIRST ? seq % WGS_NX : SLOT;\n    const uint32_t phase = FIRST ? (uint32_t)(seq / WGS_NS) & 1u : ring_phase;"
+    },
+    {
+      "old": "wgs_wait(S.bars + BW_F + ws, (uint32_t)(seq / WGS_NS) & 1u, 3000000 + seq);",
+      "new": "wgs_wait(S.bars + BW_F + ws, phase, 3000000 + seq);"
+    },
+    {
+      "old": "wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);",
+      "new": "wgs_wait(S.bars + BX_F + xs, phase, 4000000 + seq);"
+    },
+    {
+      "old": "  stage(std::true_type{});\n#pragma unroll 1\n  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});",
+      "new": "  stage(std::true_type{}, std::integral_constant<int, -1>{}, 0u);\n  int st = s0 + 1;\n  const int first_slot = seq % 3;\n  uint32_t ring_phase = (uint32_t)(seq / 3) & 1u;\n  if (st >= s1) goto okc_static_ring_done;\n  if (first_slot == 1) goto okc_static_ring_1;\n  if (first_slot == 2) goto okc_static_ring_2;\nokc_static_ring_0:\n  stage(std::false_type{}, std::integral_constant<int, 0>{}, ring_phase);\n  if (++st >= s1) goto okc_static_ring_done;\nokc_static_ring_1:\n  stage(std::false_type{}, std::integral_constant<int, 1>{}, ring_phase);\n  if (++st >= s1) goto okc_static_ring_done;\nokc_static_ring_2:\n  stage(std::false_type{}, std::integral_constant<int, 2>{}, ring_phase);\n  if (++st >= s1) goto okc_static_ring_done;\n  ring_phase ^= 1u;\n  goto okc_static_ring_0;\nokc_static_ring_done:;"
+    }
+  ],
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "source_idea": "https://guild.1nterface.ai/t/18?credible=all ; public fixed consumer-stage index idea, no performance claim for our implementation"
+}

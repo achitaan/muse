@@ -1,0 +1,10 @@
+{
+  "GPU_admitted": false,
+  "native_CUDA_sha256": [
+    "1bc90fd680b1339a61e38d1fbde004c472b209f49ee0419030cd1cb26234bf18",
+    "5a151c726868a5192330bb5ed2987a8e6d2474316bb6834f6afd5f20035ee8c6"
+  ],
+  "GPU_jobs": 0,
+  "Python_candidates_built": 0,
+  "reason": "Both offline drafts newly serialize WGMMA (C7512;1024zero waits versus parent256one-group waits). No register/compiler flag sweep or GPU test without a specific source-backed repair."
+}

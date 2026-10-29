@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_dense_cluster_resources.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 1670.906,
+  "returncode": 0,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nDense fixed cluster job f026c3b14a864be0: queued\r\nDense fixed cluster job f026c3b14a864be0: running\r\nDense fixed cluster job f026c3b14a864be0: done\r\n",
+  "stdout": "{\"speedup\": 1.5017285116631471, \"correct\": true, \"job\": \"f026c3b14a864be0\", \"source_sha256\": \"e48cba9a0a58be1953bf2f135ead88a5806ee079f5605f0b2dd348d1c8446652\", \"error\": null}\r\n",
+  "timed_out": false
+}

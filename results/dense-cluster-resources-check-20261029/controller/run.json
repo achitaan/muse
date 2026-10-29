@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-29T17:37:49Z",
+  "goal": "Evaluate the existing fixed Dense QKV cluster3 and pooler cluster2 families toward the unchanged top50 overall goal, using exact EDC baseline, native resources and weighted material-gain guards; no sweep.",
+  "guard": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_dense_cluster_resources_evidence.py",
+  "max_iterations": 1,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_dense_cluster_resources.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "complete_dense_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "d9b4b25888d74484a12e2d4757988c54",
+  "schema_version": 1,
+  "scope": [
+    "candidates/active.py"
+  ],
+  "target": 1.56,
+  "timeout_seconds": 5400
+}

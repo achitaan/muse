@@ -1,0 +1,24 @@
+{
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "new_CUDA_sha256": "1bc90fd680b1339a61e38d1fbde004c472b209f49ee0419030cd1cb26234bf18",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "stage_sequences_checked": 65536,
+  "segment_lengths": [
+    1,
+    16
+  ],
+  "starting_sequence_range": [
+    0,
+    4095
+  ],
+  "mutants_rejected": [
+    "wrong_entry",
+    "repeat_first",
+    "double_increment",
+    "omit_phase_toggle"
+  ],
+  "identical_ordered_slot_phase_firstflag_and_previous_release": true,
+  "all_arithmetic_wait_commit_epilogue_body_unchanged_by_inverse_proof": true,
+  "limits": "Finite recurrence/source proof only. Does not prove GPU compilation, native resource equality, race freedom or useful timing."
+}

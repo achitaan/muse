@@ -1,0 +1,49 @@
+{
+  "parent_variant_CUDA_sha256": "1bc90fd680b1339a61e38d1fbde004c472b209f49ee0419030cd1cb26234bf18",
+  "new_CUDA_sha256": "5a151c726868a5192330bb5ed2987a8e6d2474316bb6834f6afd5f20035ee8c6",
+  "reason": "C7512 in v1: remove separately live phase recurrence and retain original seq/3 parity expression; fixed slot addresses only, no geometry, register-limit or compiler-flag change",
+  "edits": [
+    {
+      "old": "auto stage = [&](auto first, auto slot_tag, uint32_t ring_phase)",
+      "new": "auto stage = [&](auto first, auto slot_tag)",
+      "count": 1
+    },
+    {
+      "old": "const uint32_t phase = FIRST ? (uint32_t)(seq / WGS_NS) & 1u : ring_phase;",
+      "new": "const uint32_t phase = (uint32_t)(seq / WGS_NS) & 1u;",
+      "count": 1
+    },
+    {
+      "old": "std::integral_constant<int, -1>{}, 0u)",
+      "new": "std::integral_constant<int, -1>{})",
+      "count": 1
+    },
+    {
+      "old": "  uint32_t ring_phase = (uint32_t)(seq / 3) & 1u;\n",
+      "new": "",
+      "count": 1
+    },
+    {
+      "old": "std::integral_constant<int, 0>{}, ring_phase)",
+      "new": "std::integral_constant<int, 0>{})",
+      "count": 1
+    },
+    {
+      "old": "std::integral_constant<int, 1>{}, ring_phase)",
+      "new": "std::integral_constant<int, 1>{})",
+      "count": 1
+    },
+    {
+      "old": "std::integral_constant<int, 2>{}, ring_phase)",
+      "new": "std::integral_constant<int, 2>{})",
+      "count": 1
+    },
+    {
+      "old": "  ring_phase ^= 1u;\n",
+      "new": "",
+      "count": 1
+    }
+  ],
+  "CPU_only": true,
+  "GPU_jobs": 0
+}

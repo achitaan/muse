@@ -1,0 +1,64 @@
+{
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "disassembler_sha256": "fbe2b7ba92d15b514d9e707b6b033bbf3640de73eb57a5c8f0d1f75cb101614d",
+  "method": "cuobjdump -sass, moe_fused entry bodies only; static instruction/DEPBAR adjacency counts, not runtime timing",
+  "counts": {
+    "baseline": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 25088,
+        "HGMMA": 512,
+        "DEPBAR": {
+          "gsb0,0x1": 256,
+          "gsb0,0x0": 16
+        },
+        "HGMMA_immediate_zero_wait": 0
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 25088,
+        "HGMMA": 512,
+        "DEPBAR": {
+          "gsb0,0x1": 256,
+          "gsb0,0x0": 16
+        },
+        "HGMMA_immediate_zero_wait": 0
+      }
+    },
+    "static": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 38304,
+        "HGMMA": 1024,
+        "DEPBAR": {
+          "gsb0,0x0": 1024
+        },
+        "HGMMA_immediate_zero_wait": 77
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 38304,
+        "HGMMA": 1024,
+        "DEPBAR": {
+          "gsb0,0x0": 1024
+        },
+        "HGMMA_immediate_zero_wait": 77
+      }
+    },
+    "static-v2": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 38064,
+        "HGMMA": 1024,
+        "DEPBAR": {
+          "gsb0,0x0": 1024
+        },
+        "HGMMA_immediate_zero_wait": 86
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 38064,
+        "HGMMA": 1024,
+        "DEPBAR": {
+          "gsb0,0x0": 1024
+        },
+        "HGMMA_immediate_zero_wait": 86
+      }
+    }
+  }
+}

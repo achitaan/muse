@@ -1,4 +1,32 @@
-> LATEST ADMITTED PREPARATION, October29: Densee48cba9a/native69acf3cd.
+> LATEST TERMINAL RESULT, October29: Densee48cba9a checkf026c3b14a864be0.
+> Native QKV90regs/pooler124regs,0local/static,132SMs,legal dynamic shared
+> and39/66cluster capacity. All18FP64oracle cases pass, but scoredM128
+> new/old QKV1.0366/1.0414 andpooler1.0703/1.0318. Choicesempty.
+> Full9/30/integrity1.501728512x uses old fallback; no new-native scored
+> integration proof or score. EDC restored; all44protected hashes match.
+> Controllerd9b4b258 trial2840c0c9/revert9dc2f820/archive181018. No live
+> job/controller. Close bothfixedM128families; no noise rescore/neighbor-only
+> retention. Full packet: results/dense-cluster-resources-check-20261029/.
+> Freshchecks Dense18/Attention16/MoE12/Decode17/Prefill20=83; scores50.
+> Nextnew check>=19:03:28.127090UTC(15:03Toronto); window ends20:00Toronto.
+>
+> MoEconstant-ring CPU drafts: V1phase/address andV2address-only bothnew
+> C7512 despite96regs/zero spills. SASS switches parent256one-group waits
+> to1024zero waits; hold both from GPU. No Python candidate/run. Packet:
+> results/moe-static-ring-preflight-20261029/. RetainedMoE unchanged.
+> Additional source screens: Attention already has last-CTA finalization;
+> TinyMoE one-expert work has512A/256Bunits over132gridCTAs, so adding
+> a last-CTA finalizer or claiming only32/64CTAs do expert work is not new.
+>
+> Next review direction, still a hypothesis: inspect the actual Decode
+> pre-expert norm/ID mapping -> tiny MoE boundary. Fusing full4096-row norm
+> into the existing tiny consumer's activation staging could remove a real
+> launch while preserving BF16 normalization materialization. First bind
+> actual input/ID types, shared-memory lifetime, duplicate norm cost and
+> selected root path; no GPU candidate or performance claim exists yet.
+>
+> Historical preparation, superseded by terminal rejection:
+> Densee48cba9a/native69acf3cd.
 > Fixed QKVcluster3/poolercluster2, originalBF16 weights; exact inverse
 > restores13224d30through7de2abc3. Timed kernels/dispatch/oracle/nearby
 > selection AST unchanged. Native resource query+compact report added;
