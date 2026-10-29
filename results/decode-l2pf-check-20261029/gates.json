@@ -1,26 +1,36 @@
-{
-  "experiment": "E1 idle-DRAM L2 weight prefetch on the retained D9 Decode path",
-  "lane": "omos/decode-fresh-20261029",
-  "frozen_before_launch_utc": "2026-10-29T19:46:00Z",
-  "parent": {
-    "path": "best/decoder_verified.py",
-    "sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
-    "checked_job": "9560c915e85f4f50",
-    "checked_speedup": 1.9902248796281297
-  },
-  "candidate": "candidates/decode_l2pf.py",
-  "addon": "experiments/prepared/decode_l2pf_addon.py",
-  "numerics": "unchanged: prefetch.global.L2 hints only; every retained launch, dtype boundary and output path is byte-identical in behavior",
-  "affected_shapes": "all six sliding shapes plus decode 1 full and verify 1 full (batch 1), where attention leaves HBM mostly idle",
-  "control_shapes": "decode 16 full, decode 32 full, verify 16 full, verify 32 full (prefetch disabled)",
-  "gates": {
-    "correctness": "official suite passes: 13 tests, 12 benchmarks, status ok",
-    "new_path_executed": "run log shows [l2pf] plans with nonzero segments for m in 1,8,16,32,128,256 and the profile lists the prefetch kernel on affected shapes",
-    "affected_gm_ratio_min": 1.02,
-    "control_gm_ratio_range": [0.97, 1.03],
-    "track_speedup_min": 2.0101,
-    "ratio_definition": "parent per-shape median_ns from job 9560c915e85f4f50 divided by candidate per-shape median_ns (official paired-normalized times)"
-  },
-  "publication": "only if all gates pass and the track speedup materially exceeds the board best 1.9940; otherwise check-only",
-  "retained_sources_unchanged": true
+﻿{
+    "experiment":  "E1 idle-DRAM L2 weight prefetch on the retained D9 Decode path",
+    "lane":  "omos/decode-fresh-20261029",
+    "frozen_before_launch_utc":  "2026-10-29T19:46:00Z",
+    "parent":  {
+                   "path":  "best/decoder_verified.py",
+                   "sha256":  "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+                   "checked_job":  "9560c915e85f4f50",
+                   "checked_speedup":  1.9902248796281297
+               },
+    "candidate":  "candidates/decode_l2pf.py",
+    "addon":  "experiments/prepared/decode_l2pf_addon.py",
+    "numerics":  "unchanged: prefetch.global.L2 hints only; every retained launch, dtype boundary and output path is byte-identical in behavior",
+    "affected_shapes":  "all six sliding shapes plus decode 1 full and verify 1 full (batch 1), where attention leaves HBM mostly idle",
+    "control_shapes":  "decode 16 full, decode 32 full, verify 16 full, verify 32 full (prefetch disabled)",
+    "gates":  {
+                  "correctness":  "official suite passes: 13 tests, 12 benchmarks, status ok",
+                  "new_path_executed":  "run log shows [l2pf] plans with nonzero segments for m in 1,8,16,32,128,256 and the profile lists the prefetch kernel on affected shapes",
+                  "affected_gm_ratio_min":  1.02,
+                  "control_gm_ratio_range":  [
+                                                 0.97,
+                                                 1.03
+                                             ],
+                  "track_speedup_min":  2.0101,
+                  "ratio_definition":  "parent per-shape median_ns from job 9560c915e85f4f50 divided by candidate per-shape median_ns (official paired-normalized times)"
+              },
+    "publication":  "only if all gates pass and the track speedup materially exceeds the board best 1.9940; otherwise check-only",
+    "retained_sources_unchanged":  true,
+    "size_resubmission":  {
+                              "first_upload":  "30a63b2e (1,003,591 bytes) rejected 422 over the 1,000,000-byte cap before any job; no quota used",
+                              "resubmitted_candidate_sha256":  "650b53a7498ca259e54933bfcf57790ea74774818077c994eac5c86ad3518abe",
+                              "bytes":  997990,
+                              "change":  "same logic compacted; QKV-only leaf wrappers dropped; kernel_fn verified identical to D9 except prefetch fork/join",
+                              "gates_unchanged":  true
+                          }
 }

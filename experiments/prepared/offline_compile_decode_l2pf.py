@@ -14,7 +14,7 @@ OUT = ROOT / 'results/decode-l2pf-preflight-20261029'
 def kernel_source():
     text = ADDON.read_text(encoding='utf-8')
     tree = ast.parse(text)
-    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == '_pf_l2_kernel')
+    node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == '_pfk')
     start = node.decorator_list[0].lineno - 1
     lines = text.splitlines()
     return '\n'.join(lines[start:node.end_lineno]) + '\n'
@@ -28,13 +28,13 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     src = kernel_source()
     path = OUT / 'pf_kernel_src.py'
-    path.write_text('import triton as _pf_triton\nimport triton.language as _pf_tl\n' + src, encoding='utf-8')
+    path.write_text('import triton\nimport triton.language as tl\n' + src, encoding='utf-8')
     namespace = {}
     sys.path.insert(0, str(OUT))
     import importlib
     module = importlib.import_module('pf_kernel_src')
-    fn = module._pf_l2_kernel
-    compiled = triton.compile(ASTSource(fn, signature={'Tab': '*i64', 'WARPS': 'constexpr'}, constexprs={'WARPS': 2}),
+    fn = module._pfk
+    compiled = triton.compile(ASTSource(fn, signature={'T': '*i64', 'W': 'constexpr'}, constexprs={'W': 2}),
                               target=GPUTarget('cuda', 90, 32), options={'num_warps': 2})
     ptx = compiled.asm['ptx']
     (OUT / 'pf_l2_kernel.ptx').write_text(ptx)

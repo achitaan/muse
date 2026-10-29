@@ -1,0 +1,9 @@
+﻿{
+    "source_sha256":  "30a63b2e0b0933947d159eefe938aa5fe6b6e207b195d243162ac18b8e63bfd1",
+    "intent_utc":  "2026-10-29T19:46:02.488423+00:00",
+    "outcome":  "rejected at upload, no job created",
+    "error":  "{\"error\": \"rejected: submission is larger than 1000000 bytes\", \"status\": 422}",
+    "candidate_bytes":  1003591,
+    "decode_checks_left_after":  17,
+    "ledger_appended":  false
+}
