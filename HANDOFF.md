@@ -1,3 +1,16 @@
+> PREPARED NEXT CANDIDATE, October29: FP32 finalizer cachef200e6e0, CUDA403bd123.
+> Keeps original phase-B FP32 values in registers through norm/weighted sum;
+> no factor-y reconstruction, extra scratch layout or numerical change. Both
+> BIG proxy variants remove16LDG.E.128 each with unchanged96base regs/16stack,
+> spill and matrix/wait counts. CPU72fixtures/3mutants,1608dispatch and12result
+> guard mutants pass; six fresh official files match. Source/preflight at
+> results/moe-fp32-final-cache-preflight-20261029/; full review/gates at
+> experiments/prepared/moe_fp32_final_cache_review.md. No GPU result yet.
+> Eligible MAIN>16 only after complete resource/probe admission; all fallbacks
+> exact. Earliest new check09:53:13.031328UTC. No extra check before that slot.
+> Any local pacing controller must be followed by its existing handle. No
+> score/Decode transfer unless this source earns material full new-path gain.
+>
 > LATEST TERMINAL RESULT, October29 at09:00UTC: cluster2 check6627d54067774130
 > completed. Sourceb7043df7/CUDA2701a25e compiles on H200, admits full66 clusters,
 > both BIG variants96regs/zero actual local/static bytes,231168dynamic/576threads.

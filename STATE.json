@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Cluster2 MoE b7043df7 check6627d54067774130 passed resource and synthetic graph admission but failed paired performance (128+1.44%,256+0.70%,385+2.29%). selected_main=false; official full5/6/integrity2.348327668x timed retained paths. Revertedb7601d1, controller archived20261029-090013; no score/Decode transfer. Close fixed cluster design and seek a materially different source-backed MoE opportunity or a real remaining Decode boundary, using CPU/source evidence first. No job/controller active. Next new check>=09:53:13.031328UTC;20Toronto window. DerivedMoE13/total91checks,50scores. All44 protected hashes restored.",
+  "next_trial": "FP32 finalizer cachef200e6e0/nativeCUDA403bd123 is frozen and CPU-audited. Keeps original FP32 expert-output products through norm/weighted sum, no scratch/layout/precision change. Both BIG proxy variants remove16vector loads each with unchanged96base registers/16stack/spill/matrix-wait counts.72CPUfixtures/3mutants,1608dispatch and12guard mutants pass; six fresh official files exact. Review experiments/prepared/moe_fp32_final_cache_review.md. One bounded check no earlier09:53:13.031328UTC, reserve/window apply. No GPU result or speedup yet; follow any existing local controller/upload handle instead of restarting. All verified sources remain exact; no score or Decode transfer absent material full new-path gain.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",
@@ -3201,5 +3201,33 @@
     "scores_used": 0,
     "decode_transfer": false,
     "fixed_design_closed": true
+  },
+  "moe_fp32_final_cache_prepared": {
+    "source_sha256": "f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656",
+    "CUDA_sha256": "403bd12392a617b28ef14f5f92c0a8892c465b8ed851773b2ffe4d036d233733",
+    "packet": "results/moe-fp32-final-cache-preflight-20261029/",
+    "review": "experiments/prepared/moe_fp32_final_cache_review.md",
+    "CPU_finalizer_cases": 72,
+    "numerical_mutants_rejected": 3,
+    "dispatch_cases": 1608,
+    "guard_mutants_rejected": 12,
+    "BIG_variants_compiled": 2,
+    "vector_load_instructions_removed_each_BIG": 16,
+    "proxy_register_stack_spill_counts_unchanged": true,
+    "actual_GPU_resources_verified": false,
+    "GPU_numerical_correctness_verified": false,
+    "GPU_performance_verified": false,
+    "GPU_jobs_used_at_checkpoint": 0,
+    "affected_official_indices": [
+      2,
+      4,
+      5
+    ],
+    "controls": [
+      0,
+      1,
+      3
+    ],
+    "earliest_check_utc": "2026-10-29T09:53:13.031328Z"
   }
 }

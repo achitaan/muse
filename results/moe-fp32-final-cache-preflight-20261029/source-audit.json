@@ -1,0 +1,20 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "full_CUDA_sha256": "403bd12392a617b28ef14f5f92c0a8892c465b8ed851773b2ffe4d036d233733",
+  "device_prefix_sha256": "b0e49b0f0ad4c1fffde45a6214a28bd1b7923d6232e07b1594ff40efa31f9b1d",
+  "reversible_edits": 6,
+  "inverse_recovers_entire_CUDA": true,
+  "old_FP32_load_sites_per_unrolled_route": 2,
+  "new_FP32_load_sites_per_unrolled_route": 1,
+  "saved_FP32_values_per_consumer_thread": 64,
+  "added_global_or_shared_scratch_bytes": 0,
+  "no_norm_gain_movement_or_BF16_conversion": true,
+  "limitations": [
+    "No exposed finalizer latency measurement",
+    "Register pressure may spill or force compiler reloads",
+    "Source-level reads are not measured L2/HBM traffic"
+  ],
+  "GPU_jobs": 0,
+  "kernel_execution": false
+}

@@ -1,0 +1,13 @@
+{
+  "source_sha256": "f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656",
+  "CUDA_sha256": "403bd12392a617b28ef14f5f92c0a8892c465b8ed851773b2ffe4d036d233733",
+  "namespace_export_query_binding_exact": true,
+  "dispatch_cases_checked": 1608,
+  "all44protected_exact": true,
+  "query_namespace_references": 9,
+  "fresh_outputs": true,
+  "separate_scratch": true,
+  "extra_weight_layouts": 0,
+  "actual_host_NVCC_and_runtime_resources_verified": false,
+  "GPU_jobs": 0
+}

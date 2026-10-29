@@ -1,0 +1,59 @@
+{
+  "full_CUDA_sha256": "403bd12392a617b28ef14f5f92c0a8892c465b8ed851773b2ffe4d036d233733",
+  "device_prefix_sha256": "b0e49b0f0ad4c1fffde45a6214a28bd1b7923d6232e07b1594ff40efa31f9b1d",
+  "finite_finalizer_cases": 72,
+  "CPU_same_bits_with_identical_FP32_arithmetic": true,
+  "output_fixture_sha256": "660e4a4b427997ceb7706ddd80f89b3b87c86023acea6bcd95373038cfc5d2f8",
+  "rejected_mutants": [
+    "load_invalid",
+    "premature_BF16",
+    "wrong_route"
+  ],
+  "all_nonlocal_zero_and_NaN_poison_masking": true,
+  "compiler": {
+    "parent": {
+      "cubin_sha256": "153629422f369f01ea6627187d52e52ea75fdb69f53cfc0e25410332568b5ac5",
+      "SASS_sha256": "a5ca3568695c71413a88cb9b07171450bfa4523f60a3166e8074f9da376e8679",
+      "static_instructions": {
+        "LDG.E.128": 156,
+        "LDL": 62,
+        "STL": 28,
+        "HGMMA": 1024,
+        "WARPGROUP.ARRIVE": 512,
+        "WARPGROUP.DEPBAR": 544
+      },
+      "base_registers_each": 96,
+      "offline_stack_bytes_each": 16,
+      "static_spill_store_bytes_each": 56,
+      "static_spill_load_bytes_each": 124
+    },
+    "candidate": {
+      "cubin_sha256": "6e2caedd20953bef477281bbcb619d333fc8c11745b3347b6ea2a07e7b02db36",
+      "SASS_sha256": "7f670642fefe61795ee6944e44bd3546cd2c957dc71f5fd8a00768db327decbc",
+      "static_instructions": {
+        "LDG.E.128": 124,
+        "LDL": 62,
+        "STL": 28,
+        "HGMMA": 1024,
+        "WARPGROUP.ARRIVE": 512,
+        "WARPGROUP.DEPBAR": 544
+      },
+      "base_registers_each": 96,
+      "offline_stack_bytes_each": 16,
+      "static_spill_store_bytes_each": 56,
+      "static_spill_load_bytes_each": 124
+    }
+  },
+  "vector_load_instructions_removed_each_BIG": 16,
+  "spills_and_matrix_wait_static_counts_equal": true,
+  "actual_runtime_attributes_verified": false,
+  "GPU_numerical_validation": false,
+  "GPU_performance_validation": false,
+  "GPU_jobs": 0,
+  "separate_codec_screen": {
+    "four_rotate_mask": "0x81c081c0",
+    "shift_triples_checked": 4495,
+    "exact_disjoint_covers": 0,
+    "conclusion": "No four-rotation-only bijection for this fixed output mask; other decoders not ruled out"
+  }
+}
