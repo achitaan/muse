@@ -1,3 +1,15 @@
+> READY FOR ONE PACED CHECK: Attention88026272, CUDAc02c053a,179965B;
+> results/attention-external-finalize-preflight-20261029/admission-v2/.
+> Independent mainloop/precision/barrier/fallback proof and20negative result
+> fixtures now pass. Cached exact9e full16/12/integrity baseline;5official
+> identity files exact. Tuning overrides do not alter intended full L8 cases
+> 9/11:264splits,flat,nc1; native actual residency/dispatch remains unverified.
+> Init one foreground controller, sole scope candidates/attention_active.py;
+> driver scripts/measure_attention_external.py; guard
+> scripts/verify_attention_external_evidence.py. Fixed performance criteria
+> remain unchanged. No GPU job yet. First launch>=13:50:40.319601UTC;
+> keep reserves/window20Toronto; broad top50 goal remains active.
+>
 > CPU FOLLOW-UP, October29: distinct Attention L8-full two-kernel merge draft
 > 4cbe0266; resource-admission88026272 (179965B), CUDAc02c053a. Existing FP32
 > payload reductions/mainloop/keys/scales/precision retained; MODE16 skips

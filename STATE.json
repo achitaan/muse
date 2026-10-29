@@ -147,7 +147,7 @@
   },
   "target_achieved": false,
   "active_track": "Attention external finalizer CPU admission",
-  "resume_note": "New L8 full two-kernel finalizer88026272 survives CPU ownership/numerical/epoch/compiler screens. Preserve full segment barriers and FP32 payload reductions; no global arrival atomics in new MODE16. Finish independent source/precision/result fault-injection guards and cached9e binding before one paced check >=13:50:40.319601UTC. No current job/controller. D9 and9e remain incumbents; broad top50 goal active.",
+  "resume_note": "Attention88026272 frozen/admitted for one paced source-bound check: independent source/precision proof,20negative guard fixtures,cached exact9e baseline,5fresh official identities. Start foreground one-iteration controller scope candidates/attention_active.py only. No GPU job yet; first new launch>=13:50:40.319601UTC. Broad top50 goal active; do not score on point alone.",
   "attention_checked": {
     "source": "best/attention_checked.py",
     "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
@@ -2856,7 +2856,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T13:37:55.725327+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T13:45:16.996300+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -3531,10 +3531,12 @@
     "extra_timed_kernel_launches": 1,
     "fresh_official_files_exact": 5,
     "GPU_jobs": 0,
-    "status": "not_admitted_until_independent_source_precision_and_result_guards_pass",
+    "status": "ready_for_one_paced_check_after_controller_init",
     "scope_cases": [
       9,
       11
-    ]
+    ],
+    "independent_source_precision_inverse_proof": true,
+    "guard_negative_fixtures": 20
   }
 }

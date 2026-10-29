@@ -122,3 +122,16 @@ Reject failures/ties without a noise rerun or neighbor sweep. No check before
 the20Toronto deadline. A future justified Decode transfer must port only this
 control/finalization mechanism onto D9's own FP16-PV source. It must not import
 the tied standalone FP8-PV mainloop or associate its score with the new source.
+
+
+Admission completion, before any GPU launch: independent source/precision
+proof confirms the entire mainloop prefix before completion is exact,
+MODE16 leaves original low-bit3/4/8 arithmetic decisions unchanged, both
+producer and consumer full-CTA barriers remain, and the cloned finalizer
+differs only by its name and the explicit read-before-clear warp ordering.
+All other Python nodes restore exactly after only native literals/_build
+admission are undone. The result guard passed a synthetic positive fixture
+and rejected20broken fixtures. They are not GPU measurements. Retained tuned
+overrides affect L8 sliding B32 and L1 single-request full only; the affected
+L8 full B16/B32 plans remain264splits,flat,nc1. Actual old/new residency and
+new-path execution still require the one official check.

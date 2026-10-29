@@ -1,0 +1,7 @@
+{
+  "exact_mainloop_before_completion": true,
+  "exact_new_finalizer_math_except_warp_ordering": true,
+  "full_segment_barriers_retained": true,
+  "all_other_Python_nodes_and_fallbacks_exact": true,
+  "original_BF16_norm_RoPE_attention_and_final_output_boundaries_preserved": true
+}
