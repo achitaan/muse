@@ -75,7 +75,7 @@ class NVRTC:
         self.check(getattr(self.lib, "nvrtcGet" + kind)(prog, buf))
         return bytes(buf.raw)
 
-    def compile(self, source: bytes, names, extra_flags=(), tags=True):
+    def compile(self, source: bytes, names, extra_flags=(), tags=True, lineinfo=True):
         prog = c.c_void_p()
         headers = (c.c_char_p * 2)(TAGS.encode(), STDINT.encode()) if tags else None
         includes = (c.c_char_p * 2)(b"type_traits", b"stdint.h") if tags else None
@@ -86,13 +86,12 @@ class NVRTC:
         flags = [
             "--gpu-architecture=sm_90a",
             "--std=c++20",
-            "--generate-line-info",
             "--device-as-default-execution-space",
             "--ptxas-options=-v",
             f"--include-path={inc1}",
             f"--include-path={inc2}",
             *extra_flags,
-        ]
+        ] + (["--generate-line-info"] if lineinfo else [])
         try:
             for n in names:
                 self.check(self.lib.nvrtcAddNameExpression(prog, n.encode()))
@@ -102,7 +101,7 @@ class NVRTC:
             dt = time.monotonic() - t0
             log = self.output(prog, "ProgramLog").rstrip(b"\0").decode(errors="replace")
             cubin = self.output(prog, "CUBIN") if rc == 0 else b""
-            return {"rc": rc, "log": log, "cubin_bytes": len(cubin), "seconds": round(dt, 3)}
+            return {"rc": rc, "log": log, "cubin_bytes": len(cubin), "cubin_sha256": hashlib.sha256(cubin).hexdigest(), "seconds": round(dt, 3)}
         finally:
             self.check(self.lib.nvrtcDestroyProgram(c.byref(prog)))
 

@@ -1,0 +1,57 @@
+{
+  "moe_finreg": {
+    "parent": "best\\moe_verified.py",
+    "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "candidate": "experiments\\opus_fresh\\candidates\\moe_finreg.py",
+    "candidate_sha256": "fe72a4b27fef4ebeb05549ed7130be9a47a3fc05812d576d615fe9fe9c63cad7",
+    "bytes": 179267,
+    "under_size_limit": true,
+    "cuda_parent_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+    "cuda_candidate_sha256": "f243603068b41ecc1b37279e9a6c50ae9c6a5d003c3e512eb71bc3c2030eeba2",
+    "edits": [
+      "wgs_flush DF branch: release-only",
+      "wgs_seg split tail: in-register designated finisher",
+      "extension name okc_moe_w4a16_v216x_pair1dq8_ -> okc_moe_w4a16_v216x_finreg1_"
+    ],
+    "inverse_restores_parent_exactly": true,
+    "ast_outside_cuda_and_name_unchanged": true
+  },
+  "decoder_finreg": {
+    "parent": "best\\decoder_verified.py",
+    "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "candidate": "experiments\\opus_fresh\\candidates\\decoder_finreg.py",
+    "candidate_sha256": "267fe3e19ca2e79db4fd32556743d0a2bd5d014416585c8f01dfff2a217c5121",
+    "bytes": 989346,
+    "under_size_limit": true,
+    "cuda_parent_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+    "cuda_candidate_sha256": "f243603068b41ecc1b37279e9a6c50ae9c6a5d003c3e512eb71bc3c2030eeba2",
+    "edits": [
+      "wgs_flush DF branch: release-only",
+      "wgs_seg split tail: in-register designated finisher",
+      "extension name okc_moe_w4a16_v216x_pair1dq8_ -> okc_moe_w4a16_v216x_finreg1_"
+    ],
+    "inverse_restores_parent_exactly": true,
+    "ast_outside_cuda_and_name_unchanged": true
+  },
+  "dense_o128": {
+    "parent": "best\\verified.py",
+    "parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+    "candidate": "experiments\\opus_fresh\\candidates\\dense_o128.py",
+    "candidate_sha256": "b638ca2a34e0dd12a1a37993c00702aff810bf2b322df71cc8339cab5b03ab7f",
+    "bytes": 644219,
+    "under_size_limit": true,
+    "parent_is_exact_prefix": true,
+    "appended": "o128_common.py + wrapper"
+  },
+  "decoder_o128": {
+    "parent": "best\\decoder_verified.py",
+    "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "candidate": "experiments\\opus_fresh\\candidates\\decoder_o128.py",
+    "candidate_sha256": "e55b382139248a5d4c8e0ae95cc23eccfd7813a13f5e40435b54e8c391051805",
+    "bytes": 995461,
+    "under_size_limit": true,
+    "parent_is_exact_prefix": true,
+    "appended": "o128_common.py + wrapper"
+  },
+  "gpu_status": "unmeasured: no GPU job, official check or score was run"
+}

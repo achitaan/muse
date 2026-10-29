@@ -1,0 +1,28 @@
+{
+  "dense": {
+    "cpu_prepare_keeps_incumbent": true,
+    "empty_choices_use_incumbent": true,
+    "dispatch": {
+      "exact_key": "NEW",
+      "nearby_M129": "BASE",
+      "other_layer": "BASE",
+      "non_contiguous": "BASE",
+      "fp32_input": "BASE"
+    },
+    "new_path_only_on_exact_key": true
+  },
+  "decoder": {
+    "cpu_prepare_keeps_incumbent": true,
+    "empty_choices_use_incumbent": true,
+    "dispatch": {
+      "exact_key": "NEW",
+      "nearby_M129": "BASE",
+      "other_layer": "BASE",
+      "non_contiguous": "BASE",
+      "fp32_input": "BASE",
+      "sliced_rows": "BASE"
+    },
+    "new_path_only_on_exact_key": true
+  },
+  "cuda_available_locally": false
+}
