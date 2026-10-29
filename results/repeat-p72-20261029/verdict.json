@@ -1,0 +1,22 @@
+{
+  "P7_repeat_readout_2355": {
+    "P7-path": [
+      "5e0ba944f9d24191 (P7)",
+      "repeat-p72 1.6695x"
+    ],
+    "parent-path": [
+      "P1",
+      "P2",
+      "P3",
+      "repeat-pctl1 fe6eb30c870f4908 1.6539x"
+    ],
+    "selected_shape_means": {
+      "first turn ctx0": 0.9614,
+      "first turn ctx32768": 1.0057,
+      "first turn ctx65536": 1.0152,
+      "turn 4 ctx80000": 1.0055
+    }
+  },
+  "rule": "each selected shape mean >= 1.02 and none < 1.00",
+  "decision": "NOT MET -> P7 rejected; no further P7 confirmation runs. The FA3 gain (3-5% in-process) is real but is 0.4-2% of each full shape, inside run-to-run spread."
+}
