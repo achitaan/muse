@@ -1,0 +1,27 @@
+{
+  "experiment": "D7 Dense cuBLASLt neighborhood search for the M=128/256 unpooler",
+  "frozen_before_launch_utc": "2026-10-29T23:17:00Z",
+  "parent": {
+    "sha256": "edc61a1e...765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "candidate_sha256": "f2bb94589ab113e9a9816b4e5e8032afac4682e3c1d42ff10577621e25abb1ef",
+  "evidence_basis": "D5 run 3b13fab22b2b4480: verify 16 unpooler 19.28 us vs SOL 14.64 (1.030x), verify 32 unpooler 23.64 vs 17.37 (1.045x); fixed descriptors (128: layout 2 [66,18,1,0,0,3,35,0,5]; 256: layout 3 [66,20,1,0,0,4,35,0,2]) never neighborhood-searched in this lane",
+  "affected": [
+    [
+      "verify 16",
+      "unpooler"
+    ],
+    [
+      "verify 32",
+      "unpooler"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks",
+    "selection": ">=3% faster in prepare, FP64 error <= 1.5x incumbent",
+    "retention": "affected normalized >= 1.03 vs parent profile; single-run wins need confirmation"
+  }
+}
