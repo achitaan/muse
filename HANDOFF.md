@@ -1,3 +1,11 @@
+> TRANSPORT RECOVERY, October29 at05:26UTC: e8e3086d upload returned a TLS
+> bad-record-MAC error; no GPU job created. Official jobs/quota reconciliation
+> at05:24:18 confirms MoE16checks/10scores unchanged. Controller012417ef
+> reverted asd12d820 and is archived. One unchanged-source transport retry is
+> authorized; all source/resource/scientific gates stay fixed. Evidence and
+> fresh API rank162/1467/source caveats: results/moe-epair-upload-error-20261029/.
+> Inspect new process/launch state before resuming; never blindly upload twice.
+
 > PREPARED CANDIDATE, October29 at05:08UTC: MoE phase-A paired BF16 stores
 > e8e3086d/336352bytes pass CPU full-layout/bit/host/guard audits. No GPU
 > result or speedup yet. Packet: results/moe-epair-store-preflight-20261029/;

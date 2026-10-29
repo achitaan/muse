@@ -1,0 +1,10 @@
+{
+  "decoder_package_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "native_moe_cuda_equals_retained_standalone": true,
+  "native_moe_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "candidate_patch_reproduces_standalone_cuda_exactly": true,
+  "candidate_cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+  "reversible_patch_literal_bytes": 3516,
+  "implementation_note": "Replace only WGS_MAIN source in _native_moe__ext before load_inline, use a distinct build tag and prelaunch resource gate; preserve small/fallback extension sources and compile counts. Requires a retained standalone gain first.",
+  "new_Decode_source_or_GPU_job": false
+}

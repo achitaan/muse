@@ -42,7 +42,27 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE phase-A paired BF16 stores e8e3086d are frozen/CPU-audited:8519680 exact halfword writes,65536 bit patterns,100 dispatch cases and12 guard rejections. One paced full check with strict resource/actual-path/material-gain gates; no new check before05:22:50.375730UTC. No GPU result yet. Gather paired-store screen remains parked. Attentioned810 remains rejected; no score/Decode transfer/retry.",
+  "next_trial": "Retry unchanged MoE e8e3086d upload once after a diagnosed TLS transport error: server jobs and quota reconciled at05:24:18UTC, no job created and16MoE checks remain. Failed controller archived/reverted. Full evidence: results/moe-epair-upload-error-20261029/. All scientific gates unchanged. No GPU result yet; no score/Decode transfer. Broad top50 goal active.",
+  "epair_upload_transport_recovery": {
+    "packet": "results/moe-epair-upload-error-20261029/",
+    "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+    "failed_run": "012417eff8e244af805643ba84f45c69",
+    "revert": "d12d820e9d0c7328c74462d0c39faab220380129",
+    "gpu_job_created": false,
+    "moe_checks_left_fresh": 16,
+    "retry_limit": "One unchanged-source transport retry after authoritative reconciliation"
+  },
+  "overall_api_snapshot_20261029_0517": {
+    "rank": 162,
+    "ranked": 1467,
+    "overall_speedup_exposed": false,
+    "aggregation_formula_verified": false,
+    "moe": {"rank": 66, "speedup": 2.3483, "job": "b6c70c9b83724d2e", "retained_source": true},
+    "decode": {"rank": 162, "speedup": 1.994, "job": "441eb580f3074669", "retained_corrected_source": false},
+    "attention": {"rank": 104, "speedup": 2.5624, "job": "20524d06e3894595", "retained_corrected_source": false},
+    "decode_rank50_speedup": 2.158,
+    "caveat": "Account board snapshot; do not assign historical Attention/Decode bests or account rank to corrected retained sources"
+  },
   "moe_epair_store_preflight": {
     "packet": "results/moe-epair-store-preflight-20261029/",
     "review": "experiments/prepared/moe_epair_store_review.md",

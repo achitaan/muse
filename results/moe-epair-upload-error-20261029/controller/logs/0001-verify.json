@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_moe_epair_store.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 751.515,
+  "returncode": 1,
+  "stderr": "Waiting locally for the authorized check slot; no API polling.\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\measure_moe_epair_store.py\", line 93, in <module>\r\n    main()\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\measure_moe_epair_store.py\", line 53, in main\r\n    launch = cli(['check', 'muse_moe_w4a16', f'{LINUX_ROOT}/{frozen.relative_to(ROOT).as_posix()}', '--no-wait', '--json'])\r\n  File \"C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\scripts\\official.py\", line 35, in cli\r\n    raise RuntimeError(result.stderr.strip() or result.stdout.strip())\r\nRuntimeError: {\r\n  \"error\": \"can't reach openkernelchallenge.dev: remote error: tls: bad record MAC\"\r\n}\r\n",
+  "stdout": "",
+  "timed_out": false
+}

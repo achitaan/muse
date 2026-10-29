@@ -1,0 +1,17 @@
+{
+  "observed_ordering_only_not_aggregation_formula": true,
+  "all_Decode_team_relative_orders_preserved_in_overall": false,
+  "first_insertion_position_1based": 269,
+  "Decode_top50_boundary": {
+    "attempts": 30,
+    "job": "3e3b9fd385ad4af7",
+    "rank": 50,
+    "speedup": 2.158,
+    "submitted_at": 1793156982.2433898,
+    "team": "tech-cosmos",
+    "value": 10482.126907062853
+  },
+  "boundary_over_corrected_D9_check": 1.0842995794541663,
+  "current_board_bests_not_all_retained_corrected_sources": true,
+  "inference_limit": "First268 sampled ranks aligned, but not all relative ordering is identical; this does not establish the overall formula. Raw overall API exposes board/rows only."
+}

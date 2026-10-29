@@ -1,0 +1,73 @@
+{
+  "historical_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "benchmark_profile_passes_differ": true,
+  "assumptions": [
+    "The standalone gain is reproduced exactly in-layer",
+    "Every saved profiled MoE microsecond is exposed and comparable to benchmark time",
+    "Other stages unchanged and no integration overhead"
+  ],
+  "not_a_forecast_bound_or_gpu_measurement": true,
+  "scenarios": [
+    {
+      "assumed_same_MoE_gain_in_layer": 1.03,
+      "per_load": {
+        "decode 1": 1.0,
+        "decode 16": 1.0,
+        "decode 32": 1.0126697959939577,
+        "verify 1": 1.0,
+        "verify 16": 1.017554247650306,
+        "verify 32": 1.0144134634553086
+      },
+      "conditional_track_gain": 1.007411116420311
+    },
+    {
+      "assumed_same_MoE_gain_in_layer": 1.05,
+      "per_load": {
+        "decode 1": 1.0,
+        "decode 16": 1.0,
+        "decode 32": 1.0208820930433187,
+        "verify 1": 1.0,
+        "verify 16": 1.0290232822757022,
+        "verify 32": 1.0237825122338908
+      },
+      "conditional_track_gain": 1.0122040771946472
+    },
+    {
+      "assumed_same_MoE_gain_in_layer": 1.075,
+      "per_load": {
+        "decode 1": 1.0,
+        "decode 16": 1.0,
+        "decode 32": 1.0308947629774416,
+        "verify 1": 1.0,
+        "verify 16": 1.0431043577256023,
+        "verify 32": 1.0352338902148082
+      },
+      "conditional_track_gain": 1.0180366871276822
+    },
+    {
+      "assumed_same_MoE_gain_in_layer": 1.1,
+      "per_load": {
+        "decode 1": 1.0,
+        "decode 16": 1.0,
+        "decode 32": 1.0406372604033984,
+        "verify 1": 1.0,
+        "verify 16": 1.0569096337672814,
+        "verify 32": 1.046406303799093
+      },
+      "conditional_track_gain": 1.0237005327180915
+    },
+    {
+      "assumed_same_MoE_gain_in_layer": 1.15,
+      "per_load": {
+        "decode 1": 1.0,
+        "decode 16": 1.0,
+        "decode 32": 1.0593543289800194,
+        "verify 1": 1.0,
+        "verify 16": 1.0837245767086248,
+        "verify 32": 1.067954042822879
+      },
+      "conditional_track_gain": 1.0345515173934061
+    }
+  ],
+  "decision": "Use measured standalone evidence first; this illustration cannot authorize a Decode check by itself. Require credible whole-layer savings and exact integration/resource evidence."
+}
