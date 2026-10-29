@@ -1,3 +1,15 @@
+> LATEST CHECKPOINT, October 29: repaired MoE paired stores compiled and passed
+> synthetic correctness but failed the fixed material performance gate as
+> 5262c2c560c94197. Reverted to33114871; no score or Decode transfer. Evidence:
+> results/moe-epair-store-repaired-check-20261029/. No active GPU job/controller.
+> CPU compiler screens reject the two simple Attention L8 overlap formulations.
+> Further CPU trace-width/pointer-lifetime screens do not remove the proxy's
+> stack increase and do not qualify a phase-only GPU retry. Preserve the old
+> diagnostic's failed timing admission. No next runtime candidate is qualified.
+> Derived92checks/50scores remain, including14MoEchecks; no new check before
+> 07:28UTC/03:28Toronto. The20:00Toronto window and reserves remain unchanged.
+> All candidate/live/quota headers below are historical. See HANDOFF.md first.
+
 > LATEST TERMINAL RESULT, October29: Attention787962a762c24249/ed810c7a
 > passed16tests/12benchmarks/integrity at2.640210548x with128registers,
 > zero local bytes and two resident blocks. Affected GM1.043242463 versus

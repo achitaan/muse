@@ -1,0 +1,79 @@
+{
+  "parent_submission_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "compiler": "NVRTC13.0.88 Windows sm_90a; documented virtual headers/forward declaration",
+  "baseline_compiled_prefix_sha256": "fb4d37e0272761f5549bcdfa4bb353fb7c664f87c0bdffbc082645e60ba463c5",
+  "baseline_resource_dump": "\r\nResource usage:\r\n Common:\r\n  GLOBAL:250 CONSTANT[4]:376\r\n Function _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE:\r\n  REG:96 STACK:16 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n Function _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE:\r\n  REG:96 STACK:16 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n",
+  "rows": [
+    {
+      "variant": "moe-debug64-original",
+      "original_cuda_sha256": "bc1ca06c8124e76b2ed65d56ad2fa465f601b85a70e95f0bd73a33d0c3493e37",
+      "cubin_sha256": "1103baad1feb9fe2b2f2d722dd3e4bd22dfab5180af3d8b06ead17664793fb88",
+      "compiled_prefix_sha256": "7cf8c3ccec415bc6175ee80658eece2716edfb7938b46a158414a3b73f964e68",
+      "resource_dump": "\r\nResource usage:\r\n Common:\r\n  GLOBAL:250 CONSTANT[4]:376\r\n Function _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE:\r\n  REG:96 STACK:24 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n Function _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE:\r\n  REG:96 STACK:24 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n",
+      "per_BIG_resource_fields": [
+        [
+          96,
+          24,
+          1024,
+          0
+        ],
+        [
+          96,
+          24,
+          1024,
+          0
+        ]
+      ]
+    },
+    {
+      "variant": "moe-debug32-lowword",
+      "original_cuda_sha256": "2af89061954a4947d40a8000c6327e7729373d4d62119420ed795fc93623af02",
+      "cubin_sha256": "34a4c9b87c806350664356e94ccc54465410e157521f061db92b60b2f064e919",
+      "compiled_prefix_sha256": "00db0f04f58909287e59f1877892eb2d688bd63a1b93655c5f3fe12a635d1e4f",
+      "resource_dump": "\r\nResource usage:\r\n Common:\r\n  GLOBAL:250 CONSTANT[4]:376\r\n Function _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE:\r\n  REG:96 STACK:24 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n Function _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE:\r\n  REG:96 STACK:24 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n",
+      "per_BIG_resource_fields": [
+        [
+          96,
+          24,
+          1024,
+          0
+        ],
+        [
+          96,
+          24,
+          1024,
+          0
+        ]
+      ]
+    },
+    {
+      "variant": "moe-debug-remat",
+      "original_cuda_sha256": "81cd86192e5a78cc12ee653a5294208c09bfd423c71b891d8739815f2392ec3a",
+      "cubin_sha256": "38476148b936dde97ed5463b5e39135be92314027699f65c7a8a316ed66ea78d",
+      "compiled_prefix_sha256": "c0f2808a875a8e0643e4eee6cb55d2093f0d257e1ab483e1dc6fa15f679649cc",
+      "resource_dump": "\r\nResource usage:\r\n Common:\r\n  GLOBAL:258 CONSTANT[4]:384\r\n Function _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE:\r\n  REG:96 STACK:32 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n Function _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE:\r\n  REG:96 STACK:32 SHARED:1024 LOCAL:0 CONSTANT[2]:56 CONSTANT[0]:800 TEXTURE:0 SURFACE:0 SAMPLER:0\r\n",
+      "per_BIG_resource_fields": [
+        [
+          96,
+          32,
+          1024,
+          0
+        ],
+        [
+          96,
+          32,
+          1024,
+          0
+        ]
+      ]
+    }
+  ],
+  "official_GPU_jobs": 0,
+  "kernel_execution": false,
+  "host_implementations_written": false,
+  "latency_measurements": false,
+  "runtime_localSizeBytes_inferred": false,
+  "conclusion": "None removes the proxy stack increase: original16, DEBUG64/low32 each24, pointer-remat32. No GPU retry or source promotion.",
+  "limitation": "Offline STACK/LOCAL fields are not official runtime attributes; these builds do not identify the cause of historical GPU local8 bytes or prove all instrumentation designs impossible."
+}

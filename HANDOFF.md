@@ -1,3 +1,11 @@
+> CPU FOLLOW-UP, October 29: three trace-resource formulations compiled locally.
+> DEBUG64 and low-word timers each add eight offline stack bytes relative to
+> the retained proxy; pointer-rematerialization adds sixteen. None earns a GPU
+> retry. These fields do not identify the cause of the old runtime local8-byte
+> diagnostic result, whose timing admission stays false. Evidence/reproduction:
+> results/moe-trace-resource-screen-20261029/. No runtime candidate changed,
+> no GPU job active, quota unchanged. Continue with a distinct runtime mechanism.
+
 > LATEST RESULT, October 29 at 06:33 UTC: MoE repaired paired-store check
 > 5262c2c560c94197 compiled and passed all 18 synthetic comparisons, changing
 > graph replays and analytic probes, but failed its fixed performance gate.

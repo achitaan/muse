@@ -3078,5 +3078,19 @@
     "decode_D9_matrix_wait_sequence_matches_retained_L8_in_proxy": true,
     "next_runtime_candidate_qualified": false,
     "numerical_and_performance_validation": false
+  },
+  "moe_trace_resource_screen": {
+    "observed_utc": "2026-10-29T06:56:04.624118+00:00",
+    "directory": "results/moe-trace-resource-screen-20261029/",
+    "kind": "CPU-only NVRTC13.0.88 Windows sm_90a diagnostic preflight",
+    "original_offline_stack_bytes": 16,
+    "DEBUG64_and_low_word_stack_bytes": 24,
+    "pointer_rematerialization_stack_bytes": 32,
+    "same_reported_base_registers": 96,
+    "actual_runtime_resource_attributes_inferred": false,
+    "historical_timing_admission_changed": false,
+    "decision": "These formulations do not support a GPU diagnostic retry; preserve verified source and seek a distinct runtime mechanism",
+    "GPU_jobs_used": 0,
+    "runtime_source_changed": false
   }
 }
