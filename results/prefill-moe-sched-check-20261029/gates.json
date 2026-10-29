@@ -1,0 +1,18 @@
+{
+  "experiment": "P2 Prefill MoE schedule selector (large x fine per scored token count)",
+  "frozen_before_launch_utc": "2026-10-29T22:53:00Z",
+  "parent": {
+    "sha256": "93e57ab4...aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "candidate_sha256": "245a5d4cc417dd1d0640a274b0e3e595173ced336ca537c8467f21aa550504fa",
+  "evidence_basis": "MoE is 37-44% of every Prefill shape (profile 9ca79c7f676f4b63); schedule thresholds 8192/2048 vs scored T 753/3012/16384",
+  "affected_rule": "loads whose T is PG_SELECTed in the log",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks",
+    "selection": ">=3% faster in prepare, output rel-L2 < 1e-2 vs incumbent schedule",
+    "retention": "affected normalized >= 1.03"
+  }
+}
