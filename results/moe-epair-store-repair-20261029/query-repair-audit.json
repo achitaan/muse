@@ -1,0 +1,24 @@
+{
+  "failed_source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "source_sha256": "9fc2993a9cc3b3723ad24c8016cca6bf9915d53958b821da222f5ebe240d944d",
+  "source_bytes": 336334,
+  "query_namespace_references_corrected": 9,
+  "only_query_constant_AST_changed": true,
+  "every_runtime_function_AST_unchanged": true,
+  "cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+  "cuda_algorithm_bytes_unchanged": true,
+  "same_resource_query_as_previously_compiled_factor_module_after_identifier_binding": true,
+  "exports_declarations_and_prepare_method_agree": true,
+  "rejected_mutants": [
+    "original_wrong_namespace",
+    "wrong_geometry_namespace",
+    "missing_export",
+    "wrong_host_method"
+  ],
+  "numerical_resource_selection_and_performance_gates_unchanged": true,
+  "previous_CPU_layout_and_host_audits_reused_without_relabelling": true,
+  "gpu_verified": false,
+  "compile_verified": false,
+  "new_gpu_jobs": 0,
+  "next_check_not_before_utc": "2026-10-29T06:27:37.228843Z"
+}

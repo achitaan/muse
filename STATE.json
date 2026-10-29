@@ -42,7 +42,29 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Retry unchanged MoE e8e3086d upload once after a diagnosed TLS transport error: server jobs and quota reconciled at05:24:18UTC, no job created and16MoE checks remain. Failed controller archived/reverted. Full evidence: results/moe-epair-upload-error-20261029/. All scientific gates unchanged. No GPU result yet; no score/Decode transfer. Broad top50 goal active.",
+  "next_trial": "MoE98e3538e85244c1d/e8e3086d failed setup: resource-query namespace okc_epair_y should be okc_epair. No numerical or performance result. Controller reverted/archived. Repair9fc2993a changes exactly9 query references; new binding regressions and unchanged scientific guard pass CPU tests. Packet results/moe-epair-store-repair-20261029/. One bounded repair check after06:27:37.228843UTC; no active job/controller now. ExpectedMoE15checks; no score/Decode transfer.",
+  "moe_epair_terminal": {
+    "packet": "results/moe-epair-store-20261029/",
+    "job": "98e3538e85244c1d",
+    "status": "compile_setup_failed",
+    "device_execution_verified": false,
+    "speedup": null,
+    "revert": "fe8175257d5e31161ff10e58232b61e256c3929e",
+    "derived_moe_checks_left": 15,
+    "derived_total_checks_left": 93,
+    "scores_used": 0
+  },
+  "moe_epair_query_repair": {
+    "packet": "results/moe-epair-store-repair-20261029/",
+    "source_sha256": "9fc2993a9cc3b3723ad24c8016cca6bf9915d53958b821da222f5ebe240d944d",
+    "source_bytes": 336334,
+    "cuda_sha256_unchanged": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+    "only_resource_query_constant_changed": true,
+    "binding_regression_mutants_rejected": 4,
+    "scientific_gates_unchanged": true,
+    "gpu_verified": false,
+    "next_check_not_before_utc": "2026-10-29T06:27:37.228843Z"
+  },
   "epair_upload_transport_recovery": {
     "packet": "results/moe-epair-upload-error-20261029/",
     "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",

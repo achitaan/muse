@@ -1,0 +1,167 @@
+ges/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu -o cuda.cuda.o 
+FAILED: [code=2] cuda.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_epair_y_fcc2c595d76302e8 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu -o cuda.cuda.o 
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: name followed by "::" must be a class or namespace name
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                        ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: expected an identifier
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: expected a ")"
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: no instance of overloaded function "cudaFuncSetAttribute" matches the argument list
+            argument types are: (<error-type>)
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+   ^
+/usr/local/cuda/include/cuda_runtime.h(2448): note #3322-D: number of parameters of function template "cudaFuncSetAttribute(T *, cudaFuncAttribute, int)" does not match the call
+  static __inline__ __attribute__((host)) cudaError_t cudaFuncSetAttribute(
+                                                      ^
+/usr/local/cuda/include/cuda_runtime_api.h(4030): note #3322-D: number of parameters of function "cudaFuncSetAttribute(const void *, cudaFuncAttribute, int)" does not match the call
+  extern __attribute__((host)) __attribute__((cudart_builtin)) cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttribute attr, int value);
+                                                                           ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: const variable "cudaFuncAttributeMaxDynamicSharedMemorySize" requires an initializer
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                  ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: expected an identifier
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                     ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2721): error: expected a ";"
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                         ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: name followed by "::" must be a class or namespace name
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                        ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: expected an identifier
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: expected a ")"
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: no instance of overloaded function "cudaFuncSetAttribute" matches the argument list
+            argument types are: (<error-type>)
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+   ^
+/usr/local/cuda/include/cuda_runtime.h(2448): note #3322-D: number of parameters of function template "cudaFuncSetAttribute(T *, cudaFuncAttribute, int)" does not match the call
+  static __inline__ __attribute__((host)) cudaError_t cudaFuncSetAttribute(
+                                                      ^
+/usr/local/cuda/include/cuda_runtime_api.h(4030): note #3322-D: number of parameters of function "cudaFuncSetAttribute(const void *, cudaFuncAttribute, int)" does not match the call
+  extern __attribute__((host)) __attribute__((cudart_builtin)) cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttribute attr, int value);
+                                                                           ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: const variable "cudaFuncAttributeMaxDynamicSharedMemorySize" requires an initializer
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                 ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: expected an identifier
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                    ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2722): error: expected a ";"
+   cudaFuncSetAttribute(okc_epair_y::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm)
+                                                                                                        ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2724): error: name followed by "::" must be a class or namespace name
+   cudaFuncGetAttributes(&a, okc_epair_y::moe_fused<false>)
+                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2724): error: expected an identifier
+   cudaFuncGetAttributes(&a, okc_epair_y::moe_fused<false>)
+                                                    ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2724): error: expected a ")"
+   cudaFuncGetAttributes(&a, okc_epair_y::moe_fused<false>)
+                                                    ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2725): error: name followed by "::" must be a class or namespace name
+   cudaFuncGetAttributes(&b, okc_epair_y::moe_fused<true>)
+                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2725): error: expected an identifier
+   cudaFuncGetAttributes(&b, okc_epair_y::moe_fused<true>)
+                                                    ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2725): error: expected a ")"
+   cudaFuncGetAttributes(&b, okc_epair_y::moe_fused<true>)
+                                                    ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: name followed by "::" must be a class or namespace name
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+                                                      ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: expected an identifier
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+                                                                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: expected a ")"
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+                                                                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: no instance of overloaded function "cudaOccupancyMaxActiveBlocksPerMultiprocessor" matches the argument list
+            argument types are: (int *, <error-type>)
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+   ^
+/usr/local/cuda/include/cuda_runtime_api.h(4276): note #3322-D: number of parameters of function "cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *, const void *, int, size_t)" does not match the call
+  extern __attribute__((host)) __attribute__((cudart_builtin)) cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, const void *func, int blockSize, size_t dynamicSMemSize);
+                                                                           ^
+/usr/local/cuda/include/cuda_runtime.h(1789): note #3322-D: number of parameters of function template "cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *, T, int, size_t)" does not match the call
+  static __inline__ __attribute__((host)) cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+                                                      ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: const variable "okc_epair_y" requires an initializer
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+                                                                                                ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2727): error: expected a ";"
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&oa, okc_epair_y::moe_fused<false>, okc_epair_y::NTL, sm)
+                                                                                                ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: name followed by "::" must be a class or namespace name
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+                                                      ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: expected an identifier
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+                                                                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: expected a ")"
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+                                                                             ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: no instance of overloaded function "cudaOccupancyMaxActiveBlocksPerMultiprocessor" matches the argument list
+            argument types are: (int *, <error-type>)
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+   ^
+/usr/local/cuda/include/cuda_runtime_api.h(4276): note #3322-D: number of parameters of function "cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *, const void *, int, size_t)" does not match the call
+  extern __attribute__((host)) __attribute__((cudart_builtin)) cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, const void *func, int blockSize, size_t dynamicSMemSize);
+                                                                           ^
+/usr/local/cuda/include/cuda_runtime.h(1789): note #3322-D: number of parameters of function template "cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *, T, int, size_t)" does not match the call
+  static __inline__ __attribute__((host)) cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+                                                      ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: const variable "okc_epair_y" requires an initializer
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+                                                                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2728): error: expected a ";"
+   cudaOccupancyMaxActiveBlocksPerMultiprocessor(&ob, okc_epair_y::moe_fused<true>, okc_epair_y::NTL, sm)
+                                                                                               ^
+
+/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu(2730): error: name followed by "::" must be a class or namespace name
+            (int64_t)a.sharedSizeBytes, (int64_t)b.sharedSizeBytes, (int64_t)sm, oa, ob, okc_epair_y::NTL};
+                                                                                         ^
+
+33 errors detected in the compilation of "/tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/cuda.cu".
+[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_epair_y_fcc2c595d76302e8 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-twvlkt9g/sandbox/cache/torch_extensions/okc_moe_epair_y_fcc2c595d76302e8/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+

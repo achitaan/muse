@@ -1,3 +1,12 @@
+> LATEST TERMINAL RESULT, October29: MoE98e3538e85244c1d/e8e3086d failed
+> compilation in the resource query (wrong namespace), before tests/timing.
+> One check used; no performance result or score. Controller reverted fe81752,
+> archived. Evidence: results/moe-epair-store-20261029/. Repair9fc2993a changes
+> only nine query references; four new query regressions and twelve unchanged
+> guard mutants pass. Packet: results/moe-epair-store-repair-20261029/.
+> No active job/controller. Next check not before06:27:37.228843UTC. Derived
+> MoE15checks, total93checks/50scores. All verified sources unchanged.
+
 > TRANSPORT RECOVERY, October29 at05:26UTC: e8e3086d upload returned a TLS
 > bad-record-MAC error; no GPU job created. Official jobs/quota reconciliation
 > at05:24:18 confirms MoE16checks/10scores unchanged. Controller012417ef

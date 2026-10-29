@@ -1,0 +1,15 @@
+{
+  "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "failure": "Official CLI upload returned TLS bad record MAC",
+  "server_reconciled_utc": "2026-10-29T05:24:18.815050+00:00",
+  "no_new_job": true,
+  "quota_unchanged": {
+    "per_day": 20,
+    "used": 4,
+    "left": 16
+  },
+  "retry": "Exactly one unchanged-source transport retry, not a kernel/parameter retry; all gates and TLS validation unchanged",
+  "previous_run": "012417eff8e244af805643ba84f45c69",
+  "original_trial": "ff42d1542041fc2c5669d44c9bfb9da57128894b",
+  "controller_revert": "d12d820e9d0c7328c74462d0c39faab220380129"
+}

@@ -1,0 +1,37 @@
+{
+  "job": "98e3538e85244c1d",
+  "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "status": "done",
+  "full_suite_passed": false,
+  "failure": "Resource query references okc_epair_y but compiled kernel namespace is okc_epair",
+  "source_occurrences_to_repair": 9,
+  "captured_compiler_error_lines": [
+    2721,
+    2722,
+    2724,
+    2725,
+    2727,
+    2728,
+    2730
+  ],
+  "device_kernel_execution_verified": false,
+  "resource_attributes": null,
+  "speedup": null,
+  "tests_completed": 0,
+  "benchmarks_completed": 0,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "scored_runs_used": 0,
+  "checks_used": 1,
+  "derived_moe_checks_left": 15,
+  "derived_all_checks_left": 93,
+  "all_scores_left": 50,
+  "next_check_not_before_utc": "2026-10-29T06:27:37.228843Z",
+  "controller_run": "9997790027004ae09ded739524755f9a",
+  "trial_commit": "badb91bccfd246c55e8bdda3c0fbca170b21d53e",
+  "revert_commit": "fe8175257d5e31161ff10e58232b61e256c3929e",
+  "next_action": "One bounded namespace-only repair, with fresh host-query binding regression tests and unchanged numerical/resource/performance gates; observe normal hourly pacing. No performance conclusion or Decode transfer."
+}

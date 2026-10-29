@@ -1,3 +1,11 @@
+> LATEST RESULT, October29: e8e3086d/check98e3538e85244c1d failed resource-query
+> compilation (okc_epair_y vs actual okc_epair). No device correctness or timing
+> evidence. Original33114871 restored, no score or Decode transfer. One check.
+> Nine-reference repair9fc2993a preserves CUDA9d6c4354 and every scientific gate;
+> four new query-wiring mutants and twelve full-guard mutants are rejected.
+> Packet: results/moe-epair-store-repair-20261029/. No active job/controller;
+> earliest next check06:27:37.228843UTC. Expected MoE15checks left.
+
 > PREPARED CANDIDATE, October29 at05:08UTC: e8e3086d changes only WGS
 > phase-A store representation, with original numerical expressions and
 > scheduler. CPU audit covers8,519,680 writes/all counts1..64/all4096columns,

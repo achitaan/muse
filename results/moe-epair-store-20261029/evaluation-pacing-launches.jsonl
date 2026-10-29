@@ -1,0 +1,5 @@
+{"problem": "muse_bf16_proj", "job_id": "62f428608bbf41aa", "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b", "submitted_utc": "2026-10-29T01:21:46.196044+00:00", "action": "check"}
+{"problem": "muse_moe_w4a16", "job_id": "e66873fa2adc4030", "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b", "submitted_utc": "2026-10-29T02:22:01.371647+00:00", "action": "check"}
+{"problem": "muse_moe_w4a16", "job_id": "92577a6426f74605", "source_sha256": "85a317b7bd44cad6f34bf0e3d6d83fc62569867acc7f46c223822d44c36fa741", "submitted_utc": "2026-10-29T03:22:28.724212+00:00", "action": "check"}
+{"problem": "muse_attention_decode", "job_id": "787962a762c24249", "source_sha256": "ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd", "submitted_utc": "2026-10-29T04:22:50.375730+00:00", "action": "check"}
+{"problem": "muse_moe_w4a16", "job_id": "98e3538e85244c1d", "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8", "submitted_utc": "2026-10-29T05:27:37.228843+00:00", "action": "check"}

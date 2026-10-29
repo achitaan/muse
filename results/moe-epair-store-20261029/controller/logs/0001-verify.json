@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_moe_epair_store.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 228.578,
+  "returncode": 0,
+  "stderr": "MoE paired-store check 98e3538e85244c1d: received\r\nMoE paired-store check 98e3538e85244c1d: running\r\nMoE paired-store check 98e3538e85244c1d: done\r\n",
+  "stdout": "{\"speedup\": 0.0, \"correct\": false, \"job\": \"98e3538e85244c1d\", \"source_sha256\": \"e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8\", \"error\": null}\r\n",
+  "timed_out": false
+}
