@@ -1,0 +1,7 @@
+{
+  "experiment": "P5 confirmation of P4 (identical code + trailing comment)",
+  "frozen_before_launch_utc": "2026-10-29T23:19:00Z",
+  "candidate_sha256": "15cc2a942f13312b3a5f92fcd15d22b6d5807df7331ef672501aecfe51049992",
+  "confirms": "37a3e45b4e4b431d",
+  "retention": "retain P4 in the lane only if P5 again selects and applies both keys and the two affected shapes are normalized >= 1.02 vs each of P1/P2/P3 on average across P4 and P5; otherwise not retained"
+}

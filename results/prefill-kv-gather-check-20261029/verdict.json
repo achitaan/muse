@@ -1,0 +1,64 @@
+{
+  "experiment": "P4 Prefill contiguous-KV FA3 selector",
+  "job": "37a3e45b4e4b431d",
+  "candidate_sha256": "5d08eb926b36b190ae789d26db849340b2744fb8d5ad4f4d70f9f906487b5e53",
+  "official": {
+    "passed": true,
+    "speedup": 1.6531206860974055,
+    "ci": [
+      1.6283238758059444,
+      1.6779174963888663
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "selector_us": {
+    "(1,753,80753)": {
+      "paged": 423.1,
+      "gathered": 515.9,
+      "selected": false
+    },
+    "(4,753,80753)": {
+      "paged": 1629.5,
+      "gathered": 1942.2,
+      "selected": false
+    },
+    "(1,16384,16384)": {
+      "paged": 900.5,
+      "gathered": 887.8,
+      "selected": false
+    },
+    "(1,16384,49152)": {
+      "paged": 4474.3,
+      "gathered": 4304.9,
+      "selected": true
+    },
+    "(1,16384,81920)": {
+      "paged": 8071.5,
+      "gathered": 7766.6,
+      "selected": true
+    }
+  },
+  "runtime": "P4_USE printed for both selected keys (applied); others P4_PAGED",
+  "affected_normalized": {
+    "vs P1 bb9ce14d3ad8490b": [
+      1.0113,
+      1.0182
+    ],
+    "vs P2 b5556364aff148f9": [
+      1.0385,
+      1.0247
+    ],
+    "vs P3 f2241332a476452e": [
+      1.0555,
+      1.0438
+    ],
+    "order": [
+      "first turn full ctx 32768",
+      "first turn full ctx 65536"
+    ]
+  },
+  "decision": "provisional: mechanism measured in-process (FA3 -3.8% on both selected shapes, expected shape gain ~1.2-1.8%); single-run gate mixed vs same-night references; confirmation run P5 launched"
+}
