@@ -1,3 +1,9 @@
+> October29 CPU audit: results/decode-boundary-audit-20261029/ binds the
+> final D9 call graph, existing fusions and main/side stream joins. It adds
+> no runtime code or GPU result. The MoE factor trial was rejected and will
+> not transfer. Preserve D9 and CPU preparation draft307dd791. Next inspect
+> Attention regimes for a distinct mechanism with credible whole-layer value.
+
 > Latest checkpoint: 2026-10-28T22:34:05.967226+00:00. Attention9e922c35 scored2.537000514x,
 > full16/12/integrity; retained segment/index-domain repair. DecodeD9FE7558
 > checked1.990224880x as9560c915e85f4f50, full13/12/integrity. Unscored repair;

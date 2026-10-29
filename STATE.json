@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Factor scratch/cache85a317b7 rejected: resources and synthetic numerical probes passed, but paired main shapes lost0.36..0.84%; official suite selected incumbents. No score/transfer/retry. Inspect remaining Decode boundaries and distinct mechanisms offline; next new check no earlier than04:22:28.724212UTC and only when justified.",
+  "next_trial": "Inspect retained Attention full-context regimes and exact Decode transfer differences for a distinct source-backed runtime mechanism. Decode boundary audit complete without a selected runtime candidate; no rejected MoE transfer. No new check before04:22:28.724212UTC; preserve all bests and reserves.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "decode_remaining_boundary_audit_after_moe_factor_rejection",
+  "active_track": "attention_regime_source_audit_after_decode_boundary_map",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2765,7 +2765,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T03:30:27.928230+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T03:39:41.143740+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -2842,5 +2842,12 @@
     "total_checks": 95,
     "total_scores": 50,
     "next_new_check_not_before_utc": "2026-10-29T04:22:28.724212+00:00"
+  },
+  "decode_boundary_audit": {
+    "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "directory": "results/decode-boundary-audit-20261029/",
+    "cpu_only": true,
+    "new_gpu_jobs": 0,
+    "runtime_candidate_selected": null
   }
 }

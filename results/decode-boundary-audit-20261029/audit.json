@@ -1,0 +1,66 @@
+{
+  "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "cpu_only": true,
+  "new_gpu_jobs": 0,
+  "retained_load_table_sha256": "736446103b712298ab13d1bfd84f21a7eaa7b2e3cd44a78a20e21df70cc8c81c",
+  "final_function_bindings": {
+    "kernel_fn": {
+      "first_line": 6971,
+      "ast_sha256": "738cbea611f2b396a9fa88545cd1cc874f7a8729a44177e1153160cf6515d4de"
+    },
+    "_pn_expert_inputs": {
+      "first_line": 7296,
+      "ast_sha256": "601dba2360fbae3513db80d22abdbc1935c9bc69f6c50fc255da8919334e7a8d"
+    },
+    "_pn_inputs_kernel": {
+      "first_line": 7278,
+      "ast_sha256": "fe9fecf46fb31647d741de893a2f40d22ba13e96ed2b8317fe4c5f712e1e519a"
+    },
+    "_sfn_boundary": {
+      "first_line": 7353,
+      "ast_sha256": "746e1de5f40076a68107d7fdcf07b2d8b5dcc83a6a62f5f5fdcbbebbf61c7bab"
+    },
+    "_sfn_kernel": {
+      "first_line": 7330,
+      "ast_sha256": "71ea4be359d9b85ddee5b45c231d9f6a358498a75904ff5c0eea24b3c0babfd0"
+    },
+    "_achita_wide_router": {
+      "first_line": 7310,
+      "ast_sha256": "4eada2033490f977fdfb8dabc48a422acb7490b3f468657192d0923b6123d2ba"
+    },
+    "_experts": {
+      "first_line": 7101,
+      "ast_sha256": "6fed257d938f6758de108d1968443aecf46b8637ef88979293f6886184888b7c"
+    }
+  },
+  "router_fp32_max_tokens": 8,
+  "fused_pooler_router_tokens": [
+    9,
+    32
+  ],
+  "sliced_zero_tail_unpooler_max_tokens": 8,
+  "sliced_unpooler_columns": 1024,
+  "full_ffn_norm_domain": 8192,
+  "runtime_dependency": [
+    "QKV",
+    "native attention/cache/norm/gate",
+    "O",
+    "attention residual/norm",
+    "pooler + router/routing",
+    "pre-expert norm/local-ID mapping",
+    "MoE",
+    "unpooler",
+    "FFN residual/norm"
+  ],
+  "concurrency": "Outside eligible9..32 fusion, pooler runs on main stream while router/routing run on side stream; join precedes expert preprocessing",
+  "metadata_reads_are_not_timeline_proof": true,
+  "accepted_runtime_candidate": null,
+  "rejected_shortcuts": [
+    "Treat source launch order as a measured critical path",
+    "Fuse concurrent router/pooler by serializing their work",
+    "Normalize GEMM partial output tiles independently",
+    "Re-add the retained expert-input or small zero-tail fusion",
+    "Transfer rejected MoE factor cache"
+  ],
+  "next_evidence": "A distinct source mechanism and conservative recoverable whole-layer time; preserve source/profile regime identity and all precision/fallback boundaries"
+}
