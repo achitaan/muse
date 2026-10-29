@@ -147,6 +147,22 @@ another option wins by >=3% with matching output.
 - Not published (scored submissions were not authorized); `best/attention_checked.py` unchanged.
   Decode transfer not checked: ?0.7 ?s of 138 ?s on one Decode shape, below resolution.
 
+### A4 - attention probes on top of A3 - probes rejected, A3 setting won a fourth time
+
+- Candidate `3e8ff2b3e8676c1756ad4072bc178ede9bc816e7802d8de228d299fa1b5ae260`; check
+  `1ff88c24d1ef4932`: passed, 2.3880791x; control GM 0.9871.
+- Normalized per shape: decode 16 sliding n_splits=8 (A3 setting) 1.0992 (4th win: 8.58 us vs
+  9.31); probes decode 1 full nc 8->4 0.9409, decode 16 full flat 264->396 0.8332, verify 1 full
+  252->132 0.9157, verify 1 sliding coop 1->0 0.8565. All four probes rejected.
+
+### D2 - Decode transfer of the A3 split - not retained
+
+- Candidate `58931ccd297e6bba3fa8a593b37edb63494ac9ee9676138bf3c781ccdf0af424` (989,060 B,
+  `_native_attn__TUNED` gains `(16, 1, True, 1): dict(n_splits=8, nc=1)` over D9); check
+  `1245828eda2e4d54`: passed, 1.9729413x vs parent 1.9902249x.
+- decode 16 sliding 138.35 -> 133.18 us (1.039), but unchanged full-context controls moved
+  +0.3..+4.5% and other sliding loads -3.7..+10% in the same run: not separable from drift.
+
 ## Authorization and quota record
 
 - 60-minute pacing applied until 22:11 UTC; afterwards the user authorized more frequent free
