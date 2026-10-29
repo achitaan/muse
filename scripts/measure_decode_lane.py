@@ -9,6 +9,7 @@ usage: python scripts/measure_decode_lane.py <candidate.py> <result-dir> [check|
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -51,10 +52,11 @@ def pacing():
         rows = [json.loads(line) for line in LEDGER.read_text().splitlines() if line.strip()]
         last = max(datetime.fromisoformat(r['submitted_utc']) for r in rows)
         waited = (now - last).total_seconds() / 60
-        if waited >= policy['minimum_minutes_between_new_checks']:
+        spacing = float(os.environ.get('LANE_MIN_SPACING_MIN', policy['minimum_minutes_between_new_checks']))
+        if waited >= spacing:
             return policy
         print(f'waiting locally for the paced slot ({waited:.1f} min since last accepted launch); no API calls', flush=True)
-        time.sleep(min(60.0, (policy['minimum_minutes_between_new_checks'] - waited) * 60 + 2))
+        time.sleep(min(60.0, (spacing - waited) * 60 + 2))
 
 
 def main():
