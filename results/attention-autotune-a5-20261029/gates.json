@@ -1,0 +1,17 @@
+{
+  "experiment": "A5 Attention first-call split autotune per shape (on top of A3)",
+  "frozen_before_launch_utc": "2026-10-29T23:14:00Z",
+  "parent": {
+    "sha256": "ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1",
+    "job": "8347b4ca3b1e42e5",
+    "speedup": 2.6123
+  },
+  "reference_profile": "results/attention-segment-repair-20261028/publication/9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f/profiles/submission.8b767ea7b2b74de6.json",
+  "candidate_sha256": "8b64d6c862ab91742de98e5154758a6410f10497fc8f9a101fae547955e7a49a",
+  "bytes": 176773,
+  "mechanism": "first eager call per launch shape (never under capture): n_splits x{0.5,0.75,1.25,1.5,2} capped at tiles (flat: B*tiles), coop toggle only when all CTAs resident; interleaved cold-L2 graph timing; incumbent unless >=3% faster than the better of two incumbent timings and rel-L2 < 1e-2 vs incumbent output",
+  "safety": "qkv is const in the kernel; K/V cache writes are idempotent; workspaces persistent per signature; tuning skipped under stream capture",
+  "affected_rule": "benchmark shapes whose key is AT ... SELECT in the log",
+  "per_shape_win": 1.03,
+  "retention": "selected shapes normalized >= 1.03 vs reference profile AND not below A3 (8347b4ca3b1e42e5) on the same shapes; any retention needs a confirming run; measurement value otherwise"
+}
