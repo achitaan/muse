@@ -1,0 +1,24 @@
+{
+  "source_sha256": "ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92",
+  "CPU_only": true,
+  "positive_fixture_passed": true,
+  "rejected_mutants": [
+    "missing_test",
+    "new_path_missing",
+    "replay_not_fresh",
+    "numerical_boundary_wrong",
+    "empty_selection",
+    "wrong_case_identity",
+    "no_affected_gain",
+    "integrity_false",
+    "local_memory_nonzero",
+    "residency_too_small",
+    "cooperative_unsupported",
+    "component_tie",
+    "paired_order_wrong",
+    "aggregate_not_weighted",
+    "wrong_device"
+  ],
+  "GPU_jobs": 0,
+  "synthetic_fixture_is_not_measurement": true
+}

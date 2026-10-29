@@ -1,0 +1,10 @@
+{
+  "source_sha256": "ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92",
+  "query_and_launch_arity": 20,
+  "unsupported_layout_rejected": true,
+  "candidate_python_compiles": true,
+  "CPP_declaration_matches_host": true,
+  "CPU_mock_only": true,
+  "GPU_jobs": 0,
+  "exact_CUDA_host_ABI_not_validated": true
+}

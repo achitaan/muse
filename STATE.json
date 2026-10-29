@@ -147,7 +147,7 @@
   },
   "target_achieved": false,
   "active_track": "Decode",
-  "resume_note": "Cooperative O1/O8 boundary device prototype survives CPU/compiler screens; complete exact plan/host integration, graph and numerical admission before considering one paced GPU check. No active runtime source changed; broad top50 goal active.",
+  "resume_note": "Frozen cooperative Decode ad7b55cf is ready for one source-bound foreground check under pacing; retain D9 unless actual four-format resource/replay and whole-layer materiality guards pass. No GPU job yet; broad top50 objective active.",
   "attention_checked": {
     "source": "best/attention_checked.py",
     "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
@@ -2856,7 +2856,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T12:31:03.361515+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T12:49:44.076765+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -3330,5 +3330,24 @@
     "GPU_jobs": 0,
     "host_launcher_implemented": false,
     "decision": "Continue bounded host/capture/precision admission; no GPU launch candidate yet"
+  },
+  "decoder_cooperative_boundary_prepared": {
+    "source_sha256": "ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92",
+    "CUDA_sha256": "51180052ffd10dfb11ab1bb747c11192922c7effdd2669b4389185184028e4b1",
+    "packet": "results/decoder-cooperative-boundary-preflight-20261029/v3",
+    "review": "experiments/prepared/decoder_cooperative_boundary_admission_review.md",
+    "bytes": 917645,
+    "fresh_official_files_exact": 6,
+    "guard_negative_fixtures": 15,
+    "CPU_bridge_arguments": 20,
+    "GPU_jobs": 0,
+    "selected_scope_tokens": [
+      1,
+      8
+    ],
+    "component_gate_gain": 1.08,
+    "full_suite_required": "13tests/12benchmarks/integrity/resources/execution/materiality",
+    "incumbents_preserved": true,
+    "status": "ready_for_one_paced_check_after_controller_init"
   }
 }

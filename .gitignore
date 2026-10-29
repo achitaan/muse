@@ -23,3 +23,5 @@ site.html
 /.attention-skipscale-measurements/
 /.attention-wide-measurements/
 /.moe-epair-measurements/
+
+/.decoder-cooperative-measurements/

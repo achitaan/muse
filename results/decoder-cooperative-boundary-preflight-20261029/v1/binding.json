@@ -1,0 +1,49 @@
+{
+  "source_sha256": "ea0a989eec1d2f39360580532963a1675d63080f7cb377b258bec27d15b326a7",
+  "bytes": 917242,
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "verified_baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CUDA_sha256": "9faaff3da05e2ecf8ea5e6c9a2d580acd5abfb956cf4f87829a0ab20159296dc",
+  "addon_sha256": "4bbb4a988830ed8b03b20e898afde0215c7f62d47dc0bb890f6bd0a6877ae9fd",
+  "host_sha256": "28054d71bc8603cf414838709b7c39842f0f97dce0a57dd77be188d471a4d498",
+  "CPP_sha256": "a5c832e15c11ecfd1ad072dc7f55f00cba937a31b6b5e4b92a801b2d6764b642",
+  "device_prefix_bindings": [
+    {
+      "family": "o1",
+      "CPU_proxy_sha256": "40327719ae459fa67d6957697e905fa9fe37b92999ce664f1dbd79f5eb58afcd",
+      "native_device_prefix_sha256": "fcffa1ddbe51ae1a5622aaa1b676d399be0c154b8a18c575c785e7fa360e860a"
+    },
+    {
+      "family": "o8",
+      "CPU_proxy_sha256": "805e03eed62c3963489170512554d190d3fed120a62510e3fb6608f7c2c4532d",
+      "native_device_prefix_sha256": "88dcddbefe0a2255fad9d4e1fd872638a468109765610a163a9a1fecb304e0ed"
+    }
+  ],
+  "modified_original_functions": [
+    "kernel_fn"
+  ],
+  "exact_inverse_restores_packaged_parent": true,
+  "all_other_original_module_nodes_unchanged": true,
+  "scope_tokens": [
+    1,
+    8
+  ],
+  "unsupported_shapes_keep_original_paths": true,
+  "GPU_jobs": 0,
+  "component_gate": {
+    "minimum_geometric_paired_gain": 1.08,
+    "minimum_winning_pairs": 12,
+    "total_pairs": 16
+  },
+  "whole_layer_gate": {
+    "minimum_affected_case_GM": 1.005,
+    "minimum_control_normalized_weighted_track_gain": 1.003,
+    "minimum_each_affected_load_gain": 0.995,
+    "required_selected_families": [
+      1,
+      8
+    ]
+  },
+  "probes": "Both packed/BF16 formats; original BF16 projection output exact; fresh graph replay; nearby M2..7",
+  "remaining": "Exact host/evaluator identity/full-suite/resource/new-path/performance admission"
+}

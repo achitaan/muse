@@ -1,3 +1,18 @@
+> READY FOR ONE PACED CHECK, October29: cooperative Decode sourcead7b55cf,
+> CUDA51180052,917645B, results/decoder-cooperative-boundary-preflight-20261029/v3.
+> Reuses original O1/O8 plans, all other bands/fallbacks retained. Exact six
+> official files match; explicit20-argument host bridge and pybind header,
+> CPU guard positive fixture +15rejections. GPU prepare will require actual
+> cooperative residency/zero local/static memory for four format/families,
+> 80numerical/replay probes, and >=8%paired component gain/12of16wins each.
+> Whole-layer retention additionally requires full13/12/integrity, distinct
+> profile markers, affected GM>=1.005 and control-normalized weighted track
+> >=1.003 with no affected normalized load below.995. Fixed before launch.
+> Review decoder_cooperative_boundary_admission_review.md; parentD9 preserved.
+> No GPU job yet. Initialize one foreground controller with sole scope
+> candidates/decode_active.py; use cached exact baseline and no extra reruns.
+> Main-only, no model change. Broad top50 goal remains active through20Toronto.
+>
 > CPU FOLLOW-UP, October29: cooperative Decode O1/O8 + attention boundary
 > prototype compiles packed/BF16 at48/38 and50/32registers, zero offline
 > stack/spill fields.40numerical and36row-ownership cases; three broken

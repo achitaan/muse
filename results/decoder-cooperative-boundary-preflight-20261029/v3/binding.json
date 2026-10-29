@@ -1,0 +1,54 @@
+{
+  "source_sha256": "ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92",
+  "bytes": 917645,
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "verified_baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CUDA_sha256": "51180052ffd10dfb11ab1bb747c11192922c7effdd2669b4389185184028e4b1",
+  "addon_sha256": "a7e01895ee691e93a757b71b5c92552141f40e050d00372b2ad9b6dacf0d6ee4",
+  "host_sha256": "5e28b265f41a7e84252f7f2fff7c9043a47391fa6b0177e949ed36567b4003d3",
+  "CPP_sha256": "169ca79843c1b91463bf733d412c565f0df5f9dd31256ec1b93d0e1d73197c91",
+  "device_prefix_bindings": [
+    {
+      "family": "o1",
+      "CPU_proxy_sha256": "40327719ae459fa67d6957697e905fa9fe37b92999ce664f1dbd79f5eb58afcd",
+      "native_device_prefix_sha256": "fc3ea1ecf255668dc2b014a9b3023c4565ea75730db03e5fe8ea5c2ae635d41d"
+    },
+    {
+      "family": "o8",
+      "CPU_proxy_sha256": "805e03eed62c3963489170512554d190d3fed120a62510e3fb6608f7c2c4532d",
+      "native_device_prefix_sha256": "10c46e9f97b7b5563603016dfdce997be7ac20f0a71f13ceaac680b8820395b0"
+    }
+  ],
+  "modified_original_functions": [
+    "kernel_fn"
+  ],
+  "exact_inverse_restores_packaged_parent": true,
+  "all_other_original_module_nodes_unchanged": true,
+  "scope_tokens": [
+    1,
+    8
+  ],
+  "host_pybind_header_explicit": true,
+  "distinct_profile_markers": [
+    "cb_smallm2_gemv",
+    "cb_v18s_gemv"
+  ],
+  "unsupported_shapes_keep_original_paths": true,
+  "GPU_jobs": 0,
+  "component_gate": {
+    "minimum_geometric_paired_gain": 1.08,
+    "minimum_winning_pairs": 12,
+    "total_pairs": 16
+  },
+  "whole_layer_gate": {
+    "minimum_affected_case_GM": 1.005,
+    "minimum_control_normalized_weighted_track_gain": 1.003,
+    "minimum_each_affected_load_gain": 0.995,
+    "required_selected_families": [
+      1,
+      8
+    ]
+  },
+  "probes": "Both packed/BF16 formats; original BF16 projection output exact; fresh graph replay; nearby M2..7",
+  "remaining": "Exact host/evaluator identity/full-suite/resource/new-path/performance admission"
+}
