@@ -1,0 +1,54 @@
+{
+  "experiment": "P5 confirmation of P4 (identical code + trailing comment)",
+  "job": "c4d2e6ef68674473",
+  "candidate_sha256": "15cc2a942f13312b3a5f92fcd15d22b6d5807df7331ef672501aecfe51049992",
+  "official": {
+    "passed": true,
+    "speedup": 1.6648693576342506
+  },
+  "selection_reproduced": true,
+  "runtime_applied": [
+    "P4_USE (1, 16384, 49152)",
+    "P4_USE (1, 16384, 81920)"
+  ],
+  "selector_us": {
+    "(1,16384,49152)": {
+      "paged": 4499.5,
+      "gathered": 4341.3
+    },
+    "(1,16384,81920)": {
+      "paged": 8013.7,
+      "gathered": 7730.6
+    },
+    "(1,753,80753)": {
+      "paged": 424.9,
+      "gathered": 518.7
+    }
+  },
+  "affected_normalized": {
+    "P5 vs P1/P2/P3 ctx32768": [
+      0.9924,
+      1.0192,
+      1.0358
+    ],
+    "P5 vs P1/P2/P3 ctx65536": [
+      1.0334,
+      1.04,
+      1.0594
+    ]
+  },
+  "mean_P4_P5": {
+    "ctx32768 vs P1/P2/P3": [
+      1.0019,
+      1.0289,
+      1.0457
+    ],
+    "ctx65536 vs P1/P2/P3": [
+      1.0258,
+      1.0324,
+      1.0516
+    ]
+  },
+  "rule": "retain only if both affected shapes are normalized >= 1.02 vs each of P1/P2/P3 on average across P4 and P5",
+  "decision": "rule not met (ctx 32768 vs P1 = 1.0019); P4 not retained as a whole. ctx 65536 met the bar against all three references and the in-process FA3 gain reproduced (3.5-3.8% in both runs). Mechanism is real but its shape-level effect (~1-2% expected) is at the edge of single-run resolution."
+}
