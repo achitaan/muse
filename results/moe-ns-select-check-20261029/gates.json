@@ -1,0 +1,26 @@
+{
+  "experiment": "M4 MoE skinny-ring depth selector (OKC_NS 3 -> 4) for decode 16 (MID) and decode 32 (MAIN WGS)",
+  "frozen_before_launch_utc": "2026-10-29T23:20:00Z",
+  "parent": {
+    "sha256": "33114871...0d50",
+    "checked_job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "candidate_sha256": "8ec4dc7d2f7dfe055d6b131aecb7c0d73495e969c877b1e16f82bfe4b8c64c50",
+  "evidence_basis": "M3 run 4ed3dd65ae5341a0: decode 32 127.0 us vs SOL 70.8 (1.629x, weakest), decode 16 95.0 vs 52.5 (1.989x); weight-streaming bound; OKC_NS ring depth default 3, kernel allows <=5; never tuned per notes",
+  "prepare_budget": "parent prepare ~165 s, one compile ~45 s (M3 212.6 s); two new builds; compile skipped after 200 s",
+  "affected": [
+    [
+      "decode 16"
+    ],
+    [
+      "decode 32"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 6 benchmarks",
+    "selection": ">=3% faster summed over three draws, rel-L2 < 1e-2 vs incumbent",
+    "retention": "selected load normalized >= 1.03 vs parent profile; confirmation needed"
+  }
+}
