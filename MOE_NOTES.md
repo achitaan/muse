@@ -1,3 +1,28 @@
+# October29: paired cluster activation multicast rejected
+
+Job6627d54067774130 evaluated exact sourceb7043df7/nativeCUDA2701a25e.
+The cooperative2x1x1 launch, full66-cluster residency query and graph captures
+work on H200. Both BIG variants report96registers, zero actual local/static
+bytes,231168dynamic bytes and576threads. Preparation took218.312seconds.
+All19 synthetic comparisons, four changing-input/route graph replays, four
+all-nonlocal zero cases and one duplicate-route probe passed the tighter
+incumbent-comparison bounds. Changed FP32 partial ordering is not bitwise exact.
+
+Normal128/256 median new/old times are1.014418810/1.006965887:1.44%/0.70%
+slower. Chunked385 is2.29% slower and also fails the nearby guard. Therefore
+selected_main=false. Official full5tests/6benchmarks/integrity at2.348327668x
+times original paths; it is not full new-kernel correctness/performance evidence.
+The saved packet is results/moe-cluster-x-check-20261029/, with exact source,
+paired samples, result/profiles, review and controller logs.
+
+Controller revertedb7601d1 and archived20261029-090013. Retain33114871; no
+score, Decode transfer, parameter sweep or noise retry. Logical activation
+request halving did not earn a whole-kernel gain in this fixed design. This
+does not isolate HBM bandwidth, remote-barrier cost or scheduling as the cause.
+Its resource/graph admission is useful evidence for a future distinct design,
+but is not an invitation to sweep cluster/grid flags. DerivedMoE13checks and
+10scores remain; next new check globally no earlier than09:53:13.031328UTC.
+
 # October 29: cluster activation multicast feasibility
 
 The current local investigation is a fixed two-CTA cluster design pairing output

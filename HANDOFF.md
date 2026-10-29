@@ -1,4 +1,16 @@
-> CURRENT LOCAL IMPLEMENTATION, October29 at08:42UTC: MoE cluster2 activation
+> LATEST TERMINAL RESULT, October29 at09:00UTC: cluster2 check6627d54067774130
+> completed. Sourceb7043df7/CUDA2701a25e compiles on H200, admits full66 clusters,
+> both BIG variants96regs/zero actual local/static bytes,231168dynamic/576threads.
+> All19 synthetic cases,4 changing-route graph replays and5 analytic probes pass.
+> Normal128/256 median new/old1.014419/1.006966;385 loses2.29%. Fixed gate fails;
+> selected_main=false. Official full5/6/integrity2.348327668x runs retained paths,
+> not a new-kernel speedup or full new-path suite. Controller revertedb7601d1,
+> archived20261029-090013. No score/Decode transfer; close this fixed design.
+> Packet results/moe-cluster-x-check-20261029/. All44 protected hashes restored.
+> No job/controller active; derivedMoE13/total91 checks and50scores. Next new
+> check not before09:53:13.031328UTC;20:00Toronto window unchanged. Goal active.
+>
+> EARLIER LOCAL IMPLEMENTATION, October29 at08:42UTC: MoE cluster2 activation
 > multicast now has reversible native device/host patches. Both BIG device
 > variants compile locally at96 base registers/16 offline stack bytes, without
 > C751x serialization. Full CUDA2701a25e/device112ab04d; packet:

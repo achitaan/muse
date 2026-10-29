@@ -1,5 +1,13 @@
 # MoE cluster activation multicast: feasibility packet, not GPU-ready
 
+**Terminal decision, October29 09:00UTC:** check6627d54067774130 compiled and
+admitted this exact architecture on H200. Synthetic correctness/graph probes
+passed, but normal128/256 were1.44%/0.70% slower and385 lost2.29%. The fixed
+selection gate rejected it; full-suite timing used original paths. Reverted
+b7601d1, archived20261029-090013, no score or Decode transfer. The complete
+terminal packet is results/moe-cluster-x-check-20261029/. Close this fixed
+design; all implementation/readiness statements below are prelaunch history.
+
 Baseline is retained33114871, CUDA1e60cf46. The reversible native CUDA patch and
 host launcher are now implemented, with both device variants compiled locally.
 Single-file Python integration b7043df7 and its two-load admission/measurement

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE cluster2 activation multicast: local device/host implementation2701a25e, device112ab04d; two BIG variants compile in NVRTC proxy. Scheduling1658/ring174 CPU models pass,5 ring mutants rejected. No single-file Python integration or fixed two-load guard yet; not GPU-ready. All44 protected hashes exact. No job/controller active; derivedMoE14/total92 checks and50scores. Finish integration and exact host/resource/probe admission before one paced check. Review experiments/prepared/moe_cluster_x_review.md; packet results/moe-cluster-x-device-default-20261029/.",
+  "next_trial": "Cluster2 MoE b7043df7 check6627d54067774130 passed resource and synthetic graph admission but failed paired performance (128+1.44%,256+0.70%,385+2.29%). selected_main=false; official full5/6/integrity2.348327668x timed retained paths. Revertedb7601d1, controller archived20261029-090013; no score/Decode transfer. Close fixed cluster design and seek a materially different source-backed MoE opportunity or a real remaining Decode boundary, using CPU/source evidence first. No job/controller active. Next new check>=09:53:13.031328UTC;20Toronto window. DerivedMoE13/total91checks,50scores. All44 protected hashes restored.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",
@@ -3053,18 +3053,18 @@
     "decode_transfer": false
   },
   "latest_expected_quotas": {
-    "kind": "Fresh prelaunch snapshot minus one accepted check; not a later live API query",
+    "kind": "Fresh prelaunch snapshot for6627d54067774130 minus one accepted check; not a post-result live query",
     "checks": {
       "dense": 19,
-      "moe": 14,
+      "moe": 13,
       "attention": 19,
       "decode": 20,
       "prefill": 20
     },
     "scores_per_track": 10,
-    "total_checks": 92,
+    "total_checks": 91,
     "total_scores": 50,
-    "next_new_check_not_before_utc": "2026-10-29T07:28:00.763398Z",
+    "next_new_check_not_before_utc": "2026-10-29T09:53:13.031328Z",
     "window_end_local": "2026-10-29 20:00 America/Toronto"
   },
   "attention_l8_compiler_screen": {
@@ -3151,5 +3151,55 @@
     "GPU_job_active": false,
     "controller_active": false,
     "verified_sources_changed": false
+  },
+  "moe_cluster_x_terminal": {
+    "packet": "results/moe-cluster-x-check-20261029/",
+    "job": "6627d54067774130",
+    "source_sha256": "b7043df79affee252e20165932f6a80b862ec91a8094145b93639989554dbebe",
+    "CUDA_sha256": "2701a25e854caef3a46c1ae2002bd59932b2b056a05a1c0d2cf498dc5f8b6114",
+    "status": "done",
+    "full5tests_6benchmarks_integrity": true,
+    "official_speedup": 2.348327667894741,
+    "official_speedup_is_new_path_evidence": false,
+    "selected_main": false,
+    "resources_admitted": true,
+    "resources": [
+      96,
+      96,
+      0,
+      0,
+      0,
+      0,
+      231168,
+      576,
+      1,
+      1,
+      66,
+      66,
+      2,
+      1,
+      1,
+      2,
+      1,
+      1,
+      132,
+      1,
+      20261029
+    ],
+    "prepare_s": 218.31173877697438,
+    "synthetic_cases": 19,
+    "changing_input_graph_replays": 4,
+    "analytic_probes": 5,
+    "normal_M128_new_over_old": 1.0144188095534128,
+    "normal_M256_new_over_old": 1.0069658869025315,
+    "M385_new_over_old": 1.0228865552556978,
+    "material_guard_passed": false,
+    "revert_commit": "b7601d1f728e534b4504b359f40ea8774400e31c",
+    "controller_archive": "20261029-090013",
+    "active_GPU_job": false,
+    "active_controller": false,
+    "scores_used": 0,
+    "decode_transfer": false,
+    "fixed_design_closed": true
   }
 }

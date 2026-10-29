@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_moe_cluster_x.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 319.39,
+  "returncode": 0,
+  "stderr": "MoE cluster2 check 6627d54067774130: received\r\nMoE cluster2 check 6627d54067774130: running\r\nMoE cluster2 check 6627d54067774130: done\r\n",
+  "stdout": "{\"speedup\": 2.348327667894741, \"correct\": true, \"job\": \"6627d54067774130\", \"source_sha256\": \"b7043df79affee252e20165932f6a80b862ec91a8094145b93639989554dbebe\", \"error\": null}\r\n",
+  "timed_out": false
+}

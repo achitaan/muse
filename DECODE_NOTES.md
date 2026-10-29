@@ -1,3 +1,12 @@
+# October29: no cluster-sharing transfer
+
+MoE cluster2 sourceb7043df7 compiled and ran its synthetic graph probes on H200
+as6627d54067774130, but128/256 were1.44%/0.70% slower and385 lost2.29%.
+The fixed gate rejected it; the official2.348327668x point ran retained paths.
+No Decode integration/check follows. KeepD9 and preparation draft307dd791.
+Evidence: results/moe-cluster-x-check-20261029/. A real standalone gain still
+needs whole-layer correctness and weighted46sliding+16full evidence.
+
 # October 29: no paired-store transfer
 
 MoE `9fc2993a` compiled and passed its synthetic probes but failed the fixed
