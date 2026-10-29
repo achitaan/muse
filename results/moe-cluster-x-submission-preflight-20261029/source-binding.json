@@ -1,0 +1,23 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "source_sha256": "b7043df79affee252e20165932f6a80b862ec91a8094145b93639989554dbebe",
+  "source_bytes": 339619,
+  "CUDA_sha256": "2701a25e854caef3a46c1ae2002bd59932b2b056a05a1c0d2cf498dc5f8b6114",
+  "parent_is_exact_prefix": true,
+  "parent_AST_unchanged": true,
+  "addon_sha256": "082480d6168c66e8fa9d069fbd65fd39b31da1bac72aaa5471124353d67de1d2",
+  "Python_compile_only": true,
+  "kernel_execution": false,
+  "GPU_jobs": 0,
+  "changed_timed_paths": "M>=64 and original PRMT eligibility, only after resource/probe admission",
+  "unaffected_official_load_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "affected_official_load_indices": [
+    4,
+    5
+  ]
+}

@@ -2,8 +2,8 @@
 
 Baseline is retained33114871, CUDA1e60cf46. The reversible native CUDA patch and
 host launcher are now implemented, with both device variants compiled locally.
-The single-file Python integration and its admission/measurement guard remain
-unfinished. No GPU evaluation or speedup exists yet. The fixed design is
+Single-file Python integration b7043df7 and its two-load admission/measurement
+guard now pass their CPU audits. No GPU evaluation or speedup exists yet. The fixed design is
 two CTAs per cluster, activated initially for M>=64 with exact PRMT eligibility.
 All smaller and ineligible paths must retain their existing implementation.
 The existing chunking contract must cover a final short chunk as well.
@@ -213,14 +213,17 @@ within a cluster both ranks require the same stage frontier. This audit must
 be preserved when wrapping the source; it assumes full simultaneous cluster
 residency and the original wait/flush placement. It is not hardware validation.
 
-Next is single-file Python integration, exact namespace/export/query checks,
-resource-admission negative controls, fresh-route graph probes and a fixed
-two-affected-load performance guard. Initial affected official loads are
+The single-file integration preserves the exact incumbent as a prefix. Its
+namespace/export/query audit and1608 dispatch cases pass;22 malformed result,
+resource and replay fixtures are rejected. Six fresh official task files match
+the pinned identity. Source/guard/check criteria are frozen in
+results/moe-cluster-x-submission-preflight-20261029/. Initial affected loads are
 M128/256 only; M1/8/16/32 are controls. Do not reuse the old three-load guard.
 Require more than3% paired improvement on each affected synthetic load, no
 more than2% nearby regression, and complete official new-path correctness,
 integrity and material affected/control whole-track gain before retention.
-No GPU job is queued. Existing pacing window/reserves still apply.
+The next step is one qualified paced GPU check. No GPU job is queued yet.
+Existing pacing window/reserves still apply.
 
 Primary mechanism sources: [NVIDIA PTX mbarrier/TMA semantics](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html),
 the pinned CUDA13.0 CCCL generated mbarrier headers, and

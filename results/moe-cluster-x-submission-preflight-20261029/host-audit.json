@@ -1,0 +1,12 @@
+{
+  "source_sha256": "b7043df79affee252e20165932f6a80b862ec91a8094145b93639989554dbebe",
+  "CUDA_sha256": "2701a25e854caef3a46c1ae2002bd59932b2b056a05a1c0d2cf498dc5f8b6114",
+  "namespace_export_query_binding_exact": true,
+  "cooperative_cluster_required": true,
+  "no_plain_launch_fallback": true,
+  "dispatch_cases_checked": 1608,
+  "all44protected_exact": true,
+  "resource_vector_fields": 21,
+  "actual_runtime_and_graph_validation": false,
+  "GPU_jobs": 0
+}
