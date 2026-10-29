@@ -1,0 +1,56 @@
+{
+  "job": "e66873fa2adc4030",
+  "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
+  "source_artifact": "results/moe-phase-diagnostic-db0f-preflight-20261029/submission.py",
+  "result_sha256": "e7ae8d6f08d633c8b72aa5b9bdf399eba64515f53848f3ead3dbc176af759d0e",
+  "full_suite_passed": {
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true
+  },
+  "diagnostic_complete": true,
+  "prepare_s": 219.09524071,
+  "official_unchanged_path_speedup": 2.3360291595658302,
+  "performance_improvement_claim": false,
+  "scored_submissions_used": 0,
+  "resources": [
+    96,
+    96,
+    8,
+    8,
+    0,
+    0,
+    231168,
+    1,
+    1,
+    576
+  ],
+  "historical_local_bytes": 0,
+  "measured_diagnostic_local_bytes": 8,
+  "resource_admission": false,
+  "calibration": [
+    {
+      "m": 32,
+      "overhead_median_ratio": 1.0162197797519843,
+      "relative_to_incumbent": 0.0,
+      "worst_row_to_incumbent": 0.0,
+      "timing_interpretation_allowed": false
+    },
+    {
+      "m": 128,
+      "overhead_median_ratio": 1.0096052673697056,
+      "relative_to_incumbent": 0.0,
+      "worst_row_to_incumbent": 0.0,
+      "timing_interpretation_allowed": false
+    },
+    {
+      "m": 256,
+      "overhead_median_ratio": 1.00818097068586,
+      "relative_to_incumbent": 0.0,
+      "worst_row_to_incumbent": 0.0,
+      "timing_interpretation_allowed": false
+    }
+  ],
+  "interpretation": "Numerical and overhead probes passed, but resource gate failed against historical zero-local-byte reference. Do not infer baseline phase fractions, attribute local storage specifically to instrumentation, or claim a speedup. No retry solely for cleaner traces.",
+  "next_step": "Preserve incumbent; park one-stage boundary change; audit source-backed traffic or instruction opportunities offline before another bounded candidate."
+}

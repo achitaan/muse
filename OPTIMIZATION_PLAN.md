@@ -3,8 +3,10 @@
 > one active GPU job, >=60minutes between new checks, four checks/track reserved.
 > Score only after material source-bound gains; quota is not a spending target.
 > This supersedes earlier no-GPU and review-only holds below. Main chat only.
-> D1 is closed after a losing check. Next: one MoE db0f6481 preparation-only
-> phase diagnostic at or after 2026-10-29T02:21:46UTC. No diagnostic score.
+> D1 is closed after a losing check. MoE db0f6481/checke66873fa2adc4030 is
+> complete: full5/6/integrity and low overhead, but local8bytes missed the
+> historical0-byte resource gate. No timing admission or diagnostic score.
+> Next new check is no earlier than03:22:01UTC and needs a concrete candidate.
 
 # Optimization plan
 
@@ -49,8 +51,8 @@ separate from board positions.
 
 | Priority | Work | Measured reason | Decision before another run |
 | --- | --- | --- | --- |
-| 1 | Diagnose exposed MoE WGS phase/tail costs | Per-job/per-stage phase overlap already exists. Offline full-unit alignment increased model tail imbalance; this is a reason to diagnose, not a timing result. | One fixed db0f6481 preparation-only diagnostic; synthetic M32/128/256, ten balanced cold-L2 pairs each. Admit interpretation only with resource and overhead calibration. Never score this diagnostic. |
-| 2 | Select one distinct MoE runtime hypothesis | Current profiles are summed spans, not critical-path fractions. Existing occupancy, skinny16, scale compression and cache-policy trials are closed. | Use the diagnostic to identify exposed recoverable work before changing ownership or a finalizer. Budget added traffic/resources and preserve every numerical/replay boundary. |
+| 1 | Audit source-backed MoE traffic/instruction opportunities | Diagnostic e66873fa completed but missed its resource gate; its traces cannot establish incumbent phase fractions. Full-unit and one-stage CPU ownership screens show tail risks. | Preserve the raw diagnostic, do not relax its gate or retry for nicer traces. Seek a mechanism beyond closed geometry/cache/scale flags and quantify required weighted-load saving before another check. |
+| 2 | Select one distinct MoE runtime hypothesis | Current profiles are summed spans, not critical-path fractions. Existing occupancy, skinny16, scale compression and cache-policy trials are closed. | No runtime candidate is currently admitted. Budget added traffic/resources, numerical/replay invariants, execution markers and meaningful load coverage. A private diagnostic point alone cannot justify promotion. |
 | 3 | Prepare compatible verified gains for Decode | CPU package bc528949 is 893369 bytes; df68deb6 bypasses two unreachable setup factories. Draft307dd791 also removes an unread512MiB RoPE table; all runtime functions stay exact. These drafts have no fresh GPU preparation evidence. | Preserve exact numerical contracts and whole-layer state. Address the 300s budget before a justified 13/12 integration check; no check merely to retime cleanup. Do not transfer D1. |
 | 4 | Attention, then Prefill | Large full attention approaches its bandwidth floor; recent arithmetic rearrangements did not show causal wins. Prefill is outside overall. | Need new evidence beyond a nearby parameter change. Retain the user's order and leave Prefill last. |
 

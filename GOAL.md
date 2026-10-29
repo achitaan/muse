@@ -3,8 +3,11 @@
 > one active GPU job, >=60minutes between new checks, four checks/track reserved.
 > Score only after material source-bound gains; quota is not a spending target.
 > This supersedes earlier no-GPU and review-only holds below. Main chat only.
-> Next: one MoE db0f6481 prepare-only phase diagnostic, no earlier than
-> 2026-10-29T02:21:46UTC. D1 was checked and rejected; retain all incumbents.
+> MoE db0f6481/checke66873fa2adc4030 completed with full5/6/integrity.
+> Output/overhead probes passed, but8local bytes missed the historical0-byte
+> resource gate. No incumbent timing interpretation, score or promotion.
+> No GPU job is active. Next new check is no earlier than03:22:01UTC and
+> requires a concrete new hypothesis. D1 remains closed; retain incumbents.
 
 # Active objective
 
@@ -42,6 +45,7 @@ The CPU-only df68deb6 follow-up bypasses two unreachable dense-router setup
 factories while preserving all runtime functions. Its preparation savings are
 unmeasured; historical D9 setup was 256.897s/300s. D1 is closed: both fixed
 families passed GPU probes but lost at M128 and were not selected. Do not
-transfer or rescore it. Next use one bounded MoE phase diagnostic to identify
-exposed work before a new runtime hypothesis; no diagnostic promotion.
+transfer or rescore it. The bounded MoE diagnostic completed but missed its
+resource admission gate. Continue source-backed traffic/instruction analysis;
+do not rerun merely for cleaner traces or promote the diagnostic.
 Preserve numerical precision, exact weights, all routes/keys and fresh outputs.

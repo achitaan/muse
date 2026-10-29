@@ -1,3 +1,14 @@
+> LATEST TERMINAL RESULT,02:28UTC: MoE e66873fa2adc4030/db0f6481 passed
+> full5tests/6benchmarks/integrity; preparation219.095s. Synthetic probe error0,
+> overhead0.8..1.6%, but8local bytes versus historical0 failed resource admission.
+> All timing-interpretation flags are false. Do not claim incumbent phase
+> fractions, score/promote, or retry merely for cleaner traces. Raw source-bound
+> evidence: results/moe-phase-diagnostic-20261029/. No GPU job/driver is active.
+> Continue offline MoE traffic/instruction analysis; one-stage ownership remains
+> parked. Next new check no earlier than03:22:01UTC and only for a concrete
+> meaningful candidate. Window ends20:00Toronto October29. Incumbents unchanged.
+> All earlier running/waiter headers below are historical.
+
 > LIVE GPU CHECK: MoE e66873fa2adc4030 / db0f6481 accepted at02:22:01UTC,
 > October29. Follow the same handle; do not upload again. No score/promotion.
 > Driver scripts/check_moe_phase_diagnostic.py resumes the saved handle.

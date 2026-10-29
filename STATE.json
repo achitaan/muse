@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Follow MoE diagnostic e66873fa2adc4030 to terminal status; assess resource and overhead calibration before synthetic phase interpretation. No new check before 2026-10-29T03:22:01.371647Z. One-stage ownership idea remains parked; Decode307dd791 is a CPU-only preparation draft.",
+  "next_trial": "MoE diagnostic e66873fa2adc4030 is terminal: full5/6/integrity, zero measured probe error, ~0.8..1.6% overhead, but8local bytes missed historical0-byte gate. Preserve raw traces without incumbent timing interpretation; no score/retry for nicer data. Seek a source-backed traffic/instruction mechanism offline; no new check before03:22:01UTC or without a meaningful candidate.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_phase_diagnostic_running",
+  "active_track": "moe_offline_traffic_instruction_audit",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2709,7 +2709,7 @@
   "moe_phase_diagnostic": {
     "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
     "artifact": "results/moe-phase-diagnostic-db0f-preflight-20261029/submission.py",
-    "status": "GPU check accepted; following the same handle",
+    "status": "complete; resource admission failed; no score/promotion",
     "earliest_new_check_utc": "2026-10-29T02:21:46.196044+00:00",
     "review": "experiments/prepared/moe_phase_diagnostic_review.md",
     "synthetic_shapes": [
@@ -2721,7 +2721,18 @@
     "performance_improvement_claim": false,
     "scoring_permitted": false,
     "job": "e66873fa2adc4030",
-    "submitted_utc": "2026-10-29T02:22:01.371647+00:00"
+    "submitted_utc": "2026-10-29T02:22:01.371647+00:00",
+    "result_artifact": "results/moe-phase-diagnostic-20261029/review.json",
+    "tests": 5,
+    "benchmarks": 6,
+    "integrity": true,
+    "prepare_s": 219.09524071,
+    "resource_admission": false,
+    "diagnostic_local_bytes": 8,
+    "historical_local_bytes": 0,
+    "timing_interpretation_allowed": false,
+    "official_unchanged_path_speedup": 2.3360291595658302,
+    "scored_submissions_used": 0
   },
   "decoder_router_prepare_prune_cpu": {
     "source_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
@@ -2754,7 +2765,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T02:22:01.371647+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T02:28:58+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -2765,5 +2776,14 @@
     "scores_left_each": 10,
     "checks_total": 96,
     "scores_total": 50
+  },
+  "current_gpu_job": null,
+  "moe_one_stage_ownership_screen": {
+    "artifact": "results/moe-one-stage-ownership-screen-20261029/screen.json",
+    "review": "experiments/prepared/moe_one_stage_ownership_review.md",
+    "cpu_owner_fixture_checks": 131568,
+    "runtime_candidate_built": false,
+    "gpu_jobs": 0,
+    "decision": "Park: limited fixup reduction and skewed-tail risk; no GPU check justified by this model alone"
   }
 }
