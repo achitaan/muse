@@ -1,0 +1,78 @@
+{
+  "experiment": "A5 Attention first-call split autotune per shape (on top of A3)",
+  "job": "7768919e099446cf",
+  "candidate_sha256": "8b64d6c862ab91742de98e5154758a6410f10497fc8f9a101fae547955e7a49a",
+  "official": {
+    "passed": true,
+    "speedup": 2.5990707226042398,
+    "ci": [
+      2.5600846617651762,
+      2.6521084522974365
+    ]
+  },
+  "parent": {
+    "job": "8347b4ca3b1e42e5",
+    "speedup": 2.6123215
+  },
+  "scored_shapes": "all 12 scored keys (page size 1, max pages 80001/80008/86001/86008) KEEP: the incumbent plan was fastest or within 3% of every split/coop variant",
+  "scored_inprocess_us": {
+    "decode1 sliding": {
+      "inc": 8.9,
+      "best": 9.76
+    },
+    "decode1 full": {
+      "inc": 15.01,
+      "best": 15.42
+    },
+    "decode16 sliding": {
+      "inc(8 splits)": 12.38,
+      "12": 12.1,
+      "16(original parent)": 12.32
+    },
+    "decode16 full": {
+      "inc": 87.26,
+      "best": 92.38
+    },
+    "decode32 sliding": {
+      "inc": 13.76,
+      "best": 14.27
+    },
+    "decode32 full": {
+      "inc": 162.34,
+      "best": 166.72
+    },
+    "verify1 sliding": {
+      "inc": 11.17,
+      "best": 12.54
+    },
+    "verify1 full": {
+      "inc": 18.05,
+      "best": 20.19
+    },
+    "verify16 sliding": {
+      "inc": 15.52,
+      "best_valid": "none (all variants failed the 1e-2 output gate or were slower)"
+    },
+    "verify16 full": {
+      "inc": 102.91,
+      "best": 113.18
+    },
+    "verify32 sliding": {
+      "inc": 19.01,
+      "best_valid": "none"
+    },
+    "verify32 full": {
+      "inc": 183.04,
+      "best": 195.78
+    }
+  },
+  "test_only_selections": [
+    "(5,8,2048) n_splits 25",
+    "(4,1,0) 132",
+    "(4,8,0) 132",
+    "(2,1,0) 132"
+  ],
+  "conflict_with_A3": "in-process interleaved timing shows decode16 sliding 8 vs 16 splits within 0.5% (12.38 vs 12.32 us), while four official runs showed 8 splits 5-10% faster normalized; A3's attributable gain is therefore uncertain",
+  "output_gate": "several verify-sliding split variants differed from the incumbent by rel-L2 >= 1e-2 and were rejected",
+  "decision": "measurement only; no scored shape changed (track delta vs A3 is drift). Not retained beyond A3."
+}
