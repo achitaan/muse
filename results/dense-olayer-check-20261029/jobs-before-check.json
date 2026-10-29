@@ -15,12 +15,12 @@
     "flags": [],
     "job_id": "f2241332a476452e",
     "mode": "check",
-    "passed": null,
+    "passed": true,
     "problem": "muse_prefill_layer",
-    "result_status": null,
+    "result_status": "ok",
     "score": null,
-    "score_us": null,
-    "status": "running",
+    "score_us": 234829.52666124716,
+    "status": "done",
     "submitted_at": 1793314541.7535865
   },
   {

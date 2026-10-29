@@ -1,0 +1,38 @@
+{
+  "experiment": "D5 Dense olayer selector for O at 1/8/16/32 tokens",
+  "job": "3b13fab22b2b4480",
+  "candidate_sha256": "a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39",
+  "official": {
+    "passed": true,
+    "speedup": 1.5196640941451183,
+    "ci": [
+      1.4968691327329415,
+      1.5424590555572948
+    ]
+  },
+  "parent": {
+    "job": "6131bc96427e4486",
+    "speedup": 1.5277713270942548
+  },
+  "upload_retry": "first upload failed with TLS bad record MAC (no job created, see upload-failed-tls.json)",
+  "selector_us": {
+    "m1": [
+      9.25,
+      10.14
+    ],
+    "m8": [
+      9.44,
+      10.24
+    ],
+    "m16": [
+      9.82,
+      10.18
+    ],
+    "m32": [
+      10.11,
+      10.14
+    ],
+    "format": "[incumbent, best olayer config]"
+  },
+  "decision": "measurement only: incumbent dispatch fastest at all four sizes; nothing selected; track change is run noise. Not retained."
+}
