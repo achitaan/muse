@@ -1,0 +1,22 @@
+{
+  "source_sha256": "ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd",
+  "positive_fixture_passed": true,
+  "rejected": [
+    "register_budget",
+    "local_storage",
+    "residency",
+    "shared_memory",
+    "missing_resources",
+    "ambiguous_resources",
+    "new_backend_absent",
+    "small_control_backend_changed",
+    "integrity_failed",
+    "missing_test",
+    "control_drift",
+    "insufficient_affected_gain",
+    "forged_unweighted_aggregate"
+  ],
+  "fixtures_are_not_measurements": true,
+  "no_gpu_jobs": true,
+  "no_api_calls": true
+}

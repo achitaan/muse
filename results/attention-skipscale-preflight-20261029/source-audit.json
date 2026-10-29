@@ -1,0 +1,116 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "source_sha256": "ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd",
+  "cuda_sha256": "d9637b769cc6af0e032da8373e18f792598dd611f3800ff6a308a2678e7c55bf",
+  "bytes": 173419,
+  "original_cuda_inverse_exact": true,
+  "all_other_Python_AST_exact_except_module_tag": true,
+  "changed_math_scope": "L1 FLAT only: skip identity rescale when every lane of the warp keeps its maximum",
+  "unchanged_probability_scale": 256,
+  "unchanged_L8": true,
+  "unchanged_L1_nonflat": true,
+  "same_decode_arithmetic_anchors": 3,
+  "no_scratch_geometry_routing_or_precision_changes": true,
+  "gpu_verified": false,
+  "edits": [
+    {
+      "offset": 77839,
+      "old": "    const float m_new = fmaxf(m_r[0], mx);\n",
+      "new": "    const float m_new = fmaxf(m_r[0], mx);\n    // Warp-uniform test, before any per-row finite-state branch.\n    const bool rescale = !FLAT || __any_sync(0xffffffffu, m_new != m_r[0]);\n"
+    },
+    {
+      "offset": 78054,
+      "old": "      const float alpha = ex2(m_r[0] - m_new);\n",
+      "new": "      float alpha = 1.f;\n      if (rescale) alpha = ex2(m_r[0] - m_new);\n"
+    },
+    {
+      "offset": 78608,
+      "old": "        l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n",
+      "new": "        if (rescale) {\n          l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n          for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n        } else {\n          // ex2(+/-0) is exactly1; FMA(l,1,ls) equals RN(l+ls).\n          l_r[0] += ls;\n        }\n"
+    },
+    {
+      "offset": 65,
+      "old": "#include <type_traits>",
+      "new": "#include <type_traits>\n#include <cstdio>"
+    },
+    {
+      "offset": 118352,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132686,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132722,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132789,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132825,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132897,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 132936,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 133008,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 133047,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 133121,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 133161,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 133745,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 134347,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 134822,
+      "old": "attn_kernel_fp8pv",
+      "new": "attn_kernel_skipscale"
+    },
+    {
+      "offset": 134443,
+      "old": "    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);",
+      "new": "    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);\n    if constexpr (L == 1) {\n      cudaFuncAttributes attr{};\n      TORCH_CHECK(cudaFuncGetAttributes(&attr, attn_kernel_skipscale<L, true>) == cudaSuccess,\n                  \"Identity-rescale resource query failed\");\n      printf(\"ATTN_SKIP_RESOURCES %d %zu %d %d %zu %d %d %d %d\\n\",\n             attr.numRegs, attr.localSizeBytes, occ_f, sm_f, sizeof(Smem<L, true>),\n             Cfg<L, true>::MINB, Cfg<L, true>::BASEREGS, Cfg<L, true>::CREGS, nsm);\n      TORCH_CHECK(attr.numRegs > 0 && attr.numRegs <= 128 && attr.localSizeBytes == 0 && occ_f >= 2,\n                  \"Identity-rescale fixed resource gate failed\");\n    }"
+    }
+  ],
+  "module_tag_edit": {
+    "old": "okc_attn_v298{tag}_90a",
+    "new": "okc_attn_v298_skipscale{tag}_90a"
+  }
+}

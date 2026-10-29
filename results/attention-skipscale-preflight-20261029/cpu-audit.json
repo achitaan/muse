@@ -1,0 +1,61 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "source_sha256": "ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd",
+  "cuda_sha256": "d9637b769cc6af0e032da8373e18f792598dd611f3800ff6a308a2678e7c55bf",
+  "cpu_only": true,
+  "gpu_verified": false,
+  "finite_FP32_identity_products": 261153,
+  "finite_FP32_add_vs_exact_sum_screens": 261153,
+  "warp_quad_vote_masks": 256,
+  "online_state_iterations": 503,
+  "online_state_bits_equal": true,
+  "traces": [
+    {
+      "mode": "coherent",
+      "tiles": 257,
+      "identity_warps": 226,
+      "rescale_warps": 31
+    },
+    {
+      "mode": "random",
+      "tiles": 129,
+      "identity_warps": 109,
+      "rescale_warps": 20
+    },
+    {
+      "mode": "growing",
+      "tiles": 65,
+      "identity_warps": 1,
+      "rescale_warps": 64
+    },
+    {
+      "mode": "masked_edges",
+      "tiles": 35,
+      "identity_warps": 21,
+      "rescale_warps": 14
+    },
+    {
+      "mode": "signed_zero",
+      "tiles": 17,
+      "identity_warps": 16,
+      "rescale_warps": 1
+    }
+  ],
+  "rejected_mutants": [
+    "Suppress a genuine .25-log2 maximum change",
+    "Use all instead of any for moving quads"
+  ],
+  "no_precision_probability_scale_or_reduction_changes": true,
+  "all_Smem_field_layouts_unchanged": true,
+  "dynamic_shared_bytes": {
+    "L1_flat0": 58368,
+    "L1_flat1": 67584,
+    "L8_flat0": 94208,
+    "L8_flat1": 114688
+  },
+  "flat_L1_register_pool_per_two_blocks": 65536,
+  "actual_GPU_branch_frequency_unknown": true,
+  "performance_prediction": null,
+  "ex2_zero_primary_source": "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#floating-point-instructions-ex2",
+  "limitations": "CPU finite screens and identity argument; no SASS, register allocation, GPU shuffle/replay correctness or timing evidence"
+}

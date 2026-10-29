@@ -1,3 +1,13 @@
+> CURRENT CANDIDATE, October29: Attention identity-rescale short circuit
+> ed810c7a is frozen and CPU-audited; no GPU result or speedup yet. It changes
+> only L1 flat update control, preserving all keys, precision and geometry.
+> Packet: results/attention-skipscale-preflight-20261029/. Fixed review/gates:
+> experiments/prepared/attention_skip_identity_scale_review.md. Next new check
+> no earlier than04:22:28.724212UTC, one job, no fresh baseline or sweep.
+> No GPU job/controller is active at this checkpoint. Retain every best;
+> the rejected MoE factor trial remains closed. Earlier running headers
+> below are historical. Goal remains active; main chat only.
+
 > LATEST RESULT, October29: MoE factor trial92577a6426f74605/85a317b7
 > compiled at96registers/0local bytes and passed its new-path synthetic probes,
 > but paired M32/128/256 were0.36..0.84%slower. selected_main=false.

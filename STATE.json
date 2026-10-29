@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Inspect retained Attention full-context regimes and exact Decode transfer differences for a distinct source-backed runtime mechanism. Decode boundary audit complete without a selected runtime candidate; no rejected MoE transfer. No new check before04:22:28.724212UTC; preserve all bests and reserves.",
+  "next_trial": "One exact L1-flat identity-rescale short circuited810c7a, frozen CPU/source/numerical/resource-layout/result-guard packet. Use foreground reversible controller, cached9e922c35 baseline, one official check no earlier than04:22:28.724212UTC. No GPU win claimed. Reject resources/backends/numerics or insufficient weighted/control gain; no blind retry.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "attention_regime_source_audit_after_decode_boundary_map",
+  "active_track": "attention_identity_rescale_preflight",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -2765,7 +2765,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T03:39:41.143740+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T03:57:40.654210+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -2849,5 +2849,18 @@
     "cpu_only": true,
     "new_gpu_jobs": 0,
     "runtime_candidate_selected": null
+  },
+  "attention_skipscale_candidate": {
+    "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "source_sha256": "ed810c7abd8a2c852959609cbe9977ae562c61b85f57f5dce93bafc3b8925dcd",
+    "cuda_sha256": "d9637b769cc6af0e032da8373e18f792598dd611f3800ff6a308a2678e7c55bf",
+    "bytes": 173419,
+    "packet": "results/attention-skipscale-preflight-20261029/",
+    "review": "experiments/prepared/attention_skip_identity_scale_review.md",
+    "status": "prepared_cpu_only",
+    "gpu_verified": false,
+    "job_id": null,
+    "target_phase_speedup": 2.575055521950876,
+    "overall_goal_met": false
   }
 }

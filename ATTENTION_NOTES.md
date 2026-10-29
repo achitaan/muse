@@ -1,3 +1,13 @@
+> CURRENT CANDIDATE, October29: Attention identity-rescale short circuit
+> ed810c7a is frozen and CPU-audited; no GPU result or speedup yet. It changes
+> only L1 flat update control, preserving all keys, precision and geometry.
+> Packet: results/attention-skipscale-preflight-20261029/. Fixed review/gates:
+> experiments/prepared/attention_skip_identity_scale_review.md. Next new check
+> no earlier than04:22:28.724212UTC, one job, no fresh baseline or sweep.
+> No GPU job/controller is active at this checkpoint. Retain every best;
+> the rejected MoE factor trial remains closed. Earlier running headers
+> below are historical. Goal remains active; main chat only.
+
 > Latest checkpoint: October28,23:08UTC. Attention QK operand swap469d8b04
 > passed16/12/integrity as e663e5cbca7041b1 at2.500663288x; slower than2.537000514.
 > Changed GM0.984233346, L8controls0.990164299; normalized0.9940101.

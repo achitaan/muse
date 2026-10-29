@@ -1,0 +1,38 @@
+{
+  "problem": "muse_attention_decode",
+  "identity_verified_utc": "2026-10-29T03:51:05.216905+00:00",
+  "download_timestamp_not_recorded": true,
+  "files": [
+    {
+      "file": "TASK.md",
+      "pinned_sha256": "fdc57e97579dd8579bb6cc284e454578962d30a65b1b7a526719ce220b0bba76",
+      "fresh_sha256": "fdc57e97579dd8579bb6cc284e454578962d30a65b1b7a526719ce220b0bba76",
+      "exact": true
+    },
+    {
+      "file": "reference.py",
+      "pinned_sha256": "386f7f67a1d788501e8fb9005d340423d098a0946e23810ba10878228c11a37b",
+      "fresh_sha256": "386f7f67a1d788501e8fb9005d340423d098a0946e23810ba10878228c11a37b",
+      "exact": true
+    },
+    {
+      "file": "checks.py",
+      "pinned_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "fresh_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "exact": true
+    },
+    {
+      "file": "baseline.py",
+      "pinned_sha256": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+      "fresh_sha256": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+      "exact": true
+    },
+    {
+      "file": "AGENTS.md",
+      "pinned_sha256": "c01682737af060546f7f17c480cc37309c28e6c2de1cc13c669f3f66307d3476",
+      "fresh_sha256": "c01682737af060546f7f17c480cc37309c28e6c2de1cc13c669f3f66307d3476",
+      "exact": true
+    }
+  ],
+  "new_gpu_jobs": 0
+}
