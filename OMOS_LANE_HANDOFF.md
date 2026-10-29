@@ -47,9 +47,21 @@ move the overall rank unless they move the Decode speedup. Decode rank-50 cutoff
   critical-path kernels (attention 9.2→11.6 µs at T=32 sliding; route_fp32<8>
   15.2→17.6 µs). Net loss; line closed.
 
-### A1 — attention sliding split sweep — pending
+### A1 — attention sliding split sweep — not retained (one shape won)
 
-See `results/attention-split-sweep-20261029/`.
+- Candidate `0e74765beedf96d82224b147dfd2e8cb68015de670123da94860ce9c7f8f7258`
+  (`_TUNED` overrides only); check `d18f02619ca44b65`: passed 16 tests,
+  **2.4237347x** (CI 2.3874–2.4693) vs parent 2.5370005x (`8b767ea7b2b74de6`).
+- Controls (6 full shapes + verify 32 sliding) GM 1.0040. Normalized per shape:
+  decode 1 sliding 32→16 splits 0.883; **decode 16 sliding 16→8 splits 1.055 (win,
+  9.31→8.79 µs)**; decode 32 sliding 8→4 0.869; verify 1 sliding 33→16 0.775;
+  verify 16 sliding 8→4 0.854.
+- Decode transfer (D2) skipped: the winner would move Decode's 8 µs decode-16 sliding
+  attention by ~0.4 µs (~0.05% of the Decode track).
+- Follow-up A2 frozen, not launched: `candidates/attention_split_a2.py`
+  (`513af2884589912f9d04b31c34d26eff39e9bffc5639ad0e42240bc24dca851f`) confirms
+  decode16=8 and probes 16 splits for decode 32 and verify 16 sliding;
+  gates in `results/attention-split-a2-20261029/gates.json`.
 
 ## Dense, MoE and Prefill: candidate assessment (offline, no checks spent)
 
