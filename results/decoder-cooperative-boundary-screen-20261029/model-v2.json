@@ -1,0 +1,46 @@
+{
+  "revision": 2,
+  "post_eps": 1e-08,
+  "pre_eps": 1e-05,
+  "supersedes": "model.json used1e-8 as a generic pre-epsilon proxy; retained only as historical evidence",
+  "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "numerical_cases": 40,
+  "finalizer_row_ownership_cases": 36,
+  "mutants_detected": {
+    "drop_post_bf16": 24,
+    "round_router": 32,
+    "cropped_norm": 32
+  },
+  "max_relative_L2_vs_high_precision_row_sum": {
+    "output_l2": 0.0,
+    "residual_l2": 0.0,
+    "router_l2": 1.7868437799690183e-07
+  },
+  "optimistic_screens": [
+    {
+      "assumed_saved_us_per_affected_case": 1.0,
+      "optimistic_track_gain": 1.0032341965140006
+    },
+    {
+      "assumed_saved_us_per_affected_case": 2.0,
+      "optimistic_track_gain": 1.0065119248266738
+    },
+    {
+      "assumed_saved_us_per_affected_case": 4.5,
+      "optimistic_track_gain": 1.0149037825866851
+    }
+  ],
+  "pinned_files": {
+    "fused_norm_residual.py": "61be2075b233c687f7b111bae06d4f9494c3032a8b0c2289c9ae10fc8c757493",
+    "norm_residual.cuh": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+    "norm_residual.py": "7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a"
+  },
+  "limitations": [
+    "No GPU race/graph/occupancy/precision/timing validation",
+    "FP32 reduction grouping differs; GPU checker remains required",
+    "Selected CUDA router output is FP32 unrounded with pre_norm_bf16=false",
+    "No overall aggregation formula established"
+  ]
+}

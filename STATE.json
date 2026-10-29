@@ -146,8 +146,8 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_wgs_phase_a_paired_stores",
-  "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
+  "active_track": "Decode",
+  "resume_note": "Cooperative O1/O8 boundary device prototype survives CPU/compiler screens; complete exact plan/host integration, graph and numerical admission before considering one paced GPU check. No active runtime source changed; broad top50 goal active.",
   "attention_checked": {
     "source": "best/attention_checked.py",
     "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
@@ -2856,7 +2856,7 @@
     "preparation_savings_s": null,
     "timed_speedup_claim": false
   },
-  "latest_work_snapshot_utc": "2026-10-29T04:39:28.375829+00:00",
+  "latest_work_snapshot_utc": "2026-10-29T12:31:03.361515+00:00",
   "expected_quotas_after_moe_phase_diagnostic": {
     "basis": "2026-10-29T02:22:00.847811+00:00 fresh prelaunch API minus this one check; not a postlaunch query",
     "dense_checks_left": 19,
@@ -3307,5 +3307,28 @@
     "candidate_created": false,
     "GPU_jobs": 0,
     "decision": "Generic adaptive-length scheduling duplicates incumbent; need distinct exposed bottleneck"
+  },
+  "decoder_cooperative_boundary_CPU_screen": {
+    "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+    "review": "experiments/prepared/decoder_cooperative_boundary_review.md",
+    "packet": "results/decoder-cooperative-boundary-screen-20261029",
+    "numerical_model": "model-v2.json",
+    "numerical_cases": 40,
+    "row_ownership_cases": 36,
+    "compiler_packed_BF16_registers": {
+      "O1": [
+        48,
+        38
+      ],
+      "O8": [
+        50,
+        32
+      ]
+    },
+    "all_offline_stack_and_spill_fields_zero": true,
+    "actual_residency_verified": false,
+    "GPU_jobs": 0,
+    "host_launcher_implemented": false,
+    "decision": "Continue bounded host/capture/precision admission; no GPU launch candidate yet"
   }
 }

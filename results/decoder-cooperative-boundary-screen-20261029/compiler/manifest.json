@@ -1,0 +1,36 @@
+{
+  "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "GPU_jobs": 0,
+  "candidate_installed": false,
+  "host_launcher_implemented": false,
+  "variants": [
+    {
+      "label": "o1",
+      "tokens": 1,
+      "baseline_CUDA_sha256": "e0ee5815680760282bef71cd4a44b3d22477e936ad10d804531e7fd5d0e12b7c",
+      "source_sha256": "40327719ae459fa67d6957697e905fa9fe37b92999ce664f1dbd79f5eb58afcd",
+      "instances": [
+        "smallm2_gemv<1,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>",
+        "smallm2_gemv<0,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>"
+      ],
+      "threads": 1024,
+      "ctas": 128,
+      "dynamic_shared_bytes": 16384,
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 48 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 38 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n"
+    },
+    {
+      "label": "o8",
+      "tokens": 8,
+      "baseline_CUDA_sha256": "73a1eb0e192c14155409cbacf1c6d4520934aa1a91754d47ca1744fd29393a9d",
+      "source_sha256": "805e03eed62c3963489170512554d190d3fed120a62510e3fb6608f7c2c4532d",
+      "instances": [
+        "v18s_gemv<1,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>",
+        "v18s_gemv<0,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>"
+      ],
+      "threads": 256,
+      "ctas": 512,
+      "dynamic_shared_bytes": 4096,
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj12CoopBoundary\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n"
+    }
+  ]
+}

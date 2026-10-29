@@ -1,3 +1,17 @@
+> CPU FOLLOW-UP, October29: cooperative Decode O1/O8 + attention boundary
+> prototype compiles packed/BF16 at48/38 and50/32registers, zero offline
+> stack/spill fields.40numerical and36row-ownership cases; three broken
+> contracts detected. Corrected model-v2 uses post1e-8/pre1e-5; original
+> model.json is superseded. Exact pinned JIT CUDA router remains FP32 before
+> output rounding. One grid barrier, one whole-row finalizer CTA per token;
+> host cooperative launch/capture and actual residency are not implemented
+> or validated. Existing serial-last-block rejection remains closed.
+> Review experiments/prepared/decoder_cooperative_boundary_review.md and
+> results/decoder-cooperative-boundary-screen-20261029/. No GPU job, active
+> source change or performance claim. Continue bounded host/plan/precision
+> admission; potential two-load weighted gain is modest. Preserve all44
+> source hashes and spacing/reserves through20Toronto; top50 goal active.
+>
 > CPU FOLLOW-UP, October29: disjoint MoE split-unit fixup draft26575142 is
 > parked without a GPU check.1638ownership cases; extra20MiB/private state,
 > unchanged matrix geometry/packed weights/epilogues/counters/readiness.

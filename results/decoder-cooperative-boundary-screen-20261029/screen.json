@@ -1,0 +1,82 @@
+{
+  "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "active_candidate_changed": false,
+  "host_launcher_implemented": false,
+  "pinned_sources": [
+    {
+      "path": "pinned/fused_norm_residual.py",
+      "sha256": "61be2075b233c687f7b111bae06d4f9494c3032a8b0c2289c9ae10fc8c757493",
+      "url": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_norm_residual.py"
+    },
+    {
+      "path": "pinned/norm_residual.cuh",
+      "sha256": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+      "url": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_residual.cuh"
+    },
+    {
+      "path": "pinned/norm_residual.py",
+      "sha256": "7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a",
+      "url": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/norm_residual.py"
+    }
+  ],
+  "variants": [
+    {
+      "label": "o1",
+      "registers_packed_BF16": [
+        48,
+        38
+      ],
+      "stack_store_load_fields": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "threads": 1024,
+      "ctas": 128,
+      "dynamic_shared_bytes": 16384,
+      "required_blocks_per_SM_for_132_SMs": 1,
+      "conservative_arithmetic_capacity_blocks_per_SM": 1,
+      "runtime_occupancy_required": true,
+      "full_H200_residency_proven": false,
+      "source_sha256": "40327719ae459fa67d6957697e905fa9fe37b92999ce664f1dbd79f5eb58afcd"
+    },
+    {
+      "label": "o8",
+      "registers_packed_BF16": [
+        50,
+        32
+      ],
+      "stack_store_load_fields": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "threads": 256,
+      "ctas": 512,
+      "dynamic_shared_bytes": 4096,
+      "required_blocks_per_SM_for_132_SMs": 4,
+      "conservative_arithmetic_capacity_blocks_per_SM": 4,
+      "runtime_occupancy_required": true,
+      "full_H200_residency_proven": false,
+      "source_sha256": "805e03eed62c3963489170512554d190d3fed120a62510e3fb6608f7c2c4532d"
+    }
+  ],
+  "inverse_edit_restores_selected_GEMV_device_prefix": true,
+  "decision": "Continue bounded host/graph/precision admission work; not admitted for GPU yet"
+}
