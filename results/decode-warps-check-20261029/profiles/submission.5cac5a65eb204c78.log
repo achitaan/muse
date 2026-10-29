@@ -1,0 +1,9 @@
+D4 s T=1 w4=8.22 w8=7.71 w16=7.71 incumbent w8
+D4 s T=8 w4=8.35 w8=7.84 w16=7.71 incumbent w8
+D4 p T=1 w2=6.72 w4=6.40 w8=6.05 w16=6.05 incumbent w4
+D4 p T=8 w2=6.46 w4=6.24 w8=6.24 w16=6.08 incumbent w4
+D4 p T=16 w2=6.53 w4=6.14 w8=6.08 w16=6.05 incumbent w4
+D4 p T=32 w2=6.62 w4=6.37 w8=6.21 w16=6.05 incumbent w4
+D4 p T=128 w2=6.88 w4=6.62 w8=6.46 w16=6.56 incumbent w4
+D4 p T=256 w2=7.23 w4=7.10 w8=7.01 w16=6.94 incumbent w4
+D4_SELECT [(('p', 1), 8), (('p', 32), 16)]

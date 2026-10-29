@@ -1,0 +1,49 @@
+{
+  "experiment": "D4 Decode warp-count selector for _sfn_kernel/_pn_inputs_kernel",
+  "job": "5cac5a65eb204c78",
+  "candidate_sha256": "b0f08828edaa89f065aaff78e67d613420528101ce54ef00f046b47c401d47cc",
+  "official": {
+    "passed": true,
+    "speedup": 1.996547233777188,
+    "ci": [
+      1.96659902527053,
+      2.0264954422838457
+    ]
+  },
+  "parent": {
+    "job": "9560c915e85f4f50",
+    "speedup": 1.9902248796281297
+  },
+  "selector_us": {
+    "sfn T1": {
+      "w8(inc)": 7.71,
+      "w16": 7.71
+    },
+    "sfn T8": {
+      "w8(inc)": 7.84,
+      "w16": 7.71
+    },
+    "pn T1": {
+      "w4(inc)": 6.4,
+      "w8": 6.05,
+      "selected": 8
+    },
+    "pn T32": {
+      "w4(inc)": 6.37,
+      "w16": 6.05,
+      "selected": 16
+    },
+    "pn T8/16/128/256": "best within 3% of w4 (T8 w16 6.08 vs 6.24 = 2.6%)"
+  },
+  "official_loads": {
+    "decode 1 gain": 0.994,
+    "decode 32 gain": 0.9792,
+    "controls (full shapes) ratio": [
+      1.032,
+      1.0184,
+      1.0541,
+      1.0476
+    ]
+  },
+  "decision": "not retained: the selected saves ~0.35 us per call (expected 0.1-0.4% on the decode 1 / decode 32 loads), below single-run resolution; official moves on affected loads (-2.1..+0.6%) are drift-dominated"
+}
