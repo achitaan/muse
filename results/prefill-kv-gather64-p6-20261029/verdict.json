@@ -1,0 +1,70 @@
+{
+  "experiment": "P6 contiguous-KV FA3 selector with int64 row gather",
+  "job": "6095723fa6fa4f69",
+  "candidate_sha256": "bb7168f60b258c7247d54efab1ac53219ba9f6b5033d155b0d4ecc491e3c3f55",
+  "official": {
+    "passed": true,
+    "speedup": 1.6544052193254493,
+    "ci": [
+      1.6295891410355674,
+      1.679221297615331
+    ]
+  },
+  "parent": {
+    "job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "selection_reproduced": true,
+  "runtime_applied": [
+    "P4_USE (1, 16384, 49152)",
+    "P4_USE (1, 16384, 81920)"
+  ],
+  "selector_us": {
+    "(1,16384,49152)": {
+      "paged": 4461.3,
+      "gathered": 4305.3,
+      "one_cache_gather": 35.1
+    },
+    "(1,16384,81920)": {
+      "paged": 8011.9,
+      "gathered": 7718.9,
+      "one_cache_gather": 55.0
+    },
+    "(1,753,80753)": {
+      "paged": 424.9,
+      "gathered": 518.5,
+      "one_cache_gather": 54.1
+    },
+    "(4,753,80753)": {
+      "paged": 1631.5,
+      "gathered": 1944.6,
+      "one_cache_gather": 199.8
+    }
+  },
+  "gather_finding": "index_select gathers ~0.38 TB/s regardless of element width (int64 rows did not help); excluding the gather, contiguous FA3 is ~5% faster than paged at ctx 65536 and ~3% at 753 tokens x 80k",
+  "affected_normalized_P6": {
+    "vs P1/P2/P3 ctx32768": [
+      0.9916,
+      1.0183,
+      1.0349
+    ],
+    "vs P1/P2/P3 ctx65536": [
+      1.0136,
+      1.02,
+      1.039
+    ]
+  },
+  "mean_P4_P5_P6": {
+    "ctx32768 vs P1/P2/P3": [
+      0.9984,
+      1.0253,
+      1.0421
+    ],
+    "ctx65536 vs P1/P2/P3": [
+      1.0217,
+      1.0282,
+      1.0474
+    ]
+  },
+  "decision": "frozen 1.02 rule not met (ctx 32768 vs P1 0.9984 over three runs); P4/P5/P6 not retained. ctx 65536 meets 1.02 vs all references over three runs. Future work: a bandwidth-efficient gather kernel (expected ~10-15 us instead of ~110 us for both caches) and possibly the 753-token full shapes."
+}
