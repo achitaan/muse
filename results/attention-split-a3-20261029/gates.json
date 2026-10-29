@@ -1,0 +1,28 @@
+{
+  "experiment": "A3 attention: decode16 sliding n_splits=8 only (source-bound confirmation)",
+  "frozen_before_launch_utc": "2026-10-29T22:24:00Z",
+  "parent": {
+    "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+    "job": "8b767ea7b2b74de6",
+    "scored_speedup": 2.5370005142373167
+  },
+  "candidate": "candidates/attention_split_a3.py",
+  "candidate_sha256": "ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1",
+  "evidence_basis": {
+    "A1 d18f02619ca44b65": 1.0554,
+    "A2 a359cf6f0b8b4760": 1.0852
+  },
+  "affected": [
+    [
+      "decode 16",
+      "sliding"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "16 tests + 12 benchmarks pass",
+    "shape": "decode 16 sliding normalized ratio >= 1.03 (third independent run)",
+    "track": "track speedup not below parent 2.537 by more than its ~1.5% interval (>= 2.50); expected effect ~+0.25% is below track resolution",
+    "publication": "none in this authorization (checks only)"
+  }
+}
