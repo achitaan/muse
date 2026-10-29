@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_decoder_cooperative.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 456.266,
+  "returncode": 0,
+  "stderr": "Decode cooperative-boundary check 7f85bd70a3484dc7: received\r\nDecode cooperative-boundary check 7f85bd70a3484dc7: running\r\nDecode cooperative-boundary check 7f85bd70a3484dc7: done\r\n",
+  "stdout": "{\"speedup\": 1.9969290516608489, \"correct\": true, \"job\": \"7f85bd70a3484dc7\", \"source_sha256\": \"ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92\", \"error\": null}\r\n",
+  "timed_out": false
+}

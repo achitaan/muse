@@ -1,3 +1,23 @@
+> LATEST TERMINAL RESULT, October29: cooperative Decodead7b55cf check
+> 7f85bd70a3484dc7 passed actual native resources and80synthetic probes
+> including16fresh graph replays/both formats/nearbyM2..7. Projection BF16
+> result exact; maximum output/residual/router row/global L2
+> 8.664e-5 /4.234e-8 /2.121e-7. Both component gates fail,0of16wins:
+> new/old M1=1.38744 and M8=3.07626. CB_SELECTED[]; no fused kernel in
+> benchmark profiles. Full13tests/12benchmarks/integrity1.996929052x measures
+> retained timed paths, not a new-kernel gain or full fused correctness.
+> Prepare260.207s fits300; no isolated preparation savings established.
+> Controller ee1ef27a, trialc4f2509, revertbd2a43d, archive20261029-125933.
+> Complete source/result/profiles/probes/controller/source proof saved under
+> results/decoder-cooperative-boundary-check-20261029/. All44protected hashes
+> restored. No score, noise rerun, neighboring tile sweep or transfer.
+> No active job/controller. Derived checks Dense19,Attention18,MoE12,
+> Decode19,Prefill20=88total;10scores each=50total, not fresh post-result API.
+> Next new check>=13:50:40.319601UTC=09:50Toronto. Main-only; broad top50
+> goal remains active through20Toronto. Next inspect retained Attention
+> partial-output ownership/finalization for a materially different hypothesis;
+> do not reopen rejected flags, serial partition loops or tied FP8PV transfer.
+>
 > READY FOR ONE PACED CHECK, October29: cooperative Decode sourcead7b55cf,
 > CUDA51180052,917645B, results/decoder-cooperative-boundary-preflight-20261029/v3.
 > Reuses original O1/O8 plans, all other bands/fallbacks retained. Exact six

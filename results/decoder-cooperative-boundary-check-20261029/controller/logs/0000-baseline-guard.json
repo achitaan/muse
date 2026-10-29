@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/verify_decoder_cooperative_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.156,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Cached exact D9 full13/12/integrity; no new GPU baseline job.\r\n",
+  "timed_out": false
+}

@@ -1,5 +1,12 @@
 # Decode cooperative output-projection boundary: CPU admission work
 
+Later terminal GPU evidence supersedes the readiness discussion below:
+check7f85bd70a3484dc7 validated resources/80synthetic probes but rejected both
+fused families as slower. D9 restored; no publication or neighbor sweep.
+See decoder_cooperative_boundary_admission_review.md and the source-bound
+results/decoder-cooperative-boundary-check-20261029/review.json. CPU evidence
+below remains historical and is not the final performance conclusion.
+
 Baseline is retained D9, `best/decoder_verified.py`, SHA256
 `d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988`.
 No active source changed, no host launcher exists, and no GPU job was used.

@@ -1,5 +1,14 @@
 # One bounded cooperative Decode check: frozen admission plan
 
+Terminal outcome: check7f85bd70a3484dc7 is closed and D9 restored. All four
+native resource gates and80synthetic correctness/replay probes passed; both
+component performance gates failed with0/16winning pairs. M1/M8 new/old cost
+ratios were1.38744/3.07626. Neither family was selected. Full13/12/integrity
+at1.996929052x therefore measures retained timed paths and is not evidence of
+a new-kernel speedup or whole-layer fused correctness. No score or retry.
+Complete packet: results/decoder-cooperative-boundary-check-20261029/.
+The admission plan below is immutable historical context for that experiment.
+
 Candidate `ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92`
 is917645bytes, at `results/decoder-cooperative-boundary-preflight-20261029/v3/`.
 Native CUDA is51180052ffd10dfb11ab1bb747c11192922c7effdd2669b4389185184028e4b1.

@@ -1,0 +1,150 @@
+{
+  "job_id": "7f85bd70a3484dc7",
+  "source_sha256": "ad7b55cfdf01408842510fca48eef235b95e73fcd9d721b73ce418d9f561ea92",
+  "CUDA_sha256": "51180052ffd10dfb11ab1bb747c11192922c7effdd2669b4389185184028e4b1",
+  "full_tests": 13,
+  "full_benchmarks": 12,
+  "integrity_ok": true,
+  "GPU": "H200",
+  "full_suite_scope": "Retained timed GPU paths: both experimental families disabled by fixed paired component gate",
+  "speedup": 1.9969290516608489,
+  "speedup_ci": [
+    1.966975115885936,
+    2.0268829874357612
+  ],
+  "new_kernel_speedup_claim": false,
+  "native_resources": [
+    {
+      "family": 1,
+      "fmt": 1,
+      "query": {
+        "1": 1,
+        "2": 48,
+        "3": 0,
+        "4": 0,
+        "5": 1,
+        "6": 132,
+        "7": 1,
+        "8": 16384
+      }
+    },
+    {
+      "family": 1,
+      "fmt": 0,
+      "query": {
+        "1": 1,
+        "2": 38,
+        "3": 0,
+        "4": 0,
+        "5": 1,
+        "6": 132,
+        "7": 1,
+        "8": 16384
+      }
+    },
+    {
+      "family": 8,
+      "fmt": 1,
+      "query": {
+        "1": 1,
+        "2": 50,
+        "3": 0,
+        "4": 0,
+        "5": 4,
+        "6": 132,
+        "7": 1,
+        "8": 4096
+      }
+    },
+    {
+      "family": 8,
+      "fmt": 0,
+      "query": {
+        "1": 1,
+        "2": 32,
+        "3": 0,
+        "4": 0,
+        "5": 8,
+        "6": 132,
+        "7": 1,
+        "8": 4096
+      }
+    }
+  ],
+  "synthetic_correctness_probe_cases": 80,
+  "changing_input_graph_replays": 16,
+  "max_global_or_worst_row_relL2_output_residual_router": [
+    8.663806511322036e-05,
+    4.2344939998884e-08,
+    2.121180244785137e-07
+  ],
+  "BF16_projection_exact_for_all_synthetic_probes": true,
+  "component_comparisons": [
+    {
+      "family": 1,
+      "fmt": 1,
+      "old_over_new_geomean": 0.7207500156289492,
+      "new_over_old_geomean": 1.3874436050166,
+      "new_slowdown_percent": 38.74436050165999,
+      "old_median_ns": 7806.000113487244,
+      "new_median_ns": 10829.400271177292,
+      "winning_pairs": 0,
+      "sample_pairs": 16,
+      "cache": "warm repeated component calls; full judge cold-L2 still required",
+      "independent_GPU_jobs": 1,
+      "statistical_significance_claim": false
+    },
+    {
+      "family": 8,
+      "fmt": 1,
+      "old_over_new_geomean": 0.3250703219414254,
+      "new_over_old_geomean": 3.0762574510883542,
+      "new_slowdown_percent": 207.62574510883542,
+      "old_median_ns": 7960.999757051468,
+      "new_median_ns": 24490.199983119965,
+      "winning_pairs": 0,
+      "sample_pairs": 16,
+      "cache": "warm repeated component calls; full judge cold-L2 still required",
+      "independent_GPU_jobs": 1,
+      "statistical_significance_claim": false
+    }
+  ],
+  "selected_families": [],
+  "experimental_kernel_profile_cases": 0,
+  "prepare_seconds": 260.206628872,
+  "preparation_margin_under_300_seconds": 39.79337112799999,
+  "isolated_packaging_preparation_savings_claim": false,
+  "controller_run_id": "ee1ef27a72114dc2b306b25e192977db",
+  "trial_commit": "c4f25090f262b583cc77162d77ad3420b321d02f",
+  "revert_commit": "bd2a43ddea814091cfa96ab612abc1ebdfed8805",
+  "controller_archive": "20261029-125933",
+  "retained_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "all_44_protected_hashes_restored": true,
+  "new_scored_submissions": 0,
+  "derived_quotas_after_accepted_check": {
+    "muse_bf16_proj": {
+      "checks": 19,
+      "scores": 10
+    },
+    "muse_attention_decode": {
+      "checks": 18,
+      "scores": 10
+    },
+    "muse_moe_w4a16": {
+      "checks": 12,
+      "scores": 10
+    },
+    "muse_decode_layer": {
+      "checks": 19,
+      "scores": 10
+    },
+    "muse_prefill_layer": {
+      "checks": 20,
+      "scores": 10
+    }
+  },
+  "quota_scope": "Computed from fresh pre-launch API minus this accepted check; not a fresh post-result API snapshot",
+  "next_new_check_not_before_utc": "2026-10-29T13:50:40.319601+00:00",
+  "decision": "Close cooperative O1/O8 whole-grid boundary fusion; retain D9; no score, noise rerun, tile sweep or transfer",
+  "limitations": "Warm synthetic component measurements are not cold-L2 whole-layer gains. Full-suite point changes use retained paths. Barrier cost has not been separately measured."
+}
