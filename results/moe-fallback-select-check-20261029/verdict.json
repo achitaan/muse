@@ -1,0 +1,38 @@
+{
+  "experiment": "M3 MoE WGS vs mma.sync fallback selector",
+  "job": "4ed3dd65ae5341a0",
+  "candidate_sha256": "23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795",
+  "official": {
+    "passed": true,
+    "speedup": 2.33768051754853,
+    "ci": [
+      2.302615309785302,
+      2.372745725311758
+    ]
+  },
+  "parent": {
+    "job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "selector_sum3_us": {
+    "M16": {
+      "MID(inc)": 332.83,
+      "MAIN": 352.13,
+      "FALLBACK": 374.59
+    },
+    "M32": {
+      "MID": 410.88,
+      "MAIN(inc)": 418.94,
+      "FALLBACK": 455.17
+    },
+    "M128": {
+      "MAIN(inc)": 544.45,
+      "FALLBACK": 753.18
+    },
+    "M256": {
+      "MAIN(inc)": 669.63,
+      "FALLBACK": 926.98
+    }
+  },
+  "decision": "measurement only: fallback slower everywhere; nothing selected; MID vs MAIN at 32 tokens flips between runs (M1 -6%, M3 +1.9%) so it stays below the gate"
+}
