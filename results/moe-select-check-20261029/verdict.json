@@ -1,0 +1,44 @@
+{
+  "experiment": "M1 MoE build selector",
+  "job": "d746cb32bcc045f4",
+  "candidate_sha256": "95d82f5b552e6266a6f8a7826db59a9533b1b19c0fc5133c1ccde21df0860e4d",
+  "official": {
+    "passed": true,
+    "speedup": 2.3763334722051725,
+    "ci": [
+      2.340688470122095,
+      2.41197847428825
+    ]
+  },
+  "parent": {
+    "job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "selector_log": {
+    "M1": {
+      "TINY(inc)": 85.98,
+      "TINY2": 84.42,
+      "MID": 87.97,
+      "MAIN": 129.66
+    },
+    "M8": {
+      "TINY": 191.55,
+      "TINY2(inc)": 189.47,
+      "MID": 196.99,
+      "MAIN": 224.42
+    },
+    "M16": {
+      "MID(inc)": 244.38,
+      "MAIN": 268.58
+    },
+    "M32": {
+      "MID": 380.58,
+      "MAIN(inc)": 357.6
+    },
+    "selected": [],
+    "prepare_s": 0.3,
+    "units": "us, sum of medians over three routing draws, cold-L2 graph replay"
+  },
+  "decision": "measurement only: no build selected, timed path identical to the parent; +0.46% is within the run CI (noise). Not retained, not published.",
+  "finding": "on the judge's H200 the retained thresholds (TINY<=4, TINY2 5-8, MID 9-16, MAIN >16) are the fastest existing builds at 1/8/16/32 tokens; TINY2 is 1.8% faster than TINY at M=1 on synthetic routing (below the 3% gate)"
+}
