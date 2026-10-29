@@ -1,0 +1,13 @@
+{
+  "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "shader_only_source_sha256": "1ef544affaa0b4068b215ffd364c991ed713909fcd9443eda9d62254f58d3229",
+  "parent_bytes": 989018,
+  "shader_only_bytes": 990064,
+  "remaining_bytes": 9936,
+  "conditional_hunks": 6,
+  "default_cuda_recovered_byte_exact": true,
+  "selected_cuda_recovered_byte_exact": true,
+  "dispatch_changed": false,
+  "gpu_verified": false,
+  "next": "Only if actual MoE gain warrants transfer: bind selected defines and nearby controlled selector inside remaining budget; measure prepare budget and full13/12, do not append140KB alternate"
+}

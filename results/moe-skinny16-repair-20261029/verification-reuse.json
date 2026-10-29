@@ -1,0 +1,7 @@
+{
+  "prior_evidence_fault_injection_audit": "results\\moe-skinny16-selection-20261028\\evidence-tool-audit.json",
+  "reason": "The complete selector/probes/timing thresholds and every other Python byte recover exactly through the inverse; only two CUDA preprocessor guards differ. The old evidence schemas and their17rejected mutations are unchanged.",
+  "new_source_routing_and_dispatch_audit": "selection-cpu-audit.json",
+  "new_full_alternate_helper_reference_audit": "helper-guard-cpu-audit.json",
+  "new_GPU_verification": "pending diagnosed retry"
+}

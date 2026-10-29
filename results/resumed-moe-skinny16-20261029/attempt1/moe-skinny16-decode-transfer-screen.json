@@ -1,0 +1,44 @@
+{
+  "parent_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "source_bytes": 989018,
+  "remaining_bytes": 10982,
+  "embedded_moe_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "embedded_moe_equals_checked331": true,
+  "prepare_s": 256.896945766,
+  "changed_indices": [
+    2,
+    3
+  ],
+  "profile_fractions": {
+    "2": 0.4608150470219436,
+    "3": 0.3679487179487179
+  },
+  "model": [
+    {
+      "component_speed_gain": 0.03,
+      "projected_whole_decode_gain": 0.002091763258921686
+    },
+    {
+      "component_speed_gain": 0.06,
+      "projected_whole_decode_gain": 0.004093544061377852
+    },
+    {
+      "component_speed_gain": 0.1,
+      "projected_whole_decode_gain": 0.006632589705589664
+    },
+    {
+      "component_speed_gain": 0.2,
+      "projected_whole_decode_gain": 0.012403530864640633
+    },
+    {
+      "component_speed_gain": 0.3,
+      "projected_whole_decode_gain": 0.01747323837098924
+    },
+    {
+      "component_speed_gain": 0.5,
+      "projected_whole_decode_gain": 0.02597110784527179
+    }
+  ],
+  "limitations": "Screen only: profiler spans are separate replays and standalone versus Decode routing/activations differ; not a hardware timing prediction or statistical bound",
+  "next": "Avoid full alternate-CUDA append because it exceeds1MB. If justified by real MoE gain, use preprocessor guards in the one embedded CUDA string and prove default branches identical, then verify full13/12."
+}

@@ -1,0 +1,34 @@
+{
+  "source_sha256": "50dfae559fc8ce4bb6224d0dce6e7fc1ccc7a9097b7b4e19a66ea8a456efd3cd",
+  "bytes": 329582,
+  "prototype_sha256": "921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96",
+  "original_and_prototype_prefix_exact": false,
+  "eligible_tokens": [
+    9,
+    16
+  ],
+  "numerical_shapes": [
+    9,
+    15,
+    16
+  ],
+  "routing_patterns": [
+    "diffuse",
+    "hot",
+    "mixed"
+  ],
+  "analytic_cases": "all-remote -> exact zero at M9/15/16",
+  "timing": "8 alternating cold-L2 graph pairs for each of three patterns at M16",
+  "selection": "geomean new/old<.97; no pattern ratio>1.02",
+  "status": "one diagnosed compiler repair; GPU retry pending; no arithmetic or selection changes",
+  "repaired_from_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+  "original_parent_prefix_exact": true,
+  "repair": {
+    "old": "      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }\n",
+    "new": "#if OKC_WS\n      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }\n#endif\n",
+    "count": 2,
+    "upstream_source_sha256": "8bc17e47731b5dd4de9fefd3fd0db97e63e6104cacc53f01c8187c3553d03e5d",
+    "cuda_before_sha256": "cf36ce4bab42276d792b012e1dd5c52f8e6756213f4a8e5b4bb9ca9735a52987",
+    "cuda_after_sha256": "22c2041c608d16c2b072eb7a8c1b1acd74c46c225e06bcebff66c6c463382d43"
+  }
+}

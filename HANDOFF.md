@@ -1,3 +1,16 @@
+> First post-reset MoE check46ded9fefcb844db/f20caadb failed compilation before
+> tests or timing: two helper-only barrier init blocks lacked OKC_WS guards.
+> Controller discarded/reverted; history archived20261029-000431, no job pending.
+> Evidence: results/resumed-moe-skinny16-20261029/attempt1/.
+> One diagnosed repair50dfae55 restores the exact two guards from pinned unpruned
+> source, adding40bytes. No math/geometry/selection/performance-threshold changes.
+> Inverse recovers all f20bytes; CPU11helper refs and48/770routing/dispatch cases pass.
+> Read experiments/prepared/moe_skinny16_repair_review.md. Use the same measurement
+> and guard commands with updated exact source binding for one diagnosed retry.
+> Retain33114871 and every other best. Dense4d443b13 is also ready.
+> Reset API before first launch: each track20checks/10scores; derived after failure
+> MoE19/10, other tracks20/10; total99checks/50scores. No score used. Goal active.
+
 > MoE skinny16 is now a full prepared candidate f20caadb (329542bytes), not just
 > the earlier unused prototype. Review experiments/prepared/moe_skinny16_selection_review.md.
 > CPU48routing/770dispatch cases pass;17 bad evidence mutations rejected. Pinned

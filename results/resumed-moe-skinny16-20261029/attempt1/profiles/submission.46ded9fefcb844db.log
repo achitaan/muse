@@ -1,0 +1,54 @@
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2906, in _run_ninja_build
+    subprocess.run(
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['ninja', '-v']' returned non-zero exit status 2.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/muse_moe_w4a16-_o8eco93/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-_o8eco93/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-_o8eco93/run/submission.py", line 825, in prepare
+    new = _ext(_SK16_DEFINES + suffix)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-_o8eco93/run/submission.py", line 430, in _ext
+    _EXTS[defines] = load_inline(
+                     ^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2295, in load_inline
+    return _jit_compile(
+           ^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2398, in _jit_compile
+    _write_ninja_file_and_build_library(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2555, in _write_ninja_file_and_build_library
+    _run_ninja_build(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2923, in _run_ninja_build
+    raise RuntimeError(message) from e
+RuntimeError: Error building extension 'okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=8 -DOKC_TINY=1 -DOKC_SPLIT=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=0 -DOKC_FINPF=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+FAILED: [code=2] cuda.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=8 -DOKC_TINY=1 -DOKC_SPLIT=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=0 -DOKC_FINPF=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2297): error: class "okc::Smem" has no member "wse"
+        for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);
+                                                ^
+
+/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: class "okc::Smem" has no member "wsrf"
+        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
+                                                    ^
+
+/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: identifier "OKC_WSB" is undefined
+        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
+                                                              ^
+
+/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: class "okc::Smem" has no member "wsre"
+        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
+                                                                                             ^
+
+4 errors detected in the compilation of "/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu".
+[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+

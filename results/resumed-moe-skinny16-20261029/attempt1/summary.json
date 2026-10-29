@@ -1,0 +1,11 @@
+{
+  "job": "46ded9fefcb844db",
+  "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+  "outcome": "compile failure; no timing or correctness suite",
+  "diagnosis": "Two FAST1 helper barrier initialization blocks lost their OKC_WS guards during upstream pruning. The selected non-helper alternate has no wse/wsrf/wsre fields.",
+  "checks_used": 1,
+  "scored_runs_used": 0,
+  "retained_source": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "controller_outcome": "discard and automatic revert",
+  "next": "Restore the exact two OKC_WS guards from the unpruned source, audit inverse, and permit one diagnosed retry; no geometry sweep"
+}

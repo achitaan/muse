@@ -1,0 +1,14 @@
+{
+  "source_sha256": "50dfae559fc8ce4bb6224d0dce6e7fc1ccc7a9097b7b4e19a66ea8a456efd3cd",
+  "all_helper_references_guarded": true,
+  "references_checked": 11,
+  "unguarded_original_lines": [
+    2279,
+    2280,
+    2294,
+    2295
+  ],
+  "original_compile_failure_mutant_detected": true,
+  "complete_trial_recovered_by_inverse": true,
+  "limitation": "Lexical conditional/source audit; CUDA compilation remains unverified"
+}

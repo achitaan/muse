@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE f20caadb is fully CPU-audited with fixed selected-path/full5/6/paired/affected-control guard. Init controller on cached331 baseline, scope candidates/moe_active.py, measure scripts/measure_moe_skinny16.py, guard scripts/verify_moe_skinny16_evidence.py. Wait until00:00:15UTC Oct29 before one quota-gated full check; no score unless material guard passes. Dense4d443b13 is also ready. No active GPU job at this checkpoint.",
+  "next_trial": "One diagnosed retry of MoE50dfae55 after restoring two exact upstream OKC_WS guards. CPUinverse,11helper references and48/770routing/dispatch cases pass. Fixed selection and material performance thresholds unchanged. Init cached331baseline and one full5/6 check with scripts/measure_moe_skinny16.py and scripts/verify_moe_skinny16_evidence.py. No source promotion or score from first compile failure. Dense4d443b13 remains ready.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,7 +55,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_skinny16_prepared",
+  "active_track": "moe_skinny16_compiler_repair",
   "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
   "attention_checked": {
     "source": "best/attention_checked.py",
@@ -1270,7 +1270,7 @@
     "next_step": "Review a complete producer warpgroup and dynamic register-pool accounting before considering one new structural trial. Design only."
   },
   "pending_official_job": null,
-  "latest_experiment_boundary_utc": "2026-10-28T23:48:30.681918+00:00",
+  "latest_experiment_boundary_utc": "2026-10-29T00:07:51.106730+00:00",
   "moe_regsplit_phase10": {
     "job": "fc4ff22b0b184caf",
     "source_sha256": "17adb3e692d36fbb92af4a38b1570bfefd028696426a29ec9293517e581f6824",
@@ -2499,5 +2499,40 @@
     "paired_selection": "8 pairs per diffuse/hot/mixed pattern, geometric new/old<.97 and worst<=1.02",
     "keep_policy": "full5/6/integrity, nonempty choice, actual selected16-token profile, affected and normalized ratio>1.03, aggregate>1.01",
     "baseline": "exact cached331 check2.365437416x; no API or GPU baseline rerun"
+  },
+  "moe_skinny16_attempt1": {
+    "source_sha256": "f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34",
+    "job": "46ded9fefcb844db",
+    "outcome": "compilation failure;setup failed; no tests/timing",
+    "checks_used": 1,
+    "scores_used": 0,
+    "archive": "results/resumed-moe-skinny16-20261029/attempt1",
+    "controller": "discarded and reverted; archived20261029-000431"
+  },
+  "moe_skinny16_repair": {
+    "source_sha256": "50dfae559fc8ce4bb6224d0dce6e7fc1ccc7a9097b7b4e19a66ea8a456efd3cd",
+    "status": "CPU-repaired; one diagnosed retry pending",
+    "review": "experiments/prepared/moe_skinny16_repair_review.md",
+    "changed": "Only two exact upstream OKC_WS guards in the alternate.40bytes; no math/geometry/selection/gate change.",
+    "inverse_recovers_complete_failed_trial": true,
+    "helper_references_checked": 11,
+    "original_four_unguarded_references_detected": true,
+    "routing_cases": 48,
+    "dispatch_cases": 770,
+    "gpu_result": null
+  },
+  "quota_reset_snapshot": {
+    "utc": "2026-10-29T00:00:16Z",
+    "all_tracks_before_launch": {
+      "checks_left": 20,
+      "scores_left": 10
+    },
+    "expected_after_attempt1": {
+      "checks_total": 99,
+      "scores_total": 50,
+      "moe_checks_left": 19
+    },
+    "source": "results/resumed-moe-skinny16-20261029/attempt1/quota-before-launch.json",
+    "kind": "actual prelaunch API; after-attempt counts derived"
   }
 }

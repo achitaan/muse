@@ -1,4 +1,5 @@
 """Source binding and complete named coverage for the fixed skinny16 trial."""
+import ast
 import hashlib
 import json
 import math
@@ -6,9 +7,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PARENT = '331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50'
-TRIAL = 'f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34'
+TRIAL = '50dfae559fc8ce4bb6224d0dce6e7fc1ccc7a9097b7b4e19a66ea8a456efd3cd'
 PROTOTYPE = '921dc83ec4bdf76b0c33e777c028adfdfec84265439ca390a7369e1b6f410f96'
-PREFLIGHT = ROOT / 'results/moe-skinny16-selection-20261028'
+PREFLIGHT = ROOT / 'results/moe-skinny16-repair-20261029'
 
 
 def read_json(path):
@@ -24,6 +25,30 @@ def source():
 
 def directory(digest):
     return ROOT / '.moe-measurements' / digest
+
+
+def verify_repair(raw, metadata=None):
+    """Only two upstream #if guards may differ from the frozen failed trial."""
+    meta = metadata if metadata is not None else read_json(PREFLIGHT / 'source-audit.json')
+    assert hashlib.sha256(raw).hexdigest() == TRIAL == meta['source_sha256']
+    node = next(n.value for n in ast.parse(raw).body if isinstance(n, ast.Assign)
+                and any(isinstance(x, ast.Subscript) and ast.unparse(x) == "ALT_SRCS['sk16']" for x in n.targets))
+    cuda = ast.literal_eval(node)
+    edit = meta['repair']
+    assert cuda.count(edit['new']) == edit['count'] == 2
+    assert edit['new'] == '#if OKC_WS\n' + edit['old'] + '#endif\n'
+    restored = cuda.replace(edit['new'], edit['old'])
+    assert hashlib.sha256(restored.encode()).hexdigest() == edit['cuda_before_sha256']
+    lines = raw.splitlines(keepends=True)
+    start = sum(map(len, lines[:node.lineno - 1])) + node.col_offset
+    end = sum(map(len, lines[:node.end_lineno - 1])) + node.end_col_offset
+    old = raw[:start] + repr(restored).encode() + raw[end:]
+    assert hashlib.sha256(old).hexdigest() == meta['repaired_from_sha256'] == 'f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34'
+    prototype = (ROOT / 'results/moe-skinny16-preflight-20261028/prototype.py').read_bytes()
+    assert hashlib.sha256(prototype).hexdigest() == PROTOTYPE and old.startswith(prototype)
+    # Recovering the complete old trial also protects every other CUDA/Python
+    # operation and all selection/benchmark thresholds, not just the init block.
+    return True
 
 
 def bound_result(digest):

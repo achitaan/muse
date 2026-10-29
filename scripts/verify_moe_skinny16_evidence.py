@@ -5,7 +5,7 @@ import json
 import math
 import statistics
 
-from moe_skinny16_evidence import ROOT, PARENT, PROTOTYPE, PREFLIGHT, source, read_json, bound_result, full_result
+from moe_skinny16_evidence import ROOT, PARENT, PROTOTYPE, PREFLIGHT, source, read_json, bound_result, full_result, verify_repair
 
 
 def marker(log, name):
@@ -51,7 +51,8 @@ def main():
         print('Exact cached parent passed full5/6/integrity on H200; no new baseline run or API call.')
         return
     prototype = (ROOT / 'results/moe-skinny16-preflight-20261028/prototype.py').read_bytes()
-    assert hashlib.sha256(prototype).hexdigest() == PROTOTYPE and raw.startswith(prototype)
+    assert hashlib.sha256(prototype).hexdigest() == PROTOTYPE
+    assert verify_repair(raw)
     assert hashlib.sha256((PREFLIGHT / 'submission.py').read_bytes()).hexdigest() == digest
     cpu = read_json(PREFLIGHT / 'selection-cpu-audit.json')
     assert cpu['source_sha256'] == digest and cpu['original_prefix_exact']
@@ -62,6 +63,9 @@ def main():
     pruning = read_json(PREFLIGHT / 'pruning-audit.json')
     assert pruning['prototype_sha256'] == PROTOTYPE and pruning['checked_prmt_modes'] == [True, False]
     assert pruning['all_other_active_static_operations_match_after_known_precision_repairs']
+    helper = read_json(PREFLIGHT / 'helper-guard-cpu-audit.json')
+    assert helper['source_sha256'] == digest and helper['all_helper_references_guarded']
+    assert helper['references_checked'] == 11 and helper['original_compile_failure_mutant_detected']
     log = body.get('log_tail', '')
     assert ast.literal_eval(marker(log, 'MOE_SKINNY16_CHOICES ')) == (16,)
     evidence = json.loads(marker(log, 'MOE_SKINNY16_EVIDENCE '))

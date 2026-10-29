@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import symtable
+import sys
 import torch
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'STATE.json').exists())
@@ -12,7 +13,13 @@ torch.set_num_threads(2)
 raw = (ROOT / '.tools/moe-skinny16-selected.py').read_bytes()
 prototype = (ROOT / 'results/moe-skinny16-preflight-20261028/prototype.py').read_bytes()
 meta = json.loads((ROOT / '.tools/moe-skinny16-selection-audit.json').read_bytes())
-assert hashlib.sha256(raw).hexdigest() == meta['source_sha256'] and raw.startswith(prototype)
+assert hashlib.sha256(raw).hexdigest() == meta['source_sha256']
+if meta.get('repair'):
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from moe_skinny16_evidence import verify_repair
+    assert verify_repair(raw, meta)
+else:
+    assert raw.startswith(prototype)
 tree = ast.parse(raw)
 addon = (ROOT / 'experiments/prepared/moe_skinny16_addon.py').read_text()
 names = set(dir(builtins))

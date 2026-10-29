@@ -1,0 +1,88 @@
+{
+  "board": "muse_moe_w4a16",
+  "call_id": "kc-46ded9fefcb844db",
+  "cluster": "sfo3",
+  "content_hash": "182eba8bc7efab27dcb7f1bd678e0bce2e4f0ab2c88f325b9b0e543f20364719",
+  "created_at": 1793232016.6705806,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793232239.1281376,
+  "id": "46ded9fefcb844db",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.moe-measurements/f20caadbdafb5761c782543ad7b30351f948571ab9fc8fd5e5e8bccbb97e3f34/profiles/submission.46ded9fefcb844db.log"
+  },
+  "payload_ref": "muse_moe_w4a16/182eba8bc7efab27dcb7f1bd678e0bce2e4f0ab2c88f325b9b0e543f20364719.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "afcead6a6ff090aa50fe9bc907f0fa8f4ba73d95fa92af93ec260b5e8ff00f00",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_moe_w4a16/baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+        "problems/muse_moe_w4a16/reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+        "problems/muse_moe_w4a16/task.yml": "cc6870087c1a115e69f40093478553e0a03c1b3e92f527c2e55c4115e2db42ad"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "Traceback (most recent call last):\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2906, in _run_ninja_build\n    subprocess.run(\n  File \"/usr/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['ninja', '-v']' returned non-zero exit status 2.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/muse_moe_w4a16-_o8eco93/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_o8eco93/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_o8eco93/run/submission.py\", line 825, in prepare\n    new = _ext(_SK16_DEFINES + suffix)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_moe_w4a16-_o8eco93/run/submission.py\", line 430, in _ext\n    _EXTS[defines] = load_inline(\n                     ^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2295, in load_inline\n    return _jit_compile(\n           ^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2398, in _jit_compile\n    _write_ninja_file_and_build_library(\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2555, in _write_ninja_file_and_build_library\n    _run_ninja_build(\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2923, in _run_ninja_build\n    raise RuntimeError(message) from e\nRuntimeError: Error building extension 'okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=8 -DOKC_TINY=1 -DOKC_SPLIT=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=0 -DOKC_FINPF=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o \nFAILED: [code=2] cuda.cuda.o \nccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=8 -DOKC_TINY=1 -DOKC_SPLIT=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=0 -DOKC_FINPF=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o \n/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2297): error: class \"okc::Smem\" has no member \"wse\"\n        for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);\n                                                ^\n\n/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: class \"okc::Smem\" has no member \"wsrf\"\n        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }\n                                                    ^\n\n/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: identifier \"OKC_WSB\" is undefined\n        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }\n                                                              ^\n\n/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2298): error: class \"okc::Smem\" has no member \"wsre\"\n        for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }\n                                                                                             ^\n\n4 errors detected in the compilation of \"/tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu\".\n[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/main.cpp -o main.o \nninja: build stopped: subcommand failed.\n\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 124.63,
+        "power.limit": 700,
+        "temperature.gpu": 36
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 125.18,
+        "power.limit": 700,
+        "temperature.gpu": 36
+      },
+      "node": "n-3kdi624vo6hk5b4lbbknktvdw7"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 4,
+        "baseline_prepare_pad": 11492864,
+        "copies": null,
+        "error": "RuntimeError: Error building extension 'okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_NW=8 -DOKC_TINY=1 -DOKC_SPLIT=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=0 -DOKC_FINPF=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-_o8eco93/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o \nFAILED: [code=2] cuda.cuda.o \nccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_pair1dq8_srcsk16_okc_nw8_okc_tiny1_okc_split1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws0_okc_finpf1_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2",
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793232034.9180253,
+  "status": "done",
+  "team": "achitaan"
+}
