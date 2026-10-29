@@ -206,7 +206,7 @@ another option wins by >=3% with matching output.
   MoE 9, Decode 8, Prefill 10. The scored submissions used on MoE/Decode were the other lane's;
   these lanes made no scored submission.
 - Checks used by these lanes on October 29 (all free checks, all passed correctness):
-  E1, A1-A6, M1-M5, P1-P5, D1-D7 (Dense), D2/D4 (Decode). One upload (D5 first attempt,
+  E1, A1-A6, M1-M5, P1-P7, D1-D7 (Dense), D2/D4 (Decode). One upload (D5 first attempt,
   22:59:10 UTC) failed with `tls: bad record MAC` before a job was created; it was reconciled
   against the jobs list and relaunched as `3b13fab22b2b4480`.
 - Other-lane jobs seen in the shared queue (not ours): `1216cb6725c84c7a`, `ddda5cdcbfe64203`,
@@ -228,7 +228,10 @@ another option wins by >=3% with matching output.
   reference) failed at ctx 32768 vs P1, so P4 is not retained. P6 `6095723fa6fa4f69` (int64 row
   gather) reproduced the selection a third time; mean over P4/P5/P6: ctx 65536 1.022/1.028/1.047,
   ctx 32768 0.998/1.025/1.042 -> still not retained. The torch gather (~110 us for both caches)
-  is the main overhead; a fast gather kernel is the next step (see `OTHER_TRACKS_NOTES.md`).
+  is the main overhead. P7 `5e0ba944f9d24191` replaced it with a Triton row-gather kernel (15 us,
+  compiled offline for sm_90); contiguous FA3 then won on four full shapes in-process (3.1-5.2%),
+  but the official per-shape effect (expected 0.4-2.3%) was below single-run resolution
+  (normalized 0.947-1.044 vs P1/P2/P3): not retained; needs repeated confirming runs.
 - MoE: build choice, fallback build and ring depth (M4 `0e1634cf0bc245a1` at 16 tokens +0.5%,
   M5 `940d22a6cc7642d5` at 32 tokens +0.4%, bit-identical) measured; incumbents kept.
 - Dense: router/unpooler GEMV, O at 1-256 tokens (olayer, cuBLASLt) and the unpooler cuBLASLt
