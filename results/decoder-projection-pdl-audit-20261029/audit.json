@@ -1,0 +1,175 @@
+{
+  "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "load_packet_sha256": "736446103b712298ab13d1bfd84f21a7eaa7b2e3cd44a78a20e21df70cc8c81c",
+  "attention_CUDA_sha256": "db68e6abbc1daa9a594005de05713f8aa5370599d30d12d04a0433aa5bb9fd8d",
+  "existing_attention_early_trigger_lines": [
+    1544,
+    1984
+  ],
+  "selected_small_O": [
+    {
+      "tokens": 1,
+      "source_variable": "tt_v10_sm2_SMALLM2_CUDA_TEMPLATE",
+      "CUDA_sha256": "e0ee5815680760282bef71cd4a44b3d22477e936ad10d804531e7fd5d0e12b7c",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        0,
+        0,
+        1024,
+        0,
+        8192,
+        1024,
+        4,
+        8,
+        2,
+        1,
+        7
+      ],
+      "geometry": [
+        4,
+        8,
+        2,
+        1
+      ],
+      "initial_weight_only_units": 2,
+      "full_K_prefetched": true,
+      "packed_code_bytes": 12582912,
+      "escapes_and_metadata_excluded": true,
+      "activation_load_policy": "ld.global.nc; review dependency/cache semantics before implementation",
+      "candidate_implemented": false
+    },
+    {
+      "tokens": 8,
+      "source_variable": "V18S_CUDA_TEMPLATE",
+      "CUDA_sha256": "73a1eb0e192c14155409cbacf1c6d4520934aa1a91754d47ca1744fd29393a9d",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        0,
+        0,
+        256,
+        0,
+        8192,
+        1024,
+        1,
+        8,
+        2,
+        1,
+        6
+      ],
+      "geometry": [
+        1,
+        8,
+        2,
+        1
+      ],
+      "initial_weight_only_units": 2,
+      "full_K_prefetched": true,
+      "packed_code_bytes": 12582912,
+      "escapes_and_metadata_excluded": true,
+      "activation_load_policy": "ld.global.nc; review dependency/cache semantics before implementation",
+      "candidate_implemented": false
+    }
+  ],
+  "dilution_scenarios": [
+    {
+      "affected_tokens": [
+        1,
+        8
+      ],
+      "assumed_net_saved_us_per_case": 0.5,
+      "hypothetical_track_ratio": 1.0016117218957643
+    },
+    {
+      "affected_tokens": [
+        1,
+        8
+      ],
+      "assumed_net_saved_us_per_case": 1.0,
+      "hypothetical_track_ratio": 1.0032341965140006
+    },
+    {
+      "affected_tokens": [
+        1,
+        8
+      ],
+      "assumed_net_saved_us_per_case": 2.0,
+      "hypothetical_track_ratio": 1.0065119248266738
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16
+      ],
+      "assumed_net_saved_us_per_case": 0.5,
+      "hypothetical_track_ratio": 1.0021364719468842
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16
+      ],
+      "assumed_net_saved_us_per_case": 1.0,
+      "hypothetical_track_ratio": 1.004287330297077
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16
+      ],
+      "assumed_net_saved_us_per_case": 2.0,
+      "hypothetical_track_ratio": 1.0086328870320287
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "assumed_net_saved_us_per_case": 0.5,
+      "hypothetical_track_ratio": 1.0025592226218145
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "assumed_net_saved_us_per_case": 1.0,
+      "hypothetical_track_ratio": 1.005135900537834
+    },
+    {
+      "affected_tokens": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "assumed_net_saved_us_per_case": 2.0,
+      "hypothetical_track_ratio": 1.0103424374430436
+    }
+  ],
+  "scenarios_are_predictions": false,
+  "additional_notes": [
+    "M16 uses m16trace next_early; M32 uses native BF16 olayer, not the old generic M32 table.",
+    "A launch attribute alone is unsafe: dependent activation reads require grid dependency synchronization.",
+    "The existing trigger does not itself publish final attention outputs.",
+    "Keep original arithmetic, BF16 materializations, packed weights, fallbacks and graph replay lifetimes.",
+    "Require independent-progress proof and graph-capture admission; concurrency must never be required for progress.",
+    "Compiler input-load dominance and actual H200 resources remain unverified.",
+    "Net savings must include added waits, launch changes and contention with attention finalization."
+  ],
+  "GPU_jobs": 0,
+  "candidate_created": false,
+  "decision": "Continue bounded source/compiler feasibility analysis; no GPU ticket yet."
+}

@@ -1,3 +1,14 @@
+> CPU FOLLOW-UP, October29: source-bound Attention-to-O projection PDL screen
+> saved in experiments/prepared/decoder_projection_pdl_review.md and
+> results/decoder-projection-pdl-audit-20261029/. Existing Attention already
+> signals downstream launch; O1/O8 have full-K weight-only initial prefetch.
+> This is a new overlap hypothesis, not an implementation or measured win.
+> Source audit passes, including nine weighted-load dilution scenarios. A net
+> 1us/case saving on M1/M8 would yield only0.323% hypothetical Decode gain;
+> adding M16/M32 yields0.514%. M16 uses m16trace, M32 native BF16 olayer.
+> Prove dependency-read/cache ordering, graph capture, resources and useful
+> coverage before a GPU ticket. No extra GPU job; all incumbents unchanged.
+>
 > LATEST TERMINAL RESULT, October29 at10:08UTC: FP32-cachef200e6e0 accepted as
 > 94ce080b1fb148a3 after one proven-unaccepted TLS upload. H200 resource gate
 > passes96regs/zero actual local/static bytes/231168dynamic/1block/576threads;
