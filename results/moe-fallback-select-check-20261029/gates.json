@@ -1,0 +1,18 @@
+{
+  "experiment": "M3 MoE selector: WGS MAIN vs mma.sync MAIN fallback (+PRMT) at 16/32/128/256 tokens",
+  "frozen_before_launch_utc": "2026-10-29T22:56:00Z",
+  "parent": {
+    "sha256": "33114871...0d50",
+    "checked_job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "candidate_sha256": "23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795",
+  "evidence_basis": "decode 32 (M=32, WGS MAIN) is the weakest MoE load (1.642x); with PRMT scales the non-WGS MAIN build is never compiled or timed",
+  "affected_rule": "loads whose M is MOE_SELECTed",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 6 benchmarks",
+    "selection": ">=3% faster over three draws, output rel-L2 < 1e-2",
+    "retention": "affected normalized >= 1.03"
+  }
+}
