@@ -80,11 +80,16 @@ def main():
         if intent_path.exists():
             raise RuntimeError('Unknown prior upload outcome: reconcile official jobs before any new upload')
         policy = pacing()
-        jobs = cli(['jobs', '--json'])
+        while True:
+            jobs = cli(['jobs', '--json'])
+            live = [r for r in jobs if r.get('status') not in TERMINAL and (os.environ.get('LANE_PER_PROBLEM') != '1' or r.get('problem') == problem_name)]
+            if not live:
+                break
+            if os.environ.get('LANE_PER_PROBLEM') != '1':
+                raise RuntimeError('An official job is still live')
+            print(f"waiting for live {problem_name} job(s) {[r.get('job_id') for r in live]}", flush=True)
+            time.sleep(60)
         save(folder / f'jobs-before-{action}.json', jobs)
-        live = [r for r in jobs if r.get('status') not in TERMINAL and (os.environ.get('LANE_PER_PROBLEM') != '1' or r.get('problem') == problem_name)]
-        if live:
-            raise RuntimeError('An official job is still live')
         quotas = cli(['problems', '--json'])
         save(folder / f'quota-before-{action}.json', dict(utc=datetime.now(timezone.utc).isoformat(), response=quotas))
         problem = next(p for p in quotas['problems'] if p['name'] == problem_name)
