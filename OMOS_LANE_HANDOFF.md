@@ -225,10 +225,16 @@ another option wins by >=3% with matching output.
   selected and applied a 3.8% faster FA3 path; confirmation P5 `c4d2e6ef68674473` reproduced the
   selection (FA3 -3.5%). Mean normalized shape gain over P4/P5 vs same-night P1/P2/P3: ctx 65536
   1.026/1.032/1.052, ctx 32768 1.002/1.029/1.046. The frozen rule (both shapes >= 1.02 vs each
-  reference) failed at ctx 32768 vs P1, so P4 is not retained. P6 (int64 row gather) is the
-  final measurement (see `OTHER_TRACKS_NOTES.md` in the other-tracks lane).
+  reference) failed at ctx 32768 vs P1, so P4 is not retained. P6 `6095723fa6fa4f69` (int64 row
+  gather) reproduced the selection a third time; mean over P4/P5/P6: ctx 65536 1.022/1.028/1.047,
+  ctx 32768 0.998/1.025/1.042 -> still not retained. The torch gather (~110 us for both caches)
+  is the main overhead; a fast gather kernel is the next step (see `OTHER_TRACKS_NOTES.md`).
 - MoE: build choice, fallback build and ring depth (M4 `0e1634cf0bc245a1` at 16 tokens +0.5%,
   M5 `940d22a6cc7642d5` at 32 tokens +0.4%, bit-identical) measured; incumbents kept.
 - Dense: router/unpooler GEMV, O at 1-256 tokens (olayer, cuBLASLt) and the unpooler cuBLASLt
   neighborhood at 128/256 measured; the incumbents are fastest or within 2%.
 - `best/` is unchanged in both lanes; nothing was published or merged.
+- Bottom line for this window: no track has a confirmed clear improvement. Structural kernels
+  for Decode (small-kernel latency, MoE phase schedule), Dense (TMA-bulk GEMV for <=8 tokens),
+  Attention (kernel-level changes; every plan is at a local optimum) and MoE (decode-32 weight
+  streaming at ~56% of bandwidth) need GPU iteration and a new authorized check window.
