@@ -1,0 +1,84 @@
+{
+  "baseline_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "GPU_jobs": 0,
+  "candidate_installed": false,
+  "proxy_adaptations": [
+    "Drop unused algorithm header and host launcher",
+    "Supply minimal std::conditional instead of host type_traits",
+    "NVRTC virtual integral_constant/stdint headers from existing local helper"
+  ],
+  "variants": [
+    {
+      "label": "o1",
+      "arm": "baseline",
+      "exact_CUDA_sha256": "e0ee5815680760282bef71cd4a44b3d22477e936ad10d804531e7fd5d0e12b7c",
+      "source_sha256": "6701dfabf5273f41bbc775fbf69e82c8c47c0ebafd80c12d0cb2fd0507e6cb67",
+      "instances": [
+        "smallm2_gemv<1,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>",
+        "smallm2_gemv<0,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 321872
+    },
+    {
+      "label": "o1",
+      "arm": "wait_coherent",
+      "exact_CUDA_sha256": "e0ee5815680760282bef71cd4a44b3d22477e936ad10d804531e7fd5d0e12b7c",
+      "source_sha256": "4f2ee9d4b0384060b8a185bfb0462f88fe5a08d5944f5d0c0640fc6ac75c5eba",
+      "instances": [
+        "smallm2_gemv<1,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>",
+        "smallm2_gemv<0,1,1,2,0,0,1024,0,8192,1024,4,8,2,1,7>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 321872
+    },
+    {
+      "label": "o8",
+      "arm": "baseline",
+      "exact_CUDA_sha256": "73a1eb0e192c14155409cbacf1c6d4520934aa1a91754d47ca1744fd29393a9d",
+      "source_sha256": "9e21d435810cec89ca38bd3ef935d3f8a9ecce08f3db537ebe267ed1e5f05ace",
+      "instances": [
+        "v18s_gemv<1,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>",
+        "v18s_gemv<0,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 322128
+    },
+    {
+      "label": "o8",
+      "arm": "wait_coherent",
+      "exact_CUDA_sha256": "73a1eb0e192c14155409cbacf1c6d4520934aa1a91754d47ca1744fd29393a9d",
+      "source_sha256": "0cd73a1fbbf922cef88f289646f5df364787934a79eddfee3a1fdf0a4514e99b",
+      "instances": [
+        "v18s_gemv<1,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>",
+        "v18s_gemv<0,1,1,2,0,0,256,0,8192,1024,1,8,2,1,6>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi0ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 322128
+    },
+    {
+      "label": "o16",
+      "arm": "baseline",
+      "exact_CUDA_sha256": "cf25097e801ef990b650d2aeeb4669c2466d6d90ca35fee59227f0ce2e300663",
+      "source_sha256": "ec881815a3741f40a49696f6cc02bc7305125729cbe730aa30e6a6ed9801cbbb",
+      "instances": [
+        "m16trace_59fcb5b72994_gemv<1,2,1,1,0,0,256,0,8192,1024,2,4,4,1,7,1>",
+        "m16trace_59fcb5b72994_gemv<0,2,1,1,0,0,256,0,8192,1024,2,4,4,1,7,1>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 72 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 68 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+      "cubin_bytes": 325968
+    },
+    {
+      "label": "o16",
+      "arm": "wait_coherent",
+      "exact_CUDA_sha256": "cf25097e801ef990b650d2aeeb4669c2466d6d90ca35fee59227f0ce2e300663",
+      "source_sha256": "84f0ed540cf19e05a709407c565bbf41add9c93ff0f72048c2d27e856349430a",
+      "instances": [
+        "m16trace_59fcb5b72994_gemv<1,2,1,1,0,0,256,0,8192,1024,2,4,4,1,7,1>",
+        "m16trace_59fcb5b72994_gemv<0,2,1,1,0,0,256,0,8192,1024,2,4,4,1,7,1>"
+      ],
+      "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 72 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 64 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+      "cubin_bytes": 326224
+    }
+  ]
+}

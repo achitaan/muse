@@ -1,0 +1,81 @@
+{
+  "GPU_jobs": 0,
+  "GPU_kernels_loaded": false,
+  "exact_judge_toolchain": false,
+  "arms": {
+    "baseline": {
+      "cubin_sha256": "10e0a5924b01f03d3cb2c52de425958ad8ff22ce24a522aece578336ce91fdda",
+      "registers_in_log": [
+        80,
+        128,
+        129,
+        4,
+        4,
+        4
+      ],
+      "zero_stack_spill_fields": true,
+      "probed_dynamic_shared_bytes": [
+        58368,
+        67584,
+        114688
+      ],
+      "instruction_counts": {
+        "attn_kernel_fp8pvILi8ELb1ELi0E": 6672,
+        "attn_kernel_fp8pvILi1ELb1ELi0E": 3560,
+        "attn_kernel_fp8pvILi1ELb0ELi1E": 2792
+      }
+    },
+    "wide": {
+      "cubin_sha256": "d1a6184ea4438b555800287e5091f41de1ab5ed82321766e80b8692e0f267d5b",
+      "registers_in_log": [
+        80,
+        128,
+        129,
+        4,
+        4,
+        4
+      ],
+      "zero_stack_spill_fields": true,
+      "probed_dynamic_shared_bytes": [
+        58368,
+        84992,
+        114688
+      ],
+      "instruction_counts": {
+        "attn_kernel_fp8pvILi8ELb1ELi0E": 6672,
+        "attn_kernel_fp8pvILi1ELb1ELi0E": 4080,
+        "attn_kernel_fp8pvILi1ELb0ELi1E": 2792
+      }
+    },
+    "off": {
+      "cubin_sha256": "2395f8a1b84c4788a69a1c9fffb4e1d885f0ca026b39583c4e7e8816dab67691",
+      "registers_in_log": [
+        80,
+        128,
+        129,
+        4,
+        4,
+        4
+      ],
+      "zero_stack_spill_fields": true,
+      "probed_dynamic_shared_bytes": [
+        58368,
+        67584,
+        114688
+      ],
+      "instruction_counts": {
+        "attn_kernel_fp8pvILi8ELb1ELi0E": 6672,
+        "attn_kernel_fp8pvILi1ELb1ELi0E": 3560,
+        "attn_kernel_fp8pvILi1ELb0ELi1E": 2792
+      }
+    }
+  },
+  "disabled_draft_instruction_bodies_equal_retained": true,
+  "unchanged_L8_flat_and_L1_nonflat_instruction_bodies_equal": true,
+  "normalization": "Ignore disassembly local-label IDs and compiler-generated anonymous-namespace file hashes only",
+  "fixed_L1_flat_dynamic_shared_bytes": 84992,
+  "retained_L1_flat_dynamic_shared_bytes": 67584,
+  "shared_memory_is_not_occupancy_validation": true,
+  "candidate_installed": false,
+  "remaining": "Actual H200 resources, full numerical/cache/gate suite, real path execution and causal performance admission"
+}

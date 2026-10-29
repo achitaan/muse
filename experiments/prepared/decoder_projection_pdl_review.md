@@ -67,7 +67,20 @@ criterion. Earlier failed MoE gates remain closed and unchanged.
 - Require the full Decode numerical/routing/cache/residual/output suite and
   real new-path execution before retention or publication.
 
-No GPU ticket is ready from this source screen alone.
+The subsequent compiler screen closes the two direct wait-placement forms:
+see `results/decoder-projection-pdl-preflight-20261029/`. For O1/O8/O16 and
+their BF16 weight fallbacks, both the initial placement and a bounded
+weight-loader memory-clobber correction emit `ACQBULK` before every global
+load. The intended independent weight prefetch does not precede the generated
+wait. All variants compile without stack/spill fields; that does not rescue
+the intended mechanism. No GPU ticket was spent. A different PDL design would
+need a distinct compiler-verified independent-work mechanism.
+
+O1/O8 retain 50/32 registers for packed/BF16 variants. O16 reports72/68 in
+the baseline and72/64 after the wait/coherent-input change. These are offline
+NVRTC observations, not H200 resources, numerical checks or performance gains.
+The compiler screen deliberately uses coherent dependent-activation loads;
+the independent weight representation and arithmetic remain unchanged.
 
 ## Primary mechanism sources
 
@@ -78,3 +91,5 @@ overlap and stream-capture support. NVIDIA's
 defines the trigger and wait memory behavior. These establish available
 mechanisms, not profitability. Consult its `ld.global.nc` section for the
 noncoherent read-only cache distinction. Sources reviewed October 29, 2026.
+NVIDIA's [CUDA 13.0 Binary Utilities reference](https://docs.nvidia.com/cuda/archive/13.0.0/cuda-binary-utilities/index.html)
+describes the generated `ACQBULK` control instruction.

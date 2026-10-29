@@ -1,0 +1,862 @@
+	.target	sm_90a
+
+	.elftype	@"ET_EXEC"
+
+
+//--------------------- .text._Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj --------------------------
+	.section	.text._Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,"ax",@progbits
+	.align	128
+.text._Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj:
+        .weak           _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+        .type           _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,@function
+        .size           _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,(.L_x_17 - _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj)
+        .other          _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,@"STO_CUDA_ENTRY STV_DEFAULT"
+_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 182
+        /*0000*/                   LDC R1, c[0x0][0x28] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0010*/                   S2R R59, SR_TID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 244
+        /*0020*/                   ULDC.64 UR4, c[0x0][0x228] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0030*/                   ULDC.64 UR6, c[0x0][0x210] ;
+        /*0040*/                   ULDC.64 UR8, c[0x0][0x208] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*0050*/                   S2R R11, SR_CTAID.Y ;
+        /*0060*/                   S2R R0, SR_CTAID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0070*/                   SHF.R.S32.HI R10, RZ, 0x5, R59 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*0080*/                   IMAD R3, R11, 0x100, R0 ;
+        /*0090*/                   IMAD R5, R3, 0x8, R10 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 244
+        /*00a0*/                   IMAD.WIDE R2, R5, 0x20, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 246
+        /*00b0*/                   IMAD.MOV.U32 R7, RZ, RZ, R3 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 244
+        /*00c0*/                   LOP3.LUT R6, R2, 0x1f, R59, 0xf8, !PT ;
+        /*00d0*/                   LEA R8, P0, R6, UR4, 0x2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 246
+        /*00e0*/                   IMAD.WIDE R4, R5, 0x40, R6 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 244
+        /*00f0*/                   LEA.HI.X R9, R6, UR5, R3, 0x2, P0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0100*/                   LEA R2, P1, R4, UR6, 0x4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 30
+        /*0110*/                   LDG.E.CONSTANT R0, desc[UR8][R8.64] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0120*/                   LEA.HI.X R3, R4, UR7, R5, 0x4, P1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0130*/                   LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64] ;
+        /*0140*/                   LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200] ;
+        /*0150*/                   LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 208
+        /*0160*/                   LEA.HI R10, R59, R10, RZ, 0x1 ;
+        /*0170*/                   SHF.R.S32.HI R10, RZ, 0x1, R10 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0180*/                   LOP3.LUT R58, R59, 0x1f, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 214
+        /*0190*/                   IMAD R10, R11, 0x4, R10 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*01a0*/                   S2UR UR4, SR_CLOCKLO ;
+        /*01b0*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*01c0*/                   LDC R8, c[0x0][0x230] ;
+        /*01d0*/                   LOP3.LUT R8, R8, UR4, RZ, 0xc0, !PT ;
+        /*01e0*/                   ISETP.NE.AND P0, PT, R8, 0x7fffffff, PT ;
+        /*01f0*/               @P0 BRA `(.L_x_0) ;
+        /*0200*/                   MOV R60, 0x220 ;
+        /*0210*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_0:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 286
+        /*0220*/                   SHFL.IDX PT, R8, R0, RZ, 0x1f ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 214
+        /*0230*/                   IMAD.SHL.U32 R56, R10, 0x4, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0240*/                   CS2R R10, SRZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 248
+        /*0250*/                   IMAD.SHL.U32 R59, R59, 0x10, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0260*/                   CS2R R12, SRZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 248
+        /*0270*/                   IMAD.WIDE R56, R56, 0x40, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0280*/                   CS2R R14, SRZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 286
+        /*0290*/                   UMOV UR4, URZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*02a0*/                   UMOV UR5, URZ ;
+        /*02b0*/                   IMAD.MOV.U32 R16, RZ, RZ, R44 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 248
+        /*02c0*/                   LOP3.LUT R59, R56, 0x30, R59, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*02d0*/                   IMAD.MOV.U32 R17, RZ, RZ, R45 ;
+        /*02e0*/                   IMAD.MOV.U32 R18, RZ, RZ, R46 ;
+        /*02f0*/                   IMAD.MOV.U32 R19, RZ, RZ, R47 ;
+        /*0300*/                   IMAD.MOV.U32 R20, RZ, RZ, R48 ;
+        /*0310*/                   IMAD.MOV.U32 R21, RZ, RZ, R49 ;
+        /*0320*/                   IMAD.MOV.U32 R22, RZ, RZ, R50 ;
+        /*0330*/                   IMAD.MOV.U32 R23, RZ, RZ, R51 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 286
+        /*0340*/                   R2UR UR10, R8 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0350*/                   CS2R R8, SRZ ;
+        /*0360*/                   IMAD.MOV.U32 R24, RZ, RZ, R4 ;
+        /*0370*/                   IMAD.MOV.U32 R25, RZ, RZ, R5 ;
+        /*0380*/                   IMAD.MOV.U32 R26, RZ, RZ, R6 ;
+        /*0390*/                   IMAD.MOV.U32 R27, RZ, RZ, R7 ;
+.L_x_8:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*03a0*/                   LDC R62, c[0x0][0x230] ;
+        /*03b0*/                   USHF.L.U32 UR7, UR4, 0x6, URZ ;
+        /*03c0*/                   SHF.R.U32.HI R30, RZ, 0x2, R58 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*03d0*/                   UIADD3 UR6, UR4, 0x1, URZ ;
+        /*03e0*/                   IMAD.U32 R29, RZ, RZ, UR7 ;
+        /*03f0*/                   UISETP.GT.U32.AND UP0, UPT, UR6, 0x3, UPT ;
+        /*0400*/                   IADD3 R28, P1, R59, UR7, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0410*/                   IMAD.U32 R53, RZ, RZ, UR6 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*0420*/                   ULDC.64 UR6, c[0x0][0x218] ;
+        /*0430*/                   LEA.HI.X.SX32 R29, R29, R57, 0x1, P1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0440*/                   PLOP3.LUT P0, PT, PT, PT, UP0, 0x80, 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*0450*/                   VIADD R31, R62, 0xffffffff ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0460*/              @!P0 IMAD.WIDE R52, R53, 0x300000, R2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*0470*/                   VIMNMX R33, R30.reuse, R31, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0480*/                   VIADDMNMX R35, R30, 0x8, R31, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0490*/              @!P0 LDG.E.NA.128.CONSTANT R16, desc[UR8][R52.64] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*04a0*/                   IMAD.WIDE R30, R33, 0x400, R28 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*04b0*/              @!P0 LDG.E.NA.128.CONSTANT R20, desc[UR8][R52.64+0x200] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*04c0*/                   IMAD.WIDE R28, R35, 0x400, R28 ;
+        /*04d0*/                   LEA R54, P1, R30, UR6, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*04e0*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR8][R52.64+0x400] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*04f0*/                   LEA R60, P2, R28, UR6, 0x1 ;
+        /*0500*/                   LEA.HI.X R55, R30, UR7, R31, 0x1, P1 ;
+        /*0510*/                   LEA.HI.X R61, R28, UR7, R29, 0x1, P2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0520*/                   LDG.E.128.CONSTANT R28, desc[UR8][R54.64] ;
+        /*0530*/                   LDG.E.128.CONSTANT R32, desc[UR8][R54.64+0x10] ;
+        /*0540*/                   LDG.E.128.CONSTANT R36, desc[UR8][R60.64] ;
+        /*0550*/                   LDG.E.128.CONSTANT R40, desc[UR8][R60.64+0x10] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*0560*/                   S2UR UR6, SR_CLOCKLO ;
+        /*0570*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*0580*/                   LOP3.LUT R52, R62, UR6, RZ, 0xc0, !PT ;
+        /*0590*/                   ISETP.NE.AND P0, PT, R52, 0x7fffffff, PT ;
+        /*05a0*/               @P0 BRA `(.L_x_1) ;
+        /*05b0*/                   MOV R60, 0x5d0 ;
+        /*05c0*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_1:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*05d0*/                   LDC.64 R52, c[0x0][0x248] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 48
+        /*05e0*/                   LOP3.LUT R60, R4, 0x77777777, RZ, 0xc0, !PT ;
+        /*05f0*/                   LOP3.LUT R62, R5, 0x77777777, RZ, 0xc0, !PT ;
+        /*0600*/                   LOP3.LUT R63, R6, 0x77777777, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0610*/                   PRMT R65, R52.reuse, R60, R53.reuse ;
+        /*0620*/                   PRMT R55, R52, R62, R53 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 50
+        /*0630*/                   SHF.R.U32.HI R62, RZ, 0x10, R62 ;
+        /*0640*/                   SHF.R.U32.HI R60, RZ, 0x10, R60 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0650*/                   PRMT R61, R52, R63, R53 ;
+        /*0660*/                   PRMT R66, R44.reuse, 0x5140, R65.reuse ;
+        /*0670*/                   PRMT R65, R44, 0x7362, R65 ;
+        /*0680*/                   PRMT R62, R52.reuse, R62, R53.reuse ;
+        /*0690*/                   PRMT R44, R52, R60, R53 ;
+        /*06a0*/                   PRMT R60, R48.reuse, 0x5140, R61.reuse ;
+        /*06b0*/                   PRMT R61, R48, 0x7362, R61 ;
+        /*06c0*/                   PRMT R54, R46, 0x5140, R55.reuse ;
+        /*06d0*/                   PRMT R48, R47.reuse, 0x5140, R62.reuse ;
+        /*06e0*/                   PRMT R64, R47, 0x7362, R62 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*06f0*/                   IMAD.SHL.U32 R47, R4, 0x10, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0700*/                   PRMT R55, R46, 0x7362, R55 ;
+        /*0710*/                   PRMT R46, R45.reuse, 0x5140, R44.reuse ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 50
+        /*0720*/                   SHF.R.U32.HI R63, RZ, 0x10, R63 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0730*/                   PRMT R67, R45, 0x7362, R44 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*0740*/                   IMAD.SHL.U32 R45, R4, 0x1000, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0750*/                   PRMT R44, R52, R63, R53 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*0760*/                   LOP3.LUT R46, R46, 0x80008000, R47, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 48
+        /*0770*/                   LOP3.LUT R47, R7, 0x77777777, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0780*/                   PRMT R62, R49.reuse, 0x5140, R44.reuse ;
+        /*0790*/                   PRMT R63, R49, 0x7362, R44 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 50
+        /*07a0*/                   SHF.R.U32.HI R49, RZ, 0x10, R47 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*07b0*/                   PRMT R47, R52, R47, R53 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*07c0*/                   LOP3.LUT R44, R66, 0x80008000, R45, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 52
+        /*07d0*/                   IMAD.SHL.U32 R66, R4, 0x100, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*07e0*/                   PRMT R68, R50, 0x5140, R47 ;
+        /*07f0*/                   PRMT R69, R50, 0x7362, R47 ;
+        /*0800*/                   PRMT R52, R52, R49, R53 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*0810*/                   IMAD.SHL.U32 R49, R5, 0x1000, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 54
+        /*0820*/                   LOP3.LUT R47, R67, 0x80008000, R4, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 52
+        /*0830*/                   IMAD.SHL.U32 R4, R5, 0x100, RZ ;
+        /*0840*/                   LOP3.LUT R45, R65, 0x80008000, R66, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 36
+        /*0850*/                   PRMT R65, R51.reuse, 0x5140, R52.reuse ;
+        /*0860*/                   PRMT R66, R51, 0x7362, R52 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*0870*/                   LOP3.LUT R52, R54, 0x80008000, R49, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*0880*/                   IMAD.SHL.U32 R49, R5, 0x10, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 52
+        /*0890*/                   LOP3.LUT R53, R55, 0x80008000, R4, 0xf8, !PT ;
+        /*08a0*/                   IMAD.SHL.U32 R4, R6, 0x100, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 54
+        /*08b0*/                   LOP3.LUT R55, R64, 0x80008000, R5, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*08c0*/                   IMAD.SHL.U32 R5, R6, 0x1000, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*08d0*/                   LOP3.LUT R54, R48, 0x80008000, R49, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 54
+        /*08e0*/                   LOP3.LUT R51, R63, 0x80008000, R6, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*08f0*/                   LOP3.LUT R48, R60, 0x80008000, R5, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*0900*/                   IMAD.SHL.U32 R5, R6, 0x10, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 52
+        /*0910*/                   LOP3.LUT R49, R61, 0x80008000, R4, 0xf8, !PT ;
+        /*0920*/                   IMAD.SHL.U32 R6, R7, 0x100, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*0930*/                   IMAD.SHL.U32 R60, R7.reuse, 0x10, RZ ;
+        /*0940*/                   LOP3.LUT R50, R62, 0x80008000, R5, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*0950*/                   IMAD.SHL.U32 R5, R7, 0x1000, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 54
+        /*0960*/                   LOP3.LUT R7, R66, 0x80008000, R7, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 51
+        /*0970*/                   LOP3.LUT R4, R68, 0x80008000, R5, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 52
+        /*0980*/                   LOP3.LUT R5, R69, 0x80008000, R6, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 53
+        /*0990*/                   LOP3.LUT R6, R65, 0x80008000, R60, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*09a0*/                   S2UR UR6, SR_CLOCKLO ;
+        /*09b0*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*09c0*/                   LDC R60, c[0x0][0x230] ;
+        /*09d0*/                   LOP3.LUT R60, R60, UR6, RZ, 0xc0, !PT ;
+        /*09e0*/                   ISETP.NE.AND P0, PT, R60, 0x7fffffff, PT ;
+        /*09f0*/               @P0 BRA `(.L_x_2) ;
+        /*0a00*/                   MOV R60, 0xa20 ;
+        /*0a10*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_2:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 339
+        /*0a20*/                   USHF.R.U32.HI UR6, URZ, 0x12, UR10 ;
+        /*0a30*/                   UISETP.NE.AND UP0, UPT, UR6, UR4, UPT ;
+        /*0a40*/                   PLOP3.LUT P0, PT, PT, PT, UP0, 0x80, 0x0 ;
+        /*0a50*/               @P0 BRA `(.L_x_3) ;
+.L_x_7:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 341
+        /*0a60*/                   USHF.R.U32.HI UR6, URZ, 0xd, UR10 ;
+        /*0a70*/                   BSSY B0, `(.L_x_4) ;
+        /*0a80*/                   ULOP3.LUT UR6, UR6, 0x1f, URZ, 0xc0, !UPT ;
+        /*0a90*/                   ISETP.NE.AND P0, PT, R58, UR6, PT ;
+        /*0aa0*/               @P0 BRA `(.L_x_5) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 162
+        /*0ab0*/                   USHF.R.U32.HI UR6, URZ, 0x3, UR10 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 161
+        /*0ac0*/                   USHF.R.U32.HI UR11, URZ, 0x8, UR10 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 162
+        /*0ad0*/                   ULOP3.LUT UR6, UR6, 0x10, URZ, 0xc0, !UPT ;
+        /*0ae0*/                   ULOP3.LUT UR7, UR10, 0x7f, URZ, 0xc0, !UPT ;
+        /*0af0*/                   ULOP3.LUT UR6, UR6, 0x8, URZ, 0xfc, !UPT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 161
+        /*0b00*/                   ULOP3.LUT UR12, UR11, 0x1f, URZ, 0xc0, !UPT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 165
+        /*0b10*/                   ULOP3.LUT UP2, URZ, UR11, 0x1f, URZ, 0xc0, !UPT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 162
+        /*0b20*/                   USHF.L.U32 UR6, UR7, UR6, URZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 165
+        /*0b30*/                   UISETP.NE.AND UP1, UPT, UR12, 0x1, UPT ;
+        /*0b40*/                   USEL UR7, UR6, URZ, !UP2 ;
+        /*0b50*/                   UISETP.NE.AND UP0, UPT, UR12, 0x2, UPT ;
+        /*0b60*/                   UISETP.NE.AND UP4, UPT, UR12, 0x3, UPT ;
+        /*0b70*/                   UISETP.NE.AND UP6, UPT, UR12, 0x4, UPT ;
+        /*0b80*/                   LOP3.LUT R44, R44, UR7, RZ, 0x3c, !PT ;
+        /*0b90*/                   UISETP.NE.AND UP5, UPT, UR12, 0x5, UPT ;
+        /*0ba0*/                   UISETP.NE.AND UP3, UPT, UR12, 0x6, UPT ;
+        /*0bb0*/                   UISETP.NE.AND UP2, UPT, UR12, 0x7, UPT ;
+        /*0bc0*/                   USEL UR11, UR6, URZ, !UP1 ;
+        /*0bd0*/                   UISETP.NE.AND UP1, UPT, UR12, 0x8, UPT ;
+        /*0be0*/                   USEL UR13, UR6, URZ, !UP0 ;
+        /*0bf0*/                   USEL UR14, UR6, URZ, !UP4 ;
+        /*0c00*/                   LOP3.LUT R45, R45, UR11, RZ, 0x3c, !PT ;
+        /*0c10*/                   USEL UR15, UR6, URZ, !UP6 ;
+        /*0c20*/                   USEL UR16, UR6, URZ, !UP5 ;
+        /*0c30*/                   LOP3.LUT R46, R46, UR13, RZ, 0x3c, !PT ;
+        /*0c40*/                   USEL UR17, UR6, URZ, !UP3 ;
+        /*0c50*/                   LOP3.LUT R47, R47, UR14, RZ, 0x3c, !PT ;
+        /*0c60*/                   USEL UR18, UR6, URZ, !UP2 ;
+        /*0c70*/                   LOP3.LUT R52, R52, UR15, RZ, 0x3c, !PT ;
+        /*0c80*/                   UISETP.NE.AND UP0, UPT, UR12, 0x9, UPT ;
+        /*0c90*/                   LOP3.LUT R53, R53, UR16, RZ, 0x3c, !PT ;
+        /*0ca0*/                   UISETP.NE.AND UP4, UPT, UR12, 0xa, UPT ;
+        /*0cb0*/                   LOP3.LUT R54, R54, UR17, RZ, 0x3c, !PT ;
+        /*0cc0*/                   UISETP.NE.AND UP6, UPT, UR12, 0xb, UPT ;
+        /*0cd0*/                   LOP3.LUT R55, R55, UR18, RZ, 0x3c, !PT ;
+        /*0ce0*/                   UISETP.NE.AND UP5, UPT, UR12, 0xc, UPT ;
+        /*0cf0*/                   UISETP.NE.AND UP3, UPT, UR12, 0xd, UPT ;
+        /*0d00*/                   UISETP.NE.AND UP2, UPT, UR12, 0xe, UPT ;
+        /*0d10*/                   USEL UR19, UR6, URZ, !UP1 ;
+        /*0d20*/                   UISETP.NE.AND UP1, UPT, UR12, 0xf, UPT ;
+        /*0d30*/                   USEL UR12, UR6, URZ, !UP0 ;
+        /*0d40*/                   USEL UR20, UR6, URZ, !UP4 ;
+        /*0d50*/                   LOP3.LUT R48, R48, UR19, RZ, 0x3c, !PT ;
+        /*0d60*/                   USEL UR21, UR6, URZ, !UP6 ;
+        /*0d70*/                   USEL UR22, UR6, URZ, !UP5 ;
+        /*0d80*/                   LOP3.LUT R49, R49, UR12, RZ, 0x3c, !PT ;
+        /*0d90*/                   USEL UR23, UR6, URZ, !UP3 ;
+        /*0da0*/                   LOP3.LUT R50, R50, UR20, RZ, 0x3c, !PT ;
+        /*0db0*/                   USEL UR24, UR6, URZ, !UP2 ;
+        /*0dc0*/                   LOP3.LUT R51, R51, UR21, RZ, 0x3c, !PT ;
+        /*0dd0*/                   USEL UR6, UR6, URZ, !UP1 ;
+        /*0de0*/                   LOP3.LUT R4, R4, UR22, RZ, 0x3c, !PT ;
+        /*0df0*/                   LOP3.LUT R5, R5, UR23, RZ, 0x3c, !PT ;
+        /*0e00*/                   LOP3.LUT R6, R6, UR24, RZ, 0x3c, !PT ;
+        /*0e10*/                   LOP3.LUT R7, R7, UR6, RZ, 0x3c, !PT ;
+.L_x_5:
+        /*0e20*/                   BSYNC B0 ;
+.L_x_4:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 343
+        /*0e30*/                   UISETP.GT.AND UP0, UPT, UR5, 0x1e, UPT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 342
+        /*0e40*/                   UIADD3 UR5, UR5, 0x1, URZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 343
+        /*0e50*/                   UMOV UR10, 0xffffffff ;
+        /*0e60*/                   PLOP3.LUT P0, PT, PT, PT, UP0, 0x80, 0x0 ;
+        /*0e70*/               @P0 BRA `(.L_x_6) ;
+        /*0e80*/                   IMAD.U32 R61, RZ, RZ, UR5 ;
+        /*0e90*/                   SHFL.IDX PT, R60, R0, R61, 0x1f ;
+        /*0ea0*/                   R2UR UR10, R60 ;
+.L_x_6:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 344
+        /*0eb0*/                   USHF.R.U32.HI UR6, URZ, 0x12, UR10 ;
+        /*0ec0*/                   UISETP.NE.AND UP0, UPT, UR6, UR4, UPT ;
+        /*0ed0*/                   PLOP3.LUT P0, PT, PT, PT, UP0, 0x80, 0x0 ;
+        /*0ee0*/              @!P0 BRA `(.L_x_7) ;
+.L_x_3:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*0ef0*/                   HMMA.16816.F32.BF16 R8, R44, R28, R8 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0f00*/                   UIADD3 UR4, UR4, 0x1, URZ ;
+        /*0f10*/                   UISETP.GE.U32.AND UP0, UPT, UR4, 0x4, UPT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*0f20*/                   HMMA.16816.F32.BF16 R12, R44, R36, R12 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0f30*/                   PLOP3.LUT P0, PT, PT, PT, UP0, 0x80, 0x0 ;
+        /*0f40*/                   IMAD.MOV.U32 R44, RZ, RZ, R16 ;
+        /*0f50*/                   IMAD.MOV.U32 R45, RZ, RZ, R17 ;
+        /*0f60*/                   IMAD.MOV.U32 R46, RZ, RZ, R18 ;
+        /*0f70*/                   IMAD.MOV.U32 R47, RZ, RZ, R19 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*0f80*/                   HMMA.16816.F32.BF16 R8, R52.reuse, R30, R8 ;
+        /*0f90*/                   HMMA.16816.F32.BF16 R12, R52, R38, R12 ;
+        /*0fa0*/                   NOP ;
+        /*0fb0*/                   HMMA.16816.F32.BF16 R8, R48.reuse, R32, R8 ;
+        /*0fc0*/                   HMMA.16816.F32.BF16 R12, R48, R40, R12 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0fd0*/                   IMAD.MOV.U32 R48, RZ, RZ, R20 ;
+        /*0fe0*/                   IMAD.MOV.U32 R49, RZ, RZ, R21 ;
+        /*0ff0*/                   IMAD.MOV.U32 R50, RZ, RZ, R22 ;
+        /*1000*/                   IMAD.MOV.U32 R51, RZ, RZ, R23 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*1010*/                   HMMA.16816.F32.BF16 R8, R4.reuse, R34, R8 ;
+        /*1020*/                   HMMA.16816.F32.BF16 R12, R4, R42, R12 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*1030*/                   IMAD.MOV.U32 R4, RZ, RZ, R24 ;
+        /*1040*/                   IMAD.MOV.U32 R5, RZ, RZ, R25 ;
+        /*1050*/                   IMAD.MOV.U32 R6, RZ, RZ, R26 ;
+        /*1060*/                   IMAD.MOV.U32 R7, RZ, RZ, R27 ;
+        /*1070*/              @!P0 BRA `(.L_x_8) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*1080*/                   S2R R5, SR_TID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*1090*/                   MOV R2, 0x400 ;
+        /*10a0*/                   S2R R3, SR_CgaCtaId ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*10b0*/                   S2R R7, SR_TID.X ;
+        /*10c0*/                   SHF.R.S32.HI R0, RZ, 0x5, R5 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*10d0*/                   ISETP.GT.AND P0, PT, R5, 0x7f, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*10e0*/                   LEA R2, R3, R2, 0x18 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*10f0*/                   IMAD.SHL.U32 R0, R0, 0x40, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*1100*/                   LOP3.LUT R3, R0, 0x1f, R7, 0xf8, !PT ;
+        /*1110*/                   IMAD.U32 R0, R3, 0x10, R2 ;
+        /*1120*/                   STS.128 [R0], R8 ;
+        /*1130*/                   STS.128 [R0+0x200], R12 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 516
+        /*1140*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*1150*/               @P0 EXIT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*1160*/                   S2UR UR4, SR_CTAID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*1170*/                   IMAD R2, R5.reuse, 0x10, R2 ;
+        /*1180*/                   ULDC UR5, c[0x0][0x230] ;
+        /*1190*/                   VIADD R0, R5, 0xffffff00 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*11a0*/                   ULDC.64 UR6, c[0x0][0x220] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*11b0*/                   VIADD R23, R2, 0x1000 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 470
+        /*11c0*/                   USHF.L.U32 UR4, UR4, 0x5, URZ ;
+.L_x_9:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*11d0*/                   LDS.128 R16, [R23+-0x1000] ;
+        /*11e0*/                   VIADD R0, R0, 0x100 ;
+        /*11f0*/                   LDS.128 R8, [R23+-0x800] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*1200*/                   IMAD.SHL.U32 R21, R0.reuse, 0x2, RZ ;
+        /*1210*/                   SHF.R.S32.HI R3, RZ, 0x5, R0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*1220*/                   LDS.128 R12, [R23] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*1230*/                   LOP3.LUT R2, R0.reuse, 0x1f, RZ, 0xc0, !PT ;
+        /*1240*/                   LEA.HI R20, R0, R3, RZ, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*1250*/                   LDS.128 R4, [R23+0x800] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*1260*/                   LOP3.LUT R21, R21, 0x6, RZ, 0xc0, !PT ;
+        /*1270*/                   LOP3.LUT R22, R20.reuse, 0x1ffffffe, RZ, 0xc0, !PT ;
+        /*1280*/                   IMAD.SHL.U32 R20, R20, 0x8, RZ ;
+        /*1290*/                   IMAD.IADD R22, R3, 0x1, -R22 ;
+        /*12a0*/                   LEA.HI R3, R2, UR4, RZ, 0x1e ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*12b0*/                   VIADD R23, R23, 0x1000 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*12c0*/                   LOP3.LUT R20, R20, 0xfffffff0, RZ, 0xc0, !PT ;
+        /*12d0*/                   IMAD R21, R22, 0x8, R21 ;
+        /*12e0*/                   IMAD.IADD R2, R20, 0x1, R3 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*12f0*/                   ISETP.GE.AND P1, PT, R21.reuse, UR5, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 492
+        /*1300*/                   VIADD R20, R21, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*1310*/                   SHF.R.S32.HI R3, RZ, 0x1f, R2.reuse ;
+        /*1320*/                   ISETP.GE.AND P2, PT, R20, UR5, PT ;
+        /*1330*/                   IMAD.WIDE R2, R21, 0x2000, R2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*1340*/                   FADD R22, RZ, R17 ;
+        /*1350*/                   FADD R20, RZ, R19 ;
+        /*1360*/                   FADD R19, RZ, R18 ;
+        /*1370*/              @!P1 FADD R17, RZ, R16 ;
+        /*1380*/                   FADD R22, R9, R22 ;
+        /*1390*/                   FADD R20, R11, R20 ;
+        /*13a0*/                   FADD R19, R10, R19 ;
+        /*13b0*/              @!P1 FADD R17, R8, R17 ;
+        /*13c0*/                   FADD R22, R13, R22 ;
+        /*13d0*/                   FADD R20, R15, R20 ;
+        /*13e0*/                   FADD R19, R14, R19 ;
+        /*13f0*/              @!P1 FADD R17, R12, R17 ;
+        /*1400*/                   FADD R22, R5, R22 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*1410*/                   LEA R8, P0, R2, UR6, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*1420*/                   FADD R6, R6, R19 ;
+        /*1430*/                   FADD R5, R7, R20 ;
+        /*1440*/              @!P1 FADD R4, R4, R17 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*1450*/                   LEA.HI.X R9, R2, UR7, R3, 0x1, P0 ;
+        /*1460*/              @!P2 F2FP.BF16.F32.PACK_AB R2, RZ, R22 ;
+        /*1470*/              @!P1 F2FP.BF16.F32.PACK_AB R3, RZ, R6 ;
+        /*1480*/              @!P2 F2FP.BF16.F32.PACK_AB R5, RZ, R5 ;
+        /*1490*/              @!P2 STG.E.U16 desc[UR8][R8.64+0x4000], R2 ;
+        /*14a0*/              @!P1 F2FP.BF16.F32.PACK_AB R4, RZ, R4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*14b0*/                   ISETP.GE.AND P0, PT, R0, -0x80, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*14c0*/              @!P1 STG.E.U16 desc[UR8][R8.64+0x10], R3 ;
+        /*14d0*/              @!P2 STG.E.U16 desc[UR8][R8.64+0x4010], R5 ;
+        /*14e0*/              @!P1 STG.E.U16 desc[UR8][R8.64], R4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*14f0*/              @!P0 BRA `(.L_x_9) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 590
+        /*1500*/                   EXIT ;
+        .type           $_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv,@function
+        .size           $_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv,(.L_x_17 - $_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv)
+$_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 57
+        /*1510*/                   BPT.TRAP 0x1 ;
+.L_x_10:
+        /*1520*/                   BRA `(.L_x_10);
+        /*1530*/                   NOP;
+        /*1540*/                   NOP;
+        /*1550*/                   NOP;
+        /*1560*/                   NOP;
+        /*1570*/                   NOP;
+        /*1580*/                   NOP;
+        /*1590*/                   NOP;
+        /*15a0*/                   NOP;
+        /*15b0*/                   NOP;
+        /*15c0*/                   NOP;
+        /*15d0*/                   NOP;
+        /*15e0*/                   NOP;
+        /*15f0*/                   NOP;
+.L_x_17:
+
+
+//--------------------- .text._Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj --------------------------
+	.section	.text._Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,"ax",@progbits
+	.align	128
+.text._Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj:
+        .weak           _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+        .type           _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,@function
+        .size           _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,(.L_x_19 - _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj)
+        .other          _Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj,@"STO_CUDA_ENTRY STV_DEFAULT"
+_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 182
+        /*0000*/                   LDC R1, c[0x0][0x28] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0010*/                   S2R R0, SR_TID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*0020*/                   ULDC.64 UR4, c[0x0][0x210] ;
+        /*0030*/                   ULDC.64 UR6, c[0x0][0x208] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0040*/                   ULDC.64 UR8, c[0x0][0x218] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*0050*/                   S2R R20, SR_CTAID.Y ;
+        /*0060*/                   S2R R3, SR_CTAID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0070*/                   SHF.R.S32.HI R21, RZ, 0x5, R0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*0080*/                   IMAD R2, R20, 0x100, R3 ;
+        /*0090*/                   IMAD R2, R2, 0x8, R21 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 246
+        /*00a0*/                   IMAD.WIDE R2, R2, 0x80, RZ ;
+        /*00b0*/                   LOP3.LUT R5, R2, 0x1f, R0, 0xf8, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 256
+        /*00c0*/                   LEA R2, P0, R5, UR4, 0x4 ;
+        /*00d0*/                   LEA.HI.X R3, R5, UR5, R3, 0x4, P0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*00e0*/                   LDG.E.NA.128.CONSTANT R16, desc[UR6][R2.64] ;
+        /*00f0*/                   LDG.E.NA.128.CONSTANT R12, desc[UR6][R2.64+0x200] ;
+        /*0100*/                   LDG.E.NA.128.CONSTANT R8, desc[UR6][R2.64+0x400] ;
+        /*0110*/                   LDG.E.NA.128.CONSTANT R4, desc[UR6][R2.64+0x600] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 208
+        /*0120*/                   LEA.HI R21, R0, R21, RZ, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*0130*/                   LOP3.LUT R60, R0, 0x1f, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 208
+        /*0140*/                   SHF.R.S32.HI R21, RZ, 0x1, R21 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 214
+        /*0150*/                   IMAD R21, R20, 0x4, R21 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*0160*/                   S2UR UR4, SR_CLOCKLO ;
+        /*0170*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*0180*/                   LDC R20, c[0x0][0x230] ;
+        /*0190*/                   LOP3.LUT R20, R20, UR4, RZ, 0xc0, !PT ;
+        /*01a0*/                   ISETP.NE.AND P0, PT, R20, 0x7fffffff, PT ;
+        /*01b0*/               @P0 BRA `(.L_x_11) ;
+        /*01c0*/                   MOV R62, 0x1e0 ;
+        /*01d0*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_11:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 214
+        /*01e0*/                   IMAD.SHL.U32 R61, R21, 0x4, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*01f0*/                   CS2R R56, SRZ ;
+        /*0200*/                   IMAD.MOV.U32 R63, RZ, RZ, 0x1 ;
+        /*0210*/                   CS2R R58, SRZ ;
+        /*0220*/                   CS2R R20, SRZ ;
+        /*0230*/                   CS2R R22, SRZ ;
+        /*0240*/                   MOV R24, R16 ;
+        /*0250*/                   IMAD.MOV.U32 R25, RZ, RZ, R17 ;
+        /*0260*/                   MOV R29, R13 ;
+        /*0270*/                   IMAD.MOV.U32 R26, RZ, RZ, R18 ;
+        /*0280*/                   MOV R34, R10 ;
+        /*0290*/                   IMAD.MOV.U32 R27, RZ, RZ, R19 ;
+        /*02a0*/                   MOV R39, R7 ;
+        /*02b0*/                   IMAD.MOV.U32 R28, RZ, RZ, R12 ;
+        /*02c0*/                   IMAD.MOV.U32 R30, RZ, RZ, R14 ;
+        /*02d0*/                   IMAD.MOV.U32 R31, RZ, RZ, R15 ;
+        /*02e0*/                   IMAD.MOV.U32 R32, RZ, RZ, R8 ;
+        /*02f0*/                   IMAD.MOV.U32 R33, RZ, RZ, R9 ;
+        /*0300*/                   IMAD.MOV.U32 R35, RZ, RZ, R11 ;
+        /*0310*/                   IMAD.MOV.U32 R36, RZ, RZ, R4 ;
+        /*0320*/                   IMAD.MOV.U32 R37, RZ, RZ, R5 ;
+        /*0330*/                   IMAD.MOV.U32 R38, RZ, RZ, R6 ;
+.L_x_14:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*0340*/                   LDC R62, c[0x0][0x230] ;
+        /*0350*/                   SHF.R.U32.HI R40, RZ, 0x2, R60 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 248
+        /*0360*/                   IMAD.SHL.U32 R43, R0.reuse, 0x10, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0370*/                   LOP3.LUT R42, R0, 0x3, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 308
+        /*0380*/                   ISETP.GT.U32.AND P0, PT, R63, 0x3, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 248
+        /*0390*/                   LOP3.LUT R51, R43, 0x30, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*03a0*/                   IMAD.WIDE.U32 R42, R42, 0x20, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*03b0*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR6][R2.64+0x400000] ;
+        /*03c0*/              @!P0 LDG.E.NA.128.CONSTANT R28, desc[UR6][R2.64+0x400200] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*03d0*/                   VIADD R41, R62, 0xffffffff ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*03e0*/              @!P0 LDG.E.NA.128.CONSTANT R32, desc[UR6][R2.64+0x400400] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 313
+        /*03f0*/                   VIMNMX R46, R40.reuse, R41, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 17
+        /*0400*/              @!P0 LDG.E.NA.128.CONSTANT R36, desc[UR6][R2.64+0x400600] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0410*/                   VIADDMNMX R47, R40, 0x8, R41, PT ;
+        /*0420*/                   IMAD.WIDE R44, R46, 0x400, RZ ;
+        /*0430*/                   IMAD.WIDE R48, R47, 0x400, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0440*/                   LOP3.LUT R44, R51, R44, RZ, 0xfc, !PT ;
+        /*0450*/                   IMAD.WIDE R40, R46, 0x800, RZ ;
+        /*0460*/                   LOP3.LUT R48, R51, R48, RZ, 0xfc, !PT ;
+        /*0470*/                   IMAD.WIDE R46, R47, 0x800, RZ ;
+        /*0480*/                   LOP3.LUT R40, R42.reuse, R40, RZ, 0xfc, !PT ;
+        /*0490*/                   LOP3.LUT R41, R43.reuse, R41, RZ, 0xfc, !PT ;
+        /*04a0*/                   LOP3.LUT R46, R42, R46, RZ, 0xfc, !PT ;
+        /*04b0*/                   LOP3.LUT R47, R43, R47, RZ, 0xfc, !PT ;
+        /*04c0*/                   IMAD.WIDE R42, R61, 0x40, R44 ;
+        /*04d0*/                   IMAD.WIDE R44, R61, 0x80, R46 ;
+        /*04e0*/                   LEA R64, P2, R42, UR8, 0x1 ;
+        /*04f0*/                   IMAD.WIDE R40, R61, 0x80, R40 ;
+        /*0500*/                   LEA.HI.X R65, R42, UR9, R43, 0x1, P2 ;
+        /*0510*/                   IMAD.WIDE R46, R61, 0x40, R48 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0520*/                   IADD3 R40, P1, R40, UR8, RZ ;
+        /*0530*/                   IADD3 R48, P3, R44, UR8, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0540*/                   LEA R52, P4, R46.reuse, UR8, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0550*/                   IADD3.X R41, R41, UR9, RZ, P1, !PT ;
+        /*0560*/                   IADD3.X R49, R45, UR9, RZ, P3, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0570*/                   LEA.HI.X R53, R46, UR9, R47, 0x1, P4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 24
+        /*0580*/                   LDG.E.128.CONSTANT R40, desc[UR6][R40.64] ;
+        /*0590*/                   LDG.E.128.CONSTANT R44, desc[UR6][R64.64+0x10] ;
+        /*05a0*/                   LDG.E.128.CONSTANT R48, desc[UR6][R48.64] ;
+        /*05b0*/                   LDG.E.128.CONSTANT R52, desc[UR6][R52.64+0x10] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*05c0*/                   S2UR UR4, SR_CLOCKLO ;
+        /*05d0*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*05e0*/                   LOP3.LUT R62, R62, UR4, RZ, 0xc0, !PT ;
+        /*05f0*/                   ISETP.NE.AND P0, PT, R62, 0x7fffffff, PT ;
+        /*0600*/               @P0 BRA `(.L_x_12) ;
+        /*0610*/                   MOV R62, 0x630 ;
+        /*0620*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_12:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 62
+        /*0630*/                   S2UR UR4, SR_CLOCKLO ;
+        /*0640*/                   NOP ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 63
+        /*0650*/                   LDC R62, c[0x0][0x230] ;
+        /*0660*/                   LOP3.LUT R62, R62, UR4, RZ, 0xc0, !PT ;
+        /*0670*/                   ISETP.NE.AND P0, PT, R62, 0x7fffffff, PT ;
+        /*0680*/               @P0 BRA `(.L_x_13) ;
+        /*0690*/                   MOV R62, 0x6b0 ;
+        /*06a0*/                   CALL.REL.NOINC `($_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv) ;
+.L_x_13:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*06b0*/                   HMMA.16816.F32.BF16 R56, R16, R40, R56 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*06c0*/                   IADD3 R2, P0, R2, 0x400000, RZ ;
+        /*06d0*/                   VIADD R63, R63, 0x1 ;
+        /*06e0*/                   UIADD3 UR8, UP0, UR8, 0x80, URZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*06f0*/                   HMMA.16816.F32.BF16 R20, R16, R48, R20 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0700*/                   IMAD.X R3, RZ, RZ, R3, P0 ;
+        /*0710*/                   ISETP.NE.AND P0, PT, R63, 0x5, PT ;
+        /*0720*/                   UIADD3.X UR9, URZ, UR9, URZ, UP0, !UPT ;
+        /*0730*/                   MOV R16, R24 ;
+        /*0740*/                   IMAD.MOV.U32 R17, RZ, RZ, R25 ;
+        /*0750*/                   IMAD.MOV.U32 R18, RZ, RZ, R26 ;
+        /*0760*/                   IMAD.MOV.U32 R19, RZ, RZ, R27 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*0770*/                   HMMA.16816.F32.BF16 R56, R12.reuse, R42, R56 ;
+        /*0780*/                   HMMA.16816.F32.BF16 R20, R12, R50, R20 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0790*/                   IMAD.MOV.U32 R12, RZ, RZ, R28 ;
+        /*07a0*/                   MOV R13, R29 ;
+        /*07b0*/                   IMAD.MOV.U32 R14, RZ, RZ, R30 ;
+        /*07c0*/                   IMAD.MOV.U32 R15, RZ, RZ, R31 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*07d0*/                   HMMA.16816.F32.BF16 R56, R8.reuse, R44, R56 ;
+        /*07e0*/                   HMMA.16816.F32.BF16 R20, R8, R52, R20 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*07f0*/                   IMAD.MOV.U32 R8, RZ, RZ, R32 ;
+        /*0800*/                   MOV R10, R34 ;
+        /*0810*/                   IMAD.MOV.U32 R9, RZ, RZ, R33 ;
+        /*0820*/                   IMAD.MOV.U32 R11, RZ, RZ, R35 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 41
+        /*0830*/                   HMMA.16816.F32.BF16 R56, R4.reuse, R46, R56 ;
+        /*0840*/                   HMMA.16816.F32.BF16 R20, R4, R54, R20 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 289
+        /*0850*/                   IMAD.MOV.U32 R4, RZ, RZ, R36 ;
+        /*0860*/                   MOV R7, R39 ;
+        /*0870*/                   IMAD.MOV.U32 R5, RZ, RZ, R37 ;
+        /*0880*/                   IMAD.MOV.U32 R6, RZ, RZ, R38 ;
+        /*0890*/               @P0 BRA `(.L_x_14) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*08a0*/                   S2R R5, SR_CgaCtaId ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*08b0*/                   SHF.R.S32.HI R3, RZ, 0x5, R0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*08c0*/                   MOV R2, 0x400 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*08d0*/                   ISETP.GT.AND P0, PT, R0, 0x7f, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 206
+        /*08e0*/                   IMAD.SHL.U32 R3, R3, 0x40, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 515
+        /*08f0*/                   LEA R5, R5, R2, 0x18 ;
+        /*0900*/                   LOP3.LUT R2, R3, 0x1f, R0, 0xf8, !PT ;
+        /*0910*/                   IMAD.U32 R2, R2, 0x10, R5 ;
+        /*0920*/                   STS.128 [R2], R56 ;
+        /*0930*/                   STS.128 [R2+0x200], R20 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 516
+        /*0940*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*0950*/               @P0 EXIT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 212
+        /*0960*/                   S2UR UR4, SR_CTAID.X ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*0970*/                   IMAD R5, R0.reuse, 0x10, R5 ;
+        /*0980*/                   ULDC UR5, c[0x0][0x230] ;
+        /*0990*/                   VIADD R0, R0, 0xffffff00 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*09a0*/                   ULDC.64 UR8, c[0x0][0x220] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*09b0*/                   VIADD R23, R5, 0x1000 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 470
+        /*09c0*/                   USHF.L.U32 UR4, UR4, 0x5, URZ ;
+.L_x_15:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*09d0*/                   LDS.128 R16, [R23+-0x1000] ;
+        /*09e0*/                   IADD3 R0, R0, 0x100, RZ ;
+        /*09f0*/                   LDS.128 R8, [R23+-0x800] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*0a00*/                   SHF.R.S32.HI R3, RZ, 0x5, R0 ;
+        /*0a10*/                   IMAD.SHL.U32 R21, R0.reuse, 0x2, RZ ;
+        /*0a20*/                   LOP3.LUT R2, R0.reuse, 0x1f, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*0a30*/                   LDS.128 R12, [R23] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*0a40*/                   LEA.HI R20, R0, R3, RZ, 0x1 ;
+        /*0a50*/                   LOP3.LUT R21, R21, 0x6, RZ, 0xc0, !PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*0a60*/                   LDS.128 R4, [R23+0x800] ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*0a70*/                   LOP3.LUT R22, R20.reuse, 0x1ffffffe, RZ, 0xc0, !PT ;
+        /*0a80*/                   IMAD.SHL.U32 R20, R20, 0x8, RZ ;
+        /*0a90*/                   IMAD.IADD R22, R3, 0x1, -R22 ;
+        /*0aa0*/                   LEA.HI R3, R2, UR4, RZ, 0x1e ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*0ab0*/                   VIADD R23, R23, 0x1000 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 488
+        /*0ac0*/                   LOP3.LUT R20, R20, 0xfffffff0, RZ, 0xc0, !PT ;
+        /*0ad0*/                   IMAD R21, R22, 0x8, R21 ;
+        /*0ae0*/                   IADD3 R2, R20, R3, RZ ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 492
+        /*0af0*/                   VIADD R20, R21.reuse, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 494
+        /*0b00*/                   ISETP.GE.AND P1, PT, R21.reuse, UR5, PT ;
+        /*0b10*/                   SHF.R.S32.HI R3, RZ, 0x1f, R2.reuse ;
+        /*0b20*/                   ISETP.GE.AND P2, PT, R20, UR5, PT ;
+        /*0b30*/                   IMAD.WIDE R2, R21, 0x2000, R2 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*0b40*/                   FADD R22, RZ, R17 ;
+        /*0b50*/                   FADD R20, RZ, R19 ;
+        /*0b60*/                   FADD R19, RZ, R18 ;
+        /*0b70*/              @!P1 FADD R17, RZ, R16 ;
+        /*0b80*/                   FADD R22, R9, R22 ;
+        /*0b90*/                   FADD R20, R11, R20 ;
+        /*0ba0*/                   FADD R19, R10, R19 ;
+        /*0bb0*/              @!P1 FADD R17, R8, R17 ;
+        /*0bc0*/                   FADD R22, R13, R22 ;
+        /*0bd0*/                   FADD R20, R15, R20 ;
+        /*0be0*/                   FADD R19, R14, R19 ;
+        /*0bf0*/              @!P1 FADD R17, R12, R17 ;
+        /*0c00*/                   FADD R22, R5, R22 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*0c10*/                   LEA R8, P0, R2, UR8, 0x1 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 118
+        /*0c20*/                   FADD R6, R6, R19 ;
+        /*0c30*/                   FADD R5, R7, R20 ;
+        /*0c40*/              @!P1 FADD R4, R4, R17 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*0c50*/                   LEA.HI.X R9, R2, UR9, R3, 0x1, P0 ;
+        /*0c60*/              @!P2 F2FP.BF16.F32.PACK_AB R2, RZ, R22 ;
+        /*0c70*/              @!P1 F2FP.BF16.F32.PACK_AB R3, RZ, R6 ;
+        /*0c80*/              @!P2 F2FP.BF16.F32.PACK_AB R5, RZ, R5 ;
+        /*0c90*/              @!P2 STG.E.U16 desc[UR6][R8.64+0x4000], R2 ;
+        /*0ca0*/              @!P1 F2FP.BF16.F32.PACK_AB R4, RZ, R4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*0cb0*/                   ISETP.GE.AND P0, PT, R0, -0x80, PT ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 125
+        /*0cc0*/              @!P1 STG.E.U16 desc[UR6][R8.64+0x10], R3 ;
+        /*0cd0*/              @!P2 STG.E.U16 desc[UR6][R8.64+0x4010], R5 ;
+        /*0ce0*/              @!P1 STG.E.U16 desc[UR6][R8.64], R4 ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 171
+        /*0cf0*/              @!P0 BRA `(.L_x_15) ;
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 590
+        /*0d00*/                   EXIT ;
+        .type           $_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv,@function
+        .size           $_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv,(.L_x_19 - $_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv)
+$_Z26m16trace_59fcb5b72994_gemvILi0ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj$_Z27m16trace_59fcb5b72994_neverPv:
+	//## File "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2/device-preflight.cu", line 57
+        /*0d10*/                   BPT.TRAP 0x1 ;
+.L_x_16:
+        /*0d20*/                   BRA `(.L_x_16);
+        /*0d30*/                   NOP;
+        /*0d40*/                   NOP;
+        /*0d50*/                   NOP;
+        /*0d60*/                   NOP;
+        /*0d70*/                   NOP;
+        /*0d80*/                   NOP;
+        /*0d90*/                   NOP;
+        /*0da0*/                   NOP;
+        /*0db0*/                   NOP;
+        /*0dc0*/                   NOP;
+        /*0dd0*/                   NOP;
+        /*0de0*/                   NOP;
+        /*0df0*/                   NOP;
+.L_x_19:
+
+
+//--------------------- SYMBOLS --------------------------
+
+	.type		.nv.reservedSmem.offset0,@object
+	.size		.nv.reservedSmem.offset0,0x4

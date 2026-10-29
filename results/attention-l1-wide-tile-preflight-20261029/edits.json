@@ -1,0 +1,42 @@
+[
+  {
+    "offset": 568,
+    "old": "template <int L, bool F>\nstruct Cfg {",
+    "new": "#ifndef ATTN_L1_WIDE_TILE\n#define ATTN_L1_WIDE_TILE 1\n#endif\ntemplate <int L, bool F>\nstruct Cfg {\n  static constexpr int KEYS = (ATTN_L1_WIDE_TILE && L == 1 && F) ? 128 : 64;"
+  },
+  {
+    "offset": 1928,
+    "old": "static constexpr int STAGES = F ? ((L == 1) ? 3 : 4) : 3;",
+    "new": "static constexpr int STAGES = F ? ((L == 1) ? (ATTN_L1_WIDE_TILE ? 2 : 3) : 4) : 3;"
+  },
+  {
+    "offset": 24225,
+    "old": "struct Smem {\n",
+    "new": "struct Smem {\n  static constexpr int TILE = Cfg<L, F>::KEYS;\n  static constexpr int STAGE_BYTES = TILE * ROWB;\n"
+  },
+  {
+    "offset": 24846,
+    "old": "alignas(128) int pidx[4][80];",
+    "new": "alignas(128) int pidx[4][(ATTN_L1_WIDE_TILE && L == 1 && F) ? 144 : 80];"
+  },
+  {
+    "offset": 118381,
+    "old": "  constexpr int NT = Cfg<L, FLAT>::NT;\n  constexpr int STAGES = Cfg<L, FLAT>::STAGES;",
+    "new": "  constexpr int TILE = Cfg<L, FLAT>::KEYS;\n  constexpr int STAGE_BYTES = TILE * ROWB;\n  constexpr int NT = Cfg<L, FLAT>::NT;\n  constexpr int STAGES = Cfg<L, FLAT>::STAGES;"
+  },
+  {
+    "offset": 46549,
+    "old": "  constexpr int NT = Cfg<L, FLAT>::NT;\n  constexpr int STAGES = Cfg<L, FLAT>::STAGES;",
+    "new": "  constexpr int TILE = Cfg<L, FLAT>::KEYS;\n  constexpr int STAGE_BYTES = TILE * ROWB;\n  constexpr int NT = Cfg<L, FLAT>::NT;\n  constexpr int STAGES = Cfg<L, FLAT>::STAGES;"
+  },
+  {
+    "offset": 50048,
+    "old": "const long long w1 = min(pt_lim, (e0 + 64 + 3) & -4);",
+    "new": "const long long w1 = min(pt_lim, (e0 + TILE + 3) & -4);"
+  },
+  {
+    "offset": 76900,
+    "old": "    float s[4][4];\n    uint32_t kw[4][4];\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {\n      const int key = 32 * wsub + 8 * nt + g;\n      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));\n      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;\n    }\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)\n      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int h = 0; h < 2; ++h) {\n        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));\n        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));\n      }\n      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;\n    }\n    if (!interior) {\n#pragma unroll\n      for (int nt = 0; nt < 4; ++nt)\n#pragma unroll\n        for (int e = 0; e < 2; ++e) {\n          const int pos = t0 + 32 * wsub + 8 * nt + 2 * tig + e;\n          if (pos >= end) s[nt][e] = -INFINITY;\n        }\n    }\n    float mx = -INFINITY;\n#pragma unroll\n    for (int nt = 0; nt < 4; ++nt) mx = fmaxf(mx, fmaxf(s[nt][0], s[nt][1]));\n    mx = quad_max(mx);\n    const float m_new = fmaxf(m_r[0], mx);\n    if (m_new != -INFINITY) {\n      const float alpha = ex2(m_r[0] - m_new);\n      m_r[0] = m_new;\n      float ls = 0.f;\n#pragma unroll\n      for (int nt = 0; nt < 4; ++nt)\n#pragma unroll\n        for (int e = 0; e < 2; ++e) {\n          // FA3 Max_offset=8: exact power-of-two scale extends the FP8 tail.\n          const float pv = ex2(s[nt][e] - m_new) * 256.f;\n          s[nt][e] = pv;\n          ls += pv;\n        }\n      if constexpr (ONE) {   // (scout: the only tile: o = 0 and l = 0, alpha would only multiply zeros)\n        l_r[0] = ls;\n      } else {\n        l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n      }\n      uint32_t b0[8], b1[8];\n      load_v_frags_f8(V, 32 * wsub, hk, g, tig, b0, b1);\n      const uint32_t a0 = e4m3x4f(s[0][0], s[0][1], s[1][0], s[1][1]);\n      const uint32_t a2 = e4m3x4f(s[2][0], s[2][1], s[3][0], s[3][1]);\n#pragma unroll\n      for (int t = 0; t < 8; ++t) mma_f8pv(o[0][t], a0, a2, b0[t], b1[t]);\n    }\n    if constexpr (WS) {   // this warp is done with the stage\n      __syncwarp();\n      mbar_arrive(&S.empty[(tb + i) % STAGES]);\n    }\n    PROF_TILE;\n  }\n  PROF_DUMP;\n",
+    "new": "    float s[TILE / 16][4];\n    uint32_t kw[TILE / 16][4];\n#pragma unroll\n    for (int nt = 0; nt < TILE / 16; ++nt) {\n      const int key = (TILE / 2) * wsub + 8 * nt + g;\n      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));\n      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;\n    }\n#pragma unroll\n    for (int nt = 0; nt < TILE / 16; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)\n      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};\n#pragma unroll\n      for (int h = 0; h < 2; ++h) {\n        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));\n        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));\n      }\n      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;\n    }\n    if (!interior) {\n#pragma unroll\n      for (int nt = 0; nt < TILE / 16; ++nt)\n#pragma unroll\n        for (int e = 0; e < 2; ++e) {\n          const int pos = t0 + (TILE / 2) * wsub + 8 * nt + 2 * tig + e;\n          if (pos >= end) s[nt][e] = -INFINITY;\n        }\n    }\n    float mx = -INFINITY;\n#pragma unroll\n    for (int nt = 0; nt < TILE / 16; ++nt) mx = fmaxf(mx, fmaxf(s[nt][0], s[nt][1]));\n    mx = quad_max(mx);\n    const float m_new = fmaxf(m_r[0], mx);\n    if (m_new != -INFINITY) {\n      const float alpha = ex2(m_r[0] - m_new);\n      m_r[0] = m_new;\n      float ls = 0.f;\n#pragma unroll\n      for (int nt = 0; nt < TILE / 16; ++nt)\n#pragma unroll\n        for (int e = 0; e < 2; ++e) {\n          // FA3 Max_offset=8: exact power-of-two scale extends the FP8 tail.\n          const float pv = ex2(s[nt][e] - m_new) * 256.f;\n          s[nt][e] = pv;\n          ls += pv;\n        }\n      if constexpr (ONE) {   // (scout: the only tile: o = 0 and l = 0, alpha would only multiply zeros)\n        l_r[0] = ls;\n      } else {\n        l_r[0] = l_r[0] * alpha + ls;\n#pragma unroll\n        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }\n      }\n#pragma unroll\n      for (int pv = 0; pv < TILE / 64; ++pv) {\n        uint32_t b0[8], b1[8];\n        load_v_frags_f8(V, (TILE / 2) * wsub + 32 * pv, hk, g, tig, b0, b1);\n        const uint32_t a0 = e4m3x4f(s[4*pv][0], s[4*pv][1], s[4*pv+1][0], s[4*pv+1][1]);\n        const uint32_t a2 = e4m3x4f(s[4*pv+2][0], s[4*pv+2][1], s[4*pv+3][0], s[4*pv+3][1]);\n#pragma unroll\n        for (int t = 0; t < 8; ++t) mma_f8pv(o[0][t], a0, a2, b0[t], b1[t]);\n      }\n    }\n    if constexpr (WS) {   // this warp is done with the stage\n      __syncwarp();\n      mbar_arrive(&S.empty[(tb + i) % STAGES]);\n    }\n    PROF_TILE;\n  }\n  PROF_DUMP;\n"
+  }
+]

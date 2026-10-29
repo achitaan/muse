@@ -1,3 +1,30 @@
+# October29: fixed L1-flat wide-tile CPU draft
+
+Draft7ef8ab72/CUDA20aeed18 uses128-key tiles and two data stages, preserving
+128consumer/128producer threads and all retained precision boundaries. Only
+L1-flat changes; planner, L8 and nonflat code stay intact. Eight inverse edits
+restore the exact retained CUDA. No GPU job or installed candidate exists.
+
+Offline NVRTC baseline/wide/off builds have zero stack/spill fields and retain
+128base L1-flat registers. Compiler shared-size probes give84992dynamic bytes
+including the retained1024slack versus67584baseline. Actual H200 occupancy and
+dynamic register allocation remain unverified. Disabled-wide instruction and
+branch-target bodies equal baseline; enabled L8-flat/L1-nonflat bodies also
+equal baseline after compiler-local symbol normalization.
+
+450ownership/bounds cases and42finite arbitrary-score numerical proxies are
+saved, with explicit limitations. Maximum new/oracle error3.545% also occurs
+for the baseline on that fixture; new/base difference reaches3.037%. This is
+not a tolerance pass, CUDA accumulation emulation or prediction for official
+inputs. Actual numerical/cache/gate/replay validation remains necessary.
+
+Review: experiments/prepared/attention_l1_wide_tile_review.md. Full source,
+compiler inputs/logs/disassembly and CPU records:
+results/attention-l1-wide-tile-preflight-20261029/. Add native resource and path
+admission, freeze fixed guards and verify fresh official files before one
+focused paced check. No parameter sweep or claimed gain. Any later Decode
+transfer must retain D9's original FP16 PV body.
+
 # October29: full-context length balancing already exists
 
 The retained9e922c35 planner uses a flat grid over actual device-side request

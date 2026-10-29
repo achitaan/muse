@@ -1,0 +1,45 @@
+{
+  "nvrtc_version": [
+    13,
+    0
+  ],
+  "package_hashes": {
+    "nvidia_cuda_nvrtc-13.0.88-py3-none-win_amd64.whl": "6bcd4e7f8e205cbe644f5a98f2f799bef9556fefc89dd786e79a16312ce49872",
+    "nvidia_cuda_runtime-13.0.88-py3-none-win_amd64.whl": "0156cf8f3453025938aab80bcca909506f4e82f1584a17736df7edeba882cc02",
+    "nvidia_cuda_cccl-13.0.85-py3-none-win_amd64.whl": "e160c6f031687b913fbe6e82e43f1788c3dd2a2a6378d3a8b15a31934b3ab285"
+  },
+  "platform": "Windows x86_64",
+  "original_source_sha256": "f1816e51850dd337846ce2a0edf64a0b7dee40cf66dd3bcb8b2da612908425e8",
+  "compiled_prefix_sha256": "f1816e51850dd337846ce2a0edf64a0b7dee40cf66dd3bcb8b2da612908425e8",
+  "source_bytes": 132511,
+  "host_torch_launcher_omitted": false,
+  "added_forward_declaration": null,
+  "virtual_type_traits_header": "namespace std {\ntemplate<class T, T V> struct integral_constant {\n  static constexpr T value = V;\n  using value_type = T;\n  using type = integral_constant;\n  __host__ __device__ constexpr operator value_type() const noexcept { return value; }\n  __host__ __device__ constexpr value_type operator()() const noexcept { return value; }\n};\nusing true_type = integral_constant<bool, true>;\nusing false_type = integral_constant<bool, false>;\n}\n",
+  "virtual_stdint_header": "typedef signed char int8_t;\ntypedef unsigned char uint8_t;\ntypedef signed short int16_t;\ntypedef unsigned short uint16_t;\ntypedef signed int int32_t;\ntypedef unsigned int uint32_t;\ntypedef signed long long int64_t;\ntypedef unsigned long long uint64_t;\ntypedef int64_t intptr_t;\ntypedef uint64_t uintptr_t;\n",
+  "name_expressions": [
+    "&attn_kernel_fp8pv<1,true,0>",
+    "&attn_kernel_fp8pv<8,true,0>",
+    "&attn_kernel_fp8pv<1,false,1>",
+    "&layout_bytes_probe<sizeof(Smem<1,true>)+1024>",
+    "&layout_bytes_probe<sizeof(Smem<8,true>)+1024>",
+    "&layout_bytes_probe<sizeof(Smem<1,false>)+1024>"
+  ],
+  "flags": [
+    "--gpu-architecture=sm_90a",
+    "--std=c++20",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--ptxas-options=-v",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+    "-DINFINITY=__int_as_float(0x7f800000)"
+  ],
+  "return_code": 0,
+  "cubin_bytes": 882736,
+  "compile_seconds": 2.702999999979511,
+  "log_file": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\attention-l1-wide-preflight-v1\\wide.log",
+  "gpu_kernels_loaded_or_launched": false,
+  "official_checks_used": 0,
+  "exact_judge_toolchain": false,
+  "scope": "Device-code proxy preflight only; no host-extension ABI, occupancy, correctness or performance validation"
+}

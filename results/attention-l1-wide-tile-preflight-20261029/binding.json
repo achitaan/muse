@@ -1,0 +1,13 @@
+{
+  "baseline_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "draft_sha256": "7ef8ab72409ef250979fcd14802af38ec3b7e966f9c662d3ce535f650eced553",
+  "baseline_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "candidate_CUDA_sha256": "20aeed18f70ef0f55e75e412f1d1af69142a94f618de166601e36cc58a1fd70f",
+  "inverse_edits": 8,
+  "affected": "L1 flat only; complete context, every request and key",
+  "fixed_configuration": "128 keys, two stages, original128 consumer/128 producer threads",
+  "unchanged": "L8, non-flat kernels, dispatch, numerical materializations, cache representation, finalizers",
+  "GPU_jobs": 0,
+  "candidate_installed": false,
+  "numerical_and_runtime_correctness": "unverified"
+}

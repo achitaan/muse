@@ -1,0 +1,308 @@
+{
+  "draft_sha256": "7ef8ab72409ef250979fcd14802af38ec3b7e966f9c662d3ce535f650eced553",
+  "ownership_and_bounds_cases": 450,
+  "numerical_proxy_cases": [
+    {
+      "keys": 1,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.0,
+      "wide_oracle_relative_L2": 0.0,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 1,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.0,
+      "wide_oracle_relative_L2": 0.0,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 1,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0,
+      "wide_oracle_relative_L2": 0.0,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 31,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.014178855790528267,
+      "wide_oracle_relative_L2": 0.014178855790528267,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 31,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.01376204689849299,
+      "wide_oracle_relative_L2": 0.01376204689849299,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 31,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.016869537885062708,
+      "wide_oracle_relative_L2": 0.016869537885062708,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 32,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.0113987051095994,
+      "wide_oracle_relative_L2": 0.0113987051095994,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 32,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.03544791464076952,
+      "wide_oracle_relative_L2": 0.03544791464076952,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 32,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0001423094734103627,
+      "wide_oracle_relative_L2": 0.0001423094734103627,
+      "wide_baseline_relative_L2": 0.0
+    },
+    {
+      "keys": 33,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.015913807069803193,
+      "wide_oracle_relative_L2": 0.016232250143461042,
+      "wide_baseline_relative_L2": 0.0016042481213806468
+    },
+    {
+      "keys": 33,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.023474977906450797,
+      "wide_oracle_relative_L2": 0.024328319373843346,
+      "wide_baseline_relative_L2": 0.00278779827221757
+    },
+    {
+      "keys": 33,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0021822801499765667,
+      "wide_oracle_relative_L2": 0.002191471802294598,
+      "wide_baseline_relative_L2": 5.5362202786170684e-05
+    },
+    {
+      "keys": 63,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.005342158098025392,
+      "wide_oracle_relative_L2": 0.00459137270218638,
+      "wide_baseline_relative_L2": 0.00382024737213192
+    },
+    {
+      "keys": 63,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.015790606063120646,
+      "wide_oracle_relative_L2": 0.022461395895432806,
+      "wide_baseline_relative_L2": 0.026228761697263573
+    },
+    {
+      "keys": 63,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.00015189884468401615,
+      "wide_oracle_relative_L2": 0.00015445549470634534,
+      "wide_baseline_relative_L2": 4.92363147270982e-06
+    },
+    {
+      "keys": 64,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.004510919533322084,
+      "wide_oracle_relative_L2": 0.004798634405807125,
+      "wide_baseline_relative_L2": 0.004780952497951869
+    },
+    {
+      "keys": 64,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.020232354106517858,
+      "wide_oracle_relative_L2": 0.02308234680666875,
+      "wide_baseline_relative_L2": 0.020554408707849595
+    },
+    {
+      "keys": 64,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0002047978042258858,
+      "wide_oracle_relative_L2": 0.0002050286966698145,
+      "wide_baseline_relative_L2": 1.0731028945387294e-05
+    },
+    {
+      "keys": 65,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.007703311992010883,
+      "wide_oracle_relative_L2": 0.0081459840295088,
+      "wide_baseline_relative_L2": 0.013376831108441074
+    },
+    {
+      "keys": 65,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.02196092142170252,
+      "wide_oracle_relative_L2": 0.032415482002175255,
+      "wide_baseline_relative_L2": 0.021947833701518694
+    },
+    {
+      "keys": 65,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.00717222559038822,
+      "wide_oracle_relative_L2": 0.007132562557941822,
+      "wide_baseline_relative_L2": 0.0006156951518759077
+    },
+    {
+      "keys": 127,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.004090871993661607,
+      "wide_oracle_relative_L2": 0.004498343958955521,
+      "wide_baseline_relative_L2": 0.002698089290688025
+    },
+    {
+      "keys": 127,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.017666664534682457,
+      "wide_oracle_relative_L2": 0.01983349980383722,
+      "wide_baseline_relative_L2": 0.018211296090364898
+    },
+    {
+      "keys": 127,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0018729990372000705,
+      "wide_oracle_relative_L2": 0.0037936244214853048,
+      "wide_baseline_relative_L2": 0.004578496311313148
+    },
+    {
+      "keys": 128,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.003338530552701538,
+      "wide_oracle_relative_L2": 0.0033467834276632346,
+      "wide_baseline_relative_L2": 0.0040870635873163485
+    },
+    {
+      "keys": 128,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.017201884225871333,
+      "wide_oracle_relative_L2": 0.024771112930738203,
+      "wide_baseline_relative_L2": 0.02552765979512334
+    },
+    {
+      "keys": 128,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0004119507437126381,
+      "wide_oracle_relative_L2": 0.0022874245924413236,
+      "wide_baseline_relative_L2": 0.002122013959016543
+    },
+    {
+      "keys": 129,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.003606688341102345,
+      "wide_oracle_relative_L2": 0.003603342428256369,
+      "wide_baseline_relative_L2": 0.0028337342604680673
+    },
+    {
+      "keys": 129,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.019581924684452377,
+      "wide_oracle_relative_L2": 0.019252351053951327,
+      "wide_baseline_relative_L2": 0.013947451877995209
+    },
+    {
+      "keys": 129,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.009891335616847411,
+      "wide_oracle_relative_L2": 0.00994616628836967,
+      "wide_baseline_relative_L2": 0.0008340700843117571
+    },
+    {
+      "keys": 257,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.0035062530111196516,
+      "wide_oracle_relative_L2": 0.004201764451809138,
+      "wide_baseline_relative_L2": 0.005773526070975269
+    },
+    {
+      "keys": 257,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.020057982368321497,
+      "wide_oracle_relative_L2": 0.027761996862245505,
+      "wide_baseline_relative_L2": 0.02399876081963383
+    },
+    {
+      "keys": 257,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.000570075926769773,
+      "wide_oracle_relative_L2": 0.0005335035243709225,
+      "wide_baseline_relative_L2": 0.0004843687292944027
+    },
+    {
+      "keys": 2049,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.0015165486579828893,
+      "wide_oracle_relative_L2": 0.0011543921835936895,
+      "wide_baseline_relative_L2": 0.0013384378164586982
+    },
+    {
+      "keys": 2049,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.018426962095629235,
+      "wide_oracle_relative_L2": 0.021961595779108667,
+      "wide_baseline_relative_L2": 0.02186797210439943
+    },
+    {
+      "keys": 2049,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.0023790300150641603,
+      "wide_oracle_relative_L2": 0.0023901982618267864,
+      "wide_baseline_relative_L2": 0.0010981722640288228
+    },
+    {
+      "keys": 8193,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.0009130915412438231,
+      "wide_oracle_relative_L2": 0.0009707025963898317,
+      "wide_baseline_relative_L2": 0.0006501731383987175
+    },
+    {
+      "keys": 8193,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.029124809904548635,
+      "wide_oracle_relative_L2": 0.022197157304703324,
+      "wide_baseline_relative_L2": 0.030369892096603516
+    },
+    {
+      "keys": 8193,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.014143678179961601,
+      "wide_oracle_relative_L2": 0.006419716162688441,
+      "wide_baseline_relative_L2": 0.01820937651131511
+    },
+    {
+      "keys": 80001,
+      "score_sigma": 0.25,
+      "baseline_oracle_relative_L2": 0.001065676692082673,
+      "wide_oracle_relative_L2": 0.0011835725458674091,
+      "wide_baseline_relative_L2": 0.00026816016635339876
+    },
+    {
+      "keys": 80001,
+      "score_sigma": 1.0,
+      "baseline_oracle_relative_L2": 0.021145624230715056,
+      "wide_oracle_relative_L2": 0.01688398195112759,
+      "wide_baseline_relative_L2": 0.02829330867187944
+    },
+    {
+      "keys": 80001,
+      "score_sigma": 8.0,
+      "baseline_oracle_relative_L2": 0.004229767671115846,
+      "wide_oracle_relative_L2": 0.0042279762097294105,
+      "wide_baseline_relative_L2": 0.0013291086087658518
+    }
+  ],
+  "GPU_jobs": 0,
+  "GPU_correctness_verified": false,
+  "probability_rounding": "Positive finite E4M3 nearest-even, retained scale256",
+  "limitations": [
+    "No CUDA MMA/exp2/rounding-order emulation or official input distribution claim",
+    "The ring model checks finite sequential ownership, not real barrier memory ordering or deadlock freedom",
+    "Full cache writes, norms, gate and BF16 outputs still require the official GPU suite"
+  ]
+}

@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "FP32-cachef200e6e0 check94ce080b1fb148a3 passed H200 resource/synthetic gates but paired32/128/256 gains are only0.27%/0.03%/0.12%, below frozen materiality. selected_main=false; official full5/6/integrity2.329737405x times retained paths. Reverted419962d, archived20261029-100754; no score/Decode transfer/noise retry. Close fixed cache design. All44 protected hashes restored; no job/controller active. DerivedMoE12/total90checks and50scores; next check>=10:59:18.187359UTC,20Toronto window. Seek a distinct source/profile-backed complete-Decode opportunity; generic full-context adaptive-length balancing already exists (results/attention-flat-partition-audit-20261029/). Goal remains active.",
+  "next_trial": "CPU draft Attention7ef8ab72/CUDA20aeed18 widens L1-flat tiles to128keys with2stages.450ownership/bounds and42finite numerical proxies recorded; no GPU accuracy or speedup inferred. Offline128base regs, zero stack/spill fields, dynamic shared-size84992bytes. Disabled draft and unchanged L8/nonflat instruction/control-flow bodies equal retained after local-symbol normalization. Packet results/attention-l1-wide-tile-preflight-20261029/. Next: native resource/path admission, fixed guards, fresh official identity, then one focused paced check if complete; preserve D9 FP16 PV on any later transfer. Direct PDL wait-placement forms closed locally: wait precedes all weight loads despite memory-clobber correction; no GPU spent. No candidate installed or controller started this turn. All incumbents unchanged; broad top50 goal active.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",

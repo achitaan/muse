@@ -1,3 +1,24 @@
+> CURRENT CPU DRAFT, October29: Attention L1-flat128-key/two-stage source7ef8ab72,
+> CUDA20aeed18, prepared with eight reversible edits; no candidate installed or
+> GPU job. Native BF16 boundary guard passes. All450ownership/bounds cases and
+> 42finite mathematical proxies recorded; proxies do not establish GPU accuracy.
+> Offline baseline/wide/off builds have no stack/spill fields; new flat L1 keeps
+> 128base registers, compiler dynamic shared-size probe84992 vs67584baseline.
+> Disabled draft's three instruction/control-flow bodies equal the retained
+> source after local-symbol normalization; L8-flat and L1-nonflat remain equal
+> with the draft enabled. Full packet results/attention-l1-wide-tile-preflight-20261029/;
+> review experiments/prepared/attention_l1_wide_tile_review.md. Next: final native
+> resource/path admission, fixed result guards and fresh evaluator identity,
+> then one focused paced check if the packet is complete. No speedup inferred.
+> Decode transfer must keep D9's original FP16 PV, not import tied FP8 PV.
+>
+> PDL CPU SCREEN CLOSED, October29: two direct Attention-to-O wait placements
+> emit the dependency wait before every global weight load in all O1/O8/O16
+> selected/fallback kernels. An added weight-load memory clobber does not fix
+> the intended prefetch ordering. No GPU check spent; no active source changed.
+> Evidence results/decoder-projection-pdl-preflight-20261029/. A different PDL
+> design needs a distinct compiler-verified mechanism. Broad top50 goal active.
+>
 > CPU FOLLOW-UP, October29: source-bound Attention-to-O projection PDL screen
 > saved in experiments/prepared/decoder_projection_pdl_review.md and
 > results/decoder-projection-pdl-audit-20261029/. Existing Attention already
