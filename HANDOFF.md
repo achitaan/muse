@@ -1,3 +1,20 @@
+> CPU FOLLOW-UP, October29: disjoint MoE split-unit fixup draft26575142 is
+> parked without a GPU check.1638ownership cases; extra20MiB/private state,
+> unchanged matrix geometry/packed weights/epilogues/counters/readiness.
+> Endpoint precomputation lowers offline stack/store/load-spill fields to
+> 24/100/204 vs baseline16/56/124, both BIG96regs; no C751x. Compiler size
+> probe remains231168dynamic bytes despite16B appended metadata. Actual H200
+> resource/performance/numerical evidence is absent, so no ticket is justified.
+> Review experiments/prepared/moe_private_fixup_review.md and packets
+> results/moe-private-fixup-preflight-20261029/, model latestv4. Separate scratch
+> is mandatory; the old atomic path cannot consume private-buffer leftovers.
+> Generic A/B slice overlap already exists; whole-unit alignment was rejected.
+> No runtime source changed or new job/controller started. Next inspect the
+> exact Decode post-attention native norm/residual contract and O1/O8/O16
+> resource/ownership constraints before proposing any fused finalization.
+> Preserve the prior marginal serial-finalizer rejection; no launch-only gain
+> or residency assumed. Broad top50 goal active; pacing89checks/50scores intact.
+>
 > LATEST TERMINAL RESULT, October29 at11:28UTC: Attentionf5d5b04b check
 > fa78c34851144383 passed16tests/12benchmarks/integrity and resource/path gates.
 > Actual H200128regs/zero local/static/two blocks/84992dynamic/128keys/2stages.

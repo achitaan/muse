@@ -1,0 +1,57 @@
+{
+  "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "baseline_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "CUDA_sha256": "13aa78235c1c26924c3753d31a61f05a3f55adcbadf01e4d0975fccc37187f39",
+  "inverse_exact": true,
+  "edits": [
+    {
+      "offset": 81109,
+      "old": "// per-stage cost by n-tiles (1..8), phase A and phase B",
+      "new": "// Private endpoint values: leading shares reuse the old value area;\n// trailing shares use an extra bank after all original values/counters/doneAs.\nconstexpr size_t WGS_PRIVATE_EXTRA = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW;\n__device__ __forceinline__ float* wgs_private(const Params& p, int pb, int c, bool trailing, int wg, int wt) {\n  float* root = trailing ? p.ybuf + (size_t)EMAX * HD + WGS_FIXF +\n                          (size_t)pb * WGS_SLOTS * 4 * WGS_FIXW : wgs_fix(p, pb);\n  return root + (size_t)(c * 4 + wg) * WGS_FIXW + wt * 4;\n}\n__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n// per-stage cost by n-tiles (1..8), phase A and phase B"
+    },
+    {
+      "offset": 105044,
+      "old": "  if (wt == 0) { while (ld_acquire(fc) < 16 - pd.nst) __nanosleep(32); }",
+      "new": "  if (wt == 0) {\n    while (ld_acquire(fc) < 16 - pd.nst) __nanosleep(32);\n    // Reuse this WG's scratch only after the original completion wait.\n    S.wglast[wg] = pd.slot | (wgs_cta_of(S, PB, pd.u * 16 + 15, gridDim.x) << 8);\n  }"
+    },
+    {
+      "offset": 105512,
+      "old": "    S.wglast[wg] = old + pd.nst == 16;",
+      "new": "    S.wglast[wg] = old + pd.nst == 16 ?\n        pd.slot | (wgs_cta_of(S, PB, pd.u * 16 + 15, gridDim.x) << 8) : 0;"
+    },
+    {
+      "offset": 105822,
+      "old": "  float* fb = wgs_fix(p, PB) + (size_t)(pd.slot * 4 + wg) * WGS_FIXW + wt * 4;\n  const int ntt = (S.jC[j] + 7) >> 3, r16 = ub * 16 + wg * 4 + wp;\n  // two n-tiles' loads in flight before their zeroing stores and epilogues (the scout): one at a time, each load\n  // waits behind the previous tile's stores (they may alias), ntt serialized L2 round trips under full HBM load\n  for (int nt0 = 0; nt0 < ntt; nt0 += 2) {\n    float4 v[2];\n#pragma unroll\n    for (int k = 0; k < 2; ++k)\n      if (nt0 + k < ntt) v[k] = __ldcg(reinterpret_cast<const float4*>(fb + (nt0 + k) * 512));\n#pragma unroll\n    for (int k = 0; k < 2; ++k)\n      if (nt0 + k < ntt) {\n        *reinterpret_cast<float4*>(fb + (nt0 + k) * 512) = make_float4(0.f, 0.f, 0.f, 0.f);\n        const float d4[4] = {v[k].x, v[k].y, v[k].z, v[k].w};\n        wgs_epi_tile<PB>(p, S, j, r16, nt0 + k, d4);\n      }\n  }\n",
+      "new": "  const int endpoints = S.wglast[wg];\n  const int first = endpoints & 255, last = endpoints >> 8;\n  const int ntt = (S.jC[j] + 7) >> 3, r16 = ub * 16 + wg * 4 + wp;\n  for (int nt0 = 0; nt0 < ntt; nt0 += 2) {\n    float4 v[2] = {make_float4(0.f,0.f,0.f,0.f),make_float4(0.f,0.f,0.f,0.f)};\n#pragma unroll 1\n    for (int c = first; c <= last; ++c) {\n      const float* part = wgs_private(p, PB, c, c == first, wg, wt);\n      float4 q[2];\n#pragma unroll\n      for (int k = 0; k < 2; ++k)\n        if (nt0 + k < ntt) q[k] = __ldcg(reinterpret_cast<const float4*>(part + (nt0+k)*512));\n#pragma unroll\n      for (int k = 0; k < 2; ++k)\n        if (nt0 + k < ntt) {\n          v[k].x += q[k].x; v[k].y += q[k].y;\n          v[k].z += q[k].z; v[k].w += q[k].w;\n        }\n    }\n#pragma unroll\n    for (int k = 0; k < 2; ++k)\n      if (nt0 + k < ntt) {\n        const float d4[4] = {v[k].x,v[k].y,v[k].z,v[k].w};\n        wgs_epi_tile<PB>(p, S, j, r16, nt0+k, d4);\n      }\n  }\n"
+    },
+    {
+      "offset": 112063,
+      "old": "    float* fb = wgs_fix(p, PB) + (size_t)(slot * 4 + wg) * WGS_FIXW + wt * 4;\n#pragma unroll\n    for (int nt = 0; nt < NTT; ++nt)\n      asm volatile(\"red.global.add.v4.f32 [%0], {%1, %2, %3, %4};\\n\" ::\"l\"(fb + nt * 512), \"f\"(d[nt][0]), \"f\"(d[nt][1]),\n                   \"f\"(d[nt][2]), \"f\"(d[nt][3]) : \"memory\");\n",
+      "new": "    float* fb = wgs_private(p, PB, blockIdx.x, s0 == 0, wg, wt);\n#pragma unroll\n    for (int nt = 0; nt < NTT; ++nt)\n      asm volatile(\"st.global.v4.f32 [%0], {%1, %2, %3, %4};\\n\" ::\"l\"(fb + nt * 512),\n                   \"f\"(d[nt][0]), \"f\"(d[nt][1]), \"f\"(d[nt][2]), \"f\"(d[nt][3]) : \"memory\");\n"
+    },
+    {
+      "offset": 137889,
+      "old": "(size_t)okc::EMAX + (size_t)okc::EMAX * okc::HD + okc::WGS_FIXF,",
+      "new": "(size_t)okc::EMAX + (size_t)okc::EMAX * okc::HD + okc::WGS_FIXF + okc::WGS_PRIVATE_EXTRA,"
+    },
+    {
+      "offset": 137993,
+      "old": "\"OKC_WGS needs the stream-K fixup area after ybuf (scratch[1])\"",
+      "new": "\"Private WGS needs both endpoint value banks after ybuf (scratch[1])\""
+    },
+    {
+      "offset": 0,
+      "kind": "symbol",
+      "old": "moe_fused",
+      "new": "moe_fused_privatefix"
+    }
+  ],
+  "extra_scratch_bytes": 20971520,
+  "shared_layout_unchanged": true,
+  "geometry_and_weight_formats_unchanged": true,
+  "FP32_reduction_order_changed": true,
+  "original_publication_counter_and_doneAs_protocol_retained": true,
+  "requires_separate_scratch_from_incumbent": true,
+  "GPU_jobs": 0,
+  "restrictions": "Compile and use for EP8 PRMT MAIN only; keep all original fallbacks."
+}

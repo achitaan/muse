@@ -1,3 +1,30 @@
+# October29: disjoint split-unit fixup CPU study parked
+
+Current native CUDA draft26575142 replaces split-unit FP32 atomic payloads with
+two private endpoint slots per CTA/phase and fixed FP32 contributor reduction.
+It preserves matrix geometry, packed weights, epilogues, phase readiness and
+original counter/doneAs addresses. It needs20MiB extra scratch and separate
+incumbent/candidate scratch; sharing that state across algorithms is unsafe.
+No complete Python candidate wrapper, GPU check or runtime claim exists.
+
+1638CPU ownership cases cover exact stages, private-slot uniqueness, replay
+freshness, chunk384+1 and precomputed endpoint lookups. Four bounded compiler
+forms reduce stack/store-spill/load-spill fields from184/768/1216 to24/100/204,
+still above retained16/56/124; both BIG variants keep96base registers. No C751x
+warning; compiler layout probes give unchanged231168dynamic bytes after the
+16-byte metadata append/alignment. These are offline fields, not actual H200
+LocalSizeBytes or measured latency. No exposed fixup timing justifies the risk.
+Park without a check; no register/commit/geometry sweep to force admission.
+
+Review experiments/prepared/moe_private_fixup_review.md; native inverse edits,
+all compiler inputs/logs/disassembly at results/moe-private-fixup-preflight-20261029/;
+latest ownership model results/moe-private-fixup-model-20261029/v4/.
+Uniform-routing/full-shard-traffic assumptions are invalid for the skewed
+busiest-shard generator. Packed nibbles are uniform, so sparsity compression
+is not supported by that generator. Slice-ready A/B overlap already exists;
+unconditional whole-unit alignment also has negative saved CPU evidence.
+All bests and89checks/50scores remain unchanged; current policy is authoritative.
+
 # October29: original-FP32 finalizer cache fails materiality gate
 
 Accepted job94ce080b1fb148a3/sourcef200e6e0/nativeCUDA403bd123 passed H200

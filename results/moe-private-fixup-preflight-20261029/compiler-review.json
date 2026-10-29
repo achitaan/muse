@@ -1,0 +1,123 @@
+{
+  "GPU_jobs": 0,
+  "GPU_kernels_loaded": false,
+  "candidate_installed": false,
+  "revisions": {
+    "baseline": {
+      "resources": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_store_bytes": 56,
+          "spill_load_bytes": 124
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_store_bytes": 56,
+          "spill_load_bytes": 124
+        }
+      ],
+      "cubin_sha256": "153629422f369f01ea6627187d52e52ea75fdb69f53cfc0e25410332568b5ac5",
+      "serialization_warnings": []
+    },
+    "v1": {
+      "resources": [
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 184,
+          "spill_store_bytes": 768,
+          "spill_load_bytes": 1216
+        },
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 184,
+          "spill_store_bytes": 768,
+          "spill_load_bytes": 1216
+        }
+      ],
+      "cubin_sha256": "a5dba3cf467c289b746e724127f1db8c33069f478d7eff97d16655f3ddf5743f",
+      "serialization_warnings": []
+    },
+    "v2": {
+      "resources": [
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 88,
+          "spill_store_bytes": 612,
+          "spill_load_bytes": 992
+        },
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 88,
+          "spill_store_bytes": 612,
+          "spill_load_bytes": 992
+        }
+      ],
+      "cubin_sha256": "b3d41996d6bdeeeebe815ffbff907add1982df746eafe9678f02d21623c548c1",
+      "serialization_warnings": []
+    },
+    "v3": {
+      "resources": [
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 32,
+          "spill_store_bytes": 136,
+          "spill_load_bytes": 304
+        },
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 32,
+          "spill_store_bytes": 136,
+          "spill_load_bytes": 304
+        }
+      ],
+      "cubin_sha256": "08068f45a855a172601cb6f46dcd58e4b629e513548a37104a5b1850a24a8988",
+      "serialization_warnings": []
+    },
+    "v4": {
+      "resources": [
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 24,
+          "spill_store_bytes": 100,
+          "spill_load_bytes": 204
+        },
+        {
+          "symbol": "_ZN3okc20moe_fused_privatefixILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 24,
+          "spill_store_bytes": 100,
+          "spill_load_bytes": 204
+        }
+      ],
+      "cubin_sha256": "eb029911277574834a061dea17c2e1bffd731e5ce815977e7c854fb1cf3176aa",
+      "serialization_warnings": [],
+      "layout_probe_values": [
+        22248,
+        231168
+      ],
+      "raw_CUDA_sha256": "26575142c54068507cdd961c31ea391ca9ae80b7fd9c45c361cd8ae78f1b7db7",
+      "probe_only_adaptation": "\ntemplate<int N> __global__ void private_layout_probe() {}\n"
+    }
+  },
+  "decision": "Park without an H200 check: local-memory burden remains higher and exposed fixup benefit is unmeasured.",
+  "current_CUDA_sha256": "26575142c54068507cdd961c31ea391ca9ae80b7fd9c45c361cd8ae78f1b7db7",
+  "extra_private_scratch_bytes": 20971520,
+  "shared_dynamic_probe_bytes": 231168,
+  "requires_separate_incumbent_and_candidate_scratch": true,
+  "limitations": [
+    "Offline stack/spill fields are not actual H200 LocalSizeBytes, traffic or timing.",
+    "No numerical or replay correctness claim for the native draft.",
+    "Do not retune geometry, registers or commit-group flags merely to force admission."
+  ]
+}
