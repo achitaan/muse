@@ -1,0 +1,75 @@
+{
+  "files_sha256": {
+    "build.py": "801f6a8abec71330da2fdf7676e62aeac22c926873afcd40ed8e4105fdce4c91",
+    "model.py": "f6548c0ac2b0731c2ad3442d8430292fbd22b19f9865609c164ed60eaf805a4a",
+    "source-audit.json": "b9dfccb21fe163d9e3c2aa6ccac9c5f2da8cf6589c365273f29358451d06aa77",
+    "model-audit.json": "015bb35d4ca72cb6ce8990cbd1bd557278db8f532d347e596465c6da6aa1ea37",
+    "opportunity-screen.json": "9992e9c7f0e9eb5b36c41166be3648fefe47feb4d9c6ec51cece72053e681689",
+    "public-source-review.json": "87448a1594ec8ca82498f80fb16170780f7c569b04f1e41da0598bcee4a7480a",
+    "REVIEW.md": "f6a9d27d6e3bacc600967035d6f09a6df58b7a99674b28294545e79ea889ea15",
+    "full.cu": "c7af16bcab5fcd4cf69b8aaff5667b62a29c0c4a3501075d3feb48f12f6260ce",
+    "device.cu": "cbd938d138716c30f3173bab8a0fefc617fe8d56e6664332cddc9e891908b2e1",
+    "baseline.cu": "486089a9532735b160dc7cd72b849910f65a9a49d391f444bf39e5647306f274",
+    "vjeux-moe-upstream.py": "4950dd2ae07e4ca19399ddb7cc9ab7e3b77e4ac8e3174960ed1a1476e9701eda",
+    "vjeux-Apache-2.0.txt": "c95bae1d1ce0235ecccd3560b772ec1efb97f348a79f0fbe0a634f0c2ccefe2c",
+    "posttrain-provenance.json": "8bf6973232ac84893af80596a5a37a519fe4d709cedf13c577aaded073f56e3e",
+    "decoder-v18d.cu": "068764f4cedc93d7343c5ad6256030053388e117f77c86aa4d696ca7a9681e59",
+    "decoder-qbig.cu": "7dda73eddd128b855c9dee24f88609ee8793d8f83951fd27dfb304dcb722c0ea",
+    "baseline-tiny1.cu": "fb4d37e0272761f5549bcdfa4bb353fb7c664f87c0bdffbc082645e60ba463c5",
+    "baseline-tiny1.json": "4ab40fd7abfa03b15900207810486dcf9be84556c14986bbd73bc582c37ee21d",
+    "baseline-tiny1.log": "b0d3cd8928d378f0bea6c5953d5f9523e6e9e7df18a70ce0903e35fff20db99f",
+    "baseline-tiny1-complete.sass.gz": "83cfcd7d47a72550f7d624919741482ae12a04beb527e3a3b62aacf0f55f37bb",
+    "baseline-tiny1-resources.txt": "5b60b0d56ed8323399c2ba958c0e0a1fcb2c677345f09a4bba634f30620b92a2",
+    "candidate-tiny1.cu": "bcc172d1bb7f14c08c2943c1aa909d18927d81168dfb3bb1bad9fe293a5bbbfd",
+    "candidate-tiny1.json": "efb819eeb05c9171b290ba18f3bf7e921fdd3e9e0899d59b2df5f05895405047",
+    "candidate-tiny1.log": "da807bb7b32784f205bd7f4b9db1899fda7364505ce8a5b6712653ae6f0a7035",
+    "candidate-tiny1-complete.sass.gz": "51f5226466556f6515a99ff29eae234d054627323414d1a27ed05b381cb4caf9",
+    "candidate-tiny1-resources.txt": "32aa506582ccf18f631483c89545e8611b10f7fc8dff833ef7fd792ca0f6f70b",
+    "baseline-tiny2.cu": "fb4d37e0272761f5549bcdfa4bb353fb7c664f87c0bdffbc082645e60ba463c5",
+    "baseline-tiny2.json": "0b765a5449996f40299f5c0dc382efba815f78a41e3ac1430327d6c3b6f0723e",
+    "baseline-tiny2.log": "b0d3cd8928d378f0bea6c5953d5f9523e6e9e7df18a70ce0903e35fff20db99f",
+    "baseline-tiny2-complete.sass.gz": "2c480494ba50ac536e995347719ed8c0951be377217c0c5e7ad35d9e260be672",
+    "baseline-tiny2-resources.txt": "5b60b0d56ed8323399c2ba958c0e0a1fcb2c677345f09a4bba634f30620b92a2",
+    "candidate-tiny2.cu": "bcc172d1bb7f14c08c2943c1aa909d18927d81168dfb3bb1bad9fe293a5bbbfd",
+    "candidate-tiny2.json": "915c98e382ac473dea7fb2b754df1aa17cb5ebd19c5dbe3284395b74acbf56b5",
+    "candidate-tiny2.log": "da807bb7b32784f205bd7f4b9db1899fda7364505ce8a5b6712653ae6f0a7035",
+    "candidate-tiny2-complete.sass.gz": "71db795e6cfe832d5ba8b2788ed612370327c7fee9d04829c66794a4731756d8",
+    "candidate-tiny2-resources.txt": "32aa506582ccf18f631483c89545e8611b10f7fc8dff833ef7fd792ca0f6f70b"
+  },
+  "compiler": {
+    "baseline-tiny1": {
+      "cubin_sha256": "86af4727f3cea925cb3d4f5ba29b986f77b1b0ce189e27cdfdbaabc24b77cd35",
+      "SASS_sha256": "4a4dea44451f0892e6a0f9bef40d111efac804603248865caca0d51afefceacd",
+      "BIG_variants": 2,
+      "proxy_base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    },
+    "candidate-tiny1": {
+      "cubin_sha256": "1f1de745158e3080fa324cbd0c154dc8b9a7cba2360da92720c91115837288b4",
+      "SASS_sha256": "136e4e90463a2b0a8317cc5cc80b138fe2e6ac30d1587fc9fade9cf393105195",
+      "BIG_variants": 2,
+      "proxy_base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    },
+    "baseline-tiny2": {
+      "cubin_sha256": "50a982f487eb7a4481a443860be1aea1964655a3ae3d6a4288e41264f35a4717",
+      "SASS_sha256": "f41d461208c692ffc45533554f6889e0ef6f1d7b6b35fe1a572c1dd51c248c5d",
+      "BIG_variants": 2,
+      "proxy_base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    },
+    "candidate-tiny2": {
+      "cubin_sha256": "12882bbf4bc5896cf7b771b2c4d4ce21273fec2a6903634192b1f09bb35077c1",
+      "SASS_sha256": "ce48b8714b538c35b17311ff50293bcefdbf0713e8c98d484c9c4d6246ce3668",
+      "BIG_variants": 2,
+      "proxy_base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    }
+  },
+  "GPU_jobs": 0,
+  "kernel_execution": false,
+  "challenge_submission_built": false,
+  "decision": "Park pending credible routing critical-path benefit; retain verified source and conserve GPU quota",
+  "full_CUDA_sha256": "c7af16bcab5fcd4cf69b8aaff5667b62a29c0c4a3501075d3feb48f12f6260ce",
+  "retained_Decode_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988"
+}

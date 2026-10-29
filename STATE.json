@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "FP32 finalizer cachef200e6e0/nativeCUDA403bd123 is frozen and CPU-audited. Keeps original FP32 expert-output products through norm/weighted sum, no scratch/layout/precision change. Both BIG proxy variants remove16vector loads each with unchanged96base registers/16stack/spill/matrix-wait counts.72CPUfixtures/3mutants,1608dispatch and12guard mutants pass; six fresh official files exact. Review experiments/prepared/moe_fp32_final_cache_review.md. One bounded check no earlier09:53:13.031328UTC, reserve/window apply. No GPU result or speedup yet; follow any existing local controller/upload handle instead of restarting. All verified sources remain exact; no score or Decode transfer absent material full new-path gain.",
+  "next_trial": "FP32-cachef200e6e0 upload failed TLS before job response. Reconciliation proves official job IDs/quota unchanged13MoE checks/10scores, no accepted run. Controller revertede44416a/archived20261029-095615; original intent preserved. Packet results/moe-fp32-cache-upload-error-20261029/. One exact-source transport retry is ready under existing policy; no source/guard changes. Follow any recorded new handle, never restart an uncertain accepted upload. Separate tiny-route study10611CPUcases is parked without GPU ticket (results/moe-small-route-screen-20261029/). Goal remains active; no score/Decode transfer.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",
@@ -3229,5 +3229,34 @@
       3
     ],
     "earliest_check_utc": "2026-10-29T09:53:13.031328Z"
+  },
+  "moe_fp32_cache_transport_error": {
+    "packet": "results/moe-fp32-cache-upload-error-20261029/",
+    "source_sha256": "f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656",
+    "error": "TLS bad record MAC before job response",
+    "new_job_created": false,
+    "job_ids_and_quotas_before_after_exact": true,
+    "MoE_checks_left": 13,
+    "scores_left": 10,
+    "revert": "e44416a5bdcac2933f3dfc4a77f4dc5a2dd7ba16",
+    "controller_archive": "20261029-095615",
+    "bounded_transport_retry_ready": true,
+    "source_and_scientific_gates_changed": false
+  },
+  "moe_small_route_CPU_screen": {
+    "packet": "results/moe-small-route-screen-20261029/",
+    "models": 10611,
+    "mutants_rejected": 3,
+    "compiled_selected_families": [
+      "TINY",
+      "TINY2"
+    ],
+    "proxy_registers_each": 146,
+    "proxy_stack_and_spill_bytes": 0,
+    "decision": "park_no_GPU_check",
+    "source_changed_in_active_trial": false,
+    "GPU_jobs": 0,
+    "equal_absolute_saving_for_1_5percent_track_ns": 1548.3535291304433,
+    "exposed_routing_latency_measurement": false
   }
 }

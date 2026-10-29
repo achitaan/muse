@@ -1,0 +1,14 @@
+{
+  "full_CUDA_sha256": "c7af16bcab5fcd4cf69b8aaff5667b62a29c0c4a3501075d3feb48f12f6260ce",
+  "inserted_helper_is_only_device_edit_except_namespace": true,
+  "original_job_prefix_and_fat_queue_text_reused_except_unused_warp_offsets": true,
+  "original_route_retained_as_fallback": true,
+  "eligibility": "TINY, FAST1, !SPLIT, !WGS and M<=8",
+  "no_weight_or_matmul_or_epilogue_or_finalizer_change": true,
+  "CTA_routing_barriers_old": 4,
+  "CTA_routing_barriers_new": 1,
+  "route_entry_order": "expert ascending, then original entry index ascending",
+  "GPU_jobs": 0,
+  "kernel_execution": false,
+  "submission_built": false
+}

@@ -1,3 +1,15 @@
+> TRANSPORT RECONCILIATION, October29 at09:55UTC: f200e6e0 upload failed TLS
+> bad-record-MAC before a job handle. Official job IDs and MoE quotas are exact
+> before/after (13checks/10scores), proving no accepted run. Controller reverted
+> e44416a and archived20261029-095615. Original intent/logs preserved in
+> results/moe-fp32-cache-upload-error-20261029/. One identical-payload transport
+> retry is the next action; no source or scientific gate changes, no extra GPU
+> use so far. Follow a new recorded handle if the retry accepts; never duplicate.
+> CPU-only tiny routing and public-source/Decode-head ownership screen is parked:
+> results/moe-small-route-screen-20261029/.10611models pass; both selected tiny
+> compiler variants retain146regs/zero stack/spills, but text grows and two-load
+> dilution lacks an exposed-time benefit. No GPU ticket for that separate study.
+>
 > PREPARED NEXT CANDIDATE, October29: FP32 finalizer cachef200e6e0, CUDA403bd123.
 > Keeps original phase-B FP32 values in registers through norm/weighted sum;
 > no factor-y reconstruction, extra scratch layout or numerical change. Both

@@ -1,3 +1,23 @@
+# October29: FP32-cache transport failure, separate routing study parked
+
+FP32 finalizer-cachef200e6e0 remains GPU-unmeasured: its09:53 upload failed
+with TLS bad-record-MAC before a job response. Before/after official job IDs
+and quotas match exactly (13checks/10scores), so no check was accepted.
+The failed intent and controller history are preserved in
+results/moe-fp32-cache-upload-error-20261029/. Controller revertede44416a,
+archived20261029-095615. One identical-payload transport retry follows the
+existing policy; all source/resource/numerical/performance gates stay fixed.
+
+During that local pacing wait, a separate one-warp tiny-routing study passed
+10611CPU stable-sort/ownership cases and rejected3broken models. Both selected
+TINY/TINY2 compiler proxies keep146registers and zero stack/spill fields, but
+TINY1 function text grows85248->105728bytes. Only M1/M8 would change; a1.5%
+track target would require1.548us equal saving on both cached loads. There is
+no admissible routing critical-path evidence for that gain. Park without a
+GPU check. Public sources yielded no new MoE mechanism; their older epilogues
+must not replace the retained BF16 boundaries. Full source/model/compiler and
+Decode head-ownership notes: results/moe-small-route-screen-20261029/REVIEW.md.
+
 # October29: paired cluster activation multicast rejected
 
 Job6627d54067774130 evaluated exact sourceb7043df7/nativeCUDA2701a25e.

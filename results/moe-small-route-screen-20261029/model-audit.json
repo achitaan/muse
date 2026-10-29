@@ -1,0 +1,21 @@
+{
+  "cases_checked": 10611,
+  "oracle": "Independent stable expert/index sort",
+  "metadata_identical_to_parent": true,
+  "entry_coverage_and_unique_writers": true,
+  "duplicates_nonlocal_empty_and_two_slice_boundaries": true,
+  "rejected_mutants": [
+    "invalid_as_local",
+    "late_first_snapshot",
+    "missing_first_slice_offset"
+  ],
+  "fixture_sha256": "22b1741d3e10c12e499e118cfc026ffdd99ad5783e6e497eefb9503453bd4c40",
+  "source_snapshot_barrier_present": true,
+  "kernel_execution": false,
+  "GPU_jobs": 0,
+  "limitations": [
+    "CPU algorithm model, not generated CUDA correctness",
+    "Not a PTX memory-order or complete-kernel proof",
+    "No routing critical-path fraction or performance measurement"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "source_sha256": "f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656",
+  "transport_error": "TLS bad record MAC before job response",
+  "new_job_created": false,
+  "job_ids_before_after_identical": true,
+  "quota_before_after_identical": true,
+  "MoE_checks_left": 13,
+  "scored_runs_used": 0,
+  "no_kernel_result": true,
+  "source_changed": false,
+  "bounded_next_action": "One exact-payload transport retry after preserving this packet; source/resource/performance gates unchanged",
+  "controller_revert": "e44416a5bdcac2933f3dfc4a77f4dc5a2dd7ba16"
+}

@@ -1,0 +1,42 @@
+{
+  "baseline_source": "33114871",
+  "CPU_model": "model-audit.json",
+  "compiler": {
+    "baseline": {
+      "cubin_sha256": "86af4727f3cea925cb3d4f5ba29b986f77b1b0ce189e27cdfdbaabc24b77cd35",
+      "function_text_bytes": {
+        ".text._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 85248,
+        ".text._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 85248
+      },
+      "base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    },
+    "candidate": {
+      "cubin_sha256": "1f1de745158e3080fa324cbd0c154dc8b9a7cba2360da92720c91115837288b4",
+      "function_text_bytes": {
+        ".text._ZN15okc_route_small9moe_fusedILb1EEEvNS_6ParamsE": 105728,
+        ".text._ZN15okc_route_small9moe_fusedILb0EEEvNS_6ParamsE": 105728
+      },
+      "base_registers_each": 146,
+      "stack_and_spill_bytes_each": 0
+    }
+  },
+  "old_load_ns": {
+    "M1": 24851.390780307836,
+    "M8": 62707.42382719171
+  },
+  "old_load_job": "d600231c8a8244cb",
+  "track_only_conditional_screen": {
+    "target_track_ratio": 1.015,
+    "only_affected_loads": [
+      1,
+      8
+    ],
+    "equal_absolute_saving_required_ns_per_affected_load": 1548.3535291304433,
+    "equal_fractional_latency_saving_required": 0.04368300625897492,
+    "gain_if_500ns_saved_from_each": 1.0047328731767153
+  },
+  "decision": "Park without GPU check: route critical-path savings unmeasured, two-load dilution and increased code footprint. Keep separate from frozen FP32-cache trial.",
+  "not_a_speedup_prediction": true,
+  "GPU_jobs": 0
+}

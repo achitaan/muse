@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_moe_fp32_final_cache.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.156,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"speedup\": 2.365437416088433, \"correct\": true, \"job\": \"d600231c8a8244cb\", \"source_sha256\": \"331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50\", \"error\": null}\r\n",
+  "timed_out": false
+}

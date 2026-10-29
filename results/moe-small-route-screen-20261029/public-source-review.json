@@ -1,0 +1,30 @@
+{
+  "lee101_latest_observed_head": "c565e373d34575c5f7df862b05f8be7619078b0f",
+  "lee101_head_date": "2026-10-28T08:32:38Z",
+  "lee101_head_is_already_pinned": true,
+  "lee101_API": "https://api.github.com/repos/lee101/openkernels/commits?per_page=3",
+  "vjeux_source": "https://github.com/vjeux/okc-2026/blob/f35a41ee1c13e316dabbf772830d47b23b453393/muse_moe_w4a16.py",
+  "vjeux_license": "Apache-2.0",
+  "snapshot_has_one_extra_final_LF_from_text_transport": true,
+  "snapshot_sha256": "4950dd2ae07e4ca19399ddb7cc9ab7e3b77e4ac8e3174960ed1a1476e9701eda",
+  "same_core_functions": {
+    "route": {
+      "same_text": true,
+      "retained_function_sha256": "006f0cbfb3e5070c5ba84580a7582c5a1b5499074e765ee6f5d8813988acd95e",
+      "public_function_sha256": "006f0cbfb3e5070c5ba84580a7582c5a1b5499074e765ee6f5d8813988acd95e"
+    },
+    "WGS_segment": {
+      "same_text": true,
+      "retained_function_sha256": "5abbb96f27e74aa96aba85faf0a9029ec42c95efaf861ca16df6bbc0a78c7b5f",
+      "public_function_sha256": "5abbb96f27e74aa96aba85faf0a9029ec42c95efaf861ca16df6bbc0a78c7b5f"
+    },
+    "WGS_phase": {
+      "same_text": true,
+      "retained_function_sha256": "501a8716c23856bc4b84295f87dfdd8fb4b1ca8a70ac0ac0b4d97b99b7ec7200",
+      "public_function_sha256": "501a8716c23856bc4b84295f87dfdd8fb4b1ca8a70ac0ac0b4d97b99b7ec7200"
+    }
+  },
+  "decision": "No new MoE mechanism found in these sources. Public epilogues omit retained Marlin BF16 boundaries/effective gain rounding; do not replace verified source.",
+  "code_imported_into_candidate": false,
+  "GPU_jobs": 0
+}
