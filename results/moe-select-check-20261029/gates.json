@@ -1,0 +1,18 @@
+{
+  "experiment": "M1 MoE build selector by token count (prepare-time, incumbent unless beaten)",
+  "lane": "omos/other-tracks-20261029",
+  "frozen_before_launch_utc": "2026-10-29T20:40:00Z",
+  "parent": {"path": "best/moe_verified.py", "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50", "checked_job": "d600231c8a8244cb", "checked_speedup": 2.365437416088433, "scored_job": "b6c70c9b83724d2e", "scored_speedup": 2.348299935218348},
+  "parent_profile": "results/resumed-moe-phase4-20261028/331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50/profiles/submission.d600231c8a8244cb.json",
+  "candidate": "candidates/moe_select.py",
+  "candidate_sha256": "95d82f5b552e6266a6f8a7826db59a9533b1b19c0fc5133c1ccde21df0860e4d",
+  "change": "for M in {1,8,16,32}: time valid compiled builds (TINY/TINY2 <= 8 tokens, MID <= 48, MAIN) as cold-L2 graph replays over three routing draws shaped like the task inputs; use another build for that M only if >=3% faster in total and its output rel-L2 vs the incumbent < 1e-2. No new build, weight, scratch or arithmetic change.",
+  "affected_rule": "affected = loads whose M is MOE_SELECTed in the run log; controls = the other loads",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 6 benchmarks pass",
+    "new_path": "log shows MOE_CANDIDATE timings; with no MOE_SELECT the run is measurement only",
+    "affected_gm_normalized_min": 1.02,
+    "track_speedup_min": 2.3891
+  }
+}
