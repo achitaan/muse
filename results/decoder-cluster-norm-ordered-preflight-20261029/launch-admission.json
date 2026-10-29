@@ -1,0 +1,6 @@
+{
+  "source_sha256": "5acf30a5af1f8a868c8f5fb1edd6073b8f5f7e8bfe0f2faaa4749fb29e56c09b",
+  "GPU_admitted": false,
+  "reason": "The scalar-reference reduction-order repair does not establish agreement with the retained tiny-token Triton FFN reduction. Resolve that separate path or narrow the candidate before spending another check. No blind retry; numerical limits remain unchanged.",
+  "GPU_jobs": 0
+}

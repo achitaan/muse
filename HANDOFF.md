@@ -1,3 +1,14 @@
+> LATEST PREPARATION, October29: ordered Decode boundary repair5acf30a5
+> (native49bf73e6) passes offline56regs/zero-spill compile,60finite scalar
+> arithmetic cases,256DSM schedules and27guard mutants. No GPU job or new
+> retained gain. Driver admission is explicitly false: the tiny-token FFN
+> uses a separate Triton reduction, so the scalar-order diagnosis does not
+> establish agreement there. Resolve that path or narrow scope before a
+> retry; do not relax tolerances. All6fresh official files match pinned.
+> Packet/review: results/decoder-cluster-norm-ordered-preflight-20261029/.
+> Existing44protected hashes and all incumbents remain unchanged. Broad
+> top50goal active; nine checks in the audited11hours yielded zero wins.
+>
 > LATEST TERMINAL RESULT, October29: Decodef382e1af check63acbd4d99324fea
 > passed all4native resource queries32regs/0local/72static/248clusters/132SMs,
 > then setup numerical gate failed on FP32 residual global5.4878e-5/worst-row

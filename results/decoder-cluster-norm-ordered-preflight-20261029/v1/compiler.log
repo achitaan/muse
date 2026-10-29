@@ -1,0 +1,21 @@
+ptxas info    : 6124 bytes gmem
+ptxas info    : Compiling entry function '_ZN24okc_cluster_norm_ordered8boundaryILi3EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN24okc_cluster_norm_ordered8boundaryILi3EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN24okc_cluster_norm_ordered8boundaryILi2EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN24okc_cluster_norm_ordered8boundaryILi2EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN24okc_cluster_norm_ordered8boundaryILi1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN24okc_cluster_norm_ordered8boundaryILi1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN24okc_cluster_norm_ordered8boundaryILi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN24okc_cluster_norm_ordered8boundaryILi0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms

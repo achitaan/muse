@@ -1,0 +1,19 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "CUDA_sha256": "49bf73e68a8713a431f11d03d6f2f20e361562d4a105140962f8b6a11f269634",
+  "repaired_failure_source": "f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf",
+  "repair": "Original256logical threads/vec8/fourpacks/eight-warp XOR tree distributed over four64thread CTAs",
+  "offline_register_counts": [
+    56,
+    56,
+    56,
+    56
+  ],
+  "zero_stack_and_spills": true,
+  "static_shared_bytes": 16,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "native_resource_and_performance_unverified": true,
+  "numerical_limits_unchanged": true,
+  "Python_submission_written": false
+}

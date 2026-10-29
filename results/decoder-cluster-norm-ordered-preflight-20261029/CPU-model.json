@@ -1,0 +1,375 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "native_CUDA_sha256": "49bf73e68a8713a431f11d03d6f2f20e361562d4a105140962f8b6a11f269634",
+  "full_row_ownership_columns": 8192,
+  "DSM_random_schedules": 256,
+  "hazards_detected": {
+    "reuse_stat_bank": true,
+    "omit_DSM_lifetime_join": true
+  },
+  "numerical_cases": [
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    }
+  ],
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "limits": "Finite source-order simulation. Does not reproduce hardware rsqrt, compiler FMA contraction, graph replay, native occupancy, performance, or the unavailable failing GPU input."
+}

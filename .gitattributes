@@ -13,3 +13,5 @@ experiments/prepared/decoder_cluster_norm.cu -text
 experiments/prepared/decoder_cluster_norm_host.cu -text
 experiments/prepared/decoder_cluster_norm_addon.py -text
 scripts/decoder_cluster_norm_evidence.py -text
+experiments/prepared/decoder_cluster_norm_ordered.cu -text
+scripts/decoder_cluster_norm_ordered_evidence.py -text

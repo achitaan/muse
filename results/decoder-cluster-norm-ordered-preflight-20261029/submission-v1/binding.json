@@ -1,0 +1,73 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "source_sha256": "5acf30a5af1f8a868c8f5fb1edd6073b8f5f7e8bfe0f2faaa4749fb29e56c09b",
+  "CUDA_sha256": "2a6336df622148216006121e1e60ff7d4e9b66c10938d28dcfae839406b96997",
+  "native_CUDA_sha256": "49bf73e68a8713a431f11d03d6f2f20e361562d4a105140962f8b6a11f269634",
+  "bytes": 907799,
+  "repaired_source_sha256": "f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf",
+  "retry_reason": "Pinned scalar source and finite CPU reproductions establish a different FP32 reduction order. Preserve its original256logical-thread order rather than relaxing the failed gate.",
+  "actual_failed_GPU_input_unavailable": true,
+  "numerical_and_paired_gate_AST_exact": true,
+  "numerical_probes": 36,
+  "changed_input_graph_replays": 8,
+  "host_edits": [
+    {
+      "old": "okc_cluster_norm::",
+      "new": "okc_cluster_norm_ordered::",
+      "count": 3
+    },
+    {
+      "old": "dim3(256,1,1)",
+      "new": "dim3(64,1,1)",
+      "count": 2
+    },
+    {
+      "old": "supported,4,256",
+      "new": "supported,4,64",
+      "count": 1
+    }
+  ],
+  "addon_edits": [
+    {
+      "old": "r[3]==72",
+      "new": "r[3]==16",
+      "count": 1
+    },
+    {
+      "old": "r[6:]==[1,4,256]",
+      "new": "r[6:]==[1,4,64]",
+      "count": 1
+    },
+    {
+      "old": "def _cn_paired(old,new,dev,seed):",
+      "new": "def _cn_compare(new,old,m,kind,fixture):\n    try:\n        return _cn_error(new(),old())\n    except RuntimeError as error:\n        print('CN_NUMERICAL_FAILURE '+_cn_json.dumps(dict(m=m,kind=kind,fixture=fixture,error=str(error))),flush=True)\n        raise RuntimeError(f'cluster norm comparison failed M={m},kind={kind},fixture={fixture}: {error}') from error\n\n\ndef _cn_paired(old,new,dev,seed):",
+      "count": 1
+    },
+    {
+      "old": "            errors=_cn_error(new(),old());probes+=1\n",
+      "new": "            errors=_cn_compare(new,old,m,kind,'normal');probes+=1\n            if m in (1,8,16,32):\n                saved_branch=b.clone();saved_residual=residual.clone()\n                b.copy_((saved_branch.float()*1e-4).bfloat16())\n                residual.copy_(saved_residual*1e-4)\n                _cn_compare(new,old,m,kind,'small_values');probes+=1\n                b.zero_();residual.copy_(saved_residual)\n                _cn_compare(new,old,m,kind,'zero_branch');probes+=1\n                b.copy_(saved_branch);residual.copy_(saved_residual)\n",
+      "count": 1
+    },
+    {
+      "old": "graph.replay();stream.synchronize();_cn_error(captured,old());replays+=1",
+      "new": "graph.replay();stream.synchronize();_cn_compare(lambda:captured,old,m,kind,'graph_replay_'+str(repeat));replays+=1",
+      "count": 1
+    }
+  ],
+  "exact_inverse_restores_prior_host_and_addon": true,
+  "packaged_parent_exact_prefix": true,
+  "original_projection_and_all_other_timed_kernels_unchanged": true,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "required_native": {
+    "registers_at_most": 64,
+    "local_bytes": 0,
+    "static_shared_bytes": 16,
+    "active_clusters_at_least": 32,
+    "SMs_at_least": 132,
+    "CTAs_per_cluster": 4,
+    "threads_per_CTA": 64
+  },
+  "readiness": "Requires independent source/model/compiler/host/guard admission and current evaluator identity before one paced check"
+}
