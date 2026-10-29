@@ -1,0 +1,30 @@
+{
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "new_CUDA_sha256": "d61835ddf6eea6b734017987f220b652b138bf11abe18b1ba85f779c2bb68c5d",
+  "edits": [
+    {
+      "old": "  auto stage = [&](auto first) {\n    constexpr bool FIRST = decltype(first)::value;\n    const int ws = seq % WGS_NS, xs = seq % WGS_NX;",
+      "new": "  static_assert(WGS_NS == 3 && WGS_NX == 3, \"six-state recurrence preserves the retained three-slot rings\");\n  int ring_cursor = seq % 6;\n  auto stage = [&](auto first) {\n    constexpr bool FIRST = decltype(first)::value;\n    const int ws = ring_cursor < 3 ? ring_cursor : ring_cursor - 3, xs = ws;\n    const uint32_t phase = (uint32_t)(ring_cursor >= 3);"
+    },
+    {
+      "old": "wgs_wait(S.bars + BW_F + ws, (uint32_t)(seq / WGS_NS) & 1u, 3000000 + seq);",
+      "new": "wgs_wait(S.bars + BW_F + ws, phase, 3000000 + seq);"
+    },
+    {
+      "old": "wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);",
+      "new": "wgs_wait(S.bars + BX_F + xs, phase, 4000000 + seq);"
+    },
+    {
+      "old": "    prev = xs;\n    ++seq;\n  };",
+      "new": "    prev = xs;\n    ring_cursor = ring_cursor == 5 ? 0 : ring_cursor + 1;\n  };"
+    },
+    {
+      "old": "  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});\n  wg_wait<0>();",
+      "new": "  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});\n  seq += s1 - s0;\n  wg_wait<0>();"
+    }
+  ],
+  "inverse_restores_source": true,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "scope": "Only six-state ring cursor, one loop body; tags remain original because OKC_DEBUG=0. No changes to WGMMA stages, arithmetic, waits, epilogues, geometry or flags."
+}

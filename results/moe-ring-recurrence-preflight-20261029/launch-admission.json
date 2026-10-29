@@ -1,0 +1,5 @@
+{
+  "GPU_admitted": false,
+  "GPU_jobs": 0,
+  "reason": "No credible material whole-load saving; no Python candidate"
+}

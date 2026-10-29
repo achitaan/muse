@@ -1,3 +1,12 @@
+> October 29 factual model handoff: see MODEL_HANDOFF.md and
+> MODEL_HANDOFF_PROMPT.md. The user requested a fresh perspective without
+> optimization suggestions. Earlier next-step/backlog notes below are history.
+> All five best sources remain unchanged. Fresh overall API rank 207/1597
+> at 18:55:57 UTC; quotas 83 private checks / 50 scores across five tracks.
+> No live GPU job; controller not_initialized. New Decode-tail draft 1ed5ba7b
+> and native 95abcfa8 are saved under results/decoder-moe-tail-preflight-20261029/.
+> CPU evidence only, no GPU job, no retained gain, launch admission false.
+>
 > LATEST TERMINAL RESULT, October29: Densee48cba9a checkf026c3b14a864be0.
 > Native QKV90regs/pooler124regs,0local/static,132SMs,legal dynamic shared
 > and39/66cluster capacity. All18FP64oracle cases pass, but scoredM128

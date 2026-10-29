@@ -31,3 +31,5 @@ site.html
 /.decoder-cluster-norm-measurements/
 /.decoder-cluster-norm-dual-order-measurements/
 /.dense-cluster-resource-measurements/
+
+/.decoder-moe-tail-measurements/

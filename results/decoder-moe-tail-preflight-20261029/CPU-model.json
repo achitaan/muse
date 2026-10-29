@@ -1,0 +1,216 @@
+{
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "native_CUDA_sha256": "95abcfa8857ca584e03c86a5ba1ac583a26b6abde4ff13b5c4fcafe5a2052091",
+  "bitwise_weight_values": 4194304,
+  "weight_representation": "BF16 retained, 8 MiB lossless layout",
+  "exactly_once_output_ownership": [
+    {
+      "rows": 1,
+      "output_writes": 1024,
+      "exactly_once": true
+    },
+    {
+      "rows": 2,
+      "output_writes": 2048,
+      "exactly_once": true
+    },
+    {
+      "rows": 3,
+      "output_writes": 3072,
+      "exactly_once": true
+    },
+    {
+      "rows": 4,
+      "output_writes": 4096,
+      "exactly_once": true
+    },
+    {
+      "rows": 5,
+      "output_writes": 5120,
+      "exactly_once": true
+    },
+    {
+      "rows": 6,
+      "output_writes": 6144,
+      "exactly_once": true
+    },
+    {
+      "rows": 7,
+      "output_writes": 7168,
+      "exactly_once": true
+    },
+    {
+      "rows": 8,
+      "output_writes": 8192,
+      "exactly_once": true
+    }
+  ],
+  "B_fragment_values": 128,
+  "replay_schedules": 2048,
+  "random_schedules": 256,
+  "mutants_rejected": [
+    "publish_before_store",
+    "omit_second_join",
+    "omit_ready_clear"
+  ],
+  "independent_boundary_cases": [
+    {
+      "rows": 1,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 1,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 1,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 1,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 1,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 2,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 2,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 2,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 2,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 2,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 3,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 3,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 3,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 3,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 3,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 4,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 4,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 4,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 4,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 4,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 7,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 7,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 7,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 7,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 7,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 8,
+      "fixture": "random",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 8,
+      "fixture": "zero_branch",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 8,
+      "fixture": "zero_stream",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 8,
+      "fixture": "outlier",
+      "boundary_CPU_bitwise_equal": true
+    },
+    {
+      "rows": 8,
+      "fixture": "small",
+      "boundary_CPU_bitwise_equal": true
+    }
+  ],
+  "analytic_impulse_GEMM_cases": 8,
+  "sequential_scratch_required": true,
+  "private_tail_scratch_required": true,
+  "unpooler_full_K": 4096,
+  "unpooler_output_N": 1024,
+  "norm_domain": 8192,
+  "limits": "Finite CPU models, no GPU execution or proof of hardware rsqrt, host ABI, residency or profitable timing"
+}

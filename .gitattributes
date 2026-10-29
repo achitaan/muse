@@ -18,3 +18,15 @@ scripts/decoder_cluster_norm_ordered_evidence.py -text
 experiments/prepared/decoder_cluster_norm_dual_order.cu -text
 scripts/decoder_cluster_norm_dual_order_evidence.py -text
 scripts/dense_cluster_resources_evidence.py -text
+
+# Exact source-bound Decode tail prototype.
+experiments/prepared/decoder_moe_tail.cuh -text
+experiments/prepared/decoder_moe_tail_host.cuh -text
+experiments/prepared/decoder_moe_tail_addon.py -text
+experiments/prepared/build_decoder_moe_tail.py -text
+experiments/prepared/model_decoder_moe_tail.py -text
+experiments/prepared/freeze_decoder_moe_tail.py -text
+scripts/decoder_moe_tail_evidence.py -text
+scripts/verify_decoder_moe_tail_evidence.py -text
+scripts/measure_decoder_moe_tail.py -text
+experiments/prepared/audit_decoder_moe_tail_admission.py -text

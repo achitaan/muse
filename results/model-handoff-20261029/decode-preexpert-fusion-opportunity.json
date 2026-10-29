@@ -1,0 +1,48 @@
+{
+  "parent_decode_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "profile_path": "results/decoder-segment-repair-20261028/profiles/submission.9560c915e85f4f50.json",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "loads": [
+    {
+      "load": "decode 1",
+      "weighted_old_us": 5369.92098520951,
+      "profile_stage_weighted_us": 124.0,
+      "optimistic_ratio": 1.0236374128298176
+    },
+    {
+      "load": "decode 16",
+      "weighted_old_us": 9879.91760512903,
+      "profile_stage_weighted_us": 117.79999999999998,
+      "optimistic_ratio": 1.0120670539697356
+    },
+    {
+      "load": "decode 32",
+      "weighted_old_us": 12265.746315272829,
+      "profile_stage_weighted_us": 114.8,
+      "optimistic_ratio": 1.0094478238172861
+    },
+    {
+      "load": "verify 1",
+      "weighted_old_us": 8019.801634704629,
+      "profile_stage_weighted_us": 105.4,
+      "optimistic_ratio": 1.0133174944695529
+    },
+    {
+      "load": "verify 16",
+      "weighted_old_us": 17669.131902660432,
+      "profile_stage_weighted_us": 130.20000000000002,
+      "optimistic_ratio": 1.0074234851199948
+    },
+    {
+      "load": "verify 32",
+      "weighted_old_us": 23195.332061447727,
+      "profile_stage_weighted_us": 159.60000000000002,
+      "optimistic_ratio": 1.0069283667466815
+    }
+  ],
+  "all_loads_zero_added_cost": 1.012121344087023,
+  "tiny_loads_zero_added_cost": 1.0061172965427485,
+  "decision": "Park the tiny shared-input norm fusion: low aggregate ceiling plus duplicated normalization traffic; no GPU candidate",
+  "limits": "Profile-sum based opportunity screen, not measured causal fraction or strict hardware bound"
+}

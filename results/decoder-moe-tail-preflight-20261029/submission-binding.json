@@ -1,0 +1,40 @@
+{
+  "parent_decode_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "source_sha256": "1ed5ba7b1c87ae0142bf0d52fba08e7938c1be9dcc5d3200d388fabee15c951f",
+  "source_bytes": 956861,
+  "CUDA_sha256": "95abcfa8857ca584e03c86a5ba1ac583a26b6abde4ff13b5c4fcafe5a2052091",
+  "CPP_sha256": "2f76354156450cec461d43f4d776fe419a308d009864eef93741747d01f8c27b",
+  "addon_template_sha256": "52f1e38323fc14ef2b9ed14355a4c9b0c432f0439c9f389dc6ad388cb4299efc",
+  "root_old": " expert_output = _experts(expert_input, topk_weights, local_ids, state)\n if tokens <= SLICED_UNPOOL_MAX_TOKENS:\n  unpooled = _achita_dense_project(expert_output, 'unpooler', state, UNPOOL_SLICE)\n  next_attn_input, stream = _sfn_boundary(stream, unpooled, state)\n else:\n  ffn_output = _achita_dense_project(expert_output, 'unpooler', state)\n  next_attn_input, stream, _ = state['ffn_boundary'](stream, ffn_output, branch_dtype=torch.bfloat16)\n",
+  "root_new": " if _dt_eligible(expert_input, stream, state):\n  next_attn_input, stream, _, _ = _dt_call(expert_input, topk_weights, local_ids, stream, state)\n else:\n  expert_output = _experts(expert_input, topk_weights, local_ids, state)\n  if tokens <= SLICED_UNPOOL_MAX_TOKENS:\n   unpooled = _achita_dense_project(expert_output, 'unpooler', state, UNPOOL_SLICE)\n   next_attn_input, stream = _sfn_boundary(stream, unpooled, state)\n  else:\n   ffn_output = _achita_dense_project(expert_output, 'unpooler', state)\n   next_attn_input, stream, _ = state['ffn_boundary'](stream, ffn_output, branch_dtype=torch.bfloat16)\n",
+  "exact_root_inverse": true,
+  "complete_other_packaged_source_preserved": true,
+  "launch_arguments": 10,
+  "tail_tensor_arguments": 9,
+  "query_values": 28,
+  "changed_tokens": [
+    1,
+    8
+  ],
+  "supported_tiny_neighbors": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "unchanged_fallback": "All >8, unsupported norm/cache/layout/device and PRMT-ineligible paths",
+  "original_dense_and_all_expert_arithmetic_retained": true,
+  "added_BF16_weight_layout_bytes": 8388608,
+  "GPU_admitted": false,
+  "GPU_jobs": 0,
+  "pending": [
+    "host ABI CPU audit",
+    "fresh official identities",
+    "resource SASS review",
+    "complete result/guard adversarial fixtures",
+    "frozen launch driver"
+  ]
+}

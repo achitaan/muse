@@ -1,0 +1,25 @@
+{
+  "source_sha256": "1ed5ba7b1c87ae0142bf0d52fba08e7938c1be9dcc5d3200d388fabee15c951f",
+  "CUDA_sha256": "95abcfa8857ca584e03c86a5ba1ac583a26b6abde4ff13b5c4fcafe5a2052091",
+  "GPU_admitted": false,
+  "GPU_jobs": 0,
+  "scored_submissions": 0,
+  "reason": "Handoff requested before GPU launch. Preserve this prototype for independent review; do not flip admission without completing review and revalidating current authorization/pacing/quotas.",
+  "completed": [
+    "two zero-spill NVRTC tiny proxies",
+    "4,194,304 BF16 values bitwise preserved",
+    "2,048 finite replay schedules",
+    "30 independent boundary cases",
+    "eight analytic impulse GEMMs",
+    "CPU host/fallback argument checks",
+    "25 corrupted result fixtures rejected",
+    "six fresh official files match"
+  ],
+  "pending": [
+    "Independent CUDA/host protocol review; native Torch ABI not reproduced locally",
+    "Native H200 cooperative occupancy and resources",
+    "GPU complete-tail correctness, FP64 oracle and graph replays",
+    "Complete-tail paired timing and whole-layer actual-path gain",
+    "Preparation time and actual peak memory"
+  ]
+}

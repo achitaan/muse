@@ -1,0 +1,24 @@
+{
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "new_CUDA_sha256": "d61835ddf6eea6b734017987f220b652b138bf11abe18b1ba85f779c2bb68c5d",
+  "finite_sequences": 65536,
+  "start_seq": [
+    0,
+    4095
+  ],
+  "segment_length": [
+    1,
+    16
+  ],
+  "identical_ordered_slot_phase_first_previous_release": true,
+  "seq_update_exact": true,
+  "mutants_rejected": [
+    "wrap4",
+    "phase_at2",
+    "never_wrap",
+    "repeat_first"
+  ],
+  "unused_wait_tag": "wgs_wait explicitly discards tag; changed per-stage diagnostic tag has no semantics"
+}

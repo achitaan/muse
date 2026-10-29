@@ -1,0 +1,30 @@
+{
+  "observed_utc": "2026-10-29T18:56:51.711194+00:00",
+  "sources": [
+    {
+      "path": "best/verified.py",
+      "sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+      "matches_pushed_62868e2": true
+    },
+    {
+      "path": "best/moe_verified.py",
+      "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+      "matches_pushed_62868e2": true
+    },
+    {
+      "path": "best/decoder_verified.py",
+      "sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+      "matches_pushed_62868e2": true
+    },
+    {
+      "path": "best/attention_checked.py",
+      "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+      "matches_pushed_62868e2": true
+    },
+    {
+      "path": "best/prefill_verified.py",
+      "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+      "matches_pushed_62868e2": true
+    }
+  ]
+}
