@@ -1,11 +1,33 @@
+> CURRENT NEXT STEP, 2026-10-29 02:03UTC: one MoE prepare-only diagnostic,
+> source db0f6481, is frozen and CPU-audited. Next new check is eligible at
+> 02:21:46UTC; no GPU job is running at this checkpoint. Use
+> scripts/check_moe_phase_diagnostic.py --launch --wait-for-slot to wait
+> locally, launch once, persist its handle and resume that same job.
+> No diagnostic score/promotion. Review resources/overhead before interpreting
+> synthetic timestamps. Packet: results/moe-phase-diagnostic-db0f-preflight-20261029/.
+> CPU Decode draft df68deb6 also bypasses two unreachable dense-router setup
+> factories; no timed functions changed and preparation savings are unmeasured.
+> Offline full-unit MoE ownership screening showed a tail-balance risk, not
+> a GPU result. Reproducer: experiments/prepared/screen_moe_unit_ownership.py.
+> All older next-step and authorization headers below are historical.
+
+> LATEST RESULT: Dense62f428608bbf41aa/13224d30 passed9tests/30benches/integrity.
+> Both fixed families passed native numerical probes but lost4..7% atM128;
+> choices empty, controller discarded and reverted EDC. No score or Decode
+> transfer. Official1.517702802x timed incumbents and is not a new-path result.
+> Experiment history archived20261029-012713. Raw result/verdict in
+> results/dense-cluster-nearby-20261029/. One check used; derived totals97/50.
+> Continue CPU MoE analysis and Decode setup cleanup; new check spacing keeps
+> the next launch at or after02:21:46UTC. Preserve all verified bests.
+
 > CURRENT GPU AUTHORIZATION: checks enabled sparingly through October29,2026
 > at20:00Toronto (2026-10-30T00:00Z). EVALUATION_POLICY.json governs pacing:
 > one active GPU job, >=60minutes between new checks, four checks/track reserved.
 > Score only after material source-bound gains; quota is not a spending target.
 > This supersedes earlier no-GPU and review-only holds below. Main chat only.
-> Next: one Dense13224d30 check, unchanged CUDA plus nearby-band selection gates.
+> D1 is now closed. Next: one bounded MoE diagnostic at the paced slot above.
 
-> CURRENT AUTHORIZATION, October29UTC: local implementation and CPU verification
+> HISTORICAL AUTHORIZATION (SUPERSEDED): local implementation and CPU verification
 > are authorized. GPU checks, profiling jobs and submissions remain unauthorized.
 > The user plan has been reviewed. This header supersedes older launch directions.
 > Main chat only; preserve selected model and all verified/active incumbents.

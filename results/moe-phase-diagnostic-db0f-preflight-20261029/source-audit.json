@@ -1,0 +1,23 @@
+{
+  "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "bytes": 190539,
+  "original_source_prefix_exact": true,
+  "original_prefix_module_ast_exact": true,
+  "timed_kernel_fn_redefined": false,
+  "timed_path_global_bindings_changed": false,
+  "diagnostic_cuda_change": "Only OKC_DEBUG0->1 plus a host resource-query function in a separate extension",
+  "original_timed_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "target_shapes": [
+    32,
+    128,
+    256
+  ],
+  "synthetic_only": true,
+  "balanced_pairs_per_shape": 10,
+  "cache_flush_bytes": 134217728,
+  "max_overhead_deviation": 0.05,
+  "extra_extension_builds": 1,
+  "purpose": "Bottleneck evidence, not an optimization or scored publication",
+  "gpu_verified": false
+}

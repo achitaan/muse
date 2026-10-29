@@ -3,19 +3,22 @@
 > one active GPU job, >=60minutes between new checks, four checks/track reserved.
 > Score only after material source-bound gains; quota is not a spending target.
 > This supersedes earlier no-GPU and review-only holds below. Main chat only.
-> Next: one Dense13224d30 check, unchanged CUDA plus nearby-band selection gates.
+> D1 is closed after a losing check. Next: one MoE db0f6481 preparation-only
+> phase diagnostic at or after 2026-10-29T02:21:46UTC. No diagnostic score.
 
 # Optimization plan
 
-Goal: get as close as possible to top50 overall. Main chat only, no deadline,
+Goal: get as close as possible to top50 overall. Main chat only,
 preserve the selected model, and conserve official checks and scores.
+The current GPU evaluation window ends October 29 at 20:00 Toronto.
 The ordered MoE -> Decode -> Attention -> Prefill pass is complete. The goal
 remains unmet; completed experiments do not establish that optimization is done.
 
-Current authorization, October 29 UTC: local implementation and CPU verification
-only. GPU checks, profiling jobs and submissions remain unauthorized. The
-user's evidence-led plan has been reviewed; the corrections below supersede
-older automatic launch directions. Preserve every verified and active source.
+Current authorization includes local implementation, CPU verification and
+sparing GPU checks under EVALUATION_POLICY.json. Public scores require a
+material source-bound gain. The user's evidence-led plan has been reviewed;
+these directions supersede earlier review-only/no-GPU holds. Preserve every
+verified and active source.
 
 ## What the evidence says
 
@@ -40,16 +43,17 @@ separate from board positions.
 
 | Priority | Work | Measured reason | Decision before another run |
 | --- | --- | --- | --- |
-| 1 | Review D1's value and integration feasibility before any run | Two fixed original-BF16 cluster families target M128 QKV/pooler. A 3% win in both gives only about 0.25% Dense track gain under unchanged controls. | Explain a credible 5.62us load saving for the existing 1.5% track gate, or a worthwhile Decode transfer. Resolve preparation and nearby-band performance first. Any GPU use requires new authorization. |
-| 2 | Diagnose exposed MoE WGS readiness/fixup waits | Historical summed profiles motivate investigation but do not establish a critical-path fraction. Per-job/per-stage phase overlap already exists. | Identify exposed waits or fixups beyond existing deferred work and overlap. No global-join replacement premise, occupancy rerun or macro sweep. |
-| 3 | Prepare compatible verified gains for Decode | CPU-only package bc528949 reduces source to 893369 bytes; setup remains the historical 256.897s. | Preserve exact numerical contracts and whole-layer state. Solve the 300s whole-layer preparation budget before an authorized 13/12 check. Do not transfer a rejected standalone path. |
+| 1 | Diagnose exposed MoE WGS phase/tail costs | Per-job/per-stage phase overlap already exists. Offline full-unit alignment increased model tail imbalance; this is a reason to diagnose, not a timing result. | One fixed db0f6481 preparation-only diagnostic; synthetic M32/128/256, ten balanced cold-L2 pairs each. Admit interpretation only with resource and overhead calibration. Never score this diagnostic. |
+| 2 | Select one distinct MoE runtime hypothesis | Current profiles are summed spans, not critical-path fractions. Existing occupancy, skinny16, scale compression and cache-policy trials are closed. | Use the diagnostic to identify exposed recoverable work before changing ownership or a finalizer. Budget added traffic/resources and preserve every numerical/replay boundary. |
+| 3 | Prepare compatible verified gains for Decode | CPU package bc528949 is 893369 bytes; df68deb6 removes two unreachable setup factories. Neither has fresh GPU preparation evidence. | Preserve exact numerical contracts and whole-layer state. Address the 300s budget before a justified 13/12 integration check; no check merely to retime cleanup. Do not transfer D1. |
 | 4 | Attention, then Prefill | Large full attention approaches its bandwidth floor; recent arithmetic rearrangements did not show causal wins. Prefill is outside overall. | Need new evidence beyond a nearby parameter change. Retain the user's order and leave Prefill last. |
 
-Dense is a bounded component experiment, not a claim that its score alone
-improves overall. Its optimistic listed-floor screen suggests roughly2.8%
-standalone improvement, with much smaller whole-Decode impact. If it wins,
-evaluate integration alongside other compatible verified gains rather than
-spending a full-layer check on a negligible transfer.
+Dense D1 is closed. Check62f428608bbf41aa passed9tests/30benchmarks/integrity,
+but both M128 families lost about4..7% in their paired comparisons and choices
+were empty. Official1.517702802x timed incumbents; it does not measure a new
+algorithm gain. EDC remains retained. No score, Decode transfer or nearby
+cluster-flag retry is justified. Preserve the historical opportunity screen
+below as a bound, not a forecast or an open launch direction.
 
 The recorded 65.731us M128 Dense load needs about 5.617us saved to yield 1.5%
 track gain when it is the only changed load: 1.015^6 =1.09344 load speedup.

@@ -5,6 +5,7 @@
   "window_end_utc": "2026-10-30T00:00:00+00:00",
   "window_end_local": "2026-10-29 20:00 America/Toronto",
   "minimum_minutes_between_new_checks": 60,
+  "minimum_minutes_remaining_before_new_check": 20,
   "minimum_checks_reserved_per_track": 4,
   "minimum_scores_reserved_per_track": 4,
   "maximum_active_gpu_jobs": 1,

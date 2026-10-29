@@ -1,7 +1,7 @@
 {
   "snapshot_utc": "2026-10-28T06:07:59.460789+00:00",
   "status": "active",
-  "objective": "Get as close as possible to top 50 overall; main chat only; no deadline",
+  "objective": "Get as close as possible to top 50 overall; main chat only; current GPU window ends October 29 at 20:00 Toronto",
   "deadline_utc": null,
   "branch": "codex/h200-2-5x-20261028",
   "best_source": "best/verified.py",
@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "One Dense13224d30 full check after CPU nearby-band guard passed; reuse exact cached EDC baseline. One active GPU job, at least60minutes between new checks, four checks reserved per track, no cosmetic scores. Continue CPU Decode preparation work between runs.",
+  "next_trial": "One prepare-only MoE phase diagnostic db0f6481, no earlier than 2026-10-29T02:21:46.196044Z; calibrate resources/overhead before interpreting synthetic traces. No diagnostic promotion/score. D1 closed; Decode df68deb6 is CPU-only setup cleanup for a later justified integration.",
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",
@@ -55,8 +55,8 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "dense_cluster_nearby_guard",
-  "resume_note": "User explicitly removed original deadline and changed objective to overall top 50; requested whole-decoder-layer focus and conservative use of evaluations.",
+  "active_track": "moe_phase_diagnostic_preflight",
+  "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",
     "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
@@ -2649,6 +2649,94 @@
     "cuda_identical_to169": true,
     "paired_cases": 20,
     "guard_mutations_rejected": 14,
-    "gpu_status": "not launched yet"
+    "gpu_status": "completed in 62f428608bbf41aa; both families lost selection; rejected"
+  },
+  "dense_cluster_nearby_result": {
+    "job": "62f428608bbf41aa",
+    "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+    "passed": true,
+    "official_speedup": 1.517702802286602,
+    "tests": 9,
+    "benchmarks": 30,
+    "integrity": true,
+    "choices": [],
+    "prepare_s": 79.106774875,
+    "m128_pairs": {
+      "qkv_gate": [
+        {
+          "pattern": 0,
+          "new_over_old": 1.0623852601545931,
+          "old_median_us": 17.664000391960144,
+          "new_median_us": 18.751999363303185
+        },
+        {
+          "pattern": 1,
+          "new_over_old": 1.0400728475782008,
+          "old_median_us": 17.823999747633934,
+          "new_median_us": 18.688000738620758
+        }
+      ],
+      "pooler": [
+        {
+          "pattern": 0,
+          "new_over_old": 1.0486841967201364,
+          "old_median_us": 24.159999564290047,
+          "new_median_us": 25.50400048494339
+        },
+        {
+          "pattern": 1,
+          "new_over_old": 1.0723683570604856,
+          "old_median_us": 24.320000782608986,
+          "new_median_us": 26.079999282956123
+        }
+      ]
+    },
+    "outcome": "rejected; neither family selected; official benchmark timed incumbents, not new kernels",
+    "gpu_checks_used": 1,
+    "scored_submissions_used": 0
+  },
+  "expected_quotas_after_dense_nearby": {
+    "basis": "fresh prelaunch API minus this one check; not a later quota query",
+    "dense_checks_left": 19,
+    "moe_checks_left": 18,
+    "decode_checks_left": 20,
+    "attention_checks_left": 20,
+    "prefill_checks_left": 20,
+    "scores_left_each": 10,
+    "checks_total": 97,
+    "scores_total": 50
+  },
+  "moe_phase_diagnostic": {
+    "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
+    "artifact": "results/moe-phase-diagnostic-db0f-preflight-20261029/submission.py",
+    "status": "CPU audited, not yet launched",
+    "earliest_new_check_utc": "2026-10-29T02:21:46.196044+00:00",
+    "review": "experiments/prepared/moe_phase_diagnostic_review.md",
+    "synthetic_shapes": [
+      32,
+      128,
+      256
+    ],
+    "timed_incumbent_source_unchanged": true,
+    "performance_improvement_claim": false,
+    "scoring_permitted": false
+  },
+  "decoder_router_prepare_prune_cpu": {
+    "source_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
+    "artifact": "results/decoder-router-prepare-prune-20261029/submission.py",
+    "review": "experiments/prepared/decoder_router_prepare_prune_review.md",
+    "bytes": 893359,
+    "changed_prepare_job_arguments": 2,
+    "all_other_ast_exact": true,
+    "gpu_verified": false,
+    "preparation_savings_s": null,
+    "timed_speedup_claim": false
+  },
+  "moe_unit_ownership_screen": {
+    "artifact": "results/moe-unit-ownership-screen-20261029/screen.json",
+    "reproducer": "experiments/prepared/screen_moe_unit_ownership.py",
+    "synthetic_cpu_only": true,
+    "decision": "Do not GPU-test unconditional unit alignment: model raises maximum CTA work substantially; diagnose real phase costs first",
+    "measured_gpu_performance": false
   }
 }

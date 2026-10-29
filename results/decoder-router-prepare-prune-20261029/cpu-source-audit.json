@@ -1,0 +1,29 @@
+{
+  "source_sha256": "df68deb60a132159d630928d19d93bcb9513de86b98a8c9517cfadd5e2e2f731",
+  "parent_package_sha256": "bc528949d73aa09ae9a330d030cadd5654f9ff7d20d48e8ff26bbeed96ae1c43",
+  "bytes": 893359,
+  "changed_prepare_arguments": 2,
+  "all_other_ast_exact": true,
+  "public_projection_families": [
+    "o",
+    "pooler",
+    "qkv_gate",
+    "unpooler"
+  ],
+  "public_projection_calls": 5,
+  "retired_state_reads_guarded": [
+    {
+      "function": "candidate_v8",
+      "retired_state_reads": 2
+    },
+    {
+      "function": "candidate_base",
+      "retired_state_reads": 1
+    }
+  ],
+  "weightless_factories_return_before_cuda": true,
+  "original_fp32_router_and_wide_router_retained": true,
+  "gpu_verified": false,
+  "preparation_savings_s": null,
+  "timed_speedup_claim": false
+}

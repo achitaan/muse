@@ -1,0 +1,44 @@
+{
+  "job": "62f428608bbf41aa",
+  "source_sha256": "13224d30d3cf78a89bc731b3a6d036f4853c30cfb30529daa581050dd1f66c9b",
+  "passed": true,
+  "official_speedup": 1.517702802286602,
+  "tests": 9,
+  "benchmarks": 30,
+  "integrity": true,
+  "choices": [],
+  "prepare_s": 79.106774875,
+  "m128_pairs": {
+    "qkv_gate": [
+      {
+        "pattern": 0,
+        "new_over_old": 1.0623852601545931,
+        "old_median_us": 17.664000391960144,
+        "new_median_us": 18.751999363303185
+      },
+      {
+        "pattern": 1,
+        "new_over_old": 1.0400728475782008,
+        "old_median_us": 17.823999747633934,
+        "new_median_us": 18.688000738620758
+      }
+    ],
+    "pooler": [
+      {
+        "pattern": 0,
+        "new_over_old": 1.0486841967201364,
+        "old_median_us": 24.159999564290047,
+        "new_median_us": 25.50400048494339
+      },
+      {
+        "pattern": 1,
+        "new_over_old": 1.0723683570604856,
+        "old_median_us": 24.320000782608986,
+        "new_median_us": 26.079999282956123
+      }
+    ]
+  },
+  "outcome": "rejected; neither family selected; official benchmark timed incumbents, not new kernels",
+  "gpu_checks_used": 1,
+  "scored_submissions_used": 0
+}

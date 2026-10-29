@@ -1,0 +1,13 @@
+{
+  "source_sha256": "db0f6481654d41790e09b309a9f28fdf95e79d86a4f1b0a00183b18be26cba0b",
+  "positive_cpu_fixture": true,
+  "malformed_fixtures_rejected": [
+    "missing_shape",
+    "unbalanced_order",
+    "forged_overhead",
+    "inconsistent_jobs",
+    "altered_clock_payload"
+  ],
+  "no_gpu_calls": true,
+  "fixture_is_not_a_measurement": true
+}

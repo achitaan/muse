@@ -1,0 +1,20 @@
+{
+  "source_sha256": "d55d1fdbb24fa1b141e20857eee40c72be80db993386335926110d4a27f5686d",
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "host_trace_codec_roundtrip": true,
+  "analytical_trace_fixture_exact": true,
+  "invalid_trace_rejections": [
+    "nonmonotonic_phase_clock",
+    "timestamp_delta_overflow"
+  ],
+  "metadata_tests": [
+    "eight_local_experts",
+    "all_nonlocal"
+  ],
+  "diagnostic_cuda_inverse_exact": true,
+  "original_prefix_exact": true,
+  "original_kernel_fn_binding_unchanged": true,
+  "cpu_only": true,
+  "gpu_verified": false,
+  "limitations": "Synthetic host fixtures and source proofs; no native compilation or timing evidence"
+}

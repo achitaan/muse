@@ -1,0 +1,48 @@
+{
+  "problem": "muse_moe_w4a16",
+  "files": [
+    {
+      "file": "TASK.md",
+      "pinned_sha256": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0",
+      "fresh_sha256": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0",
+      "exact": true,
+      "line_endings_only": true
+    },
+    {
+      "file": "reference.py",
+      "pinned_sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+      "fresh_sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+      "exact": true,
+      "line_endings_only": true
+    },
+    {
+      "file": "checks.py",
+      "pinned_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "fresh_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "exact": true,
+      "line_endings_only": true
+    },
+    {
+      "file": "baseline.py",
+      "pinned_sha256": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+      "fresh_sha256": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+      "exact": true,
+      "line_endings_only": true
+    },
+    {
+      "file": "nvfp4.py",
+      "pinned_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "fresh_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "exact": true,
+      "line_endings_only": true
+    },
+    {
+      "file": "AGENTS.md",
+      "pinned_sha256": "8977059f6539a81e207b639069df66b2b298e9dcc159f00a4fb93bb94150c09d",
+      "fresh_sha256": "8977059f6539a81e207b639069df66b2b298e9dcc159f00a4fb93bb94150c09d",
+      "exact": true,
+      "line_endings_only": true
+    }
+  ],
+  "source": "Fresh official okc init; no GPU evaluation"
+}
