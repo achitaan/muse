@@ -1,0 +1,14 @@
+{
+  "experiment": "D4 Decode warp-count selector for _sfn_kernel/_pn_inputs_kernel",
+  "frozen_before_launch_utc": "2026-10-29T23:03:00Z",
+  "parent": {
+    "sha256": "d9fe7558...9988",
+    "job": "9560c915e85f4f50",
+    "speedup": 1.9902248796281297
+  },
+  "candidate_sha256": "b0f08828edaa89f065aaff78e67d613420528101ce54ef00f046b47c401d47cc",
+  "bytes": 992911,
+  "evidence_basis": "single-row Triton boundaries on the critical path: _sfn 3.4-3.8 us (T<=8, 8 warps), _pn 1.7-2.6 us (all T, 4 warps) in profile 9560c915e85f4f50",
+  "selection": "per token count, >=3% faster in prepare graph timing, outputs within 1e-3 rel of the incumbent warps",
+  "retention": "affected small-T loads above parent beyond run drift (full-shape controls); otherwise measurement only"
+}
