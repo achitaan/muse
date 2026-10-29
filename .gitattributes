@@ -8,3 +8,4 @@ experiments/prepared/moe_cluster_x_addon.py -text
 experiments/prepared/moe_fp32_final_cache_addon.py -text
 experiments/prepared/decoder_cooperative_boundary_addon.py -text
 experiments/prepared/decoder_cooperative_boundary_host.cu -text
+scripts/attention_two_score_evidence.py -text
