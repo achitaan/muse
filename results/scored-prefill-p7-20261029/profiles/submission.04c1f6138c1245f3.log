@@ -1,0 +1,17 @@
+P7_GATHER (1, 753, 80753) both caches 14.7us
+P7_CANDIDATE (1, 753, 80753) gathered 419.8us paged 423.6us err 0.00e+00 KEEP
+P7_GATHER (4, 753, 80753) both caches 41.9us
+P7_CANDIDATE (4, 753, 80753) gathered 1581.7us paged 1630.3us err 0.00e+00 KEEP
+P7_GATHER (1, 16384, 16384) both caches 7.7us
+P7_CANDIDATE (1, 16384, 16384) gathered 865.7us paged 906.0us err 0.00e+00 SELECT
+P7_GATHER (1, 16384, 49152) both caches 11.4us
+P7_CANDIDATE (1, 16384, 49152) gathered 4277.0us paged 4464.3us err 0.00e+00 SELECT
+P7_GATHER (1, 16384, 81920) both caches 14.9us
+P7_CANDIDATE (1, 16384, 81920) gathered 7618.2us paged 8007.4us err 0.00e+00 SELECT
+P7_SELECTOR selected=[(1, 16384, 16384), (1, 16384, 49152), (1, 16384, 81920)] s=1.1
+P7_PAGED (1, 753, 3753)
+P7_PAGED (1, 753, 80753)
+P7_PAGED (4, 753, 80753)
+P7_USE (1, 16384, 16384)
+P7_USE (1, 16384, 49152)
+P7_USE (1, 16384, 81920)
