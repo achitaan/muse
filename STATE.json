@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "FP32-cachef200e6e0 upload failed TLS before job response. Reconciliation proves official job IDs/quota unchanged13MoE checks/10scores, no accepted run. Controller revertede44416a/archived20261029-095615; original intent preserved. Packet results/moe-fp32-cache-upload-error-20261029/. One exact-source transport retry is ready under existing policy; no source/guard changes. Follow any recorded new handle, never restart an uncertain accepted upload. Separate tiny-route study10611CPUcases is parked without GPU ticket (results/moe-small-route-screen-20261029/). Goal remains active; no score/Decode transfer.",
+  "next_trial": "FP32-cachef200e6e0 check94ce080b1fb148a3 passed H200 resource/synthetic gates but paired32/128/256 gains are only0.27%/0.03%/0.12%, below frozen materiality. selected_main=false; official full5/6/integrity2.329737405x times retained paths. Reverted419962d, archived20261029-100754; no score/Decode transfer/noise retry. Close fixed cache design. All44 protected hashes restored; no job/controller active. DerivedMoE12/total90checks and50scores; next check>=10:59:18.187359UTC,20Toronto window. Seek a distinct source/profile-backed complete-Decode opportunity; generic full-context adaptive-length balancing already exists (results/attention-flat-partition-audit-20261029/). Goal remains active.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",
@@ -3053,18 +3053,18 @@
     "decode_transfer": false
   },
   "latest_expected_quotas": {
-    "kind": "Fresh prelaunch snapshot for6627d54067774130 minus one accepted check; not a post-result live query",
+    "kind": "Fresh prelaunch snapshot for94ce080b1fb148a3 minus one accepted check; not a post-result live query",
     "checks": {
       "dense": 19,
-      "moe": 13,
+      "moe": 12,
       "attention": 19,
       "decode": 20,
       "prefill": 20
     },
     "scores_per_track": 10,
-    "total_checks": 91,
+    "total_checks": 90,
     "total_scores": 50,
-    "next_new_check_not_before_utc": "2026-10-29T09:53:13.031328Z",
+    "next_new_check_not_before_utc": "2026-10-29T10:59:18.187359Z",
     "window_end_local": "2026-10-29 20:00 America/Toronto"
   },
   "attention_l8_compiler_screen": {
@@ -3258,5 +3258,54 @@
     "GPU_jobs": 0,
     "equal_absolute_saving_for_1_5percent_track_ns": 1548.3535291304433,
     "exposed_routing_latency_measurement": false
+  },
+  "moe_fp32_final_cache_terminal": {
+    "job": "94ce080b1fb148a3",
+    "source_sha256": "f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656",
+    "CUDA_sha256": "403bd12392a617b28ef14f5f92c0a8892c465b8ed851773b2ffe4d036d233733",
+    "status": "done",
+    "full5tests_6benchmarks_integrity": true,
+    "official_speedup": 2.329737405080238,
+    "selected_main": false,
+    "resources": [
+      96,
+      96,
+      0,
+      0,
+      0,
+      0,
+      231168,
+      1,
+      1,
+      576
+    ],
+    "prepare_s": 217.2761186019634,
+    "changing_input_graph_replays": 2,
+    "official_speedup_is_new_path_evidence": false,
+    "material_guard_passed": false,
+    "packet": "results/moe-fp32-final-cache-check-20261029/",
+    "synthetic_cases": 18,
+    "analytic_probes": 5,
+    "normal_M32_new_over_old": 0.9972700024140416,
+    "normal_M128_new_over_old": 0.9997189546893555,
+    "normal_M256_new_over_old": 0.9987642213144124,
+    "revert_commit": "419962d86e4a205da050aae69df870a22f9540b9",
+    "controller_archive": "20261029-100754",
+    "GPU_job_active": false,
+    "controller_active": false,
+    "score_used": 0,
+    "decode_transfer": false,
+    "fixed_design_closed": true,
+    "accepted_checks_used": 1,
+    "unaccepted_transport_failures": 1
+  },
+  "attention_flat_partition_audit": {
+    "packet": "results/attention-flat-partition-audit-20261029/",
+    "same_retained_standalone_and_Decode_plan_partition": true,
+    "already_uses_actual_device_lengths_and_global_virtual_key_partition": true,
+    "scope": "L1 full context,1<B<=MAX_BATCH",
+    "candidate_created": false,
+    "GPU_jobs": 0,
+    "decision": "Generic adaptive-length scheduling duplicates incumbent; need distinct exposed bottleneck"
   }
 }

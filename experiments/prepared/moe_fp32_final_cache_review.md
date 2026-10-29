@@ -1,5 +1,14 @@
 # Original-FP32 finalizer cache: one fixed candidate
 
+**Terminal, October29 10:08UTC:** accepted94ce080b1fb148a3 compiles and passes
+the runtime resource/synthetic correctness gates. Affected32/128/256 paired
+improvements are only0.27%/0.03%/0.12%, below frozen gates; selected_main=false.
+The official full-suite2.329737405x point runs retained paths. Reverted419962d,
+archived20261029-100754; no score/Decode transfer or noise retry. Full evidence:
+results/moe-fp32-final-cache-check-20261029/. The initial TLS upload created
+no job, proven by unchanged official job IDs/quota before the accepted retry.
+All preparation/readiness statements below are the prelaunch record.
+
 Baseline33114871/nativeCUDA1e60cf46 remains verified. Candidatef200e6e0,
 335794bytes, embeds nativeCUDA403bd123, deviceprefixb0e49b0f. All retained
 Python/CUDA remains an exact prefix; six reversible native edits recover every

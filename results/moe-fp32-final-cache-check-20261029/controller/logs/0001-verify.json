@@ -1,0 +1,9 @@
+{
+  "command": "\"C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe\" scripts/measure_moe_fp32_final_cache.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 319.312,
+  "returncode": 0,
+  "stderr": "MoE FP32 final-cache check 94ce080b1fb148a3: received\r\nMoE FP32 final-cache check 94ce080b1fb148a3: running\r\nMoE FP32 final-cache check 94ce080b1fb148a3: done\r\n",
+  "stdout": "{\"speedup\": 2.329737405080238, \"correct\": true, \"job\": \"94ce080b1fb148a3\", \"source_sha256\": \"f200e6e061ae3ed5533dcce30274bbd75d3f56725bdb6b58abdc8b9c50279656\", \"error\": null}\r\n",
+  "timed_out": false
+}

@@ -1,3 +1,19 @@
+> LATEST TERMINAL RESULT, October29 at10:08UTC: FP32-cachef200e6e0 accepted as
+> 94ce080b1fb148a3 after one proven-unaccepted TLS upload. H200 resource gate
+> passes96regs/zero actual local/static bytes/231168dynamic/1block/576threads;
+> prepare217.276s. All18synthetic comparisons,2changing-route graph replays and
+> 5analytic probes pass. NormalM32/128/256 new/old0.997270/0.999719/0.998764:
+> only0.27%/0.03%/0.12% point improvements, below frozen materiality gates.
+> selected_main=false. Full5/6/integrity2.329737405x times retained paths; no
+> new-kernel speedup claim, score or Decode transfer. Controller reverted419962d,
+> archived20261029-100754. Packet results/moe-fp32-final-cache-check-20261029/.
+> All44protected hashes restored; no active job/controller. DerivedMoE12/total90
+> checks and50scores remain. Next new check>=10:59:18.187359UTC;20Toronto window.
+> Existing Attention/Decode L1 full-context flat partition already balances
+> device sequence lengths, with identical plan/partition text in retained
+> sources. No new adaptive-splits candidate: results/attention-flat-partition-audit-20261029/.
+> Close fixed FP32-cache design; broad top50 goal stays active, main chat only.
+>
 > TRANSPORT RECONCILIATION, October29 at09:55UTC: f200e6e0 upload failed TLS
 > bad-record-MAC before a job handle. Official job IDs and MoE quotas are exact
 > before/after (13checks/10scores), proving no accepted run. Controller reverted

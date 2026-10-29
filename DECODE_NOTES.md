@@ -1,3 +1,17 @@
+# October29: no FP32-cache transfer; flat attention already balances lengths
+
+MoE FP32 finalizer cachef200e6e0 passed synthetic H200 correctness/resources as
+94ce080b1fb148a3 but affected paired point changes are all under0.3%. It fails
+the frozen materiality gates, so no Decode transfer/check follows. KeepD9 and
+CPU preparation draft307dd791. Packet results/moe-fp32-final-cache-check-20261029/.
+
+Source audit confirms that retained full-context L1 with1<B<=MAX_BATCH uses
+device actual-length prefix sums and global virtual-key intervals across all
+requests. Its plan and partition text match standalone Attention after naming
+and docstring normalization. Generic adaptive-length splitting is already
+present; require a distinct exposed segment/pipeline bottleneck before a new
+candidate. Evidence: results/attention-flat-partition-audit-20261029/.
+
 # October29: no cluster-sharing transfer
 
 MoE cluster2 sourceb7043df7 compiled and ran its synthetic graph probes on H200

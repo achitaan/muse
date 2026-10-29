@@ -1,0 +1,44 @@
+{
+  "sources": {
+    "attention": {
+      "source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+      "CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+      "normalized_plan": "def _plan(B, pairs, L, window, max_pages, P, device):\n    sms = _num_sms(device)\n    target = 2 * sms\n    if not window and 1 < B <= MAX_BATCH:\n        return dict(n_splits=max(1, target // pairs), flat=1, cs=0, ncl=1, nc=1)\n    keys_max = min(window + L - 1, max_pages * P) if window else max_pages * P\n    tiles = max(1, (keys_max + TILE_KEYS - 1) // TILE_KEYS)\n    reqs = B * pairs\n    if not window:\n        if L == 8:\n            n = _splits(tiles, _headroom(target) // reqs)\n            return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 8))\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4), coop=0)\n    if L == 1 and reqs < 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    if L == 8 and reqs < 16:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if L == 8 and reqs >= 16:\n        n = _splits(tiles, (target if reqs >= 24 else sms) // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if reqs >= 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    cs = 16\n    limit = 2 * sms if L == 1 else sms\n    if L == 8 and target == sms:\n        limit = sms * 15 // 16\n    while cs > 4 and reqs * cs > limit:\n        cs //= 2\n    ncl = 1\n    while cs * ncl > tiles and cs > 4:\n        cs //= 2\n    if cs * ncl > tiles or cs < 4:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4))\n    return dict(n_splits=cs * ncl, flat=0, cs=cs, ncl=ncl, nc=_copies(ncl, 4))",
+      "partition_excerpt": "      const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31) + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);\n      const int cf = blockIdx.x, Gf = gridDim.x;\n      int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);\n      if (SEGKF > 0) {   // virtual -> real: the last request whose virtual start (cum[b] + b * SEGK) is <= v\n        const int vstart = excl + lane_f * SEGKF;\n        const unsigned ms = __ballot_sync(FULL, lane_f < p.B && vstart <= csf);\n        const unsigned me = __ballot_sync(FULL, lane_f < p.B && vstart <= cef);\n        const int bs = 31 - __clz(ms), be = 31 - __clz(me);   // (lane 0 always qualifies: virtual start 0)\n        const int is = __shfl_sync(FULL, incl_l, bs), ie = __shfl_sync(FULL, incl_l, be);\n        csf = min(csf - bs * SEGKF, is);\n        cef = min(cef - be * SEGKF, ie);\n      }\n      // segment list: the requests with cum[b + 1] > cs and cum[b] < ce (a contiguous run of lanes)\n      const bool in = lane_f < p.B && incl_l > csf && excl < cef;\n      const unsigned mi = __ballot_sync(FULL, in);\n      const int rank = __popc(mi & ((1u << lane_f) - 1u));\n      if (in && rank < MAXSEG) {\n        S.seg[rank][0] = lane_f;\n        S.seg[rank][1] = max(csf, excl) - excl;\n        S.seg[rank][2] = min(cef, incl_l) - excl;\n      }\n      if (lane_f == 0) {\n        S.nseg = min(__popc(mi), MAXSEG);\n        S.fcs = csf;\n        S.fce = cef;",
+      "markers": [
+        "constexpr bool fpart = L == 1;",
+        "const int seq = __ldg(p.seq_lens + b);",
+        "S.cum[b + 1] = run + incl;",
+        "const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31)",
+        "int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);",
+        "const bool in = lane_f < p.B && incl_l > csf && excl < cef;"
+      ]
+    },
+    "Decode": {
+      "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+      "CUDA_sha256": "db68e6abbc1daa9a594005de05713f8aa5370599d30d12d04a0433aa5bb9fd8d",
+      "normalized_plan": "def _plan(B, pairs, L, window, max_pages, P, device):\n    sms = _num_sms(device)\n    target = 2 * sms\n    if not window and 1 < B <= MAX_BATCH:\n        return dict(n_splits=max(1, target // pairs), flat=1, cs=0, ncl=1, nc=1)\n    keys_max = min(window + L - 1, max_pages * P) if window else max_pages * P\n    tiles = max(1, (keys_max + TILE_KEYS - 1) // TILE_KEYS)\n    reqs = B * pairs\n    if not window:\n        if L == 8:\n            n = _splits(tiles, _headroom(target) // reqs)\n            return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 8))\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4), coop=0)\n    if L == 1 and reqs < 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    if L == 8 and reqs < 16:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if L == 8 and reqs >= 16:\n        n = _splits(tiles, (target if reqs >= 24 else sms) // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1, coop=1)\n    if reqs >= 24:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=1)\n    cs = 16\n    limit = 2 * sms if L == 1 else sms\n    if L == 8 and target == sms:\n        limit = sms * 15 // 16\n    while cs > 4 and reqs * cs > limit:\n        cs //= 2\n    ncl = 1\n    while cs * ncl > tiles and cs > 4:\n        cs //= 2\n    if cs * ncl > tiles or cs < 4:\n        n = _splits(tiles, target // reqs)\n        return dict(n_splits=n, flat=0, cs=0, ncl=1, nc=_copies(n, 4))\n    return dict(n_splits=cs * ncl, flat=0, cs=cs, ncl=ncl, nc=_copies(ncl, 4))",
+      "partition_excerpt": "      const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31) + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);\n      const int cf = blockIdx.x, Gf = gridDim.x;\n      int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);\n      if (SEGKF > 0) {   // virtual -> real: the last request whose virtual start (cum[b] + b * SEGK) is <= v\n        const int vstart = excl + lane_f * SEGKF;\n        const unsigned ms = __ballot_sync(FULL, lane_f < p.B && vstart <= csf);\n        const unsigned me = __ballot_sync(FULL, lane_f < p.B && vstart <= cef);\n        const int bs = 31 - __clz(ms), be = 31 - __clz(me);   // (lane 0 always qualifies: virtual start 0)\n        const int is = __shfl_sync(FULL, incl_l, bs), ie = __shfl_sync(FULL, incl_l, be);\n        csf = min(csf - bs * SEGKF, is);\n        cef = min(cef - be * SEGKF, ie);\n      }\n      // segment list: the requests with cum[b + 1] > cs and cum[b] < ce (a contiguous run of lanes)\n      const bool in = lane_f < p.B && incl_l > csf && excl < cef;\n      const unsigned mi = __ballot_sync(FULL, in);\n      const int rank = __popc(mi & ((1u << lane_f) - 1u));\n      if (in && rank < MAXSEG) {\n        S.seg[rank][0] = lane_f;\n        S.seg[rank][1] = max(csf, excl) - excl;\n        S.seg[rank][2] = min(cef, incl_l) - excl;\n      }\n      if (lane_f == 0) {\n        S.nseg = min(__popc(mi), MAXSEG);\n        S.fcs = csf;\n        S.fce = cef;",
+      "markers": [
+        "constexpr bool fpart = L == 1;",
+        "const int seq = __ldg(p.seq_lens + b);",
+        "S.cum[b + 1] = run + incl;",
+        "const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31)",
+        "int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);",
+        "const bool in = lane_f < p.B && incl_l > csf && excl < cef;"
+      ]
+    }
+  },
+  "existing_mechanism": "Actual-sequence-length prefix sums; global virtual-key interval partition across requests; per-CTA segment list",
+  "applies_to": "Retained L1 full context with1<B<=MAX_BATCH; not a claim for every fallback or L8 path",
+  "plan_and_partition_text_identical_between_retained_sources": true,
+  "metadata_stays_on_device": true,
+  "host_read_of_lengths": false,
+  "candidate_created": false,
+  "GPU_jobs": 0,
+  "decision": "A generic adaptive-length balancing proposal duplicates the incumbent. Require a distinct measured segment/pipeline bottleneck before a new trial.",
+  "limitations": [
+    "Source behavior and identity audit, not profiler critical-path evidence",
+    "No new performance or numerical claim"
+  ]
+}

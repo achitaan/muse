@@ -1,3 +1,15 @@
+# October29: full-context length balancing already exists
+
+The retained9e922c35 planner uses a flat grid over actual device-side request
+lengths for full context with1<B<=MAX_BATCH. Its L1 path builds cumulative
+lengths, partitions the global virtual-key domain and records each CTA's request
+segments. This already addresses the generic unequal-length allocation idea.
+The plan and critical partition text are identical to DecodeD9 after identifier
+and docstring normalization. Source-bound audit:
+results/attention-flat-partition-audit-20261029/. This is no new implementation,
+GPU result, critical-path measurement or reason to retry the rejected serial
+partition-loop designs. A new proposal needs a distinct measured mechanism.
+
 # October 29: simple L8 overlap formulations rejected locally
 
 NVRTC 13.0.88 sm_90a proxy inspection finds C7514 serialization after removing

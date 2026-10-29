@@ -1,3 +1,26 @@
+# October29: original-FP32 finalizer cache fails materiality gate
+
+Accepted job94ce080b1fb148a3/sourcef200e6e0/nativeCUDA403bd123 passed H200
+resource admission:96registers, zero actual local/static shared bytes,
+231168dynamic bytes, one resident block/SM and576threads for both BIG variants.
+Prepare217.276seconds. All18synthetic cases, two changed-input/route graph
+replays, four exact-zero all-nonlocal cases and the duplicate-route probe pass.
+Normal/replay differences are zero; the duplicate probe's tiny difference is
+within the fixed tighter numerical limits. All arithmetic boundaries remain.
+
+Median new/old ratios at32/128/256 are0.997270002/0.999718955/0.998764221,
+only0.27%/0.03%/0.12% point improvements. Frozen paired materiality gates fail;
+do not claim significance or select nearby shapes after the fact. No backend
+was enabled in the official suite. Its full5tests/6benchmarks/integrity point
+2.329737405x runs retained paths, not a full new-kernel performance result.
+
+Controller reverted419962d, archived20261029-100754. Retain33114871; no score,
+Decode transfer, timing-noise retry or flag sweep. Complete source, raw paired
+samples, result/profiles, review and controller evidence:
+results/moe-fp32-final-cache-check-20261029/. The earlier failed TLS upload used
+no quota; this is one accepted check. DerivedMoE12checks/10scores remain, next
+new check globally no earlier than10:59:18.187359UTC. No job/controller active.
+
 # October29: FP32-cache transport failure, separate routing study parked
 
 FP32 finalizer-cachef200e6e0 remains GPU-unmeasured: its09:53 upload failed
