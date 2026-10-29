@@ -1,0 +1,9 @@
+{
+  "command": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/verify_attention_two_score_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.125,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Cached exact9e full16/12/integrity; no GPU baseline job.\r\n",
+  "timed_out": false
+}

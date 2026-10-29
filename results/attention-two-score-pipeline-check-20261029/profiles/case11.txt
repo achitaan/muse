@@ -1,0 +1,3 @@
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel_two_score<8, true...     222.7 µs 100.0%      1
+total                                                            222.7 µs

@@ -1,0 +1,539 @@
+{
+  "parent_source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "native_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "CUDA_prototype_written": false,
+  "index_cases": 1024,
+  "uint4_destinations_checked": 1179648,
+  "barrier_random_orders": 256,
+  "early_release_mutant_rejected": true,
+  "seed": 20261029,
+  "traffic": [
+    {
+      "job_rows": 1,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2113536,
+      "new_logical_phaseA_activation_bytes": 262144,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 2,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2129920,
+      "new_logical_phaseA_activation_bytes": 524288,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 3,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2146304,
+      "new_logical_phaseA_activation_bytes": 786432,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 4,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2162688,
+      "new_logical_phaseA_activation_bytes": 1048576,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 5,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2179072,
+      "new_logical_phaseA_activation_bytes": 1310720,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 6,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2195456,
+      "new_logical_phaseA_activation_bytes": 1572864,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 7,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2211840,
+      "new_logical_phaseA_activation_bytes": 1835008,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 8,
+      "padded_rows": 8,
+      "old_logical_phaseA_activation_bytes": 2228224,
+      "new_logical_phaseA_activation_bytes": 2097152,
+      "direct_copy_rounds_per_lane_per_stage": 8,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 9,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4341760,
+      "new_logical_phaseA_activation_bytes": 2359296,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 10,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4358144,
+      "new_logical_phaseA_activation_bytes": 2621440,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 11,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4374528,
+      "new_logical_phaseA_activation_bytes": 2883584,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 12,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4390912,
+      "new_logical_phaseA_activation_bytes": 3145728,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 13,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4407296,
+      "new_logical_phaseA_activation_bytes": 3407872,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 14,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4423680,
+      "new_logical_phaseA_activation_bytes": 3670016,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 15,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4440064,
+      "new_logical_phaseA_activation_bytes": 3932160,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 16,
+      "padded_rows": 16,
+      "old_logical_phaseA_activation_bytes": 4456448,
+      "new_logical_phaseA_activation_bytes": 4194304,
+      "direct_copy_rounds_per_lane_per_stage": 16,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 17,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6569984,
+      "new_logical_phaseA_activation_bytes": 4456448,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 18,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6586368,
+      "new_logical_phaseA_activation_bytes": 4718592,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 19,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6602752,
+      "new_logical_phaseA_activation_bytes": 4980736,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 20,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6619136,
+      "new_logical_phaseA_activation_bytes": 5242880,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 21,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6635520,
+      "new_logical_phaseA_activation_bytes": 5505024,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 22,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6651904,
+      "new_logical_phaseA_activation_bytes": 5767168,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 23,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6668288,
+      "new_logical_phaseA_activation_bytes": 6029312,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 24,
+      "padded_rows": 24,
+      "old_logical_phaseA_activation_bytes": 6684672,
+      "new_logical_phaseA_activation_bytes": 6291456,
+      "direct_copy_rounds_per_lane_per_stage": 24,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 25,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8798208,
+      "new_logical_phaseA_activation_bytes": 6553600,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 26,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8814592,
+      "new_logical_phaseA_activation_bytes": 6815744,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 27,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8830976,
+      "new_logical_phaseA_activation_bytes": 7077888,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 28,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8847360,
+      "new_logical_phaseA_activation_bytes": 7340032,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 29,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8863744,
+      "new_logical_phaseA_activation_bytes": 7602176,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 30,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8880128,
+      "new_logical_phaseA_activation_bytes": 7864320,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 31,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8896512,
+      "new_logical_phaseA_activation_bytes": 8126464,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 32,
+      "padded_rows": 32,
+      "old_logical_phaseA_activation_bytes": 8912896,
+      "new_logical_phaseA_activation_bytes": 8388608,
+      "direct_copy_rounds_per_lane_per_stage": 32,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 33,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11026432,
+      "new_logical_phaseA_activation_bytes": 8650752,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 34,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11042816,
+      "new_logical_phaseA_activation_bytes": 8912896,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 35,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11059200,
+      "new_logical_phaseA_activation_bytes": 9175040,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 36,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11075584,
+      "new_logical_phaseA_activation_bytes": 9437184,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 37,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11091968,
+      "new_logical_phaseA_activation_bytes": 9699328,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 38,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11108352,
+      "new_logical_phaseA_activation_bytes": 9961472,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 39,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11124736,
+      "new_logical_phaseA_activation_bytes": 10223616,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 40,
+      "padded_rows": 40,
+      "old_logical_phaseA_activation_bytes": 11141120,
+      "new_logical_phaseA_activation_bytes": 10485760,
+      "direct_copy_rounds_per_lane_per_stage": 40,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 41,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13254656,
+      "new_logical_phaseA_activation_bytes": 10747904,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 42,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13271040,
+      "new_logical_phaseA_activation_bytes": 11010048,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 43,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13287424,
+      "new_logical_phaseA_activation_bytes": 11272192,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 44,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13303808,
+      "new_logical_phaseA_activation_bytes": 11534336,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 45,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13320192,
+      "new_logical_phaseA_activation_bytes": 11796480,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 46,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13336576,
+      "new_logical_phaseA_activation_bytes": 12058624,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 47,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13352960,
+      "new_logical_phaseA_activation_bytes": 12320768,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 48,
+      "padded_rows": 48,
+      "old_logical_phaseA_activation_bytes": 13369344,
+      "new_logical_phaseA_activation_bytes": 12582912,
+      "direct_copy_rounds_per_lane_per_stage": 48,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 49,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15482880,
+      "new_logical_phaseA_activation_bytes": 12845056,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 50,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15499264,
+      "new_logical_phaseA_activation_bytes": 13107200,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 51,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15515648,
+      "new_logical_phaseA_activation_bytes": 13369344,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 52,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15532032,
+      "new_logical_phaseA_activation_bytes": 13631488,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 53,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15548416,
+      "new_logical_phaseA_activation_bytes": 13893632,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 54,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15564800,
+      "new_logical_phaseA_activation_bytes": 14155776,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 55,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15581184,
+      "new_logical_phaseA_activation_bytes": 14417920,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 56,
+      "padded_rows": 56,
+      "old_logical_phaseA_activation_bytes": 15597568,
+      "new_logical_phaseA_activation_bytes": 14680064,
+      "direct_copy_rounds_per_lane_per_stage": 56,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 57,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17711104,
+      "new_logical_phaseA_activation_bytes": 14942208,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 58,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17727488,
+      "new_logical_phaseA_activation_bytes": 15204352,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 59,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17743872,
+      "new_logical_phaseA_activation_bytes": 15466496,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 60,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17760256,
+      "new_logical_phaseA_activation_bytes": 15728640,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 61,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17776640,
+      "new_logical_phaseA_activation_bytes": 15990784,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 62,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17793024,
+      "new_logical_phaseA_activation_bytes": 16252928,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 63,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17809408,
+      "new_logical_phaseA_activation_bytes": 16515072,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    },
+    {
+      "job_rows": 64,
+      "padded_rows": 64,
+      "old_logical_phaseA_activation_bytes": 17825792,
+      "new_logical_phaseA_activation_bytes": 16777216,
+      "direct_copy_rounds_per_lane_per_stage": 64,
+      "original_bulk_instructions_per_stage": 1
+    }
+  ],
+  "preserved": "Packed weights and scales, all matrix stages, routing, phase-B xB/slice readiness, BF16 epilogues and FP32 finalizer",
+  "proposed": "Use all32 lanes of existing x producer for phase-A cp.async16 gather; skip original global xA gather; keep phase-B bulk copy on lane0",
+  "pending_arrival_design": "Default cp.async.mbarrier.arrive adds a pending arrival per lane; syncwarp after all registrations, then lane0 releases original count1. No noinc shortcut.",
+  "extra_memory_bytes": 0,
+  "initial_scratch_allocation_retained": true,
+  "source": "https://docs.nvidia.com/cuda/parallel-thread-execution/#parallel-synchronization-and-communication-instructions-cp-async-mbarrier-arrive",
+  "unresolved": [
+    "Logical bytes are not measured HBM traffic; original xA requests may hit L2",
+    "Direct copies add8..64 producer rounds per stage instead of one bulk instruction",
+    "Need exact native prototype, async-proxy lifetime proof and generated-code/resource admission",
+    "Need representative routed job counts and exposed gather time before a GPU check",
+    "Changed routes, duplicates, all-nonlocal and chunk boundaries require fresh GPU graph tests"
+  ]
+}

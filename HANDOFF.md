@@ -1,12 +1,20 @@
-> Prepared October29: two-score-bank L8 full Attention pipeline, sourcec51f843e,
-> native375726fd, frozen under results/attention-two-score-pipeline-preflight-20261029/.
-> CPU445event cases/7hazards,360partition cases,256epochs; source inverse and
-> unchanged numerical block verified. First152-consumer budget spilled; one
-> bounded232-consumer repair compiled168initial regs,zero stack/spills,distinct
-> R60/R92 banks,no C751,6control bodies equal. Native admission must prove
-> 168regs/zero local/static/114688dynamic/1block per SM, all KV pairs resident.
-> Fixed guard25negative fixtures; fresh5official files exact. No GPU job yet,
-> no speedup claim, retain9e/D9. Review: experiments/prepared/attention_two_score_pipeline_review.md.
+> LATEST TERMINAL RESULT, October29 at15:02UTC: two-score L8 full Attention
+> sourcec51f843e/check4e8836d4ff934fce passed16tests/12benchmarks/integrity,
+> real paths9/11,168regs/zero local/static/114688dynamic/1block per SM.
+> It loses:2.441375330x vs retained2.537000514x; affected GM0.840913803,
+> controls1.010605965,normalized0.832088699. Controller9a755016 rejected it,
+> trialfe4a829/revert04a32b6/archive20261029-150254. No score, noise retry,
+> selector or Decode transfer. All44protected hashes restored; no job/controller
+> active. Complete source/result/profiles/controller/guard in
+> results/attention-two-score-pipeline-check-20261029/. Derived checks after
+> this accepted job: Dense19,Attention16,MoE12,Decode19,Prefill20=86;10scores
+> each=50. Next new check>=15:55:34.212782UTC (11:55Toronto), not a launch target.
+>
+> Next CPU study returns to MoE: direct phase-A stage gather instead of global
+> xA repacking. Model1024layouts/1,179,648uint4 destinations/256arrival orders
+> passes; early-release mutant rejected. No CUDA prototype/GPU/speedup evidence
+> yet. More producer instructions may outweigh removed traffic; modeled bytes
+> are not measured HBM. See experiments/prepared/moe_direct_stage_gather_review.md.
 >
 > Precision clarification from actual D9 source: L8 already uses FP8 QK SS
 > and FP8 PV row-sum WGMMA; only its L1 QK/PV path remains FP16. The broad

@@ -1,5 +1,13 @@
 # L8 full Attention: two score banks before a GPU experiment
 
+Terminal outcome supersedes the readiness discussion below: job4e8836d4ff934fce
+passed16/12/integrity, native resources and actual execution on9/11, but scored
+2.441375330x privately versus retained2.537000514x. Affected/control-normalized
+ratio0.832088699 fails the fixed gain guard. Reverted04a32b6, controller archived
+20261029-150254. No scored publication, noise retry, selector or Decode transfer.
+Complete immutable result: `results/attention-two-score-pipeline-check-20261029/`.
+The original preflight discussion below is historical.
+
 Status on October 29, 2026: a CUDA prototype and offline compiler/source audits
 are complete. No GPU job, score, incumbent change, or measured speedup belongs
 to this proposal yet. The first budget spilled and was rejected offline. One

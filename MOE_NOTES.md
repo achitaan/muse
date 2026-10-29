@@ -1,3 +1,21 @@
+# October29: direct phase-A stage gather, CPU model only
+
+New bounded hypothesis: the existing activation producer's32lanes could gather
+phase-A x directly into its shared ring instead of globally repacking xA first.
+Phase-B xB bulk copies/readiness, weights, all K stages and numerical epilogues
+would stay original. This differs from adjacent-row global-store redistribution,
+cluster multicast and the rejected full producer warpgroup/register split.
+
+CPU1024layouts/1,179,648uint4 destinations match the exact retained gather layout;
+256random asynchronous-arrival orders pass and early release is detected.
+No CUDA prototype, GPU run or performance claim. The direct producer would issue
+8..64copy rounds per stage instead of one bulk operation, which can lose despite
+removing logical traffic. Cached xA requests are not measured HBM transfers.
+Keep original scratch allocations for the first implementation and never load
+an invalid routed entry for padding. Review and unresolved admission steps:
+experiments/prepared/moe_direct_stage_gather_review.md; model packet:
+results/moe-direct-stage-gather-model-20261029/. Retain33114871.
+
 # October29: disjoint split-unit fixup CPU study parked
 
 Current native CUDA draft26575142 replaces split-unit FP32 atomic payloads with

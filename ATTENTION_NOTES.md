@@ -1,3 +1,23 @@
+# October29: two-score-bank pipeline rejected on H200
+
+Sourcec51f843e/native375726fd, check4e8836d4ff934fce accepted14:55:34.212782UTC.
+Full16tests/12benchmarks/integrity and actual new kernel paths9/11 pass. Native
+resources match the repaired offline budget:168initial registers,zero actual
+local/static memory,114688dynamic bytes,384threads,one block/SM,132SMs.
+
+Point2.441375330x, CI[2.404754700,2.477995960], loses to retained9e/scored2.537000514x.
+Affected-case geometric speedup ratio0.840913803, controls1.010605965,
+normalized0.832088699; weighted track ratio0.962307779. Fixed guard rejects.
+Two score banks and zero spills are insufficient for this complete one-CTA
+configuration. These measurements do not isolate a particular stage as the cause.
+
+Controller9a755016, trialfe4a829, revert04a32b6, archive20261029-150254.
+Retain9e/D9; no score, noise retry, post-hoc selector or Decode transfer.
+All44protected hashes restored; no active job/controller. Full source, raw
+paired samples/result/profiles, controller and fixed guard are preserved in
+results/attention-two-score-pipeline-check-20261029/; CPU/compiler preparation
+is separate under results/attention-two-score-pipeline-preflight-20261029/.
+
 # October29: external finalizer closed; no retained gain
 
 Check4c2b701a8d284b71/source88026272 passes full16/12/integrity, native

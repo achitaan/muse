@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-29T14:55:22Z",
+  "goal": "One source-bound L8 two-score pipeline experiment toward the unchanged top-50 overall goal",
+  "guard": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/verify_attention_two_score_evidence.py",
+  "max_iterations": 1,
+  "metric": {
+    "command": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/measure_attention_two_score.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "complete_attention_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "9a755016ade344fba9fe38b40b74a58f",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.55,
+  "timeout_seconds": 5400
+}

@@ -1,0 +1,9 @@
+{
+  "command": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/measure_attention_two_score.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 364.875,
+  "returncode": 0,
+  "stderr": "Attention two-score pipeline check 4e8836d4ff934fce: received\r\nAttention two-score pipeline check 4e8836d4ff934fce: running\r\nAttention two-score pipeline check 4e8836d4ff934fce: done\r\n",
+  "stdout": "{\"speedup\": 2.4413753302514323, \"correct\": true, \"job\": \"4e8836d4ff934fce\", \"source_sha256\": \"c51f843e34f0780ed77483bcb864574e2dc3d69f0b0deb987eb2b75ffe1f3d61\", \"error\": null}\r\n",
+  "timed_out": false
+}
