@@ -1,0 +1,19 @@
+{
+  "experiment": "P7 contiguous-KV FA3 selector with a Triton row-gather kernel (replaces torch index_select)",
+  "frozen_before_launch_utc": "2026-10-29T23:28:00Z",
+  "parent": {
+    "sha256": "93e57ab4...aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "candidate_sha256": "3fa6377d831d1e0e7fc9278d3551d2153938b031635dcc1fbbaee55961e79323",
+  "offline": "kernel compiled for sm_90 with Triton 3.9.0 (compile_gk.py): coalesced b64 loads/stores, no shared memory",
+  "evidence_basis": "P4/P5/P6: contiguous FA3 selected and applied 3x (FA3 -3.5..-3.8% incl. gather) on first turn full ctx 32768/65536; index_select gather ~110 us for both caches at 81,920 rows (0.38 TB/s); 753-token full shapes ~15 us faster before the gather",
+  "affected_rule": "full-layer loads whose key is P7_SELECTed and reported P7_USE at runtime",
+  "per_shape_win": 1.02,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks",
+    "selection": ">=3% faster in prepare incl. gather, rel-L2 < 1e-2 vs paged output",
+    "retention": "single run is not enough: affected shapes normalized >= 1.02 vs each of same-night P1/P2/P3 AND a confirming run in a later authorized window"
+  }
+}
