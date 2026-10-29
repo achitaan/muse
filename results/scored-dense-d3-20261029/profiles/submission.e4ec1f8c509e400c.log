@@ -1,0 +1,52 @@
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 23.711999878287315 baseline 14.4640002399683
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.49599927663803 baseline 14.4640002399683
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 17.823999747633934 baseline 14.4640002399683
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 23.135999217629433 baseline 14.4640002399683
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 27.83999964594841 baseline 14.4640002399683
+WG_KEEP 16 qkv_gate baseline 14.240000396966934 best 17.823999747633934
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 24.70399998128414 baseline 16.03199914097786
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 18.592000007629395 baseline 16.03199914097786
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 18.65600049495697 baseline 16.03199914097786
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 24.09599907696247 baseline 16.03199914097786
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.55199931561947 baseline 16.03199914097786
+WG_KEEP 32 qkv_gate baseline 15.904000028967857 best 18.592000007629395
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.463999688625336 baseline 20.640000700950623
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 27.135999873280525 baseline 20.640000700950623
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 33.08799862861633 baseline 20.640000700950623
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 31.39200061559677 baseline 20.640000700950623
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 45.40799930691719 baseline 20.640000700950623
+WG_KEEP 32 unpooler baseline 20.640000700950623 best 22.463999688625336
+LT_CANDIDATE o m128 layout0 algo0 11.33us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo1 11.36us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo2 11.94us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo3 12.16us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo4 11.62us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo5 11.84us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo6 12.00us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout0 algo7 11.78us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo0 12.26us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo1 11.52us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo2 12.00us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo3 12.64us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo4 11.62us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo5 11.71us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo6 12.19us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout1 algo7 11.97us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo0 11.20us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo1 11.52us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo2 11.52us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo3 11.46us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo4 12.13us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo5 11.87us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo6 12.16us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout2 algo7 13.98us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo0 11.23us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo1 11.52us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo2 11.58us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo3 11.81us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo4 12.10us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo5 11.68us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo6 11.97us err 1.66e-03 base 10.91us err 1.66e-03
+LT_CANDIDATE o m128 layout3 algo7 13.28us err 1.66e-03 base 10.91us err 1.66e-03
+LT_KEEP o m128 base 10.85 best 11.2
+LT_SELECTOR s=0.1
