@@ -1,0 +1,68 @@
+{
+  "frozen_before_launch_utc": "2026-10-29T23:37:00Z",
+  "prefill_rule": "P7 retained in lane only if, over all P7 runs (5e0ba944f9d24191 + p7 repeats) vs all parent-path runs (P1 bb9ce14d3ad8490b, P2 b5556364aff148f9, P3 f2241332a476452e, pctl repeats), the mean normalized time ratio (by the 4 unchanged shapes) on each of the 4 selected shapes is >= 1.02 and no selected shape is < 1.00",
+  "attention_rule": "A3 re-confirmed only if, over all clean 8-split runs (A3 8347b4ca3b1e42e5, A5 7768919e099446cf, a3r repeats) vs all 16-split runs (A6 33d4e44dec7249f9, actl repeats), mean normalized decode16 sliding time is >= 3% lower",
+  "runs": [
+    [
+      "p71",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_p71.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-p71-20261029",
+      "0ae5cf17fd9ad70c02ebc1d93d482d3b04b5f4c78d460d07edfb5f911900a24e"
+    ],
+    [
+      "pctl1",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_pctl1.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-pctl1-20261029",
+      "f2aeb9ee574e1c71298b3bca352ea2ffb1284e1bd52d577d464b274bbf294a74"
+    ],
+    [
+      "p72",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_p72.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-p72-20261029",
+      "743f5eb643c9c740bce66ddff3ee075ae427024140a1221c608ae980e909968b"
+    ],
+    [
+      "pctl2",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_pctl2.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-pctl2-20261029",
+      "ec6b630daa5190eec9f292b5c003d9266f1bf73477ca04d1821cae59b56de8e7"
+    ],
+    [
+      "p73",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_p73.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-p73-20261029",
+      "82eaf02b143430a2edeffec97b6e3e59e25954a22931490d7c4f0a7f9f4b1ed8"
+    ],
+    [
+      "pctl3",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\candidates\\repeat_pctl3.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\other-tracks\\results\\repeat-pctl3-20261029",
+      "a93adb16c2c2f0a2bd37ec6d9dcf10dd43d5b58f68a0ab030ed17eaf59644102"
+    ],
+    [
+      "a3r1",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\candidates\\repeat_a3r1.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\results\\repeat-a3r1-20261029",
+      "26e15d9bb4c0865f97aa31a5dbf19a98a5b9bdf4a29f6bd0f25812a93b20cc62"
+    ],
+    [
+      "actl1",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\candidates\\repeat_actl1.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\results\\repeat-actl1-20261029",
+      "954f22f986661ff0c03989ed24f0841ab1994f9db92b0e22492570f3b47213fc"
+    ],
+    [
+      "a3r2",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\candidates\\repeat_a3r2.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\results\\repeat-a3r2-20261029",
+      "03b769235baff176f58e763cb5feb9a5dd9e2241a77781a82684cef9d6b9521b"
+    ],
+    [
+      "actl2",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\candidates\\repeat_actl2.py",
+      "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-fresh\\results\\repeat-actl2-20261029",
+      "2a5fae10ad18f54eb7e965a441872350c8cfc2e75214b6b162fa44a1ad99a5e0"
+    ]
+  ],
+  "authorization": "user 23:35 UTC: keep using checks until 8 pm Toronto (00:00 UTC); scored submissions pending explicit confirmation"
+}
