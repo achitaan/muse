@@ -1,0 +1,23 @@
+{
+  "background": null,
+  "branch": "codex/h200-2-5x-20261028",
+  "created_at": "2026-10-29T11:18:37Z",
+  "goal": "One fixed L1-flat128-key two-stage Attention experiment toward the unchanged overall top50 objective; local target is a retention gate only",
+  "guard": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/verify_attention_wide_evidence.py",
+  "max_iterations": 1,
+  "metric": {
+    "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_attention_wide.py",
+    "direction": "higher",
+    "json_key": "speedup",
+    "name": "attention_weighted_speedup"
+  },
+  "mode": "foreground",
+  "repo": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "run_id": "78405b391e1c46c9b3975b942f66e0f3",
+  "schema_version": 1,
+  "scope": [
+    "candidates/attention_active.py"
+  ],
+  "target": 2.57505552195088,
+  "timeout_seconds": 5400
+}

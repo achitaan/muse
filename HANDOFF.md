@@ -1,3 +1,17 @@
+> LATEST TERMINAL RESULT, October29 at11:28UTC: Attentionf5d5b04b check
+> fa78c34851144383 passed16tests/12benchmarks/integrity and resource/path gates.
+> Actual H200128regs/zero local/static/two blocks/84992dynamic/128keys/2stages.
+> Track point2.554927565x vs2.537000514x is not a new-kernel gain: changed
+> GM0.989642, controls1.012720, normalized0.977212; fixed performance gate fails.
+> Controller discarded2f910f7, restored9e via b500997, archived20261029-112814.
+> Packet results/attention-l1-wide-tile-check-20261029/ contains full source,
+> result/profiles, quota, source proof and immutable controller history. No score,
+> retry, selector, neighboring tile sweep or Decode transfer. All44protected
+> hashes restored; no active job/controller. Derived checks Dense19,Attention18,
+> MoE12,Decode20,Prefill20=89total;50scores. Next new check>=12:18:49.851407UTC.
+> Seek a materially distinct source/profile-backed hypothesis while conserving
+> quota through20Toronto. Broad overall top50 objective remains active.
+>
 > READY FOR ONE PACED CHECK, October29: final Attention wide-tile sourcef5d5b04b,
 > CUDA08fbf1d, at results/attention-l1-wide-tile-preflight-20261029/admission-v2/.
 > Native resource admission requires zero local/static bytes, <=128base regs,

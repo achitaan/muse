@@ -1,0 +1,7 @@
+{
+  "source_sha256": "f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66",
+  "device_prefix_equal_CPU_compiled_draft_after_only_symbol_rename_and_host_header_removal": true,
+  "device_prefix_sha256": "a0eac126ae6be2d6bdd384d80243a6064b1fdecb8e40b3d1b133619b7bb9d4b9",
+  "other_protected_hashes_exact": 43,
+  "GPU_jobs_created_by_this_audit": 0
+}

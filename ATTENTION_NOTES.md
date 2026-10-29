@@ -1,3 +1,20 @@
+# October29: fixed L1-flat wide-tile check rejected
+
+Finalf5d5b04b ran asfa78c34851144383, passed16tests/12benchmarks/integrity.
+H200 native resource marker:128regs, zero local/static shared bytes, two active
+blocks,84992dynamic bytes,128keys/two stages; the intended path executed.
+Track point2.554927565x does not establish improvement. Changed-case ratios
+0.986460/0.992834 giveGM0.989642 versus unchanged controlGM1.012720;
+normalized affected0.977212 fails the fixed gate. No score or Decode transfer.
+
+Controller discarded2f910f7 and revertedb500997, archive20261029-112814.
+Retain9e922c35/scored2.537000514x. Full raw result/profiles/source/controller
+and review: results/attention-l1-wide-tile-check-20261029/. All44protected
+hashes restored. One check used; derived Attention18/total89checks and50scores
+remain. Next new check>=12:18:49.851407UTC;20:00Toronto window unchanged.
+No active job/controller. Close this fixed tile/depth design without a noise
+retry or neighboring-geometry sweep. Lower headers are historical preparation.
+
 # October29: fixed L1-flat wide-tile CPU draft
 
 Draft7ef8ab72/CUDA20aeed18 uses128-key tiles and two data stages, preserving

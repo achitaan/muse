@@ -1,0 +1,9 @@
+{
+  "command": "C:\\Users\\Achita\\AppData\\Local\\Programs\\Python\\Python310\\python.exe scripts/measure_attention_wide.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 364.844,
+  "returncode": 0,
+  "stderr": "Attention fixed-wide-tile check fa78c34851144383: queued\r\nAttention fixed-wide-tile check fa78c34851144383: running\r\nAttention fixed-wide-tile check fa78c34851144383: done\r\n",
+  "stdout": "Native attention retains BF16 norm, RoPE and output boundaries in all finalizers and fallback.\r\n{\"speedup\": 2.554927565261014, \"correct\": true, \"job\": \"fa78c34851144383\", \"source_sha256\": \"f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66\", \"error\": null}\r\n",
+  "timed_out": false
+}

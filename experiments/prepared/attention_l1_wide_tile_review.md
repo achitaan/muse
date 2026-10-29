@@ -1,5 +1,31 @@
 # L1 flat Attention: fixed128-key/two-stage draft
 
+## Terminal result: rejected, October29
+
+Check `fa78c34851144383` evaluated final sourcef5d5b04b and passed all16tests,
+12benchmarks and integrity on H200. The native marker confirms128base
+registers, zero local/static shared bytes, two resident blocks,84992dynamic
+bytes and the intended128-key/two-stage specialization. The affected profile
+paths ran. This establishes admission and tested correctness, not a speedup.
+
+Point track speedup2.554927565x, interval[2.516603652,2.593251479], rose0.7066%
+against retained2.537000514x. The changed cases' geometric ratio was0.989642
+while unchanged controls rose1.012720; normalized affected ratio0.977212.
+Individual changed ratios were0.986460 and0.992834. The fixed affected/control
+gate failed. Do not call the higher aggregate point a new-kernel gain.
+
+The controller discarded trial2f910f7 and restored9e in revertb500997; its
+immutable archive is20261029-112814. Full source, raw result/profiles, quota,
+job handle, source proof, controller events/logs and review are at
+`results/attention-l1-wide-tile-check-20261029/`.
+
+Close this fixed design: no score, noise retry, posthoc selector, nearby tile
+sweep or Decode transfer. All44protected hashes match again. One Attention
+check was used. Derived checks left: Dense19,Attention18,MoE12,Decode20,
+Prefill20; total89. Scores remain10each/50total. No active job/controller.
+Next new accepted check no earlier than2026-10-29T12:18:49.851407UTC under the
+unchanged20:00Toronto window. Historical prelaunch text below is preserved.
+
 This is CPU-screened development work, with no GPU job, installed candidate,
 measured speedup or rank claim. Retain Attention9e922c35 and DecodeD9 unchanged.
 

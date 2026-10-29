@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Ready for one paced Attention check: final f5d5b04b/CUDA08fbf1d, results/attention-l1-wide-tile-preflight-20261029/admission-v2/. Fixed128-key/2-stage L1-flat only, resource admission zero local/static, <=128regs, >=2blocks,84992dynamic. Five fresh evaluator files exact;15guard mutants rejected. Frozen affected/control>1.04,each>=1.02,controls[.95,1.05],weighted-track>1.015baseline2.575055522x. scripts/measure_attention_wide.py and verify_attention_wide_evidence.py; controller scope candidates/attention_active.py only, cached9e baseline. No GPU started at this checkpoint. All bests unchanged; broad top50 goal active, main chat only.",
+  "next_trial": "Attention wide-tile f5d5b04b checkfa78c34851144383 passed16/12/integrity, actual128regs/0local/static/2blocks/84992dynamic and intended path. Fixed128-key/2-stage design rejected: changedGM0.989642, controls1.012720, normalized0.977212; aggregate point2.554927565x is not a new-kernel gain. Controller discarded2f910f7/revertedb500997, archive20261029-112814; retain9e/scored2.537000514x. No score, noise retry, selector, tile sweep or Decode transfer. All44protected hashes restored; no active job/controller. Derived89checks/50scores; next new check>=12:18:49.851407UTC,20Toronto window. Full source/result/profiles/controller at results/attention-l1-wide-tile-check-20261029/. Seek a distinct source/profile-backed MoE or complete-Decode opportunity; broad top50 goal remains active, main chat only.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",

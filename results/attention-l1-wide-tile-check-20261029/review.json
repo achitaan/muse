@@ -1,0 +1,62 @@
+{
+  "job_id": "fa78c34851144383",
+  "source_sha256": "f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66",
+  "mode": "check",
+  "full_tests": 16,
+  "full_benchmarks": 12,
+  "integrity_ok": true,
+  "GPU": "H200",
+  "speedup": 2.554927565261014,
+  "speedup_ci": [
+    2.516603651782099,
+    2.593251478739929
+  ],
+  "source_resource_and_actual_path_gates_passed": true,
+  "fixed_guard_failure": "Insufficient affected/control gain",
+  "performance": {
+    "source_sha256": "f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66",
+    "affected_geomean": 0.989641992867558,
+    "controls_geomean": 1.012720150893295,
+    "normalized_affected": 0.9772117124307438,
+    "aggregate_ratio": 1.0070662386243492,
+    "per_case_ratios": {
+      "0": 1.0327583633504736,
+      "1": 0.9828961091700015,
+      "2": 1.070472223543038,
+      "3": 0.9864601494387368,
+      "4": 0.9750169324297989,
+      "5": 0.9928340993846666,
+      "6": 1.046079420366954,
+      "7": 0.9944318830561192,
+      "8": 1.0097778674514837,
+      "9": 1.0055790253871566,
+      "10": 1.0099511975276998,
+      "11": 1.0039647811440269
+    },
+    "resources": [
+      128,
+      0,
+      0,
+      2,
+      84992,
+      83968,
+      128,
+      2,
+      128,
+      128,
+      200,
+      128,
+      132
+    ],
+    "statistical_significance_claim": false
+  },
+  "retained_source_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "retained_speedup": 2.5370005142373167,
+  "controller_run_id": "78405b391e1c46c9b3975b942f66e0f3",
+  "trial_commit": "2f910f7",
+  "revert_commit": "b500997fada55fcb45ff86c13d22c230198c6721",
+  "controller_archive": "20261029-112814",
+  "new_scored_submissions": 0,
+  "decision": "Close this fixed128-key/two-stage design; retain9e; no noise retry or Decode transfer.",
+  "limits": "Aggregate point improvement does not establish a new-kernel gain; unchanged controls also moved. No statistical-significance claim."
+}
