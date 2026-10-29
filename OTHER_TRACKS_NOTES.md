@@ -75,6 +75,7 @@ new small-M kernel.
 | P4 Prefill FA3 on a contiguous KV copy (gathered by page table) for full layers | `37a3e45b4e4b431d` | 1.6531207x pass | 1.6392908x | **selected and applied** for first turn full ctx 32768 / 65536 (FA3 4474.3->4304.9 us, 8071.5->7766.6 us in prepare); slower at 753 tokens (423->516 us, kept paged). Affected shapes normalized vs same-night P1/P2/P3: 1.011-1.056 |
 | P5 confirmation of P4 (identical code + comment) | `c4d2e6ef68674473` | 1.6648694x pass | 1.6392908x | same selections, applied; FA3 4499.5->4341.3 and 8013.7->7730.6 us. Mean of P4/P5 normalized vs P1/P2/P3: ctx 65536 1.026/1.032/1.052 (meets 1.02), ctx 32768 1.002/1.029/1.046 (fails vs P1). Frozen rule needs both shapes: **not retained** |
 | M5 MoE ring depth OKC_NS 3->4 at 32 tokens (MAIN WGS) | `940d22a6cc7642d5` | 2.3382191x pass | 2.3654374x | +0.4% (383.52 vs 385.15 us over 3 draws, bit-identical); NS5 skipped by compile guard (prepare 219 s). Ring depth is not the decode-32 bottleneck |
+| P6 P4 with an 8-byte-wide (int64) row gather | `6095723fa6fa4f69` | 1.6544052x pass | 1.6392908x | same selections, applied; FA3 4461.3->4305.3 and 8011.9->7718.9 us. index_select gather ~55 us per cache at 81,920 rows (~0.38 TB/s) regardless of width. Mean of P4/P5/P6 normalized: ctx 65536 1.022/1.028/1.047 vs P1/P2/P3 (meets 1.02), ctx 32768 0.998/1.025/1.042 (fails vs P1): **not retained** |
 
 D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
 Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
@@ -104,6 +105,10 @@ FA3 splits, Prefill MoE schedule thresholds, Prefill GEMM layout, Dense cuBLASLt
 (128,'o'), Dense olayer configs for O at 1-256 tokens, Dense unpooler cuBLASLt neighborhood at
 128/256, Triton GEMV for router/unpooler) was measured on the judge GPU and the incumbent was
 fastest or within 3%. The one lever that won in-process is Prefill's contiguous-KV FA3 for long
-full first-turn shapes (FA3 -3.5..-3.8% in two runs; ctx 65536 passed its shape gate, ctx 32768
-did not against one reference). It is the best starting point for a future Prefill change, ideally
-with a cheaper gather (P6 tests an 8-byte-wide row gather). Remaining gaps need new kernels.
+full first-turn shapes (FA3 -3.5..-3.8% incl. gather in three runs P4/P5/P6; ctx 65536 met its
+shape gate against all three same-night references, ctx 32768 did not against P1, so it is not
+retained). It is the best starting point for a future Prefill change: the torch index_select
+gather costs ~110 us for both caches at 81,920 rows (~0.38 TB/s); a bandwidth-efficient gather
+(~10-15 us) would raise the FA3 gain to ~5% at ctx 65536 and may also help the 753-token full
+shapes (contiguous FA3 there is ~15 us faster before the gather). Remaining gaps need new kernels.
+P6 candidate: `bb7168f60b258c7247d54efab1ac53219ba9f6b5033d155b0d4ecc491e3c3f55`.
