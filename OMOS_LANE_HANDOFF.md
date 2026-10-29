@@ -129,7 +129,7 @@ another option wins by >=3% with matching output.
   `3158fdc490ed46d1`: passed, 2.3593403x; decode 1 25.77 vs 24.85 ?s (0.962 normalized,
   controls 1.002). The synthetic-routing edge did not transfer; TINY<=4 stays.
 
-### A2 / A3 ? attention decode 16 sliding n_splits 16?8 ? retained in this lane
+### A2 / A3 - attention decode 16 sliding n_splits 16->8 - kept in lane, later downgraded by A6
 
 | Run | Job | Track | decode16 sliding ?s | normalized |
 |---|---|---:|---:|---:|
@@ -163,18 +163,69 @@ another option wins by >=3% with matching output.
 - decode 16 sliding 138.35 -> 133.18 us (1.039), but unchanged full-context controls moved
   +0.3..+4.5% and other sliding loads -3.7..+10% in the same run: not separable from drift.
 
+### A5 - attention first-call split autotune (in-process, on top of A3) - measurement only
+
+- Candidate `8b64d6c862ab91742de98e5154758a6410f10497fc8f9a101fae547955e7a49a`; check
+  `7768919e099446cf`: passed, 2.5990707x. The first eager call per launch shape (never under
+  capture) timed n_splits x{0.5,0.75,1.25,1.5,2} and the coop toggle (only when all CTAs are
+  resident) against the incumbent as interleaved cold-L2 graph replays.
+- All 12 scored shapes kept the incumbent plan (in-process us, incumbent vs best variant):
+  decode 1 sliding 8.90/9.76, decode 1 full 15.01/15.42, decode 16 sliding 12.38 vs 12.10 (12
+  splits) and 12.32 (16 splits), decode 16 full 87.26/92.38, decode 32 full 162.34/166.72,
+  verify 1 full 18.05/20.19, verify 16 full 102.91/113.18, verify 32 full 183.04/195.78. Several
+  verify-sliding split variants differed from the incumbent output by rel-L2 >= 1e-2 and were
+  rejected by the gate. Only unscored test shapes changed.
+
+### A6 - same-night control of the parent Attention code - A3 downgraded
+
+- Candidate `1f6544f64a6745c14aa16ebb45fb0928ca3204bf30432c9f22fcd5b26e8a3c36` (parent bytes +
+  trailing comment); check `33d4e44dec7249f9`: passed, 2.5543166x.
+- decode 16 sliding, normalized by the 11 shapes identical across the runs
+  (`scripts/attention_d16s_readout.py`): A6 16 splits 8.87 us; A3 8 splits 8.46 us; A5 8 splits
+  8.86 us; Oct 28 parent run 9.31 us. Mean 16/8 ratio 1.024 < 1.03 gate.
+- Decision (rule frozen before launch): A3 is unconfirmed. Most of its per-shape "win" came from
+  the parent run measuring this shape slow. No confirmed Attention improvement.
+
+### D4 - Decode warp-count selector for the two single-row Triton boundaries - not retained
+
+- Candidate `b0f08828edaa89f065aaff78e67d613420528101ce54ef00f046b47c401d47cc` (992,911 B);
+  check `5cac5a65eb204c78`: passed, 1.9965472x vs parent 1.9902249x.
+- In-prepare: `_pn_inputs_kernel` 4 -> 8 warps at T=1 (6.40 -> 6.05 us) and 4 -> 16 at T=32
+  (6.37 -> 6.05 us) were selected; `_sfn_kernel` stayed at 8 warps (16 warps within 1.7%).
+- ~0.35 us per call is 0.1-0.4% of the affected loads, below single-run resolution; official
+  affected loads moved -2.1..+0.6% while full-context controls moved +1.8..+5.4%.
+
 ## Authorization and quota record
 
 - 60-minute pacing applied until 22:11 UTC; afterwards the user authorized more frequent free
-  checks until 00:00 UTC (no scored submissions, no merges). One job at a time throughout.
-- Live quota read 22:11 UTC: checks left Dense 18, Attention 15, MoE 11, Decode 16, Prefill 20;
-  scored 10 each unused. After this session's later checks: Attention 13, MoE 10, Prefill 19.
-- Checks used by these lanes on October 29: E1, A1, M1, P1, A2, A3, M2 (seven). No scored run.
+  checks until 00:00 UTC (no scored submissions, no merges). From 22:41 UTC the driver ran with
+  `LANE_MIN_SPACING_MIN=0` and `LANE_PER_PROBLEM=1` (at most one live job per problem; it waits
+  for live jobs of the other lane on the same problem).
+- Live quota read 23:19 UTC (shared with the other lane on `argon/top50-20261029`): checks left
+  Dense 12, Attention 10, MoE 6, Decode 10, Prefill 15; scored left Dense 10, Attention 10,
+  MoE 9, Decode 8, Prefill 10. The scored submissions used on MoE/Decode were the other lane's;
+  these lanes made no scored submission.
+- Checks used by these lanes on October 29 (all free checks, all passed correctness):
+  E1, A1-A6, M1-M5, P1-P5, D1-D7 (Dense), D2/D4 (Decode). One upload (D5 first attempt,
+  22:59:10 UTC) failed with `tls: bad record MAC` before a job was created; it was reconciled
+  against the jobs list and relaunched as `3b13fab22b2b4480`.
+- Other-lane jobs seen in the shared queue (not ours): `1216cb6725c84c7a`, `ddda5cdcbfe64203`,
+  `bfa220e08a4143ed`, `efbe095b7aae43e3`, `b43cb2fef3a94aa9`, `b6556f86c6e4429a`,
+  `8b815afb4e784187`, `30184c638e2c43ea`.
 
 ## Status against the objective
 
-- Decode (overall-rank driver): no improvement; top 50 needs ?+9.7% (2.1836x cutoff) and the
-  remaining gap is structural (small-kernel latency, MoE phase schedule), not configuration.
-- Attention: one confirmed shape-level improvement (decode 16 sliding ?9%), small at track level.
-- MoE, Prefill: existing configuration choices measured as already optimal on the judge GPU.
-- Dense: no candidate; cuBLAS algorithm/layout search and c12 variants were already covered.
+- Decode (overall-rank driver): no improvement. E1 rejected; D2 (A3 transfer) and D4 (boundary
+  warps) below single-run resolution. Top 50 needs about +9.7% (2.1836x cutoff vs 1.9902x); the
+  gap is structural (small-kernel latency, MoE phase schedule), not configuration.
+- Attention: no confirmed improvement. A3 (decode 16 sliding 8 splits) was downgraded by the
+  same-night control A6 and the in-process autotune A5; every scored shape's plan is at a local
+  optimum under in-process timing.
+- Prefill: P4 (contiguous-KV FA3 for the two long full first-turn shapes) selected and applied a
+  3.8% faster FA3 path; shape gain 1.011-1.056 normalized vs same-night runs; confirmation P5 in
+  flight (see `OTHER_TRACKS_NOTES.md` in the other-tracks lane).
+- MoE: build choice, fallback build and ring depth at 16 tokens measured optimal; M5 (ring depth
+  at 32 tokens) in flight.
+- Dense: router/unpooler GEMV, O at 1-256 tokens (olayer, cuBLASLt) and the unpooler cuBLASLt
+  neighborhood at 128/256 measured; the incumbents are fastest or within 2%.
+- `best/` is unchanged in both lanes; nothing was published or merged.
