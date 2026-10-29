@@ -767,7 +767,7 @@ def _p7_gathered(kw):
 
 def flash_attn_with_kvcache(*args, **kw):
     pt = kw.get('page_table')
-    if pt is not None and not args and kw['k_cache'].dim() == 4 and kw['k_cache'].shape[1] == 1 and kw.get('window_size', (-1, -1))[0] < 0:
+    if pt is not None and not args and kw['k_cache'].dim() == 4 and kw['k_cache'].shape[1] == 1 and kw.get('window_size', (-1, -1))[0] < 0 and kw['k_cache'].is_contiguous() and kw['v_cache'].is_contiguous():
         key = (pt.shape[0], kw.get('max_seqlen_q'), pt.shape[1])
         if key not in _P7_SEEN:
             _P7_SEEN.add(key)
