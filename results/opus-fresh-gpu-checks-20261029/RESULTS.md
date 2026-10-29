@@ -79,3 +79,11 @@ created no job; retries succeeded.
 
 The source SHA256 for `experiments/opus_fresh/candidates/decoder_finreg_fp8pv.py`
 is `648f8cee7eb0292f6b1e1bb80a7f1e945802a5bdd68ba2df17bf70d9ad1bd1c5`.
+
+## Final scored run (23:27 UTC)
+
+- `d63a9e2c83d9402d` (scored), `decoder_fp8pv.py`: 13/13 passed, **1.9816x**, CI [1.9519, 2.0113]. The board keeps 2.0071, so nothing changed.
+- Overall rank stays at 219 of 1,627.
+- Quota left at 23:27 UTC as (checks / scored): Dense 12/10, Attention 10/10, MoE 6/9, Decode 10/7, Prefill 14/10.
+- No further submissions. The remaining candidates are either already on the board or tied with the published sources, and repeating them would only sample measurement variation.
+
