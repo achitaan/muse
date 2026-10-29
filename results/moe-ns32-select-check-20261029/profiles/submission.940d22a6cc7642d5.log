@@ -1,0 +1,5 @@
+MOE_SKIP M=32 NS5 prepare budget 219s
+MOE_CANDIDATE M=32 MAIN sum3=385.15 err=0.00e+00 incumbent=385.15
+MOE_CANDIDATE M=32 MAIN+NS4 sum3=383.52 err=0.00e+00 incumbent=385.15
+MOE_KEEP M=32
+MOE_SELECTOR selected=[] s=52.2

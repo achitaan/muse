@@ -1,0 +1,29 @@
+{
+  "experiment": "M5 MoE ring-depth selector for decode 32 (MAIN WGS)",
+  "job": "940d22a6cc7642d5",
+  "candidate_sha256": "6ee2ac8447775985328659015c3cee13a4aa81b30bc62700cf0a85164e85d8fc",
+  "official": {
+    "passed": true,
+    "speedup": 2.33821914445322,
+    "ci": [
+      2.3031458572864216,
+      2.373292431620018
+    ]
+  },
+  "parent": {
+    "job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "prepare_s": 218.93,
+  "selector": {
+    "M32": {
+      "MAIN(inc) sum3": 385.15,
+      "MAIN+NS4 sum3": 383.52,
+      "gain": 1.0043,
+      "err": 0.0,
+      "NS5": "skipped by the 185 s compile guard (prepare at 219 s)"
+    }
+  },
+  "official_decode32_us": 127.2,
+  "decision": "measurement only: one more TMA ring slot changes decode 32 by 0.4% (bit-identical output); ring depth is not the bottleneck at 16 or 32 tokens (M4: MID+NS4 0.5%). Not retained."
+}
