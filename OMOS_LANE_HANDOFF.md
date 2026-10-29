@@ -93,3 +93,29 @@ Conclusion: clear gains on these three tracks need structural kernel work
 schedule), which cannot be validated in this window without spending checks on
 low-prior guesses. The remaining paced checks go to the attention split sweep
 and its Decode transfer, where per-shape leverage is measured.
+
+## Second lane: `omos/other-tracks-20261029` (user request: work the other tracks)
+
+Worktree `.slim/worktrees/other-tracks`, branched from the same handoff commit
+`6b7209fd89fc859ca658e3148b60b05d1052b44e`. Notes: `OTHER_TRACKS_NOTES.md` there.
+Both candidates use prepare-time timing on the judge's GPU and keep the incumbent unless
+another option wins by >=3% with matching output.
+
+### M1 ? MoE build selector by token count ? measurement only, not retained
+
+- Candidate `95d82f5b552e6266a6f8a7826db59a9533b1b19c0fc5133c1ccde21df0860e4d`
+  (184,785 B; parent `33114871?`). Check `d746cb32bcc045f4`: passed, **2.3763335x**
+  (CI 2.3407?2.4120) vs parent checked 2.3654374x (`d600231c8a8244cb`).
+- Selector log (?s, sum of medians over three routing draws shaped like the task inputs):
+  M=1 TINY 85.98 (incumbent) / TINY2 84.42 / MID 87.97 / MAIN 129.66;
+  M=8 TINY2 189.47 (incumbent) / TINY 191.55 / MID 196.99 / MAIN 224.42;
+  M=16 MID 244.38 (incumbent) / MAIN 268.58; M=32 MAIN 357.60 (incumbent) / MID 380.58.
+  Nothing selected, so the timed path equals the parent; the +0.46% is run noise.
+- Finding: the retained per-token-count build choice is already the fastest existing
+  build on the judge's H200 (TINY2 at M=1 is 1.8% faster on synthetic routing, below gate).
+
+### P1 ? Prefill FA3 num_splits / pack_gqa selector ? pending (launch 22:50 UTC)
+
+- Candidate `6d1f43575637910e3d047c496b5833f28ac45c6f10e6f1558b63f4c3531665e0`
+  (265,601 B; parent `93e57ab4?`, checked 1.6392908x `9ca79c7f676f4b63`);
+  gates `results/prefill-fa-select-check-20261029/gates.json` (other-tracks lane).
