@@ -1,0 +1,33 @@
+{
+  "source_sha256": "f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66",
+  "positive_fixture_passed": true,
+  "positive_fixture_synthetic": true,
+  "rejected_mutants": [
+    "missing_test",
+    "integrity_failed",
+    "wrong_GPU",
+    "missing_resource",
+    "ambiguous_resource",
+    "local_spills",
+    "one_resident_block",
+    "wrong_shared_size",
+    "old_tile_geometry",
+    "missing_profile",
+    "old_backend",
+    "forged_weight",
+    "forged_aggregate",
+    "weak_gain",
+    "global_drift_only"
+  ],
+  "GPU_jobs": 0,
+  "fixed_gates": {
+    "affected_gm_gt": 1.04,
+    "normalized_affected_gt": 1.04,
+    "each_normalized_affected_ge": 1.02,
+    "control_range": [
+      0.95,
+      1.05
+    ],
+    "track_ratio_gt": 1.015
+  }
+}

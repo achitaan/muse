@@ -3,6 +3,20 @@
 This is CPU-screened development work, with no GPU job, installed candidate,
 measured speedup or rank claim. Retain Attention9e922c35 and DecodeD9 unchanged.
 
+Final prelaunch source is now
+`admission-v2/submission.py`, SHA256
+`f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66`,
+CUDA `08fbf1d2380f957318ac501abbdbd9c9adff52bd64de63d936b3f727d6700464`.
+The native resource gate and distinct `attn_kernel_wide_l1` symbol are added;
+their inverse restores the exact CPU draft. Five fresh official evaluator files
+match their pinned copies. Fifteen synthetic malformed/weak-result fixtures are
+rejected by the fixed guard. They are guard tests, not GPU measurements.
+
+The earlier root-level admitted source1f82c377 is preserved only as rejected
+CPU preparation history: its TORCH_CHECK condition needed parentheses around
+template commas. It was never uploaded. Admission-v2 fixes that host macro
+syntax without changing the device algorithm.
+
 ## Sources and scope
 
 Baseline Attention SHA256:
@@ -95,7 +109,7 @@ Require full16tests/12benchmarks/integrity, all numerical/cache/gate boundaries,
 and real new-path execution on the affected full-context L1 cases. An invalid
 or ambiguous path/resource admission cannot establish performance.
 
-Conservative proposed retention gates, to freeze before launch: affected
+Frozen prelaunch retention gates: affected
 geometric ratio>1.04, affected/control-normalized ratio>1.04, each affected case
 normalized>=1.02, unchanged controls within[0.95,1.05], and reconstructed six-load
 track ratio>1.015. Use actual46/16load weights. These engineering gates are not

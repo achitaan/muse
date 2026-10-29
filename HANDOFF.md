@@ -1,3 +1,17 @@
+> READY FOR ONE PACED CHECK, October29: final Attention wide-tile sourcef5d5b04b,
+> CUDA08fbf1d, at results/attention-l1-wide-tile-preflight-20261029/admission-v2/.
+> Native resource admission requires zero local/static bytes, <=128base regs,
+> >=2resident blocks and exactly84992dynamic bytes,128keys/2stages. Distinct
+> attn_kernel_wide_l1 symbol binds actual execution. Five fresh official files
+> match;15synthetic malformed/weak-result guard mutants are rejected. Retention
+> gates fixed before launch: affected and affected/control GM>1.04, each>=1.02
+> normalized, controls[.95,1.05], six-load track>1.015baseline=2.575055522x.
+> Driver scripts/measure_attention_wide.py follows one persistent handle and
+> reconciles unknown uploads; no new baseline job. Controller scope only
+> candidates/attention_active.py. Parent remains9e922c35. No GPU job started yet
+> at this commit. Root-level admitted1f82c377 is rejected CPU host-macro syntax
+> history, never uploaded; use admission-v2 only. Main chat and broad goal stay.
+>
 > CURRENT CPU DRAFT, October29: Attention L1-flat128-key/two-stage source7ef8ab72,
 > CUDA20aeed18, prepared with eight reversible edits; no candidate installed or
 > GPU job. Native BF16 boundary guard passes. All450ownership/bounds cases and

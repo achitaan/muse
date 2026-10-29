@@ -1,0 +1,42 @@
+{
+  "draft_sha256": "7ef8ab72409ef250979fcd14802af38ec3b7e966f9c662d3ce535f650eced553",
+  "source_sha256": "1f82c377237a947e660a89d87cae10bfffb1144ce2e3b98579a19d24bab65c86",
+  "CUDA_sha256": "bf04b4142ae7801a0f5f7b7e6cfd54583c105eea4168b68e431a7d436484efd3",
+  "original_draft_restored_exactly": true,
+  "Python_AST_unchanged": true,
+  "device_symbol_renames": 14,
+  "resource_marker": "ATTN_WIDE_RESOURCES",
+  "resource_fields": [
+    "registers",
+    "local_bytes",
+    "static_shared_bytes",
+    "active_blocks",
+    "dynamic_shared_bytes",
+    "struct_bytes",
+    "keys",
+    "stages",
+    "consumer_threads",
+    "producer_threads",
+    "consumer_register_limit",
+    "base_register_limit",
+    "SMs"
+  ],
+  "marker_expectation": [
+    128,
+    0,
+    0,
+    2,
+    84992,
+    83968,
+    128,
+    2,
+    128,
+    128,
+    200,
+    128,
+    132
+  ],
+  "marker_notes": "Register count may be1..128; active blocks at least2; SMs positive. H200 required by full result.",
+  "GPU_jobs": 0,
+  "installed": false
+}

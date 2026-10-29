@@ -1,0 +1,7 @@
+{
+  "source_sha256": "1f82c377237a947e660a89d87cae10bfffb1144ce2e3b98579a19d24bab65c86",
+  "reason": "CPU source inspection: parenthesize entire TORCH_CHECK condition so C++ template commas remain in its first macro argument.",
+  "GPU_jobs": 0,
+  "uploaded": false,
+  "replacement_source_sha256": "f5d5b04bbd9eb44f6e06efdf3de1f5b83b3164a40d3526c42a406d99b58bbe66"
+}
