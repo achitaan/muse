@@ -1,0 +1,11 @@
+{
+  "name": "triton",
+  "version": "3.9.0",
+  "filename": "triton-3.9.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+  "url": "https://files.pythonhosted.org/packages/3f/c9/af85b25e0d98bd921a7646ad1db1c8746250ee04b8f1595982d29b6283cf/triton-3.9.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+  "sha256": "5e52ab4e2f1d64f0ac494c9aa723697b793f81a91c4cae4c36608ca0bc4267bf",
+  "wheel_verified": true,
+  "repository_local_extraction": true,
+  "global_packages_changed": false,
+  "GPU_jobs": 0
+}

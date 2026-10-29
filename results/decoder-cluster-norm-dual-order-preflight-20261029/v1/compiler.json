@@ -1,0 +1,42 @@
+{
+  "nvrtc_version": [
+    13,
+    0
+  ],
+  "package_hashes": {
+    "nvidia_cuda_nvrtc-13.0.88-py3-none-win_amd64.whl": "6bcd4e7f8e205cbe644f5a98f2f799bef9556fefc89dd786e79a16312ce49872",
+    "nvidia_cuda_runtime-13.0.88-py3-none-win_amd64.whl": "0156cf8f3453025938aab80bcca909506f4e82f1584a17736df7edeba882cc02",
+    "nvidia_cuda_cccl-13.0.85-py3-none-win_amd64.whl": "e160c6f031687b913fbe6e82e43f1788c3dd2a2a6378d3a8b15a31934b3ab285"
+  },
+  "platform": "Windows x86_64",
+  "original_source_sha256": "5d189e9a2f7c5b1396c82cf60dd893886299dff5f857c23c0d93da316e1a5347",
+  "compiled_prefix_sha256": "5d189e9a2f7c5b1396c82cf60dd893886299dff5f857c23c0d93da316e1a5347",
+  "source_bytes": 5125,
+  "host_torch_launcher_omitted": false,
+  "added_forward_declaration": null,
+  "virtual_type_traits_header": null,
+  "virtual_stdint_header": null,
+  "name_expressions": [
+    "&okc_cluster_norm_dual_order::boundary<0>",
+    "&okc_cluster_norm_dual_order::boundary<1>",
+    "&okc_cluster_norm_dual_order::boundary<2>",
+    "&okc_cluster_norm_dual_order::boundary<3>"
+  ],
+  "flags": [
+    "--gpu-architecture=sm_90a",
+    "--std=c++20",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--ptxas-options=-v",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl"
+  ],
+  "return_code": 0,
+  "cubin_bytes": 514264,
+  "compile_seconds": 1.547000000020489,
+  "log_file": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\decoder-cluster-norm-dual-order-v1\\main.log",
+  "gpu_kernels_loaded_or_launched": false,
+  "official_checks_used": 0,
+  "exact_judge_toolchain": false,
+  "scope": "Device-code proxy preflight only; no host-extension ABI, occupancy, correctness or performance validation"
+}

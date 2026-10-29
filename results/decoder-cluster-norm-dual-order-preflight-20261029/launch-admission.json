@@ -1,0 +1,8 @@
+{
+  "source_sha256": "1c23cdc6dbcf3583cfcae023bef6281059fd1db04347f00cfcf28b95268dcfff",
+  "GPU_admitted": true,
+  "reason": "One bounded reduction-order repair of rejected f382e1af. Scalar vec8/FMA order and independently generated tiny-Triton strided balanced tree are modeled separately. All four modes and M1..32 scope remain. Offline56regs/zero spills,60finite arithmetic fixtures,256DSM schedules,27guard fault fixtures, host fallbacks and six current official identities pass. Fixed accuracy, resource, component net-saving and whole-layer affected/control gates remain. Evaluator Triton version and actual failed input are unknown: GPU comparison is required. Enforce spacing, reserve and one-live-job policy.",
+  "GPU_jobs_at_admission": 0,
+  "native_resource_and_performance_unverified": true,
+  "publication_requires_full_source_bound_material_gain": true
+}

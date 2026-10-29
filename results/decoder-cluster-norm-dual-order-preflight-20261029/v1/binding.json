@@ -1,0 +1,67 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "native_CUDA_sha256": "5d189e9a2f7c5b1396c82cf60dd893886299dff5f857c23c0d93da316e1a5347",
+  "offline_register_counts": [
+    56,
+    56,
+    56,
+    56
+  ],
+  "zero_stack_and_spills": true,
+  "static_shared_bytes": 16,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "source_parent_sha256": "49bf73e68a8713a431f11d03d6f2f20e361562d4a105140962f8b6a11f269634",
+  "edits": [
+    {
+      "old": "namespace okc_cluster_norm_ordered",
+      "new": "namespace okc_cluster_norm_dual_order",
+      "count": 2
+    },
+    {
+      "old": "template<int PHASE>",
+      "new": "template<int PHASE,bool TRITON>",
+      "count": 1
+    },
+    {
+      "old": "  return rsqrtf(sum*(1.f/H)+eps);",
+      "new": "  if constexpr (TRITON) return rsqrtf(__fadd_rn(__fmul_rn(sum,1.f/H),eps));\n  else return rsqrtf(sum*(1.f/H)+eps);",
+      "count": 1
+    },
+    {
+      "old": "//0attention/routerFP32,1attention/no router,2FFN slicedT<=8,3fullFFN.",
+      "new": "// The retained Triton tiny-FFN uses separately rounded squares and a\n// balanced adjacent-pair tree over32 strided elements/thread. Its original\n// 256 logical lanes are distributed exactly as for the scalar modes.\ntemplate<int BEGIN,int COUNT>\n__device__ __forceinline__ float tiny_tree(const float (&values)[PACKS][VEC]) {\n  if constexpr (COUNT==1) {\n    const float v=values[BEGIN/VEC][BEGIN%VEC];\n    return __fmul_rn(v,v);\n  } else {\n    return __fadd_rn(tiny_tree<BEGIN,COUNT/2>(values),tiny_tree<BEGIN+COUNT/2,COUNT/2>(values));\n  }\n}\n\n//0attention/routerFP32,1attention/no router,2FFN slicedT<=8,3fullFFN.",
+      "count": 1
+    },
+    {
+      "old": "const int col=vector_index*VEC+v;",
+      "new": "const int col=SLICE ? logical_thread+(pack*VEC+v)*LOGICAL_THREADS : vector_index*VEC+v;",
+      "count": 3
+    },
+    {
+      "old": "      ss=fmaf(b,b,ss);",
+      "new": "      if constexpr (!SLICE) ss=fmaf(b,b,ss);",
+      "count": 1
+    },
+    {
+      "old": "  const float post=row_inverse<0>(ss,s,cluster,p.post_eps);",
+      "new": "  if constexpr (SLICE) ss=tiny_tree<0,PACKS*VEC>(values);\n  const float post=row_inverse<0,SLICE>(ss,s,cluster,p.post_eps);",
+      "count": 1
+    },
+    {
+      "old": "      pre_ss=fmaf(value,value,pre_ss);",
+      "new": "      if constexpr (!SLICE) pre_ss=fmaf(value,value,pre_ss);",
+      "count": 1
+    },
+    {
+      "old": "  const float pre=row_inverse<1>(pre_ss,s,cluster,p.pre_eps);",
+      "new": "  if constexpr (SLICE) pre_ss=tiny_tree<0,PACKS*VEC>(values);\n  const float pre=row_inverse<1,SLICE>(pre_ss,s,cluster,p.pre_eps);",
+      "count": 1
+    }
+  ],
+  "inverse_restores_parent": true,
+  "evaluator_Triton_version_unknown": true,
+  "tiny_mapping_evidence": "Triton3.9.0, exact retained AST, explicit sm90,8warps,FP fusion disabled; artifacts in decoder-sfn-offline-reduction-20261029",
+  "all_four_semantic_modes_preserved": true,
+  "numerical_limits_unchanged": true
+}

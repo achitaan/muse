@@ -1,0 +1,14 @@
+{
+  "source_sha256": "1c23cdc6dbcf3583cfcae023bef6281059fd1db04347f00cfcf28b95268dcfff",
+  "exact_packaged_prefix": true,
+  "compiled_device_source_bound": true,
+  "CPP_host_signature_equal": true,
+  "query_launch_arity": 16,
+  "required_BF16_and_FP32_boundaries_preserved": true,
+  "candidate_python_compiles": true,
+  "unsupported_fallbacks_checked": 13,
+  "eligible_attention_shapes_checked": 7,
+  "sliced_tail_above8_rejected": true,
+  "CPU_only": true,
+  "GPU_jobs": 0
+}

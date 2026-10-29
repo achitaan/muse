@@ -1,0 +1,386 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "native_CUDA_sha256": "5d189e9a2f7c5b1396c82cf60dd893886299dff5f857c23c0d93da316e1a5347",
+  "generated_PTX_sha256": "2daed63ca87cf89024f592c603bb6ec5a3acfa50f0c2e3a5d45ef30f436717f1",
+  "generated_Triton_tree_proved_for_logical_threads": [
+    0,
+    7,
+    31,
+    65,
+    127,
+    255
+  ],
+  "post_and_pre_trees_balanced_adjacent_32": true,
+  "scalar_vs_tiny_different_rows": 10,
+  "full_row_ownership_columns": 8192,
+  "DSM_random_schedules": 256,
+  "hazards_detected": {
+    "reuse_stat_bank": true,
+    "omit_DSM_lifetime_join": true
+  },
+  "numerical_cases": [
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 1,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 3,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 0,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 8,
+      "kind": 2,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 16,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 31,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 1,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "random",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_branch",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "zero_residual",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "outlier",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    },
+    {
+      "rows": 32,
+      "kind": 3,
+      "fixture": "small",
+      "all_outputs_bitwise_equal_under_CPU_arithmetic": true
+    }
+  ],
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "limits": "Triton3.9.0 compiler evidence, evaluator version unknown. Finite CPU arithmetic does not reproduce hardware rsqrt/div or scalar FMA contraction. Native resources, replay and performance require GPU validation."
+}

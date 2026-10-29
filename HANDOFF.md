@@ -1,4 +1,15 @@
-> LATEST PREPARATION, October29: ordered Decode boundary repair5acf30a5
+> LATEST ADMITTED PREPARATION, October29: dual-order Decode repair1c23cdc6
+> (native5d189e9a,combined65b393c4), all4modes/M1..32scope. Offline exact
+> retained tiny-FFN source under officialTriton3.9.0 proves strided/nonfused
+> balanced tree; CUDA/model now distinguish it from scalar vec8/FMA order.
+> All4modes56regs/zero spills,60finite cases/256DSM/27guard mutants/host
+> fallbacks/6fresh official identities pass. All gates unchanged. One paced
+> check admitted; no GPU result at preparation. EvaluatorTriton version and
+> failed input remain unknown. All44protected files remain. Packet/review:
+> results/decoder-cluster-norm-dual-order-preflight-20261029/.
+>
+> Earlier preparation, superseded by dual-order admission:
+> ordered Decode boundary repair5acf30a5
 > (native49bf73e6) passes offline56regs/zero-spill compile,60finite scalar
 > arithmetic cases,256DSM schedules and27guard mutants. No GPU job or new
 > retained gain. Driver admission is explicitly false: the tiny-token FFN

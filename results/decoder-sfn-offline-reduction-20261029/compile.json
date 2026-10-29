@@ -1,0 +1,24 @@
+{
+  "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "kernel_AST_sha256": "f07c3f73c6cc6279aa8157af8e66fde460b7b4c78f7cff4d0811ddfcc1aebd92",
+  "kernel_source_sha256": "6b97d50e5033882ece0f882b3d3fe73d0b78fdb953dca07adba5d8d3236b4974",
+  "compiler_host_Python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "compiler_version": "3.9.0",
+  "target": "cuda/sm90/warp32",
+  "options": {
+    "num_warps": 8,
+    "enable_fp_fusion": false
+  },
+  "constants": {
+    "BranchStride": 1024,
+    "StreamStride": 8192,
+    "H": 8192,
+    "Slice": 1024,
+    "PostEps": 1e-08,
+    "PreEps": 1e-05
+  },
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "evaluator_compiler_version_unknown": true,
+  "metadata": "KernelMetadata(allowed_dot_input_precisions=['tf32', 'tf32x3', 'ieee', 'bf16x3', 'bf16x6'], arch='sm90', backend_name='cuda', clc=False, debug=False, default_dot_input_precision='tf32', deprecated_fp8_dot_operand_dtypes=['fp8e4b15'], enable_fp_fusion=False, enable_reflect_ftz=True, extern_libs=[['libdevice', '/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.tools/triton-offline-3.9.0/site/triton/backends/nvidia/lib/libdevice.10.bc']], fpsan_homomorphic_casts=False, global_scratch_align=1, global_scratch_size=0, hash='7b21a0479babe0a952d3416bad0b0edf2af5153c29e676896d58609cc09b86eb', instrumentation_mode='', ir_override=None, launch_cooperative_grid=False, launch_pdl=False, max_num_imprecise_acc_default=1073741824, maxnreg=None, min_shared_mem=None, name='_sfn_kernel', num_ctas=1, num_stages=3, num_warps=8, profile_scratch_align=1, profile_scratch_size=0, ptx_options=None, ptx_version=None, sanitize_overflow=True, sched4reg=False, shared=32, supported_fp8_dtypes=['fp8e4b15', 'fp8e4nv', 'fp8e5'], target=GPUTarget(backend='cuda', arch=90, warp_size=32), tensordesc_meta=[], tmem_size=0, triton_version='3.9.0', warp_size=32)"
+}

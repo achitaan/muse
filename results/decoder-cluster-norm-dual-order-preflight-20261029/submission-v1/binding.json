@@ -1,0 +1,29 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "packaged_parent_sha256": "307dd791187807cd4895346cec314a91ff8a2af49add7d7ac5c7a27f04007072",
+  "source_sha256": "1c23cdc6dbcf3583cfcae023bef6281059fd1db04347f00cfcf28b95268dcfff",
+  "CUDA_sha256": "65b393c4885037546cacc0eacdd42a505879ff2efcf62fdf43ee788e887c3a83",
+  "native_CUDA_sha256": "5d189e9a2f7c5b1396c82cf60dd893886299dff5f857c23c0d93da316e1a5347",
+  "bytes": 908177,
+  "rejected_GPU_source_sha256": "f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf",
+  "retry_reason": "Source/finite evidence establishes changed reduction order. Repair scalar order and separately generated tiny-Triton order; preserve fixed gates and original complete M1..32 boundary scope.",
+  "exact_failed_GPU_input_unavailable": true,
+  "evaluator_Triton_version_unknown": true,
+  "addon_exact_from_ordered_trial": true,
+  "numerical_and_paired_gate_AST_exact": true,
+  "numerical_probes": 36,
+  "changed_input_graph_replays": 8,
+  "packaged_parent_exact_prefix": true,
+  "all_four_semantic_modes_preserved": true,
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "required_native": {
+    "registers_at_most": 64,
+    "local_bytes": 0,
+    "static_shared_bytes": 16,
+    "active_clusters_at_least": 32,
+    "SMs_at_least": 132,
+    "CTAs_per_cluster": 4,
+    "threads_per_CTA": 64
+  }
+}

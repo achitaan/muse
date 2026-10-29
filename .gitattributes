@@ -15,3 +15,5 @@ experiments/prepared/decoder_cluster_norm_addon.py -text
 scripts/decoder_cluster_norm_evidence.py -text
 experiments/prepared/decoder_cluster_norm_ordered.cu -text
 scripts/decoder_cluster_norm_ordered_evidence.py -text
+experiments/prepared/decoder_cluster_norm_dual_order.cu -text
+scripts/decoder_cluster_norm_dual_order_evidence.py -text
