@@ -1,3 +1,12 @@
+> PREPARED CANDIDATE, October29 at05:08UTC: e8e3086d changes only WGS
+> phase-A store representation, with original numerical expressions and
+> scheduler. CPU audit covers8,519,680 writes/all counts1..64/all4096columns,
+> 65,536 bit pairs,100 dispatch cases and12 full-guard mutants. No GPU
+> result. Packet: results/moe-epair-store-preflight-20261029/. One paced
+> check eligible after05:22:50.375730UTC; retain33114871 until full gates pass.
+> Lane command was rejected by automatic review under main-chat-only rules;
+> no retry/delegation/model switch occurred. Work continues directly here.
+
 > LATEST OFFLINE SCREEN, October 29 at04:50UTC: adjacent-row register
 > redistribution for WGS gather stores passed16,384 layouts and1,048,576
 > exact uint4 ownership checks. Synthetic large-token fixtures reduce modeled

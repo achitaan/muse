@@ -1,0 +1,196 @@
+{
+  "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+  "cpu_only": true,
+  "no_cuda_calls": true,
+  "dispatch_cases": 100,
+  "chunk_cases": [
+    {
+      "m": 0,
+      "launches": []
+    },
+    {
+      "m": 1,
+      "launches": [
+        1
+      ]
+    },
+    {
+      "m": 4,
+      "launches": [
+        4
+      ]
+    },
+    {
+      "m": 8,
+      "launches": [
+        8
+      ]
+    },
+    {
+      "m": 16,
+      "launches": [
+        16
+      ]
+    },
+    {
+      "m": 17,
+      "launches": [
+        17
+      ]
+    },
+    {
+      "m": 31,
+      "launches": [
+        31
+      ]
+    },
+    {
+      "m": 32,
+      "launches": [
+        32
+      ]
+    },
+    {
+      "m": 33,
+      "launches": [
+        33
+      ]
+    },
+    {
+      "m": 63,
+      "launches": [
+        63
+      ]
+    },
+    {
+      "m": 64,
+      "launches": [
+        64
+      ]
+    },
+    {
+      "m": 65,
+      "launches": [
+        65
+      ]
+    },
+    {
+      "m": 127,
+      "launches": [
+        127
+      ]
+    },
+    {
+      "m": 128,
+      "launches": [
+        128
+      ]
+    },
+    {
+      "m": 129,
+      "launches": [
+        129
+      ]
+    },
+    {
+      "m": 191,
+      "launches": [
+        191
+      ]
+    },
+    {
+      "m": 192,
+      "launches": [
+        192
+      ]
+    },
+    {
+      "m": 255,
+      "launches": [
+        255
+      ]
+    },
+    {
+      "m": 256,
+      "launches": [
+        256
+      ]
+    },
+    {
+      "m": 257,
+      "launches": [
+        257
+      ]
+    },
+    {
+      "m": 383,
+      "launches": [
+        383
+      ]
+    },
+    {
+      "m": 384,
+      "launches": [
+        384
+      ]
+    },
+    {
+      "m": 385,
+      "launches": [
+        384,
+        1
+      ]
+    },
+    {
+      "m": 768,
+      "launches": [
+        384,
+        384
+      ]
+    },
+    {
+      "m": 769,
+      "launches": [
+        384,
+        384,
+        1
+      ]
+    }
+  ],
+  "fresh_outputs": true,
+  "id_alignment_and_dtype_preserved": true,
+  "separate_scratch_binding": true,
+  "synthetic_input_modes": [
+    "normal",
+    "skewed",
+    "duplicate",
+    "remote"
+  ],
+  "resource_rejections": [
+    "register_budget",
+    "local_storage",
+    "shared_size",
+    "residency_false",
+    "residency_true",
+    "thread_geometry"
+  ],
+  "selection_rejections": [
+    "missing_skewed",
+    "duplicate_shape",
+    "unbalanced_orders",
+    "nan_timing",
+    "zero_timing",
+    "forged_ratio",
+    "numerical_error",
+    "missing_fresh_replay",
+    "fresh_replay_error",
+    "nearby_regression",
+    "material_gain_missing"
+  ],
+  "json_roundtrip_admission": true,
+  "evidence_fixture_bytes": 11242,
+  "evidence_limit": 13000,
+  "original_prepare_and_original_kernel_not_executed": true,
+  "gpu_verified": false
+}

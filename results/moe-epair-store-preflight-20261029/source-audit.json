@@ -1,0 +1,16 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "original_cuda_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "epair_cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+  "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "source_bytes": 336352,
+  "original_cuda_inverse_exact": true,
+  "parent_prefix_exact": true,
+  "phase_B_exact_ignoring_namespace": true,
+  "scratch_layout_unchanged": true,
+  "mainloop_weights_routing_readiness_finalizer_unchanged_ignoring_namespace": true,
+  "numerical_contract": "Same Marlin BF16 boundaries, FP32 SiLU expression and BF16 store value; opaque lane exchange only",
+  "new_synchronization": "One XOR4 shuffle reached by all32 lanes before valid-store predicate; no new CTA/grid join",
+  "runtime_wrapper_built": true,
+  "gpu_verified": false
+}

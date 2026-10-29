@@ -1,0 +1,20 @@
+{
+  "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+  "positive_fixture_passed": true,
+  "rejected": [
+    "empty_choice",
+    "local_storage",
+    "wrong_cuda",
+    "forged_pairs",
+    "missing_nearby_case",
+    "ambiguous_marker",
+    "new_backend_absent",
+    "small_backend_changed",
+    "complete_track_gain_missing",
+    "control_normalized_gain_missing",
+    "integrity_failed"
+  ],
+  "no_gpu_jobs": true,
+  "no_api_calls": true,
+  "fixtures_are_not_measurements": true
+}

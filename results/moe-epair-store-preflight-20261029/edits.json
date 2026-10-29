@@ -1,0 +1,266 @@
+[
+  {
+    "name": "32bit store with original intermediate-cache policy",
+    "offset": 4502,
+    "old": "constexpr int HD = 4096, ID = 4096;",
+    "new": "__device__ __forceinline__ void epair_st_keep_u32(uint32_t* a, uint32_t v) {\n#if OKC_L2H\n  asm volatile(\"st.global.L2::cache_hint.b32 [%0], %1, %2;\\n\" ::\"l\"(a), \"r\"(v), \"l\"(0x14F0000000000000ull) : \"memory\");\n#else\n  *a = v;\n#endif\n}\n\nconstexpr int HD = 4096, ID = 4096;"
+  },
+  {
+    "name": "WGS phase-A scalar stores become exact adjacent-column pairs",
+    "offset": 101727,
+    "old": "    // SwiGLU straight into xB (phase B's per-stage wgmma B layout) instead of row-major inter\n    const int col = r16 * 8 + g, ntt = (cnt + 7) >> 3;\n    const float gsc = p.gsA[e] * TWO62;\n    __nv_bfloat16* xb = p.xB + (size_t)S.jrow[j] * HD + (col & 7);\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = nt * 8 + 2 * t + h;\n      if (tk < cnt) {\n        const float2 achita_pair_9 = achita_marlin_out2(d4[h], d4[2 + h], gsc);\n        const float gt = achita_pair_9.x, up = achita_pair_9.y;\n        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;\n        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),\n                     __float2bfloat16(probe_q(v)));\n      }\n    }\n",
+    "new": "    // Same SwiGLU/BF16 values, redistributed across lane bit2 for paired stores.\n    const int ntt = (cnt + 7) >> 3;\n    const float gsc = p.gsA[e] * TWO62;\n    uint32_t vb[2] = {0u, 0u};\n#pragma unroll\n    for (int h = 0; h < 2; ++h) {\n      const int tk = nt * 8 + 2 * t + h;\n      if (tk < cnt) {\n        const float2 achita_pair_9 = achita_marlin_out2(d4[h], d4[2 + h], gsc);\n        const float gt = achita_pair_9.x, up = achita_pair_9.y;\n        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;\n        vb[h] = (uint32_t)__bfloat16_as_ushort(__float2bfloat16(probe_q(v)));\n      }\n    }\n    // All lanes participate, including short-tail lanes whose vb is zero.\n    // g-even sends h1; g-odd sends h0. XOR4 exchanges adjacent columns.\n    const bool odd = (g & 1) != 0;\n    const uint32_t cross = __shfl_xor_sync(0xffffffffu, odd ? vb[0] : vb[1], 4);\n    const uint32_t packed = odd ? (cross | (vb[1] << 16)) : (vb[0] | (cross << 16));\n    const int tk = nt * 8 + 2 * t + (int)odd;\n    const int col = r16 * 8 + (g & ~1);\n    if (tk < cnt) {\n      __nv_bfloat16* dst = p.xB + (size_t)S.jrow[j] * HD + (col & 7)\n          + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8);\n      epair_st_keep_u32(reinterpret_cast<uint32_t*>(dst), packed);\n    }\n"
+  },
+  {
+    "name": "Explicit empty-job return, preserving all nonempty ranges",
+    "offset": 115112,
+    "old": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n",
+    "new": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  if (nj == 0) return 0;  // all-nonlocal inputs have no job-table entry\n"
+  },
+  {
+    "name": "Actual new-path namespace",
+    "offset": 3434,
+    "old": "namespace okc {",
+    "new": "namespace okc_epair {"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136151,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136225,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136245,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136277,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136297,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136354,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136401,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136421,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136468,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136485,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136521,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136539,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 136978,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 137896,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 137922,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 137940,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 137956,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 138720,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 138846,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 138979,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139009,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139033,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139140,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139158,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139197,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139220,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139315,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139333,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139361,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139388,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139415,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139767,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 139893,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140361,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140678,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140744,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140816,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140856,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140893,
+    "old": "okc::",
+    "new": "okc_epair::"
+  },
+  {
+    "name": "Launcher namespace",
+    "offset": 140934,
+    "old": "okc::",
+    "new": "okc_epair::"
+  }
+]

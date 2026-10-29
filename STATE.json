@@ -42,7 +42,17 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE gather paired-store CPU screen passed16384 layouts/1048576 uint4 checks. Distinct-sector model improves large-token gather stores, not measured GPU time; parked until exposed gather cost and whole-layer value justify shuffle/register overhead. No runtime candidate or GPU job. Attentioned810 remains rejected; no score/Decode transfer/retry. No new check before05:22:50.375730UTC.",
+  "next_trial": "MoE phase-A paired BF16 stores e8e3086d are frozen/CPU-audited:8519680 exact halfword writes,65536 bit patterns,100 dispatch cases and12 guard rejections. One paced full check with strict resource/actual-path/material-gain gates; no new check before05:22:50.375730UTC. No GPU result yet. Gather paired-store screen remains parked. Attentioned810 remains rejected; no score/Decode transfer/retry.",
+  "moe_epair_store_preflight": {
+    "packet": "results/moe-epair-store-preflight-20261029/",
+    "review": "experiments/prepared/moe_epair_store_review.md",
+    "source_sha256": "e8e3086d34a30de0283e37f2f40d3b1d9742313203fc624c1720bc6a6badced8",
+    "cuda_sha256": "9d6c435420eb3f43d9fa2cbbea343d1414a557ee883140e67d97718b2b0e3e5d",
+    "source_bytes": 336352,
+    "gpu_verified": false,
+    "preflight_authorization": "One already-authorized paced check; main chat only, no model switch, no paid service",
+    "lane_command_auto_review": "Rejected because orchestration could dispatch another agent/model; not retried or bypassed; implementation continues directly"
+  },
   "offline_checkpoint_20261029_0450": {
     "packet": "results/moe-gather-pair-store-screen-20261029/",
     "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
@@ -66,7 +76,7 @@
     ]
   },
   "target_achieved": false,
-  "active_track": "moe_decode_new_mechanism_source_research",
+  "active_track": "moe_wgs_phase_a_paired_stores",
   "resume_note": "Human enabled sparing GPU checks through October 29 at 20:00 Toronto; EVALUATION_POLICY.json supersedes older no-GPU holds. Preserve all incumbents.",
   "attention_checked": {
     "source": "best/attention_checked.py",

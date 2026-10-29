@@ -1,3 +1,12 @@
+> PREPARED CANDIDATE, October29 at05:08UTC: MoE phase-A paired BF16 stores
+> e8e3086d/336352bytes pass CPU full-layout/bit/host/guard audits. No GPU
+> result or speedup yet. Packet: results/moe-epair-store-preflight-20261029/;
+> exact review/gates: experiments/prepared/moe_epair_store_review.md.
+> One paced check, cached baseline, no score before material evidence. Earliest
+> upload05:22:50.375730UTC. Inspect controller/session and launch.json rather
+> than treating this dated preparation note as current process status.
+> All best files remain verified incumbents. Gather screen remains parked.
+
 > OFFLINE CHECKPOINT, October 29 at04:50UTC: MoE gather paired-store
 > ownership screen passed16,384 layouts and1,048,576 exact uint4 checks.
 > The large-token sector model is promising but is not a GPU timing result.
