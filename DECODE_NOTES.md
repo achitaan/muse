@@ -1,4 +1,24 @@
-# October29: boundary-only cluster4 candidate prepared, not GPU-verified
+# October29: cluster4 boundary setup rejected; source-order repair screened
+
+Check63acbd4d99324fea/sourcef382e1af passed native32regs/0local/72static,
+248active clusters/132SMs in all four kinds, then failed the fixed setup
+FP32 residual gate:5.4878e-5global/2.1086e-4worst-row vs2e-5. No full13tests
+or12benchmarks ran; no speedup or official-task accuracy verdict. Controller
+df5fef03 reverted96fd1b7, archived20261029-161455. All44protected hashes matchD9.
+
+Diagnosis from pinned SGLang a55ab7d5: its scalar kernel groups256logical
+threads into vec8packs and an eight-warp XOR tree; the draft's strided1024thread
+distribution and linear CTA sum differ in FP32 order. A768-row CPU model
+matches the original tree exactly when64original logical threads go to each
+of four CTAs and all8warp partials are gathered. The actual failed input/M/kind
+were not recorded, so this is a supported repair hypothesis, not proven cause.
+No native repair/retry yet. Keep2e-5gates; add failure context before any next
+probe. Never import the upstream cluster moment shortcut across BF16 rounding.
+Packets: results/decoder-cluster-norm-setup-failure-20261029/ and
+results/decoder-cluster-norm-reduction-diagnosis-20261029/. Nextnew check>=
+17:03:03.179453UTC (13:03Toronto), only if a bounded repair is ready.
+
+# October29: boundary-only cluster4 original preparation
 
 Candidatef382e1af, nativec84debd7, uses the source-preserving307dd791pack and
 leaves all projection/MoE/Attention kernels untouched. Two residual/norm

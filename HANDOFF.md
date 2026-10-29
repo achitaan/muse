@@ -1,4 +1,23 @@
-> Prepared Decoder boundary-only cluster4 candidatef382e1af/nativec84debd7.
+> LATEST TERMINAL RESULT, October29: Decodef382e1af check63acbd4d99324fea
+> passed all4native resource queries32regs/0local/72static/248clusters/132SMs,
+> then setup numerical gate failed on FP32 residual global5.4878e-5/worst-row
+> 2.1086e-4 vs2e-5. No fulltests/benchmarks or speedup. Controllerdf5fef03
+> trialcb78c30/revert96fd1b7/archive20261029-161455; all44protected hashes
+> restored. No live job/controller. Full raw/source/guards/controller packet:
+> results/decoder-cluster-norm-setup-failure-20261029/.
+>
+> Pinned scalar SGLang source reveals different thread/FMA/reduction order.
+> A768-row finite CPU model supports64logical threads perCTA, preserving the
+> original256logical threads/vec8packs/eight-warp XOR tree. Actual failed
+> GPU input/M/kind unknown, so cause is not proven. No native repair/retry
+> written yet. Keep numerical gates unchanged; add failure context next time.
+> Do not copy upstream moment shortcut across required BF16 branch rounding.
+> Diagnosis with pinned upstream files: results/decoder-cluster-norm-reduction-diagnosis-20261029/.
+> Derived checks Dense19/Attention16/MoE12/Decode18/Prefill20=85, scores10each.
+> Nextnew check>=17:03:03.179453UTC, not a launch target. Top50goal stillactive.
+>
+> Historical preparation below, superseded by terminal setup failure:
+> Decoder boundary-only cluster4 candidatef382e1af/nativec84debd7.
 > Original projections/MoE/Attention unchanged;307dd791pack exact prefix.
 > M1..32norm/residual rows split across4CTAs,full8192norms,BF16branch/gain,
 > FP32residual and small-router input; implicit zero-tail onlyT<=8. Offline

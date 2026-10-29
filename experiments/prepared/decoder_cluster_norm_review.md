@@ -1,5 +1,20 @@
 # Decode: cluster4 residual/norm boundaries
 
+Terminal result supersedes the preflight discussion below. Check63acbd4d99324fea
+passed native resource admission in all four modes (32regs,0local,72static,
+248active clusters,132SMs), then failed the fixed setup numerical comparison:
+FP32 residual global5.4878e-5/worst-row2.1086e-4 exceed2e-5. No official full
+tests or benchmarks followed; no speedup or official correctness claim exists.
+Reverted96fd1b7, controller archived20261029-161455, all44protected hashes restored.
+Full failure packet: results/decoder-cluster-norm-setup-failure-20261029/.
+
+Pinned SGLang source shows a different logical-thread/FMA/reduction order.
+A768-row CPU model supports an exact-order distributed repair, but the actual
+failed GPU row and M/kind are unavailable, so cause remains a hypothesis.
+No native repair/retry yet; gates stay unchanged. Diagnosis and original
+upstream sources: results/decoder-cluster-norm-reduction-diagnosis-20261029/.
+Original preparation notes below are historical.
+
 Parent D9: `d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988`.
 Prepared candidate: `f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf`.
 Native CUDA plus launcher: `c84debd7016155722eda211709914721b254f8383d091e9154a72f97807e87c6`.

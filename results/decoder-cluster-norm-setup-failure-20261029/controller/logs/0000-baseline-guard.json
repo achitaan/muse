@@ -1,0 +1,9 @@
+{
+  "command": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/verify_decoder_cluster_norm_evidence.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 0.156,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Cached exactD9 full13/12/integrity; no baseline GPU job.\r\n",
+  "timed_out": false
+}

@@ -1,0 +1,66 @@
+{
+  "source_sha256": "f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf",
+  "job_id": "63acbd4d99324fea",
+  "outcome": "setup numerical gate failed",
+  "numerical_error": "RuntimeError: cluster norm numerical probe failed:1,5.4877578804735094e-05,0.00021086186461616307",
+  "native_resources": [
+    [
+      0,
+      32,
+      0,
+      72,
+      248,
+      132,
+      1,
+      4,
+      256
+    ],
+    [
+      1,
+      32,
+      0,
+      72,
+      248,
+      132,
+      1,
+      4,
+      256
+    ],
+    [
+      2,
+      32,
+      0,
+      72,
+      248,
+      132,
+      1,
+      4,
+      256
+    ],
+    [
+      3,
+      32,
+      0,
+      72,
+      248,
+      132,
+      1,
+      4,
+      256
+    ]
+  ],
+  "native_resource_admission_passed": true,
+  "full_tests_run": 0,
+  "full_benchmarks_run": 0,
+  "completed_diagnostic_counts_unknown": true,
+  "speedup": null,
+  "scored_submission": false,
+  "retained_source": "D9",
+  "trial_commit": "cb78c30",
+  "revert_commit": "96fd1b7",
+  "controller": "df5fef03881740d88553c1ab63ecfb8a",
+  "archive": "20261029-161455",
+  "all44protected_sources_restored": true,
+  "next_new_check_not_before_utc": "2026-10-29T17:03:03.179453+00:00",
+  "decision": "Diagnose source arithmetic/reduction ordering offline; do not weaken the fixed gate or retry unchanged code."
+}

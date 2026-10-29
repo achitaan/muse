@@ -1,0 +1,9 @@
+{
+  "command": "\"C:/Users/Achita/AppData/Local/Programs/Python/Python310/python.exe\" scripts/measure_decoder_cluster_norm.py",
+  "cwd": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2",
+  "duration_seconds": 411.859,
+  "returncode": 0,
+  "stderr": "Decode cluster-norm check 63acbd4d99324fea: received\r\nDecode cluster-norm check 63acbd4d99324fea: running\r\nDecode cluster-norm check 63acbd4d99324fea: done\r\n",
+  "stdout": "{\"speedup\": 0.0, \"correct\": false, \"job\": \"63acbd4d99324fea\", \"source_sha256\": \"f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf\", \"error\": null}\r\n",
+  "timed_out": false
+}

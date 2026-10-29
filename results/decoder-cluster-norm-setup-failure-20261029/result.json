@@ -1,0 +1,88 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "kc-63acbd4d99324fea",
+  "cluster": "sfo3",
+  "content_hash": "f7d90a40ea75b158f2f7b9aa45b19322522faa3966f632f63fab490daed28629",
+  "created_at": 1793289783.1102521,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793290156.4397895,
+  "id": "63acbd4d99324fea",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.decoder-cluster-norm-measurements/f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf/profiles/submission.63acbd4d99324fea.log"
+  },
+  "payload_ref": "muse_decode_layer/f7d90a40ea75b158f2f7b9aa45b19322522faa3966f632f63fab490daed28629.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "CN_RESOURCES [[0, 32, 0, 72, 248, 132, 1, 4, 256], [1, 32, 0, 72, 248, 132, 1, 4, 256], [2, 32, 0, 72, 248, 132, 1, 4, 256], [3, 32, 0, 72, 248, 132, 1, 4, 256]]\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-q7gpxfm_/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q7gpxfm_/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q7gpxfm_/run/submission.py\", line 7528, in prepare\n    errors=_cn_error(new(),old());probes+=1\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q7gpxfm_/run/submission.py\", line 7445, in _cn_error\n    if max(global_error,row)>limit:raise RuntimeError(f'cluster norm numerical probe failed:{i},{global_error},{row}')\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cluster norm numerical probe failed:1,5.4877578804735094e-05,0.00021086186461616307\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 124.05,
+        "power.limit": 700,
+        "temperature.gpu": 37
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 76.5,
+        "power.limit": 700,
+        "temperature.gpu": 33
+      },
+      "node": "n-hg25ugy45aa3trrcfa4kf5iljz"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 21734400,
+        "copies": null,
+        "error": "RuntimeError: cluster norm numerical probe failed:1,5.4877578804735094e-05,0.00021086186461616307",
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793289796.6582525,
+  "status": "done",
+  "team": "achitaan"
+}

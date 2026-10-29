@@ -1,0 +1,67 @@
+{
+  "parent_source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+  "upstream_commit": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "CPU_only": true,
+  "GPU_jobs": 0,
+  "GPU_failure_source": "f382e1afd11d53edc1f203df0e58502dc704d7de15da66c4780fb0e9fd1eecaf",
+  "exact_failed_GPU_input_unavailable": true,
+  "failed_probe_m_and_kind_unrecorded": true,
+  "root_cause_status": "Source-backed reduction-order hypothesis with finite reproductions; not proven against the actual failing GPU row",
+  "proposed_repair": "Preserve256logical threads, original vec8/pack order and eight-warp XOR tree; distribute64logical threads to each of four CTAs and gather all eight warp partials",
+  "fixed_numerical_gate_unchanged": true,
+  "no_native_repair_written_yet": true,
+  "cases": [
+    {
+      "fixture": "random",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 57,
+      "differing_BF16_postnorm_values": 0,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    },
+    {
+      "fixture": "weighted",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 44,
+      "differing_BF16_postnorm_values": 0,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    },
+    {
+      "fixture": "zero_tail",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 42,
+      "differing_BF16_postnorm_values": 0,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    },
+    {
+      "fixture": "outlier",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 48,
+      "differing_BF16_postnorm_values": 0,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    },
+    {
+      "fixture": "small",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 60,
+      "differing_BF16_postnorm_values": 90,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    },
+    {
+      "fixture": "zero",
+      "rows": 128,
+      "original_vs_first_prototype_different_row_sums": 0,
+      "differing_BF16_postnorm_values": 0,
+      "proposed_distributed_tree_bitwise_matches_reference_row_sums": true
+    }
+  ],
+  "pinned_files": {
+    "fused_norm_residual.py": "61be2075b233c687f7b111bae06d4f9494c3032a8b0c2289c9ae10fc8c757493",
+    "norm_residual.py": "7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a",
+    "norm_residual.cuh": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+    "cta.cuh": "70d77c58422e12c34a5f49b910c683f1cbf86eac5d49fa81fbaf340c9f4d7bf2",
+    "warp.cuh": "a4dbbd6a40780cd5f7b815f001ead3b4dccb8cfdb3532937951ccf71a4a747a6",
+    "math.cuh": "73e182466976d821f8ad89017fd2492c50ea456d5e7007d4e869cb6730568477"
+  },
+  "upstream_scalar_url": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_residual.cuh",
+  "next": "One bounded source-order repair, offline resources/precision/DSM proof, then decide whether one paced retry is justified. Do not relax gates or import the upstream moment shortcut."
+}
