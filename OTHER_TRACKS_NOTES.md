@@ -76,6 +76,7 @@ new small-M kernel.
 | P5 confirmation of P4 (identical code + comment) | `c4d2e6ef68674473` | 1.6648694x pass | 1.6392908x | same selections, applied; FA3 4499.5->4341.3 and 8013.7->7730.6 us. Mean of P4/P5 normalized vs P1/P2/P3: ctx 65536 1.026/1.032/1.052 (meets 1.02), ctx 32768 1.002/1.029/1.046 (fails vs P1). Frozen rule needs both shapes: **not retained** |
 | M5 MoE ring depth OKC_NS 3->4 at 32 tokens (MAIN WGS) | `940d22a6cc7642d5` | 2.3382191x pass | 2.3654374x | +0.4% (383.52 vs 385.15 us over 3 draws, bit-identical); NS5 skipped by compile guard (prepare 219 s). Ring depth is not the decode-32 bottleneck |
 | P6 P4 with an 8-byte-wide (int64) row gather | `6095723fa6fa4f69` | 1.6544052x pass | 1.6392908x | same selections, applied; FA3 4461.3->4305.3 and 8011.9->7718.9 us. index_select gather ~55 us per cache at 81,920 rows (~0.38 TB/s) regardless of width. Mean of P4/P5/P6 normalized: ctx 65536 1.022/1.028/1.047 vs P1/P2/P3 (meets 1.02), ctx 32768 0.998/1.025/1.042 (fails vs P1): **not retained** |
+| P7 contiguous-KV FA3 with a Triton row-gather kernel (offline sm_90 compile) | `5e0ba944f9d24191` | 1.6606778x pass | 1.6392908x | gather both caches 7.6-41.6 us (15.0 us at 81,920 rows vs ~110 us index_select); selected and applied on 4 full shapes: first turn ctx 0 906.5->866.8, ctx 32768 4476.3->4277.1, ctx 65536 8017.2->7617.9, turn 4 1629.6->1580.5 us. Normalized vs P1 0.947-1.003, P2 0.985-1.017, P3 1.018-1.044; expected 0.4-2.3% per shape is below run spread: **not retained** |
 
 D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
 Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
@@ -107,8 +108,10 @@ FA3 splits, Prefill MoE schedule thresholds, Prefill GEMM layout, Dense cuBLASLt
 fastest or within 3%. The one lever that won in-process is Prefill's contiguous-KV FA3 for long
 full first-turn shapes (FA3 -3.5..-3.8% incl. gather in three runs P4/P5/P6; ctx 65536 met its
 shape gate against all three same-night references, ctx 32768 did not against P1, so it is not
-retained). It is the best starting point for a future Prefill change: the torch index_select
-gather costs ~110 us for both caches at 81,920 rows (~0.38 TB/s); a bandwidth-efficient gather
-(~10-15 us) would raise the FA3 gain to ~5% at ctx 65536 and may also help the 753-token full
-shapes (contiguous FA3 there is ~15 us faster before the gather). Remaining gaps need new kernels.
+retained). It is the best starting point for a future Prefill change. P7 replaced the torch
+index_select gather (~110 us for both caches at 81,920 rows) with a Triton row-gather kernel
+(15 us); contiguous FA3 then won on four full shapes in-process (3.1-5.2%, incl. turn 4 and first
+turn ctx 0), but the expected per-shape effect (0.4-2.3%) is below single-run resolution; it
+needs repeated confirming runs (P7 candidate `8d3005442ab10ca92adfeaaa27e4f3c9e54b3a43270edb20d7c1956367619773`).
+Remaining gaps need new kernels.
 P6 candidate: `bb7168f60b258c7247d54efab1ac53219ba9f6b5033d155b0d4ecc491e3c3f55`.
