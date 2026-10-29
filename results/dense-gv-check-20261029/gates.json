@@ -1,0 +1,19 @@
+{
+  "experiment": "D1 Dense row-parallel Triton GEMV selector (router/sliced unpooler, 1 and 8 tokens)",
+  "frozen_before_launch_utc": "2026-10-29T22:58:00Z",
+  "parent": {
+    "sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+    "scored_job": "6131bc96427e4486",
+    "scored_speedup": 1.5277713270942548
+  },
+  "parent_profile": "results/sprint-20261028-evidence/6131bc96427e4486/profiles/submission.6131bc96427e4486.json",
+  "candidate": "candidates/dense_gv.py",
+  "candidate_sha256": "6776a4c41152fd6378625dd967bcd50816d7e44aad4ff26dfd31841364810a54",
+  "affected_rule": "shapes whose (layer, m) is GV_SELECTed in the run log; controls = all other Dense shapes",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "all Dense tests + 30 benchmarks pass (router 1e-4 FP64 tolerance)",
+    "selection": "GV_SELECT only when >=3% faster in prepare and FP64 error <= 1.5x incumbent",
+    "retention": "affected normalized >= 1.03 and track not regressed beyond its interval"
+  }
+}
