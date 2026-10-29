@@ -31,6 +31,12 @@ multiplier by averaging or summing standalone speedups.
 
 Reference: https://openkernelchallenge.dev/llms.txt
 Public snapshots and model limitations: results/overall-ranking-screen-20261029/.
+Exact retained-source load/profile table and CPU reproducer:
+results/retained-load-opportunities-20261029/review.md and
+experiments/prepared/summarize_retained_loads.py. It reconstructs both retained
+track speedups exactly, while keeping profiler sums separate from benchmarks.
+The D9 M256 sliding profile is173.5us MoE/301.9us summed kernels; the older
+200.3/331.3us pair is bound to a different source.
 
 The current saved50th-place speedups are Dense1.554205, MoE2.361119,
 Attention2.613234 and Decode2.148002. These are separate track thresholds,

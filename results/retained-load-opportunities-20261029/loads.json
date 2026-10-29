@@ -1,0 +1,995 @@
+{
+  "cpu_only": true,
+  "new_gpu_jobs": 0,
+  "official_overall_aggregation": "unknown",
+  "benchmark_times": "Saved baseline_ns and median_ns fields; paired-normalized latencies, not profile durations",
+  "profile_times": "Rounded summed kernel durations from a separate profiler pass, not critical-path fractions",
+  "studies": {
+    "moe": {
+      "source_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+      "job": "d600231c8a8244cb",
+      "profile_path": "results/resumed-moe-phase4-20261028/331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50/profiles/submission.d600231c8a8244cb.json",
+      "profile_file_sha256": "b190890ff50fdf937f058bcfe0573beff4ca15b279780e5db1d87a9dd353336a",
+      "reconstructed_track_speedup": 2.365437416088433,
+      "loads": {
+        "decode 1": {
+          "baseline_load_ns": 4691520.072519779,
+          "retained_load_ns": 1491083.4468184703,
+          "cases": [
+            {
+              "index": 0,
+              "weight": 60,
+              "tokens": 1,
+              "baseline_benchmark_us": 78.19200120866299,
+              "retained_benchmark_us": 24.851390780307835,
+              "layer": null,
+              "profile_sum_us": 30.8,
+              "moe_us": 30.8,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 30.8,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 3.1463833110950907
+        },
+        "decode 16": {
+          "baseline_load_ns": 11614080.062136054,
+          "retained_load_ns": 5798439.887876233,
+          "cases": [
+            {
+              "index": 1,
+              "weight": 60,
+              "tokens": 16,
+              "baseline_benchmark_us": 193.5680010356009,
+              "retained_benchmark_us": 96.64066479793722,
+              "layer": null,
+              "profile_sum_us": 78.0,
+              "moe_us": 78.0,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 78.0,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.0029663645249736
+        },
+        "decode 32": {
+          "baseline_load_ns": 12335039.908066392,
+          "retained_load_ns": 7510431.9086551145,
+          "cases": [
+            {
+              "index": 2,
+              "weight": 60,
+              "tokens": 32,
+              "baseline_benchmark_us": 205.5839984677732,
+              "retained_benchmark_us": 125.1738651442519,
+              "layer": null,
+              "profile_sum_us": 114.7,
+              "moe_us": 114.7,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 114.7,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 1.642387556147249
+        },
+        "verify 1": {
+          "baseline_load_ns": 8550720.121711493,
+          "retained_load_ns": 3762445.429631503,
+          "cases": [
+            {
+              "index": 3,
+              "weight": 60,
+              "tokens": 8,
+              "baseline_benchmark_us": 142.51200202852488,
+              "retained_benchmark_us": 62.70742382719171,
+              "layer": null,
+              "profile_sum_us": 87.3,
+              "moe_us": 87.3,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 87.3,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.2726496055914778
+        },
+        "verify 16": {
+          "baseline_load_ns": 27879360.22505164,
+          "retained_load_ns": 10761458.623230904,
+          "cases": [
+            {
+              "index": 4,
+              "weight": 60,
+              "tokens": 128,
+              "baseline_benchmark_us": 464.6560037508607,
+              "retained_benchmark_us": 179.35764372051509,
+              "layer": null,
+              "profile_sum_us": 174.4,
+              "moe_us": 174.4,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 174.4,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.5906674179713978
+        },
+        "verify 32": {
+          "baseline_load_ns": 37129921.37297988,
+          "retained_load_ns": 12916960.570031894,
+          "cases": [
+            {
+              "index": 5,
+              "weight": 60,
+              "tokens": 256,
+              "baseline_benchmark_us": 618.832022882998,
+              "retained_benchmark_us": 215.28267616719825,
+              "layer": null,
+              "profile_sum_us": 226.7,
+              "moe_us": 226.7,
+              "attention_kernel_us": 0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 226.7,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.8745091518761368
+        }
+      }
+    },
+    "decode": {
+      "source_sha256": "d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988",
+      "job": "9560c915e85f4f50",
+      "profile_path": "results/decoder-segment-repair-20261028/profiles/submission.9560c915e85f4f50.json",
+      "profile_file_sha256": "38a6de34fadcb7fbb7e02c5f4de72999dd3c7fd7ca6a975a48d2e23fe301697f",
+      "reconstructed_track_speedup": 1.9902248796281297,
+      "loads": {
+        "decode 1": {
+          "baseline_load_ns": 10784127.989783883,
+          "retained_load_ns": 5369920.98520951,
+          "cases": [
+            {
+              "index": 0,
+              "weight": 46,
+              "tokens": 1,
+              "baseline_benchmark_us": 171.07200156897306,
+              "retained_benchmark_us": 84.63937439246054,
+              "layer": "sliding",
+              "profile_sum_us": 87.4,
+              "moe_us": 29.0,
+              "attention_kernel_us": 4.9,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 29.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18s_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, ...",
+                  "us": 13.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void route_fp32<1>(float const*, float const*, float cons...",
+                  "us": 11.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18d_native_gemv<1, 1, 1, 2, 2, 0, 256, 0, 2304, 819...",
+                  "us": 9.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smallm2_gemv<1, 1, 1, 2, 0, 0, 1024, 0, 8192, 1024, ...",
+                  "us": 5.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, false, 13>((an...",
+                  "us": 4.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smtrace_gemv<1, 1, 1, 2, 2, 0, 256, 1, 1024, 4096, 1...",
+                  "us": 4.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_sfn_kernel",
+                  "us": 3.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.0,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 1,
+              "weight": 16,
+              "tokens": 1,
+              "baseline_benchmark_us": 182.17599485069513,
+              "retained_benchmark_us": 92.28186019727035,
+              "layer": "full",
+              "profile_sum_us": 87.6,
+              "moe_us": 22.3,
+              "attention_kernel_us": 11.2,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 22.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18s_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, ...",
+                  "us": 14.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, false, 11>((an...",
+                  "us": 11.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void route_fp32<1>(float const*, float const*, float cons...",
+                  "us": 11.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18d_native_gemv<1, 1, 1, 2, 2, 0, 256, 0, 2304, 819...",
+                  "us": 9.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smallm2_gemv<1, 1, 1, 2, 0, 0, 1024, 0, 8192, 1024, ...",
+                  "us": 5.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smtrace_gemv<1, 1, 1, 2, 2, 0, 256, 1, 1024, 4096, 1...",
+                  "us": 3.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_sfn_kernel",
+                  "us": 3.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.0,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.008247052328487
+        },
+        "decode 16": {
+          "baseline_load_ns": 19182559.851557016,
+          "retained_load_ns": 9879917.605129031,
+          "cases": [
+            {
+              "index": 2,
+              "weight": 46,
+              "tokens": 16,
+              "baseline_benchmark_us": 262.9279959946871,
+              "retained_benchmark_us": 138.34520238139373,
+              "layer": "sliding",
+              "profile_sum_us": 127.6,
+              "moe_us": 58.8,
+              "attention_kernel_us": 8.0,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 58.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+                  "us": 17.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void dd_cap2_b_cpssm_gemv<1, 2, 1, 2, 0, 0, 256, 0, 8192,...",
+                  "us": 14.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void r3_qkv16_qkv_gate_push_d9_cap6_a_m32x_q_gemv<1, 2, 1...",
+                  "us": 10.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+                  "us": 8.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m16trace_59fcb5b72994_gemv<1, 2, 1, 1, 0, 0, 256, 0,...",
+                  "us": 5.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 1.9,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "weight": 16,
+              "tokens": 16,
+              "baseline_benchmark_us": 442.99200223758817,
+              "retained_benchmark_us": 219.75239347405747,
+              "layer": "full",
+              "profile_sum_us": 234.0,
+              "moe_us": 86.1,
+              "attention_kernel_us": 87.2,
+              "reported_kernels": [
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+                  "us": 87.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 86.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+                  "us": 17.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void dd_cap2_b_cpssm_gemv<1, 2, 1, 2, 0, 0, 256, 0, 8192,...",
+                  "us": 15.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void r3_qkv16_qkv_gate_push_d9_cap6_a_m32x_q_gemv<1, 2, 1...",
+                  "us": 10.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m16trace_59fcb5b72994_gemv<1, 2, 1, 1, 0, 0, 256, 0,...",
+                  "us": 5.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 1.9,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 1.9415708326958758
+        },
+        "decode 32": {
+          "baseline_load_ns": 21327008.115127683,
+          "retained_load_ns": 12265746.31527283,
+          "cases": [
+            {
+              "index": 4,
+              "weight": 46,
+              "tokens": 32,
+              "baseline_benchmark_us": 252.7199974283576,
+              "retained_benchmark_us": 157.78905715158714,
+              "layer": "sliding",
+              "profile_sum_us": 162.3,
+              "moe_us": 84.8,
+              "attention_kernel_us": 9.2,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 84.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+                  "us": 20.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m32w_gemm<32, 64, 2, 2, 2, true, 2>(CUtensorMap_st, ...",
+                  "us": 17.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m32x_q_gemv<1, 4, 1, 1, 5, 0, 128, 0, 2304, 8192, 1,...",
+                  "us": 11.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+                  "us": 9.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void r3_o32_o_direct_a_ol_projection<32, 128, 8, 1, 1, 1,...",
+                  "us": 6.5,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 1.8,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 5,
+              "weight": 16,
+              "tokens": 32,
+              "baseline_benchmark_us": 606.3680145889521,
+              "retained_benchmark_us": 312.96560539373877,
+              "layer": "full",
+              "profile_sum_us": 318.7,
+              "moe_us": 85.5,
+              "attention_kernel_us": 165.1,
+              "reported_kernels": [
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+                  "us": 165.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 85.5,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+                  "us": 19.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m32w_gemm<32, 64, 2, 2, 2, true, 2>(CUtensorMap_st, ...",
+                  "us": 17.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void m32x_q_gemv<1, 4, 1, 1, 5, 0, 128, 0, 2304, 8192, 1,...",
+                  "us": 11.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void r3_o32_o_direct_a_ol_projection<32, 128, 8, 1, 1, 1,...",
+                  "us": 7.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 3.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.0,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 1.7387452476961895
+        },
+        "verify 1": {
+          "baseline_load_ns": 16306751.421652734,
+          "retained_load_ns": 8019801.634704627,
+          "cases": [
+            {
+              "index": 6,
+              "weight": 46,
+              "tokens": 8,
+              "baseline_benchmark_us": 259.0399910695851,
+              "retained_benchmark_us": 127.14587752224959,
+              "layer": "sliding",
+              "profile_sum_us": 129.2,
+              "moe_us": 64.6,
+              "attention_kernel_us": 7.1,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 64.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void route_fp32<8>(float const*, float const*, float cons...",
+                  "us": 15.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smallm2_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, ...",
+                  "us": 13.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void qs_literal_owner5_decode5_gemv<1, 1, 1, 2, 5, 0, 256...",
+                  "us": 9.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, false, 15>((an...",
+                  "us": 7.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18s_gemv<1, 1, 1, 2, 0, 0, 256, 0, 8192, 1024, 1, 8...",
+                  "us": 5.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smtrace_gemv<1, 1, 1, 2, 2, 0, 512, 8, 1024, 4096, 1...",
+                  "us": 4.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_sfn_kernel",
+                  "us": 3.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 1.7,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 7,
+              "weight": 16,
+              "tokens": 8,
+              "baseline_benchmark_us": 274.4319895282388,
+              "retained_benchmark_us": 135.69320429257166,
+              "layer": "full",
+              "profile_sum_us": 153.5,
+              "moe_us": 78.4,
+              "attention_kernel_us": 13.9,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<false>(okc::Params)",
+                  "us": 78.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void route_fp32<8>(float const*, float const*, float cons...",
+                  "us": 16.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smallm2_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, ...",
+                  "us": 14.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, false, 11>((an...",
+                  "us": 13.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void qs_literal_owner5_decode5_gemv<1, 1, 1, 2, 5, 0, 256...",
+                  "us": 10.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void v18s_gemv<1, 1, 1, 2, 0, 0, 256, 0, 8192, 1024, 1, 8...",
+                  "us": 5.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void smtrace_gemv<1, 1, 1, 2, 2, 0, 512, 8, 1024, 4096, 1...",
+                  "us": 4.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_sfn_kernel",
+                  "us": 3.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 1.7,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.0333110673320687
+        },
+        "verify 16": {
+          "baseline_load_ns": 36216927.617788315,
+          "retained_load_ns": 17669131.90266043,
+          "cases": [
+            {
+              "index": 8,
+              "weight": 46,
+              "tokens": 128,
+              "baseline_benchmark_us": 537.6799926161766,
+              "retained_benchmark_us": 262.51620775406855,
+              "layer": "sliding",
+              "profile_sum_us": 271.1,
+              "moe_us": 172.1,
+              "attention_kernel_us": 11.6,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 172.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_64x64_64x13_1x1_v_bz_coopB_NNN",
+                  "us": 23.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+                  "us": 22.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void qb_4d509bcf5bddaa48::qb_kernel<64, 36, 128, 3, 8, 53...",
+                  "us": 14.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+                  "us": 11.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void ol_projection<128, 128, 4, 3, 1, 1, 1>(CUtensorMap_s...",
+                  "us": 7.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rwdl_128_kernel<64, 8, 8, 1, 2, 1>(CUtensorMap_st, C...",
+                  "us": 6.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.1,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 9,
+              "weight": 16,
+              "tokens": 128,
+              "baseline_benchmark_us": 717.7279973402619,
+              "retained_benchmark_us": 349.58664662332984,
+              "layer": "full",
+              "profile_sum_us": 347.2,
+              "moe_us": 159.3,
+              "attention_kernel_us": 103.1,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 159.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+                  "us": 103.1,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_64x64_64x13_1x1_v_bz_coopB_NNN",
+                  "us": 22.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+                  "us": 21.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void qb_4d509bcf5bddaa48::qb_kernel<64, 36, 128, 3, 8, 53...",
+                  "us": 14.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void ol_projection<128, 128, 4, 3, 1, 1, 1>(CUtensorMap_s...",
+                  "us": 6.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rwdl_128_kernel<64, 8, 8, 1, 2, 1>(CUtensorMap_st, C...",
+                  "us": 6.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                  "us": 4.6,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 2.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.1,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.049728748266074
+        },
+        "verify 32": {
+          "baseline_load_ns": 51016064.152121544,
+          "retained_load_ns": 23195332.061447725,
+          "cases": [
+            {
+              "index": 10,
+              "weight": 46,
+              "tokens": 256,
+              "baseline_benchmark_us": 732.9920157790184,
+              "retained_benchmark_us": 331.848599679606,
+              "layer": "sliding",
+              "profile_sum_us": 301.9,
+              "moe_us": 173.5,
+              "attention_kernel_us": 14.9,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 173.5,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x64_64x8_1x1_v_bz_NNN",
+                  "us": 28.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x128_64x6_1x1_v_bz_coopA_NNN",
+                  "us": 26.5,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+                  "us": 20.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+                  "us": 14.9,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rl_early_projection<256, 64, 5, 7, 1, 1, 1>(CUtensor...",
+                  "us": 8.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rwdl_256_kernel<64, 4, 8, 0, 2, 3, 1, 0>(CUtensorMap...",
+                  "us": 8.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                  "us": 8.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                  "us": 7.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 3.0,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.6,
+                  "calls": 1
+                }
+              ]
+            },
+            {
+              "index": 11,
+              "weight": 16,
+              "tokens": 256,
+              "baseline_benchmark_us": 1081.1519641429186,
+              "retained_benchmark_us": 495.6435297616156,
+              "layer": "full",
+              "profile_sum_us": 506.5,
+              "moe_us": 208.4,
+              "attention_kernel_us": 183.5,
+              "reported_kernels": [
+                {
+                  "kernel": "void okc::moe_fused<true>(okc::Params)",
+                  "us": 208.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+                  "us": 183.5,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x64_64x8_1x1_v_bz_NNN",
+                  "us": 28.8,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_128x128_64x6_1x1_v_bz_coopA_NNN",
+                  "us": 26.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+                  "us": 21.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rl_early_projection<256, 64, 5, 7, 1, 1, 1>(CUtensor...",
+                  "us": 8.7,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                  "us": 8.4,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void rwdl_256_kernel<64, 4, 8, 0, 2, 3, 1, 0>(CUtensorMap...",
+                  "us": 8.3,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                  "us": 7.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "void sglang::muse_spark::routing_kernel<sglang::muse_spar...",
+                  "us": 3.2,
+                  "calls": 1
+                },
+                {
+                  "kernel": "_pn_inputs_kernel",
+                  "us": 2.5,
+                  "calls": 1
+                }
+              ]
+            }
+          ],
+          "load_speedup": 2.199410813217623
+        }
+      }
+    }
+  }
+}

@@ -10,6 +10,10 @@
 > Offline full-unit MoE ownership screening showed a tail-balance risk, not
 > a GPU result. Reproducer: experiments/prepared/screen_moe_unit_ownership.py.
 > All older next-step and authorization headers below are historical.
+> Retained-source load/profile table: results/retained-load-opportunities-20261029/.
+> CPU reconstruction exactly matches MoE2.365437416x and Decode1.990224880x.
+> D9's M256 sliding profile is173.5us MoE/301.9us summed kernels; keep the older
+> 200.3/331.3us source separate. Neither ratio is a critical-path fraction.
 
 > LATEST RESULT: Dense62f428608bbf41aa/13224d30 passed9tests/30benches/integrity.
 > Both fixed families passed native numerical probes but lost4..7% atM128;
