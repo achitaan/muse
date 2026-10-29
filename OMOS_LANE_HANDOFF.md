@@ -221,11 +221,14 @@ another option wins by >=3% with matching output.
 - Attention: no confirmed improvement. A3 (decode 16 sliding 8 splits) was downgraded by the
   same-night control A6 and the in-process autotune A5; every scored shape's plan is at a local
   optimum under in-process timing.
-- Prefill: P4 (contiguous-KV FA3 for the two long full first-turn shapes) selected and applied a
-  3.8% faster FA3 path; shape gain 1.011-1.056 normalized vs same-night runs; confirmation P5 in
-  flight (see `OTHER_TRACKS_NOTES.md` in the other-tracks lane).
-- MoE: build choice, fallback build and ring depth at 16 tokens measured optimal; M5 (ring depth
-  at 32 tokens) in flight.
+- Prefill: P4 `37a3e45b4e4b431d` (contiguous-KV FA3 for the two long full first-turn shapes)
+  selected and applied a 3.8% faster FA3 path; confirmation P5 `c4d2e6ef68674473` reproduced the
+  selection (FA3 -3.5%). Mean normalized shape gain over P4/P5 vs same-night P1/P2/P3: ctx 65536
+  1.026/1.032/1.052, ctx 32768 1.002/1.029/1.046. The frozen rule (both shapes >= 1.02 vs each
+  reference) failed at ctx 32768 vs P1, so P4 is not retained. P6 (int64 row gather) is the
+  final measurement (see `OTHER_TRACKS_NOTES.md` in the other-tracks lane).
+- MoE: build choice, fallback build and ring depth (M4 `0e1634cf0bc245a1` at 16 tokens +0.5%,
+  M5 `940d22a6cc7642d5` at 32 tokens +0.4%, bit-identical) measured; incumbents kept.
 - Dense: router/unpooler GEMV, O at 1-256 tokens (olayer, cuBLASLt) and the unpooler cuBLASLt
   neighborhood at 128/256 measured; the incumbents are fastest or within 2%.
 - `best/` is unchanged in both lanes; nothing was published or merged.
