@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "load": "decode 1",
+      "layer": "",
+      "parent_us": 24.85,
+      "cand_us": 25.77,
+      "ratio": 0.9642,
+      "normalized": 0.9622,
+      "affected": true,
+      "win": false
+    },
+    {
+      "load": "decode 16",
+      "layer": "",
+      "parent_us": 96.64,
+      "cand_us": 93.19,
+      "ratio": 1.037,
+      "normalized": 1.0349,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "decode 32",
+      "layer": "",
+      "parent_us": 125.17,
+      "cand_us": 126.2,
+      "ratio": 0.9919,
+      "normalized": 0.9898,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "",
+      "parent_us": 62.71,
+      "cand_us": 62.53,
+      "ratio": 1.0028,
+      "normalized": 1.0008,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 16",
+      "layer": "",
+      "parent_us": 179.36,
+      "cand_us": 180.93,
+      "ratio": 0.9913,
+      "normalized": 0.9892,
+      "affected": false,
+      "win": false
+    },
+    {
+      "load": "verify 32",
+      "layer": "",
+      "parent_us": 215.28,
+      "cand_us": 217.86,
+      "ratio": 0.9882,
+      "normalized": 0.9861,
+      "affected": false,
+      "win": false
+    }
+  ],
+  "summary": {
+    "control_gm": 1.002081068778685,
+    "affected_gm": 0.9642393281137355,
+    "affected_gm_normalized": 0.9622368470536319,
+    "track_speedup": 2.3593403275213447,
+    "speedup_ci": [
+      2.3239502226085245,
+      2.3947304324341645
+    ],
+    "passed": true,
+    "tests": 5,
+    "winners": []
+  }
+}

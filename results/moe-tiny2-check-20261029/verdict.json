@@ -1,0 +1,24 @@
+{
+  "experiment": "M2 MoE TINY2 for 1..4 tokens",
+  "job": "3158fdc490ed46d1",
+  "candidate_sha256": "6e1643db357ad2f862b7e5a9c7bcec4a6fd88046777dec8bee179c64aa09e352",
+  "official": {
+    "passed": true,
+    "speedup": 2.3593403275213447,
+    "ci": [
+      2.3239502226085245,
+      2.3947304324341645
+    ]
+  },
+  "parent": {
+    "job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "decode1_us": {
+    "parent": 24.85,
+    "candidate": 25.77
+  },
+  "normalized_ratio": 0.9622,
+  "control_gm": 1.0021,
+  "decision": "rejected: synthetic-routing selector edge (1.8%) did not transfer to the judge's routing; retained TINY<=4 threshold confirmed"
+}

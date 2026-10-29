@@ -55,3 +55,13 @@ Dense: the source already contains the cuBLASLt algorithm/layout search for the 
 shapes (`tt_lt__LT_H200_FIXED`, `tt_lt__LT_SEARCH_SEEDS`, transposed layouts) and the c12
 selector results above, so no new Dense selector was built; the remaining Dense gap needs a
 new small-M kernel.
+
+## Checks run October 29 (official, free checks only; no scored submissions)
+
+| Id | Job | Result | Parent | Outcome |
+|---|---|---|---|---|
+| M1 MoE build selector | `d746cb32bcc045f4` | 2.3763335x pass | 2.3654374x | nothing selected (incumbent builds fastest at 1/8/16/32 tokens); noise |
+| P1 Prefill FA3 selector | `bb9ce14d3ad8490b` | 1.6564053x pass | 1.6392908x | nothing selected (FA3 heuristic within 2.1%); noise |
+| M2 MoE TINY2 for 1..4 tokens | `3158fdc490ed46d1` | 2.3593403x pass | 2.3654374x | decode 1 25.77 vs 24.85 us (0.962 normalized); rejected |
+
+No Dense/MoE/Prefill change is retained; `best/` is unchanged. Remaining gaps need new kernels.
