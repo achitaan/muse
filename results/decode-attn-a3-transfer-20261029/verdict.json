@@ -1,0 +1,24 @@
+{
+  "experiment": "D2 Decode transfer of A3 split",
+  "job": "1245828eda2e4d54",
+  "candidate_sha256": "58931ccd297e6bba3fa8a593b37edb63494ac9ee9676138bf3c781ccdf0af424",
+  "official": {
+    "passed": true,
+    "speedup": 1.9729413294726401
+  },
+  "parent": {
+    "job": "9560c915e85f4f50",
+    "speedup": 1.9902248796281297
+  },
+  "decode16_sliding_us": [
+    138.35,
+    133.18
+  ],
+  "control_full_shapes_ratio": [
+    1.0455,
+    1.0027,
+    1.0418,
+    1.0324
+  ],
+  "decision": "not retained: the 3.9% move on the changed shape is within this run's drift (unchanged full shapes +0.3..4.5%, unchanged sliding shapes -3.7..+10%); track 1.9729x below parent"
+}
