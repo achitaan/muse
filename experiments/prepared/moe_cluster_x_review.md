@@ -1,7 +1,9 @@
 # MoE cluster activation multicast: feasibility packet, not GPU-ready
 
-Baseline is retained33114871, CUDA1e60cf46. No full CUDA candidate, host wrapper,
-GPU evaluation or speedup exists yet. The fixed design under investigation is
+Baseline is retained33114871, CUDA1e60cf46. The reversible native CUDA patch and
+host launcher are now implemented, with both device variants compiled locally.
+The single-file Python integration and its admission/measurement guard remain
+unfinished. No GPU evaluation or speedup exists yet. The fixed design is
 two CTAs per cluster, activated initially for M>=64 with exact PRMT eligibility.
 All smaller and ineligible paths must retain their existing implementation.
 The existing chunking contract must cover a final short chunk as well.
@@ -78,12 +80,21 @@ Handle N=0 without division. A cluster barrier by itself does not complete
 asynchronous operations. The final barrier is additional shared-memory lifetime
 protection after the explicit drain, not a replacement for it.
 
-Release/acquire scopes and async-proxy ordering need an explicit justification.
-The initial primitive uses conservative cluster-scope release/acquire, and its
-assembly contains additional GPU fences. Do not assume their cost is free.
-NVIDIA's pinned CUDA13.0 CCCL headers also expose relaxed cluster operations;
-their existence is not permission to remove required ordering. Choose and prove
-one final protocol before a GPU trial, rather than sweep scope flags afterwards.
+The chosen full device protocol keeps the original local mbarrier waits and
+default release/acquire semantics. Remote arrivals/expect_tx use the DSM target
+address space, following CUTLASS's default remote-counter pattern. There is no
+relaxed-operation tuning flag. The earlier conservative cluster-scope version
+is preserved separately in results/moe-cluster-x-device-v1-20261029/ as CPU-only
+history; it is not an alternative queued for evaluation.
+
+The empty signal publishes completion of WGMMA operand reads, established by
+the original wait_group placement, rather than ordinary cross-CTA data stores.
+Each receiver waits on its own full counter for its local multicast payload.
+Ordinary global phase-A output publication still uses the original GPU-scope
+release doneAs updates and acquire reads. Startup cluster synchronization
+publishes local barrier initialization; the explicit last-slot drain precedes
+the exit cluster rendezvous. These are the protocol's ordering obligations,
+not a claim that local compilation proves hardware memory semantics.
 
 An isolated sm_90a probe compiles a4096-byte multicast, remote expect_tx,
 remote empty arrivals, and entry/exit cluster barriers. Source, compiler log,
@@ -160,9 +171,56 @@ Even a standalone win needs its own full Decode integration evidence. D9's
 native MoE equals this baseline, so a precise MAIN-only transfer is possible
 if the result warrants it; packaging draft307dd791 provides preparation room.
 
-Next work is the event/interleaving model and complete device-source patch,
-then both BIG NVRTC/SASS preflights and host/query audits. No GPU job is queued.
-The existing pacing window/reserves still apply; quota is not a spending target.
+## Completed local implementation and remaining admission
+
+The event model in results/moe-cluster-x-ring-model-20261029/ passes174 finite
+interleavings, including zero copies, wraparound, asymmetric progress, delayed
+remote acknowledgements and independent receiver completion. It rejects five
+mutants: missing startup join,16 rather than32 empty arrivals, under-counted
+peer transaction bytes, private peer empty targets and premature peer exit.
+It does not model full inter-cluster readiness or prove PTX memory ordering.
+
+The default-protocol packet is results/moe-cluster-x-device-default-20261029/.
+Its native device prefix is112ab04d, and full CUDA including host is2701a25e.
+Twenty-six reversible device edits recover the exact retained prefix; inverse
+host edits recover the retained host interface. Smem layout, weight layout and
+the entire epilogue text remain exact. Both BIG variants compile in the local
+NVRTC13.0 Windows proxy at96 base registers and16 offline stack bytes, with no
+C751x serialization warning. Offline spill fields are96 store/160 load bytes,
+versus56/124 in the retained proxy; these fields are a resource-risk signal,
+not executed traffic or actual evaluator local-memory attributes. Full SASS,
+ELF cluster requirements, compiler logs and hashes are preserved in the packet.
+All44 protected sources/metadata remain exact.
+
+The implemented host query requires both variants to report2x1x1 clusters,
+zero actual local/static shared bytes,231168 dynamic bytes,576 threads and
+enough active clusters for the entire even grid. Launch configuration requires
+both ClusterDimension and Cooperative, with PDL disabled; no plain-launch
+fallback is present. These host calls have not compiled on evaluator NVCC or
+run on H200, and their combined graph-capture legality is still unverified.
+
+Source progress audit: phase A retains non-designated atomic completion, with
+its final deferred flush before entering phase B. Thus phase-B doneAs waiting
+does not require phase-B arithmetic to finish a phase-A contribution. Phase B
+keeps increasing paired-unit order. A designated stage0 share waits only for
+later cluster ranges; both ranks have the same group order and stage cuts.
+The final operand release occurs before recording a split unit's pending
+fixup. Thus the next segment's deferred flush cannot hold the preceding
+segment's operand while waiting for its fixup contributors. A flush may still
+hold the current segment's operand; later contributors have separate cluster
+rings. The dependency direction is toward increasing cluster range, while
+within a cluster both ranks require the same stage frontier. This audit must
+be preserved when wrapping the source; it assumes full simultaneous cluster
+residency and the original wait/flush placement. It is not hardware validation.
+
+Next is single-file Python integration, exact namespace/export/query checks,
+resource-admission negative controls, fresh-route graph probes and a fixed
+two-affected-load performance guard. Initial affected official loads are
+M128/256 only; M1/8/16/32 are controls. Do not reuse the old three-load guard.
+Require more than3% paired improvement on each affected synthetic load, no
+more than2% nearby regression, and complete official new-path correctness,
+integrity and material affected/control whole-track gain before retention.
+No GPU job is queued. Existing pacing window/reserves still apply.
 
 Primary mechanism sources: [NVIDIA PTX mbarrier/TMA semantics](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html),
 the pinned CUDA13.0 CCCL generated mbarrier headers, and
@@ -173,4 +231,7 @@ CPU reproduction: `python experiments/prepared/screen_moe_cluster_x_schedule.py`
 With the previously pinned workspace compiler available, the isolated primitive
 can be recompiled with `python experiments/prepared/local_nvrtc_compile.py --source results/moe-cluster-x-feasibility-20261029/cluster-x-primitives.cu --minimal-std-tags --name "&cluster_x_probe" --out .tools/cluster-x-probe-reproduction`.
 This command compiles on the CPU and launches no kernel. The full native-source
-patch, graph host wrapper and ring proof remain separate unfinished work.
+patch can be regenerated with build_moe_cluster_x_cuda.py followed by
+build_moe_cluster_x_host.py. archive_moe_cluster_x_device.py freezes a successful
+default-main compiler preflight without loading CUDA. Hardware graph/residency,
+whole-kernel numerical and performance validation remain unfinished.

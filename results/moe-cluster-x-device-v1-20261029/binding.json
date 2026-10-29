@@ -1,0 +1,7 @@
+{
+  "cubin_sha256": "52aa5eb4de9bfb355fcdc2a7f5f244c0ea5c31582ea990ca09c9308d5ec5dec6",
+  "SASS_sha256": "bc171e6c0a0c2ca64c12b7c63cd7be38952f94da1bd49370e64d8fe3a49de34f",
+  "protocol": "Conservative cluster-scope release/acquire; historical CPU reference only",
+  "kernel_execution": false,
+  "GPU_jobs": 0
+}

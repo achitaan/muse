@@ -1,0 +1,158 @@
+[
+  {
+    "name": "MAIN-only namespace",
+    "old": "namespace okc {",
+    "new": "#if !OKC_WGS || !OKC_PRMTSC\n#error Cluster2 requires eligible WGS MAIN\n#endif\nnamespace okc_cluster2 {",
+    "count": 1
+  },
+  {
+    "name": "namespace comment",
+    "old": "}  // namespace okc",
+    "new": "}  // namespace okc_cluster2",
+    "count": 1
+  },
+  {
+    "name": "cluster helpers",
+    "old": "template <int NTT> struct WGSMMA;",
+    "new": "\n// Cluster2 X ring: original default counter semantics, remote DSM targets.\n__device__ __forceinline__ void cx_sync() {\n  asm volatile(\"barrier.cluster.arrive.aligned; barrier.cluster.wait.aligned;\" ::: \"memory\");\n}\n__device__ __forceinline__ uint32_t cx_remote(uint32_t address, uint32_t rank) {\n  uint32_t result;\n  asm volatile(\"mapa.shared::cluster.u32 %0, %1, %2;\" : \"=r\"(result) : \"r\"(address), \"r\"(rank));\n  return result;\n}\n__device__ __forceinline__ void cx_wait(uint64_t* bar, uint32_t phase) {\n  mbar_wait(bar, phase);\n}\n__device__ __forceinline__ void cx_xrelease(uint64_t* bar) {\n  const uint32_t target = cx_remote(smem_u32(bar), 0);\n  asm volatile(\"mbarrier.arrive.shared::cluster.b64 _, [%0];\" :: \"r\"(target) : \"memory\");\n}\n__device__ __forceinline__ void cx_xcopy(unsigned char* dst, const __nv_bfloat16* src, uint32_t bytes, uint64_t* bar) {\n  const uint32_t local = smem_u32(bar), peer = cx_remote(local, 1);\n  asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %2; mbarrier.arrive.expect_tx.shared::cluster.b64 _, [%1], %2;\"\n               :: \"r\"(local), \"r\"(peer), \"r\"(bytes) : \"memory\");\n  asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.multicast::cluster [%0], [%1], %2, [%3], %4;\"\n               :: \"r\"(smem_u32(dst)), \"l\"(src), \"r\"(bytes), \"r\"(local), \"h\"((uint16_t)3) : \"memory\");\n}\n\ntemplate <int NTT> struct WGSMMA;",
+    "count": 1
+  },
+  {
+    "name": "producer startup rendezvous",
+    "old": "  WS_JOIN();  // routing tables and this CTA's stage ranges are ready",
+    "new": "  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  cx_sync();",
+    "count": 2
+  },
+  {
+    "name": "consumer startup rendezvous",
+    "old": "  WS_JOIN();\n  DBG(6);",
+    "new": "  WS_JOIN();\n  cx_sync();\n  DBG(6);",
+    "count": 1
+  },
+  {
+    "name": "producer actual unit mapping",
+    "old": "      const int u = gs >> 4, st = gs & 15;",
+    "new": "      const int u = 2 * (gs >> 4) + (blockIdx.x & 1), st = gs & 15;",
+    "count": 2
+  },
+  {
+    "name": "consumer actual unit mapping",
+    "old": "    const int u = gs >> 4, s0 = gs & 15, s1 = min(16, s0 + (ge - gs));",
+    "new": "    const int u = 2 * (gs >> 4) + (blockIdx.x & 1), s0 = gs & 15, s1 = min(16, s0 + (ge - gs));",
+    "count": 1
+  },
+  {
+    "name": "only leader issues X",
+    "old": "  cx_sync();\n  if ((threadIdx.x & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;",
+    "new": "  cx_sync();\n  if ((threadIdx.x & 31) != 0 || (blockIdx.x & 1)) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;",
+    "count": 1
+  },
+  {
+    "name": "combined empty wait",
+    "old": "if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);",
+    "new": "if (n >= WGS_NX) cx_wait(S.bars + BX_E + xs, xph ^ 1);",
+    "count": 1
+  },
+  {
+    "name": "one multicast for two receivers",
+    "old": "      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");",
+    "new": "      cx_xcopy(xring + xs * WGS_XS, jb + (size_t)st * npad * 256, bytes, bar);",
+    "count": 1
+  },
+  {
+    "name": "drain last X slots",
+    "old": "    }\n  }\n}\n// phase A's x gather",
+    "new": "    }\n  }\n  // No receiver may retain a last-generation operand or pending remote ack.\n  for (int slot = 0; slot < WGS_NX; ++slot)\n    if (n > slot) cx_wait(S.bars + BX_E + slot, (uint32_t)((n - 1 - slot) / WGS_NX) & 1u);\n}\n// phase A's x gather",
+    "count": 1
+  },
+  {
+    "name": "consumer full barrier scope",
+    "old": "wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);",
+    "new": "cx_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u);",
+    "count": 1
+  },
+  {
+    "name": "two CTA consumer releases",
+    "old": "mbar_arrive1(S.bars + BX_E + prev);",
+    "new": "cx_xrelease(S.bars + BX_E + prev);",
+    "count": 2
+  },
+  {
+    "name": "A grouped cost prefix",
+    "old": "acc += (uint32_t)wgs_cost(0, S.jC[j]) << 9;",
+    "new": "acc += (uint32_t)wgs_cost(0, S.jC[j]) << 8;",
+    "count": 1
+  },
+  {
+    "name": "B grouped cost prefix",
+    "old": "accB += (uint32_t)wgs_cost(1, S.jC[j]) << 8;",
+    "new": "accB += (uint32_t)wgs_cost(1, S.jC[j]) << 7;",
+    "count": 1
+  },
+  {
+    "name": "empty job guard",
+    "old": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  const int* pre",
+    "new": "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {\n  if (nj == 0) return 0;\n  const int* pre",
+    "count": 1
+  },
+  {
+    "name": "grouped stage_at shift",
+    "old": "return (lo << (9 - pb)) +",
+    "new": "return (lo << (8 - pb)) +",
+    "count": 1
+  },
+  {
+    "name": "grouped range endpoint",
+    "old": "(nj << (9 - pb))",
+    "new": "(nj << (8 - pb))",
+    "count": 1
+  },
+  {
+    "name": "phase0 cluster coordinate",
+    "old": "wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);",
+    "new": "wgs_range(S, nj, 0, blockIdx.x >> 1, gridDim.x >> 1, S.wgr[0], S.wgr[1]);",
+    "count": 1
+  },
+  {
+    "name": "phase1 cluster coordinate",
+    "old": "wgs_range(S, nj, 1, blockIdx.x, gridDim.x, S.wgr[2], S.wgr[3]);",
+    "new": "wgs_range(S, nj, 1, blockIdx.x >> 1, gridDim.x >> 1, S.wgr[2], S.wgr[3]);",
+    "count": 1
+  },
+  {
+    "name": "actual-unit fixup owner inverse",
+    "old": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G) {\n  const uint32_t tot = pb ? S.wtotB : S.wtot;\n  const int j = s >> (9 - pb);\n  const uint32_t xe = (uint32_t)(pb ? S.wcpB : S.wcp)[j] + (uint32_t)((s & ((1 << (9 - pb)) - 1)) + 1) * (uint32_t)wgs_cost(pb, S.jC[j]);\n  // largest c with floor(tot * c / G) < xe\n  int c = (int)(((xe - 1) * (unsigned long long)G) / tot);\n  if (c > G - 1) c = G - 1;\n  while (c + 1 < G && tot * (uint32_t)(c + 1) / (uint32_t)G < xe) ++c;\n  while (c > 0 && tot * (uint32_t)c / (uint32_t)G >= xe) --c;\n  return c;\n}",
+    "new": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G) {\n  const int rank = (s >> 4) & 1;\n  s = (s >> 5) << 4;\n  G >>= 1;\n  const uint32_t tot = pb ? S.wtotB : S.wtot;\n  if (tot == 0) return rank;\n  const int j = s >> (8 - pb);\n  const uint32_t xe = (uint32_t)(pb ? S.wcpB : S.wcp)[j] + (uint32_t)((s & ((1 << (8 - pb)) - 1)) + 1) * (uint32_t)wgs_cost(pb, S.jC[j]);\n  // largest c with floor(tot * c / G) < xe\n  int c = (int)(((xe - 1) * (unsigned long long)G) / tot);\n  if (c > G - 1) c = G - 1;\n  while (c + 1 < G && tot * (uint32_t)(c + 1) / (uint32_t)G < xe) ++c;\n  while (c > 0 && tot * (uint32_t)c / (uint32_t)G >= xe) --c;\n  return 2 * c + rank;\n}",
+    "count": 1
+  },
+  {
+    "name": "empty range guard",
+    "old": "__device__ __forceinline__ int wgs_split(int pb, int g0, int g1) {\n  const int ue",
+    "new": "__device__ __forceinline__ int wgs_split(int pb, int g0, int g1) {\n  if (g1 <= g0) return g0;\n  const int ue",
+    "count": 1
+  },
+  {
+    "name": "required cluster dimension",
+    "old": "__global__ void __launch_bounds__(NTL, 1) moe_fused(Params p)",
+    "new": "__global__ void __cluster_dims__(2, 1, 1) __launch_bounds__(NTL, 1) moe_fused(Params p)",
+    "count": 1
+  },
+  {
+    "name": "both CTAs release every X slot",
+    "old": "k < BX_E ? 1 : NW);",
+    "new": "k < BX_E ? 1 : 2 * NW);",
+    "count": 1
+  },
+  {
+    "name": "producer lifetime rendezvous",
+    "old": "    else wgs_xproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));\n    return;",
+    "new": "    else wgs_xproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));\n    __syncwarp();  // reconverge lane0 producer helpers before the aligned barrier\n    cx_sync();\n    return;",
+    "count": 1
+  },
+  {
+    "name": "consumer lifetime rendezvous",
+    "old": "  DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered",
+    "new": "  DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered\n  __syncwarp();\n  cx_sync();",
+    "count": 1
+  }
+]

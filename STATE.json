@@ -42,7 +42,7 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "MoE98e3538e85244c1d/e8e3086d failed setup: resource-query namespace okc_epair_y should be okc_epair. No numerical or performance result. Controller reverted/archived. Repair9fc2993a changes exactly9 query references; new binding regressions and unchanged scientific guard pass CPU tests. Packet results/moe-epair-store-repair-20261029/. One bounded repair check after06:27:37.228843UTC; no active job/controller now. ExpectedMoE15checks; no score/Decode transfer.",
+  "next_trial": "MoE cluster2 activation multicast: local device/host implementation2701a25e, device112ab04d; two BIG variants compile in NVRTC proxy. Scheduling1658/ring174 CPU models pass,5 ring mutants rejected. No single-file Python integration or fixed two-load guard yet; not GPU-ready. All44 protected hashes exact. No job/controller active; derivedMoE14/total92 checks and50scores. Finish integration and exact host/resource/probe admission before one paced check. Review experiments/prepared/moe_cluster_x_review.md; packet results/moe-cluster-x-device-default-20261029/.",
   "moe_epair_terminal": {
     "packet": "results/moe-epair-store-20261029/",
     "job": "98e3538e85244c1d",
@@ -3115,15 +3115,41 @@
     "worst_saved_skew_cost_ratio": 1.0432692307692308,
     "Hopper_instruction_encoding_preflight_passed": true,
     "kernel_execution": false,
-    "full_CUDA_candidate_implemented": false,
+    "full_CUDA_candidate_implemented": true,
     "GPU_job_queued": false,
     "next_work": [
-      "three-slot event/interleaving model with negative controls",
-      "complete reversible device-source patch",
-      "both BIG NVRTC/SASS preflight",
-      "cooperative-cluster residency/host/query/graph audits before any GPU evaluation"
+      "single-file Python integration with unchanged small/ineligible paths",
+      "exact namespace/export/query admission and negative controls",
+      "fixed two-affected-load performance guard and fresh-route graph probes",
+      "actual cooperative-cluster residency/host/graph validation in one qualified paced check"
     ],
     "speedup_estimate": null,
     "HBM_measurement": false
+  },
+  "moe_cluster_x_local_implementation": {
+    "observed_utc": "2026-10-29T08:42:13Z",
+    "packet": "results/moe-cluster-x-device-default-20261029/",
+    "ring_model": "results/moe-cluster-x-ring-model-20261029/",
+    "device_prefix_sha256": "112ab04d6b723f6a746ae9c91fa5e7afefb59b9e1d9313e9ab85f1c5bbfe180b",
+    "full_CUDA_sha256": "2701a25e854caef3a46c1ae2002bd59932b2b056a05a1c0d2cf498dc5f8b6114",
+    "reversible_device_edits": 26,
+    "ring_positive_cases": 174,
+    "ring_mutants_rejected": 5,
+    "BIG_device_variants_compiled": 2,
+    "reported_base_registers_each": 96,
+    "offline_stack_bytes_each": 16,
+    "offline_spill_store_bytes_each": 96,
+    "offline_spill_load_bytes_each": 160,
+    "actual_runtime_resources_verified": false,
+    "host_NVCC_compiled": false,
+    "graph_capture_verified": false,
+    "numerical_correctness_verified": false,
+    "performance_verified": false,
+    "challenge_single_file_integration_built": false,
+    "protected_files_exact": 44,
+    "GPU_jobs_used": 0,
+    "GPU_job_active": false,
+    "controller_active": false,
+    "verified_sources_changed": false
   }
 }

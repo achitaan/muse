@@ -1,4 +1,17 @@
-> CURRENT LOCAL INVESTIGATION, October 29: cluster2 activation multicast.
+> CURRENT LOCAL IMPLEMENTATION, October29 at08:42UTC: MoE cluster2 activation
+> multicast now has reversible native device/host patches. Both BIG device
+> variants compile locally at96 base registers/16 offline stack bytes, without
+> C751x serialization. Full CUDA2701a25e/device112ab04d; packet:
+> results/moe-cluster-x-device-default-20261029/. Ring model passes174 finite
+> cases and rejects5 protocol mutants. Device/host inverse patches recover the
+> exact retained source; all44 protected hashes match. Actual H200 resources,
+> host NVCC ABI, graph capture, numerical correctness and speed remain untested.
+> Single-file Python integration and fixed two-affected-load guard are next.
+> No GPU job/controller active, no new check/score used, no verified source
+> changed. Derived MoE14/total92 checks,50 scores;20:00Toronto window unchanged.
+> Read experiments/prepared/moe_cluster_x_review.md for limits and progress audit.
+>
+> EARLIER LOCAL INVESTIGATION, October 29: cluster2 activation multicast.
 > Source-backed paired-output-unit model passes1658 ownership/capacity fixtures;
 > it halves logical X source requests with unchanged destination bytes. Median
 > maximum estimated CTA cost matches baseline; worst saved skew ratio1.04327.

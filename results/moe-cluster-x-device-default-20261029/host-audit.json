@@ -1,0 +1,20 @@
+{
+  "full_CUDA_sha256": "2701a25e854caef3a46c1ae2002bd59932b2b056a05a1c0d2cf498dc5f8b6114",
+  "device_prefix_sha256": "112ab04d6b723f6a746ae9c91fa5e7afefb59b9e1d9313e9ab85f1c5bbfe180b",
+  "device_matches_compiled_prefix_before_NVRTC_forward_declaration": true,
+  "full_bytes": 145207,
+  "host_inverse_recovers_parent": true,
+  "original_pointer_and_scratch_mapping_preserved": true,
+  "launch_attributes": [
+    "ClusterDimension=2,1,1",
+    "Cooperative=1"
+  ],
+  "no_plain_launch_fallback": true,
+  "PDL_disabled": true,
+  "attributes_and_cluster_capacity_required_in_prepare": true,
+  "query": "okc_cluster2_info(int64_t grid)",
+  "resource_fields": 21,
+  "host_compiled_on_actual_NVCC": false,
+  "kernel_execution": false,
+  "GPU_jobs": 0
+}

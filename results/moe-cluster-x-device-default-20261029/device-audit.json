@@ -1,0 +1,16 @@
+{
+  "parent_submission_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "parent_device_prefix_sha256": "486089a9532735b160dc7cd72b849910f65a9a49d391f444bf39e5647306f274",
+  "device_prefix_sha256": "112ab04d6b723f6a746ae9c91fa5e7afefb59b9e1d9313e9ab85f1c5bbfe180b",
+  "device_prefix_bytes": 136982,
+  "reversible_edits": 26,
+  "inverse_recovers_parent_prefix": true,
+  "Smem_layout_and_epilogue_text_unchanged": true,
+  "physical_weight_layout_and_tile_dimensions_unchanged": true,
+  "barrier_protocol": "Original default release/acquire semantics, remote DSM counters; original local waits retained. See protocol proof and actual runtime gates.",
+  "host_launcher_present": false,
+  "challenge_submission_present": false,
+  "kernel_execution": false,
+  "GPU_jobs": 0
+}

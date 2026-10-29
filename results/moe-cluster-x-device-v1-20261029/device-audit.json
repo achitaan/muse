@@ -1,0 +1,16 @@
+{
+  "parent_submission_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "parent_device_prefix_sha256": "486089a9532735b160dc7cd72b849910f65a9a49d391f444bf39e5647306f274",
+  "device_prefix_sha256": "8d9ad118871461ce1c93d257a5a4708b166d1c33aebfc217ae8b3503f1a4abb3",
+  "device_prefix_bytes": 137214,
+  "reversible_edits": 26,
+  "inverse_recovers_parent_prefix": true,
+  "Smem_layout_and_epilogue_text_unchanged": true,
+  "physical_weight_layout_and_tile_dimensions_unchanged": true,
+  "barrier_protocol": "Conservative cluster release/acquire; lifetime/progress and performance still require exact source audit",
+  "host_launcher_present": false,
+  "challenge_submission_present": false,
+  "kernel_execution": false,
+  "GPU_jobs": 0
+}
