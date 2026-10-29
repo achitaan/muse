@@ -1,0 +1,18 @@
+{
+  "experiment": "P3 Prefill dense-GEMM layout selector (x@W^T vs torch.mm with pre-transposed BF16 weight)",
+  "frozen_before_launch_utc": "2026-10-29T23:00:00Z",
+  "parent": {
+    "sha256": "93e57ab4...aae7",
+    "checked_job": "9ca79c7f676f4b63",
+    "checked_speedup": 1.6392907576020057
+  },
+  "candidate_sha256": "a7289eb1465e81590cdc7c9a1e57f934f57e263e85a7a59e481bb0bd376236a9",
+  "evidence_basis": "Prefill GEMMs ~4.2 of 9.6 ms on first-turn sliding (profile 9ca79c7f676f4b63), cuBLAS nvjet ~77% of BF16 peak",
+  "affected_rule": "loads containing a P3_SELECTed (layer, m)",
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 8 benchmarks",
+    "selection": ">=3% faster in prepare, rel-L2 vs incumbent < 1e-2",
+    "retention": "affected normalized >= 1.03"
+  }
+}
