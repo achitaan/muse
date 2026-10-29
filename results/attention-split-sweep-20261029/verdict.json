@@ -1,0 +1,32 @@
+{
+  "experiment": "A1 attention sliding split sweep",
+  "job": "d18f02619ca44b65",
+  "candidate_sha256": "0e74765beedf96d82224b147dfd2e8cb68015de670123da94860ce9c7f8f7258",
+  "official": {
+    "passed": true,
+    "tests": 16,
+    "speedup": 2.4237347285958957,
+    "ci": [
+      2.387378707666957,
+      2.469322075603676
+    ]
+  },
+  "parent": {
+    "job": "8b767ea7b2b74de6",
+    "speedup": 2.5370005142373167
+  },
+  "control_gm": 1.004,
+  "affected_gm_normalized": 0.8828,
+  "per_shape_normalized": {
+    "decode 1 sliding (32->16)": 0.8827,
+    "decode 16 sliding (16->8)": 1.0554,
+    "decode 32 sliding (8->4)": 0.8694,
+    "verify 1 sliding (33->16, coop)": 0.7749,
+    "verify 16 sliding (8->4, coop)": 0.8544
+  },
+  "winners": [
+    "decode 16 sliding n_splits=8"
+  ],
+  "decision": "sweep not retained; only decode 16 sliding n_splits=8 won (+5.5% on that shape, ~0.2% track). Fewer splits loses elsewhere; the open direction is more splits for decode 32 / verify 16 sliding (decode 1 and verify 1 are already at the tile maximum).",
+  "decode_transfer": "skipped: the winner moves Decode's 8 us decode-16 attention by ~0.4 us (~0.05% track)"
+}
