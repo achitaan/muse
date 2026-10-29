@@ -1,3 +1,10 @@
+> OFFLINE CHECKPOINT, October 29 at04:50UTC: MoE gather paired-store
+> ownership screen passed16,384 layouts and1,048,576 exact uint4 checks.
+> The large-token sector model is promising but is not a GPU timing result.
+> Packet: results/moe-gather-pair-store-screen-20261029/. No runtime source
+> change or new GPU job; do not launch without a credible exposed-cost bound.
+> Next check remains no earlier than05:22:50.375730UTC. All best files exact.
+
 > LATEST TERMINAL RESULT, October29: Attention787962a762c24249/ed810c7a
 > passed16tests/12benchmarks/integrity at2.640210548x with128registers,
 > zero local bytes and two resident blocks. Affected GM1.043242463 versus

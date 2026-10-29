@@ -42,7 +42,18 @@
     "commit": "7385e5d8f70980cfd5322ea254edc0b2b8ca90f7",
     "license": "MIT"
   },
-  "next_trial": "Attentioned810c7a passed full16/12 at2.640210548x but failed fixed material affected/control gain: normalized1.005184396. No score/Decode transfer/retry. Inspect distinct source-backed MoE/Decode mechanisms and primary upstream updates offline. Prefill norm/gather and L8 overlap remain parked pending net-cost/compiler/ownership evidence. No new check before05:22:50.375730UTC.",
+  "next_trial": "MoE gather paired-store CPU screen passed16384 layouts/1048576 uint4 checks. Distinct-sector model improves large-token gather stores, not measured GPU time; parked until exposed gather cost and whole-layer value justify shuffle/register overhead. No runtime candidate or GPU job. Attentioned810 remains rejected; no score/Decode transfer/retry. No new check before05:22:50.375730UTC.",
+  "offline_checkpoint_20261029_0450": {
+    "packet": "results/moe-gather-pair-store-screen-20261029/",
+    "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "cpu_layout_cases": 16384,
+    "uint4_ownership_checks": 1048576,
+    "gpu_jobs": 0,
+    "runtime_candidate_written": false,
+    "gpu_evaluation_ready": false,
+    "decision": "Preserve as offline hypothesis; source model is not hardware counter or performance evidence",
+    "upstream": "Lee c565e373 remains unchanged from existing pin; read-only primary-source research supplied no newer kernel to adopt"
+  },
   "blocking_reason": null,
   "lean_source": {
     "file": "best/lean.py",

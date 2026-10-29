@@ -1,3 +1,11 @@
+> LATEST OFFLINE SCREEN, October 29 at04:50UTC: adjacent-row register
+> redistribution for WGS gather stores passed16,384 layouts and1,048,576
+> exact uint4 ownership checks. Synthetic large-token fixtures reduce modeled
+> store-sector requests; no hardware counters, speedup or GPU result implied.
+> Preserve33114871. No runtime candidate, new check or score. Packet:
+> results/moe-gather-pair-store-screen-20261029/. Next check no earlier than
+> 05:22:50.375730UTC; earlier quota/waiter/candidate headers are historical.
+
 > LATEST RESULT, October29: MoE factor trial92577a6426f74605/85a317b7
 > compiled at96registers/0local bytes and passed its new-path synthetic probes,
 > but paired M32/128/256 were0.36..0.84%slower. selected_main=false.
