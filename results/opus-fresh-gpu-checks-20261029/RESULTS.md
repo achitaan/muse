@@ -87,3 +87,16 @@ is `648f8cee7eb0292f6b1e1bb80a7f1e945802a5bdd68ba2df17bf70d9ad1bd1c5`.
 - Quota left at 23:27 UTC as (checks / scored): Dense 12/10, Attention 10/10, MoE 6/9, Decode 10/7, Prefill 14/10.
 - No further submissions. The remaining candidates are either already on the board or tied with the published sources, and repeating them would only sample measurement variation.
 
+
+## Dispatch-threshold experiments (23:39–23:47 UTC, checks only)
+
+Each check changes one MoE size threshold. All passed correctness, and all lost on the shape they target:
+
+| Job | Change | Targeted shape: new versus earlier runs |
+|---|---|---|
+| `78017428f42a48b0` | Decode: 16-token steps use the large-batch MoE kernel instead of the 9–16-token kernel (MID_MAX_M=8) | decode-16 sliding 1.819x vs 1.886–1.909x (about 4% slower). Track 1.9693x. |
+| `d784b81515f24469` | Decode: 32-token steps use the 9–16-token kernel (MID_MAX_M=32) | decode-32 sliding 1.469x vs 1.585–1.656x (about 8–11% slower). Track 1.9723x. |
+| `7293ad35e2ae4982` | MoE track: 32-token steps use the 9–16-token kernel | decode-32 1.547x vs 1.629–1.642x (about 6% slower). Track 2.3251x. |
+
+The retained thresholds are confirmed. None of these was submitted for a score.
+
