@@ -72,7 +72,9 @@ new small-M kernel.
 | D6 Dense olayer configs for O at 128/256 tokens (weakest Dense shape: O m256 1.028x) | `4e8fda34635040e6` | 1.4949033x pass | 1.5277713x | nothing selected: m256 best olayer 12.90 us ties fixed cuBLASLt 12.90; m128 incumbent 10.75 vs 10.82 |
 | D7 Dense cuBLASLt neighborhood (restore + expand: split-K, stages, swizzle x custom x cluster, + 16 exhaustive heuristics) for unpooler M=128/256 | `96bc324b987a4c44` | 1.5094800x pass | 1.5277713x | nothing selected: m128 best 22.24 vs 22.69 us (2.0%, custom option 3->4), m256 27.81 vs 27.84; fixed descriptors are local optima |
 | M4 MoE ring depth OKC_NS 3->4 (MID at 16, MAIN at 32 tokens) | `0e1634cf0bc245a1` | 2.3391587x pass | 2.3654374x | M16 MID+NS4 0.5% faster (kept incumbent); M32 skipped by the 200 s prepare guard (one compile ~38 s, parent prepare ~167 s) -> M5 |
-| P4 Prefill FA3 on a contiguous KV copy (gathered by page table) for full layers | `37a3e45b4e4b431d` | 1.6531207x pass | 1.6392908x | **selected and applied** for first turn full ctx 32768 / 65536 (FA3 4474.3->4304.9 us, 8071.5->7766.6 us in prepare); slower at 753 tokens (423->516 us, kept paged). Affected shapes normalized vs same-night P1/P2/P3: 1.011-1.056; provisional pending P5 |
+| P4 Prefill FA3 on a contiguous KV copy (gathered by page table) for full layers | `37a3e45b4e4b431d` | 1.6531207x pass | 1.6392908x | **selected and applied** for first turn full ctx 32768 / 65536 (FA3 4474.3->4304.9 us, 8071.5->7766.6 us in prepare); slower at 753 tokens (423->516 us, kept paged). Affected shapes normalized vs same-night P1/P2/P3: 1.011-1.056 |
+| P5 confirmation of P4 (identical code + comment) | `c4d2e6ef68674473` | 1.6648694x pass | 1.6392908x | same selections, applied; FA3 4499.5->4341.3 and 8013.7->7730.6 us. Mean of P4/P5 normalized vs P1/P2/P3: ctx 65536 1.026/1.032/1.052 (meets 1.02), ctx 32768 1.002/1.029/1.046 (fails vs P1). Frozen rule needs both shapes: **not retained** |
+| M5 MoE ring depth OKC_NS 3->4 at 32 tokens (MAIN WGS) | `940d22a6cc7642d5` | 2.3382191x pass | 2.3654374x | +0.4% (383.52 vs 385.15 us over 3 draws, bit-identical); NS5 skipped by compile guard (prepare 219 s). Ring depth is not the decode-32 bottleneck |
 
 D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
 Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
@@ -97,7 +99,11 @@ selector kept the incumbent), so single-run track deltas below ~2% are run varia
 tiny Dense shapes move 5-11% between runs.
 
 No Dense/MoE/Prefill change is retained; `best/` is unchanged. Every configuration lever
-examined (MoE build per token count, MoE fallback build, Prefill FA3 splits, Prefill MoE
-schedule thresholds, Prefill GEMM layout, Dense cuBLASLt algorithms at (128,'o'), Dense olayer
-configs for O at 1-32 tokens, Triton GEMV for router/unpooler) was measured on the judge GPU
-and the incumbent was fastest or within 3%. Remaining gaps need new kernels, not selection.
+examined (MoE build per token count, MoE fallback build, MoE ring depth at 16/32 tokens, Prefill
+FA3 splits, Prefill MoE schedule thresholds, Prefill GEMM layout, Dense cuBLASLt algorithms at
+(128,'o'), Dense olayer configs for O at 1-256 tokens, Dense unpooler cuBLASLt neighborhood at
+128/256, Triton GEMV for router/unpooler) was measured on the judge GPU and the incumbent was
+fastest or within 3%. The one lever that won in-process is Prefill's contiguous-KV FA3 for long
+full first-turn shapes (FA3 -3.5..-3.8% in two runs; ctx 65536 passed its shape gate, ctx 32768
+did not against one reference). It is the best starting point for a future Prefill change, ideally
+with a cheaper gather (P6 tests an 8-byte-wide row gather). Remaining gaps need new kernels.
