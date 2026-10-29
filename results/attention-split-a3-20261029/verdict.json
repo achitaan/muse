@@ -1,0 +1,37 @@
+{
+  "experiment": "A3 attention decode16 sliding n_splits=8",
+  "job": "8347b4ca3b1e42e5",
+  "candidate_sha256": "ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1",
+  "official": {
+    "passed": true,
+    "tests": 16,
+    "speedup": 2.6123215402788156,
+    "ci": [
+      2.5731367171746333,
+      2.668543176736016
+    ]
+  },
+  "parent": {
+    "job": "8b767ea7b2b74de6",
+    "scored_speedup": 2.5370005142373167
+  },
+  "decode16_sliding_us": {
+    "parent": 9.31,
+    "A1": 8.79,
+    "A2": 8.62,
+    "A3": 8.44
+  },
+  "normalized_ratio": {
+    "A1": 1.0554,
+    "A2": 1.0852,
+    "A3": 1.0956
+  },
+  "control_gm": 1.0071,
+  "full_shape_drift": "decode16/32 and verify16/32 full shapes ran 2.8-3.9% faster than the parent run (unchanged code), so most of the +3.0% track change is run variance; attributable gain ~+0.25-0.5%",
+  "gates": {
+    "correctness": true,
+    "shape_win": true,
+    "track_not_regressed": true
+  },
+  "decision": "retained in lane omos/decode-fresh-20261029 as the Attention candidate; best/attention_checked.py unchanged; not published (scored submissions not authorized)"
+}
