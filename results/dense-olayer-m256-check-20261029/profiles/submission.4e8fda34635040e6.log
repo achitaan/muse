@@ -1,0 +1,70 @@
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 22.39999920129776 baseline 14.720000326633453
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.432000651955605 baseline 14.720000326633453
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 18.112000077962875 baseline 14.720000326633453
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 23.391999304294586 baseline 14.720000326633453
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 27.648000046610832 baseline 14.720000326633453
+WG_KEEP 16 qkv_gate baseline 14.4640002399683 best 18.112000077962875
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 22.84800074994564 baseline 16.16000011563301
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 17.696000635623932 baseline 16.16000011563301
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 18.751999363303185 baseline 16.16000011563301
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 23.744000121951103 baseline 16.16000011563301
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.456000447273254 baseline 16.16000011563301
+WG_KEEP 32 qkv_gate baseline 16.00000075995922 best 17.696000635623932
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.592000663280487 baseline 20.735999569296837
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 27.35999971628189 baseline 20.735999569296837
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 32.70399942994118 baseline 20.735999569296837
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 31.039999797940254 baseline 20.735999569296837
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 45.24800181388855 baseline 20.735999569296837
+WG_KEEP 32 unpooler baseline 20.735999569296837 best 22.592000663280487
+D6_CANDIDATE m128 cfg(64, 128, 4, 3, 1, 1) 15.58us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(128, 128, 4, 3, 1, 1) 10.82us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(128, 64, 5, 3, 1, 1, 2) 17.57us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(72, 128, 4, 3, 1, 1) 15.81us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(80, 128, 4, 3, 1, 1) 16.99us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(88, 128, 4, 3, 1, 1) 17.98us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(96, 128, 4, 3, 1, 1) 19.42us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(104, 128, 4, 3, 1, 1) 20.35us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(112, 128, 4, 3, 1, 1) 21.09us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(120, 128, 4, 3, 1, 1) 21.44us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(136, 64, 8, 3, 1, 1) 11.26us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(144, 64, 8, 3, 1, 1) 11.68us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(152, 64, 8, 3, 1, 1) 12.13us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(160, 64, 7, 3, 1, 1) 12.77us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(168, 64, 7, 3, 1, 1) 13.12us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(176, 64, 7, 3, 1, 1) 13.25us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(184, 64, 7, 3, 1, 1) 13.60us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(192, 64, 6, 3, 1, 1) 14.37us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(200, 64, 6, 3, 1, 1) 14.56us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(208, 64, 6, 3, 1, 1) 14.62us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(216, 64, 6, 3, 1, 1) 15.04us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(224, 64, 6, 3, 1, 1) 15.30us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(232, 64, 5, 3, 1, 1) 16.83us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(240, 64, 5, 3, 1, 1) 16.86us err 1.67e-03 base 10.82us err 1.67e-03
+D6_CANDIDATE m128 cfg(248, 64, 5, 3, 1, 1) 17.02us err 1.67e-03 base 10.82us err 1.67e-03
+D6_KEEP m128 base 10.75 best 10.82
+D6_CANDIDATE m256 cfg(64, 128, 4, 3, 1, 1) 24.93us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(128, 128, 4, 3, 1, 1) 16.35us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(128, 64, 5, 3, 1, 1, 2) 12.90us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(72, 128, 4, 3, 1, 1) 26.78us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(80, 128, 4, 3, 1, 1) 29.44us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(88, 128, 4, 3, 1, 1) 20.74us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(96, 128, 4, 3, 1, 1) 22.18us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(104, 128, 4, 3, 1, 1) 24.42us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(112, 128, 4, 3, 1, 1) 26.27us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(120, 128, 4, 3, 1, 1) 26.98us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(136, 64, 8, 3, 1, 1) 17.50us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(144, 64, 8, 3, 1, 1) 18.94us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(152, 64, 8, 3, 1, 1) 19.71us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(160, 64, 7, 3, 1, 1) 20.77us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(168, 64, 7, 3, 1, 1) 21.47us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(176, 64, 7, 3, 1, 1) 22.37us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(184, 64, 7, 3, 1, 1) 22.69us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(192, 64, 6, 3, 1, 1) 23.84us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(200, 64, 6, 3, 1, 1) 24.48us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(208, 64, 6, 3, 1, 1) 25.02us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(216, 64, 6, 3, 1, 1) 25.06us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(224, 64, 6, 3, 1, 1) 26.02us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(232, 64, 5, 3, 1, 1) 28.10us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(240, 64, 5, 3, 1, 1) 28.29us err 1.66e-03 base 12.90us err 1.66e-03
+D6_CANDIDATE m256 cfg(248, 64, 5, 3, 1, 1) 29.41us err 1.66e-03 base 12.90us err 1.66e-03
+D6_KEEP m256 base 12.90 best 12.9

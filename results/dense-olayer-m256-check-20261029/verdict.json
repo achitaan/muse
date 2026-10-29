@@ -1,0 +1,30 @@
+{
+  "experiment": "D6 Dense olayer selector for O at 128/256 tokens",
+  "job": "4e8fda34635040e6",
+  "candidate_sha256": "af3a3c2c1ba7df10500d4323a2e53bee95966420a9a5417609edb5124652ebb7",
+  "official": {
+    "passed": true,
+    "speedup": 1.4949033246816223,
+    "ci": [
+      1.472479774811398,
+      1.5173268745518464
+    ]
+  },
+  "parent": {
+    "job": "6131bc96427e4486",
+    "speedup": 1.5277713270942548
+  },
+  "selector_us": {
+    "m128": {
+      "incumbent_olayer_128": 10.75,
+      "best_other": 10.82,
+      "configs": 25
+    },
+    "m256": {
+      "incumbent_cublaslt_fixed": 12.9,
+      "best_olayer": 12.9,
+      "configs": 25
+    }
+  },
+  "decision": "measurement only: nothing selected (m256 best olayer config ties the fixed cuBLASLt algorithm; m128 incumbent fastest); -2.1% track is run variance. Not retained."
+}
