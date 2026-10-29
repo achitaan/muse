@@ -114,8 +114,51 @@ another option wins by >=3% with matching output.
 - Finding: the retained per-token-count build choice is already the fastest existing
   build on the judge's H200 (TINY2 at M=1 is 1.8% faster on synthetic routing, below gate).
 
-### P1 ? Prefill FA3 num_splits / pack_gqa selector ? pending (launch 22:50 UTC)
+### P1 ? Prefill FA3 num_splits / pack_gqa selector ? measurement only, not retained
 
 - Candidate `6d1f43575637910e3d047c496b5833f28ac45c6f10e6f1558b63f4c3531665e0`
   (265,601 B; parent `93e57ab4?`, checked 1.6392908x `9ca79c7f676f4b63`);
   gates `results/prefill-fa-select-check-20261029/gates.json` (other-tracks lane).
+
+- P1 check `bb9ce14d3ad8490b`: passed, 1.6564053x (CI 1.6316?1.6813) vs 1.6392908x; FA3's
+  heuristic was within 2.1% of every alternative on all eight shapes, nothing selected; noise.
+
+### M2 ? MoE TINY2 for 1..4 tokens ? rejected
+
+- Candidate `6e1643db357ad2f862b7e5a9c7bcec4a6fd88046777dec8bee179c64aa09e352`; check
+  `3158fdc490ed46d1`: passed, 2.3593403x; decode 1 25.77 vs 24.85 ?s (0.962 normalized,
+  controls 1.002). The synthetic-routing edge did not transfer; TINY<=4 stays.
+
+### A2 / A3 ? attention decode 16 sliding n_splits 16?8 ? retained in this lane
+
+| Run | Job | Track | decode16 sliding ?s | normalized |
+|---|---|---:|---:|---:|
+| A1 (sweep) | `d18f02619ca44b65` | 2.4237347x | 8.79 | 1.055 |
+| A2 (confirm + probes) | `a359cf6f0b8b4760` | 2.5113048x | 8.62 | 1.085 |
+| A3 (single change) | `8347b4ca3b1e42e5` | **2.6123215x** (CI 2.5731?2.6685) | 8.44 | 1.096 |
+
+- A3 candidate `candidates/attention_split_a3.py`,
+  `ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1`: one `_TUNED` entry
+  `(16, 1, True, 1): dict(n_splits=8, nc=1)` over `best/attention_checked.py` (9e922c35).
+- A2 probes closed the other direction: decode 32 sliding 16 splits 0.691, verify 16 sliding
+  16 splits 0.927 (A1: halving lost 0.869/0.854); 8 splits are local optima there.
+- Most of A3's +3.0% track change is run variance (unchanged full-context shapes ran
+  2.8?3.9% faster than in the parent run); attributable gain ? +0.25?0.5%.
+- Not published (scored submissions were not authorized); `best/attention_checked.py` unchanged.
+  Decode transfer not checked: ?0.7 ?s of 138 ?s on one Decode shape, below resolution.
+
+## Authorization and quota record
+
+- 60-minute pacing applied until 22:11 UTC; afterwards the user authorized more frequent free
+  checks until 00:00 UTC (no scored submissions, no merges). One job at a time throughout.
+- Live quota read 22:11 UTC: checks left Dense 18, Attention 15, MoE 11, Decode 16, Prefill 20;
+  scored 10 each unused. After this session's later checks: Attention 13, MoE 10, Prefill 19.
+- Checks used by these lanes on October 29: E1, A1, M1, P1, A2, A3, M2 (seven). No scored run.
+
+## Status against the objective
+
+- Decode (overall-rank driver): no improvement; top 50 needs ?+9.7% (2.1836x cutoff) and the
+  remaining gap is structural (small-kernel latency, MoE phase schedule), not configuration.
+- Attention: one confirmed shape-level improvement (decode 16 sliding ?9%), small at track level.
+- MoE, Prefill: existing configuration choices measured as already optimal on the judge GPU.
+- Dense: no candidate; cuBLAS algorithm/layout search and c12 variants were already covered.
