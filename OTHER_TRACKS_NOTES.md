@@ -63,5 +63,31 @@ new small-M kernel.
 | M1 MoE build selector | `d746cb32bcc045f4` | 2.3763335x pass | 2.3654374x | nothing selected (incumbent builds fastest at 1/8/16/32 tokens); noise |
 | P1 Prefill FA3 selector | `bb9ce14d3ad8490b` | 1.6564053x pass | 1.6392908x | nothing selected (FA3 heuristic within 2.1%); noise |
 | M2 MoE TINY2 for 1..4 tokens | `3158fdc490ed46d1` | 2.3593403x pass | 2.3654374x | decode 1 25.77 vs 24.85 us (0.962 normalized); rejected |
+| D1 Dense row-parallel Triton GEMV (router / sliced unpooler, 1 and 8 tokens) | `4edf30f7aa6142e7` | 1.5048449x pass | 1.5277713x | nothing selected: incumbent 7.97/8.48/8.45/8.51 us vs best Triton 8.26/12.90/8.61/16.90 us |
+| P2 Prefill MoE schedule (large x fine) per token count | `b5556364aff148f9` | 1.6647948x pass | 1.6392908x | nothing selected: thresholds 8192/2048 best or within 0.9% at T=753/3012/16384 |
+| M3 MoE WGS MAIN vs mma.sync fallback at 16/32/128/256 | `4ed3dd65ae5341a0` | 2.3376805x pass | 2.3654374x | nothing selected: fallback 13-38% slower; MID vs MAIN at 32 tokens flips sign between runs (noise) |
+| D3 Dense cuBLASLt algorithms for (128, 'o') | `7287935eb7d34f7b` | 1.5170751x pass | 1.5277713x | nothing selected: incumbent 10.75 us beat all 32 algorithms (4 layouts x 8; best 11.10 us) |
+| P3 Prefill GEMM layout (x@W^T vs pre-transposed W) | `f2241332a476452e` | 1.6497240x pass | 1.6392908x | nothing selected: best alternative +0.1%; qkv_gate at 753 tokens 46.0 vs 42.0 us |
+| D5 Dense olayer configs for O at 1/8/16/32 tokens | `3b13fab22b2b4480` | 1.5196641x pass | 1.5277713x | nothing selected: incumbent 9.25/9.44/9.82/10.11 us vs best config 10.14/10.24/10.18/10.14 us |
 
-No Dense/MoE/Prefill change is retained; `best/` is unchanged. Remaining gaps need new kernels.
+D5's first upload (22:59:10 UTC) failed with `tls: bad record MAC`; the jobs list showed no
+Dense job after 22:52:45, so the identical content was relaunched (`upload-failed-tls.json`).
+
+Candidate hashes (append-only add-ons over the retained bytes, parent SHA asserted at build):
+D1 `6776a4c41152fd6378625dd967bcd50816d7e44aad4ff26dfd31841364810a54`,
+P2 `245a5d4cc417dd1d0640a274b0e3e595173ced336ca537c8467f21aa550504fa`,
+M3 `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795`,
+D3 `38aeb4867237bc3d927a3334bebada7c011cc952183fcc38e0f0c14e3f61fd7f`,
+P3 `a7289eb1465e81590cdc7c9a1e57f934f57e263e85a7a59e481bb0bd376236a9`,
+D5 `a56d8d33da2a9a0d2d6ebcd084145236aab6026992b3e396d999300e61038c39`.
+Each result directory holds `gates.json` (frozen before launch), `result.json` and `verdict.json`.
+
+Track-level moves in these runs (-1.5% to +1.6%) occur with no device-path change (every
+selector kept the incumbent), so single-run track deltas below ~2% are run variance here;
+tiny Dense shapes move 5-11% between runs.
+
+No Dense/MoE/Prefill change is retained; `best/` is unchanged. Every configuration lever
+examined (MoE build per token count, MoE fallback build, Prefill FA3 splits, Prefill MoE
+schedule thresholds, Prefill GEMM layout, Dense cuBLASLt algorithms at (128,'o'), Dense olayer
+configs for O at 1-32 tokens, Triton GEMV for router/unpooler) was measured on the judge GPU
+and the incumbent was fastest or within 3%. Remaining gaps need new kernels, not selection.
