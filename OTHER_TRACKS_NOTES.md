@@ -39,3 +39,19 @@ Full-attention shapes are the weakest (turn 1 1.426, turn 4 1.408, first-turn ct
 heuristic (turn 1: ~64 m-blocks -> ~2 splits, ~128 CTAs), page size 1 forces gathered
 KV. First-turn shapes: MoE 37–40%, cuBLAS GEMMs ~77% of BF16 peak, two FP32-residual
 norms at ~4 TB/s. No configuration-level candidate found.
+
+## Candidates built and frozen (offline, not yet checked)
+
+Both use the pattern "time on the judge's GPU during prepare, keep the incumbent unless
+another option wins by >=3% with matching output", so a check either finds a gain or
+returns timing evidence without regressing a shape.
+
+| Id | Track | Candidate bytes | Parent | Mechanism | Gates |
+|---|---|---|---|---|---|
+| P1 | Prefill | `6d1f43575637910e3d047c496b5833f28ac45c6f10e6f1558b63f4c3531665e0` (265,601 B) | `93e57ab4?` checked 1.6393x (`9ca79c7f676f4b63`) | FA3 `num_splits` x `pack_gqa` per scored attention shape (graph replay, cold L2, reference-shaped page layout) | `results/prefill-fa-select-check-20261029/gates.json` |
+| M1 | MoE | `95d82f5b552e6266a6f8a7826db59a9533b1b19c0fc5133c1ccde21df0860e4d` (184,785 B) | `33114871?` checked 2.3654x (`d600231c8a8244cb`) | compiled build (TINY/TINY2/MID/MAIN) per token count 1/8/16/32, three routing draws shaped like the task inputs | `results/moe-select-check-20261029/gates.json` |
+
+Dense: the source already contains the cuBLASLt algorithm/layout search for the M=128/256
+shapes (`tt_lt__LT_H200_FIXED`, `tt_lt__LT_SEARCH_SEEDS`, transposed layouts) and the c12
+selector results above, so no new Dense selector was built; the remaining Dense gap needs a
+new small-M kernel.
