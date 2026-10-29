@@ -1,0 +1,28 @@
+{
+  "experiment": "M4 MoE ring-depth selector",
+  "job": "0e1634cf0bc245a1",
+  "candidate_sha256": "8ec4dc7d2f7dfe055d6b131aecb7c0d73495e969c877b1e16f82bfe4b8c64c50",
+  "official": {
+    "passed": true,
+    "speedup": 2.339158652643819,
+    "ci": [
+      2.3040712728541615,
+      2.3742460324334758
+    ]
+  },
+  "parent": {
+    "job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "prepare_s": 204.478,
+  "selector": {
+    "M16": {
+      "MID(inc)": 330.78,
+      "MID+NS4": 328.99,
+      "gain": 1.0054,
+      "err": 6.29e-06
+    },
+    "M32": "skipped: prepare budget guard (200 s) tripped after the M16 compile"
+  },
+  "decision": "measurement only: NS4 within 0.5% for MID at 16 tokens; M=32 untested (rerun as M5). Not retained."
+}

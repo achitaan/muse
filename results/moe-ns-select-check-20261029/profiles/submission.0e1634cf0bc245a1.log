@@ -1,0 +1,5 @@
+MOE_CANDIDATE M=16 MID sum3=330.78 err=0.00e+00 incumbent=330.78
+MOE_CANDIDATE M=16 MID+NS4 sum3=328.99 err=6.29e-06 incumbent=330.78
+MOE_KEEP M=16
+MOE_SKIP M=32 prepare budget
+MOE_SELECTOR selected=[] s=37.9

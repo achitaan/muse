@@ -1,0 +1,23 @@
+{
+  "experiment": "M5 MoE ring-depth selector (OKC_NS 3 -> 4, 5) for decode 32 (MAIN WGS) only",
+  "frozen_before_launch_utc": "2026-10-29T23:18:00Z",
+  "parent": {
+    "sha256": "33114871...0d50",
+    "checked_job": "d600231c8a8244cb",
+    "checked_speedup": 2.365437416088433
+  },
+  "candidate_sha256": "6ee2ac8447775985328659015c3cee13a4aa81b30bc62700cf0a85164e85d8fc",
+  "evidence_basis": "decode 32 129.95 us vs SOL 70.8 (1.635x) in M4 0e1634cf0bc245a1; M4 tested MID+NS4 at M=16 (0.5% faster, kept) but skipped M=32 on its 200 s budget; parent prepare ~167 s, one compile ~38 s",
+  "prepare_budget": "compile a variant only if prepare elapsed <= 185 s at that point; failed compiles dropped",
+  "affected": [
+    [
+      "decode 32"
+    ]
+  ],
+  "per_shape_win": 1.03,
+  "gates": {
+    "correctness": "5 tests + 6 benchmarks",
+    "selection": ">=3% faster summed over three draws, rel-L2 < 1e-2",
+    "retention": "decode 32 normalized >= 1.03 vs parent profile; confirmation needed"
+  }
+}
