@@ -176,6 +176,45 @@ Timing-only modes in the prepare harness (graph times; each includes about 5 us 
 | `a805991775114e52` | R2e: `__ldcg` loads in the top-k tail | 13/13 passed, 2.0308x. Top-k-only graph time unchanged (26.05 vs 25.82 us at T = 1). The load type was not the cost; the cost was the last-arriving GEMV CTA running the tail before its own GEMV. **Not submitted.** |
 | `d778271fc15348ed` | **R2f: a dedicated 129th block (on one of the 4 SMs the 128 pooler CTAs leave free) waits for the 128 arrivals, runs the identical top-k tail and resets its own counter; GEMV CTAs only publish partials** | Gate PASS (bitwise). Fused kernel T = 1: 29.31 -> **24.93 us**; T = 8: 33.18 -> **27.94 us** (pooler alone 19.1 / 19.0). **13/13 passed, 2.0633x, CI [2.0323, 2.0942]**. decode 1 77.48 / 85.33 us (scored R2: 83.30 / 88.96); verify 1 113.93 / 122.56 us (R2: 122.91 / 131.41). |
 | `94572fe644414691` | **R2f scored submission** | **13/13 passed, 2.0510x, CI [2.0203, 2.0818]**; gate PASS (T = 1: 30.75 -> 24.70 us; T = 8: 39.49 -> 27.97 us). **Board: Decode 2.0510x, rank 214 / 1005; overall rank 214 / 1647** (was 2.0339 / rank 217). |
+## A3 attention tuning on R2f (`9171012a24754fb5`)
+
+- R2f plus the Attention board's A3 entry `(16, 1, True, 1): dict(n_splits=8, nc=1)`. 13/13 passed, 2.0590x.
+- Decode-16 sliding took 135.03 us, with attention at 8.4 us. That is the same as the R2f runs (130.9-140.0 us; attention 8.2-8.5 us), so there was no measurable change. **Not submitted.**
+
+## Scoring fit and the joeyhlu comparison
+
+- **Scoring fit.** Each of the six loads is weighted 46 sliding : 16 full layers by time. The score is the geometric mean of the six per-load reference/ours ratios. This reproduces the reported speedup of R2b, scored R2f and A3 to within 0.0007 (2.0327/2.0334, 2.0505/2.0510, 2.0584/2.0590). It is a fit, not the published formula.
+- **Value of 1 us saved, as % of Decode** (computed from the R2f per-shape times):
+
+  | Load | sliding layer | full layer |
+  |---|---:|---:|
+  | decode 1 | 0.153 | 0.053 |
+  | verify 1 | 0.103 | 0.036 |
+  | decode 16 | 0.081 | 0.028 |
+  | decode 32 | 0.061 | 0.021 |
+  | verify 16 | 0.045 | 0.016 |
+  | verify 32 | 0.034 | 0.012 |
+
+- **joeyhlu** (Decode 2.2091x, rank 54). Their per-shape table is shared by them, and that run computes to about 2.17 under the fit. Compared with the average of our three R2f-based runs (gap = ours - theirs, us):
+
+  | Load | sliding | full |
+  |---|---:|---:|
+  | decode 1 | +9.3 | +8.9 |
+  | decode 16 | +13.9 | +12.0 |
+  | decode 32 | +8.5 | +2.2 |
+  | verify 1 | +8.6 | +2.7 |
+  | verify 16 | -3.9 | -8.7 |
+  | verify 32 | -8.0 | -9.4 |
+
+  - Their lead is a roughly fixed 9-14 us per layer at 1-32 tokens, and we lead by 4-9 us at 128/256 tokens. The lead does not track MoE size or attention size.
+  - Their notes describe starting each projection's weight fetch while the previous kernel finishes. On their separate boards they trail us on MoE (2.27 vs 2.38), Attention (2.32 vs 2.57) and Dense (1.12 vs 1.53).
+  - Matching their 1-32-token times while keeping our 128/256 lead would be worth about +5% (to about 2.16).
+
+## L2P: weight prefetch into L2 during latency-bound kernels (`94c689655d17463b`, pending)
+
+- After the qkv projection at T = 1 / 8, a side-stream kernel issues `cp.async.bulk.prefetch.L2` for the o-projection weights. Variants add the FP32 router weight and a 12 or 24 MB prefix of the packed pooler weights. These reads then hit L2 while attention and the norm, which barely use HBM, are running.
+- Prefetches change no values. Prepare times qkv -> 5 us window -> o -> 4.5 us window -> pooler+router for each variant against no prefetch. It requires bitwise-equal outputs and keeps a variant only if it is more than 3% faster.
+
 ## Remaining work (needs a decision; not started)
 
 Both remaining Phase 3 items require editing the generated Dense kernel family. The small-token
