@@ -7394,7 +7394,7 @@ import threading as _r2_thr
 import time as _r2_time
 _R2_DEV = _zsrc('eNqdVltvqzgQfs+vmO1KFSScbKG5tWwiHWlfzkOk1b5GFXLAtE4AVza5tD357ztjA6E5SbtdpBZj5vLN5/mGdHSpNnEJ/wTf1aOGN4hloUtIM8nKLuzD98+7k+elYDqErcxYKTJe7z4zVeL2ptDiseAJiAI3Y7kpSq7CDpxclZPclBjdmOJSmCXMQziEnShK+FbEPIogilKpYi6KTBT0vJUigb8jFUQKvbhyLDxbzTUo5pk4O6ae7SpjBXfhDVGIFBzah9kU/JELipcbVRA+G4Osl9kapvhfxusfyb7/Al14VCL5S+T9PfSOL/YeFEtjuYZr8IcerHX1OJvBwAMld/iMNl3MhZ6U+H2qOb5XrD+nXUMJsMXkIez8/qzYY86QTSWzjF5KBQ555OhxE+LtT5iE0OvlLrrkD7TbTz9yXFnHFTreBuS5soy04VDdWAPCvQkGCHiFy9sAF0Rg2DK2WHc3Fv5u4WjxyqPSpYq7MPHvyGl9rpAPS6nahA6JdudNbdgBOUsjVTiYbt+ky9vJPMTjGQeXoB6+RqKlopX57Rz2VowEqINCvM8oFt6opSrEPYKsn9IsSuSuiPRLETs3+7S6NhamB4kbtkomkmGKyFwi1ehp4dSlmmOZYKGItQvBkPoJ2SZyKJaNc+jYv5NoUVQ+Kc6SlBcxd0xOpvNGwc7Vkqk+YQTfg6EfhFdwf38PVznPpXq5Mg5UDlM8QflR9ai9jOkybEuKksH1NbTrsGYI0nFYKXMRf08SOsNqMHjgb1wSTzDGO/qYxf8CSDB+q/P9/Am1yudtkZ9hwrayjqXiKD0PNM8+kWBLSZMLQsL6LQ090k8XVvZ8bK7tRbG2kmibRNdJtIt+vemZzqgbgwo+9gZ/+FWvr5WSNhkpaeshCn88Go9Ho7thcDca3Y7u0qojLR8rai+/n8If4NANw+6fU+fbq1ubIVnGqLHvEUL6QiwsgkNDcfwkNUctVEybMyuabZFUe9V5bPLPR5qyHKmaI1UfhI2x5KbzoghtI6Yjs2tkOLmhy8UJzXZ1GqNCDCpI2IE/GA8mt6PB+ONTutgKF5rBDtS26CsGZxYt9m29g2IwWygojuFF4mLsuiZrE1b4a/JDC56HhvWzI/A/DLD3BVgq5RKaibaX6sxAI2DtgfbOW3/mjXX86kwgpfjMVSSncxTBtugk6EcqMd4pl3JZ8yh1xaAURwoNnnbrqgfz1aNfRU3rmj2RhKZve/b1VxunGdrNd3dKMd2jyC53cq20Nuui2B7Va3CBz7/5Q5L4VzTVOf0+kcxI5fTjbWHGrB1AhoRTqrqEI6zMxSVzQyFxfuj8CzHhEwY=')
 _R2_HOST = _zsrc('eNp1UV1rgzAUffdX3L0lxTF1Wym0K/ZpD0IZyuijOGe7gCYjxjlo+993k2jNOuaD54Pkeo/HY1yBjPK66Hj5QVDNH3IF/acPI/+eqOjUJKq2NAIaC1sLiYVdOuCgk1eLme/Br2ccp4Jwmt25olWyKppJS2cj2Tv8zeFOAFn+903h3BaMwhHPsT0QsoU7ILsUZhDOKUXI4OYJwmgBpxMYf5fg6z6CFTyGkXYbpKEla1hQkJXqJIfbKFji1DTayEMLsjiSUvBWwb4WhZpRneXK6f84mIt8ibpQrK4uJgYkHW/ZgVfvOgRaVznJcFSnJOaEYD40Z73PsN3LUHyuVnG8SZ+zOF4TXT6uZco2JeO/x3KxSF2qLlSXmfm2MlPVWFHgY0S69M7eD18dq7Q=')
-_R2_CPP = ('#include <stdint.h>\nint r2_launch(int64_t, int64_t, int64_t, int64_t, int, int, int, int, int, int, int, '
+_R2_CPP = ('\n#include <pybind11/pybind11.h>\n#include <stdint.h>\nint r2_launch(int64_t, int64_t, int64_t, int64_t, int, int, int, int, int, int, int, '
            'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t);\n')
 
 
@@ -7448,7 +7448,7 @@ def _r2_build():
                               extra_cuda_cflags=['-O3', '-lineinfo'], no_implicit_headers=True,
                               with_pytorch_error_handling=False, verbose=False))
   except Exception as e:
-   print('R2_BUILD_ERROR', m, repr(e)[:300], flush=True)
+   print('R2_BUILD_ERROR', m, repr(e)[-1800:], flush=True)
 
 
 import hashlib

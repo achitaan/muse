@@ -1,0 +1,3 @@
+R2_BUILD_ERROR 1 RuntimeError('Error building extension \'okc_r2_v18s_4803206cdf6a\': [1/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_r2_v18s_4803206cdf6a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/to
+R2_BUILD_ERROR 8 RuntimeError('Error building extension \'okc_r2_smallm2_5ef09351a971\': [1/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_r2_smallm2_5ef09351a971 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packa
+R2_DONE 257.9s sel=()

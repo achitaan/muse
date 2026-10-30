@@ -133,7 +133,7 @@ int r2_launch(int64_t wp, int64_t x, int64_t out, int64_t esc, int m, int N, int
   return P_launch_t<@@ARGS@@>(wp, x, out, esc, m, N, K, WR, WK, KU, S, t01, u01, stream, 0, ra);
 }
 """
-_R2_CPP = ('#include <stdint.h>\nint r2_launch(int64_t, int64_t, int64_t, int64_t, int, int, int, int, int, int, int, '
+_R2_CPP = ('\n#include <pybind11/pybind11.h>\n#include <stdint.h>\nint r2_launch(int64_t, int64_t, int64_t, int64_t, int, int, int, int, int, int, int, '
            'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t);\n')
 
 
@@ -187,7 +187,7 @@ def _r2_build():
                               extra_cuda_cflags=['-O3', '-lineinfo'], no_implicit_headers=True,
                               with_pytorch_error_handling=False, verbose=False))
         except Exception as e:
-            print('R2_BUILD_ERROR', m, repr(e)[:300], flush=True)
+            print('R2_BUILD_ERROR', m, repr(e)[-1800:], flush=True)
 
 
 import hashlib
