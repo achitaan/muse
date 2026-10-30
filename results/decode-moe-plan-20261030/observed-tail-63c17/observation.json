@@ -1,0 +1,35 @@
+{
+  "job_id": "63c17c9caa984361",
+  "owner_worktree": "decode-next;observed read-only,not launched by decode-moe-plan",
+  "observed_source_sha256": "84fd1bd4ee76753e697c14f6acd76626d41887facb4f054e16cbb5f4ccb6ad23",
+  "source_mtime_epoch": 1793394358.2251842,
+  "source_binding_limit": "Observed file frozen after completion; uploaded payload hash is packaging-specific and is separately retained. This is not a new independently validated upload binding.",
+  "payload_content_hash": "00971668a54f98a1b5b8d9b958411e22770b9ef37da974792478149f0ac46071",
+  "retained_CUDA_literal_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "status": "done",
+  "official_passed": true,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "point_speedup": 2.366900837058281,
+  "point_is_new_algorithm_evidence": false,
+  "selected": [],
+  "selected_marker": "MOE_SELECTOR selected=[]",
+  "phase_samples": [
+    "MOE_TAIL M=1 seed=20261102 build=TINY experts=2 routes=2 maxtok=1 orig=25.62us inst=26.19us err=6.8e-09 span=22.5 route=1.9/2.0/2.2 A=10.0/11.4/12.6 B=6.0/7.0/8.6 join=0.9/1.3/2.7 fin=0.4/0.5/0.8 startspread=0.3 Aend=12.2/13.6/14.9 Bend=19.3/20.5/20.9 join_rel=21.8/21.9/22.1 tailB=1.6 ctas=132",
+    "MOE_TAIL M=1 seed=20261202 build=TINY experts=2 routes=2 maxtok=1 orig=25.84us inst=25.89us err=1.7e-04 span=21.0 route=1.9/2.1/2.2 A=8.6/10.0/10.7 B=6.1/6.8/8.4 join=0.9/1.1/2.4 fin=0.1/0.3/0.7 startspread=0.3 Aend=10.8/12.3/13.0 Bend=17.9/19.2/19.4 join_rel=20.2/20.3/20.5 tailB=1.6 ctas=132",
+    "MOE_TAIL M=8 seed=20261109 build=TINY2 experts=10 routes=14 maxtok=3 orig=78.82us inst=80.27us err=7.9e-09 span=76.3 route=2.0/2.2/2.3 A=42.5/44.0/45.6 B=23.6/25.4/27.2 join=1.8/3.8/5.6 fin=0.3/0.4/0.8 startspread=0.4 Aend=45.0/46.4/48.0 Bend=69.9/71.7/73.8 join_rel=75.4/75.5/75.7 tailB=2.5 ctas=132",
+    "MOE_TAIL M=8 seed=20261209 build=TINY2 experts=6 routes=12 maxtok=6 orig=53.31us inst=53.30us err=0.0e+00 span=48.1 route=2.0/2.2/2.3 A=26.8/27.2/28.5 B=14.7/15.2/16.8 join=1.1/1.8/3.3 fin=0.2/0.4/0.7 startspread=0.3 Aend=29.1/29.6/30.9 Bend=44.0/45.4/46.3 join_rel=47.2/47.2/47.5 tailB=1.8 ctas=132",
+    "MOE_TAIL M=16 seed=20261117 build=MID experts=7 routes=22 maxtok=8 orig=62.24us inst=62.38us err=9.8e-08 span=57.9 route=2.3/2.5/2.6 A=30.6/31.6/33.7 B=17.0/18.2/20.8 join=1.0/4.7/6.6 fin=0.1/0.2/0.8 startspread=0.4 Aend=33.2/34.2/36.3 Bend=50.6/52.3/56.1 join_rel=56.9/57.0/57.2 tailB=1.8 ctas=132",
+    "MOE_TAIL M=16 seed=20261217 build=MID experts=14 routes=25 maxtok=3 orig=107.42us inst=107.52us err=1.6e-06 span=101.9 route=2.5/2.5/2.6 A=59.4/60.7/62.4 B=33.0/34.5/35.5 join=1.0/3.3/4.3 fin=0.1/0.2/0.9 startspread=0.1 Aend=62.0/63.3/65.0 Bend=96.5/97.6/99.9 join_rel=100.8/100.8/101.1 tailB=2.0 ctas=132"
+  ],
+  "interpretation": "Coarse instrumented timings;phase B includes GEMM and norm atomics,so norm-atomic cost is not isolated. No complete-layer fraction inferred.",
+  "MoE_checks_left_observed": 14,
+  "MoE_scores_left_observed": 10,
+  "Decode_checks_left_observed": 1,
+  "new_GPU_jobs_launched_by_this_packet": 0,
+  "next_normal_slot_utc": "2026-10-30T22:06:10.172159+00:00",
+  "norm_source_admitted": false
+}
