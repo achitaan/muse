@@ -129,6 +129,22 @@ Kernel: `m32w_gemm` body with `wait_group 0` removed from the MMA helper. Per wa
 - **Register budget:** 1 CTA/SM. WK=4 means 512 threads, so at most 128 registers; WK=3 means 384 threads, at most 170; WK=2 means 256 threads, at most 255.
 - **Unchanged from the S2 baseline:** split=1, no cluster, no `st.async`, and grid 128 × 1. Occupancy is reported by the job, not assumed.
 
+## 3d. Oracle second opinion (2026-10-30, after S4) — ranked plan
+
+The verdict: +2.2% is plausible only as a portfolio of small wins (≈ 1.8–1.9% budgeted, a stretch). Do not budget +3–5%. All savings are hypotheses relative to the incumbent.
+
+1. **Router scheduling, keeping its arithmetic.** M128 `rwdl_128` launches only 64 CTAs, so halve a legal WGMMA output-tile dimension with split-K=8 to get ≈ 128 CTAs. Also try split-K 8 vs 16 at M8/M16. Expected ≈ 0.5–1.1%.
+   - Cheapest experiment: one M128 variant with half the output tile and the same cluster size, paired-timed; continue only if it saves ≥ 0.7 µs.
+2. **M32 cooperative x staging** (`cp.async` K-stage of x in smem shared by row warps; same decoder, MMA mapping and reduction). Expected ≈ 0.4–0.9%.
+   - Cheapest experiment: one shared-x variant of the incumbent pooler M32; kill if it recovers < 0.5 µs.
+3. **o at M ≤ 32: cluster-free, output-parallel launch** (N=8192 gives row parallelism; avoid splitting K=1024). Expected ≈ 0.3–0.7%.
+   - Cheapest experiment: o/M8 cluster-free c12 with enough row tiles; stop if it loses (no broad sweep).
+4. **Cheaper c12 reconstruction** (contiguous 16-exponent window, `exp = base + code`). Overlaps with item 2.
+   - Cheapest experiment: qkv/M32 with reconstruction replaced by a live dummy operand (check the SASS); reject if it saves < 0.4 µs.
+   - SS-WGMMA decode-to-smem is deferred.
+
+Stop rule: if items 1 and 2 both fail, treat +2.2% as unlikely from the remaining levers. Do not chase qkv tail work until the actual CTA count and cluster residency are known.
+
 ## 4. Experiment log
 
 | Step | Date | Hypothesis / change | Offline evidence | Official job | Verdict | Status |
