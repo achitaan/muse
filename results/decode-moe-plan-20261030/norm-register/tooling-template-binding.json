@@ -1,0 +1,6 @@
+{
+  "norm_group_source.py": "eaed784f9005ef1f155b959d5ca63a75b666a7d4b4a2615f710bfae3d63c620e",
+  "build_norm_group_payload.py": "2125b9c99f9229d18e1fa59acde6efac0beb113d79515a0db3f98c896ea185d7",
+  "extract_norm_group_layout_cpu.py": "9f09ae9cee4d2f1297d10e42f678ea4cc24055e46d7a15fc574f4bfe6196d4d3",
+  "audit_norm_group_payload_cpu.py": "b39168401c36b47fb6bfd67aa14102d6049dbe7b349f46ec2c31de0c095d4f01"
+}

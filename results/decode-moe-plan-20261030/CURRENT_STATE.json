@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:56:18.234788+00:00",
+  "updated_at": "2026-10-30T23:04:57.802320+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -187,6 +187,12 @@
     "positive_addend_cases": 144,
     "GPU_admitted": false,
     "review": "norm-register/REVIEW.md",
-    "frozen_shared_candidate_unchanged": true
+    "frozen_shared_candidate_unchanged": true,
+    "payload": "experiments/decode_moe/moe_norm_register.py",
+    "payload_sha256": "21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537",
+    "packaged_CUDA_sha256": "72611e8617e1d25f2f9af5b37ac5fd3c5b960f480c2b4ec17d2aae70109ad007",
+    "compiled_dynamic_shared_bytes": 214784,
+    "resource_guard_mock_cases": 7,
+    "actual_GPU_resources_verified": false
   }
 }

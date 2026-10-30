@@ -30,6 +30,16 @@ The timing-fixture metadata model uses local_count32 and the existing seed7 rout
 | 8 | one | 5 | 2048 | 427 |
 | 8 | skew | 6 | 3840 | 660 |
 
-M1 and the M2 one-route fixture have no aggregation opportunity. Any future selector must preserve the same numerical and paired speed gates; no exception for these shapes. There is no runnable Python payload, GPU admission, GPU check, score or measured speedup for this prototype.
+M1 and the M2 one-route fixture have no aggregation opportunity. Any future selector must preserve the same numerical and paired speed gates; no exception for these shapes. At the initial screen there was no runnable Python payload. The subsequent packaging below remains unrun and not GPU-admitted.
 
 Self-review: ownership flushes use old-job metadata, empty helper intervals flush nothing, invalid entries remain masked, the original compute-tail and finalizer remain, and no timed host logic or persistent expanded weights are introduced. The scalar and integer models have narrower scope than the complete CUDA contract. A future package would still need actual resource guards, exact buffers, approved norm/output limits, replay checks and full official evidence. Keep frozen shared candidate e5c0e7ec first; this is a separate alternative, not another lowering revision to it.
+
+## Separate executable payload, still unrun
+
+Payload `experiments/decode_moe/moe_norm_register.py`, SHA256 `21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537`, is 338502 bytes. Its packaged CUDA SHA256 is `72611e8617e1d25f2f9af5b37ac5fd3c5b960f480c2b4ec17d2aae70109ad007`; the screened device prefix is byte-exact. The host resource bridge is the previously checked bridge under the distinct `norm_reg` namespace and cache name. Frozen grouped-tooling template hashes are recorded in tooling-template-binding.json.
+
+The compiler's exported constexpr values give 36576 bytes for Smem, 36608 aligned, and 214784 total dynamic shared bytes in both tiny families, with 288 launch threads. The real loader will require those values, zero local/static shared bytes and at least one block/SM before any new-path probe. Seven simulated native-resource guard cases pass. No actual device resource query has occurred.
+
+The parent prefix, all original definitions, shared harness, byte/variance gates, route mutations, prepare selection and timed dispatch match the retained gate by AST. Private compilation is absent from timed launch. There is no mutation of a loaded extension's attributes. Runtime validation still requires all 120 fixtures, both populations and arm orders exceeding 3%, full official tests/benchmarks/integrity and profile marker `norm_reg::moe_reg_fused` on selected scored cases. Empty selection is not a gain. M1 and M2 are not granted exceptions to the unchanged gates.
+
+Self-review after packaging: the constexpr report agrees with the loader guard; source bytes have an explicit no-conversion Git attribute; template transformations do not alter the shared candidate or its builder. The existing shared payload e5c0e7ec remains first. No automatic launch, score or integration is authorized by these CPU artifacts.
