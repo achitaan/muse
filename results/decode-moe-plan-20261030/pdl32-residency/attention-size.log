@@ -1,0 +1,6 @@
+ptxas info    : 53 bytes gmem
+ptxas info    : Compiling entry function '_Z12resource_tagILi58368ELi128EEvv' for 'sm_90a'
+ptxas info    : Function properties for _Z12resource_tagILi58368ELi128EEvv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 4 registers, used 0 barriers
+ptxas info    : Compile time = 0.000 ms

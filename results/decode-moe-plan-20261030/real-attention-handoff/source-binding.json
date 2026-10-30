@@ -1,0 +1,24 @@
+{
+  "source_sha256": "74f71a73387abce17a9ed58eb38b7adfa47becc9409964404447dd58f7ca83a7",
+  "bytes": 764282,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "Decode_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "native_Python_sha256": "cac82a2943a8d157118398294339f4de6ed1bf68dcdf6312d26c69e968191618",
+  "original_Attention_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "early_Attention_CUDA_sha256": "ba74868d8236122ec81af4a6745415e93dc31242fd70bd61631332f315f3166c",
+  "private_Attention_CUDA_sha256": "b4f1934a2ddcb5d2c223f7b60163e35a343a6c27f31b95221d2b985d748aa256",
+  "projection_CUDA_sha256": "e574087aaa4c9f6c30c253254536223a195e6c509f3df331d9f9894504edd971",
+  "fixed_scope": "M32/B32/L1/sliding real Attention then O32, actual Dense weights; no MoE or whole-layer claim.",
+  "arms": [
+    "parent: retained Attention + original O32",
+    "late8: retained Attention + incoming-PDL ST8",
+    "early8: entry-signaled Attention + incoming-PDL ST8",
+    "early4: entry-signaled Attention + incoming-PDL ST4"
+  ],
+  "precision": "All Attention arithmetic and cache handling unchanged; only outgoing signal placement. ST4 preserves original K/MMA order, adds original ring refills.",
+  "gates": "Finite exact intermediate/output/cache bytes on changing normal/zero/outlier inputs. >3% and >=1.5us both arm orders. Early8 additionally beats late8; early4 additionally beats early8.",
+  "GPU_jobs": 0,
+  "enables_nothing": true,
+  "timed_Dense_parent_unchanged": true,
+  "admitted_for_GPU": false
+}

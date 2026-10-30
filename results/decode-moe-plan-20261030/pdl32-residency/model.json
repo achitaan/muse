@@ -1,0 +1,217 @@
+{
+  "decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "Attention_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "M32_sliding_plan": {
+    "n_splits": 8,
+    "flat": 0,
+    "cs": 0,
+    "ncl": 1,
+    "nc": 1
+  },
+  "attention_grid_CTAs": 256,
+  "attention_threads": 128,
+  "attention_dynamic_shared_bytes": 58368,
+  "H200_shared_bytes_per_SM": 233472,
+  "O32_ST8_plus_one_attention_bytes": 255104,
+  "ST8_cannot_share_an_SM_with_attention": true,
+  "ST4_plus_two_attention_bytes": 215104,
+  "ST4_shared_memory_necessary_condition_passes": true,
+  "ST4_source_sha256": "2a78e19708d641efa08f6cef14add5526c4af424f590ce18b274370431e1bfdd",
+  "edits": [
+    {
+      "before": "32,128,8,1,1,1,1",
+      "after": "32,128,4,1,1,1,1",
+      "count": 2
+    },
+    {
+      "before": "ST==8",
+      "after": "ST==4",
+      "count": 1
+    },
+    {
+      "before": "196736",
+      "after": "98368",
+      "count": 1
+    },
+    {
+      "before": "fixed full-K O32 ring",
+      "after": "fixed four-stage O32 ring",
+      "count": 1
+    }
+  ],
+  "inverse_exact": true,
+  "ring_models": [
+    {
+      "stages": 8,
+      "logical_tiles_loaded": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "consumed_in_K_order": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "wait_phases": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          4,
+          4,
+          0
+        ],
+        [
+          5,
+          5,
+          0
+        ],
+        [
+          6,
+          6,
+          0
+        ],
+        [
+          7,
+          7,
+          0
+        ]
+      ],
+      "refill_only_after_old_group_completion": true,
+      "transaction_bytes_per_load": 24576,
+      "dynamic_shared_bytes": 196736
+    },
+    {
+      "stages": 4,
+      "logical_tiles_loaded": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "consumed_in_K_order": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "wait_phases": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          2,
+          2,
+          0
+        ],
+        [
+          3,
+          3,
+          0
+        ],
+        [
+          4,
+          0,
+          1
+        ],
+        [
+          5,
+          1,
+          1
+        ],
+        [
+          6,
+          2,
+          1
+        ],
+        [
+          7,
+          3,
+          1
+        ]
+      ],
+      "refill_only_after_old_group_completion": true,
+      "transaction_bytes_per_load": 24576,
+      "dynamic_shared_bytes": 98368
+    }
+  ],
+  "ST4_CPU_kernels": [
+    {
+      "symbol": "_ZN13o32s4_private17pdlo32_projectionILi32ELi128ELi4ELi1ELi1ELi1ELi1EEEv11CUtensorMapS1_PKhP13__nv_bfloat16i",
+      "registers": 42,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "ST4_weights_before_wait": [
+    [
+      688,
+      "UBLKCP.S.G [UR12], [UR8], UR4, desc[UR20]"
+    ],
+    [
+      880,
+      "UBLKCP.S.G [UR10], [UR16], UR4, desc[UR20]"
+    ],
+    [
+      1072,
+      "UBLKCP.S.G [UR10], [UR16], UR4, desc[UR20]"
+    ],
+    [
+      1264,
+      "UBLKCP.S.G [UR10], [UR8], UR4, desc[UR20]"
+    ]
+  ],
+  "ST4_first_activation_TMA": [
+    1536,
+    "UTMALDG.3D [UR8], [UR16], desc[UR6]"
+  ],
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "conclusion": "ST8 overlap is limited to unused/freed SMs; the one-CTA ceiling cannot establish real attention overlap. ST4 removes this shared-memory conflict but is an unmeasured new schedule. Registers, CTA placement, trigger timing, byte correctness and net real-chain benefit still need GPU evidence. No speedup claimed."
+}
