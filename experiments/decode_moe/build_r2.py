@@ -57,7 +57,7 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
   // R2b: the CTA's x slice is staged in shared memory once and each router warp issues its 32 weight loads
   // up front; the per-row FMA order (j = 0..31, then the shuffle tree) is route_fp32's, so results are bitwise equal
   __shared__ float r2x[8 * 1024];
-  const int blk = blockIdx.y * gridDim.x + blockIdx.x, nb = blk & 15, ks = blk >> 4, row = nb * 16 + warp;
+  const int blk = blockIdx.x, nb = blk & 15, ks = blk >> 4, row = nb * 16 + warp;  // S == 1 (checked on the host)
   const int M = ra.M;
   for (int i = threadIdx.x; i < M * 1024; i += blockDim.x) r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)];
   __syncthreads();
@@ -86,11 +86,16 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
   }
   if (lane == 0) __threadfence();
   asm volatile("bar.sync 1, 512;" ::: "memory");
-  __shared__ int r2_last;
-  if (warp == 0 && lane == 0) r2_last = ((atomicAdd(ra.counter, 1u) & 127u) == 127u);
-  asm volatile("bar.sync 1, 512;" ::: "memory");
-  if (!r2_last || warp >= M || (ra.dbg & 1)) return;
+  if (warp == 0 && lane == 0) atomicAdd(ra.counter, 1u);  // R2f: publish only; the extra top-k block finishes
+}
+// R2f: the extra block (blockIdx.x == 128, on one of the SMs the 128 pooler CTAs leave free) waits for all 128
+// arrivals, runs route_fp32's top-8 tail (identical arithmetic), then resets the counter for the next launch
+__device__ __forceinline__ void P_r2_topk(const R2Args& ra, int warp, int lane) {
+  if (threadIdx.x == 0) { while (atomicAdd(ra.counter, 0u) < 128u) __nanosleep(64); }
+  __syncthreads();
   __threadfence();
+  const int M = ra.M;
+  if (warp < M && !(ra.dbg & 1)) {
   float score[8], sel[8];
 #pragma unroll
   for (int j = 0; j < 8; ++j) {
@@ -129,13 +134,16 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
 #pragma unroll
   for (int r = 0; r < 8; ++r)
     if (lane == r) { ra.outw[warp * 8 + r] = chosen_score[r] * inv; ra.outi[warp * 8 + r] = chosen_id[r]; }
+  }
+  __syncthreads();
+  if (threadIdx.x == 0) atomicSub(ra.counter, 128u);
 }
 """
 _R2_HOST = r"""
 int r2_launch(int64_t wp, int64_t x, int64_t out, int64_t esc, int m, int N, int K, int WR, int WK, int KU, int S,
               int64_t t01, int64_t u01, int64_t stream, int64_t rx, int64_t rw, int64_t rb, int64_t rp, int64_t rc,
               int64_t ow, int64_t oi, int dbg) {
-  if ((N / (WR * 16)) * S != 128 || WR * WK * 32 < 512 || m < 1 || m > 8) return -20;
+  if (N / (WR * 16) != 128 || S != 1 || WR * WK * 32 < 512 || m < 1 || m > 8) return -20;
   R2Args ra{(const float*)rx, (const float*)rw, (const float*)rb, (volatile float*)rp, (unsigned int*)rc,
             (float*)ow, (int*)oi, m, dbg};
   return P_launch_t<@@ARGS@@>(wp, x, out, esc, m, N, K, WR, WK, KU, S, t01, u01, stream, 0, ra);
@@ -153,8 +161,9 @@ def _r2_source(tmpl, p, inst):
     edits = [(kh, _R2_DEV.replace('P_', p + '_') + kh),
              ('uint32_t T0, uint32_t T1,\n    uint32_t U0, uint32_t U1) {\n', 'uint32_t T0, uint32_t T1,\n    uint32_t U0, uint32_t U1, R2Args ra) {\n'),
              ('lane = tid & 31, nt = CWR ? CWR * CWK * 32 : blockDim.x;\n',
-              'lane = tid & 31, nt = CWR ? CWR * CWK * 32 : blockDim.x;\n    if constexpr ((OPT & 64) != 0) ' + p + '_r2_router(ra, warp, lane);\n'),
-             ('(uint32_t)((uint64_t)u01 >> 32));', '(uint32_t)((uint64_t)u01 >> 32), ra);')]
+              'lane = tid & 31, nt = CWR ? CWR * CWK * 32 : blockDim.x;\n    if constexpr ((OPT & 64) != 0) {\n      if (blockIdx.x == 128) { ' + p + '_r2_topk(ra, warp, lane); return; }\n      ' + p + '_r2_router(ra, warp, lane);\n    }\n'),
+             ('(uint32_t)((uint64_t)u01 >> 32));', '(uint32_t)((uint64_t)u01 >> 32), ra);'),
+             ('lc.gridDim = dim3(N / RB, S, 1);', 'lc.gridDim = dim3(N / RB + ((OPT & 64) ? 1 : 0), S, 1);  // R2f: + the top-k block')]
     for a, b in edits:
         if s.count(a) != 1:
             return None
@@ -217,7 +226,7 @@ def _r2_pool_route(xb, xr, state):
     (wr, wk, ku, s) = plan['cfg']
     rc = ext.r2_launch(plan['wp'].data_ptr(), xb.data_ptr(), out.data_ptr(), plan['esc'].data_ptr(), m, 4096, 8192, wr, wk,
                        ku, s, plan['t01'], plan['u01'], torch.cuda.current_stream().cuda_stream, xr.data_ptr(),
-                       rf['weight'].data_ptr(), rf['bias'].data_ptr(), rf['parts'].data_ptr(), rf['counter'].data_ptr(),
+                       rf['weight'].data_ptr(), rf['bias'].data_ptr(), rf['parts'].data_ptr(), state['r2cnt'].data_ptr(),
                        ow.data_ptr(), oi.data_ptr(), state.get('r2dbg', 0))
     return None if rc else (out, ow, oi)
 
@@ -237,6 +246,7 @@ def _r2_gate(state):
     plans = {1: (_r2_find(dense, 'v18') or {}).get('plans', {}).get(('pooler', 1)),
              8: (_r2_find(dense, 'v10_sm2') or {}).get('plans', {}).get(('pooler', 8))}
     state['r2'] = {}
+    state['r2cnt'] = torch.zeros(1, dtype=torch.int32, device=state['rf']['weight'].device)  # R2f arrivals (reset by the top-k block)
     for m, (inst, ext) in _R2_EXT.items():
         plan = plans.get(m)
         if plan is not None and plan.get('fmt') == inst[0] and tuple(plan['cfg']) == tuple(inst[10:14]):
@@ -344,7 +354,7 @@ def main():
     out = out.rstrip('\n') + '\n' + app
     ast.parse(out)
     b = out.encode('utf-8')
-    (HERE / 'decoder_r2e.py').write_bytes(b)
+    (HERE / 'decoder_r2f.py').write_bytes(b)
     # emit the derived CUDA for offline NVRTC checks
     ns = {}
     t = ast.parse(out)
@@ -360,7 +370,7 @@ def main():
                          ('smallm2', 'tt_v10_sm2_SMALLM2_CUDA_TEMPLATE', (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 6))):
         s = ns['_r2_source'](src_mod[key], p, inst)
         assert s is not None, p
-        (HERE / f'r2e_{p}.cu').write_text(s, encoding='utf-8', newline='')
+        (HERE / f'r2f_{p}.cu').write_text(s, encoding='utf-8', newline='')
     print(json.dumps({'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'headroom': 1_000_000 - len(b)}))
 
 

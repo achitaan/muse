@@ -1,0 +1,5 @@
+R2_GATE M=1 PASS parent=30.50us fused=29.31us use=True
+R2_DIAG M=1 parent=30.50us fused=29.31us pool_only=18.66us f_notopk=23.68us f_nomath=26.05us f_neither=20.06us
+R2_GATE M=8 PASS parent=40.03us fused=33.18us use=True
+R2_DIAG M=8 parent=40.03us fused=33.18us pool_only=19.10us f_notopk=26.88us f_nomath=29.31us f_neither=23.17us
+R2_DONE 254.8s sel=(1, 8)
