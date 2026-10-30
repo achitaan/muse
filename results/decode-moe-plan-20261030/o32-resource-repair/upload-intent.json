@@ -1,0 +1,6 @@
+{
+  "mode": "check",
+  "problem": "muse_bf16_proj",
+  "source": "experiments/decode_moe/dense_o32_resource_diag.py",
+  "source_sha256": "ec51c132bdd752e4d6b8b8ec971e16e4d06627dffc942bffc4feff18c8b21e28"
+}

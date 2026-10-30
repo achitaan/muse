@@ -13,3 +13,7 @@ experiments/decode_moe/*norm_pair* -text
 experiments/decode_moe/profiles/dense_norm_pair* -text
 experiments/decode_moe/*handoff16* -text
 experiments/decode_moe/profiles/dense_handoff16* -text
+
+experiments/decode_moe/*o32_resource* -text
+
+experiments/decode_moe/profiles/dense_o32_resource* -text

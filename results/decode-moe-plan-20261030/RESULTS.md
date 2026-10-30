@@ -765,3 +765,27 @@ CPU source audit proves the standalone/Decode CUDA differences are only the WGS 
 `dense_handoff16_diag.py`, SHA256`b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415`,715191 bytes. Timed Dense prefix/kernel/state remain parent. Four exact O/U projection twins use a fixed5000ns,one-CTA,late-first-column producer as optimistic ceilings; two real norm/FPR chains use parent/late/early arms with fixed5/3 depths. Early must beat both parent and late control by >3% and >=1.5us in both orders. No sweep,enabled path,score or final Decode check.
 
 CPU source/host-inverse/protocol/readiness/retention audits pass. New spin kernel10 registers,0 spills/static shared; PREEXIT32<timer96<barrier240<store560. An initial FPR query interpretation was corrected before admission: last template bool is FUSE; PDL is the runtime int. Resource query now targets the actual fused kernel. Missing independent modules preserve other valid questions. Reference documentation confirms scheduling signal versus memory wait and target-specific globaltimer semantics. Full host/SDK/H200 validation remains outstanding. See handoff16-diag/REVIEW.md.
+
+H200 check **3264689ee9974ef9** acknowledged for sourceb3560cdd. Admission62.577 minutes after the previous upload,no active jobs,Dense8 before/7 expected after,Decode1 preserved,no score. Follow this job only; retain separate synthetic-ceiling and real-chain conclusions.
+
+
+### H200 fixed M16/M32 result
+
+**3264689ee9974ef9**, sourceb3560cdd, completed9/9 tests,30 benchmarks,integrity/no flags; prepare **92.687446899s**. All five exercised units are byte-equal on changing normal/zero/outlier probes. All modules built; norm175 regs/0 local/64 static/1 block; fused FPR16 has85 regs/0 local/1024 static/416 max threads, FPR32 has126/0/1024/384.
+
+O16 saved-0.160/-0.288us and U16-0.032/+0.064us behind the optimistic5000ns producer: both fail. U32 saved **3.712/3.936us** (ratios0.87954/0.87267),passes both gates,but remains only a synthetic ceiling. O32 had no exact eligible plan in the standalone Dense state and was NOT EXERCISED; no speed/correctness conclusion. Parent WG overrides were empty.
+
+Norm/FPR16 saved0.736/1.216us versus original mode0; early signal itself saved1.920/1.920us versus the late-PDL control. Net parent gain misses the1.5us floor,so reject. Norm/FPR32 saved0.704/0.384us versus parent,and1.696/1.024us versus late control; fails. No depth adjustment or repetition to seek a pass.
+
+Retain the U32 ceiling for later real-predecessor integration only; O32 source/plan mismatch requires diagnosis before any further evaluation. No new timed Dense algorithm,score,publication or Decode check. The final Decode check is preserved. Complete compact footer,status and profiles are retained.
+
+
+### O32 resource diagnosis and bounded repair packet
+
+Correction to the preceding shorthand: the exact O32 source/packed plan exists in both retained Dense and Decode. The resource log reports420000 (42 registers,zero local) and zero residency at196736 dynamic shared bytes,so the probe was skipped. No O32 performance or numerical result exists yet.
+
+The twin's namespace rewrite reused the retained generic `ol_launch_t` host signature and its cached configuration flag. This is a source-isolation defect; cross-module static sharing is a source-backed causal hypothesis,not an H200 finding. A CPU ABI reproducer could not run because WSL g++ is unavailable; nothing was installed.
+
+`dense_o32_resource_diag.py`,SHA256ec51c132bdd752e4d6b8b8ec971e16e4d06627dffc942bffc4feff18c8b21e28,654790 bytes,retains the frozen O32 CUDA source exactly and appends an inverse-exact,uniquely named host launcher/map/template. It queries attributes before/after the legacy and private initialization,then requires legal positive residency before probing only O32. Device math,geometry,producer,byte probes,harness and both timing gates are unchanged. Ten CPU resource-decision cases,source inverses,unchanged-probe AST and parent-prefix audits pass. No new GPU job yet. Full rationale and stop conditions in o32-resource-repair/REVIEW.md.
+
+O32 repair admission recorded before upload at2026-10-30T17:53:30.034262+00:00: 23.08min since prior check; bounded-defect spacing exception. Bounded repair of confirmed duplicate host-launcher/template names in the O32 twin. Previous check never exercised O32 because residency was zero. Isolate host symbols and query before/legacy/private attributes; only the previously skipped fixed O32 family may run. No closed family or unchanged timed-path resubmission, parameter tuning, Decode check or score. Causal role of cross-module static sharing is still a hypothesis pending the recorded attributes. Dense7 before/6 expected after; no active jobs; official evaluator identity unchanged except quota; Decode1 remains reserved.

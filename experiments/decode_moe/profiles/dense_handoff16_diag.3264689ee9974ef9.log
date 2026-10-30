@@ -1,0 +1,44 @@
+D16_PUBLIC_BUILD 7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a
+D16_BUILD ad4c2044ff8bab6f1986b3d419c450cff4118fc6f98414a8e6ad86a813f9d0b2
+PDLN_BUILD 52667230a6bd69d589fba7323768961f16bd7110a06b432bd8cef53e5d01f914 SDK_headers_exact=True
+D16_FPR_BUILD f68f77c0d29cc56b3657b7b4afafa864d186ee554996edaa1d3161159d246a54
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 23.231999948620796 baseline 15.32800029963255
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.65600049495697 baseline 15.32800029963255
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 18.65600049495697 baseline 15.32800029963255
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 23.80800060927868 baseline 15.32800029963255
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 26.016000658273697 baseline 15.32800029963255
+WG_KEEP 16 qkv_gate baseline 14.14399966597557 best 18.65600049495697
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 23.679999634623528 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 18.36800016462803 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 18.97599920630455 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 24.351999163627625 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.103999629616737 baseline 15.584000386297703
+WG_KEEP 32 qkv_gate baseline 15.424000099301338 best 18.36800016462803
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.431999444961548 baseline 20.447999238967896
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 27.008000761270523 baseline 20.447999238967896
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 32.32000023126602 baseline 20.447999238967896
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 30.97599931061268 baseline 20.447999238967896
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 44.544000178575516 baseline 20.447999238967896
+WG_KEEP 32 unpooler baseline 20.416000857949257 best 22.431999444961548
+P16_RESOURCE O16 72000 3
+P16_RESOURCE O32 420000 0 dynamic_smem=196736
+P16_RESOURCE U16 94000 2
+P16_RESOURCE U32 900000 132
+D16_RESOURCES {'norm': [175, 0, 64, 1], 'fpr16': [85, 0, 1024, 416], 'fpr32': [126, 0, 1024, 384]} plans= ['16', 'u16', 'u32']
+D16_BYTES o_M16 True
+D16_TIME o_M16 {'order': ['parent', 'early'], 'times_us': {'parent': 18.880000337958336, 'early': 19.039999693632126}, 'saving_us': -0.15999935567378998, 'ratio': 1.0084745419920418, 'passes': False}
+D16_TIME o_M16 {'order': ['early', 'parent'], 'times_us': {'early': 19.007999449968338, 'parent': 18.719999119639397}, 'saving_us': -0.28800033032894135, 'ratio': 1.0153846337538979, 'passes': False}
+D16_BYTES unpooler_M16 True
+D16_TIME unpooler_M16 {'order': ['parent', 'early'], 'times_us': {'parent': 30.271999537944794, 'early': 30.30399978160858}, 'saving_us': -0.03200024366378784, 'ratio': 1.0010570905177134, 'passes': False}
+D16_TIME unpooler_M16 {'order': ['early', 'parent'], 'times_us': {'early': 30.559999868273735, 'parent': 30.62400035560131}, 'saving_us': 0.06400048732757568, 'ratio': 0.9979101199521809, 'passes': False}
+D16_BYTES norm_fpr 16 True
+D16_TIME norm_fpr_M16 {'order': ['parent', 'late', 'early'], 'times_us': {'parent': 27.23200060427189, 'late': 28.416000306606293, 'early': 26.496000587940216}, 'saving_us': 0.7360000163316727, 'ratio': 0.972972972972973, 'passes': False, 'early_signal_vs_late_saving_us': 1.9199997186660767, 'early_signal_vs_late_ratio': 0.9324324430620271, 'causal_signal_pass': True}
+D16_TIME norm_fpr_M16 {'order': ['early', 'late', 'parent'], 'times_us': {'early': 26.399999856948853, 'late': 28.31999957561493, 'parent': 27.615999802947044}, 'saving_us': 1.2159999459981918, 'ratio': 0.955967556681818, 'passes': False, 'early_signal_vs_late_saving_us': 1.9199997186660767, 'early_signal_vs_late_ratio': 0.9322033987486602, 'causal_signal_pass': True}
+D16_BYTES unpooler_M32 True
+D16_TIME unpooler_M32 {'order': ['parent', 'early'], 'times_us': {'parent': 30.81599995493889, 'early': 27.103999629616737}, 'saving_us': 3.712000325322151, 'ratio': 0.8795430837633024, 'passes': True}
+D16_TIME unpooler_M32 {'order': ['early', 'parent'], 'times_us': {'early': 26.976000517606735, 'parent': 30.912000685930252}, 'saving_us': 3.936000168323517, 'ratio': 0.8726708048335737, 'passes': True}
+D16_BYTES norm_fpr 32 True
+D16_TIME norm_fpr_M32 {'order': ['parent', 'late', 'early'], 'times_us': {'parent': 29.055999591946602, 'late': 30.047999694943428, 'early': 28.351999819278717}, 'saving_us': 0.7039997726678848, 'ratio': 0.9757709325937969, 'passes': False, 'early_signal_vs_late_saving_us': 1.695999875664711, 'early_signal_vs_late_ratio': 0.9435569790707193, 'causal_signal_pass': True}
+D16_TIME norm_fpr_M32 {'order': ['early', 'late', 'parent'], 'times_us': {'early': 28.863999992609024, 'late': 29.888000339269638, 'parent': 29.24799919128418}, 'saving_us': 0.38399919867515564, 'ratio': 0.9868709241899327, 'passes': False, 'early_signal_vs_late_saving_us': 1.024000346660614, 'early_signal_vs_late_ratio': 0.9657387468202352, 'causal_signal_pass': False}
+D16_SUMMARY_Z64 eNrlV9tu3DYQ/RVin+MtyeE1b0WD9qUogqJAH4pAkCXuWo1WUnVxYxj+9x5Su472ktpYNA9FDNu6zJA8M3PmosfVWO1CmXX5eLd6y1ZTU9zlzTaU7F1ohsC6vA/NuHrDVqHJb+swZE073lXNFspjPwUIur79MxRj1TYDXv7xuNrhIgwkdf4Q+rhrGze4fRhDFv6a8vpobTkVe6UmsB9++559xzTnvBlws6n6YWRFW0+7hv3dV+MYGlbnY4j77UI+TH3YRXxxeQdLqmGsCjY8NONdwN3NYX9WhKoG6jcM8FnO+pDXLMFjXR/KUIRhaPu4a9uXod8bku7j7WrhhryvH1YfcBcdN2RT1H08KMBwt3YO+DmR9doRmedFEPo1J48f48mQFNI8QTrk94A273TD10JHDdLaWLLOeweVPod/4wZrzp2ySivhveRKRGGXD0OIizd5PQTsuEQ+H520EsIz5Ets3OJkpYAPwN3nRcksKyIuIbwhT95eQC6T5UScpPNKkD5GLjQ5ZeAXXL3158gjNrCvbDebbBujvDTpnFVT07VtHfpvh1wEH6cwaJBLKfwtyAUhJXZZJwx32l2IECID86UiY8At69QJtwTXlnuuhbWC1H/GLUDTidXOOAlWJ2YsrTJSReaA81yQOAUO3CbKlbMkrbbaLHOCr2GyFxzM9FoKx69hFslvnlluLjxaeXLOL4gl7VokYhnpjYhV6TRAhOIQiUVSk5RCi6PwOBRCRdyRRfKDfMvwRIdeyypp1t4aHAu6Gm7OWeUTKOO0x7FanqNGFYaCQLWThE1OUEtjuQPpiDRsPkN9gVPP75u232Wbrj9piBe5lABnu7aMO3C82VSf0JHfv/s5K0OX2rJO5ExHwFHVtmrAg3gGyFY1RbuDTTdYwH58/+tqEbn55qA55LtwUf0l8hyo+xKJQBSZCozhCnUqkWgPW7q1EtHZxA1iJT0tCWbWyqdAgiqKS2HOK4BNoUKsiEBBeRwrb+Xil87y/3BWNlRbuC67H7KIK1seIUCXyH/gNoBojf3SqsW5hFIqFchtJIfFWFHk0wDd/ZII4wWWH5z7Cran0cE7bbxyTtORdymBj7VRKE/LREBUTEptx6VXlit16l2xlnPuK/x3wouT8orabSxqs3HCXZg4vqJ3JaYJ76zCIi7/1buvq/DXJiD9TxIQM1xqtBreVnuf7XGjHnJl0+ypvCIl3TIDQSAdA4ToSwwGwl7IwHm4QFk01jl1whG0ZUwOaAAeo4nxV5LE+ERUsNgoK8QrOKLi0ID+zy3HZERfNQMx2ps5B6XBlJQ62SEDPcb+efqFECPy0fQMqUy+R25Jh6n93LvkKMkdMk3AJHXsXgxOcK/EUnwaSHule/k8ZqmYgqgTr3CvQetD/mFs42iRX0zBF6asKBg+Vl0XyuT6X1oWPuXFyEKNXMJnJevqvHnLWpLJ/aHv2zkf4tPtVG7DmA1j2y3M7cPQTn0R5hjFDIv6wqJXIoej/0RcjCYsTJS4WSBS2NCL9kKcGJdJs5DiM+XD0+fK8PtPWXsPSFUZso/h4RlXxJweVjgBz9P+sjcCE1rcIIsqXq4RQIy2+CT0Dp9vT/8A2YWPAw==
+D16_DONE 92.68713195898454 enables_nothing=True

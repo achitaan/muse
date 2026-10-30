@@ -1,0 +1,242 @@
+{
+  "timed_path": "unchanged Dense parent",
+  "enables_nothing": true,
+  "projections": [
+    {
+      "m": 16,
+      "layer": "o",
+      "byte_equal": true,
+      "producer": "one CTA / 5000ns / first column written late",
+      "measurement": "optimistic synthetic-producer ceiling, not a real layer predecessor",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "times_us": {
+            "parent": 18.880000337958336,
+            "early": 19.039999693632126
+          },
+          "saving_us": -0.15999935567378998,
+          "ratio": 1.0084745419920418,
+          "passes": false
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "times_us": {
+            "early": 19.007999449968338,
+            "parent": 18.719999119639397
+          },
+          "saving_us": -0.28800033032894135,
+          "ratio": 1.0153846337538979,
+          "passes": false
+        }
+      ],
+      "handoff_gate": false
+    },
+    {
+      "m": 16,
+      "layer": "unpooler",
+      "byte_equal": true,
+      "producer": "one CTA / 5000ns / first column written late",
+      "measurement": "optimistic synthetic-producer ceiling, not a real layer predecessor",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "times_us": {
+            "parent": 30.271999537944794,
+            "early": 30.30399978160858
+          },
+          "saving_us": -0.03200024366378784,
+          "ratio": 1.0010570905177134,
+          "passes": false
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "times_us": {
+            "early": 30.559999868273735,
+            "parent": 30.62400035560131
+          },
+          "saving_us": 0.06400048732757568,
+          "ratio": 0.9979101199521809,
+          "passes": false
+        }
+      ],
+      "handoff_gate": false
+    },
+    {
+      "m": 32,
+      "layer": "unpooler",
+      "byte_equal": true,
+      "producer": "one CTA / 5000ns / first column written late",
+      "measurement": "optimistic synthetic-producer ceiling, not a real layer predecessor",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "times_us": {
+            "parent": 30.81599995493889,
+            "early": 27.103999629616737
+          },
+          "saving_us": 3.712000325322151,
+          "ratio": 0.8795430837633024,
+          "passes": true
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "times_us": {
+            "early": 26.976000517606735,
+            "parent": 30.912000685930252
+          },
+          "saving_us": 3.936000168323517,
+          "ratio": 0.8726708048335737,
+          "passes": true
+        }
+      ],
+      "handoff_gate": true
+    }
+  ],
+  "norm_fpr": [
+    {
+      "m": 16,
+      "byte_equal": true,
+      "parent_mode": 0,
+      "fixed_PDL_depth": 5,
+      "late": "original norm / incoming-PDL FPR",
+      "early": "early norm / same incoming-PDL FPR",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "late",
+            "early"
+          ],
+          "times_us": {
+            "parent": 27.23200060427189,
+            "late": 28.416000306606293,
+            "early": 26.496000587940216
+          },
+          "saving_us": 0.7360000163316727,
+          "ratio": 0.972972972972973,
+          "passes": false,
+          "early_signal_vs_late_saving_us": 1.9199997186660767,
+          "early_signal_vs_late_ratio": 0.9324324430620271,
+          "causal_signal_pass": true
+        },
+        {
+          "order": [
+            "early",
+            "late",
+            "parent"
+          ],
+          "times_us": {
+            "early": 26.399999856948853,
+            "late": 28.31999957561493,
+            "parent": 27.615999802947044
+          },
+          "saving_us": 1.2159999459981918,
+          "ratio": 0.955967556681818,
+          "passes": false,
+          "early_signal_vs_late_saving_us": 1.9199997186660767,
+          "early_signal_vs_late_ratio": 0.9322033987486602,
+          "causal_signal_pass": true
+        }
+      ],
+      "handoff_gate": false
+    },
+    {
+      "m": 32,
+      "byte_equal": true,
+      "parent_mode": 0,
+      "fixed_PDL_depth": 3,
+      "late": "original norm / incoming-PDL FPR",
+      "early": "early norm / same incoming-PDL FPR",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "late",
+            "early"
+          ],
+          "times_us": {
+            "parent": 29.055999591946602,
+            "late": 30.047999694943428,
+            "early": 28.351999819278717
+          },
+          "saving_us": 0.7039997726678848,
+          "ratio": 0.9757709325937969,
+          "passes": false,
+          "early_signal_vs_late_saving_us": 1.695999875664711,
+          "early_signal_vs_late_ratio": 0.9435569790707193,
+          "causal_signal_pass": true
+        },
+        {
+          "order": [
+            "early",
+            "late",
+            "parent"
+          ],
+          "times_us": {
+            "early": 28.863999992609024,
+            "late": 29.888000339269638,
+            "parent": 29.24799919128418
+          },
+          "saving_us": 0.38399919867515564,
+          "ratio": 0.9868709241899327,
+          "passes": false,
+          "early_signal_vs_late_saving_us": 1.024000346660614,
+          "early_signal_vs_late_ratio": 0.9657387468202352,
+          "causal_signal_pass": false
+        }
+      ],
+      "handoff_gate": false
+    }
+  ],
+  "skipped": [
+    "No exact eligible plan: o32"
+  ],
+  "errors": [],
+  "budget_stop": false,
+  "resources": {
+    "norm": [
+      175,
+      0,
+      64,
+      1
+    ],
+    "fpr16": [
+      85,
+      0,
+      1024,
+      416
+    ],
+    "fpr32": [
+      126,
+      0,
+      1024,
+      384
+    ]
+  },
+  "parent_WG_override_keys": [],
+  "plans": [
+    "16",
+    "u16",
+    "u32"
+  ],
+  "prepare_s": 92.68713195898454
+}

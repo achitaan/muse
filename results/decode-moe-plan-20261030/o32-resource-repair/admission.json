@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-30T17:53:30.034262+00:00",
+  "source_sha256": "ec51c132bdd752e4d6b8b8ec971e16e4d06627dffc942bffc4feff18c8b21e28",
+  "source_bytes": 654790,
+  "minutes_since_last_submission": 23.0797622,
+  "active_jobs": [],
+  "Dense_checks_before": 7,
+  "Dense_checks_after_expected": 6,
+  "Decode_checks_preserved": 1,
+  "max_new_checks": 1,
+  "no_scored_run": true,
+  "spacing_exception": true,
+  "spacing_exception_reason": "Bounded repair of confirmed duplicate host-launcher/template names in the O32 twin. Previous check never exercised O32 because residency was zero. Isolate host symbols and query before/legacy/private attributes; only the previously skipped fixed O32 family may run. No closed family or unchanged timed-path resubmission, parameter tuning, Decode check or score. Causal role of cross-module static sharing is still a hypothesis pending the recorded attributes.",
+  "official_numerical_identity_equal": true,
+  "decision": "Admit one O32-only bounded initialization repair. Preserve all resource/byte/timing gates and incumbent."
+}
