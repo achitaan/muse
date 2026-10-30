@@ -1,0 +1,32 @@
+{
+  "candidate": "candidates/dense_s1.py",
+  "source_sha256": "4394ff32ebd9eb861a016b30c564e3c1809cc7157b27f96d1cb3829d0d4ba760",
+  "parent": "best/verified.py edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b minus dead _achita_wg sweep (lines 7079-7140); (32,unpooler) config line kept",
+  "scope": "sliced unpooler 1024x4096, M in {1, 8}, exact c12 FMT 1",
+  "geometries": {
+    "RED3": [
+      1,
+      8,
+      4,
+      2,
+      3
+    ],
+    "RED0": [
+      1,
+      16,
+      4,
+      1,
+      0
+    ]
+  },
+  "offline_compile": "results/s1-offline/s1-resources.txt: RED3 72 regs 0 spill; RED0 64 regs 8B stack/16B spill ld",
+  "representation_gate": "v18s_pack_format: unpack(int16 bits) == original bits (signed zero, escapes); else None -> incumbent",
+  "computation_gate": "v18s_plan one-hot exact + FP64 random/spike rows at m 1,4,8; official checker on job (per-row, finite, dtype, shape)",
+  "timing_gate": "ABBA paired cold-L2 graph replay, 16 pairs, raw samples printed; select iff median(base/cand) >= 1.03 and win fraction >= 0.75",
+  "selected_path_marker": "S1_USE (m, unpooler, 1024) printed on first selected dispatch; S1_SELECT / S1_KEEP in prepare log",
+  "decision_rule": "S1_SELECT on both M and official check passes -> one separate confirming check of the frozen selection; S1_KEEP or inconclusive -> CLOSE S1, keep incumbent, no extra configs",
+  "not_authorized": [
+    "scored submission",
+    "main update"
+  ]
+}

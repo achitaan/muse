@@ -1,0 +1,11 @@
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi1024ELi4096ELi1ELi8ELi4ELi2ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi1024ELi4096ELi1ELi8ELi4ELi2ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi512ELi0ELi1024ELi4096ELi1ELi16ELi4ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi512ELi0ELi1024ELi4096ELi1ELi16ELi4ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     8 bytes stack frame, 8 bytes spill stores, 16 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 8 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
