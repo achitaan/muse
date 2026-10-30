@@ -8,7 +8,7 @@
     "stack_frame": 0,
     "spill_stores": 0,
     "spill_loads": 0,
-    "smem_static": 16,
+    "smem_static": 32784,
     "warnings": []
    },
    {
@@ -31,7 +31,7 @@
     "stack_frame": 0,
     "spill_stores": 0,
     "spill_loads": 0,
-    "smem_static": 16,
+    "smem_static": 32784,
     "warnings": []
    },
    {

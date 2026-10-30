@@ -54,19 +54,25 @@ _R2_DEV = r"""
 struct R2Args { const float* x; const float* w; const float* bias; volatile float* parts; unsigned int* counter;
                 float* outw; int* outi; int M; };
 __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane) {
-  if (warp >= 16) return;
+  // R2b: the CTA's x slice is staged in shared memory once and each router warp issues its 32 weight loads
+  // up front; the per-row FMA order (j = 0..31, then the shuffle tree) is route_fp32's, so results are bitwise equal
+  __shared__ float r2x[8 * 1024];
   const int blk = blockIdx.y * gridDim.x + blockIdx.x, nb = blk & 15, ks = blk >> 4, row = nb * 16 + warp;
   const int M = ra.M;
+  for (int i = threadIdx.x; i < M * 1024; i += blockDim.x) r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)];
+  __syncthreads();
+  if (warp >= 16) return;
+  float wv[32];
+#pragma unroll
+  for (int j = 0; j < 32; ++j) wv[j] = __ldg(ra.w + (size_t)row * 8192 + ks * 1024 + j * 32 + lane);
   float a[8];
 #pragma unroll
   for (int m = 0; m < 8; ++m) a[m] = 0.f;
 #pragma unroll
   for (int j = 0; j < 32; ++j) {
-    const int k = ks * 1024 + j * 32 + lane;
-    const float w0 = ra.w[(size_t)row * 8192 + k];
 #pragma unroll
     for (int m = 0; m < 8; ++m)
-      if (m < M) a[m] = __fmaf_rn(ra.x[(size_t)m * 8192 + k], w0, a[m]);
+      if (m < M) a[m] = __fmaf_rn(r2x[m * 1024 + j * 32 + lane], wv[j], a[m]);
   }
 #pragma unroll
   for (int m = 0; m < 8; ++m) {
@@ -331,7 +337,7 @@ def main():
     out = out.rstrip('\n') + '\n' + app
     ast.parse(out)
     b = out.encode('utf-8')
-    (HERE / 'decoder_r2.py').write_bytes(b)
+    (HERE / 'decoder_r2b.py').write_bytes(b)
     # emit the derived CUDA for offline NVRTC checks
     ns = {}
     t = ast.parse(out)
@@ -347,7 +353,7 @@ def main():
                          ('smallm2', 'tt_v10_sm2_SMALLM2_CUDA_TEMPLATE', (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 6))):
         s = ns['_r2_source'](src_mod[key], p, inst)
         assert s is not None, p
-        (HERE / f'r2_{p}.cu').write_text(s, encoding='utf-8', newline='')
+        (HERE / f'r2b_{p}.cu').write_text(s, encoding='utf-8', newline='')
     print(json.dumps({'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'headroom': 1_000_000 - len(b)}))
 
 

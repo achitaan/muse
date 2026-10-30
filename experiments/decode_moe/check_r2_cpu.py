@@ -27,7 +27,7 @@ def main():
     nvr = nv.NVRTC()
     res = {}
     for p in ('v18s', 'smallm2'):
-        src = device_part((HERE / f'r2_{p}.cu').read_text(encoding='utf-8'))
+        src = device_part((HERE / f'{sys.argv[1] if len(sys.argv) > 1 else "r2"}_{p}.cu').read_text(encoding='utf-8'))
         names = [f'&{p}_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, {o}>' for o in (6, 70)]
         r = nvr.compile(src.encode(), names, [], tags=True, lineinfo=False)
         res[p] = {'rc': r['rc'], 'kernels': nv.parse_ptxas(r['log']) if r['rc'] == 0 else r['log'][-2500:]}
