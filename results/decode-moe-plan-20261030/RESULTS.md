@@ -145,6 +145,18 @@ loads add to its critical path rather than overlapping it.
 - The unpooler is a cluster-reduction GEMV (`smtrace_gemv`, RED = 2). The fold needs a grid-wide two-stage reduction over 8,192 columns, and FP32 reduction order cannot match the Triton kernel bitwise.
 - Lower value than removing the fused router's measured 10 us overhead (next item).
 
+## R2d diagnostic (`04f8fa914e9742fb`: 13/13 passed, 2.0258x)
+
+Timing-only modes in the prepare harness (graph times; each includes about 5 us of graph-launch overhead):
+
+| T | pooler alone | x staging + barriers + atomic | + router math only | + top-k only | full fused |
+|---|---:|---:|---:|---:|---:|
+| 1 | 18.98 | 20.03 | 23.68 | 25.82 | 28.99 |
+| 8 | 19.30 | 23.33 | 26.85 | 29.41 | 33.09 |
+
+- The last-CTA top-k tail is the largest cost: about 6 us. It reads its 64 partials per lane with volatile loads, which serialize.
+- R2e switches those reads to `__ldcg` (L2, pipelined; still after the `__threadfence`). The summation order is unchanged, so results stay bitwise identical.
+
 ## Remaining work (needs a decision; not started)
 
 Both remaining Phase 3 items require editing the generated Dense kernel family. The small-token

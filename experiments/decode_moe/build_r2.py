@@ -97,7 +97,7 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
     const int e = lane + 32 * j;
     float v = 0.f;
 #pragma unroll
-    for (int s = 0; s < 8; ++s) v += ra.parts[((size_t)s * 8 + warp) * 256 + e];
+    for (int s = 0; s < 8; ++s) v += __ldcg((const float*)ra.parts + ((size_t)s * 8 + warp) * 256 + e);  // R2e: L2 loads, pipelined (order unchanged)
     const float z = __fmul_rn(v, 0.1767766952966369f);
     score[j] = 1.f / (1.f + expf(-z));
     sel[j] = score[j] + ra.bias[e];
@@ -344,7 +344,7 @@ def main():
     out = out.rstrip('\n') + '\n' + app
     ast.parse(out)
     b = out.encode('utf-8')
-    (HERE / 'decoder_r2d.py').write_bytes(b)
+    (HERE / 'decoder_r2e.py').write_bytes(b)
     # emit the derived CUDA for offline NVRTC checks
     ns = {}
     t = ast.parse(out)
@@ -360,7 +360,7 @@ def main():
                          ('smallm2', 'tt_v10_sm2_SMALLM2_CUDA_TEMPLATE', (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 6))):
         s = ns['_r2_source'](src_mod[key], p, inst)
         assert s is not None, p
-        (HERE / f'r2d_{p}.cu').write_text(s, encoding='utf-8', newline='')
+        (HERE / f'r2e_{p}.cu').write_text(s, encoding='utf-8', newline='')
     print(json.dumps({'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'headroom': 1_000_000 - len(b)}))
 
 
