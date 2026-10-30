@@ -1,0 +1,4 @@
+P2_GATE mode=0 FAIL [(16, 0, [True, False, True, True], 0, 2.9802322387695312e-08), (16, 1, [True, False, True, True], 0, 2.2351741790771484e-08), (16, 2, [True, False, True, True], 0, 2.9802322387695312e-08)]
+P2_GATE mode=1 FAIL [(16, 0, [True, False, True, True], 0, 2.9802322387695312e-08), (16, 1, [True, False, True, True], 0, 1.4901161193847656e-08), (16, 2, [True, False, True, True], 0, 2.9802322387695312e-08)]
+P2_GATE mode=2 FAIL [(16, 0, [True, False, True, True], 0, 1.4901161193847656e-08), (16, 1, [True, False, True, True], 0, 1.4901161193847656e-08), (16, 2, [True, False, True, True], 0, 1.4901161193847656e-08)]
+P2_GATE mode=3 FAIL [(16, 0, [True, False, True, True], 0, 1.4901161193847656e-08), (16, 1, [True, False, True, True], 0, 1.4901161193847656e-08), (16, 2, [True, False, True, True], 0, 1.4901161193847656e-08)]

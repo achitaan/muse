@@ -89,12 +89,13 @@ PY_EDITS = [
     (topk_weights, topk_ids) = _rf_route(router_input, state['rf'])
    else:""", """  side_stream.wait_stream(main_stream)
   (r1o, r1b) = state.get('r1', {}).get(tokens, (0, 1)) if not split_router and tokens > 0 and (state['rf'] is not None) else (0, 1)
-  if r1o == 1:
-   with torch.cuda.stream(side_stream):
-    (topk_weights, topk_ids) = _rf_route(router_input, state['rf'], r1b)
+  if r1o == 2:
+   (topk_weights, topk_ids) = _rf_route(router_input, state['rf'], r1b)
   expert_input = _achita_dense_project(ffn_input, 'pooler', state)
+  if r1o == 3:
+   (topk_weights, topk_ids) = _rf_route(router_input, state['rf'], r1b)
   with torch.cuda.stream(side_stream):
-   if r1o == 1:
+   if r1o >= 2:
     pass
    elif not split_router and tokens > 0 and (state['rf'] is not None):
     (topk_weights, topk_ids) = _rf_route(router_input, state['rf'], r1b)
@@ -111,7 +112,8 @@ HARNESS = r'''
 
 # R1 (decode-moe-plan): prepare-time selection of the small-token router/pooler arrangement.
 import time as _r1_time
-_R1_VARIANTS = ((0, 1), (1, 1), (0, 4), (1, 4), (1, 2), (1, 8))
+_R1_VARIANTS = ((0, 1), (1, 1), (2, 1), (3, 1), (2, 2), (0, 4))
+_R1_SAFE = ((2, 1), (3, 1), (2, 2), (0, 4))  # o1 (router first on the side stream) failed a judge recheck: never selected
 
 
 def _r1_pair(xb, xr, state, o, b):
@@ -120,8 +122,12 @@ def _r1_pair(xb, xr, state, o, b):
  if o == 1:
   with torch.cuda.stream(side):
    r = _rf_route(xr, state['rf'], b)
+ if o == 2:
+  r = _rf_route(xr, state['rf'], b)
  e = _achita_dense_project(xb, 'pooler', state)
- if o != 1:
+ if o == 3:
+  r = _rf_route(xr, state['rf'], b)
+ if o == 0:
   with torch.cuda.stream(side):
    r = _rf_route(xr, state['rf'], b)
  main.wait_stream(side)
@@ -162,8 +168,9 @@ def _r1_select(state, reps=25):
   med = {v: sorted(t)[len(t) // 2] for v, t in times.items()}
   print(f'R1_TIMES M={M} ' + ' '.join(f'o{v[0]}b{v[1]}={t:.2f}' for v, t in med.items()), flush=True)
   base = med.get((0, 1))
-  best = min(med, key=med.get) if med else (0, 1)
-  if base is not None and best != (0, 1) and med[best] < 0.97 * base:
+  safe = {v: t for v, t in med.items() if v in _R1_SAFE}
+  best = min(safe, key=safe.get) if safe else (0, 1)
+  if base is not None and best != (0, 1) and safe and med[best] < 0.97 * base:
    sel[M] = best
   print(f'R1_SELECT M={M} {sel.get(M, (0, 1))}', flush=True)
   del graphs
