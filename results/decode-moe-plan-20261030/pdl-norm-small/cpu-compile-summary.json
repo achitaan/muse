@@ -1,0 +1,60 @@
+{
+  "GPU_jobs": 0,
+  "HasRouter": true,
+  "records": {
+    "parent": {
+      "device_proxy_sha256": "265d7fd08a767ff3bfcf4bc5a5917545effde83b0a35d5b674afe687bb0fba04",
+      "kernels": [
+        {
+          "symbol": "_ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb1ELb0ELb1EEEvNS_18NormResidualParamsE",
+          "registers": 175,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 64,
+          "warnings": []
+        }
+      ],
+      "trigger_address": 23920,
+      "wait_address": 80,
+      "first_LDG": 272,
+      "last_STG": 23904,
+      "math_counts": {
+        "FFMA": 250,
+        "SHFL.BFLY": 20,
+        "FADD": 20,
+        "MUFU.RSQ": 2,
+        "FMUL": 294,
+        "F2FP.BF16.F32.PACK_AB": 120
+      }
+    },
+    "early": {
+      "device_proxy_sha256": "af08c188ed33f0647030ab11857e0f2661ad4ed10838fd356d2ecde8af63372b",
+      "kernels": [
+        {
+          "symbol": "_ZN6sglang16pdln_norm_kernelILx8192ELi256ELb1ELb1ELb0ELb1ELb0ELb1EEEvNS_18NormResidualParamsE",
+          "registers": 175,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 64,
+          "warnings": []
+        }
+      ],
+      "trigger_address": 208,
+      "wait_address": 224,
+      "first_LDG": 288,
+      "last_STG": 23920,
+      "math_counts": {
+        "FFMA": 250,
+        "SHFL.BFLY": 20,
+        "FADD": 20,
+        "MUFU.RSQ": 2,
+        "FMUL": 294,
+        "F2FP.BF16.F32.PACK_AB": 120
+      }
+    }
+  },
+  "arithmetic_instruction_counts_match": true,
+  "limitation": "Exact scalar body/vector storage/CTA reduction with CUDA intrinsic/type adapters. Actual SDK build and H200 execution remain unverified."
+}

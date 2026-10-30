@@ -1,0 +1,38 @@
+{
+  "GPU_jobs": 0,
+  "candidate_sha256": "85a0ae65ee872d63fc9ca707883b9c9a5d2d1c9c8c23808ae4bab6578b7d818f",
+  "bytes": 953028,
+  "ABI_cases": [
+    {
+      "m": 1,
+      "SDK_arguments_equal": true,
+      "FP32_router": true,
+      "FP32_pre_norm_input": true,
+      "config": [
+        8192,
+        256,
+        true,
+        1
+      ]
+    },
+    {
+      "m": 8,
+      "SDK_arguments_equal": true,
+      "FP32_router": true,
+      "FP32_pre_norm_input": true,
+      "config": [
+        8192,
+        256,
+        true,
+        1
+      ]
+    }
+  ],
+  "unsupported_shapes_stride_parent": true,
+  "unadmitted_call_rejected": true,
+  "public_dispatch_sentinels": 7,
+  "exact_parent_prefix": true,
+  "layer_clone_inverse_exact": true,
+  "MoE_projection_router_and_strict_byte_performance_gates_unchanged": true,
+  "limitation": "CPU metadata/source audit only; no CUDA build, bytes, overlap or timing validation."
+}

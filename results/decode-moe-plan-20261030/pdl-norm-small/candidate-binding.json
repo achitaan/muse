@@ -1,0 +1,26 @@
+{
+  "candidate_sha256": "85a0ae65ee872d63fc9ca707883b9c9a5d2d1c9c8c23808ae4bab6578b7d818f",
+  "bytes": 953028,
+  "headroom": 46972,
+  "scored_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "full_scored_parent_prefix_identical": true,
+  "private_CUDA_sha256": "f24c9d33e6be7f433a8c9629019f66f250b569f4cd235fd80b098499c399795e",
+  "installed_header_hashes": {
+    "norm_residual.cuh": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+    "cta.cuh": "70d77c58422e12c34a5f49b910c683f1cbf86eac5d49fa81fbaf340c9f4d7bf2",
+    "warp.cuh": "a4dbbd6a40780cd5f7b815f001ead3b4dccb8cfdb3532937951ccf71a4a747a6",
+    "math.cuh": "73e182466976d821f8ad89017fd2492c50ea456d5e7007d4e869cb6730568477",
+    "utils.cuh": "d7e858444067635f6d52f3958be4341e35e5bd0bc6437a21b085ce1a1b2218b9",
+    "vec.cuh": "11224cc483b7fbc93e2bcb1c2092715d80f1fa645920f4c82ee0e1d45a4eb551",
+    "type.cuh": "4c72b0892e8d003490bdab2633056172a674bc6a9689be552861564c7aaf8edc",
+    "runtime.cuh": "d7c161d2d9eb60cef3b5fc98220487a0f234bfb0e2e7e43a73fad672a8c31642"
+  },
+  "HasRouter": true,
+  "pre_norm_bf16": false,
+  "selected_domain": "B1,L1 or L8,H8192",
+  "private_projection_builds": 0,
+  "new_SDK_host_instantiations": 1,
+  "gate": "Exact norm/router/R2f unit bytes and >3% both orders; then complete layer/cache bytes and >3% both orders. One union, no sweep.",
+  "GPU_jobs": 0,
+  "GPU_admitted": false
+}

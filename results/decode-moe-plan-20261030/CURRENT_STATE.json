@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T15:43:44.770041+00:00",
+  "updated_at": "2026-10-30T16:07:07.794300+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,11 +23,11 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "MoE bitwise output gate can reject unchanged parent replays. User gate remains unchanged; documented atomic norm variability is not permission to relax it.",
-  "newest_CPU_packet": "pdl-norm/REVIEW.md",
-  "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdln_draft.py",
-  "draft_sha256": "7f5a03dd52e9c888fe7d9854c4acbe96b0b79bca90806283d0c49a58f77ca671",
+  "newest_CPU_packet": "pdl-norm-small/REVIEW.md",
+  "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdls_draft.py",
+  "draft_sha256": "85a0ae65ee872d63fc9ca707883b9c9a5d2d1c9c8c23808ae4bab6578b7d818f",
   "draft_admitted_for_GPU": false,
-  "draft_reason": "Private scalar norm emits outgoing trigger before its incoming wait; all arithmetic/reductions source-identical. SDK/H200 build, bytes, overlap, >3% whole-layer gains and preparation time unverified.",
+  "draft_reason": "Lean HasRouter=true early outgoing norm signal; exact FP32 router/parent prefix, ABI and proxy SASS pass. SDK/H200 bytes, overlap, material whole-layer gain and prepare time unverified. Prior larger drafts preserved.",
   "new_GPU_jobs_this_packet": 2,
   "pending_user_question": "Permission requested asynchronously to compare only MoE norm/output with SS relative L2 <=1e-5, output relative L2 <=0.001 and worst-row error <=0.005 using official denominator floor; deterministic inter/ybuf remain byte-exact. Not authorized/implemented/active. Decode byte gates stay unchanged."
 }
