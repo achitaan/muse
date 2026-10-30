@@ -1,0 +1,10 @@
+{
+  "inspected_at": "2026-10-30T23:19:12.435532+00:00",
+  "sibling": "opus-fresh",
+  "files": {
+    "results/moe-private-fixup-preflight-20261029/v4/baseline.cu": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+    "results/moe-disjoint-cut-screen-20261029/review.md": "7e948efc7a46cae4b5642f9abb8980a427e3865b2db464247f08fa59f4743183",
+    "experiments/prepared/moe_private_fixup_review.md": "1d66f00418208a18f6a99b9e8338034be47ff04e603205fa499d70d8e98cc4ab"
+  },
+  "GPU_calls": 0
+}

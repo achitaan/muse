@@ -916,3 +916,5 @@ Explicit shared-address revision33a3adfe did not remove address checks (5global 
 Helper-local register norm prototype53f6c156:4CPU compiles,PRMT146/LUT141 regs,zero spills;396integer and144scalar cases pass. No aggregation on M1 or M2-one fixture. No GPU payload/admission or speed claim. Frozen sharede5c0e7ec unchanged. See norm-register/REVIEW.md.
 
 Packaged separate helper-register payload21a652cc with retained gates. Device prefix matches screened53f6c156;constexpr shared214784/threads288;7mock resource guards pass. No GPU job/admission;sharede5 remains first.
+
+Read-only larger-WGS follow-up parks stream-K fixup/tail work:disjoint stage visits,prior cut/endpoint screens and existing tail overlap. Logical counts are not exposed timing. Source-bound review in wgs-fixup-screen/REVIEW.md. No new GPU job or candidate.

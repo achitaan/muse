@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T23:14:10.625163+00:00",
+  "updated_at": "2026-10-30T23:19:12.443249+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -179,7 +179,8 @@
     "session_id": 62099,
     "target_utc": "2026-10-30T23:16:05Z",
     "purpose": "Foreground eligibility countdown only; no GPU or other follow-on action. Revalidate live handle before relying on it.",
-    "superseded_by_external_job": "eaebaa8ffe6f4c29;original23:16targetisnotadmission"
+    "superseded_by_external_job": "eaebaa8ffe6f4c29;original23:16targetisnotadmission",
+    "observed_terminal": true
   },
   "helper_register_prototype": {
     "CUDA_sha256": "53f6c1560886441c4a2541a482ea8fa36b022c415ec30ad70c4bd8a2c04c85cb",
@@ -202,5 +203,10 @@
     "submitted_utc": "2026-10-30T23:11:17.108395+00:00",
     "status_at_snapshot": "running",
     "owned": false
+  },
+  "larger_WGS_followup": {
+    "decision": "Park stream-K cut/fixup/tail variants;existing work already covers plausible mechanisms",
+    "source": "wgs-fixup-screen/REVIEW.md",
+    "new_GPU_calls": 0
   }
 }
