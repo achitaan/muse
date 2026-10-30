@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T12:37:43.495491+00:00",
+  "updated_at": "2026-10-30T13:05:46.550937+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -22,5 +22,10 @@
   "decode_scores_left": 7,
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
-  "numerical_question": "TR8 byte mismatches unresolved. Existing atomic norm sums suggest scheduling sensitivity but no GPU table or parent-repeat diagnostics prove a cause."
+  "numerical_question": "TR8 byte mismatches unresolved. Existing atomic norm sums suggest scheduling sensitivity but no GPU table or parent-repeat diagnostics prove a cause.",
+  "newest_CPU_packet": "pdl16/REVIEW.md",
+  "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl16_draft.py",
+  "draft_sha256": "f377b6ceb9eb4385a1976bc874faa0718f5296ed53a924336599ac265b0d3e48",
+  "draft_admitted_for_GPU": false,
+  "draft_reason": "O16/O32 CPU/compiler package only; whole-layer opportunity insufficient alone; remaining handoffs unimplemented."
 }

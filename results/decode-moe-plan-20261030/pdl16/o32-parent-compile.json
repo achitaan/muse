@@ -1,0 +1,42 @@
+{
+  "rc": 0,
+  "log": "preflight.cu(33): warning #177-D: variable \"TH\" was declared but never referenced\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\n                                                       ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i' for 'sm_90a'\nptxas info    : Function properties for _Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 42 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+  "cubin_bytes": 34352,
+  "cubin_sha256": "09ccd70d5ec9ab170a270d0c7aa80aa405135b6e918f264ed33bca58ce5889a0",
+  "seconds": 0.14,
+  "source_sha256": "05195ec54aebe63c38c9e097112ad88be51a214bd7a01d51c3d84d69454946a3",
+  "device_proxy_sha256": "4c4530421cb6f0a4cd55bf2340d80e60be2759d55df23fdec53b3e056cd847fa",
+  "CPU_only": true,
+  "kernels": [
+    {
+      "symbol": "_Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i",
+      "registers": 42,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "ordering_excerpt": [
+    "Function : _Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i",
+    "/*02d0*/                   UBLKCP.S.G [UR16], [UR20], UR8, desc[UR6] ;            /* 0x00000610140073ba */",
+    "/*03b0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*0470*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*04f0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*05b0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*0630*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*06f0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*0770*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*0830*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*08b0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*0970*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*09f0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*0ab0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */",
+    "/*0b30*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*0bf0*/                   UBLKCP.S.G [UR8], [UR20], UR12, desc[UR6] ;            /* 0x00000608140073ba */",
+    "/*0c70*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */",
+    "/*1670*/                   UBLKCP.S.G [UR20], [UR8], UR10, desc[UR6] ;            /* 0x00000614080073ba */",
+    "/*1730*/                   UTMALDG.3D [UR8], [UR24], desc[UR4] ;                  /* 0x00000408180075b4 */"
+  ]
+}

@@ -1,0 +1,79 @@
+o16-parent rc 0 [{'symbol': '_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj', 'registers': 72, 'stack_frame': 0, 'spill_stores': 0, 'spill_loads': 0, 'smem_static': 0, 'warnings': []}]
+Function : _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+/*0110*/                   LDG.E.CONSTANT R0, desc[UR8][R8.64] ;                      /* 0x0000000808007981 */
+/*0130*/                   LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64] ;              /* 0x00000008022c7981 */
+/*0140*/                   LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200] ;        /* 0x0002000802307981 */
+/*0150*/                   LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400] ;         /* 0x0004000802047981 */
+/*0210*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000001000bc7944 */
+/*0490*/              @!P0 LDG.E.NA.128.CONSTANT R16, desc[UR8][R52.64] ;             /* 0x0000000834108981 */
+/*04b0*/              @!P0 LDG.E.NA.128.CONSTANT R20, desc[UR8][R52.64+0x200] ;       /* 0x0002000834148981 */
+/*04e0*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR8][R52.64+0x400] ;       /* 0x0004000834188981 */
+/*0520*/                   LDG.E.128.CONSTANT R28, desc[UR8][R54.64] ;                /* 0x00000008361c7981 */
+/*0530*/                   LDG.E.128.CONSTANT R32, desc[UR8][R54.64+0x10] ;           /* 0x0000100836207981 */
+/*0540*/                   LDG.E.128.CONSTANT R36, desc[UR8][R60.64] ;                /* 0x000000083c247981 */
+/*0550*/                   LDG.E.128.CONSTANT R40, desc[UR8][R60.64+0x10] ;           /* 0x000010083c287981 */
+/*05c0*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000000c00d07944 */
+/*0a10*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000000800bc7944 */
+o16-candidate rc 0 [{'symbol': '_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj', 'registers': 72, 'stack_frame': 0, 'spill_stores': 0, 'spill_loads': 0, 'smem_static': 0, 'warnings': []}]
+Function : _Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+/*0050*/                   PREEXIT ;                                                  /* 0x000000000000782d */
+/*0150*/                   LDG.E.CONSTANT R0, desc[UR8][R8.64] ;                      /* 0x0000000808007981 */
+/*0160*/                   LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64] ;              /* 0x00000008022c7981 */
+/*0170*/                   LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200] ;        /* 0x0002000802307981 */
+/*0180*/                   LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400] ;         /* 0x0004000802047981 */
+/*0200*/                   CALL.REL.NOINC 0x1540 ;                                    /* 0x0000001000cc7944 */
+/*0280*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000001000b87944 */
+/*04c0*/              @!P0 LDG.E.NA.128.CONSTANT R16, desc[UR8][R52.64] ;             /* 0x0000000834108981 */
+/*04e0*/              @!P0 LDG.E.NA.128.CONSTANT R20, desc[UR8][R52.64+0x200] ;       /* 0x0002000834148981 */
+/*0510*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR8][R52.64+0x400] ;       /* 0x0004000834188981 */
+/*0550*/                   LDG.E.128.STRONG.GPU R28, desc[UR8][R54.64] ;              /* 0x00000008361c7981 */
+/*0560*/                   LDG.E.128.STRONG.GPU R32, desc[UR8][R54.64+0x10] ;         /* 0x0000100836207981 */
+/*0570*/                   LDG.E.128.STRONG.GPU R36, desc[UR8][R60.64] ;              /* 0x000000083c247981 */
+/*0580*/                   LDG.E.128.STRONG.GPU R40, desc[UR8][R60.64+0x10] ;         /* 0x000010083c287981 */
+/*05f0*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000000c00dc7944 */
+/*0a40*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000000800c87944 */
+/*1550*/                   ACQBULK ;                                                  /* 0x000000000000782e */
+o32-parent rc 0 [{'symbol': '_Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i', 'registers': 42, 'stack_frame': 0, 'spill_stores': 0, 'spill_loads': 0, 'smem_static': 0, 'warnings': []}]
+Function : _Z31r3_o32_o_direct_a_ol_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i
+/*02d0*/                   UBLKCP.S.G [UR16], [UR20], UR8, desc[UR6] ;            /* 0x00000610140073ba */
+/*03b0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0470*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*04f0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*05b0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*0630*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*06f0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*0770*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0830*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*08b0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0970*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*09f0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0ab0*/                   UBLKCP.S.G [UR8], [UR22], UR12, desc[UR6] ;            /* 0x00000608160073ba */
+/*0b30*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0bf0*/                   UBLKCP.S.G [UR8], [UR20], UR12, desc[UR6] ;            /* 0x00000608140073ba */
+/*0c70*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*1670*/                   UBLKCP.S.G [UR20], [UR8], UR10, desc[UR6] ;            /* 0x00000614080073ba */
+/*1730*/                   UTMALDG.3D [UR8], [UR24], desc[UR4] ;                  /* 0x00000408180075b4 */
+o32-candidate rc 0 [{'symbol': '_Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i', 'registers': 42, 'stack_frame': 0, 'spill_stores': 0, 'spill_loads': 0, 'smem_static': 0, 'warnings': []}]
+Function : _Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i
+/*0030*/                   PREEXIT ;                                              /* 0x000000000000782d */
+/*02f0*/                   UBLKCP.S.G [UR8], [UR10], UR12, desc[UR6] ;            /* 0x000006080a0073ba */
+/*03b0*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*0470*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*0530*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*05f0*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*06b0*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*0770*/                   UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6] ;            /* 0x0000060c120073ba */
+/*0830*/                   UBLKCP.S.G [UR12], [UR10], UR8, desc[UR6] ;            /* 0x0000060c0a0073ba */
+/*0880*/                   CALL.REL.NOINC 0x1de0 ;                                /* 0x0000001400547944 */
+/*0940*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*09d0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0a60*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0af0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0b80*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0c10*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0ca0*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*0d30*/                   UTMALDG.3D [UR8], [UR18], desc[UR4] ;                  /* 0x00000408120075b4 */
+/*1730*/                   UBLKCP.S.G [UR20], [UR8], UR10, desc[UR6] ;            /* 0x00000614080073ba */
+/*17f0*/                   UTMALDG.3D [UR8], [UR24], desc[UR4] ;                  /* 0x00000408180075b4 */
+/*1df0*/                   ACQBULK ;                                              /* 0x000000000000782e */
+Resource, instruction-order, math-count and transaction-model audits passed.

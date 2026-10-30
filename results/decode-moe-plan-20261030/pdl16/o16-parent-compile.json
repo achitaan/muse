@@ -1,0 +1,38 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 72 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 304440,
+  "cubin_sha256": "c4487a12d52ade0b0a0d980087818b7d393ae76e3c7f7dbce68096fc8ecd4be3",
+  "seconds": 1.438,
+  "source_sha256": "cf25097e801ef990b650d2aeeb4669c2466d6d90ca35fee59227f0ce2e300663",
+  "device_proxy_sha256": "e436f03bad478293406041b60ef5416d8546338c0848c8f701eb71b04c6b44ef",
+  "CPU_only": true,
+  "kernels": [
+    {
+      "symbol": "_Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 72,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "ordering_excerpt": [
+    "Function : _Z26m16trace_59fcb5b72994_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "/*0110*/                   LDG.E.CONSTANT R0, desc[UR8][R8.64] ;                      /* 0x0000000808007981 */",
+    "/*0130*/                   LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64] ;              /* 0x00000008022c7981 */",
+    "/*0140*/                   LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200] ;        /* 0x0002000802307981 */",
+    "/*0150*/                   LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400] ;         /* 0x0004000802047981 */",
+    "/*0210*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000001000bc7944 */",
+    "/*0490*/              @!P0 LDG.E.NA.128.CONSTANT R16, desc[UR8][R52.64] ;             /* 0x0000000834108981 */",
+    "/*04b0*/              @!P0 LDG.E.NA.128.CONSTANT R20, desc[UR8][R52.64+0x200] ;       /* 0x0002000834148981 */",
+    "/*04e0*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR8][R52.64+0x400] ;       /* 0x0004000834188981 */",
+    "/*0520*/                   LDG.E.128.CONSTANT R28, desc[UR8][R54.64] ;                /* 0x00000008361c7981 */",
+    "/*0530*/                   LDG.E.128.CONSTANT R32, desc[UR8][R54.64+0x10] ;           /* 0x0000100836207981 */",
+    "/*0540*/                   LDG.E.128.CONSTANT R36, desc[UR8][R60.64] ;                /* 0x000000083c247981 */",
+    "/*0550*/                   LDG.E.128.CONSTANT R40, desc[UR8][R60.64+0x10] ;           /* 0x000010083c287981 */",
+    "/*05c0*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000000c00d07944 */",
+    "/*0a10*/                   CALL.REL.NOINC 0x1510 ;                                    /* 0x0000000800bc7944 */"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "GPU_jobs": 0,
+  "o32_ring_model": {
+    "stages": 8,
+    "weight_bytes_per_stage": 16384,
+    "activation_bytes_per_stage": 8192,
+    "transaction_bytes_per_stage": 24576,
+    "disjoint_complete_ring": true,
+    "dynamic_shared_bytes": 196736,
+    "full_K_covered": true,
+    "new_global_traffic_bytes": 0
+  },
+  "resources": {
+    "o16": {
+      "registers": 72,
+      "stack": 0,
+      "spill_stores": 0,
+      "spill_loads": 0
+    },
+    "o32": {
+      "registers": 42,
+      "stack": 0,
+      "spill_stores": 0,
+      "spill_loads": 0
+    }
+  },
+  "math_instruction_counts": {
+    "o16": {
+      "parent": {
+        "HMMA.16816.F32.BF16": 8,
+        "FADD": 16,
+        "F2FP.BF16.F32.PACK_AB": 4
+      },
+      "candidate": {
+        "HMMA.16816.F32.BF16": 8,
+        "FADD": 16,
+        "F2FP.BF16.F32.PACK_AB": 4
+      },
+      "equal": true
+    },
+    "o32": {
+      "parent": {
+        "HGMMA.64x32x16.F32.BF16": 8,
+        "F2FP.BF16.F32.PACK_AB": 16
+      },
+      "candidate": {
+        "HGMMA.64x32x16.F32.BF16": 8,
+        "F2FP.BF16.F32.PACK_AB": 16
+      },
+      "equal": true
+    }
+  }
+}

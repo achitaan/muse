@@ -1,0 +1,21 @@
+{
+  "CPU_only": true,
+  "constructor_AST_sha256": "ba2882d5d15bf32a3e82990cb8668e883f6ac699852f0e37e686592271d5c7da",
+  "cases": [
+    {
+      "batch": 16,
+      "q_len": 1,
+      "mixed_min_context": 4235,
+      "max_context": 8000,
+      "cache_locations_unique_in_bounds": true
+    },
+    {
+      "batch": 32,
+      "q_len": 1,
+      "mixed_min_context": 219,
+      "max_context": 8000,
+      "cache_locations_unique_in_bounds": true
+    }
+  ],
+  "scope": "Shape/index consistency only; no kernel numerical validation."
+}

@@ -1,0 +1,69 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 72 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlo16_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 305208,
+  "cubin_sha256": "fde7b71755b689366050c1011d46a2f9628f6dd08a70eadb9fe5f319988dcb30",
+  "seconds": 1.266,
+  "source_sha256": "6380b952d620271cfa8433e1010b2702e88da5aa781f792be55384fe8a55d414",
+  "device_proxy_sha256": "35c92fd29015bf6fa52daa5ad184c6e418eb39d9554b2438bbf4f9eebc7280e1",
+  "CPU_only": true,
+  "kernels": [
+    {
+      "symbol": "_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 72,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "ordering_excerpt": [
+    "Function : _Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "/*0050*/                   PREEXIT ;                                                  /* 0x000000000000782d */",
+    "/*0150*/                   LDG.E.CONSTANT R0, desc[UR8][R8.64] ;                      /* 0x0000000808007981 */",
+    "/*0160*/                   LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64] ;              /* 0x00000008022c7981 */",
+    "/*0170*/                   LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200] ;        /* 0x0002000802307981 */",
+    "/*0180*/                   LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400] ;         /* 0x0004000802047981 */",
+    "/*0200*/                   CALL.REL.NOINC 0x1540 ;                                    /* 0x0000001000cc7944 */",
+    "/*0280*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000001000b87944 */",
+    "/*04c0*/              @!P0 LDG.E.NA.128.CONSTANT R16, desc[UR8][R52.64] ;             /* 0x0000000834108981 */",
+    "/*04e0*/              @!P0 LDG.E.NA.128.CONSTANT R20, desc[UR8][R52.64+0x200] ;       /* 0x0002000834148981 */",
+    "/*0510*/              @!P0 LDG.E.NA.128.CONSTANT R24, desc[UR8][R52.64+0x400] ;       /* 0x0004000834188981 */",
+    "/*0550*/                   LDG.E.128.STRONG.GPU R28, desc[UR8][R54.64] ;              /* 0x00000008361c7981 */",
+    "/*0560*/                   LDG.E.128.STRONG.GPU R32, desc[UR8][R54.64+0x10] ;         /* 0x0000100836207981 */",
+    "/*0570*/                   LDG.E.128.STRONG.GPU R36, desc[UR8][R60.64] ;              /* 0x000000083c247981 */",
+    "/*0580*/                   LDG.E.128.STRONG.GPU R40, desc[UR8][R60.64+0x10] ;         /* 0x000010083c287981 */",
+    "/*05f0*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000000c00dc7944 */",
+    "/*0a40*/                   CALL.REL.NOINC 0x1570 ;                                    /* 0x0000000800c87944 */",
+    "/*1550*/                   ACQBULK ;                                                  /* 0x000000000000782e */"
+  ],
+  "ordering": {
+    "wait_call_address": 512,
+    "helper_target": 5440,
+    "acquire_address": 5456,
+    "independent_loads_before_call": [
+      [
+        336,
+        "LDG.E.CONSTANT R0, desc[UR8][R8.64]"
+      ],
+      [
+        352,
+        "LDG.E.NA.128.CONSTANT R44, desc[UR8][R2.64]"
+      ],
+      [
+        368,
+        "LDG.E.NA.128.CONSTANT R48, desc[UR8][R2.64+0x200]"
+      ],
+      [
+        384,
+        "LDG.E.NA.128.CONSTANT R4, desc[UR8][R2.64+0x400]"
+      ]
+    ],
+    "first_dependent_load": [
+      1360,
+      "LDG.E.128.STRONG.GPU R28, desc[UR8][R54.64]"
+    ],
+    "scope": "Instruction-order screen plus source control-flow review; not GPU validation."
+  }
+}

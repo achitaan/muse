@@ -615,3 +615,39 @@ check reports **2.0755x, rank 228/1035** (earlier 210); the score did not change
 Top 50 is currently 2.2252x, requiring about 6.7275% lower weighted latency at
 fixed references. This packet does not meet top 50. Raw results, profiles,
 strict guard failures and `outcome.json` preserve the source-bound decision.
+
+### Step 3 O16/O32 implementation: CPU-verified, not GPU-admitted
+
+Built a source-preserving draft from scored `c15df9d3`:
+`experiments/decode_moe/decoder_pdl16_draft.py`, SHA256
+`f377b6ceb9eb4385a1976bc874faa0718f5296ed53a924336599ac265b0d3e48`,
+966,244 bytes, 33,756 bytes of headroom. Its complete parent prefix remains
+byte-identical; the only new layer operation is a gated O16/O32 projection.
+Failed or unselected paths call the exact scored parent, including retained
+small-token PDL. Projection bytes and whole-layer bytes/performance must pass
+before any new regime is selected. The draft is not GPU-validated or published.
+
+The profile audit caught the active O32 **r3 direct-store** source, replacing
+the initial inactive generic-template draft before any GPU launch. Final
+source, plan lookup (`bundle2` -> `o`) and compiler evidence use the active
+source. The direct-store epilogue and barrier watchdog are preserved. O16 uses
+its original MT2/XM7 C12 instance with a separate wait helper; its BF16 fallback
+is unchanged. Exact inverse derivations and selected-source bindings are saved.
+
+Four individual and one combined SM90 compiler screens pass. Parent/candidate
+registers stay 72 (O16) / 42 (O32), with zero spills/stack. Four independent O16
+LDGs and eight O32 weight bulk copies precede their wait helper calls;
+activation reads/copies follow. Math-instruction counts match. Full-ring byte
+coverage and B16/B32 mixed-context metadata models passed. These are CPU
+screens only: host build, H200 correctness/resources/timing and prepare <300 s
+remain unverified. The draft explicitly does not enable fused-pooler or
+unpooler PDL at 16/32. No failed MoE change is transferred.
+
+Do **not** spend the final Decode check on this O-only draft. Cached full-layer
+3% gates need 6.415/9.362 us at full context, more than the entire recorded
+5.8-us O duration. This is an opportunity screen, not a formal critical-path
+bound. A hypothetical 3-us saving in each of the four changed layers yields
+only about 2.0875x at fixed reference times. The broader handoff package or a
+stronger component improvement remains unfinished. Review, raw source/SASS,
+resource/transaction/index proofs, draft binding and opportunity calculations
+are in `pdl16/`. Zero new GPU checks or scores were used in this turn.

@@ -1,0 +1,14 @@
+{
+  "status": "CPU-prepared draft; not GPU-checked or published",
+  "parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "candidate_sha256": "f377b6ceb9eb4385a1976bc874faa0718f5296ed53a924336599ac265b0d3e48",
+  "bytes": 966244,
+  "headroom": 33756,
+  "full_parent_prefix_identical": true,
+  "layer_edit_exact_inverse": true,
+  "combined_CUDA_sha256": "6cd3d9fd7c31ffc0534f4ab1d00118db19648f93ff6429ec44f2cd32584661c6",
+  "changes": "O16/O32 projection handoffs only; other arithmetic/fallbacks and small-token PDL retained.",
+  "unimplemented": "16/32 unpooler PDL and existing fused-pooler incoming PDL are not enabled.",
+  "GPU_jobs": 0,
+  "GPU_preparation_time_unverified": true
+}

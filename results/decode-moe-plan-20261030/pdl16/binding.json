@@ -1,0 +1,115 @@
+{
+  "decode_baseline_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "GPU_jobs": 0,
+  "sources": {
+    "o16": {
+      "exact_inverse": true,
+      "edits": [
+        {
+          "old": "ld.global.nc.v4.u32",
+          "new": "ld.global.cg.v4.u32",
+          "count": 1
+        },
+        {
+          "old": "template <int FMT, int MT, int RT, int ST, int RED, int DIAG, int NTMAX, int CM, int CN, int CK, int CWR, int CWK, int CKU, int CS, int XM, int TG>\n__global__",
+          "new": "__device__ __noinline__ void pdlo16_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\ntemplate <int FMT, int MT, int RT, int ST, int RED, int DIAG, int NTMAX, int CM, int CN, int CK, int CWR, int CWK, int CKU, int CS, int XM, int TG>\n__global__",
+          "count": 1
+        },
+        {
+          "old": "    uint32_t U0, uint32_t U1) {\n  const int m = CM ? CM : m_arg;",
+          "new": "    uint32_t U0, uint32_t U1) {\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n  const int m = CM ? CM : m_arg;",
+          "count": 1
+        },
+        {
+          "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+          "new": "static_assert(FMT==1 && MT==2 && RT==1 && ST==1 && RED==0 && DIAG==0 && XM==7 && TG==1, \"fixed O16 preamble\");\n#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    pdlo16_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w);",
+          "count": 1
+        },
+        {
+          "old": "case 1: return m16trace_59fcb5b72994_launch_t<0,2,1,1,0,0,256,0,8192,1024,2,4,4,1,7,1>(wp,x,out,esc,m,N,K,WR,WK,KU,S,t01,u01,stream,query);",
+          "new": "// Private O16 twin supports only exact C12 plans; callers keep the original BF16 fallback.",
+          "count": 1
+        },
+        {
+          "old": "cudaLaunchAttribute at[1];",
+          "new": "cudaLaunchAttribute at[2];",
+          "count": 1
+        },
+        {
+          "old": "  if (query == 1) {",
+          "new": "  if (query == 0) {\n    const int pdli = lc.numAttrs;\n    at[pdli].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n    at[pdli].val.programmaticStreamSerializationAllowed = 1;\n    lc.attrs = at; lc.numAttrs = pdli + 1;\n  }\n  if (query == 1) {",
+          "count": 1
+        },
+        {
+          "old": "m16trace_59fcb5b72994_gemv",
+          "new": "pdlo16_gemv",
+          "count": 2
+        },
+        {
+          "old": "  cudaLaunchKernelEx(&lc, kern,",
+          "new": "  const cudaError_t pdli_launch_rc = cudaLaunchKernelEx(&lc, kern,",
+          "count": 1
+        },
+        {
+          "old": "  return cudaGetLastError() == cudaSuccess ? 0 : -8;",
+          "new": "  if (pdli_launch_rc != cudaSuccess) return -static_cast<int>(pdli_launch_rc);\n  return cudaGetLastError() == cudaSuccess ? 0 : -8;",
+          "count": 1
+        }
+      ],
+      "parent_sha256": "cf25097e801ef990b650d2aeeb4669c2466d6d90ca35fee59227f0ce2e300663",
+      "candidate_sha256": "6380b952d620271cfa8433e1010b2702e88da5aa781f792be55384fe8a55d414"
+    },
+    "o32": {
+      "exact_inverse": true,
+      "edits": [
+        {
+          "old": "r3_o32_o_direct_a_ol_",
+          "new": "ol_",
+          "count": 24
+        },
+        {
+          "old": "template<int BN,int BK,int ST,int PIPE,int PACK,int HINT,int TW>\n__global__",
+          "new": "__device__ __noinline__ void pdlo32_wait() {\n  asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n}\ntemplate<int BN,int BK,int ST,int PIPE,int PACK,int HINT,int TW>\n__global__",
+          "count": 1
+        },
+        {
+          "old": "    const uint8_t* w,__nv_bfloat16* out,int m) {\n",
+          "new": "    const uint8_t* w,__nv_bfloat16* out,int m) {\n  static_assert(BN==32 && BK==128 && ST==8 && PIPE==1 && PACK==1 && HINT==1 && TW==1, \"fixed full-K O32 ring\");\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n",
+          "count": 1
+        },
+        {
+          "old": "  auto load=[&](int i) {",
+          "new": "  auto loadw=[&](int i) {",
+          "count": 1
+        },
+        {
+          "old": "    ol_tma(base+s*SB+AB,&tx,mt*T,i*(BK/64),full+s*8,px);\n  };",
+          "new": "  };\n  auto loadx=[&](int i) {\n    const int s=i%ST;\n    ol_tma(base+s*SB+AB,&tx,mt*T,i*(BK/64),full+s*8,px);\n  };\n  auto load=[&](int i) { loadw(i); loadx(i); };",
+          "count": 1
+        },
+        {
+          "old": "    for(int i=0;i<ST && i<IT;i++) load(i);",
+          "new": "    for(int i=0;i<ST && i<IT;i++) loadw(i);\n    pdlo32_wait();\n    #pragma unroll\n    for(int i=0;i<ST && i<IT;i++) loadx(i);",
+          "count": 1
+        },
+        {
+          "old": "  fn<<<dim3(8192/R,(m+T-1)/T),128*TW+((PIPE&2)?128:0),SMEM,(cudaStream_t)stream>>>(tw,tx,(const uint8_t*)w,(__nv_bfloat16*)out,m);",
+          "new": "  cudaLaunchConfig_t lc = {};\n  lc.gridDim=dim3(8192/R,(m+T-1)/T);\n  lc.blockDim=dim3(128*TW+((PIPE&2)?128:0));\n  lc.dynamicSmemBytes=SMEM; lc.stream=(cudaStream_t)stream;\n  cudaLaunchAttribute attr[1];\n  attr[0].id=cudaLaunchAttributeProgrammaticStreamSerialization;\n  attr[0].val.programmaticStreamSerializationAllowed=1;\n  lc.attrs=attr; lc.numAttrs=1;\n  const cudaError_t launch_rc=cudaLaunchKernelEx(&lc,fn,tw,tx,(const uint8_t*)w,(__nv_bfloat16*)out,m);\n  if(launch_rc!=cudaSuccess) return int(launch_rc);",
+          "count": 1
+        },
+        {
+          "old": "int ol_launch(int id,int64_t x,int64_t w,int64_t out,int m,int64_t stream,int query) {",
+          "new": "int pdlo32_info(int query) {\n  if(query!=1) return -90;\n  int blocks=0;\n  const cudaError_t rc=cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks,ol_projection<32,128,8,1,1,1,1>,128,196736);\n  return rc==cudaSuccess ? blocks : -static_cast<int>(rc);\n}\nint ol_launch(int id,int64_t x,int64_t w,int64_t out,int m,int64_t stream,int query) {",
+          "count": 1
+        },
+        {
+          "old": "ol_projection",
+          "new": "pdlo32_projection",
+          "count": 3
+        }
+      ],
+      "parent_sha256": "05195ec54aebe63c38c9e097112ad88be51a214bd7a01d51c3d84d69454946a3",
+      "candidate_sha256": "b45d6e23af85adc9cb16e41e5c02f445714188dd28d0fa5c8a14855e96526f7f"
+    }
+  }
+}

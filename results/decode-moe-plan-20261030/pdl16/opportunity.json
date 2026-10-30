@@ -1,0 +1,63 @@
+{
+  "source_job": "452fbd9df6af4ff4",
+  "source_SHA256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "affected_loads": [
+    "decode 16",
+    "decode 32"
+  ],
+  "cases": [
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "layer_us": 134.9022858815707,
+      "profiled_O_us": 5.5,
+      "three_percent_layer_us": 4.047068576447121
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "layer_us": 213.83776131206236,
+      "profiled_O_us": 5.8,
+      "three_percent_layer_us": 6.4151328393618705
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "layer_us": 161.3673265599765,
+      "profiled_O_us": 6.5,
+      "three_percent_layer_us": 4.841019796799295
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "layer_us": 312.05653053498025,
+      "profiled_O_us": 5.8,
+      "three_percent_layer_us": 9.361695916049408
+    }
+  ],
+  "sensitivity_scenarios": [
+    {
+      "hypothetical_us_saved_in_each_of_four_layers": 0.5,
+      "track_factor": 1.0009546681990662,
+      "hypothetical_point": 2.077447551526432
+    },
+    {
+      "hypothetical_us_saved_in_each_of_four_layers": 1.0,
+      "track_factor": 1.0019130367496525,
+      "hypothetical_point": 2.0794366130315423
+    },
+    {
+      "hypothetical_us_saved_in_each_of_four_layers": 2.0,
+      "track_factor": 1.0038409770354992,
+      "hypothetical_point": 2.083437987872551
+    },
+    {
+      "hypothetical_us_saved_in_each_of_four_layers": 3.0,
+      "track_factor": 1.0057840276775916,
+      "hypothetical_point": 2.087470723746763
+    }
+  ],
+  "decision": "Do not spend the final Decode check on this O-only draft. Continue assembling the remaining handoffs or stronger component evidence.",
+  "scope": "Hypothetical sensitivities, not measurements or a speedup forecast. Kernel profile durations are not critical-path fractions or a formal bound.",
+  "reason": "Full-layer 3% gates require 6.4-9.4 us at full context, more than the entire recorded O duration. Real PDL can recover only exposed work; a multi-handoff candidate is needed for a credible gate pass."
+}
