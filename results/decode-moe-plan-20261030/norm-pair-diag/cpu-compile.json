@@ -1,0 +1,26 @@
+{
+  "GPU_jobs": 0,
+  "R2f_CUDA_sha256": "e543374cbc0b93090f5dab714738abba8d966b48920fbeb15b60f1f4820afecf",
+  "kernels": [
+    {
+      "symbol": "_ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+      "registers": 64,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 32768,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+      "registers": 64,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 32768,
+      "warnings": []
+    }
+  ],
+  "no_stack_or_spills": true,
+  "limitation": "Exact device bodies in two namespaces; host SDK/pybind compilation and H200 resources remain unverified."
+}

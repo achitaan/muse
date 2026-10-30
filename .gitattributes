@@ -9,3 +9,5 @@ experiments/decode_moe/*tinyroute* -text
 experiments/decode_moe/profiles/moe_tinyroute* -text
 experiments/decode_moe/moe_repeat_diag*.py -text
 experiments/decode_moe/profiles/moe_repeat_diag* -text
+experiments/decode_moe/*norm_pair* -text
+experiments/decode_moe/profiles/dense_norm_pair* -text

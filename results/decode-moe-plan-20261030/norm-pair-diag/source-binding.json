@@ -1,0 +1,62 @@
+{
+  "source_sha256": "67a4417e91158162f3e9db49fce4c7686ead9a0e1f7d3e5f9e2b04818be3d6eb",
+  "bytes": 679841,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "Decode_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "norm_candidate_sha256": "85a0ae65ee872d63fc9ca707883b9c9a5d2d1c9c8c23808ae4bab6578b7d818f",
+  "norm_CUDA_sha256": "f24c9d33e6be7f433a8c9629019f66f250b569f4cd235fd80b098499c399795e",
+  "R2f_CUDA_sha256": "e543374cbc0b93090f5dab714738abba8d966b48920fbeb15b60f1f4820afecf",
+  "R2f_individual_sha256": {
+    "r1": "fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571",
+    "r8": "f82767cd894da379abfc96cc79f5e51c92080694d39b171bb3e4863b1d1542d8"
+  },
+  "R2f_specs": {
+    "r1": {
+      "prefix": "v18s",
+      "instance": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1024,
+        0,
+        4096,
+        8192,
+        2,
+        16,
+        8,
+        1,
+        70
+      ],
+      "kind": "r"
+    },
+    "r8": {
+      "prefix": "smallm2",
+      "instance": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1024,
+        0,
+        4096,
+        8192,
+        2,
+        16,
+        8,
+        1,
+        70
+      ],
+      "kind": "r"
+    }
+  },
+  "timed_kernel_unchanged": true,
+  "enables_nothing": true,
+  "GPU_jobs": 0,
+  "question": "Exact SDK/H200 norm/router bytes and causal early norm signal with identical incoming-PDL R2f; >3% and >=1.5us both orders.",
+  "limits": "No whole-layer or aggregate gain follows from this standalone diagnostic."
+}

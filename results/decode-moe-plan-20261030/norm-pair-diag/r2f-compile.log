@@ -1,0 +1,15 @@
+ptxas info    : 6168 bytes gmem
+ptxas info    : Compiling entry function '_ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN7pdli_r816smallm2_pdl_waitEj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN7pdli_r113v18s_pdl_waitEj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

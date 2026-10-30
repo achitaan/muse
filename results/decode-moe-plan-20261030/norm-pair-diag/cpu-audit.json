@@ -1,0 +1,24 @@
+{
+  "GPU_jobs": 0,
+  "source_sha256": "67a4417e91158162f3e9db49fce4c7686ead9a0e1f7d3e5f9e2b04818be3d6eb",
+  "Dense_prefix_and_timed_kernel_unchanged": true,
+  "exact_Decode_R2f_and_byte_probe_AST": true,
+  "protocol_cases": [
+    {
+      "early_us": 8.4,
+      "gate": true
+    },
+    {
+      "early_us": 8.6,
+      "gate": false
+    },
+    {
+      "early_us": 9.8,
+      "gate": false
+    }
+  ],
+  "changing_zero_outlier_probes": true,
+  "ordinary_inputs_restored_before_timing": true,
+  "terminal_report_retention_pass": true,
+  "limitation": "CPU source and mocked protocol audit only; no H200 SDK link, resources, byte correctness or timing."
+}

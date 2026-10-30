@@ -1,0 +1,7 @@
+{
+  "source": "experiments/decode_moe/dense_norm_pair_diag.py",
+  "source_sha256": "67a4417e91158162f3e9db49fce4c7686ead9a0e1f7d3e5f9e2b04818be3d6eb",
+  "problem": "muse_bf16_proj",
+  "mode": "check",
+  "no_wait": true
+}

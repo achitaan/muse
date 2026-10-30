@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-30T16:23:39.322427+00:00",
+  "gpu": "H200",
+  "files": [
+    {
+      "file": "baseline.py",
+      "actual": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+      "pinned": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+      "equal": true
+    },
+    {
+      "file": "checks.py",
+      "actual": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "pinned": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "equal": true
+    },
+    {
+      "file": "reference.py",
+      "actual": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+      "pinned": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+      "equal": true
+    },
+    {
+      "file": "template.py",
+      "actual": "1d789cd9827236c4a3d6b2adb9fd444c45a8f1f8b6c55decb592c8507289821d",
+      "pinned": null,
+      "equal": null
+    },
+    {
+      "file": "TASK.md",
+      "actual": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+      "pinned": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+      "equal": true
+    },
+    {
+      "file": "AGENTS.md",
+      "actual": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc",
+      "pinned": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc",
+      "equal": true
+    }
+  ],
+  "five_pinned_identities_equal": true,
+  "template": "Current official template retained; no local template.py pin.",
+  "encoding_note": "Comparison requires explicit UTF-8 for local documentation; the Windows default decoder differs. Official numerical sources and documentation match."
+}
