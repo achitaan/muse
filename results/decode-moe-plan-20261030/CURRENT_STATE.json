@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T23:04:57.802320+00:00",
+  "updated_at": "2026-10-30T23:14:10.625163+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -29,10 +29,10 @@
   "draft_admitted_for_GPU": false,
   "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
   "new_GPU_jobs_this_packet": 0,
-  "pending_user_question": null,
+  "pending_user_question": "Clarify whether60minute spacing applies to owned checks or all clients;default remains global.",
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
-  "dense_checks_left": 4,
+  "dense_checks_left": 0,
   "next_diagnostic_source": "experiments/decode_moe/moe_norm_group.py",
   "next_diagnostic_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
   "next_diagnostic_admitted": false,
@@ -59,7 +59,7 @@
   },
   "current_focus": "Shared norm candidate e5c0e7ec awaits paced GPU slot. Separate helper-register CPU prototype compiled; no GPU admission.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-30T23:16:02.013406+00:00",
+  "earliest_new_check_utc": "2026-10-31T00:11:17.108395+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -107,8 +107,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 17,
-        "left": 3
+        "used": 20,
+        "left": 0
       }
     },
     "muse_attention_decode": {
@@ -119,8 +119,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 0,
-        "left": 20
+        "used": 4,
+        "left": 16
       }
     },
     "muse_moe_w4a16": {
@@ -178,7 +178,8 @@
   "pacing_timer": {
     "session_id": 62099,
     "target_utc": "2026-10-30T23:16:05Z",
-    "purpose": "Foreground eligibility countdown only; no GPU or other follow-on action. Revalidate live handle before relying on it."
+    "purpose": "Foreground eligibility countdown only; no GPU or other follow-on action. Revalidate live handle before relying on it.",
+    "superseded_by_external_job": "eaebaa8ffe6f4c29;original23:16targetisnotadmission"
   },
   "helper_register_prototype": {
     "CUDA_sha256": "53f6c1560886441c4a2541a482ea8fa36b022c415ec30ad70c4bd8a2c04c85cb",
@@ -194,5 +195,12 @@
     "compiled_dynamic_shared_bytes": 214784,
     "resource_guard_mock_cases": 7,
     "actual_GPU_resources_verified": false
+  },
+  "external_live_job": {
+    "id": "eaebaa8ffe6f4c29",
+    "track": "muse_attention_decode",
+    "submitted_utc": "2026-10-30T23:11:17.108395+00:00",
+    "status_at_snapshot": "running",
+    "owned": false
   }
 }
