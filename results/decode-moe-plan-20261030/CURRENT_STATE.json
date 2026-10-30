@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-10-30T23:20:13.444884+00:00",
-  "goal": "active; top 50 not achieved",
+  "updated_at": "2026-10-30T23:21:37.264863+00:00",
+  "goal": "blocked on pacing scope;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
   "working_decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Shared norm candidate e5c0e7ec awaits paced GPU slot. Separate helper-register CPU prototype compiled; no GPU admission.",
+  "current_focus": "Await pacing-scope clarification or external activity change;both MoE payloads preserved and unsubmitted.",
   "next_diagnostic_track": "muse_moe_w4a16",
   "earliest_new_check_utc": "2026-10-31T00:18:18.499637+00:00",
   "newest_CPU_alternative": {
@@ -217,9 +217,9 @@
   },
   "pacing_scope_blocker": {
     "first_observed_utc": "2026-10-30T23:12:54Z",
-    "consecutive_goal_turns": 2,
+    "consecutive_goal_turns": 3,
     "condition": "Other client keeps launching checks;global60minute interval keeps moving. Human scope clarification pending.",
     "unaffected_work_completed": "Both tiny alternatives packaged;largerWGSfixup avenue reviewed and parked.",
-    "goal_status": "active;not achieved"
+    "goal_status": "blocked;three consecutive observations;scope question pending"
   }
 }
