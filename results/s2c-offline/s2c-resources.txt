@@ -1,0 +1,7 @@
+abl0 rc 0 regs 151 stack/spill ('0', '0', '0') HGMMA 8 UTMALDG 6 LDG 14 PRMT 39 PHASECHK 4
+abl1 rc 0 regs 141 stack/spill ('0', '0', '0') HGMMA 8 UTMALDG 6 LDG 2 PRMT 39 PHASECHK 4
+abl2 rc 0 regs 149 stack/spill ('0', '0', '0') HGMMA 8 UTMALDG 0 LDG 14 PRMT 39 PHASECHK 0
+abl4 rc 0 regs 72 stack/spill ('0', '0', '0') HGMMA 0 UTMALDG 6 LDG 14 PRMT 39 PHASECHK 4
+abl3 rc 0 regs 139 stack/spill ('0', '0', '0') HGMMA 8 UTMALDG 0 LDG 2 PRMT 39 PHASECHK 0
+abl5 rc 0 regs 62 stack/spill ('0', '0', '0') HGMMA 0 UTMALDG 6 LDG 2 PRMT 39 PHASECHK 4
+abl6 rc 0 regs 69 stack/spill ('0', '0', '0') HGMMA 0 UTMALDG 0 LDG 14 PRMT 39 PHASECHK 0
