@@ -1,0 +1,14 @@
+{
+  "source_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
+  "checks_passed": true,
+  "exact_parent_prefix": true,
+  "namespace_inverse_exact": true,
+  "explicit_binding_header": true,
+  "dispatcher_cases": 18,
+  "projection_cases": 17,
+  "original_shared_full_layer_and_cache_gate": true,
+  "synthetic_unit_qualification_only": true,
+  "GPU_jobs": 0,
+  "H200_integration_unverified": true,
+  "admitted_for_GPU": false
+}

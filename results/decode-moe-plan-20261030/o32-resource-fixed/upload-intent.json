@@ -1,0 +1,7 @@
+{
+  "recorded_after_upload": true,
+  "mode": "check",
+  "problem": "muse_bf16_proj",
+  "source": "experiments/decode_moe/dense_o32_resource_fixed.py",
+  "source_sha256": "b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de"
+}

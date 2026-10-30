@@ -17,3 +17,5 @@ experiments/decode_moe/profiles/dense_handoff16* -text
 experiments/decode_moe/*o32_resource* -text
 
 experiments/decode_moe/profiles/dense_o32_resource* -text
+
+experiments/decode_moe/*pdl32_handoff* -text

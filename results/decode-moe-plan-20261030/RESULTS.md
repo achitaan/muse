@@ -798,3 +798,23 @@ O32-only check acknowledged as **cd6dd28126de466e** for frozen sourceec51c132. F
 **cd6dd28126de466e**,sourceec51c132,terminaldone: retained Dense9/9 tests and integrity pass,prepare89.611900444s. O32 module C++ compilation failed because I omitted the explicit Pybind header while disabling implicit headers. No O32 resource/byte/timing probe ran; the source-isolation cause remains unconfirmed. CUDA compiled with only its unused-variable warning. This is not new algorithm evidence.
 
 Frozen `dense_o32_resource_fixed.py`,SHA256b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de,654822 bytes,is exactly the failed payload plus the32-byte escaped Pybind include. CPU audit verifies that single insertion and all prior invariants. CUDAhash5f86204d is unchanged. At most one header-only repair retry; stop if it remains unexercised or fails any resource/byte/timing gate. No Decode check/score.
+
+Header-only retry acknowledged as **ec1ea26451494f02**,sourceb85443f6. Bounded-defect rationale was recorded in the preceding RESULTS/REVIEW and commit12bf620 before upload. The structured admission script failed parsing a Unix float timestamp after validating quota,source and no active jobs; follow-on commands mistakenly continued. Structured record is now explicitly post-upload,not backdated. All later dependent command batches must stop on a failed exit code. Dense6 before/5 expected after; Decode1 preserved. Follow this one job only; no further O32 retry.
+
+
+### Repaired O32 H200 result
+
+**ec1ea26451494f02**,sourceb85443f6,completed9/9 tests,30 benchmarks,integrity/no flags; prepare75.712757821s. Resource snapshots: before and after legacy query42 registers,0 local/static,49152 max dynamic bytes,zero blocks; after unique host query196736 max dynamic bytes,one block. H200 capacity233472 bytes/SM and232448 opt-in/block. This directly reproduces the private initialization failure and resolves it through host-symbol isolation; the precise ELF/static binding mechanism remains uninspected.
+
+O32 fresh normal/zero/outlier bytes match. Synthetic-producer chains saved **4.095999524/4.224000499us**,ratios0.7894737/0.7846656,both >3% and >=1.5us. Together with U32,there are now two qualified M32 ceilings. They are not additive measured whole-layer gains. Retain the parent score2.075466170x; no Decode check,scored call or publication. No further diagnostic retry.
+
+Source audit also confirms retained MoE CUDAf2436030 has an unconditional outgoing signal before the final grid barrier/reduction; `_native_moe_PDL=False` controls its incoming launch attribute. A real U32 handoff can be investigated without modifying expert arithmetic or enabling that flag. Native attention also already contains outgoing signal sites. Actual critical-path overlap and exact Decode replays remain unmeasured.
+
+
+### M32 sliding bundle implemented; CPU validation only
+
+`decoder_pdl32_handoff_draft.py`,SHA25657f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1,956942 bytes,retains the exact940518-byte c15df9d3 prefix. Both tested projection sources are inverse-exact enclosed in unique namespaces; typed host aliases expose only O32/U32. Generic layer/state/router/experts/norm/attention arithmetic and PDL flags remain retained. Only B32/L1 sliding may select the fixed two-leaf bundle after actual resources,both leaf bytes,whole-layer/routing/all-cache bytes and >3% complete-layer timing in both orders. Full context/nearby sizes/layouts retain parent. No component sweep.
+
+CPU audit passes18 dispatch and17 projection/fallback cases; explicit Pybind include,source bindings and namespace inverses pass. Namespaced device proxies compile O32:42 regs,U32:88 regs,zero stack/spills. SASS still places independent weights before wait and dependent activation TMA afterward. H200 integration,actual resources,preparation time and whole-layer gain remain unverified. The two synthetic ceilings are not summed as measured gains. Draft is NOT admitted to the final Decode check. See pdl32-handoff/REVIEW.md.
+
+Actual quota snapshot after all three packet checks: Dense5,MoE16,Attention20,Decode1,Prefill20 checks; scores10/10/10/7/10 respectively. No new scored submission,Decode check,board publication or live-rank retrieval. Retained Decode score2.075466170x. The missing-header check is explicitly retained as unexercised; neither a baseline pass nor its aggregate point is new optimization evidence.

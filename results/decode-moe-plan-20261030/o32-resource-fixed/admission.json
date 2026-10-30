@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-10-30T18:04:49.664586+00:00",
+  "source_sha256": "b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de",
+  "source_bytes": 654822,
+  "active_jobs_before": [],
+  "Dense_checks_before": 6,
+  "Dense_checks_after_expected": 5,
+  "Decode_checks_preserved": 1,
+  "max_new_checks": 1,
+  "no_scored_run": true,
+  "spacing_exception": true,
+  "spacing_exception_reason": "Header-only packaging repair: missing explicit pybind11 header with no_implicit_headers=True. Failed diagnostic never exercised O32. Exactly32 escaped header bytes added; all CUDA, resource, correctness and timing code unchanged. Stop if still unexercised or any gate fails.",
+  "reason_recorded_before_upload_in": [
+    "RESULTS.md: O32 packaging failure; exact header-only repair",
+    "o32-resource-fixed/REVIEW.md",
+    "commit12bf620"
+  ],
+  "structured_record_delay": "The intended pre-upload admission JSON script failed parsing a Unix float timestamp as an ISO string. It had already validated quota, source and no active jobs; follow-on commands incorrectly continued. This JSON is explicitly post-upload, not backdated.",
+  "job_id": "ec1ea26451494f02",
+  "decision": "Only the acknowledged header-only retry; no further retry."
+}

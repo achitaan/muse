@@ -1,0 +1,131 @@
+{
+  "o32": {
+    "rc": 0,
+    "log": "preflight.cu(39): warning #177-D: variable \"TH\" was declared but never referenced\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\n                                                       ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_ZN12d32o_private17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEEv11CUtensorMapS1_PKhP13__nv_bfloat16i' for 'sm_90a'\nptxas info    : Function properties for _ZN12d32o_private17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEEv11CUtensorMapS1_PKhP13__nv_bfloat16i\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 42 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN12d32o_private11pdlo32_waitEv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 35376,
+    "cubin_sha256": "87bf97f6c7caa3e2408cf6c274275471ac72c2255620975254d9a2ee743f6f8d",
+    "seconds": 0.484,
+    "kernels": [
+      {
+        "symbol": "_ZN12d32o_private17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEEv11CUtensorMapS1_PKhP13__nv_bfloat16i",
+        "registers": 42,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "ordering": {
+      "wait_call_address": 2176,
+      "helper_target": 7648,
+      "acquire_address": 7664,
+      "independent_loads_before_call": [
+        [
+          752,
+          "UBLKCP.S.G [UR8], [UR10], UR12, desc[UR6]"
+        ],
+        [
+          944,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          1136,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          1328,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          1520,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          1712,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          1904,
+          "UBLKCP.S.G [UR12], [UR18], UR9, desc[UR6]"
+        ],
+        [
+          2096,
+          "UBLKCP.S.G [UR12], [UR10], UR8, desc[UR6]"
+        ]
+      ],
+      "first_dependent_load": [
+        2368,
+        "UTMALDG.3D [UR8], [UR18], desc[UR4]"
+      ],
+      "scope": "Instruction-order screen plus source control-flow review; not GPU validation."
+    },
+    "proxy_sha256": "58dabd8b142c502c95371f3d274b7a0d830291cb5be4f18ed28b28a03f92b2b6",
+    "GPU_jobs": 0,
+    "limitation": "CPU SM90 proxy; H200 actual resources/bytes/preparation/whole-layer benefit unverified."
+  },
+  "u32": {
+    "rc": 0,
+    "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_ZN12d32u_private11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'\nptxas info    : Function properties for _ZN12d32u_private11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 88 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN12d32u_private11pdlu32_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 55752,
+    "cubin_sha256": "e2c23e8d892331653f3d142972f953d437e7c2df1b5b1b87253075783976fdf2",
+    "seconds": 0.234,
+    "kernels": [
+      {
+        "symbol": "_ZN12d32u_private11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+        "registers": 88,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "ordering": {
+      "wait_call": 2848,
+      "helper_target": 13904,
+      "independent": [
+        [
+          2400,
+          "LDG.E.CONSTANT R66, desc[UR12][R4.64]"
+        ],
+        [
+          2448,
+          "LDG.E.CONSTANT R65, desc[UR12][R12.64]"
+        ],
+        [
+          2704,
+          "@P2 LDG.E.NA.128.CONSTANT R16, desc[UR4][R24.64+0x200]"
+        ],
+        [
+          2720,
+          "@P2 LDG.E.NA.128.CONSTANT R20, desc[UR4][R24.64+0x400]"
+        ],
+        [
+          2736,
+          "@P2 LDG.E.NA.128.CONSTANT R12, desc[UR4][R24.64]"
+        ],
+        [
+          2752,
+          "@P0 LDG.E.NA.128.CONSTANT R4, desc[UR4][R26.64]"
+        ],
+        [
+          2768,
+          "@P0 LDG.E.NA.128.CONSTANT R8, desc[UR4][R26.64+0x200]"
+        ],
+        [
+          2784,
+          "@P0 LDG.E.NA.128.CONSTANT R56, desc[UR4][R26.64+0x400]"
+        ]
+      ],
+      "first_dependent": [
+        3408,
+        "UTMALDG.2D [UR16], [UR8], desc[UR6]"
+      ],
+      "CPU_order_only": true
+    },
+    "proxy_sha256": "877d75312c39783b2384bc94a73e1d49e614b77b0f94b141e4107fa4927cedd1",
+    "GPU_jobs": 0,
+    "limitation": "CPU SM90 proxy; H200 actual resources/bytes/preparation/whole-layer benefit unverified."
+  }
+}

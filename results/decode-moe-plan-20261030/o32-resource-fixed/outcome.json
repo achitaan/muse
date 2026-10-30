@@ -1,0 +1,90 @@
+{
+  "job_id": "ec1ea26451494f02",
+  "source_sha256": "b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de",
+  "status": "done",
+  "tests_passed": 9,
+  "tests_total": 9,
+  "benchmarks": 30,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 75.712757820962,
+  "resources": {
+    "before": [
+      42,
+      0,
+      0,
+      49152,
+      128,
+      -1,
+      0,
+      233472,
+      232448
+    ],
+    "legacy": [
+      42,
+      0,
+      0,
+      49152,
+      128,
+      -1,
+      0,
+      233472,
+      232448
+    ],
+    "private": [
+      42,
+      0,
+      0,
+      196736,
+      128,
+      -1,
+      1,
+      233472,
+      232448
+    ]
+  },
+  "private_ready": true,
+  "projections": [
+    {
+      "m": 32,
+      "layer": "o",
+      "byte_equal": true,
+      "producer": "one CTA / 5000ns / first column written late",
+      "measurement": "optimistic synthetic-producer ceiling, not a real layer predecessor",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "times_us": {
+            "parent": 19.45599913597107,
+            "early": 15.359999611973763
+          },
+          "saving_us": 4.095999523997307,
+          "ratio": 0.7894736993267825,
+          "passes": true
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "times_us": {
+            "early": 15.39199985563755,
+            "parent": 19.61600035429001
+          },
+          "saving_us": 4.224000498652458,
+          "ratio": 0.7846655575876011,
+          "passes": true
+        }
+      ],
+      "handoff_gate": true
+    }
+  ],
+  "unchanged_Dense_point_not_new_gain": 1.5077968069835077,
+  "decision": "O32 qualifies as an optimistic synthetic-producer ceiling. Legacy launcher leaves private kernel at49152 dynamic bytes/zero residency; unique host launcher sets196736/one resident block. Exact ELF binding mechanism uninspected. No whole-layer evidence, Decode check, score or publication."
+}

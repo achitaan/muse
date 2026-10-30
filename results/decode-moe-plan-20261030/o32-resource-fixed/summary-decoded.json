@@ -1,0 +1,95 @@
+{
+  "timed_path": "unchanged Dense parent",
+  "enables_nothing": true,
+  "projections": [
+    {
+      "m": 32,
+      "layer": "o",
+      "byte_equal": true,
+      "producer": "one CTA / 5000ns / first column written late",
+      "measurement": "optimistic synthetic-producer ceiling, not a real layer predecessor",
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "times_us": {
+            "parent": 19.45599913597107,
+            "early": 15.359999611973763
+          },
+          "saving_us": 4.095999523997307,
+          "ratio": 0.7894736993267825,
+          "passes": true
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "times_us": {
+            "early": 15.39199985563755,
+            "parent": 19.61600035429001
+          },
+          "saving_us": 4.224000498652458,
+          "ratio": 0.7846655575876011,
+          "passes": true
+        }
+      ],
+      "handoff_gate": true
+    }
+  ],
+  "skipped": [],
+  "errors": [],
+  "budget_stop": false,
+  "resources": {
+    "before": [
+      42,
+      0,
+      0,
+      49152,
+      128,
+      -1,
+      0,
+      233472,
+      232448
+    ],
+    "legacy": [
+      42,
+      0,
+      0,
+      49152,
+      128,
+      -1,
+      0,
+      233472,
+      232448
+    ],
+    "private": [
+      42,
+      0,
+      0,
+      196736,
+      128,
+      -1,
+      1,
+      233472,
+      232448
+    ]
+  },
+  "resource_fields": [
+    "regs",
+    "local_bytes",
+    "static_shared_bytes",
+    "max_dynamic_shared_bytes",
+    "max_threads",
+    "preferred_carveout",
+    "blocks_per_SM",
+    "device_shared_per_SM",
+    "device_shared_optin_per_block"
+  ],
+  "legacy_query": 420000,
+  "private_query": 420000,
+  "private_ready": true,
+  "prepare_s": 75.712757820962
+}

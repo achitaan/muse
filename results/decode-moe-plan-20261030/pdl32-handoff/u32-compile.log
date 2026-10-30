@@ -1,0 +1,8 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN12d32u_private11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _ZN12d32u_private11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 88 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN12d32u_private11pdlu32_waitEj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

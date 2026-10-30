@@ -1,0 +1,18 @@
+{
+  "decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "MoE_CUDA_sha256": "f243603068b41ecc1b37279e9a6c50ae9c6a5d003c3e512eb71bc3c2030eeba2",
+  "outgoing_signal_lines": [
+    [
+      2430,
+      "  asm volatile(\"griddepcontrol.launch_dependents;\\n\" ::: \"memory\");"
+    ]
+  ],
+  "incoming_wait_lines": [
+    [
+      2230,
+      "  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");"
+    ]
+  ],
+  "PDL_host_default": false,
+  "interpretation": "Outgoing signal already exists before the MoE grid barrier/finalizer. The PDL flag controls the incoming launch attribute. An incoming-PDL U32 consumer can be investigated without modifying expert arithmetic or flipping the MoE flag; real overlap duration and whole-layer benefit remain unmeasured."
+}

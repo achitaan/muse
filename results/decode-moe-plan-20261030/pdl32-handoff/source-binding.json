@@ -1,0 +1,20 @@
+{
+  "source_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
+  "bytes": 956942,
+  "parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "parent_prefix_exact": true,
+  "CUDA_sha256": "08f518e46f163241f164e86219949bdeb99061d51341a1f8337ab4820d9c0365",
+  "O32_source_sha256": "b45d6e23af85adc9cb16e41e5c02f445714188dd28d0fa5c8a14855e96526f7f",
+  "U32_source_sha256": "4dea6ac736ea57a9c36f5e9757cc1505ed0eb7e3fe9dbb7bb5b1d315004cf63a",
+  "CUDA_derivation": "Exact sources enclosed in unique namespaces after headers; inverse exact. New global host aliases and resource query only.",
+  "qualification_jobs": {
+    "O32": "ec1ea26451494f02",
+    "U32": "3264689ee9974ef9"
+  },
+  "fixed_scope": "M32, B32,L1,sliding only; both O and unpooler as one bundle. No component sweep.",
+  "unchanged": "All expert/router/attention/norm arithmetic, PDL flags, weights, BF16 boundaries, scratch and other-regime dispatch.",
+  "gates": "Actual H200 resources, both leaf bytes, complete layer/routing/cache bytes on changing inputs, >3% complete-layer cold-L2 graphs in both orders.",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "publication": false
+}
