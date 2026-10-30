@@ -1,0 +1,41 @@
+{
+  "GPU_jobs": 0,
+  "candidate_sha256": "1fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7",
+  "bytes": 953980,
+  "full_scored_parent_prefix": true,
+  "H200_leaf_source_and_ABI_unchanged": true,
+  "MoE_projection_and_whole_layer_guards_unchanged": true,
+  "M1_only_selection": true,
+  "unsupported_public_shape_sentinels": 4,
+  "unit_gate_cases": [
+    {
+      "early_us": [
+        8.4,
+        8.4
+      ],
+      "passes": true
+    },
+    {
+      "early_us": [
+        8.4,
+        8.6
+      ],
+      "passes": false
+    },
+    {
+      "early_us": [
+        8.6,
+        8.6
+      ],
+      "passes": false
+    },
+    {
+      "early_us": [
+        9.8,
+        9.8
+      ],
+      "passes": false
+    }
+  ],
+  "limitation": "CPU integration/acceptance proof; source not run on H200, whole-layer gain and preparation unresolved."
+}

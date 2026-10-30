@@ -1,0 +1,13 @@
+# H200-qualified M1 mechanism; whole-layer integration unverified
+
+Frozen integration source: `decoder_pdls1_draft.py`, SHA256 `1fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7`, 953,980 bytes (46,020 bytes headroom). Its complete c15df9d3 scored parent prefix is exact. Earlier M1/M8 and M16/M32 drafts are preserved.
+
+The private norm CUDA/SDK interface remains f24c9d33, checked in H200 job d34f5724621b42cf:175 registers,zero local memory,64 bytes static shared and one active block/SM. Four norm metadata groups (M1/M8,channel/scalar gate) and both norm/router/R2f pairs passed finite byte probes with changing normal,zero,outlier inputs. The check passed9/9 Dense tests,30 benchmarks,integrity/no flags,prepare90.521s. It enabled no new Dense path; its aggregate Dense point is not a speedup claim.
+
+M1 pair medians were28.384->26.656us and28.416->26.464us, saving1.728/1.952us in opposite arm orders. Both predeclared >3% and >=1.5us gates passed. M8 saved1.440/1.280us and failed the absolute gate; this integration excludes M8 at selection, public dispatch and private-boundary guards. No retry sought a better M8 point.
+
+The new source rechecks M1 unit bytes and both timing gates in prepare, restores ordinary inputs after zero/outlier probes, then considers one union inheriting parent-selected paths. Complete outputs/cache bytes and >3% in both whole-layer orders remain mandatory. No MoE numerical exemption is present. CUDA builders,module ABI,projection/MoE functions and whole-layer guards are unchanged. CPU source/dispatch/acceptance audits pass. The initial builder used stale AST line offsets after a multiline edit; source segments are now captured before edits. A repeated-historical-function issue in the audit was fixed by selecting the final public definition. Both were caught before GPU upload.
+
+Recorded c15 M1 raw-event medians are78.512us sliding and87.472us full. Three percent is approximately2.355/2.624us; actual preparation costs and real O-tail overlap remain unmeasured. Under the hypothetical equal transfer of the measured unit savings to both M1 rows, with the other five loads unchanged, the track factors would be1.003743047/1.004235497. These are dilution scenarios, not predictions. The unit measurement alone does not justify the final Decode check or a score publication.
+
+Unresolved: this integrated source's H200 preparation and complete-layer/cache bytes, real overlap,whole-layer gain and aggregate effect. Source1fe60c31 has never run on H200; only its exact norm/R2f leaf has unit evidence. The Decode best remains2.075466170x. Last Decode check is preserved.

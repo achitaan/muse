@@ -1,0 +1,99 @@
+{
+  "job_id": "d34f5724621b42cf",
+  "source_sha256": "67a4417e91158162f3e9db49fce4c7686ead9a0e1f7d3e5f9e2b04818be3d6eb",
+  "status": "done",
+  "tests_passed": 9,
+  "tests_total": 9,
+  "benchmarks": 30,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 90.521338808,
+  "norm_and_pair_bytes_all_equal": true,
+  "resources": {
+    "norm": [
+      175,
+      0,
+      64,
+      1
+    ],
+    "r1": [
+      64000,
+      1
+    ],
+    "r8": [
+      64000,
+      1
+    ]
+  },
+  "pairs": [
+    {
+      "m": 1,
+      "equal": true,
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "parent_us": 28.384000062942505,
+          "early_us": 26.655999943614006,
+          "saving_us": 1.7280001193284988,
+          "ratio": 0.9391206272725269,
+          "passes": true
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "parent_us": 28.416000306606293,
+          "early_us": 26.464000344276428,
+          "saving_us": 1.9519999623298645,
+          "ratio": 0.931306308373172,
+          "passes": true
+        }
+      ],
+      "causal_gate": true
+    },
+    {
+      "m": 8,
+      "equal": true,
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "parent_us": 31.007999554276466,
+          "early_us": 29.56799976527691,
+          "saving_us": 1.4399997889995575,
+          "ratio": 0.9535603776541928,
+          "passes": false
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "parent_us": 30.7839997112751,
+          "early_us": 29.503999277949333,
+          "saving_us": 1.2800004333257675,
+          "ratio": 0.9584199439536459,
+          "passes": false
+        }
+      ],
+      "causal_gate": false
+    }
+  ],
+  "unchanged_Dense_point_not_new_speedup": 1.5222306710607305,
+  "unchanged_Dense_CI": [
+    1.4993972109948195,
+    1.5450641311266413
+  ],
+  "decision": "M1 mechanism passes >=1.5us and >3% both orders. M8 fails predeclared absolute threshold and remains parent. No whole-layer evidence, new timed Dense path, score or publication.",
+  "no_Decode_check": true,
+  "terminal_report_complete": true
+}

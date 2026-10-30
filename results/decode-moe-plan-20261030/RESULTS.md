@@ -735,3 +735,26 @@ The unit isolates the norm signal with retained incoming-PDL R2f in both arms, t
 Frozen Dense-container diagnostic `dense_norm_pair_diag.py`, SHA256 `67a4417e91158162f3e9db49fce4c7686ead9a0e1f7d3e5f9e2b04818be3d6eb`, 679841 bytes. Full edc Dense prefix/public kernel unchanged; source-bound private norm f24c9d33 and scored c15 R2f kernels are tested only in prepare. Both arms use incoming-PDL R2f; the outgoing norm signal is the sole changed mechanism. Scalar/channel gates, M1/M8, normal/zero/outlier inputs, finite byte equality, then >3% and >=1.5us in both cold-L2 orders. It enables nothing and cannot establish a new Dense or whole-layer speedup.
 
 CPU package compiles with64 registers/32768 static shared/no spills for both R2f kernels. Protocol/retention audits pass. Official baseline/reference/checker/TASK/AGENTS match with explicit UTF-8 (the initial local comparison used a Windows-default decoder; no task update occurred). Current template retained separately without a local template pin. One focused Dense check is planned after the60-minute spacing and fresh active-job/quota admission; Decode reserve remains untouched. See norm-pair-diag/REVIEW.md.
+
+H200 check **d34f5724621b42cf** acknowledged for source67a4417e. The initial upload returned the documented TLS bad-record-MAC error without a job ID; the identical retry was acknowledged. One admitted source/check, no scored upload. Minimum spacing63.68min at admission, no active jobs, Dense9 before/8 expected after, Decode1 preserved. Status watcher will follow this job only.
+
+
+### H200 early norm result: M1 passes; M8 below absolute gate
+
+**d34f5724621b42cf**, source67a4417e, completed 9/9 tests and 30 benchmarks, integrity/no flags; prepare **90.521338808s**. Exact SDK header/adapter builds succeeded. Norm resources175 regs/0 local/64 static shared/1 block; each R2f64 regs/0 local/1 block. All four scalar/channel M1/M8 norm probes and both full norm/router/pooler/route pair probes are finite and byte-equal across changing,zero,outlier inputs.
+
+M1:28.384->26.656us and28.416->26.464us; saving **1.728/1.952us**, ratios0.939121/0.931306. Both >3% and >=1.5us gates pass. M8:31.008->29.568us and30.784->29.504us; saving1.440/1.280us, ratios0.953560/0.958420. M8 exceeds3% but FAILS the predeclared1.5us handoff floor, so it remains parent; no repeat to seek a lucky pass.
+
+This is a causal unit result, not a whole-layer gain. The unchanged Dense point 1.5222306710607305x is not a new algorithm win. Preserve M1 mechanism only, leave whole-layer/cache bytes,3% both-order gains and integrated preparation unresolved. No score, publication or Decode check; final Decode check remains reserved. Compact footer and raw profiles are retained.
+
+
+### M1-only integration freeze and weighted opportunity screen
+
+`decoder_pdls1_draft.py`, SHA2561fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7,953980 bytes. Prior drafts unchanged. Only B1/L1 can select private norm; M8 explicitly falls back after its predeclared floor failed. Unit preparation now enforces >=1.5us and >3% in both orders, with random/zero/outlier bytes and ordinary-input restoration. All existing complete-layer/cache byte and3% both-order gates remain. CPU source/dispatch/acceptance audit passes. A builder AST-offset defect and the audit's handling of repeated historical kernel_fn definitions were caught and fixed before any GPU upload.
+
+The 452fbd9d recorded M1 weighted load is 4833.13590001738us. If the standalone1.728/1.952us saving transferred equally to its two rows, the conditional track factors would be 1.0037430470370319/1.004235497339466 with the other five loads unchanged. These are dilution scenarios, NOT forecasts; additional O-tail overlap and actual Decode weights/resources are unmeasured. The observed unit savings alone are below each whole-layer3% raw-graph gate. This source is not admitted to the final Decode check. Actual quotas confirmed Dense8,MoE16,Attention20,Decode1,Prefill20 checks; no new score or board publication.
+
+
+### Decode/standalone MoE bridge and unimplemented norm hypothesis
+
+CPU source audit proves the standalone/Decode CUDA differences are only the WGS wgs_flush/wgs_seg FINREG bodies; all other CUDA and tiny/mid define tuples match,including atomic norm accumulation. This is source-only evidence,not a Decode GPU variance measurement. A bounded in-kernel tiny finalizer RMS-recompute hypothesis is recorded separately:4 segments/token at NT256,H4096; extra logical reads64KiB/local route,max4MiB at M8/all-local; no added launch/grid barrier. Arithmetic boundaries and all scratch/generation invariants must remain. No exposed contention/time benefit is measured. It changes FP32 norm order,so no implementation/admission follows while the strict byte rule remains. The existing user question remains pending.

@@ -1,0 +1,21 @@
+{
+  "GPU_jobs": 0,
+  "payload_SHA256": {
+    "standalone": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+    "decode": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5"
+  },
+  "CUDA_SHA256": {
+    "standalone": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+    "decode": "f243603068b41ecc1b37279e9a6c50ae9c6a5d003c3e512eb71bc3c2030eeba2"
+  },
+  "sole_differing_bodies": [
+    "wgs_flush",
+    "wgs_seg"
+  ],
+  "all_other_CUDA_source_identical": true,
+  "TINY_TINY2_MID_defines_identical": true,
+  "default_WGS": 0,
+  "non_WGS_atomic_norm_sites_identical": true,
+  "inference": "The FINREG source difference concerns WGS work. Tiny-path atomic norm accumulation remains present in Decode; standalone variability is relevant to its byte-gate risk.",
+  "limitation": "Static source bridge only. No Decode H200 repeat experiment, measured variance rate, actual compiler/preprocessor equality or whole-layer numerical result is established."
+}

@@ -1,0 +1,29 @@
+{
+  "candidate_sha256": "1fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7",
+  "bytes": 953980,
+  "headroom": 46020,
+  "scored_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "previous_CPU_draft_sha256": "85a0ae65ee872d63fc9ca707883b9c9a5d2d1c9c8c23808ae4bab6578b7d818f",
+  "changed_functions": {
+    "_pdls_select": {
+      "old": "c6df0861d8b6c63ded904db72abf69650cf3464360ab5d228147030b692be95c",
+      "new": "558a09fce77eb4ecf66460c8bc137f3e7068b3e75712c1e1a65cbe878a83e17f"
+    },
+    "_pdls_boundary": {
+      "old": "2edfd061b74dedbf2575987b3ac6894d17ea0e13f1afb4aac91e71746a0ffca9",
+      "new": "4c564b4ca321e6bfaad11de9553b975020966048b86ea1fda0741e27ca51f7ff"
+    },
+    "kernel_fn": {
+      "old": "10e68a701c3707ba2ea7bafd54060f639153843376fa74dc29648f037d766de1",
+      "new": "d1777c943cea52fcdac7fbe5f248b9e113c4ab2bbe95c96b504fd6d909769695"
+    }
+  },
+  "mechanism_H200_job": "d34f5724621b42cf",
+  "mechanism_CUDA_sha256": "f24c9d33e6be7f433a8c9629019f66f250b569f4cd235fd80b098499c399795e",
+  "checked_scope": "Norm/R2f M1 unit only; candidate source and whole layer unrun.",
+  "M8": "excluded after predeclared absolute timing gate failed; parent fallback",
+  "unit_gate": "finite byte equality across random/zero/outlier replays; >3% and >=1.5us both cold-L2 orders",
+  "whole_layer_gate": "unchanged: complete output/cache bytes and >3% both orders",
+  "GPU_jobs_for_this_source": 0,
+  "GPU_admitted": false
+}

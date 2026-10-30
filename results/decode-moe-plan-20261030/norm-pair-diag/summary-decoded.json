@@ -1,0 +1,105 @@
+{
+  "timed_path": "unchanged Dense parent",
+  "enables_nothing": true,
+  "norm_bytes": [
+    {
+      "m": 1,
+      "scalar_gate": false,
+      "equal": true
+    },
+    {
+      "m": 1,
+      "scalar_gate": true,
+      "equal": true
+    },
+    {
+      "m": 8,
+      "scalar_gate": false,
+      "equal": true
+    },
+    {
+      "m": 8,
+      "scalar_gate": true,
+      "equal": true
+    }
+  ],
+  "pairs": [
+    {
+      "m": 1,
+      "equal": true,
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "parent_us": 28.384000062942505,
+          "early_us": 26.655999943614006,
+          "saving_us": 1.7280001193284988,
+          "ratio": 0.9391206272725269,
+          "passes": true
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "parent_us": 28.416000306606293,
+          "early_us": 26.464000344276428,
+          "saving_us": 1.9519999623298645,
+          "ratio": 0.931306308373172,
+          "passes": true
+        }
+      ],
+      "causal_gate": true
+    },
+    {
+      "m": 8,
+      "equal": true,
+      "orders": [
+        {
+          "order": [
+            "parent",
+            "early"
+          ],
+          "parent_us": 31.007999554276466,
+          "early_us": 29.56799976527691,
+          "saving_us": 1.4399997889995575,
+          "ratio": 0.9535603776541928,
+          "passes": false
+        },
+        {
+          "order": [
+            "early",
+            "parent"
+          ],
+          "parent_us": 30.7839997112751,
+          "early_us": 29.503999277949333,
+          "saving_us": 1.2800004333257675,
+          "ratio": 0.9584199439536459,
+          "passes": false
+        }
+      ],
+      "causal_gate": false
+    }
+  ],
+  "budget_stop": false,
+  "errors": [],
+  "resources": {
+    "norm": [
+      175,
+      0,
+      64,
+      1
+    ],
+    "r1": [
+      64000,
+      1
+    ],
+    "r8": [
+      64000,
+      1
+    ]
+  },
+  "prepare_s": 90.52112539787777
+}

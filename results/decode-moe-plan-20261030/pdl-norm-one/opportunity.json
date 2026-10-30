@@ -1,0 +1,39 @@
+{
+  "parent_job": "452fbd9df6af4ff4",
+  "parent_source_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "unit_job": "d34f5724621b42cf",
+  "case_rows": [
+    {
+      "layer": "sliding",
+      "weight": 46,
+      "median_us": 75.81855141408387,
+      "replay_overhead_us": 4.128000233322382,
+      "raw_graph_three_percent_us": 2.3553599417209625,
+      "raw_event_median_us": 78.51199805736542
+    },
+    {
+      "layer": "full",
+      "weight": 16,
+      "median_us": 84.09265843559511,
+      "replay_overhead_us": 4.064000211656094,
+      "raw_graph_three_percent_us": 2.624160088598728,
+      "raw_event_median_us": 87.47200295329094
+    }
+  ],
+  "weighted_M1_load_us": 4833.13590001738,
+  "conditional_scenarios": [
+    {
+      "assumed_saving_each_M1_layer_us": 1.7280001193284988,
+      "load_gain": 1.022669490019602,
+      "track_gain_if_other_five_loads_unchanged": 1.0037430470370319,
+      "forecast": false
+    },
+    {
+      "assumed_saving_each_M1_layer_us": 1.9519999623298645,
+      "load_gain": 1.0256836000868357,
+      "track_gain_if_other_five_loads_unchanged": 1.004235497339466,
+      "forecast": false
+    }
+  ],
+  "conclusion": "Measured standalone savings alone are below 3% of each historical whole-layer raw-event median. Actual preparation A/B costs, real O-tail overlap and transfer are unmeasured; this is an opportunity screen, not a proof of failure or a forecast. Preserve final Decode check."
+}
