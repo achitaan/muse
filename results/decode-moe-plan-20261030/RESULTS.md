@@ -145,6 +145,18 @@ loads add to its critical path rather than overlapping it.
 - The unpooler is a cluster-reduction GEMV (`smtrace_gemv`, RED = 2). The fold needs a grid-wide two-stage reduction over 8,192 columns, and FP32 reduction order cannot match the Triton kernel bitwise.
 - Lower value than removing the fused router's measured 10 us overhead (next item).
 
+## Phase 0: shared harness (done)
+
+- `experiments/decode_moe/harness.py`: `HARNESS_SRC` with these helpers, appended once by builders:
+  - `_okh_same`: bitwise equality, or per-tensor relative tolerance;
+  - `_okh_time`: interleaved cold-L2 CUDA-graph timing;
+  - `_okh_pick`: margin selection with an optional allow-list;
+  - `_okh_budget`: prepare-time budget;
+  - `_okh_bg`: background build thread.
+- **CPU checks:** equality, tolerance, dtype mismatch, pick margin, allow-list, budget and thread all behave as expected.
+- **GPU check:** S1 rebuilt on it (`build_s1h.py`) as job `1f20126e3f994646`. 13/13 passed. Output `S1_SFN T=1 nw8=8.03 nw4=8.06 nw16=7.87 nw32=8.10`, `T=8 nw8=7.52 nw4=8.64 nw16=7.52 nw32=8.29`, `sfn_nw=8`: the same decision as the copied-code S1. Prepare took 253.8 s.
+- That run scored 2.0430x, but its timed path is identical to scored R2, so this is R2 re-measured within noise. **Not submitted:** resubmitting identical code would only sample noise.
+
 ## R2d diagnostic (`04f8fa914e9742fb`: 13/13 passed, 2.0258x)
 
 Timing-only modes in the prepare harness (graph times; each includes about 5 us of graph-launch overhead):
