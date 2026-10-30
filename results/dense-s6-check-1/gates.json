@@ -1,0 +1,10 @@
+{
+  "candidate": "candidates/dense_s6.py",
+  "source_sha256": "f61937d37b9b664f8aa720d490efe1f2b8c38cc3055150dbf7d7473b66c47325",
+  "scope": "pooler M32 (1,8,16,1) and qkv M32 (1,4,8,4) with v18s RT=2 (32 rows per CTA, x registers reused across 2 row tiles), ST 2 and 1",
+  "why": "oracle #2: in the incumbent split each warp owns a distinct K slice, so in-CTA smem staging cannot reuse x; reuse must come from more rows per CTA",
+  "offline_compile": "results/s6-offline/summary.txt: 146-171 regs, 0 spill",
+  "gates": "v18s_plan (bit-exact pack, one-hot, FP64 random/spike); ABBA 16 pairs median >= 1.03, wins >= 0.75; official checker",
+  "kill_rule": "oracle: must recover >= 0.5 us on pooler M32",
+  "markers": "S6_USE / S6_SELECT / S6_KEEP"
+}
