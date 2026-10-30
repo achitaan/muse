@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-30T20:07:53.726127+00:00",
+  "source": "experiments\\decode_moe\\moe_tinyroute_bounded.py",
+  "sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
+  "mode": "check",
+  "problem": "muse_moe_w4a16",
+  "minutes_since_latest_job": 60.69111161629359,
+  "active_jobs": 0,
+  "checks_before": 16,
+  "checks_after_expected": 15,
+  "scores_before": 10,
+  "admitted": true,
+  "reason": "Explicit MoE boundary authorization reopens TR8 after exact GEMM/SwiGLU diagnosis. No prior performance rejection of the new path.",
+  "stop": "Require full official tests/benchmarks/integrity,selected new-path execution and original paired >3% gates. Empty selection is not algorithm evidence. No automatic score/publication.",
+  "Decode_check_used": false,
+  "whole_norm_alternative_not_launched": true
+}

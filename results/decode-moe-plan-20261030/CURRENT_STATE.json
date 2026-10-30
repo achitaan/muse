@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T20:02:20.251730+00:00",
+  "updated_at": "2026-10-30T20:07:53.726127+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -35,7 +35,7 @@
   "dense_checks_left": 4,
   "next_diagnostic_source": "experiments/decode_moe/moe_tinyroute_bounded.py",
   "next_diagnostic_sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
-  "next_diagnostic_admitted": false,
+  "next_diagnostic_admitted": true,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
     "sha256": "1fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7",
