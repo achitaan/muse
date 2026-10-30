@@ -44,9 +44,15 @@ def main():
         sys.exit(2)
     print(f'job {job}', file=sys.stderr)
     rc, out, err = run(['status', job, '--wait', '--json'], 3600)
+    d = json.loads(out)
+    if d.get('status') == 'duplicate' and d.get('duplicate_of'):
+        # the judge does not re-run byte-identical code: use the original job's result
+        print(f"duplicate of {d['duplicate_of']}", file=sys.stderr)
+        job = d['duplicate_of']
+        rc, out, err = run(['status', job, '--wait', '--json'], 3600)
+        d = json.loads(out)
     (HERE / 'runs').mkdir(exist_ok=True)
     (HERE / 'runs' / f'{job}.json').write_text(out, encoding='utf-8')
-    d = json.loads(out)
     r = d.get('result') or {}
     passed = bool(r.get('passed'))
     txt = HERE / 'profiles' / f'attention.{job}.txt'
