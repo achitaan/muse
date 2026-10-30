@@ -1,0 +1,11 @@
+{
+  "candidate": "candidates/dense_p2.py",
+  "source_sha256": "815731e434d95fce2d5e9ca2d9854f3e3ee983049f7f621e0fe15252cdc49061",
+  "scope": {
+    "o m8": "v18s c12 (4,8,2,1) NT1024 and (2,8,2,1) NT512 vs incumbent (1,8,2,1)",
+    "router m8/m16": "existing routertail_small instantiations S8/WK8 and S16/WK4 vs incumbent S16/WK8 (same module, repacked)"
+  },
+  "offline_compile": "results/p2-offline/summary.txt: o (4,8,2,1)/(2,8,2,1) 50 regs 0 spill; (4,4,4,1) spilled -> dropped; router instantiations already in incumbent module",
+  "gates": "o: v18s_plan (bit-exact pack, one-hot, FP64). router: 64 one-hot columns == hi+lo exact, random relL2 vs FP64 <= 2.5e-5, spike row <= 2.5e-4. ABBA 16 pairs median >= 1.03, wins >= 0.75; official checker",
+  "markers": "P2 / P2_SELECT / P2_KEEP / P2_USE"
+}

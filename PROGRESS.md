@@ -24,4 +24,4 @@ Anti-loop rule: nothing in `DENSE_LEDGER.md` section 1/1b is retried.
 
 | Pass | Hypothesis | Change | Validation | Benchmark | Verdict |
 |---|---|---|---|---|---|
-| 1 | H1 qkv M1/M8/M16 wave balance | `experiments/dense_p1.py`: 7 v18d geometries, per-shape gated selector (commit `677e0c2`) | NVRTC 14 instances, 0 spill | **not run**: driver refused at 22:10Z, 4 checks left = 4 reserved | blocked (needs user OK to use reserve, or 00:00 UTC reset) |
+| 1 | H1 qkv M1/M8/M16 wave balance | `experiments/dense_p1.py`: 7 v18d geometries, per-shape gated selector (commit `677e0c2`) | NVRTC 14 instances, 0 spill | user allowed reserved checks; check `e26e498c24e8487b` passed (1.4901x, runtime unchanged = noise) | **reverted (all KEEP): every layout slower, 3–65%. H1 refuted** — the incumbent geometry is the local optimum |
