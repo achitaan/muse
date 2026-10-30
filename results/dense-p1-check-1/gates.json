@@ -1,0 +1,9 @@
+{
+  "candidate": "candidates/dense_p1.py",
+  "source_sha256": "7072bbad33138b32fa368f06e1bc185670f0ebd249c19ca50ee3223d3e1f8caf",
+  "scope": "qkv_gate M1/M8/M16 on v18d native c12, 7 geometries (wave balance)",
+  "offline_compile": "results/p1-offline/summary.txt: 14 instances, 63-93 regs, 0 spill",
+  "gates": "v18d_v18d_native_plan (bit-exact pack, one-hot, FP64 random); ABBA 16 pairs median >= 1.03, wins >= 0.75; official checker",
+  "markers": "P1_BUILD / P1_SELECT / P1_KEEP / P1_USE",
+  "decision_rule": "any P1_SELECT + pass -> freeze selection, confirming check; scored submission only if whole-track gain is material"
+}
