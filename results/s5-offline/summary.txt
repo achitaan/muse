@@ -1,0 +1,8 @@
+router: rc 0
+  _Z14s5rw128_kernelILi64ELi16ELi8ELi1ELi2ELi1EEv14CUtensorMap_stS0_Pfi regs 58 stack/spill ('0', '0', '0')
+  _Z14s5rw128_kernelILi32ELi8ELi8ELi1ELi2ELi1EEv14CUtensorMap_stS0_Pfi regs 42 stack/spill ('0', '0', '0')
+o_v18s: rc 0
+  _Z9v18s_gemvILi1ELi4ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4EL regs 128 stack/spill ('0', '0', '0')
+  _Z9v18s_gemvILi1ELi4ELi1ELi2ELi0ELi0ELi128ELi0ELi8192ELi1024ELi1ELi4EL regs 128 stack/spill ('0', '0', '0')
+  _Z9v18s_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4EL regs 100 stack/spill ('0', '0', '0')
+  _Z9v18s_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi128ELi0ELi8192ELi1024ELi1ELi4EL regs 96 stack/spill ('0', '0', '0')

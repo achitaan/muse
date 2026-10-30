@@ -1,0 +1,15 @@
+{
+  "candidate": "candidates/dense_s5.py",
+  "source_sha256": "ab9cacd18cfc573dfbcf77033282fcd65ab7527071a10e1b73b615e23ed80075",
+  "scope": {
+    "router m128": "rwdl_128 source renamed s5rw128; BN32/S8 and BN64/S16 (128 CTAs vs incumbent 64)",
+    "o m16/m32": "v18s c12 S=1 (2,4,4,1) and (1,4,4,1)"
+  },
+  "offline_compile": "results/s5-offline/summary.txt: router 42/58 regs, o 96-128 regs, 0 spill",
+  "router_gate": "one-hot over all 8192 columns == hi+lo FP32 exactly; random relL2 vs FP64 <= 2.5e-5; spike row <= 2.5e-4; finite",
+  "o_gate": "v18s_plan: bit-exact pack, one-hot, FP64 random/spike",
+  "timing_gate": "ABBA paired cold-L2 graph, 16 pairs, raw samples; select iff median >= 1.03 and wins >= 0.75",
+  "oracle_kill_rule": "router must save >= 0.7 us",
+  "markers": "S5_USE (m, layer); S5_SELECT / S5_KEEP",
+  "decision_rule": "any S5_SELECT + pass -> confirming check; scored submission only if whole-track gain material"
+}
