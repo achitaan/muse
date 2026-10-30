@@ -52,7 +52,7 @@ import threading as _r2_thr
 import time as _r2_time
 _R2_DEV = r"""
 struct R2Args { const float* x; const float* w; const float* bias; volatile float* parts; unsigned int* counter;
-                float* outw; int* outi; int M; };
+                float* outw; int* outi; int M; int dbg; };
 __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane) {
   // R2b: the CTA's x slice is staged in shared memory once and each router warp issues its 32 weight loads
   // up front; the per-row FMA order (j = 0..31, then the shuffle tree) is route_fp32's, so results are bitwise equal
@@ -62,17 +62,19 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
   for (int i = threadIdx.x; i < M * 1024; i += blockDim.x) r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)];
   __syncthreads();
   if (warp >= 16) return;
-  float wv[32];
-#pragma unroll
-  for (int j = 0; j < 32; ++j) wv[j] = __ldg(ra.w + (size_t)row * 8192 + ks * 1024 + j * 32 + lane);
   float a[8];
 #pragma unroll
   for (int m = 0; m < 8; ++m) a[m] = 0.f;
+  if (!(ra.dbg & 2)) {
+  float wv[32];
+#pragma unroll
+  for (int j = 0; j < 32; ++j) wv[j] = __ldg(ra.w + (size_t)row * 8192 + ks * 1024 + j * 32 + lane);
 #pragma unroll
   for (int j = 0; j < 32; ++j) {
 #pragma unroll
     for (int m = 0; m < 8; ++m)
       if (m < M) a[m] = __fmaf_rn(r2x[m * 1024 + j * 32 + lane], wv[j], a[m]);
+  }
   }
 #pragma unroll
   for (int m = 0; m < 8; ++m) {
@@ -87,7 +89,7 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
   __shared__ int r2_last;
   if (warp == 0 && lane == 0) r2_last = ((atomicAdd(ra.counter, 1u) & 127u) == 127u);
   asm volatile("bar.sync 1, 512;" ::: "memory");
-  if (!r2_last || warp >= M) return;
+  if (!r2_last || warp >= M || (ra.dbg & 1)) return;
   __threadfence();
   float score[8], sel[8];
 #pragma unroll
@@ -132,15 +134,15 @@ __device__ __forceinline__ void P_r2_router(const R2Args& ra, int warp, int lane
 _R2_HOST = r"""
 int r2_launch(int64_t wp, int64_t x, int64_t out, int64_t esc, int m, int N, int K, int WR, int WK, int KU, int S,
               int64_t t01, int64_t u01, int64_t stream, int64_t rx, int64_t rw, int64_t rb, int64_t rp, int64_t rc,
-              int64_t ow, int64_t oi) {
+              int64_t ow, int64_t oi, int dbg) {
   if ((N / (WR * 16)) * S != 128 || WR * WK * 32 < 512 || m < 1 || m > 8) return -20;
   R2Args ra{(const float*)rx, (const float*)rw, (const float*)rb, (volatile float*)rp, (unsigned int*)rc,
-            (float*)ow, (int*)oi, m};
+            (float*)ow, (int*)oi, m, dbg};
   return P_launch_t<@@ARGS@@>(wp, x, out, esc, m, N, K, WR, WK, KU, S, t01, u01, stream, 0, ra);
 }
 """
 _R2_CPP = ('\n#include <pybind11/pybind11.h>\n#include <stdint.h>\nint r2_launch(int64_t, int64_t, int64_t, int64_t, int, int, int, int, int, int, int, '
-           'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t);\n')
+           'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int);\n')
 
 
 def _r2_source(tmpl, p, inst):
@@ -216,7 +218,7 @@ def _r2_pool_route(xb, xr, state):
     rc = ext.r2_launch(plan['wp'].data_ptr(), xb.data_ptr(), out.data_ptr(), plan['esc'].data_ptr(), m, 4096, 8192, wr, wk,
                        ku, s, plan['t01'], plan['u01'], torch.cuda.current_stream().cuda_stream, xr.data_ptr(),
                        rf['weight'].data_ptr(), rf['bias'].data_ptr(), rf['parts'].data_ptr(), rf['counter'].data_ptr(),
-                       ow.data_ptr(), oi.data_ptr())
+                       ow.data_ptr(), oi.data_ptr(), state.get('r2dbg', 0))
     return None if rc else (out, ow, oi)
 
 
@@ -255,13 +257,17 @@ def _r2_gate(state):
             print(f'R2_GATE M={m} FAIL', flush=True)
             continue
         graphs = {}
-        for lab, fn in (('parent', _r2_parent), ('fused', _r2_pool_route)):
+        pool = lambda b, r, s: _achita_dense_project(b, 'pooler', s)
+        for lab, fn, dbg in (('parent', _r2_parent, 0), ('fused', _r2_pool_route, 0), ('pool_only', pool, 0),
+                             ('f_notopk', _r2_pool_route, 1), ('f_nomath', _r2_pool_route, 2), ('f_neither', _r2_pool_route, 3)):
+            state['r2dbg'] = dbg  # timing-only diagnostics: captured into their own graphs, never used by kernel_fn
             fn(xb, xr, state)
             torch.cuda.synchronize()
             gr = torch.cuda.CUDAGraph()
             with torch.cuda.graph(gr):
                 fn(xb, xr, state)
             graphs[lab] = gr
+        state['r2dbg'] = 0
         ts = {lab: [] for lab in graphs}
         evs = []
         for _ in range(25):
@@ -278,6 +284,7 @@ def _r2_gate(state):
         if use:
             state['r2sel'] = state.get('r2sel', ()) + (m,)
         print(f"R2_GATE M={m} PASS parent={med['parent']:.2f}us fused={med['fused']:.2f}us use={use}", flush=True)
+        print(f'R2_DIAG M={m} ' + ' '.join(f'{k}={v:.2f}us' for k, v in med.items()), flush=True)
         del graphs
 
 
@@ -337,7 +344,7 @@ def main():
     out = out.rstrip('\n') + '\n' + app
     ast.parse(out)
     b = out.encode('utf-8')
-    (HERE / 'decoder_r2b.py').write_bytes(b)
+    (HERE / 'decoder_r2d.py').write_bytes(b)
     # emit the derived CUDA for offline NVRTC checks
     ns = {}
     t = ast.parse(out)
@@ -353,7 +360,7 @@ def main():
                          ('smallm2', 'tt_v10_sm2_SMALLM2_CUDA_TEMPLATE', (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 6))):
         s = ns['_r2_source'](src_mod[key], p, inst)
         assert s is not None, p
-        (HERE / f'r2b_{p}.cu').write_text(s, encoding='utf-8', newline='')
+        (HERE / f'r2d_{p}.cu').write_text(s, encoding='utf-8', newline='')
     print(json.dumps({'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'headroom': 1_000_000 - len(b)}))
 
 
