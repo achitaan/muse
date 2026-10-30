@@ -505,3 +505,54 @@ public rerun if it selects no new path. Decision details: `pdli-score-decision.j
 Scored upload acknowledged job **`452fbd9df6af4ff4`**, source `c15df9d3`, once,
 no TLS retry. The full source is byte-identical to the successful production check.
 Result, actual selected paths and board placement are pending.
+
+### Scored result: new board best, 2026-10-30 07:31 UTC
+
+**`452fbd9df6af4ff4` passed 13/13, 12/12, integrity, zero flags.** Same source
+`c15df9d3` / same API content hash as the production check. Prepare **260.968 s**.
+Scored **2.075466170x**, CI [2.044334177, 2.106598163]. The board now reports
+**2.0755x, Decode rank 210/1015 and overall rank 210/1663**; the immediately prior
+snapshot was 2.0510x / rank 228. This is one scored confirmation, with no rerun.
+
+Scored prepare selected **M1 sliding mask 14 = O + R2f + sliced unpooler**. R2f
+passed >3% in both orders on this GPU (29.632->28.608 us, 29.792->28.320 us).
+Whole-layer pairing passed byte equality and saved **3.008 / 3.040 us**
+(new/old .962505 / .962331). The official 1-token sliding time was **75.819 us**.
+Profiles confirm `pdli_o1`, `pdli_r1`, `pdli_u1` only in that case. The production
+check had selected mask 10; selection differences are a consequence of the recorded
+prepare-time gates, not a source change. Full-context and all M8 variants fell back.
+QA and M8 MoE comparisons with byte differences remained rejected; the M8 full
+union passed byte checks in this run but did not meet the performance margin.
+
+The published point is **1.19% above** the previous board point. That entire
+aggregate difference is not attributed to one changed case: intervals overlap and
+unchanged loads vary. The supported evidence is the repeated paired one-token layer
+win, explicit selected-path markers and the official targeted-case latency. Both
+checks and the scored run use the original numerical contracts and fallback paths.
+
+This task used **two checks and one scored run**. Fresh Decode quota: **1 check,
+7 scored runs left**. No GPU job is pending; preserve the final check. The broad
+top-50 goal is not achieved. M16/32 was not opened by transferring failed T8 paths.
+Current retrieval summary: `PDLI_STATE.json`. Main publication of byte-identical
+scored source and its Decode row is in progress in an isolated checkout.
+
+### Publication complete
+
+The exact scored source is published on `main` at commit
+`2e504820c55c627019661d81a86f74ff2b2266bd`, artifact
+`board_best/decoder_pdli_scored_2.0755.py` (940,518 bytes; full SHA256
+`c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5`).
+The working file, staged blob and committed published blob were byte-checked.
+A normal fast-forward push advanced `main` from `b8e92d6`; `ls-remote` confirmed
+the exact publication commit. Its Decode board row records job `452fbd9df6af4ff4`,
+2.0755x and the timestamped API ranks. Other track rows and all `best/` files
+are unchanged. The main table now identifies its separate row snapshot dates.
+A scoped `-text` attribute preserves the new artifact's exact submission bytes.
+
+The implementation is committed as `c47fbf4` on
+`argon/decode-moe-20261030`; the final evidence is committed separately on the
+same branch. This packet completed the timing ceiling and bounded T1/T8
+integration. Only one-token sliding passed its public-run gates. M16/32 was
+not implemented or GPU-tested; there is no claim that the complete extension
+backlog or top-50 objective is finished. No further GPU jobs were launched.
+The final recorded quota remains **1 check / 7 scored runs**.

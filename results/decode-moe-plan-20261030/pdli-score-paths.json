@@ -1,0 +1,19 @@
+{
+  "job_id": "452fbd9df6af4ff4",
+  "changed_profiles": [
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "decode 1",
+        "page": 1,
+        "repeats": 60,
+        "seed": 5835304072905315662,
+        "weight": 46
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           29.6 \u00b5s  35.4%      1\nvoid pdli_r1::v18s_gemv<1, 1, 1, 1, 0, 0, 1024, 0, 4096, ...      19.2 \u00b5s  22.9%      1\nvoid v18d_native_gemv<1, 1, 1, 2, 2, 0, 256, 0, 2304, 819...       9.5 \u00b5s  11.4%      1\nvoid pdli_o1::smallm2_gemv<1, 1, 1, 2, 0, 0, 1024, 0, 819...       5.6 \u00b5s   6.7%      1\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, false, 1...       5.1 \u00b5s   6.0%      1\nvoid sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.8 \u00b5s   5.7%      1\nvoid pdli_u1::smtrace_gemv<1, 1, 1, 2, 2, 0, 256, 1, 1024...       4.3 \u00b5s   5.1%      1\n_sfn_kernel                                                        3.7 \u00b5s   4.5%      1\n_pn_inputs_kernel                                                  1.9 \u00b5s   2.3%      1\ntotal                                                             83.7 \u00b5s"
+    }
+  ]
+}

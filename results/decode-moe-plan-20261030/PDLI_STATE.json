@@ -1,0 +1,59 @@
+{
+  "updated_at": "2026-10-30T07:37:28.227035+00:00",
+  "branch": "argon/decode-moe-20261030",
+  "implementation_commit": "c47fbf4",
+  "baseline_source": "experiments/decode_moe/decoder_r2f.py",
+  "source": "experiments/decode_moe/decoder_pdli.py",
+  "source_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "source_bytes": 940518,
+  "diagnostic_check": "d5f8835a8a85480f",
+  "production_check": "59cfbd2b12fa43f2",
+  "scored_job": "452fbd9df6af4ff4",
+  "scored_speedup": 2.0754661699757184,
+  "scored_speedup_ci": [
+    2.044334177426083,
+    2.106598162525354
+  ],
+  "scored_tests": "13/13",
+  "scored_benchmarks": "12/12",
+  "scored_prepare_s": 260.968036886,
+  "scored_selection": {
+    "M1_sliding": {
+      "mask": 14,
+      "paths": [
+        "O",
+        "R2f",
+        "sliced_unpooler"
+      ]
+    },
+    "M1_full": 0,
+    "M8_sliding": 0,
+    "M8_full": 0
+  },
+  "decode_rank": 210,
+  "decode_ranked": 1015,
+  "overall_rank": 210,
+  "overall_ranked": 1663,
+  "rank_before": 228,
+  "quotas": {
+    "scored": {
+      "per_day": 10,
+      "used": 3,
+      "left": 7
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 19,
+      "left": 1
+    }
+  },
+  "new_GPU_job_pending": false,
+  "main_publication": "published and remote verified",
+  "scope": "Step 1 and bounded T1/T8 Step 2 complete. No transfer of failed paths to M16/32. Preserve the remaining check.",
+  "confidence": "A measured one-token sliding improvement; aggregate scores include run variance and overlapping intervals.",
+  "main_commit": "2e504820c55c627019661d81a86f74ff2b2266bd",
+  "main_artifact": "board_best/decoder_pdli_scored_2.0755.py",
+  "published_source_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "main_push": "fast-forward from b8e92d6",
+  "extension_16_32": "not implemented or GPU-tested in this packet; remaining check preserved"
+}
