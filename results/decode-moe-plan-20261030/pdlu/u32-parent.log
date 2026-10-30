@@ -1,0 +1,6 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 88 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms

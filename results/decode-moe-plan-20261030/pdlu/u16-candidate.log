@@ -1,0 +1,16 @@
+preflight.cu(253): warning #609-D: this kind of pragma may not be used here
+  #pragma unroll
+          ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 109 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z11pdlu16_waitj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

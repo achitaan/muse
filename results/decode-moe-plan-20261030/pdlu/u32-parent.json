@@ -1,0 +1,21 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'\nptxas info    : Function properties for _Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 88 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+  "cubin_bytes": 53704,
+  "cubin_sha256": "582e11ebf1a8f619f0c150b979c041a2fa5cae2a73a88c9ef7ca60b1ed15c7ea",
+  "seconds": 0.218,
+  "source_sha256": "a659de61d97e1ece864c01abe46487e7844155083ff04ea905e14b19c940c02e",
+  "proxy_sha256": "ca44f2e1504a6674b29c6eb4beef93953362c2d021904dffff67a07056aff956",
+  "CPU_only": true,
+  "kernels": [
+    {
+      "symbol": "_Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+      "registers": 88,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ]
+}

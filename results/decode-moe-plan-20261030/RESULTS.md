@@ -651,3 +651,38 @@ only about 2.0875x at fixed reference times. The broader handoff package or a
 stronger component improvement remains unfinished. Review, raw source/SASS,
 resource/transaction/index proofs, draft binding and opportunity calculations
 are in `pdl16/`. Zero new GPU checks or scores were used in this turn.
+
+
+### Step 3 O/FPR/unpooler bundle: CPU implementation complete, GPU proof pending
+
+Draft `decoder_pdl_chain_draft.py` is SHA256
+`985abda3f1a91e6daca07a38e9f91a397b4942ef892285704ddbd1792bff9a40`,
+984,569 bytes (15,431 headroom), with the complete scored `c15df9d3` prefix
+byte-identical. It adds gated O16/O32, fixed-depth existing FPR PDL, and exact
+U16/U32 twins. The active later CPSSM/WK2 overrides are bound, rather than
+older default configurations. Original fallbacks and small-token FP32 router
+remain parent. No failed MoE algorithm is included.
+
+Four private kernels compile together at 72/42/109/88 registers with no stack
+or spills. Unpooler inverse derivations preserve arithmetic and cluster
+reduction; floating-point instruction counts match. Their independent weight
+requests precede waits and activation requests follow. Ring, K-coverage,
+reduction-size and one-writer models pass. The existing FPR source compiles
+at 85/126 registers without spills; producer and all-thread waits surround
+its dependent activation path. Its host PDL setting resets even on exceptions.
+The pinned stock norm has a PDL trigger near its stores; copies/hashes are
+preserved, without claiming a freshly verified deployed version.
+
+New paths require unit bytes and one complete-layer union passing bytes plus
+>3% in both cold-L2 interleaved orders. Budget checks guard unit starts at
+274 s and later diagnostics at 278 s. The final draft has not run on H200:
+host CUDA build, launch validity, graph visibility, numerical bytes, residency,
+preparation <300 s and speed all remain unverified. Static resource screens
+are not measurements. Full-context 3% gates still need about 6.4/9.4 us.
+
+Zero new GPU checks or scores were used. The final Decode check is preserved;
+GPU admission is false until the remaining opportunity/validation gap is
+resolved. No publication, score change or fresh rank is claimed. Current
+working/scored source remains `c15df9d3`, 2.075466170x. Full source bindings,
+reproduction scripts, compiler/SASS records and acceptance criteria are in
+`pdl-chain/` and `pdlu/`; the earlier O-only draft remains preserved.

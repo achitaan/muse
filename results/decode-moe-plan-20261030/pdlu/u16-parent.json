@@ -1,0 +1,21 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 109 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 319416,
+  "cubin_sha256": "f1ca9349a07896d6fb753eda8a3bbb8cab1f6610e1ab8dc6680178833d7521a8",
+  "seconds": 3.64,
+  "source_sha256": "5b6334e6f840e0e354c2a8ec75db106528b111f906fcd083d24ed7c498693099",
+  "proxy_sha256": "c6b7574733805dfa8213c0f33562c5acc44301ee8b866e604cdaef6e73618b48",
+  "CPU_only": true,
+  "kernels": [
+    {
+      "symbol": "_Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 109,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ]
+}

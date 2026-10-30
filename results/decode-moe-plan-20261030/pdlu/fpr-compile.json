@@ -1,0 +1,49 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii' for 'sm_90a'\nptxas info    : Function properties for _Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 126 registers, used 2 barriers, 1024 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii' for 'sm_90a'\nptxas info    : Function properties for _Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 85 registers, used 2 barriers, 1024 bytes smem\nptxas info    : Compile time = 0.000 ms\n",
+  "cubin_bytes": 220768,
+  "cubin_sha256": "9f704bf65349ac6af323fdb2e860eadec6fca6a46a1a9317b903cb7650d9d6ed",
+  "seconds": 0.75,
+  "kernels": [
+    {
+      "symbol": "_Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii",
+      "registers": 126,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 1024,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii",
+      "registers": 85,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 1024,
+      "warnings": []
+    }
+  ],
+  "source_sha256": "f68f77c0d29cc56b3657b7b4afafa864d186ee554996edaa1d3161159d246a54",
+  "device_proxy_sha256": "023c83a587cbb7f5d9a65ca45d0635aa37e41852e34d78dda833ecca4d018702",
+  "instruction_order": {
+    "_Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii": {
+      "first_weight": 2496,
+      "producer_wait": 3872,
+      "first_activation": 4224,
+      "all_thread_wait": 6656
+    },
+    "_Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii": {
+      "first_weight": 2480,
+      "producer_wait": 3856,
+      "first_activation": 4224,
+      "all_thread_wait": 6800
+    }
+  },
+  "fixed_depths": [
+    5,
+    3
+  ],
+  "GPU_jobs": 0,
+  "limitation": "Instruction positions plus source control-flow review; not a dynamic branch trace or GPU proof."
+}

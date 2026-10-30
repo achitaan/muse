@@ -1,0 +1,43 @@
+preflight.cu(636): warning #177-D: variable "TH" was declared but never referenced
+    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);
+                                                       ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+preflight.cu(973): warning #609-D: this kind of pragma may not be used here
+  #pragma unroll
+          ^
+
+ptxas info    : 6168 bytes gmem
+ptxas info    : Compiling entry function '_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 88 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z11pdlu32_waitj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 109 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z11pdlu16_waitj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i' for 'sm_90a'
+ptxas info    : Function properties for _Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 42 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z11pdlo32_waitv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z11pdlo16_waitj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

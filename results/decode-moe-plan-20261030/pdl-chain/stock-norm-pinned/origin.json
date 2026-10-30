@@ -1,0 +1,18 @@
+{
+  "origin": "Historical repository record decoder-cooperative-boundary-screen-20261029; read-only copy",
+  "current_evaluator_identity_verified": false,
+  "files": {
+    "norm_residual.py": {
+      "sha256": "7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a",
+      "bytes": 7865
+    },
+    "norm_residual.cuh": {
+      "sha256": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+      "bytes": 27749
+    },
+    "fused_norm_residual.py": {
+      "sha256": "61be2075b233c687f7b111bae06d4f9494c3032a8b0c2289c9ae10fc8c757493",
+      "bytes": 18762
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "parent_decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "GPU_jobs": 0,
+  "sources": {
+    "u16": {
+      "exact_inverse": true,
+      "edits": [
+        {
+          "old": "ld.global.nc.v4.u32",
+          "new": "ld.global.cg.v4.u32",
+          "count": 1
+        },
+        {
+          "old": "// Never taken, but ptxas cannot prove it:",
+          "new": "__device__ __noinline__ void pdlu16_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:",
+          "count": 1
+        },
+        {
+          "old": "    uint32_t U0, uint32_t U1) {\n  const int m = CM ? CM : m_arg;",
+          "new": "    uint32_t U0, uint32_t U1) {\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n  const int m = CM ? CM : m_arg;",
+          "count": 1
+        },
+        {
+          "old": "    for (int q=0; q<CP; ++q) stage_weights(q,q);",
+          "new": "    static_assert(FMT==1 && MT==2 && RT==1 && ST==2 && RED==0 && DIAG==0 && CP==2, \"fixed CP2 U16 preamble\");\n    for (int q=0; q<CP; ++q) stage_weights(q,q);\n    pdlu16_wait(my_e);",
+          "count": 1
+        },
+        {
+          "old": "cudaLaunchAttribute at[2];",
+          "new": "cudaLaunchAttribute at[3];",
+          "count": 1
+        },
+        {
+          "old": "  if (query == 1) {",
+          "new": "  if (query == 0) {\n    const int dep_attr=lc.numAttrs;\n    at[dep_attr].id=cudaLaunchAttributeProgrammaticStreamSerialization;\n    at[dep_attr].val.programmaticStreamSerializationAllowed=1;\n    lc.attrs=at;lc.numAttrs=dep_attr+1;\n  }\n  if (query == 1) {",
+          "count": 1
+        },
+        {
+          "old": "dd_cap2_b_cpssm_gemv",
+          "new": "pdlu16_gemv",
+          "count": 2
+        },
+        {
+          "old": "  cudaLaunchKernelEx(&lc, kern,",
+          "new": "  const cudaError_t pdlu_rc=cudaLaunchKernelEx(&lc, kern,",
+          "count": 1
+        },
+        {
+          "old": "  return cudaGetLastError() == cudaSuccess ? 0 : -8;",
+          "new": "  if(pdlu_rc!=cudaSuccess)return -static_cast<int>(pdlu_rc);\n  return cudaGetLastError() == cudaSuccess ? 0 : -8;",
+          "count": 1
+        }
+      ],
+      "parent_sha256": "5b6334e6f840e0e354c2a8ec75db106528b111f906fcd083d24ed7c498693099",
+      "candidate_sha256": "99aa71866402793669a6177404fe4f44f84af64cdad8c72a64a87be3276364d1"
+    },
+    "u32": {
+      "exact_inverse": true,
+      "edits": [
+        {
+          "old": "template<int BN,int R,int WK,int PF,int Q,bool C12,int CAP>\n__global__",
+          "new": "__device__ __noinline__ void pdlu32_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\ntemplate<int BN,int R,int WK,int PF,int Q,bool C12,int CAP>\n__global__",
+          "count": 1
+        },
+        {
+          "old": "    const uint32_t* __restrict__ esc,__nv_bfloat16* out,int m,int n,int k,int split,uint32_t t0,uint32_t t1) {\n",
+          "new": "    const uint32_t* __restrict__ esc,__nv_bfloat16* out,int m,int n,int k,int split,uint32_t t0,uint32_t t1) {\n  static_assert(BN==32 && R==64 && WK==2 && PF==2 && Q==2 && C12 && CAP==2, \"fixed U32 cluster twin\");\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n",
+          "count": 1
+        },
+        {
+          "old": "  #pragma unroll\n  for(int s=0;s<Q;s++)loadx(s);",
+          "new": "  // PDL: initial activation TMA follows the independent weight preamble.",
+          "count": 1
+        },
+        {
+          "old": "  for(int p=0;p<PF;p++)load(p,p);",
+          "new": "  for(int p=0;p<PF;p++)load(p,p);\n  pdlu32_wait(e0 ^ e1 ^ raw[0][0].x ^ raw[0][0].y ^ raw[0][0].z ^ raw[0][0].w ^ raw[0][1].x ^ raw[0][1].y ^ raw[0][1].z ^ raw[0][1].w ^ raw[0][2].x ^ raw[0][2].y ^ raw[0][2].z ^ raw[0][2].w ^ raw[1][0].x ^ raw[1][0].y ^ raw[1][0].z ^ raw[1][0].w ^ raw[1][1].x ^ raw[1][1].y ^ raw[1][1].z ^ raw[1][1].w ^ raw[1][2].x ^ raw[1][2].y ^ raw[1][2].z ^ raw[1][2].w);\n  #pragma unroll\n  for(int s=0;s<Q;s++)loadx(s);",
+          "count": 1
+        },
+        {
+          "old": "  cudaLaunchAttribute attr={};attr.id=cudaLaunchAttributeClusterDimension;attr.val.clusterDim={unsigned(split),1,1};\n  if(split>1){cfg.attrs=&attr;cfg.numAttrs=1;}",
+          "new": "  cudaLaunchAttribute attr[2]={};\n  int na=0;\n  if(split>1){attr[na].id=cudaLaunchAttributeClusterDimension;attr[na].val.clusterDim={unsigned(split),1,1};++na;}\n  attr[na].id=cudaLaunchAttributeProgrammaticStreamSerialization;\n  attr[na].val.programmaticStreamSerializationAllowed=1;++na;\n  cfg.attrs=attr;cfg.numAttrs=na;",
+          "count": 1
+        },
+        {
+          "old": "int info(int id){",
+          "new": "int pdlu32_occupancy(){\n  auto kern=m32w_gemm<32,64,2,2,2,true,2>;\n  cudaError_t rc=cudaFuncSetAttribute(kern,cudaFuncAttributeMaxDynamicSharedMemorySize,18432);\n  if(rc!=cudaSuccess)return -static_cast<int>(rc);\n  rc=cudaFuncSetAttribute(kern,cudaFuncAttributeNonPortableClusterSizeAllowed,1);\n  if(rc!=cudaSuccess)return -static_cast<int>(rc);\n  cudaLaunchConfig_t cfg={};cfg.gridDim=dim3(256,1,1);cfg.blockDim=dim3(256,1,1);cfg.dynamicSmemBytes=18432;\n  cudaLaunchAttribute attr={};attr.id=cudaLaunchAttributeClusterDimension;attr.val.clusterDim={2,1,1};\n  cfg.attrs=&attr;cfg.numAttrs=1;\n  int clusters=0;rc=cudaOccupancyMaxActiveClusters(&clusters,kern,&cfg);\n  return rc==cudaSuccess?clusters:-static_cast<int>(rc);\n}\nint info(int id){",
+          "count": 1
+        },
+        {
+          "old": "m32w_gemm",
+          "new": "pdlu32_gemm",
+          "count": 4
+        }
+      ],
+      "parent_sha256": "a659de61d97e1ece864c01abe46487e7844155083ff04ea905e14b19c940c02e",
+      "candidate_sha256": "4dea6ac736ea57a9c36f5e9757cc1505ed0eb7e3fe9dbb7bb5b1d315004cf63a"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii' for 'sm_90a'
+ptxas info    : Function properties for _Z10sk2_kernelILi2ELi32ELi4ELi1ELi8ELi1ELi3ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii' for 'sm_90a'
+ptxas info    : Function properties for _Z10sk2_kernelILi1ELi16ELi4ELi1ELi8ELi1ELi5ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb1EEv11CUtensorMapPKhPKS0_PT10_PK4int2ijiiiiPyS3_PfSC_Pii
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 85 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 0.000 ms

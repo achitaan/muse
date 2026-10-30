@@ -1,0 +1,81 @@
+{
+  "GPU_jobs": 0,
+  "buffers": {
+    "U16_rawring_bytes": 24576,
+    "U16_reduction_bytes": 8192,
+    "U16_dynamic_bytes": 32768,
+    "rawring_one_writer_per_byte": true,
+    "U32_K_units": 64,
+    "U32_rank_wg_boundaries": [
+      0,
+      16,
+      32,
+      48,
+      64
+    ],
+    "U32_dynamic_bytes": 18432,
+    "U32_epilogue_bytes": 17408,
+    "U32_output_items": 512,
+    "U32_one_writer_per_output_item": true,
+    "scope": "Integer ownership/size models; no async memory or numerical GPU execution."
+  },
+  "host_flags": {
+    "depths": [
+      5,
+      3
+    ],
+    "reset_after_normal_and_error": true,
+    "small_M_parent": true,
+    "GPU_graph_correctness_proven": false
+  },
+  "math_instruction_counts": {
+    "u16": {
+      "HMMA.16816.F32.BF16": 16,
+      "FADD": 12
+    },
+    "u32": {
+      "HGMMA.64x32x16.F32.BF16": 8,
+      "FADD": 28,
+      "F2FP.BF16.F32.PACK_AB": 2
+    }
+  },
+  "shader_resources": [
+    {
+      "symbol": "_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+      "registers": 88,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 109,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i",
+      "registers": 42,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 72,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "limitations": "CPU/device-proxy proof only; host CUDA build and H200 execution remain unverified."
+}

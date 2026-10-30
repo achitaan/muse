@@ -1,0 +1,47 @@
+{
+  "rc": 0,
+  "log": "preflight.cu(636): warning #177-D: variable \"TH\" was declared but never referenced\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\n                                                       ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\npreflight.cu(973): warning #609-D: this kind of pragma may not be used here\n  #pragma unroll\n          ^\n\nptxas info    : 6168 bytes gmem\nptxas info    : Compiling entry function '_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 88 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlu32_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 109 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlu16_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i' for 'sm_90a'\nptxas info    : Function properties for _Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 42 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlo32_waitv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 72 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlo16_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _Z27m16trace_59fcb5b72994_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 435912,
+  "cubin_sha256": "23fa96d25c31e8905ff563da053f48c4ec2dd85c183f1de332fcdb71b74481f2",
+  "seconds": 2.422,
+  "kernels": [
+    {
+      "symbol": "_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+      "registers": 88,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 109,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z17pdlo32_projectionILi32ELi128ELi8ELi1ELi1ELi1ELi1EEv11CUtensorMapS0_PKhP13__nv_bfloat16i",
+      "registers": 42,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_Z11pdlo16_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi256ELi0ELi8192ELi1024ELi2ELi4ELi4ELi1ELi7ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 72,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "device_proxy_sha256": "1bab6c0fc8198d229dcccd93353a30e54845b4f40fb4b286b85a5170441a40fa",
+  "combined_CUDA_sha256": "09b371d0ffce2e93655e5ebdc188a5276e62c2217d62b63a3b8f139be49be220"
+}

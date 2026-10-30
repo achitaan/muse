@@ -1,0 +1,168 @@
+{
+  "u16-parent": {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 109 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 319416,
+    "cubin_sha256": "f1ca9349a07896d6fb753eda8a3bbb8cab1f6610e1ab8dc6680178833d7521a8",
+    "seconds": 3.64,
+    "source_sha256": "5b6334e6f840e0e354c2a8ec75db106528b111f906fcd083d24ed7c498693099",
+    "proxy_sha256": "c6b7574733805dfa8213c0f33562c5acc44301ee8b866e604cdaef6e73618b48",
+    "CPU_only": true,
+    "kernels": [
+      {
+        "symbol": "_Z20dd_cap2_b_cpssm_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+        "registers": 109,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ]
+  },
+  "u16-candidate": {
+    "rc": 0,
+    "log": "preflight.cu(253): warning #609-D: this kind of pragma may not be used here\n  #pragma unroll\n          ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\nptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 109 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlu16_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _Z21dd_cap2_b_cpssm_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 319800,
+    "cubin_sha256": "b486bc0c9bc6797c46e0ac8e3a326507a237568f3523280c5be849ff9ba54a57",
+    "seconds": 1.422,
+    "source_sha256": "99aa71866402793669a6177404fe4f44f84af64cdad8c72a64a87be3276364d1",
+    "proxy_sha256": "9cf06d523cca698207d164e2abce807a30a60534d461b601a6f1b1da96296c0b",
+    "CPU_only": true,
+    "kernels": [
+      {
+        "symbol": "_Z11pdlu16_gemvILi1ELi2ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi4096ELi2ELi4ELi16ELi1ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+        "registers": 109,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "ordering": {
+      "wait_call": 880,
+      "helper_target": 9408,
+      "independent": [
+        [
+          480,
+          "LDG.E.CONSTANT R13, desc[UR6][R2.64]"
+        ],
+        [
+          592,
+          "LDGSTS.E.BYPASS.128 [R10], desc[UR6][R92.64]"
+        ],
+        [
+          624,
+          "LDGSTS.E.BYPASS.128 [R9], desc[UR6][R92.64+0x200]"
+        ],
+        [
+          656,
+          "LDGSTS.E.BYPASS.128 [R8], desc[UR6][R92.64+0x400]"
+        ],
+        [
+          688,
+          "LDGSTS.E.BYPASS.128 [R7], desc[UR6][R16.64]"
+        ],
+        [
+          704,
+          "LDGSTS.E.BYPASS.128 [R6], desc[UR6][R16.64+0x200]"
+        ],
+        [
+          736,
+          "LDGSTS.E.BYPASS.128 [R5], desc[UR6][R16.64+0x400]"
+        ]
+      ],
+      "first_dependent": [
+        1296,
+        "LDG.E.128.STRONG.GPU R84, desc[UR6][R2.64]"
+      ],
+      "CPU_order_only": true
+    }
+  },
+  "u32-parent": {
+    "rc": 0,
+    "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'\nptxas info    : Function properties for _Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 88 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+    "cubin_bytes": 53704,
+    "cubin_sha256": "582e11ebf1a8f619f0c150b979c041a2fa5cae2a73a88c9ef7ca60b1ed15c7ea",
+    "seconds": 0.218,
+    "source_sha256": "a659de61d97e1ece864c01abe46487e7844155083ff04ea905e14b19c940c02e",
+    "proxy_sha256": "ca44f2e1504a6674b29c6eb4beef93953362c2d021904dffff67a07056aff956",
+    "CPU_only": true,
+    "kernels": [
+      {
+        "symbol": "_Z9m32w_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+        "registers": 88,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ]
+  },
+  "u32-candidate": {
+    "rc": 0,
+    "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'\nptxas info    : Function properties for _Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 88 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z11pdlu32_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 55752,
+    "cubin_sha256": "77aeb2f8499d8746958a027ca940579de34e726ff7bcc5db5f9cf187c80fd1b9",
+    "seconds": 0.219,
+    "source_sha256": "4dea6ac736ea57a9c36f5e9757cc1505ed0eb7e3fe9dbb7bb5b1d315004cf63a",
+    "proxy_sha256": "86a862c43a1efe20e7ef16db1962f19b65af6e7074c8b06c2e398450d1264933",
+    "CPU_only": true,
+    "kernels": [
+      {
+        "symbol": "_Z11pdlu32_gemmILi32ELi64ELi2ELi2ELi2ELb1ELi2EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj",
+        "registers": 88,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "ordering": {
+      "wait_call": 2848,
+      "helper_target": 13904,
+      "independent": [
+        [
+          2400,
+          "LDG.E.CONSTANT R66, desc[UR12][R4.64]"
+        ],
+        [
+          2448,
+          "LDG.E.CONSTANT R65, desc[UR12][R12.64]"
+        ],
+        [
+          2704,
+          "@P2 LDG.E.NA.128.CONSTANT R16, desc[UR4][R24.64+0x200]"
+        ],
+        [
+          2720,
+          "@P2 LDG.E.NA.128.CONSTANT R20, desc[UR4][R24.64+0x400]"
+        ],
+        [
+          2736,
+          "@P2 LDG.E.NA.128.CONSTANT R12, desc[UR4][R24.64]"
+        ],
+        [
+          2752,
+          "@P0 LDG.E.NA.128.CONSTANT R4, desc[UR4][R26.64]"
+        ],
+        [
+          2768,
+          "@P0 LDG.E.NA.128.CONSTANT R8, desc[UR4][R26.64+0x200]"
+        ],
+        [
+          2784,
+          "@P0 LDG.E.NA.128.CONSTANT R56, desc[UR4][R26.64+0x400]"
+        ]
+      ],
+      "first_dependent": [
+        3408,
+        "UTMALDG.2D [UR16], [UR8], desc[UR6]"
+      ],
+      "CPU_order_only": true
+    }
+  }
+}

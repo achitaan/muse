@@ -1,0 +1,23 @@
+{
+  "status": "CPU-prepared, unvalidated; no GPU admission yet",
+  "parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "candidate_sha256": "985abda3f1a91e6daca07a38e9f91a397b4942ef892285704ddbd1792bff9a40",
+  "bytes": 984569,
+  "headroom": 15431,
+  "full_parent_prefix_identical": true,
+  "layer_inverse_exact": true,
+  "combined_CUDA_sha256": "09b371d0ffce2e93655e5ebdc188a5276e62c2217d62b63a3b8f139be49be220",
+  "CPP_sha256": "25a2511517ea65ecbc3bbd14097ebfa34477ecd92681491ea0773b4023b361ef",
+  "runtime_sha256": "79f65f8de7b00dd2d08c2faa1435918d2a8dd9c515e42d8ab2e205fe51b742d2",
+  "layer_sha256": "f105e50b24f88b427d67d4bcbb2fd4ddd23476a8af8dac52b493b6db70727309",
+  "source_parts": {
+    "o16": "6380b952d620271cfa8433e1010b2702e88da5aa781f792be55384fe8a55d414",
+    "o32": "b45d6e23af85adc9cb16e41e5c02f445714188dd28d0fa5c8a14855e96526f7f",
+    "u16": "99aa71866402793669a6177404fe4f44f84af64cdad8c72a64a87be3276364d1",
+    "u32": "4dea6ac736ea57a9c36f5e9757cc1505ed0eb7e3fe9dbb7bb5b1d315004cf63a"
+  },
+  "FPR": "Existing compiled kernel, fixed full-ring depths 5/3; reset host launch flag to zero after each launch.",
+  "gates": "Unit bytes on changing inputs, then one eligible union per regime; whole-layer bytes and >3% both orders.",
+  "GPU_jobs": 0,
+  "preparation_time_unverified": true
+}
