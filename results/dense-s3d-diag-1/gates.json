@@ -1,0 +1,17 @@
+{
+  "candidate": "candidates/dense_s3d_diag.py",
+  "source_sha256": "9ef789147aba7d4777d76c0d2b524f99b0fd9c9a5fc1752653196b5aa27d36d4",
+  "kind": "DIAGNOSTIC: no routing change",
+  "hypothesis": "H32: per-warp x reloads limit M=32 GEMV kernels",
+  "proxies": {
+    "qkv_gate": "(1,4,8,4) RED2",
+    "pooler": "(1,8,16,1) RED0"
+  },
+  "variants": {
+    "diag0": "full, verified by v18s_plan",
+    "diag2": "no x loads, same packed stream"
+  },
+  "offline_compile": "results/s3d-offline/summary.txt: 56-101 regs, 0 spill",
+  "timing": "ABBA paired cold-L2 graph, 16 pairs, raw samples",
+  "interpretation": "proxy valid if diag0 ~ incumbent; H32 confirmed if diag2 approaches weight-only model (pooler ~13.5 us, qkv ~8.3 us)"
+}
