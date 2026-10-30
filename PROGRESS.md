@@ -24,4 +24,17 @@ Anti-loop rule: nothing in `DENSE_LEDGER.md` section 1/1b is retried.
 
 | Pass | Hypothesis | Change | Validation | Benchmark | Verdict |
 |---|---|---|---|---|---|
-| 1 | H1 qkv M1/M8/M16 wave balance | `experiments/dense_p1.py`: 7 v18d geometries, per-shape gated selector (commit `677e0c2`) | NVRTC 14 instances, 0 spill | user allowed reserved checks; check `e26e498c24e8487b` passed (1.4901x, runtime unchanged = noise) | **reverted (all KEEP): every layout slower, 3–65%. H1 refuted** — the incumbent geometry is the local optimum |
+| 1 | H1 qkv M1/M8/M16 wave balance | `experiments/dense_p1.py`: 7 v18d geometries, per-shape gated selector (commit `677e0c2`) | NVRTC 14 instances, 0 spill | driver first refused (reserve); user allowed reserved checks; check `e26e498c24e8487b` passed (1.4901x, runtime unchanged = noise) | **reverted (all KEEP): every layout slower, 3–65%. H1 refuted**; the incumbent geometry is the local optimum |
+| 2 | H2 o M8 wider CTAs + router M8/M16 alternative splits | `experiments/dense_p2_o8.py` (commit `fbdf87d`) | NVRTC o 50 regs, 0 spill; router one-hot exact, relL2 2.5e-6 | check `dc821d6f1ad94fbf` passed 1.5177x (runtime unchanged) | **reverted (all KEEP)**: o M8 (4,8,2,1) 1.025 (14/16), router M16 S16/WK4 1.028 (16/16) — real but below the 3% gate, ≈ 0.1% score each; router M16 S8/WK8 3% slower |
+
+Loop stopped after pass 2 (22:22 UTC, ~18 of 60 min, 2 of 6 passes, 2 of the 4 freed checks). Reason: no remaining hypothesis that fits the window can close a +2.75% gap. Both measured levers were local layout neighbourhoods, and they're exhausted (P1 slower everywhere, P2 under +0.2% total).
+
+## Self-review
+
+- **Baseline vs final:** baseline is the board best of 1.5278x (latest incumbent-runtime check 1.5156x). Final is unchanged: no change was kept, and `best/verified.py` is untouched. Both pass checks reran the incumbent runtime (1.4901x, 1.5177x), consistent with ±1.5% judge noise.
+- **Gap to cutoff:** top-50 is 1.5698x and we're at 1.5278x, so **+2.75% still needed** (rank 229).
+- **Kept:** nothing. The ledger records every result (34 "SLOWED DOWN" mentions), and the new driver copy `scripts/measure_dense_lane.py` allows an explicit reserve override (`LANE_CHECK_RESERVE`).
+- **Failed:** H1 (qkv wave balance) was refuted, 3–65% slower. H2 gave only sub-gate gains.
+- **Measurement validity:** every candidate was timed against the live incumbent in the same process (ABBA, cold L2, CUDA graphs, raw samples logged), and the official checker passed on every run. No benchmark, input or validation code was touched.
+- **Unverified:** whether the two P2 near-misses (≈ 0.2% combined) survive a frozen-route check. That gain is far below the judge's CI and not worth adopting under the ledger's 3% rule without a confirming run.
+- **Next best idea:** the qkv M1/M8 kernel still runs at ~3.0 TB/s vs the pooler's 3.7 TB/s, and P1 shows it isn't layout. Next is a diagnostic of the v18d qkv kernel itself (oracle #4: c12 reconstruction cost, via a dummy-decode ablation at M1, one check). Only a confirmed decode-bound result would justify a cheaper-decode kernel (~1% upside). The +2.75% gap realistically needs a new M128/M256 kernel family (multi-day).
