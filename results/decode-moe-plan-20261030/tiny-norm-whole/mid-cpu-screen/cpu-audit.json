@@ -1,0 +1,80 @@
+{
+  "candidate_CUDA_sha256": "dcfd3b845c748711aefc27ff07f7ab7cbf7a16aed739fd5dc12f0e2a33a631ce",
+  "MID_defines": [
+    "-DOKC_NW=8",
+    "-DOKC_TINY=1",
+    "-DOKC_SPLIT=1",
+    "-DOKC_CPF=0",
+    "-DOKC_EPI4=0",
+    "-DOKC_FAST1=2",
+    "-DOKC_NACC=4",
+    "-DOKC_UWARP=0",
+    "-DOKC_WS=1",
+    "-DOKC_WSB=1",
+    "-DOKC_WSBL=2",
+    "-DOKC_WSBLK=2",
+    "-DOKC_FINPF=1"
+  ],
+  "result": {
+    "parent_LUT": {
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 148,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "cddd5c16438ee082f592e8a1c2dd2e2a66efb4b33306305308fe4a2021f22132"
+    },
+    "norm_LUT": {
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 154,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "5b9ef5c0ba7c4a75443814c0133ea24e5edc604105bdd28bcfad2c1d6711b21e"
+    },
+    "parent_PRMT": {
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 150,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "353de642703d985a2b9231c8f9c75d256a979c6281db8afcd57ceea35183e565"
+    },
+    "norm_PRMT": {
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 152,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "0b442eafe91688fbe525809cf139f550572afb322f7ca3af6c6b16dc0533b24b"
+    }
+  },
+  "zero_stack_spills": true,
+  "decision": "CPU only;no M9..16 dispatch added. Wait for the tiny check,then independently review MID route/job ownership and performance before any extension.",
+  "GPU_calls": 0,
+  "admitted_for_GPU": false
+}

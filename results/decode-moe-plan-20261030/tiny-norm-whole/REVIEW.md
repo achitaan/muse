@@ -37,3 +37,15 @@ An independent FP64 RMSNorm/weighted-sum oracle passes480CPU fixtures across M1.
 Compiled constexpr data gives Smem36576bytes,aligned base36608,phase-A110592,phase-B178176,dynamic total214784. NVIDIA's unmodified CUDA13.0 occupancy header,run on the CPU,predicts one block/SM for143/146registers,with215808allocated shared bytes including the driver reserve. Deliberately excessive register/shared inputs yield zero residency. Model capacities follow the [NVIDIA Hopper Tuning Guide](https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html);this is not a new device query. Local MinGW requires an unsandboxed process because sandbox startup hit a DLL-relocation error;no global installation or environment mutation was made.
 
 Labeled self-review: precision and ownership requirements remain unchanged;all CPU/source checks pass;native host-API compilation,actual resources,replay correctness and speed still need the one focused check. Stop at any resource/numerical/strict3% gate failure. Empty choices or parent-only profiles are not a new gain. No Decode check or automatic scored publication follows.
+
+## H200 outcome: reject on performance
+
+Check `34a6e66a63f44a13`,exact payload690ef087,completed with5official tests,6benchmarks and integrity passing. Preparation took175.137779771seconds. Both private builds reported144registers,zero local/static shared bytes,214784dynamic bytes,288threads and one active block/SM. The resource guard passed before probing.
+
+All120private numerical fixtures pass:inter/SwiGLU and FP32 ybuf are byte-exact. Maximum observed norm-relative error is5.6382e-7,output-relative9.6771e-5,worst-row1.9446e-4,within the approved MoE-only bounds. This is evidence for those probes;the official cases subsequently use the fallback because no shape passes the performance gate.
+
+All32full-kernel paired comparisons are slower,by0.1912%to13.2374%. No M1..8 shape is selected. All6official profiles show parent`okc::moe_fused`;the2.340010792x point,CI[2.304910630,2.375110954],is parent-only evidence and is not a new speedup. Raw paired medians,resources,numerical maxima,evaluator identity and decision are in`outcome-34a6e66a.json`.
+
+Reject without a scored submission,noise rerun or Decode transfer. The extra row scan and smaller finalizer grid are costs of the candidate,but their individual latency contributions were not isolated. The adjacent MID build compiles without stack/spills;that alone does not justify extending this failed mechanism or spending another check.
+
+Quota after this check:MoE13checks/10scores;Decode1check/7scores. The next normal global slot is2026-10-30T23:07:03.074091Z;refresh jobs before another admission. The retained working sources remain unchanged.

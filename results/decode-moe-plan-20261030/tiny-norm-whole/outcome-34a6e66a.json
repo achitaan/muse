@@ -1,0 +1,465 @@
+{
+  "source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "job_id": "34a6e66a63f44a13",
+  "status": "done",
+  "official_passed_on_fallback": true,
+  "official_test_count": 5,
+  "official_benchmark_count": 6,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "selected_shapes": [],
+  "resource_queries": [
+    {
+      "defines": "okc_nw8_okc_tiny1_okc_epi40_okc_fast12_okc_l2h0_okc_nacc4_okc_uwarp0_okc_ws1_okc_wsb1_okc_wsbl2_okc_wsblk2_okc_finpf1_okc_prmtsc1_okc_dq71",
+      "registers": 144,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "blocks_per_SM": 1,
+      "dynamic_shared_bytes": 214784,
+      "threads": 288
+    },
+    {
+      "defines": "okc_nw8_okc_tiny1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws1_okc_wsb1_okc_wsbl2_okc_wsblk1_okc_finpf1_okc_prmtsc1_okc_dq71",
+      "registers": 144,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "blocks_per_SM": 1,
+      "dynamic_shared_bytes": 214784,
+      "threads": 288
+    }
+  ],
+  "numerical_probes_per_M": {
+    "1": {
+      "ss": 3.5337910328383844e-07,
+      "out": 3.4176920700740118e-06,
+      "worst_row": 3.4176920700740118e-06
+    },
+    "2": {
+      "ss": 5.63819348338354e-07,
+      "out": 5.5070417424057985e-05,
+      "worst_row": 7.749707036690472e-05
+    },
+    "3": {
+      "ss": 3.398525333238115e-07,
+      "out": 2.2946712024316393e-05,
+      "worst_row": 7.04490157988837e-05
+    },
+    "4": {
+      "ss": 3.214664585874699e-07,
+      "out": 6.074009033869193e-05,
+      "worst_row": 0.00010441899323135064
+    },
+    "5": {
+      "ss": 4.1725386875657254e-07,
+      "out": 4.061691337233042e-05,
+      "worst_row": 7.894706316807818e-05
+    },
+    "6": {
+      "ss": 2.947017776208463e-07,
+      "out": 9.6771291356646e-05,
+      "worst_row": 0.00019445333266476604
+    },
+    "7": {
+      "ss": 3.584987359907552e-07,
+      "out": 2.565747095630983e-05,
+      "worst_row": 6.049284376832397e-05
+    },
+    "8": {
+      "ss": 2.8982783701521714e-07,
+      "out": 4.070758007842983e-05,
+      "worst_row": 0.0001720147852066141
+    }
+  },
+  "numerical_fixture_count": 120,
+  "GEMM_SwiGLU_inter_and_FP32_ybuf_byte_exact": true,
+  "timing_pairs": [
+    {
+      "M": 1,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 22.23999984562397,
+        "candidate": 24.639999493956566
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.1079136540014334
+    },
+    {
+      "M": 1,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 24.960000067949295,
+        "parent": 22.207999601960182
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.1239193315613265
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 22.23999984562397,
+        "candidate": 25.18399991095066
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.132374104575633
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 24.960000067949295,
+        "parent": 22.175999358296394
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.1255411611748338
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 22.52800017595291,
+        "candidate": 25.21600015461445
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.1193181799390606
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 24.768000468611717,
+        "parent": 22.784000262618065
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0870786597228417
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 30.079999938607216,
+        "candidate": 33.08799862861633
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0999999566538694
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 33.02399814128876,
+        "parent": 30.047999694943428
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0990414828460657
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 38.27200084924698,
+        "candidate": 40.89599847793579
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.068561809428901
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 40.92799872159958,
+        "parent": 38.62399980425835
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0596520020975977
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 52.960000932216644,
+        "candidate": 55.84000051021576
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0543806557270499
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 56.063998490571976,
+        "parent": 53.0879981815815
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0560578739249389
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 45.1200008392334,
+        "candidate": 48.06400090456009
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.065248227184579
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 47.90399968624115,
+        "parent": 45.184001326560974
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0601982622128079
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 53.599998354911804,
+        "candidate": 55.84000051021576
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0417910862696638
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 55.67999929189682,
+        "parent": 53.599998354911804
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0388059888213488
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 35.10399907827377,
+        "candidate": 37.79200091958046
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0765725248372149
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 37.82400116324425,
+        "parent": 35.13599932193756
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0765027861219363
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 50.52800104022026,
+        "candidate": 52.76799947023392
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.044331823620543
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 52.76799947023392,
+        "parent": 50.20799860358238
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0509879090553687
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 50.40000006556511,
+        "candidate": 52.83199995756149
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.048253966048266
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 52.639998495578766,
+        "parent": 50.49600079655647
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0424587623812083
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 66.11199676990509,
+        "candidate": 66.81600213050842
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0106486779253323
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 67.07199662923813,
+        "parent": 66.94400310516357
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0019119490639585
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 42.527999728918076,
+        "candidate": 44.76799815893173
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0526711447585555
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 44.83199864625931,
+        "parent": 42.4639992415905
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0557648701714726
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 65.85600227117538,
+        "candidate": 66.81600213050842
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.014577256836515
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 68.06399673223495,
+        "parent": 65.5359998345375
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.03857417151001
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 50.20799860358238,
+        "candidate": 52.319999784231186
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0420650342453226
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 52.57600173354149,
+        "parent": 50.52800104022026
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0405319951543506
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": "parent,candidate",
+      "times_us": {
+        "parent": 58.400001376867294,
+        "candidate": 61.055999249219894
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.0454794145502309
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": "candidate,parent",
+      "times_us": {
+        "candidate": 60.60799956321716,
+        "parent": 58.079998940229416
+      },
+      "pick": "parent",
+      "candidate_over_parent": 1.043526182319482
+    }
+  ],
+  "slower_fraction_min": 0.001911949063958529,
+  "slower_fraction_max": 0.13237410457563303,
+  "point_speedup": 2.3400107921954767,
+  "speedup_CI": [
+    2.3049106303125444,
+    2.3751109540784086
+  ],
+  "point_is_new_algorithm_gain": false,
+  "all_official_profiles_parent": true,
+  "prepare_log_seconds": 175.13772550600697,
+  "next_normal_slot_utc": "2026-10-30T23:07:03.074091+00:00",
+  "decision": "Reject whole-row tiny norm on measured performance;no score,rerun or Decode transfer.",
+  "MID_extension": "CPU compiles clean but remains unsubmitted. Do not spend a check merely extending this failed mechanism without a distinct exposed bottleneck.",
+  "interpretation_limit": "Extra full-row reads and reduced finalizer parallelism are candidate costs;this check does not isolate their individual latency contributions.",
+  "evaluator": {
+    "code_sha256": "afcead6a6ff090aa50fe9bc907f0fa8f4ba73d95fa92af93ec260b5e8ff00f00",
+    "files": {
+      "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+      "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+      "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+      "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+      "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+      "problems/muse_moe_w4a16/baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+      "problems/muse_moe_w4a16/reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+      "problems/muse_moe_w4a16/task.yml": "cc6870087c1a115e69f40093478553e0a03c1b3e92f527c2e55c4115e2db42ad"
+    },
+    "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+  },
+  "new_GPU_checks": 1,
+  "new_scored_submissions": 0,
+  "Decode_checks_used": 0
+}

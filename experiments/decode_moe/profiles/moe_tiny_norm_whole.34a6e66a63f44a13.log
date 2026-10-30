@@ -1,0 +1,59 @@
+TNORM_RESOURCE okc_nw8_okc_tiny1_okc_epi40_okc_fast12_okc_l2h0_okc_nacc4_okc_uwarp0_okc_ws1_okc_wsb1_okc_wsbl2_okc_wsblk2_okc_finpf1_okc_prmtsc1_okc_dq71 {'registers': 144, 'local_bytes': 0, 'static_shared_bytes': 0, 'blocks_per_SM': 1, 'dynamic_shared_bytes': 214784, 'threads': 288}
+TNORM_RESOURCE okc_nw8_okc_tiny1_okc_cpf0_okc_epi40_okc_fast12_okc_nacc4_okc_uwarp0_okc_ws1_okc_wsb1_okc_wsbl2_okc_wsblk1_okc_finpf1_okc_prmtsc1_okc_dq71 {'registers': 144, 'local_bytes': 0, 'static_shared_bytes': 0, 'blocks_per_SM': 1, 'dynamic_shared_bytes': 214784, 'threads': 288}
+TNORMB_NUMERICAL_PASS 1 {'ss': 3.5337910328383844e-07, 'out': 3.4176920700740118e-06, 'worst_row': 3.4176920700740118e-06} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 1 True five_route_patterns_three_inputs
+TNORM_TIME 1 one parent,candidate {'parent': 22.23999984562397, 'candidate': 24.639999493956566} pick= parent
+TNORM_TIME 1 one candidate,parent {'candidate': 24.960000067949295, 'parent': 22.207999601960182} pick= parent
+TNORM_TIME 1 skew parent,candidate {'parent': 22.23999984562397, 'candidate': 25.18399991095066} pick= parent
+TNORM_TIME 1 skew candidate,parent {'candidate': 24.960000067949295, 'parent': 22.175999358296394} pick= parent
+TNORM_SELECT 1 False
+TNORMB_NUMERICAL_PASS 2 {'ss': 5.63819348338354e-07, 'out': 5.5070417424057985e-05, 'worst_row': 7.749707036690472e-05} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 2 True five_route_patterns_three_inputs
+TNORM_TIME 2 one parent,candidate {'parent': 22.52800017595291, 'candidate': 25.21600015461445} pick= parent
+TNORM_TIME 2 one candidate,parent {'candidate': 24.768000468611717, 'parent': 22.784000262618065} pick= parent
+TNORM_TIME 2 skew parent,candidate {'parent': 30.079999938607216, 'candidate': 33.08799862861633} pick= parent
+TNORM_TIME 2 skew candidate,parent {'candidate': 33.02399814128876, 'parent': 30.047999694943428} pick= parent
+TNORM_SELECT 2 False
+TNORMB_NUMERICAL_PASS 3 {'ss': 3.398525333238115e-07, 'out': 2.2946712024316393e-05, 'worst_row': 7.04490157988837e-05} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 3 True five_route_patterns_three_inputs
+TNORM_TIME 3 one parent,candidate {'parent': 38.27200084924698, 'candidate': 40.89599847793579} pick= parent
+TNORM_TIME 3 one candidate,parent {'candidate': 40.92799872159958, 'parent': 38.62399980425835} pick= parent
+TNORM_TIME 3 skew parent,candidate {'parent': 52.960000932216644, 'candidate': 55.84000051021576} pick= parent
+TNORM_TIME 3 skew candidate,parent {'candidate': 56.063998490571976, 'parent': 53.0879981815815} pick= parent
+TNORM_SELECT 3 False
+TNORMB_NUMERICAL_PASS 4 {'ss': 3.214664585874699e-07, 'out': 6.074009033869193e-05, 'worst_row': 0.00010441899323135064} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 4 True five_route_patterns_three_inputs
+TNORM_TIME 4 one parent,candidate {'parent': 45.1200008392334, 'candidate': 48.06400090456009} pick= parent
+TNORM_TIME 4 one candidate,parent {'candidate': 47.90399968624115, 'parent': 45.184001326560974} pick= parent
+TNORM_TIME 4 skew parent,candidate {'parent': 53.599998354911804, 'candidate': 55.84000051021576} pick= parent
+TNORM_TIME 4 skew candidate,parent {'candidate': 55.67999929189682, 'parent': 53.599998354911804} pick= parent
+TNORM_SELECT 4 False
+TNORMB_NUMERICAL_PASS 5 {'ss': 4.1725386875657254e-07, 'out': 4.061691337233042e-05, 'worst_row': 7.894706316807818e-05} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 5 True five_route_patterns_three_inputs
+TNORM_TIME 5 one parent,candidate {'parent': 35.10399907827377, 'candidate': 37.79200091958046} pick= parent
+TNORM_TIME 5 one candidate,parent {'candidate': 37.82400116324425, 'parent': 35.13599932193756} pick= parent
+TNORM_TIME 5 skew parent,candidate {'parent': 50.52800104022026, 'candidate': 52.76799947023392} pick= parent
+TNORM_TIME 5 skew candidate,parent {'candidate': 52.76799947023392, 'parent': 50.20799860358238} pick= parent
+TNORM_SELECT 5 False
+TNORMB_NUMERICAL_PASS 6 {'ss': 2.947017776208463e-07, 'out': 9.6771291356646e-05, 'worst_row': 0.00019445333266476604} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 6 True five_route_patterns_three_inputs
+TNORM_TIME 6 one parent,candidate {'parent': 50.40000006556511, 'candidate': 52.83199995756149} pick= parent
+TNORM_TIME 6 one candidate,parent {'candidate': 52.639998495578766, 'parent': 50.49600079655647} pick= parent
+TNORM_TIME 6 skew parent,candidate {'parent': 66.11199676990509, 'candidate': 66.81600213050842} pick= parent
+TNORM_TIME 6 skew candidate,parent {'candidate': 67.07199662923813, 'parent': 66.94400310516357} pick= parent
+TNORM_SELECT 6 False
+TNORMB_NUMERICAL_PASS 7 {'ss': 3.584987359907552e-07, 'out': 2.565747095630983e-05, 'worst_row': 6.049284376832397e-05} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 7 True five_route_patterns_three_inputs
+TNORM_TIME 7 one parent,candidate {'parent': 42.527999728918076, 'candidate': 44.76799815893173} pick= parent
+TNORM_TIME 7 one candidate,parent {'candidate': 44.83199864625931, 'parent': 42.4639992415905} pick= parent
+TNORM_TIME 7 skew parent,candidate {'parent': 65.85600227117538, 'candidate': 66.81600213050842} pick= parent
+TNORM_TIME 7 skew candidate,parent {'candidate': 68.06399673223495, 'parent': 65.5359998345375} pick= parent
+TNORM_SELECT 7 False
+TNORMB_NUMERICAL_PASS 8 {'ss': 2.8982783701521714e-07, 'out': 4.070758007842983e-05, 'worst_row': 0.0001720147852066141} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TNORM_BOUNDED 8 True five_route_patterns_three_inputs
+TNORM_TIME 8 one parent,candidate {'parent': 50.20799860358238, 'candidate': 52.319999784231186} pick= parent
+TNORM_TIME 8 one candidate,parent {'candidate': 52.57600173354149, 'parent': 50.52800104022026} pick= parent
+TNORM_TIME 8 skew parent,candidate {'parent': 58.400001376867294, 'candidate': 61.055999249219894} pick= parent
+TNORM_TIME 8 skew candidate,parent {'candidate': 60.60799956321716, 'parent': 58.079998940229416} pick= parent
+TNORM_SELECT 8 False
+TNORM_DONE 175.13772550600697 []

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:00:41.514708+00:00",
+  "updated_at": "2026-10-30T22:16:54.216994+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -9,14 +9,14 @@
   "latest_decode_board_snapshot": "tinyroute/decode-board-during-check.json",
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
-  "newest_experiment": "TR8 with approved bounded MoE norm/output gate",
-  "newest_check": "7f34a396bd784aa1",
+  "newest_experiment": "Tiny whole-row norm with actual resource guard",
+  "newest_check": "34a6e66a63f44a13",
   "newest_check_status": "done",
-  "newest_decision": "Reject routing candidate: no pair meets strict3% gate; no shape selected. This is now a measured performance rejection.",
-  "newest_outcome": "tinyroute-bounded/outcome.json",
+  "newest_decision": "Reject whole-row tiny norm on measured performance;no score,rerun or Decode transfer.",
+  "newest_outcome": "tiny-norm-whole/outcome-34a6e66a.json",
   "gpu_job_pending": false,
-  "remaining_quotas": "tiny-norm-whole/quotas-before.json",
-  "moe_checks_left": 14,
+  "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
+  "moe_checks_left": 13,
   "moe_scores_left": 10,
   "decode_checks_left": 1,
   "decode_scores_left": 7,
@@ -28,13 +28,13 @@
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
   "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
-  "new_GPU_jobs_this_packet": 0,
+  "new_GPU_jobs_this_packet": 1,
   "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 4,
-  "next_diagnostic_source": "experiments/decode_moe/moe_tiny_norm_whole.py",
-  "next_diagnostic_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "next_diagnostic_source": null,
+  "next_diagnostic_sha256": null,
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "MoE whole-row tiny norm; TR8 routing closed on measured speed gates",
+  "current_focus": "Retain incumbent MoE;whole-row tiny norm is closed. Require a distinct mechanism before another check;Decode remains held.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-30T22:06:10.172159+00:00",
+  "earliest_new_check_utc": "2026-10-30T23:07:03.074091+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -69,7 +69,8 @@
     "order": "TR8 is closed on performance;whole-row norm is next for a paced MoE check.",
     "actual_resource_guard_added": true,
     "CPU_numerical_cases": 480,
-    "CPU_guard_cases": 7
+    "CPU_guard_cases": 7,
+    "status": "Whole-row norm failed measured timing;MID CPU extension parked,not next for GPU."
   },
   "Decode_evaluation_hold": "Human reiterated2026-10-30: continue other tracks and save Decode checks until good results. Preserve the final check; component gains must justify complete-layer validation.",
   "latest_attention_screen": {
@@ -92,5 +93,71 @@
   "latest_overall_rank": 259,
   "latest_overall_ranked": 1715,
   "latest_overall_board": "overall-board-20261030T2126.json",
-  "overall_API_measure": "rank across the problems; the API gives ranks only"
+  "overall_API_measure": "rank across the problems; the API gives ranks only",
+  "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "admission": "tiny-norm-whole/admission-690ef087.json",
+  "moe_checks_after_ack_expected": 13,
+  "closed_norm_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "remaining_track_limits": {
+    "muse_bf16_proj": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 17,
+        "left": 3
+      }
+    },
+    "muse_attention_decode": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 0,
+        "left": 20
+      }
+    },
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 7,
+        "left": 13
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 19,
+        "left": 1
+      }
+    },
+    "muse_prefill_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 0,
+        "left": 20
+      }
+    }
+  }
 }
