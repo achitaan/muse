@@ -1,0 +1,20 @@
+{
+  "candidate": "candidates/dense_s2c_diag.py",
+  "source_sha256": "1a03ec018ca597aaec44cd945af6bc99234846a044d3f01d4d06aecd9e6eb632",
+  "kind": "DIAGNOSTIC: no routing change; runtime kernel_fn is best/verified.py",
+  "question": "which stream binds the c12 WGMMA kernel at (128, unpooler): weight HBM loads, x TMA from L2, WGMMA, or decode",
+  "kernel": "S2b pipelined m32w (128,64,3,2,4,True,1)",
+  "masks": {
+    "0": "full",
+    "1": "no weight LDG",
+    "2": "no x TMA/wait",
+    "4": "no WGMMA",
+    "3": "decode+MMA only",
+    "5": "x TMA + decode only",
+    "6": "weights + decode only"
+  },
+  "offline_compile": "results/s2c-offline/s2c-resources.txt (0 spill all; SASS counts confirm each ablation)",
+  "timing": "16 round-robin rounds (alternating order), cold L2 flush, CUDA graphs, raw samples logged; incumbent included",
+  "interpretation_rule": "the stream whose removal moves the full time toward the incumbent-beating range is the binding one; decide the next mechanism (x multicast vs TMA weight staging vs other) from these numbers only",
+  "revision": "v3: v2 job 2a940471cf4646b0 showed abl1-6 rc 1 = cudaErrorInvalidValue; cause: identical launch_t/m32w_gemm instantiations across 7 modules share the GNU_UNIQUE function-local static `ready`, so modules 2-7 skipped cudaFuncSetAttribute(MaxDynamicSharedMemorySize). v3 renames both symbols per module via #define."
+}

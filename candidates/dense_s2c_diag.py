@@ -7155,7 +7155,9 @@ def _s2c_core(core):
 
 
 def _s2c_device_source(mask, prefix, core):
-    head = (f'#define S2C_ABL {mask}\n'
+    # Unique symbol names per module: identical template instantiations in several modules would share their
+    # function-local statics (GCC STB_GNU_UNIQUE), so later modules skipped cudaFuncSetAttribute (v2 rc 1).
+    head = (f'#define S2C_ABL {mask}\n#define launch_t launch_t_abl{mask}\n#define m32w_gemm m32w_gemm_abl{mask}\n'
             '#if S2C_ABL & 1\n#define S2C_W(p,pol,i,l) make_uint4(uint32_t(lane*7+(i)),uint32_t((i)*3+(l)),uint32_t(lane+(l)),uint32_t(i))\n'
             '#else\n#define S2C_W(p,pol,i,l) ldw(p,pol)\n#endif\n')
     return head + prefix + '\n'.join(_s2b_mma(n) for n in (16, 32, 64, 128)) + _s2c_core(core)

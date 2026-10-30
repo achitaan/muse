@@ -1,0 +1,12 @@
+S2C_BUILD 23s info abl0:1540000 abl1:1420000 abl2:1490000 abl4:750000 abl3:1380000 abl5:630000 abl6:690000
+S2C_EAGER incumbent rc 0
+S2C_EAGER abl0 rc 0
+S2C_EAGER abl1 rc 1
+S2C_EAGER abl2 rc 1
+S2C_EAGER abl4 rc 1
+S2C_EAGER abl3 rc 1
+S2C_EAGER abl5 rc 1
+S2C_EAGER abl6 rc 1
+S2C_DIAG off AcceleratorError: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
