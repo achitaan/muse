@@ -1,0 +1,81 @@
+{
+  "rc": 0,
+  "log": "preflight.cu(2444): warning #177-D: variable \"parts\" was declared but never referenced\n          const uint32_t parts = RED == 2 ? (uint32_t)((S - 1) * NW) : (uint32_t)((S - 1) * WR);\n                         ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\npreflight.cu(2939): warning #177-D: variable \"parts\" was declared but never referenced\n          const uint32_t parts = RED == 2 ? (uint32_t)((S - 1) * NW) : (uint32_t)((S - 1) * WR);\n                         ^\n\nptxas info    : 6360 bytes gmem\nptxas info    : Compiling entry function '_ZN7pdli_q830qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_q830qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 93 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Compiling entry function '_ZN7pdli_q116v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_q116v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_q117v18d_native_neverEPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_u812smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_u812smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 62 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_u816smtrace_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_u112smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_u112smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 63 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_u116smtrace_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_r816smallm2_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_r113v18s_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_o89v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_o89v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 56 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_o813v18s_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN7pdli_o112smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _ZN7pdli_o112smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _ZN7pdli_o116smallm2_pdl_waitEj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 957376,
+  "cubin_sha256": "c80f1e65e39a2bf700e03259f18b3b50c0c8f2266149ae18ad2b0ccae4001eac",
+  "seconds": 6.437,
+  "kernels": [
+    {
+      "symbol": "_ZN7pdli_q830qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 93,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_q116v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 78,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_u812smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 62,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_u112smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 63,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+      "registers": 64,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 32768,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+      "registers": 64,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 32768,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_o89v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 56,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN7pdli_o112smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 50,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ]
+}

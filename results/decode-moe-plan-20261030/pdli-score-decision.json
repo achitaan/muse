@@ -1,0 +1,44 @@
+{
+  "decided_at": "2026-10-30T07:20:47.271073+00:00",
+  "candidate_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "check_job": "59cfbd2b12fa43f2",
+  "check_speedup": 2.081797386792488,
+  "check_CI": [
+    2.050570425990601,
+    2.1130243475943753
+  ],
+  "board_before": {
+    "rank": 228,
+    "team": "achitaan",
+    "speedup": 2.051,
+    "first": false,
+    "ahead": 227,
+    "to_first": 1.1788
+  },
+  "passed_tests": 13,
+  "passed_benchmarks": 12,
+  "prepare_s": 264.74631337,
+  "selection": {
+    "1_sliding": 10,
+    "1_full": 0,
+    "8_sliding": 0,
+    "8_full": 0
+  },
+  "targeted_case_us": [
+    79.02748275786887,
+    75.51784888694989
+  ],
+  "paired_whole_layer_gains_us": [
+    2.944,
+    3.200002
+  ],
+  "paired_whole_layer_new_over_old": [
+    0.956149,
+    0.952584
+  ],
+  "fixed_other_loads_track_ratio_estimate": 1.0054752197665966,
+  "aggregate_gain_attribution": "Only the one-token sliding case uses new code. Do not attribute the whole 1.50% aggregate point difference to it; intervals overlap and controls move. The supported contribution is the positive paired whole-layer gate and the material targeted-case reduction.",
+  "decision": "One scored confirmation of changed, source-bound code after 13/13, real execution, paired >3% improvement and visible targeted official improvement. No repeat if point is low or no path selects. Keep final check in reserve.",
+  "scored_runs_left_before": 8,
+  "checks_left_before": 1
+}

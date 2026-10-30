@@ -1,0 +1,16 @@
+{
+  "verified_at": "2026-10-30T07:00:12.361316+00:00",
+  "candidate_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "candidate_bytes": 940518,
+  "GPU_check_launched": false,
+  "exact_parent_prefix": true,
+  "combined_CUDA_sha256": "785ba7a5b64d17632d15ae7918cba5684972f3f7517f0ef992076b057746af15",
+  "device_proxy_sha256": "ef4dbd6782b524764da580610cc7b3fadf5dc34e0fa8c04dfea1e9bb7568917f",
+  "device_proxy_identical_after_host_only_occupancy_guard": true,
+  "packed_CPU_compile_rc": 0,
+  "eight_kernels_zero_spills": true,
+  "six_consumers_weight_loads_precede_wait": true,
+  "eight_producers_signal_at_entry": true,
+  "all_16_host_exports_match": true,
+  "GPU_measurements_needed": true
+}

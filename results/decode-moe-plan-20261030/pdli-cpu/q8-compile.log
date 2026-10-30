@@ -1,0 +1,6 @@
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z30qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z30qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 93 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms

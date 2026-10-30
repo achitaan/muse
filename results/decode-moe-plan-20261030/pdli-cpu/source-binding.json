@@ -1,0 +1,542 @@
+{
+  "parent_sha256": "75fa2a73b4de60410c10dc3609141f3677c9ff79acff0512e45fdd6b5084f747",
+  "specs": {
+    "o1": {
+      "prefix": "smallm2",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        0,
+        0,
+        1024,
+        0,
+        8192,
+        1024,
+        4,
+        8,
+        2,
+        1,
+        7
+      ],
+      "kind": "o"
+    },
+    "o8": {
+      "prefix": "v18s",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        0,
+        0,
+        256,
+        0,
+        8192,
+        1024,
+        1,
+        8,
+        2,
+        1,
+        6
+      ],
+      "kind": "o"
+    },
+    "r1": {
+      "prefix": "v18s",
+      "instance": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1024,
+        0,
+        4096,
+        8192,
+        2,
+        16,
+        8,
+        1,
+        70
+      ],
+      "kind": "r"
+    },
+    "r8": {
+      "prefix": "smallm2",
+      "instance": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1024,
+        0,
+        4096,
+        8192,
+        2,
+        16,
+        8,
+        1,
+        70
+      ],
+      "kind": "r"
+    },
+    "u1": {
+      "prefix": "smtrace",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        0,
+        256,
+        1,
+        1024,
+        4096,
+        1,
+        8,
+        2,
+        4
+      ],
+      "kind": "u"
+    },
+    "u8": {
+      "prefix": "smtrace",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        0,
+        512,
+        8,
+        1024,
+        4096,
+        1,
+        16,
+        2,
+        2
+      ],
+      "kind": "u"
+    },
+    "q1": {
+      "prefix": "v18d_native",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        0,
+        256,
+        0,
+        2304,
+        8192,
+        1,
+        4,
+        8,
+        4
+      ],
+      "kind": "q"
+    },
+    "q8": {
+      "prefix": "qs_literal_owner5_decode5",
+      "instance": [
+        1,
+        1,
+        1,
+        2,
+        5,
+        0,
+        256,
+        8,
+        2304,
+        8192,
+        1,
+        4,
+        8,
+        4
+      ],
+      "kind": "q"
+    }
+  },
+  "derivations": {
+    "o1": {
+      "parent_CUDA_sha256": "4358d67ce11bc72d4421db52eec29b22b53025e7ae33d260885528e9cd3b7527",
+      "CUDA_sha256": "116212cd178d0f885b68a4b7f2cc0dcdbc22b7052dc9f4cfa688da26a811974c",
+      "derivation": {
+        "parent_CUDA_sha256": "4358d67ce11bc72d4421db52eec29b22b53025e7ae33d260885528e9cd3b7527",
+        "CUDA_sha256": "fc0697c2b73ba5c13278962564f4345dc175ac60a5c9f6482ffb7303a0402b69",
+        "form": "call",
+        "fused": false,
+        "instance": [
+          1,
+          1,
+          1,
+          2,
+          0,
+          0,
+          1024,
+          0,
+          8192,
+          1024,
+          4,
+          8,
+          2,
+          1,
+          7
+        ],
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "if constexpr (C12 && !RO) my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);",
+            "new": "// PDL: escape word is loaded by the independent preamble."
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void smallm2_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);\n    smallm2_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w ^ (uint32_t)w[1][0][0].x ^ (uint32_t)w[1][0][0].y ^ (uint32_t)w[1][0][0].z ^ (uint32_t)w[1][0][0].w ^ (uint32_t)w[1][0][1].x ^ (uint32_t)w[1][0][1].y ^ (uint32_t)w[1][0][1].z ^ (uint32_t)w[1][0][1].w ^ (uint32_t)w[1][0][2].x ^ (uint32_t)w[1][0][2].y ^ (uint32_t)w[1][0][2].z ^ (uint32_t)w[1][0][2].w);"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 7676,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "o8": {
+      "parent_CUDA_sha256": "b70b4515aaa67a89fde3e23109b1e3f6233cac0be57ff371201d95ee8c9acb56",
+      "CUDA_sha256": "435e7f65ef1d56e903a428cf5d0dbb67d1aa11c580a049b55a5d3311212e1e5e",
+      "derivation": {
+        "parent_CUDA_sha256": "b70b4515aaa67a89fde3e23109b1e3f6233cac0be57ff371201d95ee8c9acb56",
+        "CUDA_sha256": "1855cfdffe9e2094086ac138788d017cd1c2bd981d2d653ac4de69f45aaee7c7",
+        "form": "call",
+        "fused": false,
+        "instance": [
+          1,
+          1,
+          1,
+          2,
+          0,
+          0,
+          256,
+          0,
+          8192,
+          1024,
+          1,
+          8,
+          2,
+          1,
+          6
+        ],
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "if constexpr (C12 && !RO) my_e = v18s_lde(esc + (size_t)gw * 32 + lane);",
+            "new": "// PDL: escape word is loaded by the independent preamble."
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void v18s_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = v18s_lde(esc + (size_t)gw * 32 + lane);\n    v18s_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w ^ (uint32_t)w[1][0][0].x ^ (uint32_t)w[1][0][0].y ^ (uint32_t)w[1][0][0].z ^ (uint32_t)w[1][0][0].w ^ (uint32_t)w[1][0][1].x ^ (uint32_t)w[1][0][1].y ^ (uint32_t)w[1][0][1].z ^ (uint32_t)w[1][0][1].w ^ (uint32_t)w[1][0][2].x ^ (uint32_t)w[1][0][2].y ^ (uint32_t)w[1][0][2].z ^ (uint32_t)w[1][0][2].w);"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 7384,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "r1": {
+      "parent_CUDA_sha256": "2f13c536f58282b6f8affb78f372f42bd0f987d6a6ca94dffead2ec23890d1ae",
+      "CUDA_sha256": "fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571",
+      "derivation": {
+        "parent_CUDA_sha256": "2f13c536f58282b6f8affb78f372f42bd0f987d6a6ca94dffead2ec23890d1ae",
+        "CUDA_sha256": "a0c4d831d95d7a2bc918d7c3a6653d774e6327e27c19877d4bc39f3a6e511f37",
+        "form": "call",
+        "fused": true,
+        "instance": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1024,
+          0,
+          4096,
+          8192,
+          2,
+          16,
+          8,
+          1,
+          70
+        ],
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "if constexpr (C12 && !RO) my_e = v18s_lde(esc + (size_t)gw * 32 + lane);",
+            "new": "// PDL: escape word is loaded by the independent preamble."
+          },
+          {
+            "old": "if (blockIdx.x == 128) { v18s_r2_topk(ra, warp, lane); return; }\n      v18s_r2_router(ra, warp, lane);",
+            "new": "if (blockIdx.x == 128) { asm volatile(\"griddepcontrol.wait;\" ::: \"memory\"); v18s_r2_topk(ra, warp, lane); return; }\n      // PDL: router input loads follow the independent weight preamble."
+          },
+          {
+            "old": "r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)]",
+            "new": "asm volatile(\"ld.global.cg.f32 %0, [%1];\" : \"=f\"(r2x[i]) : \"l\"(ra.x + (size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)) : \"memory\")"
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void v18s_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = v18s_lde(esc + (size_t)gw * 32 + lane);\n    v18s_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w);\n    v18s_r2_router(ra, warp, lane);"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 11202,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "r8": {
+      "parent_CUDA_sha256": "4acea7645727c46513c6e861c934bde780b7b6c86a3c751990013235cfdb7d7f",
+      "CUDA_sha256": "f82767cd894da379abfc96cc79f5e51c92080694d39b171bb3e4863b1d1542d8",
+      "derivation": {
+        "parent_CUDA_sha256": "4acea7645727c46513c6e861c934bde780b7b6c86a3c751990013235cfdb7d7f",
+        "CUDA_sha256": "3c1366899e7a9c5b73af08e2611e1bc3a6e6b3bfeacb09c521772000d5f807fc",
+        "form": "call",
+        "fused": true,
+        "instance": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1024,
+          0,
+          4096,
+          8192,
+          2,
+          16,
+          8,
+          1,
+          70
+        ],
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "if constexpr (C12 && !RO) my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);",
+            "new": "// PDL: escape word is loaded by the independent preamble."
+          },
+          {
+            "old": "if (blockIdx.x == 128) { smallm2_r2_topk(ra, warp, lane); return; }\n      smallm2_r2_router(ra, warp, lane);",
+            "new": "if (blockIdx.x == 128) { asm volatile(\"griddepcontrol.wait;\" ::: \"memory\"); smallm2_r2_topk(ra, warp, lane); return; }\n      // PDL: router input loads follow the independent weight preamble."
+          },
+          {
+            "old": "r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)]",
+            "new": "asm volatile(\"ld.global.cg.f32 %0, [%1];\" : \"=f\"(r2x[i]) : \"l\"(ra.x + (size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)) : \"memory\")"
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void smallm2_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);\n    smallm2_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w);\n    smallm2_r2_router(ra, warp, lane);"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 11500,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "u1": {
+      "parent_CUDA_sha256": "9f61c210e66c472efafb9a4bbde247d54bb561b5b2dc043261d174af950bce65",
+      "CUDA_sha256": "e3d66bbf5ce64090cbefc7948a28fc653496013b9ed380a9b70c6cc304d409ff",
+      "derivation": {
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "      if constexpr (!NOX && !RO) {\n#pragma unroll\n        for (int n = 0; n < MT; ++n) {\n          const __nv_bfloat16* xp = x0 + (size_t)min(n * 8 + (lane >> 2), m - 1) * K + s * 64;\n          xv[slot][n][0] = smtrace_ldx(xp);\n          xv[slot][n][1] = smtrace_ldx(xp + 8);\n        }\n      }",
+            "new": "      // PDL: initial activations are loaded after the dependency wait."
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void smtrace_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "static_assert(FMT == 1 && MT == 1 && RT == 1 && ST == 2 && CKU == ST && DIAG == 0, \"fixed full-split PDL preamble\");\n#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    smtrace_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w ^ (uint32_t)w[1][0][0].x ^ (uint32_t)w[1][0][0].y ^ (uint32_t)w[1][0][0].z ^ (uint32_t)w[1][0][0].w ^ (uint32_t)w[1][0][1].x ^ (uint32_t)w[1][0][1].y ^ (uint32_t)w[1][0][1].z ^ (uint32_t)w[1][0][1].w ^ (uint32_t)w[1][0][2].x ^ (uint32_t)w[1][0][2].y ^ (uint32_t)w[1][0][2].z ^ (uint32_t)w[1][0][2].w);\n#pragma unroll\n    for (int s = 0; s < ST; ++s) {\n      if constexpr (!NOX && !RO) {\n#pragma unroll\n        for (int n = 0; n < MT; ++n) {\n          const __nv_bfloat16* xp = x0 + (size_t)min(n * 8 + (lane >> 2), m - 1) * K + s * 64;\n          xv[s][n][0] = smtrace_ldx(xp);\n          xv[s][n][1] = smtrace_ldx(xp + 8);\n        }\n      }\n    }"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 7487,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "u8": {
+      "parent_CUDA_sha256": "9f61c210e66c472efafb9a4bbde247d54bb561b5b2dc043261d174af950bce65",
+      "CUDA_sha256": "c3d8a7eb0342bab42fc40102de85b47e8f1235d6b5aeed3b255e2a3ac098c002",
+      "derivation": {
+        "exact_inverse": true,
+        "edits": [
+          {
+            "old": "ld.global.nc.v4.u32",
+            "new": "ld.global.cg.v4.u32"
+          },
+          {
+            "old": "      if constexpr (!NOX && !RO) {\n#pragma unroll\n        for (int n = 0; n < MT; ++n) {\n          const __nv_bfloat16* xp = x0 + (size_t)min(n * 8 + (lane >> 2), m - 1) * K + s * 64;\n          xv[slot][n][0] = smtrace_ldx(xp);\n          xv[slot][n][1] = smtrace_ldx(xp + 8);\n        }\n      }",
+            "new": "      // PDL: initial activations are loaded after the dependency wait."
+          },
+          {
+            "old": "// Never taken, but ptxas cannot prove it:",
+            "new": "__device__ __noinline__ void smtrace_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+          },
+          {
+            "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+            "new": "static_assert(FMT == 1 && MT == 1 && RT == 1 && ST == 2 && CKU == ST && DIAG == 0, \"fixed full-split PDL preamble\");\n#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    smtrace_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w ^ (uint32_t)w[1][0][0].x ^ (uint32_t)w[1][0][0].y ^ (uint32_t)w[1][0][0].z ^ (uint32_t)w[1][0][0].w ^ (uint32_t)w[1][0][1].x ^ (uint32_t)w[1][0][1].y ^ (uint32_t)w[1][0][1].z ^ (uint32_t)w[1][0][1].w ^ (uint32_t)w[1][0][2].x ^ (uint32_t)w[1][0][2].y ^ (uint32_t)w[1][0][2].z ^ (uint32_t)w[1][0][2].w);\n#pragma unroll\n    for (int s = 0; s < ST; ++s) {\n      if constexpr (!NOX && !RO) {\n#pragma unroll\n        for (int n = 0; n < MT; ++n) {\n          const __nv_bfloat16* xp = x0 + (size_t)min(n * 8 + (lane >> 2), m - 1) * K + s * 64;\n          xv[s][n][0] = smtrace_ldx(xp);\n          xv[s][n][1] = smtrace_ldx(xp + 8);\n        }\n      }\n    }"
+          },
+          {
+            "old": "cudaLaunchAttribute at[1];",
+            "new": "cudaLaunchAttribute at[2];"
+          },
+          {
+            "old": "  if (query == 1) {",
+            "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+          }
+        ]
+      },
+      "trigger": {
+        "offset": 7487,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "q1": {
+      "parent_CUDA_sha256": "1e5ebdba63372bca7ba930480bd0f86da66187ae979f335d88392b22509a470d",
+      "CUDA_sha256": "2079ad9890dd97171597bcdef12456aa71abe6ae90dd3dc39e9b88f2cc5d63fb",
+      "derivation": {
+        "arithmetic_unchanged": true
+      },
+      "trigger": {
+        "offset": 7484,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    },
+    "q8": {
+      "parent_CUDA_sha256": "6b8bd845cf6464b0a660e252ffae72108511a04b3963932c02716b17a86d594c",
+      "CUDA_sha256": "d3972adcaec566a7d9dfd3969670b2030a5da55b15aff1f1feff4d6c34f54758",
+      "derivation": {
+        "arithmetic_unchanged": true
+      },
+      "trigger": {
+        "offset": 9564,
+        "added": "\n  asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n"
+      },
+      "occupancy_uses_cluster_only_config": true
+    }
+  },
+  "combined_CUDA_sha256": "785ba7a5b64d17632d15ae7918cba5684972f3f7517f0ef992076b057746af15",
+  "combined_functions": [
+    "pdli_o1_project",
+    "pdli_o1_info",
+    "pdli_o8_project",
+    "pdli_o8_info",
+    "pdli_r1_project",
+    "pdli_r1_info",
+    "pdli_r8_project",
+    "pdli_r8_info",
+    "pdli_u1_project",
+    "pdli_u1_info",
+    "pdli_u8_project",
+    "pdli_u8_info",
+    "pdli_q1_project",
+    "pdli_q1_info",
+    "pdli_q8_project",
+    "pdli_q8_info"
+  ]
+}

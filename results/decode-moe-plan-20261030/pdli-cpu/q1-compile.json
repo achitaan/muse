@@ -1,0 +1,23 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z17v18d_native_neverPv\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 324152,
+  "cubin_sha256": "df3c9bad19f7277ae5fead8776daa052f4d0213c9187d4cebb08a15dd597a6b3",
+  "seconds": 1.266,
+  "source_sha256": "2079ad9890dd97171597bcdef12456aa71abe6ae90dd3dc39e9b88f2cc5d63fb",
+  "kernels": [
+    {
+      "symbol": "_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 78,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    }
+  ],
+  "outgoing_trigger": [
+    96,
+    "PREEXIT "
+  ]
+}

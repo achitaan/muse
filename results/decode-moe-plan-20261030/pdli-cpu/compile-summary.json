@@ -1,0 +1,234 @@
+{
+  "o1": {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z16smallm2_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 306232,
+    "cubin_sha256": "95658cf447a069ced0439e7beafb9f82e4c3ed5fdf8833c1c37b90d17fbc147a",
+    "seconds": 1.25,
+    "source_sha256": "91b6ed714b515d6307f974c6a5857bfb5030da3489b11b062739e4b7bf620ee2",
+    "kernels": [
+      {
+        "symbol": "_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+        "registers": 50,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "outgoing_trigger": [
+      80,
+      "PREEXIT "
+    ],
+    "ordering": {
+      "wait_call": [
+        608,
+        "CALL.REL.NOINC 0x1710 "
+      ],
+      "helper_target": 5904,
+      "independent_loads": [
+        [
+          336,
+          "LDG.E.NA.128.CONSTANT R32, desc[UR4][R6.64] "
+        ],
+        [
+          384,
+          "LDG.E.NA.128.CONSTANT R24, desc[UR4][R6.64+0x200] "
+        ],
+        [
+          432,
+          "LDG.E.CONSTANT R3, desc[UR4][R2.64] "
+        ],
+        [
+          464,
+          "LDG.E.NA.128.CONSTANT R8, desc[UR4][R6.64+0x400] "
+        ],
+        [
+          496,
+          "LDG.E.NA.128.CONSTANT R20, desc[UR4][R6.64+0x600000] "
+        ],
+        [
+          544,
+          "LDG.E.NA.128.CONSTANT R16, desc[UR4][R6.64+0x600200] "
+        ],
+        [
+          576,
+          "LDG.E.NA.128.CONSTANT R12, desc[UR4][R6.64+0x600400] "
+        ]
+      ],
+      "first_dependent_load": [
+        1296,
+        "LDG.E.128.STRONG.GPU R32, desc[UR4][R40.64+0x10] "
+      ]
+    }
+  },
+  "o8": {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 56 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z13v18s_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 306104,
+    "cubin_sha256": "9a2b0145bc0d9e1f69ab88db50c34c812a2a0d8219d2fc148d04afd9af705840",
+    "seconds": 1.125,
+    "source_sha256": "580e1e09ad399321b0d032fdd7e035340c069831b4f57ed552dbdb055b899624",
+    "kernels": [
+      {
+        "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+        "registers": 56,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "outgoing_trigger": [
+      48,
+      "PREEXIT "
+    ],
+    "ordering": {
+      "wait_call": [
+        560,
+        "CALL.REL.NOINC 0x1770 "
+      ],
+      "helper_target": 6000,
+      "independent_loads": [
+        [
+          400,
+          "LDG.E.NA.128.CONSTANT R48, desc[UR4][R24.64] "
+        ],
+        [
+          432,
+          "LDG.E.NA.128.CONSTANT R44, desc[UR4][R24.64+0x200] "
+        ],
+        [
+          448,
+          "LDG.E.CONSTANT R3, desc[UR4][R6.64] "
+        ],
+        [
+          464,
+          "LDG.E.NA.128.CONSTANT R8, desc[UR4][R24.64+0x400] "
+        ],
+        [
+          480,
+          "LDG.E.NA.128.CONSTANT R12, desc[UR4][R24.64+0x600000] "
+        ],
+        [
+          512,
+          "LDG.E.NA.128.CONSTANT R16, desc[UR4][R24.64+0x600200] "
+        ],
+        [
+          528,
+          "LDG.E.NA.128.CONSTANT R20, desc[UR4][R24.64+0x600400] "
+        ]
+      ],
+      "first_dependent_load": [
+        720,
+        "LDG.E.128.STRONG.GPU R24, desc[UR4][R52.64] "
+      ]
+    }
+  },
+  "r1": {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args' for 'sm_90a'\nptxas info    : Function properties for _Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z13v18s_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 483960,
+    "cubin_sha256": "2fa086c92ae2af4d3cdb756110e4f1ba82ccc375b282b6cb8b1eff4876c10216",
+    "seconds": 1.906,
+    "source_sha256": "4501de1b6c4e917be0c875a2b48e18fd267be088d71d7806ebab6032539b2f19",
+    "kernels": [
+      {
+        "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+        "registers": 64,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 32768,
+        "warnings": []
+      }
+    ],
+    "outgoing_trigger": [
+      32,
+      "PREEXIT "
+    ],
+    "ordering": {
+      "wait_call": [
+        464,
+        "CALL.REL.NOINC 0xeea0 "
+      ],
+      "helper_target": 61088,
+      "independent_loads": [
+        [
+          384,
+          "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64] "
+        ],
+        [
+          400,
+          "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200] "
+        ],
+        [
+          416,
+          "LDG.E.CONSTANT R2, desc[UR6][R8.64] "
+        ],
+        [
+          432,
+          "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400] "
+        ]
+      ],
+      "first_dependent_load": [
+        784,
+        "LDG.E.STRONG.GPU R9, desc[UR6][R8.64] "
+      ]
+    }
+  },
+  "r8": {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 64 registers, used 2 barriers, 32768 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z16smallm2_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+    "cubin_bytes": 484344,
+    "cubin_sha256": "8199f12bb974e522dca96221da79be2da93bf1d532743b2a03d447922c9b547a",
+    "seconds": 1.907,
+    "source_sha256": "625d413d5e68e0fd514cb52cabadfceb6360c81dd62b8076dfe0efc54cd06735",
+    "kernels": [
+      {
+        "symbol": "_Z12smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+        "registers": 64,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 32768,
+        "warnings": []
+      }
+    ],
+    "outgoing_trigger": [
+      32,
+      "PREEXIT "
+    ],
+    "ordering": {
+      "wait_call": [
+        464,
+        "CALL.REL.NOINC 0xeea0 "
+      ],
+      "helper_target": 61088,
+      "independent_loads": [
+        [
+          384,
+          "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64] "
+        ],
+        [
+          400,
+          "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200] "
+        ],
+        [
+          416,
+          "LDG.E.CONSTANT R2, desc[UR6][R8.64] "
+        ],
+        [
+          432,
+          "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400] "
+        ]
+      ],
+      "first_dependent_load": [
+        784,
+        "LDG.E.STRONG.GPU R9, desc[UR6][R8.64] "
+      ]
+    }
+  }
+}

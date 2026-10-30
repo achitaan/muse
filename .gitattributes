@@ -4,3 +4,4 @@ best/** -text
 results/** -text
 muse_bf16_proj/** -text
 experiments/decode_moe/*pdl* -text
+experiments/decode_moe/profiles/decoder_pdl* -text

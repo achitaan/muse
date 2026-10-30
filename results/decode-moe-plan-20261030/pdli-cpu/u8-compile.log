@@ -1,0 +1,14 @@
+preflight.cu(222): warning #177-D: variable "parts" was declared but never referenced
+          const uint32_t parts = RED == 2 ? (uint32_t)((S - 1) * NW) : (uint32_t)((S - 1) * WR);
+                         ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z12smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z12smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 62 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z16smtrace_pdl_waitj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

@@ -1,0 +1,35 @@
+PDL_DIAG BUILD o1 d9f48a29bc56
+PDL_DIAG BUILD o8 4636bfecbe41
+PDL_DIAG BUILD r1 6e7378b4a609
+PDL_DIAG BUILD r8 ee6db169ee00
+R2_GATE M=1 PASS parent=30.59us fused=24.96us use=True
+R2_DIAG M=1 parent=30.59us fused=24.96us pool_only=19.01us f_notopk=23.58us f_nomath=21.38us f_neither=20.10us
+R2_GATE M=8 PASS parent=39.42us fused=27.84us use=True
+R2_DIAG M=8 parent=39.42us fused=27.84us pool_only=18.94us f_notopk=26.78us f_nomath=24.22us f_neither=22.94us
+R2_DONE 261.9s sel=(1, 8)
+PDL_DIAG CONFIG production_enabled=False spin_ns=5000 reps_per_order=30 orders=normal,pdl;pdl,normal bytewise=True
+PDL_DIAG RESOURCE o1 regs_local= 56000 blocks_per_sm= 1 source= d9f48a29bc56e25d061aca9dda3333cd1fcf32d5d5db10f24466599e283974f3 instance= (1, 1, 1, 2, 0, 0, 1024, 0, 8192, 1024, 4, 8, 2, 1, 7)
+PDL_DIAG RESOURCE r1 regs_local= 64000 blocks_per_sm= 1 source= 6e7378b4a609b64eb25602073d713f12eaa8a5a55f2d2e70e222ea12c56ccd06 instance= (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 70)
+PDL_DIAG BITWISE 1 spin_o True changing_input_graph_replays=3
+PDL_DIAG TIME M=1 kind=spin_o order=normal,pdl normal_us=15.680000 pdl_us=11.872000 saving_us=3.808000 ratio=0.757143 pick=pdl
+PDL_DIAG TIME M=1 kind=spin_o order=pdl,normal normal_us=15.840000 pdl_us=11.840000 saving_us=4.000000 ratio=0.747475 pick=pdl
+PDL_DIAG BITWISE 1 spin_r2f True changing_input_graph_replays=3
+PDL_DIAG TIME M=1 kind=spin_r2f order=normal,pdl normal_us=31.296000 pdl_us=28.000001 saving_us=3.295999 ratio=0.894683 pick=pdl
+PDL_DIAG TIME M=1 kind=spin_r2f order=pdl,normal normal_us=31.328000 pdl_us=28.224001 saving_us=3.103999 ratio=0.900919 pick=pdl
+PDL_DIAG BITWISE 1 synthetic_chain True changing_input_graph_replays=3
+PDL_DIAG TIME M=1 kind=synthetic_chain order=normal,pdl normal_us=53.408001 pdl_us=47.711998 saving_us=5.696002 ratio=0.893349 pick=pdl
+PDL_DIAG TIME M=1 kind=synthetic_chain order=pdl,normal normal_us=53.792000 pdl_us=47.904000 saving_us=5.888000 ratio=0.890541 pick=pdl
+PDL_DIAG DECISION M=1 conservative_savings_us= {'spin_o': 3.80800012499094, 'spin_r2f': 3.1039994210004807, 'synthetic_chain': 5.696002393960953} combined_ceiling_pass= True production_enabled=False
+PDL_DIAG RESOURCE o8 regs_local= 56000 blocks_per_sm= 4 source= 4636bfecbe413acf6172a86e50365ae437e2b8d2848188d6db3fb213ee16f66a instance= (1, 1, 1, 2, 0, 0, 256, 0, 8192, 1024, 1, 8, 2, 1, 6)
+PDL_DIAG RESOURCE r8 regs_local= 64000 blocks_per_sm= 1 source= ee6db169ee00c55a6e7d596f66294c81f51284e3dd6c1277be37f9b8777f9275 instance= (1, 1, 1, 1, 0, 0, 1024, 0, 4096, 8192, 2, 16, 8, 1, 70)
+PDL_DIAG BITWISE 8 spin_o True changing_input_graph_replays=3
+PDL_DIAG TIME M=8 kind=spin_o order=normal,pdl normal_us=15.872000 pdl_us=12.480000 saving_us=3.392000 ratio=0.786290 pick=pdl
+PDL_DIAG TIME M=8 kind=spin_o order=pdl,normal normal_us=15.872000 pdl_us=12.512000 saving_us=3.360000 ratio=0.788306 pick=pdl
+PDL_DIAG BITWISE 8 spin_r2f True changing_input_graph_replays=3
+PDL_DIAG TIME M=8 kind=spin_r2f order=normal,pdl normal_us=33.856001 pdl_us=31.424001 saving_us=2.432000 ratio=0.928166 pick=pdl
+PDL_DIAG TIME M=8 kind=spin_r2f order=pdl,normal normal_us=33.824001 pdl_us=31.552002 saving_us=2.271999 ratio=0.932829 pick=pdl
+PDL_DIAG BITWISE 8 synthetic_chain True changing_input_graph_replays=3
+PDL_DIAG TIME M=8 kind=synthetic_chain order=normal,pdl normal_us=56.480002 pdl_us=51.872000 saving_us=4.608002 ratio=0.918414 pick=pdl
+PDL_DIAG TIME M=8 kind=synthetic_chain order=pdl,normal normal_us=56.511998 pdl_us=51.647998 saving_us=4.864000 ratio=0.913930 pick=pdl
+PDL_DIAG DECISION M=8 conservative_savings_us= {'spin_o': 3.359999507665634, 'spin_r2f': 2.2719986736774445, 'synthetic_chain': 4.608001559972763} combined_ceiling_pass= True production_enabled=False
+PDL_DIAG DONE elapsed_s= 262.0639836229966 production_enabled=False

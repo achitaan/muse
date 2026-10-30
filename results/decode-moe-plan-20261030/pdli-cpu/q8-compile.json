@@ -1,0 +1,23 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z30qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z30qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 93 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\n",
+  "cubin_bytes": 320056,
+  "cubin_sha256": "ced26433d46847153ea43bde40bf14868320fe009e3e44fee4a5be3d17f3620f",
+  "seconds": 1.203,
+  "source_sha256": "d3972adcaec566a7d9dfd3969670b2030a5da55b15aff1f1feff4d6c34f54758",
+  "kernels": [
+    {
+      "symbol": "_Z30qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 93,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    }
+  ],
+  "outgoing_trigger": [
+    80,
+    "PREEXIT "
+  ]
+}

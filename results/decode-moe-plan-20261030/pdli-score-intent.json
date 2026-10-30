@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-10-30T07:20:47.271073+00:00",
+  "mode": "submit",
+  "problem": "muse_decode_layer",
+  "candidate": "experiments/decode_moe/decoder_pdli.py",
+  "sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "transport_attempts": 1,
+  "job_id": "452fbd9df6af4ff4",
+  "acknowledged_at": "2026-10-30T07:22:40.737557+00:00"
+}

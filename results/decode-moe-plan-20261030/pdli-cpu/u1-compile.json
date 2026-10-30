@@ -1,0 +1,64 @@
+{
+  "rc": 0,
+  "log": "preflight.cu(222): warning #177-D: variable \"parts\" was declared but never referenced\n          const uint32_t parts = RED == 2 ? (uint32_t)((S - 1) * NW) : (uint32_t)((S - 1) * WR);\n                         ^\n\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\n\nptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 63 registers, used 1 barriers, 16 bytes smem\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z16smtrace_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 315064,
+  "cubin_sha256": "030f1bf3b7f67599345db38b5919b279cba6511ef43638301d29e625779a0baf",
+  "seconds": 1.657,
+  "source_sha256": "58feac0a03da58e6b710399beeed79eba27b7d27d85f9470be9c76e1067602d6",
+  "kernels": [
+    {
+      "symbol": "_Z12smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 63,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 16,
+      "warnings": []
+    }
+  ],
+  "outgoing_trigger": [
+    80,
+    "PREEXIT "
+  ],
+  "ordering": {
+    "wait_call": [
+      992,
+      "CALL.REL.NOINC 0x2030 "
+    ],
+    "helper_target": 8240,
+    "independent_loads": [
+      [
+        816,
+        "LDG.E.CONSTANT R2, desc[UR6][R2.64] "
+      ],
+      [
+        864,
+        "LDG.E.NA.128.CONSTANT R4, desc[UR6][R30.64] "
+      ],
+      [
+        880,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR6][R30.64+0x200] "
+      ],
+      [
+        912,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R30.64+0x400] "
+      ],
+      [
+        928,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R30.64+0x300000] "
+      ],
+      [
+        944,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R30.64+0x300200] "
+      ],
+      [
+        960,
+        "LDG.E.NA.128.CONSTANT R24, desc[UR6][R30.64+0x300400] "
+      ]
+    ],
+    "first_dependent_load": [
+      1264,
+      "LDG.E.128.STRONG.GPU R28, desc[UR6][R46.64] "
+    ]
+  }
+}

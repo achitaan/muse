@@ -1,0 +1,34 @@
+{
+  "candidate_sha256": "5723ce1fee791bf95bae884d32dc4e5e9d061b16bc938afea4c05d80fb004f29",
+  "candidate_bytes": 939302,
+  "fixtures": [
+    {
+      "M": 1,
+      "sliding": false,
+      "native_supported": true,
+      "cache_offsets_in_bounds": true
+    },
+    {
+      "M": 1,
+      "sliding": true,
+      "native_supported": true,
+      "cache_offsets_in_bounds": true
+    },
+    {
+      "M": 8,
+      "sliding": false,
+      "native_supported": true,
+      "cache_offsets_in_bounds": true
+    },
+    {
+      "M": 8,
+      "sliding": true,
+      "native_supported": true,
+      "cache_offsets_in_bounds": true
+    }
+  ],
+  "bitwise_comparator_distinguishes_signed_zero": true,
+  "all_16_host_export_signatures_match": true,
+  "exact_parent_prefix_preserved": true,
+  "CPU_only": true
+}

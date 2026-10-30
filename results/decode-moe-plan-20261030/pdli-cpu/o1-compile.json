@@ -1,0 +1,64 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z16smallm2_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 306232,
+  "cubin_sha256": "95658cf447a069ced0439e7beafb9f82e4c3ed5fdf8833c1c37b90d17fbc147a",
+  "seconds": 1.25,
+  "source_sha256": "91b6ed714b515d6307f974c6a5857bfb5030da3489b11b062739e4b7bf620ee2",
+  "kernels": [
+    {
+      "symbol": "_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 50,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "outgoing_trigger": [
+    80,
+    "PREEXIT "
+  ],
+  "ordering": {
+    "wait_call": [
+      608,
+      "CALL.REL.NOINC 0x1710 "
+    ],
+    "helper_target": 5904,
+    "independent_loads": [
+      [
+        336,
+        "LDG.E.NA.128.CONSTANT R32, desc[UR4][R6.64] "
+      ],
+      [
+        384,
+        "LDG.E.NA.128.CONSTANT R24, desc[UR4][R6.64+0x200] "
+      ],
+      [
+        432,
+        "LDG.E.CONSTANT R3, desc[UR4][R2.64] "
+      ],
+      [
+        464,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R6.64+0x400] "
+      ],
+      [
+        496,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R6.64+0x600000] "
+      ],
+      [
+        544,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R6.64+0x600200] "
+      ],
+      [
+        576,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R6.64+0x600400] "
+      ]
+    ],
+    "first_dependent_load": [
+      1296,
+      "LDG.E.128.STRONG.GPU R32, desc[UR4][R40.64+0x10] "
+    ]
+  }
+}

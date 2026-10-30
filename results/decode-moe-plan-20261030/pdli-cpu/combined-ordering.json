@@ -1,0 +1,268 @@
+{
+  "q8": {
+    "symbol": "_ZN7pdli_q830qs_literal_owner5_decode5_gemvILi1ELi1ELi1ELi2ELi5ELi0ELi256ELi8ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      80,
+      "PREEXIT"
+    ]
+  },
+  "q1": {
+    "symbol": "_ZN7pdli_q116v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      96,
+      "PREEXIT"
+    ]
+  },
+  "u8": {
+    "symbol": "_ZN7pdli_u812smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi512ELi8ELi1024ELi4096ELi1ELi16ELi2ELi2EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      96,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      928,
+      "CALL.REL.NOINC 0x22f0"
+    ],
+    "wait_helper": "0x22f0",
+    "independent_loads": [
+      [
+        720,
+        "LDG.E.CONSTANT R2, desc[UR4][R30.64]"
+      ],
+      [
+        784,
+        "LDG.E.NA.128.CONSTANT R4, desc[UR4][R28.64]"
+      ],
+      [
+        832,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R28.64+0x200]"
+      ],
+      [
+        848,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R28.64+0x400]"
+      ],
+      [
+        864,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R28.64+0x300000]"
+      ],
+      [
+        880,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R28.64+0x300200]"
+      ],
+      [
+        896,
+        "LDG.E.NA.128.CONSTANT R24, desc[UR4][R28.64+0x300400]"
+      ]
+    ],
+    "first_dependent_load": [
+      1280,
+      "LDG.E.128.STRONG.GPU R28, desc[UR4][R46.64]"
+    ]
+  },
+  "u1": {
+    "symbol": "_ZN7pdli_u112smtrace_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi1ELi1024ELi4096ELi1ELi8ELi2ELi4EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      80,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      992,
+      "CALL.REL.NOINC 0x2030"
+    ],
+    "wait_helper": "0x2030",
+    "independent_loads": [
+      [
+        816,
+        "LDG.E.CONSTANT R2, desc[UR6][R2.64]"
+      ],
+      [
+        864,
+        "LDG.E.NA.128.CONSTANT R4, desc[UR6][R30.64]"
+      ],
+      [
+        880,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR6][R30.64+0x200]"
+      ],
+      [
+        912,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R30.64+0x400]"
+      ],
+      [
+        928,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R30.64+0x300000]"
+      ],
+      [
+        944,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R30.64+0x300200]"
+      ],
+      [
+        960,
+        "LDG.E.NA.128.CONSTANT R24, desc[UR6][R30.64+0x300400]"
+      ]
+    ],
+    "first_dependent_load": [
+      1264,
+      "LDG.E.128.STRONG.GPU R28, desc[UR6][R46.64]"
+    ]
+  },
+  "r8": {
+    "symbol": "_ZN7pdli_r812smallm2_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+    "trigger": [
+      32,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      464,
+      "CALL.REL.NOINC 0xeea0"
+    ],
+    "wait_helper": "0xeea0",
+    "independent_loads": [
+      [
+        384,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64]"
+      ],
+      [
+        400,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200]"
+      ],
+      [
+        416,
+        "LDG.E.CONSTANT R2, desc[UR6][R8.64]"
+      ],
+      [
+        432,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400]"
+      ]
+    ],
+    "first_dependent_load": [
+      784,
+      "LDG.E.STRONG.GPU R9, desc[UR6][R8.64]"
+    ]
+  },
+  "r1": {
+    "symbol": "_ZN7pdli_r19v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjjNS_6R2ArgsE",
+    "trigger": [
+      32,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      464,
+      "CALL.REL.NOINC 0xeea0"
+    ],
+    "wait_helper": "0xeea0",
+    "independent_loads": [
+      [
+        384,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64]"
+      ],
+      [
+        400,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200]"
+      ],
+      [
+        416,
+        "LDG.E.CONSTANT R2, desc[UR6][R8.64]"
+      ],
+      [
+        432,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400]"
+      ]
+    ],
+    "first_dependent_load": [
+      784,
+      "LDG.E.STRONG.GPU R9, desc[UR6][R8.64]"
+    ]
+  },
+  "o8": {
+    "symbol": "_ZN7pdli_o89v18s_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi256ELi0ELi8192ELi1024ELi1ELi8ELi2ELi1ELi6EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      48,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      560,
+      "CALL.REL.NOINC 0x1770"
+    ],
+    "wait_helper": "0x1770",
+    "independent_loads": [
+      [
+        400,
+        "LDG.E.NA.128.CONSTANT R48, desc[UR4][R24.64]"
+      ],
+      [
+        432,
+        "LDG.E.NA.128.CONSTANT R44, desc[UR4][R24.64+0x200]"
+      ],
+      [
+        448,
+        "LDG.E.CONSTANT R3, desc[UR4][R6.64]"
+      ],
+      [
+        464,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R24.64+0x400]"
+      ],
+      [
+        480,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R24.64+0x600000]"
+      ],
+      [
+        512,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R24.64+0x600200]"
+      ],
+      [
+        528,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R24.64+0x600400]"
+      ]
+    ],
+    "first_dependent_load": [
+      720,
+      "LDG.E.128.STRONG.GPU R24, desc[UR4][R52.64]"
+    ]
+  },
+  "o1": {
+    "symbol": "_ZN7pdli_o112smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+    "trigger": [
+      80,
+      "PREEXIT"
+    ],
+    "wait_call": [
+      608,
+      "CALL.REL.NOINC 0x1710"
+    ],
+    "wait_helper": "0x1710",
+    "independent_loads": [
+      [
+        336,
+        "LDG.E.NA.128.CONSTANT R32, desc[UR4][R6.64]"
+      ],
+      [
+        384,
+        "LDG.E.NA.128.CONSTANT R24, desc[UR4][R6.64+0x200]"
+      ],
+      [
+        432,
+        "LDG.E.CONSTANT R3, desc[UR4][R2.64]"
+      ],
+      [
+        464,
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R6.64+0x400]"
+      ],
+      [
+        496,
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R6.64+0x600000]"
+      ],
+      [
+        544,
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R6.64+0x600200]"
+      ],
+      [
+        576,
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R6.64+0x600400]"
+      ]
+    ],
+    "first_dependent_load": [
+      1296,
+      "LDG.E.128.STRONG.GPU R32, desc[UR4][R40.64+0x10]"
+    ]
+  }
+}

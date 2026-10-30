@@ -376,3 +376,132 @@ raw result and logs: `pdl-status-final.json`, `pdl-diag-outcome.json`,
 conditionally authorizes Step 2 production integration; its own bitwise equality,
 >3% cold-L2 graph gates and whole-layer validation still apply. Earliest next check
 under routine spacing is 2026-10-30 07:01:46.883 UTC, not an immediate retry.
+
+## Step 2 production integration packet (2026-10-30)
+
+Step 1 evidence is committed and pushed as `0db477d` on
+`argon/decode-moe-20261030`. The main chat performed all work; no subagent was launched.
+The latest user AGENTS instructions were applied without changing the selected model.
+
+Candidate: `experiments/decode_moe/decoder_pdli.py`, SHA256
+`c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5`,
+940,518 bytes (59,482 bytes headroom). It retains the exact R2f source prefix, then
+appends pure source derivations, a separate layer function and gated public wrappers.
+The eight private CUDA instances are O1/O8, R2f1/R2f8, sliced unpooler1/unpooler8,
+and the original QKV1/QKV8 producers with an entry trigger. No packing or arithmetic
+is replaced. No `best/`, main, other worktree or other session branch is edited.
+
+### Implementation and guards
+
+- New QKV producers announce readiness at entry. The paired attention path uses its
+  existing incoming PDL support. It waits before QKV reads; metadata/history work is
+  independent. Every primary CTA must signal or exit before dependent launch, so
+  unlaunched primary CTAs cannot be stranded by the secondary.
+- O and R2f derive from the compiler-verified Step 1 twins, with an outgoing trigger.
+  The stock attention-boundary norm remains the real predecessor for the R2f gate.
+  No synthetic spin is used in this packet.
+- Sliced unpoolers preserve their original cluster geometry, mbarrier initialization,
+  expected bytes, peer stores, waits, FP32 reduction and final BF16 stores. Their two
+  initial weight stages cover the entire split (KU=ST=2). Activation loads are moved
+  after the noninline wait helper and use coherent CG loads. Static assertions exclude
+  any instance for which later stages would require the original mixed loader.
+- MoE's existing outgoing trigger supplies the unpooler handoff. The incoming MoE flag
+  stays off: explicit cached dependent route/X reads were found, and this packet does
+  not establish their incoming-PDL coherency contract. Its math and scheduler are
+  unchanged. `_fpr_PDL` is only relevant at 9–32 tokens and is left for that separate
+  regime; there is no global flag toggle affecting untouched shapes.
+- One extension packages the eight private instances in distinct namespaces, with
+  common CUDA headers and one pybind translation unit. This avoids eight separate
+  header/pybind builds. All 16 primitive host exports have matching signatures.
+  Occupancy queries use cluster-only configs; the PDL attribute is added on launches.
+- Packed extension and original attention extension build on background threads.
+  A background stock norm warm-up starts after the original core state is constructed,
+  while Dense preparation proceeds. It only prepares immutable weight caches and
+  synthetic tensors; no runtime input or output is cached.
+- Incoming consumers wait before dependent activation reads, including R2f router
+  staging. R2f's extra top-k CTA bypasses ordinary weight reads and waits at entry.
+  Private routing scratch is 64 KiB plus one counter, reused sequentially and reset
+  by the existing top-k completion. No expanded/repacked expert layout is added.
+
+### Numerical/performance gates
+
+Each M1/M8 handoff uses real producers: QKV->attention, attention->O, stock norm->R2f,
+and retained MoE->unpooler. Gates require byte equality on three changing graph
+inputs (with whole cache byte comparisons for attention) and >3% cold-L2 interleaved
+CUDA-graph improvement in BOTH arm orders. Unpooler correctness includes one local,
+all nonlocal and eight local routes. Timing uses one local expert/token as a bounded
+representative pattern; this is recorded, not claimed as actual judge routing.
+
+A single union of individually passing paths is then tested against the original
+complete `kernel_fn`, including output stream, routing IDs and full cache bytes.
+The union must independently pass bitwise equality and >3% in both orders. No
+Cartesian combination search occurs. Regimes that fail or run out of preparation
+budget retain the parent. Dispatch is shape/config-only; QA additionally requires
+B1 and L1/L8. Other token counts and q_len fallbacks retain the original code.
+No new work starts after 278 s; final prepare remains subject to the 300 s cap.
+
+CPU NVRTC compiled the packed device module successfully. All eight kernels have
+zero stack/spills. Registers O1/O8/R1/R8/U1/U8/Q1/Q8: 50/56/64/64/63/62/78/93.
+All eight have an entry `PREEXIT`; six consumers issue the expected 7/7/4/4/7/7
+weight/escape LDGs before the helper wait, then coherent dependent loads. Raw packed
+SASS and proof: `pdli-cpu/combined.sass`, `pdli-cpu/combined-ordering.json`.
+The final host-only occupancy guard leaves the compiled device proxy byte-identical;
+this binding is recorded explicitly in `pdli-preflight.json`, not represented as a
+new GPU measurement. Final packed CUDA SHA256:
+`785ba7a5b64d17632d15ae7918cba5684972f3f7517f0ef992076b057746af15`.
+
+Official validation, actual resource queries, actual selection and performance are
+still pending. A score increase is not claimed from CPU compilation or Step 1.
+
+### Step 2 admission
+
+At 07:00 UTC the account has **2 Decode checks and 8 scored runs left**, with no
+active job. The latest check was Step 1 at 06:01:46.882509 UTC. Earliest new upload
+is 07:01:46.882509 UTC. The human brief conditionally authorizes one production check
+after the ceiling passes; that condition is met. Use one check, leaving one, and
+record its actual handle. No scored submission unless 13/13 and material targeted
+and aggregate improvement satisfy the human's publication guard.
+
+### Step 2 check launched
+
+At 2026-10-30T07:03:22.358488+00:00, one upload of source `c15df9d3` was acknowledged as
+**`59cfbd2b12fa43f2`**, check mode, `muse_decode_layer`. No TLS retry. A byte-identical
+frozen payload is under `payloads/`. Actual selection, full correctness and timings
+are pending; no public submission or board update has occurred.
+
+### Step 2 check result and scored-confirmation decision
+
+`59cfbd2b12fa43f2` passed **13/13 tests, 12/12 benchmarks and integrity**, no flags.
+Prepare **264.746 s**. API **2.081797387x**, CI [2.050570426, 2.113024348]. Source
+`c15df9d3` selected only **M1 sliding mask 10 = O + sliced unpooler**. Both private
+kernel markers appear in that case's profile, nowhere else. Evaluator identity
+matches the Step 1 parent check exactly. Actual resources: O1/O8 56/56 regs,
+R1/R8 64/64, U1/U8 63/62, Q1/Q8 78/93, all zero local bytes. Occupancy queries:
+1/4 blocks per SM for O, 1 for R2f; Q1/Q8 186/154 active clusters and U1/U8
+124/132 active clusters.
+
+The accepted whole-layer graph gate saved 2.944 / 3.200 us in the two arm orders
+(new/old .956149 / .952584), with byte-identical outputs and caches. The official
+1-token sliding case improved **79.027 -> 75.518 us** against Step 1's unchanged
+R2f path. Its fixed-other-loads weighted contribution is about **+0.5475%**;
+do not call the entire +1.50% API point difference causal. Cross-run control drift
+and overlapping intervals remain. This is not a significance claim.
+
+Other regimes stayed on the parent. R2f's real stock-norm predecessor yielded
+0.672–1.088 us (M1) and 0.768–1.280 us (M8); neither passed >3% in BOTH orders.
+QA M1 sliding saved only .224–.256 us. Several other comparisons failed byte
+checks (attention a few BF16 bytes; M8 MoE outputs on dense-local routes; complete
+full-context outputs). Those failures were recorded and rejected, not tolerated.
+There is no 16/32 transfer of these failed paths.
+
+Live board before confirmation: **2.0510x, rank 228**. After inspecting actual path
+markers, the accepted paired full-layer gate and targeted benchmark reduction,
+authorize exactly one scored confirmation of the identical checked bytes. The
+new aggregate point exceeds 2.0510, with a visible source-bound targeted gain;
+its uncertainty and diluted contribution are preserved above. This consumes a
+scored run, leaving the final check untouched. No unchanged-code retries or
+public rerun if it selects no new path. Decision details: `pdli-score-decision.json`.
+
+Scored upload acknowledged job **`452fbd9df6af4ff4`**, source `c15df9d3`, once,
+no TLS retry. The full source is byte-identical to the successful production check.
+Result, actual selected paths and board placement are pending.

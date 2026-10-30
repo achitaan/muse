@@ -1,0 +1,23 @@
+{
+  "job_id": "59cfbd2b12fa43f2",
+  "same_evaluator_as_parent_check": true,
+  "changed_profiles": [
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "decode 1",
+        "page": 1,
+        "repeats": 60,
+        "seed": 7950775952491532023,
+        "weight": 46
+      },
+      "markers": [
+        "pdli_o1::",
+        "pdli_u1::"
+      ]
+    }
+  ]
+}
