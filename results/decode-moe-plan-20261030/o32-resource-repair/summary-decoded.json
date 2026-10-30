@@ -1,0 +1,12 @@
+{
+  "timed_path": "unchanged Dense parent",
+  "enables_nothing": true,
+  "projections": [],
+  "skipped": [],
+  "errors": [
+    "RuntimeError('O32R module unavailable: DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp -o main.o \\\\n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp:7:16: error: expected constructor, destructor, or type conversion before \u2018(\u2019 token\\\\n    7 | PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {\\\\n      |                ^\\\\n[2/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options \\\\\\'-fPIC\\\\\\' -O3 -lineinfo -gencode=arch=compute_90a,code=sm_90a -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu -o cuda.cuda.o \\\\n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu(38): warning #177-D: variable \"TH\" was declared but never referenced\\\\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\\\\n                                                       ^\\\\n\\\\nRemark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"\\\\n\\\\nninja: build stopped: subcommand failed.\\\\n\\')')"
+  ],
+  "budget_stop": false,
+  "resources": {},
+  "prepare_s": 89.611900443997
+}

@@ -13,9 +13,9 @@ from build_o32_resource_diag import OUT, QUERY
 
 
 def main():
-    raw = (HERE / 'dense_o32_resource_diag.py').read_bytes()
     dense = (ROOT / 'best/verified.py').read_bytes()
     binding = json.loads((OUT / 'source-binding.json').read_text(encoding='utf-8'))
+    raw = (HERE / binding['source']).read_bytes()
     assert hashlib.sha256(raw).hexdigest() == binding['source_sha256']
     assert hashlib.sha256(dense).hexdigest() == DENSE_SHA and raw.startswith(dense)
     app = raw[len(dense):].decode()
@@ -37,6 +37,12 @@ def main():
     assert '_d16_projection_probe(diag, 32, \'o\'' in app
     assert '_P16_EXT.o32r_launch(0, x.data_ptr()' in app
     assert 'fixed[3] == 196736' in app and 'fixed[6] > 0' in app and 'fixed[1] == 0' in app
+    assert '#include <pybind11/pybind11.h>' in (OUT / 'diagnostic.cpp').read_text(encoding='utf-8')
+    # The packaging repair must change only the explicit Pybind header.
+    previous = (HERE / 'dense_o32_resource_diag.py').read_bytes()
+    before = b"_O32R_CPP = '#include <stdint.h>"
+    after = b"_O32R_CPP = '#include <pybind11/pybind11.h>\\n#include <stdint.h>"
+    assert previous.count(before) == 1 and previous.replace(before, after, 1) == raw
     # Check acceptance using the actual AST predicate, including negative resources.
     prep = next(n for n in nodes if isinstance(n, ast.FunctionDef) and n.name == 'prepare')
     ready = next(n.value for n in ast.walk(prep) if isinstance(n, ast.Assign)

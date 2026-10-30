@@ -12,7 +12,7 @@ from build_norm_pair_diag import DENSE_SHA, extract
 from build_handoff16_diag import SPIN
 from harness import append_harness
 
-OUT = ROOT / 'results/decode-moe-plan-20261030/o32-resource-repair'
+OUT = ROOT / 'results/decode-moe-plan-20261030/o32-resource-fixed'
 
 QUERY = r'''
 // Query-only legacy call, to diagnose configuration sharing. Never launch it.
@@ -52,7 +52,8 @@ def main():
     inverse = re.sub(r'\bo32r_', 'ol_', private).replace('O32REncode', 'OLEncode')
     assert inverse == host and 'ol_launch_t(' not in private
     cuda = old + private + QUERY + SPIN
-    cpp = '''#include <stdint.h>
+    cpp = '''#include <pybind11/pybind11.h>
+#include <stdint.h>
 int o32r_launch(int,int64_t,int64_t,int64_t,int,int64_t,int);
 int o32r_legacy_query();
 int o32r_attr(int);
@@ -75,12 +76,13 @@ int d16_spin_start(int64_t,int64_t,int,int,int64_t,int64_t);
     raw = dense + app.encode()
     ast.parse(raw)
     assert len(raw) < 1_000_000 and raw.startswith(dense)
-    (HERE / 'dense_o32_resource_diag.py').write_bytes(raw)
+    target = HERE / 'dense_o32_resource_fixed.py'
+    target.write_bytes(raw)
     (OUT / 'legacy-device-and-host-prefix.cu').write_bytes(old.encode())
     (OUT / 'private-host.cu').write_bytes(private.encode())
     (OUT / 'diagnostic.cu').write_bytes(cuda.encode())
     (OUT / 'diagnostic.cpp').write_bytes(cpp.encode())
-    record = dict(source_sha256=hashlib.sha256(raw).hexdigest(), bytes=len(raw),
+    record = dict(source=target.name, source_sha256=hashlib.sha256(raw).hexdigest(), bytes=len(raw),
         Dense_parent_sha256=DENSE_SHA, previous_job='3264689ee9974ef9',
         original_O32_CUDA_sha256=hashlib.sha256(old.encode()).hexdigest(),
         diagnostic_CUDA_sha256=hashlib.sha256(cuda.encode()).hexdigest(),

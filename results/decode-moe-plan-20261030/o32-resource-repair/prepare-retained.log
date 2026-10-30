@@ -1,0 +1,82 @@
+O32R_BUILD_ERROR DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp -o main.o \n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp:7:16: error: expected constructor, destructor, or type conversion before ‘(’ token\n    7 | PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {\n      |                ^\n[2/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options \'-fPIC\' -O3 -lineinfo -gencode=arch=compute_90a,code=sm_90a -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu -o cuda.cuda.o \n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu(38): warning #177-D: variable "TH" was declared but never referenced\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\n                                                       ^\n\nRemark: The warnings can be suppressed with "-diag-suppress <warning-number>"\n\nninja: build stopped: subcommand failed.\n')
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 23.32800067961216 baseline 14.399999752640724
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 17.152000218629837 baseline 14.399999752640724
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 18.848000094294548 baseline 14.399999752640724
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 22.752000018954277 baseline 14.399999752640724
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 26.208000257611275 baseline 14.399999752640724
+WG_KEEP 16 qkv_gate baseline 13.856000266969204 best 17.152000218629837
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 22.463999688625336 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 17.311999574303627 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 18.719999119639397 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 23.77600036561489 baseline 15.584000386297703
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.168000116944313 baseline 15.584000386297703
+WG_KEEP 32 qkv_gate baseline 15.552000142633915 best 17.311999574303627
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.207999601960182 baseline 20.479999482631683
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 26.91200003027916 baseline 20.479999482631683
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 32.86400064826012 baseline 20.479999482631683
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 30.688000842928886 baseline 20.479999482631683
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 44.863998889923096 baseline 20.479999482631683
+WG_KEEP 32 unpooler baseline 20.447999238967896 best 22.207999601960182
+O32R_ERROR RuntimeError('O32R module unavailable: DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp -o main.o \\n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/main.cpp:7:16: error: expected constructor, destructor, or type conversion before ‘(’ token\\n    7 | PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {\\n      |                ^\\n[2/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_o32r_5f86204d683d -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options \\\'-fPIC\\\' -O3 -lineinfo -gencode=arch=compute_90a,code=sm_90a -std=c++20 -c /tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu -o cuda.cuda.o \\n/tmp/muse_bf16_proj-dc973uty/sandbox/cache/torch_extensions/okc_o32r_5f86204d683d/cuda.cu(38): warning #177-D: variable "TH" was declared but never referenced\\n    constexpr int AB=64*BK*2,SB=(64+T)*BK*2,IT=1024/BK,TH=CT+((PIPE&2)?128:0);\\n                                                       ^\\n\\nRemark: The warnings can be suppressed with "-diag-suppress <warning-number>"\\n\\nninja: build stopped: subcommand failed.\\n\')')
+O32R_SUMMARY_Z64 eNrtVW1v2zYQ/isHDVjsxrIs2fOLNm/wW2CjiW04zrCh7giKOtuqJVIgqTRB2v9eUnXqrE0HDEO+jYAk8o53J949x+fB0UmGMcmp3jshOAVne8p3GMMYuULIqUSunRo4yGmUoiJc6H3Cd2azlgUaRS7FO2Q6EVwZ4Zu3RqQOSZ5j/LhEKYUslc6q4DbgxEoqZ4tmsIJMxEWKUHB6S5PUBglhvF6sRlMy+WM9mV/PFnMyH1xN+uLAiGgGkvy07baDRitud5sxuMfNg+WMzOajy5vx5InhFNxE3SuNGXgi157apeZ8XppEXn6v94I3637gqUSjm1N2oDtUnhaS7b2Es7SI8b/aH1dMSebRPHnGbaGklwpGU48VMf3Ohkdvp6DgbpezEbhKx312fh40wGXg6Sz3skIhibZ+m9jauDHrdZqFvvcU5XEk7jxG2f74XwTvtCm0LZ73bHq9jCa8zvIcXAHlXMDGDP5ykcJO6LdDKFFjPne5QZcBJDOWBnLMeKtBjKe5kKDvc7QbblHaCBDhVkiETRE0/G6l/PRAiwPy8t/BjA58gOWfw9l87PvkajG+uZxUnkNdDbIqPHwxA2P21firVL4JvOZbYOWJv6lplHCP3zIG7tXYPBdgpfXyJeonCP+P93/E+5iQ0c14QOYLMh1cXpDFcrIamGRcE/KtcrSY/z5Z2Zx8rR5eXC4Ga4PZ72+xHoK/+3cNELUrMaV3GLslGI1EGgUTWZ6kKF2TLwvvsj82m7OyP49zcBdNcNOEY8K3AtwdciZi7FOTq751UGgkvQatlVKV2fmLt/YRhLazn+Dxpdr7GKLS7FZDeE8lNywCP/idjjsO4ZbKxF79sHHW041j9Mr0OEsN/cQQFRo4mt4GiVs0hMQw/tKQp0okXMNg2G+3Xg1fvwpq18N+pd06X1c/L2frvt8IWt7wdW097Y/W55XKcrac/BhUf/ODbtio/vykx//1+HwHlK8VZlQeQlibe+B4TAWM2ksJVJHnEpUyh3qf6L05rRsndOc+yuGXo4XLiyxC+evGOTk28nc0NNlI0hiUFpZiQ+MyMvjJTEVga/gT4/rR4qx6VnUs/UZFvENNrIXh4C1NlaVtE04UkqHl5YePJY+jZXtiBd1eve37vUaj1Wr2ep2PnwDw3a1a
+O32R_DONE 89.611900443997 enables_nothing=True
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 17:57:43 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop

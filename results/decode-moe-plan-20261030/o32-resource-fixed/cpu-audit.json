@@ -1,0 +1,11 @@
+{
+  "source_sha256": "b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de",
+  "checks_passed": true,
+  "unchanged_parent_prefix": true,
+  "unchanged_device_source_prefix": true,
+  "private_host_names": true,
+  "shared_probe_AST_exact": true,
+  "resource_positive_and_negative_cases": 10,
+  "CPU_ABI_reproducer": "Not executed: WSL g++ unavailable; no installation.",
+  "H200_host_build_and_resource_proof": "Unverified until bounded diagnostic; no GPU jobs in this audit."
+}

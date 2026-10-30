@@ -1,0 +1,19 @@
+{
+  "source": "dense_o32_resource_fixed.py",
+  "source_sha256": "b85443f6d63f33038ce6ffcc4bcfaf2407b14c2af9bb45acac4347ddd50419de",
+  "bytes": 654822,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "previous_job": "3264689ee9974ef9",
+  "original_O32_CUDA_sha256": "b45d6e23af85adc9cb16e41e5c02f445714188dd28d0fa5c8a14855e96526f7f",
+  "diagnostic_CUDA_sha256": "5f86204d683d6eb70124055f47fff5d56299f0bf7811dd8443ff25474a26ab31",
+  "old_CUDA_is_exact_prefix": true,
+  "private_host_inverse_exact": true,
+  "device_algorithm_unchanged": true,
+  "fixed_family": "O32 only, (32,128,8,1,1,1), TW1",
+  "hypothesis": "Generic host template configuration state may be shared across extension modules. Actual H200 cause unconfirmed.",
+  "correction": "Unique host template, map and launch symbols. Legacy query is never launched. Read attributes and occupancy before and after initialization.",
+  "gates": "Positive queried residency, zero local bytes, exact shape/config, finite bytes on changing normal/zero/outlier probes; >3% and >=1.5us in both orders.",
+  "enables_nothing": true,
+  "timed_Dense_parent_unchanged": true,
+  "GPU_jobs": 0
+}

@@ -1,0 +1,18 @@
+{
+  "job_id": "cd6dd28126de466e",
+  "status": "done",
+  "source_sha256": "ec51c132bdd752e4d6b8b8ec971e16e4d06627dffc942bffc4feff18c8b21e28",
+  "tests_passed": 9,
+  "tests_total": 9,
+  "benchmarks": 30,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 89.611900443997,
+  "diagnostic_executed": false,
+  "reason": "Missing explicit Pybind header with no_implicit_headers=True; CUDA compiler emitted no error, but main.cpp PYBIND11_MODULE was undefined.",
+  "decision": "No O32 resource, correctness or latency result. Preserve this failed diagnostic; one header-only repair proposed.",
+  "unchanged_Dense_point_not_new_gain": 1.5208537470597359
+}
