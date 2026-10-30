@@ -9,6 +9,7 @@
   3. Check budget is a ceiling, not a schedule. An inconclusive result keeps the incumbent and does **not** trigger more configs.
   4. No automatic scored submission and no automatic `main` update. Each needs its own user decision.
   5. Timing predictions and L2/HBM byte counts are **hypotheses** until measured. Logical repeated requests ≠ HBM transfers. Byte counts must include escape metadata, padding and activation reloads.
+  6. **Every result that slowed anything down goes into Section 1b ("Slowed it down") immediately**, with how much slower, the job ID and raw paired numbers. Losers are never re-run.
 
 Score model: `G = (Π_i T_i,old / T_i,new)^(1/6)` over 6 loads. 1 µs saved ≈ decode1 +0.47%, verify1 +0.46%, decode16 +0.36%, decode32 +0.30%, verify16 +0.25%, verify32 +0.20%.
 
@@ -26,8 +27,31 @@ Score model: `G = (Π_i T_i,old / T_i,new)^(1/6)` over 6 loads. 1 µs saved ≈ 
 | WG | Unmodified `m32w_gemm` K-partition sweep (`_achita_wg`) | (16,qkv_gate),(32,qkv_gate),(32,unpooler) | Every run of `best/verified.py` | 18.50 vs 13.89, 18.50 vs 15.52, 22.05 vs 20.26 → WG_KEEP | `wait_group 0` + 2-barrier `ld.shared::cluster` epilogue. Dead sweep removed in S1 candidates. |
 | CL | Fixed uncompressed BF16 cluster GEMMs (Vjeux ports) | (128,qkv_gate),(128,pooler) | `f026c3b14a864be0` | 3.7–7.0% slower | 16-bit at 1 CTA/SM cannot win |
 | QB | qb config `(64,36,256,3,4,219,5)` | (256,qkv_gate) | `1f6e5d17cf8c4c75`, `f873dc6fd6e948a2` | 38.9–40.5 vs 18.0 µs | Severe regression |
-| S1 | v18s_gemv RED3 `(1,8,4,2,3)` and RED0 `(1,16,4,1,0)` for sliced unpooler | (1,unpooler),(8,unpooler) | `f03ec089ee8d451b` | 5?10% slower than incumbent smtrace, 0?1/16 paired wins | KU=4 / fewer warps does not beat smtrace's KU=2 S=4/S=2 at this size; do not retry v18s geometries for the sliced unpooler |
+| S1 | v18s_gemv RED3 `(1,8,4,2,3)` and RED0 `(1,16,4,1,0)` for sliced unpooler | (1,unpooler),(8,unpooler) | `f03ec089ee8d451b` | **SLOWED DOWN 5–10%** vs incumbent smtrace, 0–1/16 paired wins | KU=4 / fewer warps does not beat smtrace's KU=2 S=4/S=2 at this size; do not retry v18s geometries for the sliced unpooler |
+| S2 | Unmodified m32w c12 WGMMA at BN=128 (WK 2/4, split=1, no cluster) | (128, unpooler) | `a5bd287a677c4fa9` | **SLOWED DOWN 18% (WK2) / 3% (WK4)** vs cuBLASLt | per-warpgroup `wait_group 0` serializes decode and MMA; do not retry unmodified m32w at M≥128 |
 | LOCK | pooler M1/8/16, unpooler M16 | 4 shapes | profile `e793260539cb4877` | 13.14–13.56 µs, already below the 13.99–14.06 BF16 floor | **LOCKED** |
+
+## 1b. Slowed it down — results that made Dense SLOWER (never retry)
+
+Ratio = incumbent time / candidate time; below 1.00 means the candidate **slowed it down**.
+
+| When | Experiment | Shape(s) | Incumbent | Candidate | How much slower | Job |
+|---|---|---|---|---|---|---|
+| 2026-10-30 | **S2** m32w c12 WGMMA, BN=128, WK=2, Q=3 (split=1, no cluster) | (128, unpooler 8192×4096) | cuBLASLt `nvjet 128x64` ≈ 24 µs graph / 18.6–19.4 µs kernel | ≈ 29.7 µs graph | **SLOWED DOWN ~18%** (ratio 0.822, 0/16 paired wins) | `a5bd287a677c4fa9` |
+| 2026-10-30 | **S2** m32w c12 WGMMA, BN=128, WK=4, Q=2 (split=1, no cluster) | (128, unpooler) | same | ≈ 24.5 µs graph | **SLOWED DOWN ~3%** (ratio 0.9725, 5/16 paired wins) | `a5bd287a677c4fa9` |
+| 2026-10-30 | **S1** v18s RED3 `(1,8,4,2,3)` (S=2 cluster, intra-CTA reduce + 1 DSMEM push) | (1, unpooler 1024×4096) / (8, unpooler) | smtrace ≈ 7.8 / 8.1 µs graph (3.2 / 3.3 µs kernel) | ≈ 8.7 / 8.8 µs graph | **SLOWED DOWN ~10% / ~8%** (ratio 0.899 / 0.916, 0/16 wins) | `f03ec089ee8d451b` |
+| 2026-10-30 | **S1** v18s RED0 `(1,16,4,1,0)` (no cluster) | (1, unpooler) / (8, unpooler) | same | ≈ 8.3 / 8.4 µs graph | **SLOWED DOWN ~7% / ~5%** (ratio 0.934 / 0.951, 0–1/16 wins) | `f03ec089ee8d451b` |
+| earlier | Unused qb config `(64,36,256,3,4,219,5)` | (256, qkv_gate) | 18.0 µs | 38.9–40.5 µs | **SLOWED DOWN ~2.2×** | `1f6e5d17cf8c4c75`, `f873dc6fd6e948a2` |
+| earlier | Unmodified m32w K-partition sweep (`_achita_wg`) | (16,qkv_gate) / (32,qkv_gate) / (32,unpooler) | 13.89 / 15.52 / 20.26 µs | 18.50 / 18.50 / 22.05 µs | **SLOWED DOWN 33% / 19% / 9%** | every run of `best/verified.py` |
+| earlier | Whole-row Triton GEMV (D1) | router M1/M8, unpooler M1/M8 | 7.97 / 8.48 / 8.45 / 8.51 µs | 8.26 / 12.90 / 8.61 / 16.90 µs | **SLOWED DOWN 2–99%** | `4edf30f7aa6142e7` |
+| earlier | Uncompressed BF16 cluster GEMMs (Vjeux ports) | (128, qkv_gate), (128, pooler) | qb / cuBLASLt | — | **SLOWED DOWN 3.2–7.0%** | `f026c3b14a864be0` |
+| earlier | olayer tile sweep (D5) | o M1/8/16/32 | 9.25 / 9.44 / 9.82 / 10.11 µs | ≥ 10.14 µs | **SLOWED DOWN up to ~10%** | `3b13fab22b2b4480` |
+| earlier | olayer tile sweep (D6) | o M128 / M256 | 10.75 / 8.78 µs | 10.82 / 12.90 µs | **SLOWED DOWN 0.7% / 47%** | `4e8fda34635040e6` |
+| earlier | cuBLASLt heuristic search (D3) | (128, o) | 10.75 µs | 11.10 µs best | **SLOWED DOWN ~3%** | `7287935eb7d34f7b` |
+
+Not slower but **too small to keep** (below the 3% gate): cuBLASLt neighborhoods D7/D8 (best +2.0% on (128,unpooler), +1.3% on (128,pooler)).
+
+What S2 taught us (evidence, not a retry license): going from 2 to 4 warpgroups moved the ratio from 0.822 to 0.973. Overlapping decode with MMA is what limits this kernel: each warpgroup's `wait_group 0` serializes it. The unmodified m32w kernel at M=128 is closed. Only a genuinely pipelined kernel, with an explicit register/smem lifetime schedule, would be a new hypothesis.
 
 ## 2. Open targets (from profile `e793260539cb4877`)
 
@@ -69,5 +93,5 @@ Balanced ABBA paired cold-L2 CUDA-graph replays, 16 pairs, raw samples printed. 
 |---|---|---|---|---|---|---|
 | S0 | 2026-10-30 | Worktree + ledger; drop dead `_achita_wg` sweep from candidates | SHA of parent verified | — | — | done |
 | S1-pre | 2026-10-30 | Two unpooler geometries compile cleanly at exact NTMAX | NVRTC sm_90a rc 0: RED3 `(1,8,4,2,3)` 72 regs, 0 spill; RED0 `(1,16,4,1,0)` 64 regs (ptxas heuristic, no cap flag), 8 B stack / 8 B st / 16 B ld spill. `results/s1-offline/s1-resources.txt` | — | compile OK | done |
-| S1 | 2026-10-30 | Lower reduction/coordination overhead at sliced-unpooler M1/M8 via v18s RED3 `(1,8,4,2,3)` / RED0 `(1,16,4,1,0)`. Candidate `candidates/dense_s1.py` sha `4394ff32?a760` | pack bit-exact (455 escapes), one-hot + FP64 pass, agreement vs incumbent ? 6.8e-7 | check `f03ec089ee8d451b` passed, 1.5315x (CI 1.509?1.555), all S1_KEEP | paired base/cand: M1 0.899 (0/16 wins), 0.934 (0/16); M8 0.916 (0/16), 0.951 (1/16). Both slower by 5?10% | **CLOSED** |
-| S2 | 2026-10-30 | M128 unpooler: exact-c12 m32w_gemm WGMMA, BN=128 tokens/CTA (weight decode reused for 128 tokens), split=1, no cluster; primary `(128,64,2,2,3)`, alt `(128,64,4,2,2)`. Candidate `candidates/dense_s2.py` sha `d87ab665?da33`, gates `results/dense-s2-check-1/gates.json` | NVRTC: WK2 135 regs/256 thr, WK4 125 regs/512 thr, 0 spill. Target scenario 18.77 ? ?16 ?s (hypothesis only) | pending | | launching |
+| S1 | 2026-10-30 | Lower reduction/coordination overhead at sliced-unpooler M1/M8 via v18s RED3 `(1,8,4,2,3)` / RED0 `(1,16,4,1,0)`. Candidate `candidates/dense_s1.py` sha `4394ff32…a760` | pack bit-exact (455 escapes), one-hot + FP64 pass, agreement vs incumbent ≤ 6.8e-7 | check `f03ec089ee8d451b` passed, 1.5315x (CI 1.509–1.555), all S1_KEEP | paired base/cand: M1 0.899 (0/16 wins), 0.934 (0/16); M8 0.916 (0/16), 0.951 (1/16). **SLOWED DOWN: both layouts 5–10% slower** | **CLOSED** |
+| S2 | 2026-10-30 | M128 unpooler: exact-c12 m32w_gemm WGMMA, BN=128 tokens/CTA (weight decode reused for 128 tokens), split=1, no cluster; primary `(128,64,2,2,3)`, alt `(128,64,4,2,2)`. Candidate `candidates/dense_s2.py` sha `d87ab665…da33`, gates `results/dense-s2-check-1/gates.json` | NVRTC: WK2 135 regs/256 thr, WK4 125 regs/512 thr, 0 spill. Target scenario 18.6 → ≤ 16 µs (hypothesis only) | check `a5bd287a677c4fa9` passed, 1.5299x (CI 1.507–1.553), S2_KEEP | pack bit-exact (3329 escapes), one-hot + FP64 pass; paired base/cand: WK2 0.822 (0/16), WK4 0.9725 (5/16). **SLOWED DOWN 18% / 3%** | **CLOSED** |
