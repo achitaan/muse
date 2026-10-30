@@ -66,7 +66,10 @@ Job `6834342880f5474e` (MoE track, 5/5 tests passed, 2.3387x on the unchanged ti
 |---|---|---|---:|---|
 | `ddc5d0263caa4435` | bitwise: FAIL in all 4 modes | 13/13 | 2.0000x (parent path) | ids, normalized rows and local ids exact; SGLang's weights differ by 1–2 ULP (≤ 3e-8) |
 | `3b53f3cb23054eb9` | ids/rows exact, weights ≤ 1e-6 relative: PASS (mode 0) | 13/13 | 2.0001x | `_p2_kernel` 4.4–5.4 µs, versus routing_kernel + `_pn` 4.5–5.6 µs: **no gain** |
-| `b9c4f2c1a7634ce2` | the same, trying 1–2 warps first | pending | | the 24 serial 256-wide reductions become warp shuffles |
+| `b9c4f2c1a7634ce2` | 1 or 2 warps: FAIL (normalized rows not bitwise equal at T = 128); 4 warps: PASS | 13/13 | 2.0025x | `_p2_kernel` 4.5–5.4 µs: unchanged, **no gain** |
+
+**Decision: P2 closed.** One fused program per token is as slow as the two kernels it replaces. The
+kernel time is bound by 24 serial 256-wide reductions, and fewer warps change the norm's FP32 rounding.
 
 **Folding `_pn` into the `moe_fused` prologue: not implemented.**
 - The pre-expert norm needs whole-row sums before any expert GEMM reads `x`.
@@ -97,7 +100,20 @@ Job `6834342880f5474e` (MoE track, 5/5 tests passed, 2.3387x on the unchanged ti
     removed.
   - Deferred behind the larger levers. It is still the best remaining small-token item.
 
-## Overall
+## Remaining work (needs a decision; not started)
+
+Both remaining Phase 3 items require editing the generated Dense kernel family. The small-token
+pooler `v18s_gemv`/`smallm2_gemv` and the sliced unpooler `smtrace_gemv` are built by `run_v18` from 41
+zlib-compressed `_zsrc` templates.
+
+1. **Router-into-pooler fusion at T = 1 and T = 8.**
+   - Add 128 FP32 router CTAs (the `route_fp32` arithmetic, so outputs stay bitwise identical) at the
+     head of the pooler GEMV grid. They then co-run inside one launch, which is the 6–7 µs that
+     concurrent R1 showed, without the cross-stream hazard.
+   - Expected value: about +2% Decode score.
+2. **`_sfn` fold into the sliced unpooler.** Adds a last-CTA two-stage RMS reduction. Bound about +1%.
+
+Each item is multi-hour, judge-only work at about 8 minutes per Decode check.
 
 - No candidate has shown a gain outside measurement noise. **Nothing has been submitted for a score from
   this branch.**
