@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-30T17:30:25.248530+00:00",
+  "source_sha256": "b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415",
+  "source_bytes": 715191,
+  "minutes_since_last_submission": 62.57696530024211,
+  "active_jobs": [],
+  "Dense_checks_before": 8,
+  "Dense_checks_after_expected": 7,
+  "Decode_checks_preserved": 1,
+  "no_scored_run": true,
+  "max_new_checks": 1,
+  "spacing_exception": false,
+  "official_numerical_identity_equal": true,
+  "decision": "One fixed six-family preflight. Synthetic O/U ceilings and real causal norm/FPR contrasts stay separate; no new timed Dense path or automatic Decode check/score."
+}

@@ -1,0 +1,27 @@
+{
+  "source_sha256": "b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415",
+  "bytes": 715191,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "Decode_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "projection_original_CUDA_sha256": "09b371d0ffce2e93655e5ebdc188a5276e62c2217d62b63a3b8f139be49be220",
+  "projection_diagnostic_CUDA_sha256": "ad4c2044ff8bab6f1986b3d419c450cff4118fc6f98414a8e6ad86a813f9d0b2",
+  "FPR_original_CUDA_sha256": "f68f77c0d29cc56b3657b7b4afafa864d186ee554996edaa1d3161159d246a54",
+  "FPR_with_query_CUDA_sha256": "564d9452c32f504dc4a7fc5f3cab786dc5a921150f440d0af24b161f1d2f9897",
+  "norm_CUDA_sha256": "52667230a6bd69d589fba7323768961f16bd7110a06b432bd8cef53e5d01f914",
+  "changed_FPR_host": "Only unique module name and additional diagnostic resource export; kernel source is an exact prefix.",
+  "fixed_families": [
+    "O16",
+    "O32",
+    "U16",
+    "U32",
+    "norm_FPR16_depth5",
+    "norm_FPR32_depth3"
+  ],
+  "GPU_jobs": 0,
+  "enables_nothing": true,
+  "timed_Dense_parent_unchanged": true,
+  "synthetic_ceiling": "O/U: one CTA,5000ns,late first-column writes after graph input copy; optimistic,not real layer overlap",
+  "real_chain": "norm/FPR: parent PDL0,original norm+fixed PDL,early norm+same fixed PDL",
+  "FPR_query": "Same fused kernel in all arms; PDL is its runtime integer, last template bool is FUSE=true.",
+  "gates": "Finite bytes on changing normal/zero/outlier probes; >3% and >=1.5us both orders. Norm/FPR must also beat its late-signal PDL control by the same margins. No whole-layer claim."
+}

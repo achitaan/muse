@@ -758,3 +758,10 @@ The 452fbd9d recorded M1 weighted load is 4833.13590001738us. If the standalone1
 ### Decode/standalone MoE bridge and unimplemented norm hypothesis
 
 CPU source audit proves the standalone/Decode CUDA differences are only the WGS wgs_flush/wgs_seg FINREG bodies; all other CUDA and tiny/mid define tuples match,including atomic norm accumulation. This is source-only evidence,not a Decode GPU variance measurement. A bounded in-kernel tiny finalizer RMS-recompute hypothesis is recorded separately:4 segments/token at NT256,H4096; extra logical reads64KiB/local route,max4MiB at M8/all-local; no added launch/grid barrier. Arithmetic boundaries and all scratch/generation invariants must remain. No exposed contention/time benefit is measured. It changes FP32 norm order,so no implementation/admission follows while the strict byte rule remains. The existing user question remains pending.
+
+
+### M16/M32 fixed handoff preflight prepared
+
+`dense_handoff16_diag.py`, SHA256`b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415`,715191 bytes. Timed Dense prefix/kernel/state remain parent. Four exact O/U projection twins use a fixed5000ns,one-CTA,late-first-column producer as optimistic ceilings; two real norm/FPR chains use parent/late/early arms with fixed5/3 depths. Early must beat both parent and late control by >3% and >=1.5us in both orders. No sweep,enabled path,score or final Decode check.
+
+CPU source/host-inverse/protocol/readiness/retention audits pass. New spin kernel10 registers,0 spills/static shared; PREEXIT32<timer96<barrier240<store560. An initial FPR query interpretation was corrected before admission: last template bool is FUSE; PDL is the runtime int. Resource query now targets the actual fused kernel. Missing independent modules preserve other valid questions. Reference documentation confirms scheduling signal versus memory wait and target-specific globaltimer semantics. Full host/SDK/H200 validation remains outstanding. See handoff16-diag/REVIEW.md.

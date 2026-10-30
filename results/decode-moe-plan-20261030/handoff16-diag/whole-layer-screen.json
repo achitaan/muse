@@ -1,0 +1,38 @@
+{
+  "parent_job": "452fbd9df6af4ff4",
+  "rows": [
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "weight": 46,
+      "score_case_us": 134.9022858815707,
+      "raw_event_us": 140.04800468683243,
+      "historical_raw_three_percent_us": 4.201440140604973
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "weight": 16,
+      "score_case_us": 213.83776131206236,
+      "raw_event_us": 217.9040014743805,
+      "historical_raw_three_percent_us": 6.537120044231415
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "weight": 46,
+      "score_case_us": 161.3673265599765,
+      "raw_event_us": 165.67999869585037,
+      "historical_raw_three_percent_us": 4.970399960875511
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "weight": 16,
+      "score_case_us": 312.05653053498025,
+      "raw_event_us": 316.49599969387054,
+      "historical_raw_three_percent_us": 9.494879990816116
+    }
+  ],
+  "interpretation": "Historical opportunity screen. Synthetic ceilings are optimistic and cannot be summed as a forecast; real whole-layer/cache correctness and both-order latency remain mandatory."
+}

@@ -1,0 +1,40 @@
+{
+  "GPU_jobs": 0,
+  "source_sha256": "b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415",
+  "Dense_prefix_and_public_kernel_unchanged": true,
+  "no_appended_function_collisions_except_prepare": true,
+  "exact_component_AST": true,
+  "FPR_original_kernel_prefix_exact": true,
+  "FPR_host_builder_inverse_exact": true,
+  "FPR_query_points_to_FUSE_true_runtime_PDL_kernel": true,
+  "projection_prefix_exact": true,
+  "projection_protocol": [
+    {
+      "layer": "o",
+      "m": 16,
+      "fresh_copy_late_sign_and_opposite_orders": true
+    },
+    {
+      "layer": "unpooler",
+      "m": 32,
+      "fresh_copy_late_sign_and_opposite_orders": true
+    }
+  ],
+  "norm_FPR_three_arms_pass": true,
+  "old_flag_only_gain_rejected_by_causal_floor": true,
+  "None_router_not_returned_to_byte_probe": true,
+  "terminal_report_retention_pass": true,
+  "independent_build_readiness_cases": [
+    {
+      "missing": "norm",
+      "independent_units_preserved": true,
+      "returns_original_state": true
+    },
+    {
+      "missing": "projection",
+      "independent_units_preserved": true,
+      "returns_original_state": true
+    }
+  ],
+  "limitation": "CPU source and mocked protocol audit. No SDK/host compilation, H200 correctness, timing or whole-layer result."
+}

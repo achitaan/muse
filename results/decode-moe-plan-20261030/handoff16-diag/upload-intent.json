@@ -1,0 +1,6 @@
+{
+  "mode": "check",
+  "problem": "muse_bf16_proj",
+  "source": "experiments/decode_moe/dense_handoff16_diag.py",
+  "source_sha256": "b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415"
+}

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T16:47:40.560594+00:00",
+  "updated_at": "2026-10-30T17:26:44.654694+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,14 +23,17 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "MoE bitwise output gate can reject unchanged parent replays. User gate remains unchanged; documented atomic norm variability is not permission to relax it.",
-  "newest_CPU_packet": "pdl-norm-one/source-binding.json",
+  "newest_CPU_packet": "handoff16-diag/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdls1_draft.py",
   "draft_sha256": "1fe60c31e3fa41a97decd856ea1d9923627ddcb497eaea47fd40bb1d9aa3e3d7",
   "draft_admitted_for_GPU": false,
   "draft_reason": "M1 norm/R2f leaf passes H200 bytes and causal gates; M8 excluded. Integrated source, whole-layer/cache bytes, >3% gain and preparation remain unverified. Measured unit gain alone does not justify final Decode check.",
-  "new_GPU_jobs_this_packet": 1,
+  "new_GPU_jobs_this_packet": 0,
   "pending_user_question": "Permission requested asynchronously to compare only MoE norm/output with SS relative L2 <=1e-5, output relative L2 <=0.001 and worst-row error <=0.005 using official denominator floor; deterministic inter/ybuf remain byte-exact. Not authorized/implemented/active. Decode byte gates stay unchanged.",
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 8,
-  "dense_checks_left": 8
+  "dense_checks_left": 8,
+  "next_diagnostic_source": "experiments/decode_moe/dense_handoff16_diag.py",
+  "next_diagnostic_sha256": "b3560cdd3b91cf5a8324f842833e08a61de3e1f72cf64099c17193e91f240415",
+  "next_diagnostic_admitted": false
 }

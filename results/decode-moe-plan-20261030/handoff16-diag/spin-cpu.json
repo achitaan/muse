@@ -1,0 +1,22 @@
+{
+  "GPU_jobs": 0,
+  "spin_source_sha256": "7ee6f4e8556f8eb6974cd85867984da77c3aee636abd4e831cfb4747405f0686",
+  "kernels": [
+    {
+      "symbol": "_Z15d16_spin_kernelPKtPtiiy",
+      "registers": 10,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "trigger_address": 32,
+  "first_timer": 96,
+  "last_block_barrier": 240,
+  "first_store": 560,
+  "ownership_cases": 6,
+  "only_first_column_writers": true,
+  "limitation": "Device-only CPU compiler screen; five-microsecond runtime, graph capture, visibility and real kernel overlap remain unverified."
+}
