@@ -210,10 +210,31 @@ Timing-only modes in the prepare harness (graph times; each includes about 5 us 
   - Their notes describe starting each projection's weight fetch while the previous kernel finishes. On their separate boards they trail us on MoE (2.27 vs 2.38), Attention (2.32 vs 2.57) and Dense (1.12 vs 1.53).
   - Matching their 1-32-token times while keeping our 128/256 lead would be worth about +5% (to about 2.16).
 
-## L2P: weight prefetch into L2 during latency-bound kernels (`94c689655d17463b`, pending)
+## L2P: weight prefetch into L2 during latency-bound kernels (closed, measured)
 
-- After the qkv projection at T = 1 / 8, a side-stream kernel issues `cp.async.bulk.prefetch.L2` for the o-projection weights. Variants add the FP32 router weight and a 12 or 24 MB prefix of the packed pooler weights. These reads then hit L2 while attention and the norm, which barely use HBM, are running.
-- Prefetches change no values. Prepare times qkv -> 5 us window -> o -> 4.5 us window -> pooler+router for each variant against no prefetch. It requires bitwise-equal outputs and keeps a variant only if it is more than 3% faster.
+- After the qkv projection at T = 1 / 8, a side-stream kernel pulls the next weights into L2 while attention and the norm run. Prefetches change no values.
+- Prepare timed qkv -> 5 us window -> o -> 4.5 us window -> pooler+router for each variant against no prefetch (graph us). Outputs were bitwise equal in every variant; a variant is kept only if it is more than 3% faster.
+
+| Job | Variant | T = 1 | T = 8 |
+|---|---|---:|---:|
+| `94c689655d17463b` | none | 52.99 | 56.22 |
+| | bulk prefetch, 8 blocks: o (12.5 MB) | 52.67 | 56.26 |
+| | + FP32 router weight (20.5 MB) | 58.05 | 57.76 |
+| | + 12 / 24 MB pooler prefix | 77.79 / 77.86 | 77.28 / 77.22 |
+| `bad2bc21ae5b420b` | none | 52.54 | 55.55 |
+| | bulk, 132 blocks: o / o+router+12 MB pooler | 53.02 / 77.86 | 55.49 / 78.08 |
+| | plain-load warm-up, all SMs: o | **51.74** | **54.75** |
+| | load warm-up: o+router / +12 MB / +24 MB pooler | 51.97 / 52.90 / 55.42 | 54.94 / 55.97 / 58.91 |
+
+- Both checks passed 13/13 (2.0509x and 2.0673x). Nothing was selected, so the timed path is R2f and both scores are noise. **Not submitted.**
+- **Conclusion:**
+  - Having the o weights already in L2 saves at most about 0.8 us. So the o GEMV is not limited by DRAM bandwidth at T = 1 / 8; its 5.2 us is mostly launch, ramp and tail latency.
+  - Bulk L2 prefetch of the pooler region delays the pooler by about 20-25 us.
+  - Load warm-ups larger than the o weights only add contention.
+- **Also implied:** the whole 5-kernel chain is about 52.5 us of graph time, against about 44 us of kernel time plus about 5 us of graph overhead. The idle gaps between kernels are therefore only about 0.5-1 us per handoff.
+- joeyhlu's 9-14 us per-layer lead is thus not bandwidth left on the table during latency-bound kernels. Remaining explanations:
+  - a kernel's launch and prologue overlapping the previous kernel's execution (PDL), since only that hides ramp latency;
+  - fewer or shorter kernels.
 
 ## Remaining work (needs a decision; not started)
 

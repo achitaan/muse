@@ -1,0 +1,8 @@
+R2_GATE M=1 PASS parent=30.62us fused=24.99us use=True
+R2_DIAG M=1 parent=30.62us fused=24.99us pool_only=18.75us f_notopk=23.65us f_nomath=21.41us f_neither=20.00us
+R2_GATE M=8 PASS parent=39.62us fused=27.81us use=True
+R2_DIAG M=8 parent=39.62us fused=27.81us pool_only=19.07us f_notopk=26.91us f_nomath=24.10us f_neither=23.07us
+R2_DONE 260.3s sel=(1, 8)
+L2P M=1 none=52.54us b8_o=52.86us b132_o=53.02us b132_orp12=77.86us ld_o=51.74us ld_or=51.97us ld_orp12=52.90us ld_orp24=55.42us MB b8_o=12.5 b132_o=12.5 b132_orp12=33.0 ld_o=12.5 ld_or=20.5 ld_orp12=33.0 ld_orp24=45.0 pick=none
+L2P M=8 none=55.55us b8_o=55.30us b132_o=55.49us b132_orp12=78.08us ld_o=54.75us ld_or=54.94us ld_orp12=55.97us ld_orp24=58.91us MB b8_o=12.5 b132_o=12.5 b132_orp12=33.0 ld_o=12.5 ld_or=20.5 ld_orp12=33.0 ld_orp24=45.0 pick=none
+L2P_DONE 260.4s sel=[]
