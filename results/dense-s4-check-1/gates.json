@@ -1,0 +1,11 @@
+{
+  "candidate": "candidates/dense_s4.py",
+  "source_sha256": "62ee3cc20cabb8554f2b532a0034c15f260ffdcf435760a3e27ddaffdc5f2d8f",
+  "scope": "router M 1/8/16/32, v18s FMT 3 (c12 hi+lo), geometries (1,4,4,8) RED3 and (1,8,4,4) RED3",
+  "offline_compile": "results/s4-offline/summary.txt: 6 instances, 125-174 regs, 0 spill",
+  "representation_gate": "v18s_pack_format: unpack == hi/lo int16 bits for both halves, else None -> incumbent",
+  "computation_gate": "one-hot vs hi+lo exact; FP64 random/spike at router tol/4; in-prepare relL2 vs FP64 < 2.5e-5; official checker (router 1e-4, probe rows 1e-3)",
+  "timing_gate": "ABBA paired cold-L2 graph, 16 pairs, raw samples; select iff median >= 1.03 and wins >= 0.75",
+  "selected_path_marker": "S4_USE m<M>; S4_SELECT / S4_KEEP",
+  "decision_rule": "any S4_SELECT + pass -> confirming check of the frozen selection; then scored submission only if whole-track gain is material. S4_KEEP -> ledger 1b, CLOSE."
+}
