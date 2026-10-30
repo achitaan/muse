@@ -912,3 +912,5 @@ Exact e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b preserves
 ## Grouped norm final codegen review
 
 Explicit shared-address revision33a3adfe did not remove address checks (5global FP32 sites/10queries in both versions);CPU reject,exact e5c0e7ec restored. Code-only NTT4 pruning lacks a valid duplicate-route bound and was screened out. Observed two completed Dense checks without spending another run;P2 selects no O/router candidate. Global pacing now23:16:02UTC. No new GPU check;Decode remains reserved.
+
+Helper-local register norm prototype53f6c156:4CPU compiles,PRMT146/LUT141 regs,zero spills;396integer and144scalar cases pass. No aggregation on M1 or M2-one fixture. No GPU payload/admission or speed claim. Frozen sharede5c0e7ec unchanged. See norm-register/REVIEW.md.

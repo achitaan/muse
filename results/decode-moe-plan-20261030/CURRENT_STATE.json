@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:49:35.403851+00:00",
+  "updated_at": "2026-10-30T22:56:18.234788+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "CPU-only in-CTA norm aggregation,keeping original finalizer;researcher read-only review pending.",
+  "current_focus": "Shared norm candidate e5c0e7ec awaits paced GPU slot. Separate helper-register CPU prototype compiled; no GPU admission.",
   "next_diagnostic_track": "muse_moe_w4a16",
   "earliest_new_check_utc": "2026-10-30T23:16:02.013406+00:00",
   "newest_CPU_alternative": {
@@ -179,5 +179,14 @@
     "session_id": 62099,
     "target_utc": "2026-10-30T23:16:05Z",
     "purpose": "Foreground eligibility countdown only; no GPU or other follow-on action. Revalidate live handle before relying on it."
+  },
+  "helper_register_prototype": {
+    "CUDA_sha256": "53f6c1560886441c4a2541a482ea8fa36b022c415ec30ad70c4bd8a2c04c85cb",
+    "CPU_compiles": "TINY/TINY2 PRMT146/LUT141 registers;zero stack/spills;no warnings",
+    "ownership_cases": 396,
+    "positive_addend_cases": 144,
+    "GPU_admitted": false,
+    "review": "norm-register/REVIEW.md",
+    "frozen_shared_candidate_unchanged": true
   }
 }

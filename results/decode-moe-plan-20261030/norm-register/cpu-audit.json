@@ -1,0 +1,188 @@
+{
+  "source_sha256": "53f6c1560886441c4a2541a482ea8fa36b022c415ec30ad70c4bd8a2c04c85cb",
+  "exact_inverse": true,
+  "ownership": {
+    "cases": 396,
+    "exactly_once": true,
+    "fixtures": [
+      {
+        "M": 1,
+        "pattern": "one",
+        "jobs": 1,
+        "parent_norm_atomics": 256,
+        "regrouped_norm_atomics": 256,
+        "reduction_fraction": 0.0
+      },
+      {
+        "M": 1,
+        "pattern": "skew",
+        "jobs": 1,
+        "parent_norm_atomics": 256,
+        "regrouped_norm_atomics": 256,
+        "reduction_fraction": 0.0
+      },
+      {
+        "M": 2,
+        "pattern": "one",
+        "jobs": 1,
+        "parent_norm_atomics": 512,
+        "regrouped_norm_atomics": 512,
+        "reduction_fraction": 0.0
+      },
+      {
+        "M": 2,
+        "pattern": "skew",
+        "jobs": 2,
+        "parent_norm_atomics": 768,
+        "regrouped_norm_atomics": 594,
+        "reduction_fraction": 0.2265625
+      },
+      {
+        "M": 3,
+        "pattern": "one",
+        "jobs": 3,
+        "parent_norm_atomics": 768,
+        "regrouped_norm_atomics": 396,
+        "reduction_fraction": 0.484375
+      },
+      {
+        "M": 3,
+        "pattern": "skew",
+        "jobs": 5,
+        "parent_norm_atomics": 1536,
+        "regrouped_norm_atomics": 480,
+        "reduction_fraction": 0.6875
+      },
+      {
+        "M": 4,
+        "pattern": "one",
+        "jobs": 4,
+        "parent_norm_atomics": 1024,
+        "regrouped_norm_atomics": 396,
+        "reduction_fraction": 0.61328125
+      },
+      {
+        "M": 4,
+        "pattern": "skew",
+        "jobs": 5,
+        "parent_norm_atomics": 1792,
+        "regrouped_norm_atomics": 558,
+        "reduction_fraction": 0.6886160714285714
+      },
+      {
+        "M": 5,
+        "pattern": "one",
+        "jobs": 3,
+        "parent_norm_atomics": 1280,
+        "regrouped_norm_atomics": 440,
+        "reduction_fraction": 0.65625
+      },
+      {
+        "M": 5,
+        "pattern": "skew",
+        "jobs": 5,
+        "parent_norm_atomics": 2304,
+        "regrouped_norm_atomics": 483,
+        "reduction_fraction": 0.7903645833333334
+      },
+      {
+        "M": 6,
+        "pattern": "one",
+        "jobs": 5,
+        "parent_norm_atomics": 1536,
+        "regrouped_norm_atomics": 320,
+        "reduction_fraction": 0.7916666666666666
+      },
+      {
+        "M": 6,
+        "pattern": "skew",
+        "jobs": 7,
+        "parent_norm_atomics": 3072,
+        "regrouped_norm_atomics": 463,
+        "reduction_fraction": 0.8492838541666666
+      },
+      {
+        "M": 7,
+        "pattern": "one",
+        "jobs": 4,
+        "parent_norm_atomics": 1792,
+        "regrouped_norm_atomics": 462,
+        "reduction_fraction": 0.7421875
+      },
+      {
+        "M": 7,
+        "pattern": "skew",
+        "jobs": 7,
+        "parent_norm_atomics": 3328,
+        "regrouped_norm_atomics": 498,
+        "reduction_fraction": 0.8503605769230769
+      },
+      {
+        "M": 8,
+        "pattern": "one",
+        "jobs": 5,
+        "parent_norm_atomics": 2048,
+        "regrouped_norm_atomics": 427,
+        "reduction_fraction": 0.79150390625
+      },
+      {
+        "M": 8,
+        "pattern": "skew",
+        "jobs": 6,
+        "parent_norm_atomics": 3840,
+        "regrouped_norm_atomics": 660,
+        "reduction_fraction": 0.828125
+      }
+    ],
+    "limitation": "Integer contribution/flush model, not CUDA races, floating-point error or elapsed time."
+  },
+  "GPU_calls": 0,
+  "admitted_for_GPU": false,
+  "compiler": {
+    "TINY_LUT": [
+      {
+        "symbol": "_ZN8norm_reg13moe_reg_fusedILb0EEEvNS_6ParamsE",
+        "registers": 141,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY_PRMT": [
+      {
+        "symbol": "_ZN8norm_reg13moe_reg_fusedILb0EEEvNS_6ParamsE",
+        "registers": 146,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY2_LUT": [
+      {
+        "symbol": "_ZN8norm_reg13moe_reg_fusedILb0EEEvNS_6ParamsE",
+        "registers": 141,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY2_PRMT": [
+      {
+        "symbol": "_ZN8norm_reg13moe_reg_fusedILb0EEEvNS_6ParamsE",
+        "registers": 146,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ]
+  },
+  "zero_stack_spills": true
+}

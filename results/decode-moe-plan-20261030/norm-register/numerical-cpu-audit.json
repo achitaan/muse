@@ -1,0 +1,9 @@
+{
+  "CUDA_sha256": "53f6c1560886441c4a2541a482ea8fa36b022c415ec30ad70c4bd8a2c04c85cb",
+  "cases": 144,
+  "maximum_relative_change": 4.976019108291467e-07,
+  "missing_FTZ_mutant_detected": true,
+  "invalid_slots_poisoned": true,
+  "GPU_calls": 0,
+  "limitation": "Positive addends and one legal arrival order only; no CUDA, GEMM, race or output-bound proof."
+}
