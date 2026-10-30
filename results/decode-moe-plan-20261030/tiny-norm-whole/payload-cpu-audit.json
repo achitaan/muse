@@ -1,0 +1,23 @@
+{
+  "source_sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
+  "parent_prefix_and_all_definitions_exact": true,
+  "unchanged_gate_launch_mutation_and_prepare_functions": [
+    "_tr_launch",
+    "_tr_probe_data",
+    "_tr_mutate",
+    "_trb_snapshot",
+    "_trb_relative",
+    "_trb_gate",
+    "_tr_probe",
+    "prepare",
+    "kernel_fn"
+  ],
+  "shared_harness_exact": true,
+  "private_CUDA_and_CPP_binding_exact": true,
+  "no_TR8_combination": true,
+  "no_private_lazy_build_in_timed_launch": true,
+  "no_loaded_module_attribute_assignment": true,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Static source/interface evidence only; no H200 correctness,resource or speed claim."
+}

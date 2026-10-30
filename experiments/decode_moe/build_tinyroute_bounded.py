@@ -1,4 +1,4 @@
-"""Change only the previously frozen TR8 prepare-time numerical gate."""
+"""Apply the authorized TR8 numerical gate and prepare diagnostic deadline."""
 
 import ast
 import hashlib
@@ -23,7 +23,12 @@ def main():
     updated=source[:first]+replacement+source[last:]
     old_label="print('TR8_BITWISE', m, ok";new_label="print('TR8_BOUNDED', m, ok"
     assert updated.count(old_label)==1;updated=updated.replace(old_label,new_label,1)
-    assert updated.replace(replacement,source[first:last],1).replace(new_label,old_label,1)==source
+    # New shape diagnostics must start before274s; timing retains its278s cutoff.
+    old_deadline='not _okh_budget(start, 278.)'
+    new_deadline='not _okh_budget(start, 274.)'
+    assert updated.count(old_deadline)==3
+    updated=updated.replace(old_deadline,new_deadline,2)
+    assert updated.replace(replacement,source[first:last],1).replace(new_label,old_label,1).replace(new_deadline,old_deadline,2)==source
     raw=updated.encode();ast.parse(raw);assert len(raw)<1_000_000
     (HERE/'moe_tinyroute_bounded.py').write_bytes(raw)
     before={n.targets[0].id:n.value for n in tree.body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)}
@@ -36,11 +41,14 @@ def main():
         for a,b in zip(aa,bb):
             if name!='prepare':assert ast.dump(a)==ast.dump(b)
             else:
-                original=ast.dump(a);changed=ast.dump(b)
-                assert original.replace("value='TR8_BITWISE'","value='TR8_BOUNDED'")==changed
+                original=ast.unparse(a);changed=ast.unparse(b)
+                expected=original.replace("'TR8_BITWISE'","'TR8_BOUNDED'")
+                if "'TR8_BITWISE'"in original:
+                    expected=expected.replace('_okh_budget(start, 278.0)','_okh_budget(start, 274.0)',2)
+                assert ast.dump(ast.parse(expected))==ast.dump(ast.parse(changed))
     record=dict(source_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),retained_MoE_sha256=BASE_SHA,
         prior_TR8_source_sha256=OLD_SHA,CUDA_AST_exact=True,timed_dispatch_ext_and_scratch_AST_exact=True,
-        parent_prepare_change='Diagnostic label only; original >3% both orders on one/skew populations retained.',
+        parent_prepare_change='Diagnostic label and274s new-diagnostic cutoff only;278s timing cutoff and original >3% both orders on one/skew populations retained.',
         gate_change='Human authorizes MoE ss/output variance only. Exact finite inter/ybuf,ss relativeL2<=1e-5,out relativeL2<=.001,worstrow<=.005 with official floor; nonlocal outputs exactly zero.',
         reopened_because='Prior TR8 check selected no timed new path due the now-superseded byte gate;75 H200 diagnostic fixtures localize variation to ss/out and preserve inter/ybuf bytes.',
         actual_path_marker='okc::moe_tr8_fused',unchanged='Every precision boundary,route job,GEMM,norm implementation,completion,generation,both banks,M>8 fallback.',

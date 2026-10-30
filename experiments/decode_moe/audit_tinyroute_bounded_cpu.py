@@ -67,9 +67,19 @@ def main():
     launch=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='_tr_launch')
     assert '_trb_gate'not in ast.unparse(launch)and '_trb_snapshot'not in ast.unparse(launch)
     assert 'No routing read is added to kernel_fn' in source
+    prepare=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='prepare'][-1]
+    deadline_calls=[n for n in ast.walk(prepare)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='_okh_budget']
+    assert sorted(float(n.args[1].value)for n in deadline_calls)==[274.,274.,278.]
+    from harness import HARNESS_SRC
+    harness_tree=ast.parse(HARNESS_SRC)
+    for name in ('_okh_time','_okh_pick','_okh_budget','_okh_bg'):
+        retained=next(n for n in harness_tree.body if isinstance(n,ast.FunctionDef)and n.name==name)
+        embedded=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==name)
+        assert ast.dump(retained)==ast.dump(embedded)
     record=dict(source_sha256=binding['source_sha256'],checks_passed=True,acceptance_cases=checks,
         generation_cases=[1,2,3,4,901,902],all_timed_definitions_unchanged=True,CUDA_unchanged=True,
         Decode_and_Attention_gate_unchanged=True,GPU_jobs=0,admitted_for_GPU=False,
+        prepare_cutoffs=dict(new_diagnostics_seconds=274,timing_seconds=278),shared_harness_AST_exact=True,
         limitation='Gate formulas and source/snapshot ownership only; actual H200 worst-row bounds,selected new path and performance unverified.')
     (OUT/'cpu-audit.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8');print(json.dumps(record,indent=2))
 

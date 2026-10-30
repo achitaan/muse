@@ -1,6 +1,6 @@
 # TR8 with the human-approved MoE boundary gate
 
-Source `moe_tinyroute_bounded.py`,SHA25625e8efa38242ac524740bc9e1aa14419c0ad20ab02cd900ac83b4678ef6f5d8f,193796 bytes,is unsubmitted. It changes the prepare-time gate of the frozen TR8 source95833547. CUDA,extension builder,scratch allocator,all timed dispatch definitions and precision operations remain exact. The only other edit is the diagnostic label BITWISE to BOUNDED.
+Source `moe_tinyroute_bounded.py`,SHA2565d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550,193796 bytes,is unsubmitted. It changes the prepare-time gate of the frozen TR8 source95833547. CUDA,extension builder,scratch allocator,all timed dispatch definitions and precision operations remain exact. Other edits are the diagnostic label BITWISE to BOUNDED and the274s cutoff before starting each new shape diagnostic; timing retains its278s cutoff. The prior gate-only25e8efa3 payload is archived as gate-only-25e8efa3.py.
 
 ## Authorization and evidence
 
@@ -25,3 +25,5 @@ Source inverses prove the CUDA and every timed definition unchanged. Sixteen ana
 No new NVRTC compile is needed for unchanged CUDA; prior TR8 PRMT/LUT resource evidence remains source-bound. Fresh H200 gates,all official tests/benchmarks/integrity,actual moe_tr8_fused execution and affected/control latency are required. Empty selection or no benchmark execution is not a new algorithm result. A check is not a scored submission; no publication follows automatically. Official reference correctness is still required: comparison against the retained parent does not replace it.
 
 No Decode transfer is authorized by this variance permission. Its independent complete-layer exact-byte and latency gates remain mandatory.
+
+The2026-10-30T20:00Z official refresh matches every pinned task,agent,baseline,reference,checker and codec hash. All six benchmark loads still have equal weights. The shared cold-L2 harness has an exact AST match. GPU admission remains pending the60-minute interval and fresh job/quota snapshot.

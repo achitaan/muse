@@ -1,3 +1,5 @@
+> Latest2026-10-30T20:00Z: a separate whole-row NT256 implementation now exists in ../tiny-norm-whole/REVIEW.md,with zero-stack/spill CPU compiles. It supersedes the unimplemented status below. The earlier four-column-CTA sketch remains historical; the implemented whole-row design adds at most1MiB logical requests at M8. No GPU admission/result yet. TR8 routing remains first.
+
 # Source-backed MoE norm hypothesis: not implemented or admitted
 
 > Update2026-10-30: the human explicitly authorized bounded MoE norm/output variance. See ../tinyroute-bounded/authorization.json and REVIEW.md for exact limits and unchanged-byte buffers. The historical permission barrier below is superseded for MoE only. Norm recomputation remains unimplemented/unadmitted; TR8 is reopened first. WGS-default-off below refers to the CUDA macro default/tiny paths; retained MAIN explicitly enables WGS when eligible. Decode/Attention byte gates remain unchanged.

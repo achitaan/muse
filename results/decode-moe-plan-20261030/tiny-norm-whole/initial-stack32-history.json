@@ -1,0 +1,39 @@
+{
+  "initial_CUDA_sha256": "3aedeec145392b3673904b41be2a7d91854a3a124dcb7140aa1417183dd24d64",
+  "initial_CPU_resources": {
+    "TINY_LUT": [
+      141,
+      32,
+      0,
+      0
+    ],
+    "TINY_PRMT": [
+      146,
+      32,
+      0,
+      0
+    ],
+    "TINY2_LUT": [
+      141,
+      32,
+      0,
+      0
+    ],
+    "TINY2_PRMT": [
+      146,
+      32,
+      0,
+      0
+    ]
+  },
+  "resource_fields": [
+    "registers",
+    "stack_frame",
+    "spill_stores",
+    "spill_loads"
+  ],
+  "repair": "Replace dynamic qv[tid] access with unrolled constant-slot writer selection. No other CUDA change.",
+  "repaired_CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
+  "repaired_evidence": "cpu-audit.json",
+  "GPU_jobs": 0
+}

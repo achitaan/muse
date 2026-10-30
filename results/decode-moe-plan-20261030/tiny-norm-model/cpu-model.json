@@ -1,0 +1,109 @@
+{
+  "retained_MoE_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "expert_count_cases": [
+    {
+      "expert_tokens": 1,
+      "FP32_y_elements": 4096,
+      "norm_atomic_arrivals": [
+        256
+      ]
+    },
+    {
+      "expert_tokens": 2,
+      "FP32_y_elements": 8192,
+      "norm_atomic_arrivals": [
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 3,
+      "FP32_y_elements": 12288,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 4,
+      "FP32_y_elements": 16384,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 5,
+      "FP32_y_elements": 20480,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256,
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 6,
+      "FP32_y_elements": 24576,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256,
+        256,
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 7,
+      "FP32_y_elements": 28672,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256
+      ]
+    },
+    {
+      "expert_tokens": 8,
+      "FP32_y_elements": 32768,
+      "norm_atomic_arrivals": [
+        256,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256,
+        256
+      ]
+    }
+  ],
+  "partition_cases": 264,
+  "all_ownership_checks_pass": true,
+  "norm_atomics_per_valid_route": 256,
+  "current_finalizer_read_bytes_per_route": 16384,
+  "proposed_four_CTA_read_bytes_per_route": 65536,
+  "proposed_extra_bytes_per_route_with_segment_reuse": 49152,
+  "maximum_M8_routes": 64,
+  "maximum_M8_extra_bytes_with_reuse": 3145728,
+  "maximum_M8_extra_bytes_without_reuse": 4194304,
+  "proposed_shared_reduction_bytes": 288,
+  "proposed_norm_statistic_writer": "Only segment0,thread0 writes each valid route statistic after the existing grid join; other segments use local sums.",
+  "limitations": [
+    "No kernel implementation or GPU job.",
+    "Counts are source-derived logical work,not exposed latency or measured traffic.",
+    "Reusing the freed ring still requires an implementation/resource/lifetime audit.",
+    "Full-row reads and two CTA barriers per item may outweigh removing the atomics."
+  ],
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false
+}

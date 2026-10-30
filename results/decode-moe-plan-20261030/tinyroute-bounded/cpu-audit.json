@@ -1,5 +1,5 @@
 {
-  "source_sha256": "25e8efa38242ac524740bc9e1aa14419c0ad20ab02cd900ac83b4678ef6f5d8f",
+  "source_sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
   "checks_passed": true,
   "acceptance_cases": [
     "identical",
@@ -32,5 +32,10 @@
   "Decode_and_Attention_gate_unchanged": true,
   "GPU_jobs": 0,
   "admitted_for_GPU": false,
+  "prepare_cutoffs": {
+    "new_diagnostics_seconds": 274,
+    "timing_seconds": 278
+  },
+  "shared_harness_AST_exact": true,
   "limitation": "Gate formulas and source/snapshot ownership only; actual H200 worst-row bounds,selected new path and performance unverified."
 }

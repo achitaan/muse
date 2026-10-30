@@ -1,0 +1,75 @@
+{
+  "candidate_CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
+  "row_columns_exactly_once": true,
+  "token_owner_cases": 32,
+  "shared_reduction_bytes": 288,
+  "compiles": {
+    "TINY_LUT": {
+      "rc": 0,
+      "seconds": 0.969,
+      "cubin_sha256": "ca1a0a3138845730a9214d397a3aaf9de4f1ebe9e9eaa1b024b1764f7a042722",
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 143,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY_PRMT": {
+      "rc": 0,
+      "seconds": 1.0,
+      "cubin_sha256": "4a11685c1c13514a5390d560930d32f1e9d269d6c174feb0df3d88768241acc2",
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_LUT": {
+      "rc": 0,
+      "seconds": 1.219,
+      "cubin_sha256": "4fe49494c2bb6aef4b774e1e8789c39b73bb50ab9fdbee207673f4f0296fdd0e",
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 143,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_PRMT": {
+      "rc": 0,
+      "seconds": 1.359,
+      "cubin_sha256": "7bcba6dc0a551b35f561ebcaae49a1bcacb87d322c1f5e0b2863154f112abe89",
+      "kernels": [
+        {
+          "symbol": "_ZN15tiny_norm_whole15moe_tnorm_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    }
+  },
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Compilation/layout evidence only; H200 numerical gates,barrier lifetime,resources and whole-kernel performance remain unverified."
+}

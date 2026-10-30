@@ -935,14 +935,14 @@ def prepare(weights):
     state['tr8'] = {}
     # No compiler thread survives prepare or runs alongside graph capture.
     thread.join()
-    if 'mods' not in built or not _okh_budget(start, 278.):
+    if 'mods' not in built or not _okh_budget(start, 274.):
         print('TR8_SKIP', built.get('error'), _okh_clock.perf_counter() - start, flush=True)
         return state
     try:
         assert tuple(state.get('sfx', ())) == sfx
         mods = built['mods']
         for m in range(1, 9):
-            if not _okh_budget(start, 278.):
+            if not _okh_budget(start, 274.):
                 break
             ext = mods['tiny' if m <= 4 else 'tiny2']
             probe_state = dict(state, tr8={m: ext})
