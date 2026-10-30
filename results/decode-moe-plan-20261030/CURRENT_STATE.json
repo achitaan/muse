@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:16:54.216994+00:00",
+  "updated_at": "2026-10-30T22:26:37.544248+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,12 +23,12 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "tiny-norm-whole/REVIEW.md",
+  "newest_CPU_packet": "norm-group/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
   "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
-  "new_GPU_jobs_this_packet": 1,
+  "new_GPU_jobs_this_packet": 0,
   "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Retain incumbent MoE;whole-row tiny norm is closed. Require a distinct mechanism before another check;Decode remains held.",
+  "current_focus": "CPU-only in-CTA norm aggregation,keeping original finalizer;researcher read-only review pending.",
   "next_diagnostic_track": "muse_moe_w4a16",
   "earliest_new_check_utc": "2026-10-30T23:07:03.074091+00:00",
   "newest_CPU_alternative": {
@@ -159,5 +159,11 @@
         "left": 20
       }
     }
+  },
+  "norm_group_prototype": {
+    "CUDA_sha256": "d8f90f0bdb7cbd9ca607e2990364ad0fcdb8e3d8a68874afe63dfaacdf621fa1",
+    "GPU_admitted": false,
+    "review": "norm-group/REVIEW.md",
+    "researcher": "Read-only review complete on dense source;self-reviewed sparse revision implemented."
   }
 }

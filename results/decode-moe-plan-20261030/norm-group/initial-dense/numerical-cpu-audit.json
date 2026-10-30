@@ -1,0 +1,8 @@
+{
+  "CUDA_sha256": "7627e5a748216895447aa5a7a74dfb999aa418d10d9a406fb51ae0562a189143",
+  "cases": 72,
+  "maximum_relative_change": 3.778953491334171e-07,
+  "missing_FTZ_mutant_detected": true,
+  "GPU_calls": 0,
+  "scope": "Norm addends only;positive FP32 grouping with original FTZ input semantics. No kernel ownership,race,GEMM or output validation."
+}

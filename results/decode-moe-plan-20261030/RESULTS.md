@@ -900,3 +900,7 @@ Attention metadata specialization removes160of3560instructions but misses its fi
 ## H200 whole-row tiny norm rejected:34a6e66a63f44a13
 
 Exact690ef087 completed5official tests,6benchmarks and integrity with175.137779771s preparation. Actual private resources:144regs,0local bytes,214784dynamic shared bytes,288threads,1block/SM. All120private numerical probes pass with inter/ybuf byte-exact and approved norm/output bounds. All32paired full-kernel comparisons lose by0.1912%..13.2374%;selected=[]. All6official profiles are parent. The2.340010792x aggregate is parent-only,not a new speedup. Reject without scoring,retry or Decode transfer. MID CPU compilation is clean but remains parked after the negative tiny measurement. Raw medians and evaluator identity:tiny-norm-whole/outcome-34a6e66a.json. MoE13checks/10scores;Decode1/7 unchanged;next normal slot23:07:03.074091UTC.
+
+## In-CTA norm aggregation CPU prototype
+
+New7627e5a7 keeps the incumbent finalizer and groups norm unit addends in shared buckets before existing global publication. It explicitly preserves global-atomic input FTZ. TINY/TINY2 PRMT compile148regs/zero stack/spills.72CPU scalar cases pass and detect missing FTZ. No GPU job or executable Python payload;LUT,ownership,lifetime,resources and replay gates remain pending. See norm-group/REVIEW.md. Human authorized one read-only researcher;review pending.
