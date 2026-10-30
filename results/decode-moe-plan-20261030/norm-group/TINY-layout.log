@@ -1,0 +1,15 @@
+preflight.cu(141): warning #177-D: variable "norm_group::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+preflight.cu(141): warning #177-D: variable "norm_group::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+preflight.cu(144): warning #177-D: variable "norm_group::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+ptxas info    : 124 bytes gmem

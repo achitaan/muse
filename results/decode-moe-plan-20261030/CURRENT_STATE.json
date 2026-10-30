@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:26:37.544248+00:00",
+  "updated_at": "2026-10-30T22:31:30.882048+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -33,8 +33,8 @@
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 4,
-  "next_diagnostic_source": null,
-  "next_diagnostic_sha256": null,
+  "next_diagnostic_source": "experiments/decode_moe/moe_norm_group.py",
+  "next_diagnostic_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -164,6 +164,9 @@
     "CUDA_sha256": "d8f90f0bdb7cbd9ca607e2990364ad0fcdb8e3d8a68874afe63dfaacdf621fa1",
     "GPU_admitted": false,
     "review": "norm-group/REVIEW.md",
-    "researcher": "Read-only review complete on dense source;self-reviewed sparse revision implemented."
+    "researcher": "Read-only review complete on dense source;self-reviewed sparse revision implemented.",
+    "payload_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
+    "ownership_cases": 396,
+    "shared_bytes": 217600
   }
 }

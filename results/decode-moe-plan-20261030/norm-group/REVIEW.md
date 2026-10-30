@@ -18,3 +18,12 @@ The read-only researcher found no evident WS-tiny lifetime race in the initial p
 Current CUDA d8f90f0bdb7cbd9ca607e2990364ad0fcdb8e3d8a68874afe63dfaacdf621fa1 compiles all four TINY/TINY2 PRMT/LUT entries at148/145regs with zero stack/spills. Explicit static guards require tiny,WS,static scheduling and8-token jobs;the parent already traps fat jobs in this path. The scalar72-case audit passes again. This is parent self-review of the sparse revision;the researcher reviewed the earlier dense source and recommended sparse costs. H200 correctness,resources and profitability remain unverified.
 
 Researcher ranked this bounded shared approach first for further packaging. A helper-private register accumulator is a distinct unimplemented alternative,with flush/register/lifetime risks;it has no performance evidence and is not GPU-admitted. No new GPU job or Decode check.
+
+
+## Executable candidate packaged;still unrun
+
+Payload e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b (338789bytes) preserves the parent definitions and shared harness. The checked host-resource bridge is reused with the group kernel namespace;only host API renaming/metadata are appended and the compiled device prefix remains byte-exact. Its guard requires actual zero local/static shared bytes,217600dynamic bytes,288threads and at least one block/SM before new-path probes. A comment-only prefix rename initially tripped the binding assertion;renaming is now restricted to the host portion.
+
+Compiled constexpr layout:39392byte Smem,39424aligned base,217600total dynamic allocation. The offline occupancy calculator predicts one block/SM. Seven mock resource-boundary cases pass.396static ownership cases include2116empty CTA intervals;all processed buckets are initialized and exactly the touched valid buckets are published. The CPU model does not replace GPU byte,variance,replay or timing evidence.
+
+Self-review:all inherited numerical/strict paired speed gates and all M>8 fallbacks remain unchanged. No private lazy compilation is reachable from timed dispatch. Actual H200 host compilation,resources,120private fixtures and full official tests/benchmarks/integrity remain pending. Admission is false;no new GPU job.

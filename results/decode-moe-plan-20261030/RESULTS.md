@@ -904,3 +904,7 @@ Exact690ef087 completed5official tests,6benchmarks and integrity with175.1377797
 ## In-CTA norm aggregation CPU prototype
 
 New7627e5a7 keeps the incumbent finalizer and groups norm unit addends in shared buckets before existing global publication. It explicitly preserves global-atomic input FTZ. TINY/TINY2 PRMT compile148regs/zero stack/spills.72CPU scalar cases pass and detect missing FTZ. No GPU job or executable Python payload;LUT,ownership,lifetime,resources and replay gates remain pending. See norm-group/REVIEW.md. Human authorized one read-only researcher;review pending.
+
+## Grouped norm payload packaged
+
+Exact e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b preserves parent/gates/harness,retains original finalizer and adds actual resource guards. Four compiler screens,72norm arithmetic cases,396ownership cases and seven resource-guard mocks pass. Compiled shared allocation217600bytes;offline occupancy1block/SM. Still unrun/unadmitted;no GPU or Decode check. Details:norm-group/REVIEW.md.
