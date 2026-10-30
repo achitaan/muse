@@ -1,0 +1,37 @@
+{
+  "decision": "Do not implement a metadata-only NTT4 cap at M17..32 without a uniqueness contract or full fallback.",
+  "counterexamples": [
+    {
+      "M": 17,
+      "duplicate_routes_to_one_local_expert": 136,
+      "retained_chunks": [
+        64,
+        64,
+        8
+      ],
+      "token_tiles": [
+        8,
+        8,
+        1
+      ]
+    },
+    {
+      "M": 32,
+      "duplicate_routes_to_one_local_expert": 256,
+      "retained_chunks": [
+        64,
+        64,
+        64,
+        64
+      ],
+      "token_tiles": [
+        8,
+        8,
+        8,
+        8
+      ]
+    }
+  ],
+  "history": "Sibling resumed-moe-phase7-20261028/moe-wgs32-cpu-audit.json explicitly preserves duplicate routes. Its reduced FT_T32 geometry is materially different and already rejected.",
+  "GPU_calls": 0
+}

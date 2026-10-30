@@ -27,3 +27,12 @@ Payload e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b (338789
 Compiled constexpr layout:39392byte Smem,39424aligned base,217600total dynamic allocation. The offline occupancy calculator predicts one block/SM. Seven mock resource-boundary cases pass.396static ownership cases include2116empty CTA intervals;all processed buckets are initialized and exactly the touched valid buckets are published. The CPU model does not replace GPU byte,variance,replay or timing evidence.
 
 Self-review:all inherited numerical/strict paired speed gates and all M>8 fallbacks remain unchanged. No private lazy compilation is reachable from timed dispatch. Actual H200 host compilation,resources,120private fixtures and full official tests/benchmarks/integrity remain pending. Admission is false;no new GPU job.
+
+
+## Final code-generation review
+
+An explicit atom.shared.add.f32 revision33a3adfe was compiled to test a suspected generic-address overhead. The matched assembly disproves the proposed benefit:both versions retain5global FP32 atomic sites and10address-space queries. These static sites do not establish where dynamic latency is spent. The initial interpretation that changing the shared primitive would remove them was unsupported. The ASM revision is rejected before GPU use and archived in rejected-shared-address-33a3/. Exact e5c0e7ec is restored;its source/interface guard audit passes again. No additional tuning pass is admitted for this code-generation hypothesis.
+
+A separate code-only NTT4 cap was screened out by retained duplicate-route coverage:at M17,136routes to one expert form64/64/8chunks;NTT8remains reachable. At M32,256routes form four64-row chunks. Do not remove those cases based only on token count without an explicit uniqueness contract or full fallback. This differs from the old reduced-geometry WGS32 experiment,which already lost.
+
+Shared-quota snapshot found completed Dense checks e26e498c24e8487b and dc821d6f1ad94fbf. Their raw results are saved as observations without a local uploaded-source binding. P2 reports o=[] and router=[];no transfer is justified. P1 small-projection trials mostly lose. These runs are not proof of a new retained-source gain. Last observed global check moves normal eligibility to2026-10-30T23:16:02.013406Z. Refresh activity/quotas/identity at admission.

@@ -1,0 +1,20 @@
+{
+  "source_sha256": "33a3adfe704b97954c2860547e2fca25b6965935af5302158a697869d3e40087",
+  "bytes": 339022,
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "CUDA_sha256": "d14410b511f6256c36f183be8ed3af05d8b299752f115376018e3dc5ddcde0a2",
+  "gate_source_sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
+  "actual_path_marker": "norm_group::moe_group_fused",
+  "baseline_definitions_exact": true,
+  "scope": "Only prepare-selected M1..8; original routing,GEMM/inter/ybuf arithmetic and all M>8 fallbacks retained. Their byte gates remain mandatory.",
+  "gate": "Human-approved MoE norm/output bounds; inter/ybuf bytes;15 changing fixtures per shape;>3% on both one/skew populations in both arm orders.",
+  "prepare_cutoffs": {
+    "new_diagnostics_seconds": 274,
+    "timing_seconds": 278
+  },
+  "CUDA_compiles": "Four tiny/PRMT/LUT variants;zero stack/spills",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "next_action": "TR8 is closed; fresh global-job/quota/identity/spacing admission required before one paced MoE check.",
+  "runtime_resource_gate": "Before any new-path probe: query function attributes and occupancy;require zero local/static shared bytes,at least one block/SM,217600 dynamic bytes and288 threads."
+}

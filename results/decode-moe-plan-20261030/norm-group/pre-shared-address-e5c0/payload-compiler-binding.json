@@ -1,0 +1,63 @@
+{
+  "candidate_CUDA_sha256": "22f630f39e7efb813f4e7ba0e572b558d14637b4b38e0f283ae4dd1610dfb51d",
+  "compiles": {
+    "TINY_LUT": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+          "registers": 145,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY_PRMT": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+          "registers": 148,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_LUT": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+          "registers": 145,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_PRMT": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+          "registers": 148,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    }
+  },
+  "source_compiler_evidence": "cpu-audit.json;device prefix byte exact,host API bridge appended only",
+  "GPU_calls": 0
+}

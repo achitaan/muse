@@ -1,0 +1,25 @@
+{
+  "static_entries": {
+    "parent": {
+      "float_atomic_instructions": [
+        "/*d410*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P1, RZ, desc[UR10][R8.64], R13 ;   /* 0x0000000d08ff79a2 */",
+        "/*d740*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R8.64], R13 ;   /* 0x0000000d08ff79a2 */",
+        "/*125c0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P4, RZ, desc[UR10][R8.64], R19 ;  /* 0x0000001308ff79a2 */",
+        "/*128c0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R8.64], R19 ;  /* 0x0000001308ff79a2 */"
+      ],
+      "cubin_sha256": "08e06a145f36818f4d9c5215443a535e5e01faf5fde20676ce5df41ed59c8be5"
+    },
+    "group": {
+      "float_atomic_instructions": [
+        "/*dc40*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*df50*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e1c0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e430*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e6a0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */"
+      ],
+      "cubin_sha256": "62c3fa297aef914bea663f18e1123e85087e9fb9c54c03b0f2f667442adba2e5"
+    }
+  },
+  "GPU_calls": 0,
+  "limitation": "Static codegen only;not dynamic atomic counts,throughput or latency."
+}

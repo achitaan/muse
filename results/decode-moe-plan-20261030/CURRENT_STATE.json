@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:31:30.882048+00:00",
+  "updated_at": "2026-10-30T22:47:38.131717+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -59,7 +59,7 @@
   },
   "current_focus": "CPU-only in-CTA norm aggregation,keeping original finalizer;researcher read-only review pending.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-30T23:07:03.074091+00:00",
+  "earliest_new_check_utc": "2026-10-30T23:16:02.013406+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -167,6 +167,11 @@
     "researcher": "Read-only review complete on dense source;self-reviewed sparse revision implemented.",
     "payload_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
     "ownership_cases": 396,
-    "shared_bytes": 217600
-  }
+    "shared_bytes": 217600,
+    "codegen_review": "Explicit shared-address revision rejected;exact e5 restored. Generic address queries unchanged."
+  },
+  "observed_dense_checks": [
+    "e26e498c24e8487b",
+    "dc821d6f1ad94fbf"
+  ]
 }

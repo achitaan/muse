@@ -1509,7 +1509,8 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
       if (gg == 0 && tk < cnt) {
           // Match global FP32 atomic input FTZ before shared aggregation.
           const float nsq = (__float_as_uint(sq) & 0x7f800000u) == 0 ? 0.f : sq;
-          atomicAdd(&S.norm_group[j * 8 + tk], nsq);
+          asm volatile("atom.shared.add.f32 _, [%0], %1;" ::
+              "r"((uint32_t)__cvta_generic_to_shared(&S.norm_group[j * 8 + tk])), "f"(nsq) : "memory");
         }
     }
   }
@@ -1595,7 +1596,8 @@ __device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {
         if (gg == 0 && tk < cnt) {
           // Match global FP32 atomic input FTZ before shared aggregation.
           const float nsq = (__float_as_uint(sq) & 0x7f800000u) == 0 ? 0.f : sq;
-          atomicAdd(&S.norm_group[j * 8 + tk], nsq);
+          asm volatile("atom.shared.add.f32 _, [%0], %1;" ::
+              "r"((uint32_t)__cvta_generic_to_shared(&S.norm_group[j * 8 + tk])), "f"(nsq) : "memory");
         }
       }
     }

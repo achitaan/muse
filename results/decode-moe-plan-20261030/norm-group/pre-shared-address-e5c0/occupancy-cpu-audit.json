@@ -1,0 +1,30 @@
+{
+  "rows": [
+    {
+      "status": 0,
+      "active_blocks_per_SM": 1,
+      "registers_per_thread": 145,
+      "dynamic_shared_bytes": 217600,
+      "allocated_registers_per_block": 43776,
+      "allocated_shared_bytes_per_block": 218624,
+      "block_limit_registers": 1,
+      "block_limit_shared": 1,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    },
+    {
+      "status": 0,
+      "active_blocks_per_SM": 1,
+      "registers_per_thread": 148,
+      "dynamic_shared_bytes": 217600,
+      "allocated_registers_per_block": 43776,
+      "allocated_shared_bytes_per_block": 218624,
+      "block_limit_registers": 1,
+      "block_limit_shared": 1,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    }
+  ],
+  "GPU_calls": 0,
+  "limitation": "NVIDIA offline model with Hopper assumptions;actual resource guard remains required."
+}

@@ -1,0 +1,30 @@
+{
+  "candidate_CUDA_sha256": "22f630f39e7efb813f4e7ba0e572b558d14637b4b38e0f283ae4dd1610dfb51d",
+  "layouts": {
+    "TINY": {
+      "Smem_bytes": 39392,
+      "aligned_base_bytes": 39424,
+      "phase_A_bytes": 110592,
+      "phase_B_bytes": 178176,
+      "dynamic_shared_bytes": 217600,
+      "compute_threads": 256,
+      "launch_threads": 288,
+      "layout_PTX_sha256": "a6c9433002a4be47d20681d42e5a83e68a9fa8f41bd3cd9d690e35c0cd584f9a",
+      "reporter_CUDA_sha256": "2803c205a5dad89ecd65922651fea7c8b43b1700a1a1c2d759e639fc637ea3d6"
+    },
+    "TINY2": {
+      "Smem_bytes": 39392,
+      "aligned_base_bytes": 39424,
+      "phase_A_bytes": 110592,
+      "phase_B_bytes": 178176,
+      "dynamic_shared_bytes": 217600,
+      "compute_threads": 256,
+      "launch_threads": 288,
+      "layout_PTX_sha256": "a6c9433002a4be47d20681d42e5a83e68a9fa8f41bd3cd9d690e35c0cd584f9a",
+      "reporter_CUDA_sha256": "2803c205a5dad89ecd65922651fea7c8b43b1700a1a1c2d759e639fc637ea3d6"
+    }
+  },
+  "occupancy_header_sha256": "24ec267625fbac47a3c226a88b633fed43a5cb1c2bbcafc991e43773e29af0b1",
+  "GPU_calls": 0,
+  "limitation": "Compile-time sizes only; no actual GPU function attributes or residency query."
+}

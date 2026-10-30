@@ -1,0 +1,88 @@
+{
+  "CUDA_sha256": "d8feab72c0a53b88908c3cfe20a3048c60ec5e899b503ef8caa97596494c4320",
+  "exact_inverse": true,
+  "models": [
+    {
+      "jobs": 1,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 132
+    },
+    {
+      "jobs": 2,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 66
+    },
+    {
+      "jobs": 4,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 33
+    },
+    {
+      "jobs": 8,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 17
+    },
+    {
+      "jobs": 16,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 9
+    },
+    {
+      "jobs": 32,
+      "old_atomics_per_route": 256,
+      "new_max_atomics_per_route": 5
+    }
+  ],
+  "compiler": {
+    "TINY_LUT": [
+      {
+        "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+        "registers": 145,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY_PRMT": [
+      {
+        "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+        "registers": 148,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY2_LUT": [
+      {
+        "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+        "registers": 145,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "TINY2_PRMT": [
+      {
+        "symbol": "_ZN10norm_group15moe_group_fusedILb0EEEvNS_6ParamsE",
+        "registers": 148,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ]
+  },
+  "zero_stack_spills": true,
+  "costs": "2816extra shared bytes;tid0 initializes intersecting job buckets before existing WS_JOIN;shared atomics;sparse publication after final WS_JOIN. No added barrier;original finalizer and ybuf traffic retained.",
+  "precision": "Unit norm addends flush subnormals before shared atomic to match original global atomic FTZ;association changes need approved norm bounds.",
+  "GPU_calls": 0,
+  "admitted_for_GPU": false,
+  "remaining": "Numerical/order,helper-tail/lifetime and resource proofs;exact source packaging and H200 gates remain required."
+}

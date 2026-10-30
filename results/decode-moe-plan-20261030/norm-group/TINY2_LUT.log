@@ -2,7 +2,7 @@ preflight.cu(1492): warning #177-D: variable "ce" was declared but never referen
       const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
                                              ^
           detected during:
-            instantiation of "void norm_group::run_phase<PB,BIG>(const norm_group::Params &, norm_group::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2428
+            instantiation of "void norm_group::run_phase<PB,BIG>(const norm_group::Params &, norm_group::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2430
             instantiation of "void norm_group::moe_group_fused<BIG>(norm_group::Params) [with BIG=false]" 
 
 Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"

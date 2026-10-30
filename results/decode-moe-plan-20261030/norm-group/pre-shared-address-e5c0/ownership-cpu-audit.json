@@ -1,0 +1,11 @@
+{
+  "cases": 396,
+  "empty_CTA_intervals": 2116,
+  "all_unit_addends_covered_once": true,
+  "every_atomic_bucket_initialized": true,
+  "published_valid_buckets_equal_touched_valid_buckets": true,
+  "at_most16_initialized_slots_per_CTA_at_grid132": true,
+  "source_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
+  "GPU_calls": 0,
+  "limitation": "Integer ownership model,not CUDA race,replay or performance evidence."
+}

@@ -1,0 +1,34 @@
+{
+  "results": {
+    "generic": {
+      "CUDA_sha256": "22f630f39e7efb813f4e7ba0e572b558d14637b4b38e0f283ae4dd1610dfb51d",
+      "global_F32_atomic_sites": 5,
+      "address_space_query_sites": 10,
+      "global_F32_instructions": [
+        "/*dc40*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*df50*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e1c0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e430*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e6a0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */"
+      ],
+      "cubin_sha256": "62c3fa297aef914bea663f18e1123e85087e9fb9c54c03b0f2f667442adba2e5"
+    },
+    "shared": {
+      "CUDA_sha256": "d14410b511f6256c36f183be8ed3af05d8b299752f115376018e3dc5ddcde0a2",
+      "global_F32_atomic_sites": 5,
+      "address_space_query_sites": 10,
+      "global_F32_instructions": [
+        "/*dc40*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*df50*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e1c0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e430*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */",
+        "/*e6a0*/                   ATOM.E.ADD.F32.FTZ.RN.STRONG.GPU P0, RZ, desc[UR10][R2.64], R15 ;  /* 0x0000000f02ff79a2 */"
+      ],
+      "cubin_sha256": "11aa21a9c3594608e320fc1b2a4fb738ac32ac5eaac9e90137afb47c39a91f18"
+    }
+  },
+  "benefit_demonstrated": false,
+  "decision": "CPU reject: no reduction of generic address checks",
+  "GPU_calls": 0,
+  "limitation": "Static instruction sites,not dynamic execution counts or latency."
+}
