@@ -1,0 +1,9 @@
+{
+  "candidate": "candidates/dense_p5.py",
+  "source_sha256": "4d899518641110154af54dc003680c2cd73c722e28e2dbe400c3a17ee0884d96",
+  "scope": "qkv M1/M8 v18d RED 3 (intra-CTA reduce, then one DSMEM push per row group) for (1,4,8,4), (1,8,4,4), (1,8,8,2)",
+  "why": "P3 DIAG4 (no reduction) 1.038 on qkv M1: cluster reduction ~0.4 us; RED 3 cuts DSMEM traffic by WK x",
+  "offline_compile": "results/p5-offline-red3/summary.txt: 77 regs, 0 spill",
+  "gates": "v18d_v18d_native_plan (bit-exact pack, one-hot, FP64 random); ABBA 16 pairs median >= 1.03, wins >= 0.75; official checker",
+  "markers": "P5 / P5_SELECT / P5_KEEP / P5_USE"
+}

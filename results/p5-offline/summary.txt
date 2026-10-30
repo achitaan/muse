@@ -1,0 +1,7 @@
+incumbent ST2 NT256: rc 0 regs 78 stack/spill ('0', '0', '0')
+A (1,4,8,4) ST2 cap96: rc 0 regs 78 stack/spill ('0', '0', '0')
+B (1,4,8,4) ST4 cap102: rc 0 regs 125 stack/spill ('0', '0', '0')
+C (1,4,4,8) ST2 cap56: rc 0 regs 78 stack/spill ('0', '0', '0')
+D (1,4,4,8) ST4 cap56: rc 0 regs 102 stack/spill ('0', '0', '0')
+D2 (1,4,4,8) ST4 cap64: rc 0 regs 102 stack/spill ('0', '0', '0')
+uncapped (1,4,4,8) ST2 NT256 (P1): rc 0 regs 78 stack/spill ('0', '0', '0')
