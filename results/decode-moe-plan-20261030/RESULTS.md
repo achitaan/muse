@@ -862,3 +862,5 @@ A source ownership model establishes256 norm atomic arrivals per local route and
 ### Bounded TR8 evaluation admission
 
 2026-10-30T20:07:53.726127+00:00; source5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550; normal spacing60.691minutes; no active job; MoE checks16before/15expected after,10scores. Fresh official identity unchanged; CPU gates pass. One full MoE check admitted. Stop on numerical/resource/integrity failure,empty selection or no new-path gain; no automatic publication or score. Final Decode check remains reserved.
+
+Bounded TR8 check acknowledged as7f34a396bd784aa1. Source remains5d691341; one upload, no retry. Result pending; no speedup claim.
