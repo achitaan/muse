@@ -28,6 +28,8 @@ def run(args, timeout):
 
 
 def main():
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
     sub = wsl_path(HERE / 'attention.py')
     job = None
     for attempt in range(10):
