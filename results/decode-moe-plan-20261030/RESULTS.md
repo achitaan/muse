@@ -691,3 +691,20 @@ reproduction scripts, compiler/SASS records and acceptance criteria are in
 ### One diagnostic admitted: localize MoE byte failures
 
 Frozen `moe_repeat_diag.py` SHA256 `2441f20829f1b7672ea8591983f2f9b8d952a0ae3e056d824926c88c00a478e9`, 240378 bytes. Full retained MoE prefix and public timed kernel unchanged. Observe parent repeats, graph output buffers, independent scratch, and the already-rejected TR8 at inter/ybuf/ss/output boundaries; no timing comparison, algorithm selection or scored upload. CPU observation/bounds checks pass; GPU snapshot interpretation remains unverified. Current official task/reference/checker/NVFP4 identities match. Fresh quota is 18 MoE checks; one job would leave 17. Decode 1 check remains reserved. No active jobs; 143.9 minutes since last check submission, above 60-minute floor. Predeclared protocol/limits and source binding are in `moe-repeat/`.
+
+Diagnostic check acknowledged once: **`d563fa2d0a1b47e6`**, source `2441f208`, MoE. No upload retry and no scored run. Follow this exact job; the timed kernel remains retained parent.
+
+
+Diagnostic `d563fa2d0a1b47e6` completed: 5/5 tests, 6/6 benchmarks, integrity/no flags; prepare **170.494196509 s**. Its unchanged-parent point is 2.336133366x, CI [2.301091366,2.371175366]; this is not a new speedup. The diagnostic was too verbose for the retained 16,000-character log tail. Only nine final M32 fixture records are recoverable through the retained log; all their inter/ybuf/ss/output controls are byte-identical and finite. Earlier small-M records and variant markers are unavailable, so TR8 root cause remains unresolved. No score/transfer follows. This is a diagnosed reporting defect, not evidence that tiny routing is repaired or faulty. Any retry must change only reporting, keep strict gates/rejection, be source-bound and preserve quota/spacing policy.
+
+
+### Private early-trigger norm extends the 16/32 CPU draft
+
+`decoder_pdln_draft.py` SHA256 `aa2725903ffced70de17f003b5c95ba3d1d45f66d0a08e2ed5d91623ff97604b`, 991413 bytes, 8587 bytes headroom. Pinned scalar norm currently triggers after all stores; this private copy triggers before its unchanged dependency wait. Source inverse preserves arithmetic, 256-thread/eight-warp reductions, BF16 post-norm, FP32 residual/pre-norm input and final BF16 output. Seven SDK source hashes gate the background build, using the original SDK JIT API and owned temporary header. No installed source/module/environment is patched. New C++ builds join before parent captures; unsupported metadata falls back. Bit2 pairs this norm with FPR at M16/32 under the existing byte and >3% whole-layer gates.
+
+Both device proxies compile at 175 registers/64 static shared bytes, no stack/spills, matching arithmetic counts. Trigger ordering changes as intended. CPU adapter, join/fallback and integration inverses pass. These are CPU proofs only; SDK/H200 linking/resources, whole-layer bytes/latency and prepare <300s remain unverified. Logical FPR prefix requests are 15/9 MiB, not measured HBM traffic; norm and FPR are not assumed co-resident. Earlier drafts, scored source and final Decode check remain preserved. See `pdl-norm/REVIEW.md` and source-bound evidence.
+
+
+### One bounded logging-repair retry admitted
+
+Source `moe_repeat_diag_v2.py` SHA256 `b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12`, 242413 bytes. This repairs d563fa2d reporting only: no CUDA/flags/fixtures/timed-path change, no performance comparison/selection/score. FP64 diagnostic metrics prevent report overflow. Compact aggregates round-trip all 75 stress cases/35 groups in a 5,700-character footer within the retained tail. Official identities remain equal; no active GPU jobs. Fresh MoE quota 17 -> 16 expected, Decode 1 preserved. 26.6 minutes since the prior upload. The diagnosed log-window defect is recorded **before** the single spacing exception under EVALUATION_POLICY retries; at most one additional check, cumulative two for this diagnostic question. No further blind retry.

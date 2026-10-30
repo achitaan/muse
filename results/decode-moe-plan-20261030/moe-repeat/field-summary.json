@@ -1,0 +1,194 @@
+{
+  "A_consecutive / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_consecutive / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_consecutive / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_consecutive / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "C_consecutive / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "C_consecutive / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "C_consecutive / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "C_consecutive / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_repeat / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_repeat / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_repeat / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "A_repeat / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "same_scratch_graph / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "same_scratch_graph / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "same_scratch_graph / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "same_scratch_graph / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_scratch / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_scratch / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_scratch / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_scratch / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_same_scratch_graph / inter": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_same_scratch_graph / ybuf": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_same_scratch_graph / ss": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  },
+  "independent_same_scratch_graph / out": {
+    "cases": 9,
+    "changed": 0,
+    "nonfinite": 0,
+    "max_bytes": 0,
+    "max_rel": 0.0,
+    "examples": []
+  }
+}

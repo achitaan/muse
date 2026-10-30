@@ -1,0 +1,22 @@
+{
+  "source_sha256": "b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12",
+  "bytes": 242413,
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "full_parent_prefix_identical": true,
+  "timed_kernel_fn_unchanged": true,
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "observed_TR8_CUDA_sha256": "b0ff69a1c7f55dfb64bed94e1226e3ebff59a7c73ca1696db2a9d1bd879d24fb",
+  "purpose": "Localize already-rejected TR8 byte differences; compare unchanged-parent repeats, graph output buffers, independent scratch, and intermediate/norm/final values.",
+  "selection": "None. No performance comparison, no algorithm retry, no scored upload.",
+  "generations": "ctr[3] advances once; active ss bank=(new_generation-1)&1; valid expert-major route prefix only.",
+  "GPU_jobs": 0,
+  "max_checks": 1,
+  "matrix": "M1,3,8,16,32 x 5 routing fixtures x 3 input seeds x 2 cycles x 6 serial calls; TR8 only <=8, larger D is another parent graph.",
+  "added_scratch": "One parent-equivalent independent scratch bank during prepare; released before official calls.",
+  "stop": "Stop starting probes at 278 s; parent timed path retained regardless of diagnostic outcome.",
+  "reporting_repair_only": true,
+  "diagnosed_defect": "d563fa2d output exceeded the 16000-character retained log tail",
+  "final_summary_z64_limit": 9000,
+  "raw_records_z64_limit": 4000,
+  "additional_change": "Diagnostic error metrics use FP64 to avoid report overflow; timed math unchanged."
+}

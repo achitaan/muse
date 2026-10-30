@@ -1,0 +1,31 @@
+{
+  "GPU_jobs": 0,
+  "parent_prefix_exact": true,
+  "public_dispatch_ext_and_scratch_AST_unchanged": true,
+  "valid_prefix_sizes": [
+    0,
+    1,
+    32,
+    256
+  ],
+  "bank_generations": [
+    1,
+    2,
+    3,
+    4,
+    901,
+    902
+  ],
+  "signed_zero_detected": true,
+  "nonfinite_JSON_safe": true,
+  "fixture_cases": 25,
+  "limitation": "CPU observation/bounds only. Does not validate CUDA routing, atomic behavior, host compilation or snapshots on the judge.",
+  "footer_stress": {
+    "cases": 75,
+    "groups": 35,
+    "summary_z64_chars": 5700,
+    "retained_inside_16000_char_tail_with_1260_char_profiler_suffix": true,
+    "all_aggregates_lossless": true
+  },
+  "extreme_finite_FP32_metric_JSON_safe": true
+}

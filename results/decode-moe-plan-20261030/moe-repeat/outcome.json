@@ -1,0 +1,32 @@
+{
+  "job_id": "d563fa2d0a1b47e6",
+  "status": "done",
+  "tests": [
+    5,
+    5
+  ],
+  "benchmarks": 6,
+  "passed": true,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 170.494196509,
+  "parent_point_not_new_speedup": 2.3361333659979846,
+  "parent_point_CI": [
+    2.301091365508015,
+    2.3711753664879542
+  ],
+  "API_content_hash": "ede8bceb4edc6d6cc899ed964d2935ec254950aeba94641400e42afe323a5f27",
+  "frozen_local_source_sha256": "2441f20829f1b7672ea8591983f2f9b8d952a0ae3e056d824926c88c00a478e9",
+  "finished_at": 1793372352.0214887,
+  "retained_log_tail_chars": 16000,
+  "retained_case_records": 9,
+  "observed_M32_controls_all_bytes_equal": true,
+  "small_M_diagnostic_result": "unavailable: verbose per-case output exceeded retained log window",
+  "root_cause_TR8": "unresolved",
+  "algorithm_selection": false,
+  "scored_upload": false,
+  "next": "Only a bounded reporting repair can recover this question; preserve rejected TR8 and all strict gates."
+}

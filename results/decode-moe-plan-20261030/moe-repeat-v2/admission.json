@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-30T15:21:56.512936+00:00",
+  "retry_of": "d563fa2d0a1b47e6",
+  "source_sha256": "b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12",
+  "source_bytes": 242413,
+  "max_additional_checks": 1,
+  "total_question_checks_including_prior": 2,
+  "no_scored_run": true,
+  "active_jobs": [],
+  "official_identity_equal": true,
+  "minutes_since_last_submission": 26.58820449113846,
+  "spacing_exception": true,
+  "exception_basis": "EVALUATION_POLICY.json permits diagnosed bounded defects when the reason is recorded before a spacing exception. Prior diagnostic output exceeded the retained 16000-character tail; only logging/diagnostic metric serialization is repaired. No algorithm, flags, fixtures, selection or timed-path change. CPU retention stress passes.",
+  "MoE_checks_before": 17,
+  "MoE_checks_after_expected": 16,
+  "Decode_checks_preserved": 1,
+  "no_further_blind_retry": true
+}

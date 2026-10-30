@@ -1,0 +1,1514 @@
+[
+  {
+    "m": 32,
+    "pattern": "four",
+    "seed": 0,
+    "local_routes": 128,
+    "generations": {
+      "A": [
+        407,
+        410
+      ],
+      "A_next": [
+        408,
+        411
+      ],
+      "B": [
+        409,
+        412
+      ],
+      "C": [
+        407,
+        410
+      ],
+      "C_next": [
+        408,
+        411
+      ],
+      "D": [
+        409,
+        412
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "four",
+    "seed": 1,
+    "local_routes": 128,
+    "generations": {
+      "A": [
+        413,
+        416
+      ],
+      "A_next": [
+        414,
+        417
+      ],
+      "B": [
+        415,
+        418
+      ],
+      "C": [
+        413,
+        416
+      ],
+      "C_next": [
+        414,
+        417
+      ],
+      "D": [
+        415,
+        418
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "four",
+    "seed": 2,
+    "local_routes": 128,
+    "generations": {
+      "A": [
+        419,
+        422
+      ],
+      "A_next": [
+        420,
+        423
+      ],
+      "B": [
+        421,
+        424
+      ],
+      "C": [
+        419,
+        422
+      ],
+      "C_next": [
+        420,
+        423
+      ],
+      "D": [
+        421,
+        424
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "all",
+    "seed": 0,
+    "local_routes": 256,
+    "generations": {
+      "A": [
+        425,
+        428
+      ],
+      "A_next": [
+        426,
+        429
+      ],
+      "B": [
+        427,
+        430
+      ],
+      "C": [
+        425,
+        428
+      ],
+      "C_next": [
+        426,
+        429
+      ],
+      "D": [
+        427,
+        430
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "all",
+    "seed": 1,
+    "local_routes": 256,
+    "generations": {
+      "A": [
+        431,
+        434
+      ],
+      "A_next": [
+        432,
+        435
+      ],
+      "B": [
+        433,
+        436
+      ],
+      "C": [
+        431,
+        434
+      ],
+      "C_next": [
+        432,
+        435
+      ],
+      "D": [
+        433,
+        436
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "all",
+    "seed": 2,
+    "local_routes": 256,
+    "generations": {
+      "A": [
+        437,
+        440
+      ],
+      "A_next": [
+        438,
+        441
+      ],
+      "B": [
+        439,
+        442
+      ],
+      "C": [
+        437,
+        440
+      ],
+      "C_next": [
+        438,
+        441
+      ],
+      "D": [
+        439,
+        442
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "skew",
+    "seed": 0,
+    "local_routes": 63,
+    "generations": {
+      "A": [
+        443,
+        446
+      ],
+      "A_next": [
+        444,
+        447
+      ],
+      "B": [
+        445,
+        448
+      ],
+      "C": [
+        443,
+        446
+      ],
+      "C_next": [
+        444,
+        447
+      ],
+      "D": [
+        445,
+        448
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "skew",
+    "seed": 1,
+    "local_routes": 63,
+    "generations": {
+      "A": [
+        449,
+        452
+      ],
+      "A_next": [
+        450,
+        453
+      ],
+      "B": [
+        451,
+        454
+      ],
+      "C": [
+        449,
+        452
+      ],
+      "C_next": [
+        450,
+        453
+      ],
+      "D": [
+        451,
+        454
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  },
+  {
+    "m": 32,
+    "pattern": "skew",
+    "seed": 2,
+    "local_routes": 63,
+    "generations": {
+      "A": [
+        455,
+        458
+      ],
+      "A_next": [
+        456,
+        459
+      ],
+      "B": [
+        457,
+        460
+      ],
+      "C": [
+        455,
+        458
+      ],
+      "C_next": [
+        456,
+        459
+      ],
+      "D": [
+        457,
+        460
+      ]
+    },
+    "banks": {
+      "A": [
+        0,
+        1
+      ],
+      "A_next": [
+        1,
+        0
+      ],
+      "B": [
+        0,
+        1
+      ],
+      "C": [
+        0,
+        1
+      ],
+      "C_next": [
+        1,
+        0
+      ],
+      "D": [
+        0,
+        1
+      ]
+    },
+    "comparisons": {
+      "A_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "C_consecutive": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "A_repeat": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_scratch": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      },
+      "independent_same_scratch_graph": {
+        "inter": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ybuf": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "ss": {
+          "byte_mismatches": 0,
+          "finite": true
+        },
+        "out": {
+          "byte_mismatches": 0,
+          "finite": true
+        }
+      }
+    }
+  }
+]

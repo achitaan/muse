@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-30T15:21:56.512936+00:00",
+  "mode": "check",
+  "problem": "muse_moe_w4a16",
+  "source_sha256": "b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12",
+  "acknowledged_jobs": 0,
+  "retry_of": "d563fa2d0a1b47e6"
+}
