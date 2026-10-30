@@ -1,0 +1,16 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z9m32w_gemmILi128ELi64ELi4ELi2ELi3ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _Z9m32w_gemmILi128ELi64ELi4ELi2ELi3ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     80 bytes stack frame, 124 bytes spill stores, 128 bytes spill loads
+ptxas info    : Used 128 registers, used 1 barriers, 80 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9m32w_gemmILi128ELi64ELi3ELi2ELi4ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _Z9m32w_gemmILi128ELi64ELi3ELi2ELi4ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 151 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9m32w_gemmILi128ELi64ELi2ELi2ELi6ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj' for 'sm_90a'
+ptxas info    : Function properties for _Z9m32w_gemmILi128ELi64ELi2ELi2ELi6ELb1ELi1EEv11CUtensorMapPK5uint4PKjP13__nv_bfloat16iiiijj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 151 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms

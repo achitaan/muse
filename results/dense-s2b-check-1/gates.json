@@ -1,0 +1,36 @@
+{
+  "candidate": "candidates/dense_s2b.py",
+  "source_sha256": "cba6144971ea04391fa7fa517cef380d54c6382a5ae6939382200633a4ca6d5d",
+  "parent": "best/verified.py edc61a1e...765b minus dead _achita_wg sweep; (32,unpooler) config kept; no S1/S2 (closed)",
+  "scope": "(M=128, unpooler 8192x4096) only; split=1, no cluster, no st.async",
+  "mechanism": "S2 kernel pipelined per warpgroup: commit without wait, 2 A-register banks, wait_group 1 then lagged x-stage refill; schedule in DENSE_LEDGER.md 3b",
+  "instances": {
+    "primary": [
+      128,
+      64,
+      3,
+      2,
+      4,
+      true,
+      1
+    ],
+    "alternative": [
+      128,
+      64,
+      2,
+      2,
+      6,
+      true,
+      1
+    ]
+  },
+  "excluded": {
+    "(128,64,4,2,3)": "128 regs cap at 512 threads -> 80 B stack, 124/128 B spill"
+  },
+  "offline_compile": "results/s2b-offline/s2b-resources.txt: both 151 regs, 0 spill, 0 wgmma-serialization warnings; SASS (s2b_wk3.sass): 8 HGMMA, DEPBAR.LE gsb0 0x1 per step, 0x0 only after loop, A banks R88-R103 / R104-R119, acc R24-R87",
+  "representation_gate": "pack_weight bit-exact int16 compare incl. signed zero + escapes",
+  "computation_gate": "one-hot all 4096 columns bit-exact at m=128 chunks; FP64 random+spike rows m=128 and m=100; official checker",
+  "timing_gate": "ABBA paired cold-L2 graph replay, 16 pairs, raw samples; select iff median(base/cand) >= 1.03 and wins >= 0.75",
+  "selected_path_marker": "S2B_USE (128, unpooler, 8192, 4096); S2B_SELECT / S2B_KEEP",
+  "decision_rule": "S2B_SELECT + pass -> one confirming check of the frozen selection, then scored submission if whole-track gain is material (human authorized submit-when-confident). S2B_KEEP -> record in ledger 1b as SLOWED DOWN / too small, CLOSE."
+}

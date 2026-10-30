@@ -87,6 +87,27 @@ Balanced ABBA paired cold-L2 CUDA-graph replays, 16 pairs, raw samples printed. 
 
 ---
 
+## 3b. S2b — pipelined c12 WGMMA lifetime schedule (required before any check)
+
+Kernel: `m32w_gemm` body with `wait_group 0` removed from the MMA helper. Per warpgroup, with step `i`, A-register bank `b = i & 1` (`PF = 2`, so `b` is the compile-time unrolled index `p`) and x stage `s = i % Q`:
+
+| t | Action at step i | Precondition (why it is safe) |
+|---|---|---|
+| t0 | decode `raw[p]` → `A[b]` (16 regs) | last reader of `A[b]` was WGMMA group `i-2`; it is complete because step `i-1` ended with `wait_group 1` |
+| t1 | global load of step `i+PF` into `raw[p]` | `raw[p]` was consumed at t0; plain registers, not read by WGMMA |
+| t2 | escape patch of `A[b]` | before the WGMMA that reads it is issued |
+| t3 | `mbarrier` wait `full[s]` (parity `(i/Q)&1`) | TMA for step `i` landed |
+| t4 | `wgmma.fence`; 4× `m64n128k16` (K=64 = 4 instructions per 64-row tile); `commit` → group `i` | `acc` is touched only by WGMMA from here until the final `wait_group 0` |
+| t5 | `wait_group 1` | afterwards group `i-1` is complete, so `A[b^1]` and x stage `(i-1)%Q` are free |
+| t6 | TMA for step `i-1+Q` into stage `(i-1)%Q` | that stage's last reader (group `i-1`) completed at t5 |
+| end | `wait_group 0`, then `__syncthreads`, `mbarrier.inval`, smem epilogue | all groups complete before smem is reused for the reduction |
+
+- **Overlap gained:** the decode of step `i+1` (t0) runs while group `i` is in flight.
+- **Cost:** x prefetch distance drops by one stage, so Q ≥ 3.
+- **Registers:** +16 (second A bank). Measured with ptxas (sm_90a, NVRTC 13.0) before any check; an instance is excluded if it spills or if ptxas reports wgmma serialization (C7515).
+- **Register budget:** 1 CTA/SM. WK=4 means 512 threads, so at most 128 registers; WK=3 means 384 threads, at most 170; WK=2 means 256 threads, at most 255.
+- **Unchanged from the S2 baseline:** split=1, no cluster, no `st.async`, and grid 128 × 1. Occupancy is reported by the job, not assumed.
+
 ## 4. Experiment log
 
 | Step | Date | Hypothesis / change | Offline evidence | Official job | Verdict | Status |
@@ -95,3 +116,4 @@ Balanced ABBA paired cold-L2 CUDA-graph replays, 16 pairs, raw samples printed. 
 | S1-pre | 2026-10-30 | Two unpooler geometries compile cleanly at exact NTMAX | NVRTC sm_90a rc 0: RED3 `(1,8,4,2,3)` 72 regs, 0 spill; RED0 `(1,16,4,1,0)` 64 regs (ptxas heuristic, no cap flag), 8 B stack / 8 B st / 16 B ld spill. `results/s1-offline/s1-resources.txt` | — | compile OK | done |
 | S1 | 2026-10-30 | Lower reduction/coordination overhead at sliced-unpooler M1/M8 via v18s RED3 `(1,8,4,2,3)` / RED0 `(1,16,4,1,0)`. Candidate `candidates/dense_s1.py` sha `4394ff32…a760` | pack bit-exact (455 escapes), one-hot + FP64 pass, agreement vs incumbent ≤ 6.8e-7 | check `f03ec089ee8d451b` passed, 1.5315x (CI 1.509–1.555), all S1_KEEP | paired base/cand: M1 0.899 (0/16 wins), 0.934 (0/16); M8 0.916 (0/16), 0.951 (1/16). **SLOWED DOWN: both layouts 5–10% slower** | **CLOSED** |
 | S2 | 2026-10-30 | M128 unpooler: exact-c12 m32w_gemm WGMMA, BN=128 tokens/CTA (weight decode reused for 128 tokens), split=1, no cluster; primary `(128,64,2,2,3)`, alt `(128,64,4,2,2)`. Candidate `candidates/dense_s2.py` sha `d87ab665…da33`, gates `results/dense-s2-check-1/gates.json` | NVRTC: WK2 135 regs/256 thr, WK4 125 regs/512 thr, 0 spill. Target scenario 18.6 → ≤ 16 µs (hypothesis only) | check `a5bd287a677c4fa9` passed, 1.5299x (CI 1.507–1.553), S2_KEEP | pack bit-exact (3329 escapes), one-hot + FP64 pass; paired base/cand: WK2 0.822 (0/16), WK4 0.9725 (5/16). **SLOWED DOWN 18% / 3%** | **CLOSED** |
+| S2b | 2026-10-30 | M128 unpooler: S2 kernel **pipelined** per Section 3b (no-wait MMA, 2 A banks, `wait_group 1`, lagged x refill). Primary `(128,64,3,2,4)`, alt `(128,64,2,2,6)`; `(128,64,4,2,3)` excluded (spills at the 128-register cap). Candidate `candidates/dense_s2b.py` sha `cba61449…6d5d`, gates `results/dense-s2b-check-1/gates.json` | NVRTC: 151 regs, 0 spill, 0 serialization warnings. SASS: `DEPBAR.LE gsb0, 0x1` per step, banks R88–103 / R104–119 | pending | | launching |

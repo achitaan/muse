@@ -1,0 +1,5 @@
+insts [(128, 64, 3, 2, 4, True, 1), (128, 64, 2, 2, 6, True, 1), (128, 64, 4, 2, 3, True, 1)] rc 0 secs 1.2
+wgmma serialization warnings: 0
+  inst ('128', '64', '4', '2', '3', '1', '1') regs 128 stack/spill_st/spill_ld ('80', '124', '128')
+  inst ('128', '64', '3', '2', '4', '1', '1') regs 151 stack/spill_st/spill_ld ('0', '0', '0')
+  inst ('128', '64', '2', '2', '6', '1', '1') regs 151 stack/spill_st/spill_ld ('0', '0', '0')
