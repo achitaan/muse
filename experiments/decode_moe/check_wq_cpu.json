@@ -1,0 +1,287 @@
+{
+ "parent": {
+  "MAIN": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 96,
+     "stack_frame": 8,
+     "spill_stores": 52,
+     "spill_loads": 84,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 96,
+     "stack_frame": 8,
+     "spill_stores": 52,
+     "spill_loads": 84,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  },
+  "TINY": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 146,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 146,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  },
+  "MID": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 150,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 150,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  }
+ },
+ "wq": {
+  "MAIN": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 96,
+     "stack_frame": 8,
+     "spill_stores": 16,
+     "spill_loads": 16,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 96,
+     "stack_frame": 8,
+     "spill_stores": 16,
+     "spill_loads": 16,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  },
+  "TINY": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 146,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 146,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  },
+  "MID": {
+   "rc": 0,
+   "kernels": [
+    {
+     "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+     "registers": 150,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    },
+    {
+     "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+     "registers": 150,
+     "stack_frame": 0,
+     "spill_stores": 0,
+     "spill_loads": 0,
+     "smem_static": 0,
+     "warnings": []
+    }
+   ]
+  }
+ },
+ "model": "300 random job sets x G {132,120,100,66} x q {1,2,4,8,16}: partition, owner lookup, slot uniqueness OK",
+ "nj7_examples": {
+  "nj7 pb0 q1": [
+   [
+    0.531,
+    40
+   ],
+   [
+    0.576,
+    37
+   ],
+   [
+    0.549,
+    44
+   ]
+  ],
+  "nj7 pb0 q2": [
+   [
+    0.5,
+    40
+   ],
+   [
+    0.518,
+    38
+   ],
+   [
+    0.509,
+    44
+   ]
+  ],
+  "nj7 pb0 q4": [
+   [
+    0.402,
+    40
+   ],
+   [
+    0.429,
+    40
+   ],
+   [
+    0.433,
+    44
+   ]
+  ],
+  "nj7 pb0 q8": [
+   [
+    0.254,
+    40
+   ],
+   [
+    0.295,
+    40
+   ],
+   [
+    0.299,
+    48
+   ]
+  ],
+  "nj7 pb0 q16": [
+   [
+    0.0,
+    48
+   ],
+   [
+    0.0,
+    48
+   ],
+   [
+    0.0,
+    48
+   ]
+  ],
+  "nj7 pb1 q1": [
+   [
+    0.973,
+    18
+   ],
+   [
+    0.982,
+    19
+   ],
+   [
+    0.964,
+    20
+   ]
+  ],
+  "nj7 pb1 q2": [
+   [
+    0.946,
+    18
+   ],
+   [
+    0.982,
+    20
+   ],
+   [
+    0.866,
+    20
+   ]
+  ],
+  "nj7 pb1 q4": [
+   [
+    0.884,
+    20
+   ],
+   [
+    0.875,
+    20
+   ],
+   [
+    0.759,
+    20
+   ]
+  ],
+  "nj7 pb1 q8": [
+   [
+    0.616,
+    24
+   ],
+   [
+    0.625,
+    24
+   ],
+   [
+    0.518,
+    24
+   ]
+  ],
+  "nj7 pb1 q16": [
+   [
+    0.0,
+    32
+   ],
+   [
+    0.0,
+    32
+   ],
+   [
+    0.0,
+    32
+   ]
+  ]
+ }
+}

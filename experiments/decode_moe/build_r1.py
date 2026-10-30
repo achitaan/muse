@@ -128,7 +128,7 @@ def _r1_pair(xb, xr, state, o, b):
  return (e, r[0], r[1])
 
 
-def _r1_select(state, reps=40):
+def _r1_select(state, reps=25):
  sel = {}
  dev = state['rf']['weight'].device
  flush = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
@@ -178,7 +178,7 @@ def prepare(weights):
  state = _r1_prev_prepare(weights)
  state['r1'] = {}
  el = _r1_time.perf_counter() - t0
- if state.get('rf') is None or el > 240.0:
+ if state.get('rf') is None or el > 280.0:
   print(f'R1_SKIP {el:.1f}s', flush=True)
   return state
  try:
