@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T22:47:38.131717+00:00",
+  "updated_at": "2026-10-30T22:49:35.403851+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -173,5 +173,11 @@
   "observed_dense_checks": [
     "e26e498c24e8487b",
     "dc821d6f1ad94fbf"
-  ]
+  ],
+  "dense_D1_status": "Closed by prior checks62f428608bbf41aa and f026c3b14a864be0;timing-unit fix alreadydone. See norm-group/DENSE_D1_CLOSED.md.",
+  "pacing_timer": {
+    "session_id": 62099,
+    "target_utc": "2026-10-30T23:16:05Z",
+    "purpose": "Foreground eligibility countdown only; no GPU or other follow-on action. Revalidate live handle before relying on it."
+  }
 }
