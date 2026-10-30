@@ -686,3 +686,8 @@ resolved. No publication, score change or fresh rank is claimed. Current
 working/scored source remains `c15df9d3`, 2.075466170x. Full source bindings,
 reproduction scripts, compiler/SASS records and acceptance criteria are in
 `pdl-chain/` and `pdlu/`; the earlier O-only draft remains preserved.
+
+
+### One diagnostic admitted: localize MoE byte failures
+
+Frozen `moe_repeat_diag.py` SHA256 `2441f20829f1b7672ea8591983f2f9b8d952a0ae3e056d824926c88c00a478e9`, 240378 bytes. Full retained MoE prefix and public timed kernel unchanged. Observe parent repeats, graph output buffers, independent scratch, and the already-rejected TR8 at inter/ybuf/ss/output boundaries; no timing comparison, algorithm selection or scored upload. CPU observation/bounds checks pass; GPU snapshot interpretation remains unverified. Current official task/reference/checker/NVFP4 identities match. Fresh quota is 18 MoE checks; one job would leave 17. Decode 1 check remains reserved. No active jobs; 143.9 minutes since last check submission, above 60-minute floor. Predeclared protocol/limits and source binding are in `moe-repeat/`.

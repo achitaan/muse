@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-30T14:54:39.691098+00:00",
+  "source_sha256": "2441f20829f1b7672ea8591983f2f9b8d952a0ae3e056d824926c88c00a478e9",
+  "source_bytes": 240378,
+  "task_identity_equal": true,
+  "CPU_observation_audit_passed": true,
+  "parent_timed_path_unchanged": true,
+  "active_jobs": [],
+  "minutes_since_last_check_submission": 143.89062517881393,
+  "max_new_checks": 1,
+  "scores_authorized_for_this_diagnostic": false,
+  "MoE_checks_before": 18,
+  "Decode_checks_reserved": 1,
+  "purpose": "Localize already-rejected TR8 byte differences; compare unchanged-parent repeats, graph output buffers, independent scratch, and intermediate/norm/final values.",
+  "no_algorithm_selection_or_performance_claim": true
+}

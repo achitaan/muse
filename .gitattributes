@@ -7,3 +7,5 @@ experiments/decode_moe/*pdl* -text
 experiments/decode_moe/profiles/decoder_pdl* -text
 experiments/decode_moe/*tinyroute* -text
 experiments/decode_moe/profiles/moe_tinyroute* -text
+experiments/decode_moe/moe_repeat_diag.py -text
+experiments/decode_moe/profiles/moe_repeat_diag* -text

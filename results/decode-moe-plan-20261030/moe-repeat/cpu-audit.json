@@ -1,0 +1,23 @@
+{
+  "GPU_jobs": 0,
+  "parent_prefix_exact": true,
+  "public_dispatch_ext_and_scratch_AST_unchanged": true,
+  "valid_prefix_sizes": [
+    0,
+    1,
+    32,
+    256
+  ],
+  "bank_generations": [
+    1,
+    2,
+    3,
+    4,
+    901,
+    902
+  ],
+  "signed_zero_detected": true,
+  "nonfinite_JSON_safe": true,
+  "fixture_cases": 25,
+  "limitation": "CPU observation/bounds only. Does not validate CUDA routing, atomic behavior, host compilation or snapshots on the judge."
+}
