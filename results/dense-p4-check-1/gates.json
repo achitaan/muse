@@ -1,0 +1,8 @@
+{
+  "candidate": "candidates/dense_p4.py",
+  "source_sha256": "240eec05af02e3688419bf45a4737e83288e631f31793e3c9ad5f2b048b49e68",
+  "scope": "confirmation of P2 near-misses only: o M8 v18s (4,8,2,1) NT1024; router M16 routertail S16/WK4",
+  "pre_registered_rule": "route iff, in this fresh run, median >= 1.015 and >= 75% of 16 paired wins, after the same correctness gates (o: v18s_plan; router: 64 one-hot columns exact, relL2 <= 2.5e-5). Written before the check.",
+  "adoption_rule": "if both P4_USE fire and the check passes, the frozen routes become a scored-submission candidate only after a second confirming run shows the same per-shape direction (judge per-shape ratios for (8,o) and (16,router)); expected score gain ~0.2%, inside judge CI",
+  "markers": "P4 / P4_SELECT / P4_KEEP / P4_USE"
+}
