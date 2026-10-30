@@ -1,0 +1,4 @@
+S2C_BUILD 7s info abl0:1540000 abl1:1420000 abl2:1490000 abl4:750000 abl3:1380000 abl5:630000 abl6:690000
+S2C_DIAG off AcceleratorError: CUDA error: operation failed due to a previous error during capture
+Search for `cudaErrorStreamCaptureInvalidated' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+

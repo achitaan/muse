@@ -7163,7 +7163,6 @@ def _s2c_device_source(mask, prefix, core):
 
 # --- runtime ---
 import time as _s2c_time
-from concurrent.futures import ThreadPoolExecutor as _S2CPool
 
 
 def _s2c_build(mask):
@@ -7191,9 +7190,35 @@ def _s2c_graph(fn):
     fn()
     torch.cuda.synchronize()
     g = torch.cuda.CUDAGraph()
-    with torch.cuda.graph(g):
+    with torch.cuda.graph(g, capture_error_mode='thread_local'):
         fn()
     return g
+
+
+class _S2CEager:
+    def __init__(self, fn):
+        self.fn = fn
+
+    def replay(self):
+        self.fn()
+
+
+def _s2c_prepare_timer(label, fn):
+    try:
+        rc = fn()
+        torch.cuda.synchronize()
+        print(f'S2C_EAGER {label} rc {rc}', flush=True)
+        if rc:
+            return None
+    except Exception as ex:
+        print(f'S2C_EAGER_FAIL {label} {type(ex).__name__}: {str(ex)[:200]}', flush=True)
+        return None
+    try:
+        return _s2c_graph(fn)
+    except Exception as ex:
+        print(f'S2C_CAPTURE_FAIL {label} {type(ex).__name__}: {str(ex)[:200]} -> eager timing', flush=True)
+        torch.cuda.synchronize()
+        return _S2CEager(fn)
 
 
 def _s2c_diag(state, weights):
@@ -7201,32 +7226,38 @@ def _s2c_diag(state, weights):
     w = weights['unpooler']
     (n, k) = w.shape
     dev = w.device
-    with _S2CPool(max_workers=4) as pool:
-        exts = dict(pool.map(_s2c_build, _S2C_MASKS))
+    exts = dict(_s2c_build(m) for m in _S2C_MASKS)
     print(f'S2C_BUILD {_s2c_time.monotonic() - t0:.0f}s info ' + ' '.join(f'abl{m}:{exts[m].info(0)}' for m in _S2C_MASKS), flush=True)
     pk = dd_decodediet_tt_mw_pack_weight(w, 64, _S2C_INST[2], 1, True)
     flush = torch.ones(64 << 20, dtype=torch.float32, device=dev)
     gen = torch.Generator(device=dev).manual_seed(20261032)
     x = torch.randn((128, k), generator=gen, device=dev).to(torch.bfloat16)
     data = {'x': x, 'config': {'m': 128, 'n': n, 'k': k, 'layer': 'unpooler'}}
-    graphs = {'base': _s2c_graph(lambda: _s2c_prev_kernel(data, state))}
     ref = _s2c_prev_kernel(data, state).double()
+    torch.cuda.synchronize()
+    graphs = {}
+    g = _s2c_prepare_timer('incumbent', lambda: (_s2c_prev_kernel(data, state), 0)[1])
+    if g is not None:
+        graphs['base'] = g
     outs = {}
     for m in _S2C_MASKS:
         outs[m] = torch.empty((128, n), dtype=torch.bfloat16, device=dev)
         (ext, o) = (exts[m], outs[m])
-        graphs[m] = _s2c_graph(lambda ext=ext, o=o: dd_decodediet_tt_mw_launch_raw(ext, 0, pk, x, o))
-    agree = float((outs[0].double() - ref).norm() / ref.norm())
+        g = _s2c_prepare_timer(f'abl{m}', lambda ext=ext, o=o: dd_decodediet_tt_mw_launch_raw(ext, 0, pk, x, o))
+        if g is not None:
+            graphs[m] = g
+    if 0 in graphs:
+        print(f'S2C_AGREE abl0_vs_incumbent {float((outs[0].double() - ref).norm() / ref.norm()):.1e}', flush=True)
     samples = {key: [] for key in graphs}
     for rnd in range(16):
         keys = list(graphs) if rnd % 2 == 0 else list(graphs)[::-1]
         for key in keys:
             samples[key].append(_s2c_once(graphs[key], flush))
     med = {key: sorted(v)[len(v) // 2] for (key, v) in samples.items()}
-    print(f'S2C_AGREE abl0_vs_incumbent {agree:.1e}', flush=True)
     for key in graphs:
         label = 'incumbent' if key == 'base' else f'abl{key}'
-        print(f'S2C {label} med_us {med[key]:.2f} raw ' + ','.join(f'{v:.1f}' for v in samples[key]), flush=True)
+        mode = 'eager' if isinstance(graphs[key], _S2CEager) else 'graph'
+        print(f'S2C {label} {mode} med_us {med[key]:.2f} raw ' + ','.join(f'{v:.1f}' for v in samples[key]), flush=True)
     del graphs, flush
     torch.cuda.synchronize()
     print(f'S2C_DONE s={_s2c_time.monotonic() - t0:.1f}', flush=True)

@@ -1,0 +1,20 @@
+{
+  "candidate": "candidates/dense_s2c_diag.py",
+  "source_sha256": "7846c837bc01a26cae1131e77da4737aea5957c03546a85cdc19cbe1f6a3a79e",
+  "kind": "DIAGNOSTIC: no routing change; runtime kernel_fn is best/verified.py",
+  "question": "which stream binds the c12 WGMMA kernel at (128, unpooler): weight HBM loads, x TMA from L2, WGMMA, or decode",
+  "kernel": "S2b pipelined m32w (128,64,3,2,4,True,1)",
+  "masks": {
+    "0": "full",
+    "1": "no weight LDG",
+    "2": "no x TMA/wait",
+    "4": "no WGMMA",
+    "3": "decode+MMA only",
+    "5": "x TMA + decode only",
+    "6": "weights + decode only"
+  },
+  "offline_compile": "results/s2c-offline/s2c-resources.txt (0 spill all; SASS counts confirm each ablation)",
+  "timing": "16 round-robin rounds (alternating order), cold L2 flush, CUDA graphs, raw samples logged; incumbent included",
+  "interpretation_rule": "the stream whose removal moves the full time toward the incumbent-beating range is the binding one; decide the next mechanism (x multicast vs TMA weight staging vs other) from these numbers only",
+  "revision": "v2: v1 job cc7bc18615274276 died with cudaErrorStreamCaptureInvalidated (unlocalized); v2 builds sequentially, eager-runs + syncs each kernel with rc logged, captures in thread_local mode per kernel, falls back to eager timing on capture failure"
+}
