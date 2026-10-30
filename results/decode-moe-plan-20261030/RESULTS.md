@@ -100,6 +100,32 @@ kernel time is bound by 24 serial 256-wide reductions, and fewer warps change th
     removed.
   - Deferred behind the larger levers. It is still the best remaining small-token item.
 
+## R2: exact FP32 router fused into the T = 1 / T = 8 pooler GEMV (Phase 3), the first measured gain
+
+- **Design.** At 1 and 8 tokens the pooler GEMV (v18s_gemv / smallm2_gemv, 128 CTAs × 1024 threads) and
+  `route_fp32` (128 CTAs) run as one launch:
+  - warps 0–15 of each pooler CTA first compute that CTA's 16 router rows of one 1,024-wide K slice,
+    using route_fp32's per-row FMA order, shuffle reduction and parts layout;
+  - a named barrier (512 threads) plus one atomic per CTA elects the last CTA. Its warps run
+    route_fp32's exact top-8 tail;
+  - all warps then run the unchanged GEMV (a separate template instance, OPT bit 64).
+- **Build.** The modified CUDA is derived at import from the parent's own templates by exact-anchor
+  edits and built on a background thread.
+- **File size.** The file was over 1 MB, so the MoE CUDA string is now stored zlib-compressed. It
+  decompresses to identical bytes (checked against the parent).
+- **Offline (NVRTC sm_90a).** Both fused instances: 64 registers, 0 stack, 0 spills.
+
+| Job | Result |
+|---|---|
+| `454f650818fb417a` | 13/13 passed, 2.0097x. The R2 extension failed to build (missing `pybind11` include with `no_implicit_headers`), so the parent path ran. |
+| `8cdc3919fe5c4f48` | Gate **PASS**, bitwise on pooler output, weights and ids: T = 1 in-process 30.40 → 29.47 µs; T = 8 39.01 → 32.86 µs. Both selected. **13/13 passed, 2.0307x, CI [2.0002, 2.0611]**. Verify 1 measured 123.11 / 123.85 µs (sliding / full) against 126.1–133.9 / 133.7–141.4 µs in the eight parent-path runs; decode 1 was unchanged at 85.06 / 92.63 µs. Prepare took 214 s. |
+| `2027d3dda5664795` | **Scored** submission (pending) |
+
+The verify-1 gain (−5 to −13 µs per shape) is outside the spread of every parent-path run, so it is a
+measured improvement. At 1 token the fused kernel (23.8 µs) is only about 1 µs faster than the
+separate pooler plus router. The pooler at T = 1 is register-bound at one CTA per SM, so the router's
+loads add to its critical path rather than overlapping it.
+
 ## Remaining work (needs a decision; not started)
 
 Both remaining Phase 3 items require editing the generated Dense kernel family. The small-token
