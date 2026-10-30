@@ -16,6 +16,33 @@ __global__ void l2p_prefetch(L2pRegions r) {
     }
   }
 }
+__global__ void l2p_load(L2pRegions r) {
+  // L2 warm-up with ordinary loads from every SM; the values are discarded (asm volatile keeps the loads)
+  const unsigned long long g = (unsigned long long)blockIdx.x * blockDim.x + threadIdx.x;
+  const unsigned long long G = (unsigned long long)gridDim.x * blockDim.x;
+  unsigned acc = 0;
+  for (int i = 0; i < r.n; ++i) {
+    const uint4* p = reinterpret_cast<const uint4*>(r.p[i]);
+    const unsigned long long n16 = r.b[i] / 16;
+    unsigned long long j = g;
+    for (; j + 3 * G < n16; j += 4 * G) {
+      uint4 v[4];
+#pragma unroll
+      for (int u = 0; u < 4; ++u)
+        asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v[u].x), "=r"(v[u].y), "=r"(v[u].z), "=r"(v[u].w) : "l"(p + j + u * G));
+#pragma unroll
+      for (int u = 0; u < 4; ++u) acc ^= v[u].x;
+    }
+    for (; j < n16; j += G) {
+      uint4 v;
+      asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                   : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p + j));
+      acc ^= v.x;
+    }
+  }
+  if (acc == 0x9e3779b9u && r.n < 0) r.p[0] = acc;
+}
 __global__ void l2p_spin(unsigned long long ns) {
   if (threadIdx.x) return;
   unsigned long long t0, t;
@@ -23,7 +50,7 @@ __global__ void l2p_spin(unsigned long long ns) {
   do { asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t)); } while (t - t0 < ns);
 }
 int l2p_launch(int64_t p0, int64_t b0, int64_t p1, int64_t b1, int64_t p2, int64_t b2, int64_t p3, int64_t b3,
-               int64_t p4, int64_t b4, int64_t p5, int64_t b5, int n, int blocks, int64_t stream) {
+               int64_t p4, int64_t b4, int64_t p5, int64_t b5, int n, int blocks, int mode, int64_t stream) {
   L2pRegions r{};
   const int64_t ps[6] = {p0, p1, p2, p3, p4, p5}, bs[6] = {b0, b1, b2, b3, b4, b5};
   if (n < 0 || n > 6 || blocks < 1 || blocks > 132) return -1;
@@ -33,7 +60,8 @@ int l2p_launch(int64_t p0, int64_t b0, int64_t p1, int64_t b1, int64_t p2, int64
     r.b[i] = (unsigned long long)bs[i];
   }
   r.n = n;
-  l2p_prefetch<<<blocks, 128, 0, (cudaStream_t)stream>>>(r);
+  if (mode == 1) l2p_load<<<blocks, 256, 0, (cudaStream_t)stream>>>(r);
+  else l2p_prefetch<<<blocks, 128, 0, (cudaStream_t)stream>>>(r);
   return cudaGetLastError() == cudaSuccess ? 0 : -8;
 }
 int l2p_spin_launch(int64_t ns, int64_t stream) {

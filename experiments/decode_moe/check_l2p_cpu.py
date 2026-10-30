@@ -10,7 +10,7 @@ import nvrtc_screen_alternatives as nv  # noqa: E402
 src = (HERE / 'l2p.cu').read_text(encoding='utf-8')
 dev = src[:src.index('int l2p_launch(')]
 dev = re.sub(r'#include <(cuda_runtime\.h|stdint\.h)>\n', '', dev)
-r = nv.NVRTC().compile(dev.encode(), ['&l2p_prefetch', '&l2p_spin'], [], tags=True, lineinfo=False)
+r = nv.NVRTC().compile(dev.encode(), ['&l2p_prefetch', '&l2p_load', '&l2p_spin'], [], tags=True, lineinfo=False)
 print('rc', r['rc'])
 if r['rc'] == 0:
     for k in nv.parse_ptxas(r['log']):

@@ -7650,6 +7650,33 @@ __global__ void l2p_prefetch(L2pRegions r) {
  }
   }
 }
+__global__ void l2p_load(L2pRegions r) {
+  // L2 warm-up with ordinary loads from every SM; the values are discarded (asm volatile keeps the loads)
+  const unsigned long long g = (unsigned long long)blockIdx.x * blockDim.x + threadIdx.x;
+  const unsigned long long G = (unsigned long long)gridDim.x * blockDim.x;
+  unsigned acc = 0;
+  for (int i = 0; i < r.n; ++i) {
+ const uint4* p = reinterpret_cast<const uint4*>(r.p[i]);
+ const unsigned long long n16 = r.b[i] / 16;
+ unsigned long long j = g;
+ for (; j + 3 * G < n16; j += 4 * G) {
+      uint4 v[4];
+#pragma unroll
+      for (int u = 0; u < 4; ++u)
+  asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v[u].x), "=r"(v[u].y), "=r"(v[u].z), "=r"(v[u].w) : "l"(p + j + u * G));
+#pragma unroll
+      for (int u = 0; u < 4; ++u) acc ^= v[u].x;
+ }
+ for (; j < n16; j += G) {
+      uint4 v;
+      asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                   : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p + j));
+      acc ^= v.x;
+ }
+  }
+  if (acc == 0x9e3779b9u && r.n < 0) r.p[0] = acc;
+}
 __global__ void l2p_spin(unsigned long long ns) {
   if (threadIdx.x) return;
   unsigned long long t0, t;
@@ -7657,7 +7684,7 @@ __global__ void l2p_spin(unsigned long long ns) {
   do { asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t)); } while (t - t0 < ns);
 }
 int l2p_launch(int64_t p0, int64_t b0, int64_t p1, int64_t b1, int64_t p2, int64_t b2, int64_t p3, int64_t b3,
-               int64_t p4, int64_t b4, int64_t p5, int64_t b5, int n, int blocks, int64_t stream) {
+               int64_t p4, int64_t b4, int64_t p5, int64_t b5, int n, int blocks, int mode, int64_t stream) {
   L2pRegions r{};
   const int64_t ps[6] = {p0, p1, p2, p3, p4, p5}, bs[6] = {b0, b1, b2, b3, b4, b5};
   if (n < 0 || n > 6 || blocks < 1 || blocks > 132) return -1;
@@ -7667,7 +7694,8 @@ int l2p_launch(int64_t p0, int64_t b0, int64_t p1, int64_t b1, int64_t p2, int64
  r.b[i] = (unsigned long long)bs[i];
   }
   r.n = n;
-  l2p_prefetch<<<blocks, 128, 0, (cudaStream_t)stream>>>(r);
+  if (mode == 1) l2p_load<<<blocks, 256, 0, (cudaStream_t)stream>>>(r);
+  else l2p_prefetch<<<blocks, 128, 0, (cudaStream_t)stream>>>(r);
   return cudaGetLastError() == cudaSuccess ? 0 : -8;
 }
 int l2p_spin_launch(int64_t ns, int64_t stream) {
@@ -7676,7 +7704,7 @@ int l2p_spin_launch(int64_t ns, int64_t stream) {
 }
 """
 _L2P_CPP = ('\n#include <pybind11/pybind11.h>\n#include <stdint.h>\nint l2p_launch(int64_t, int64_t, int64_t, int64_t, int64_t, '
-   'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int, int, int64_t);\nint l2p_spin_launch(int64_t, int64_t);\n')
+   'int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int, int, int, int64_t);\nint l2p_spin_launch(int64_t, int64_t);\n')
 _L2P_EXT = []
 
 
@@ -7694,22 +7722,23 @@ _l2p_thread = _l2p_thr.Thread(target=_l2p_build, daemon=True)
 _l2p_thread.start()
 
 
-def _l2p_go(regions, state):
+def _l2p_go(plan, state):
+ (mode, blocks, regions) = plan
  main, side = torch.cuda.current_stream(), state['side_stream']
  side.wait_stream(main)
  a = []
  for p, b in regions:
   a += [p, b]
  a += [0, 0] * (6 - len(regions))
- rc = _L2P_EXT[0].l2p_launch(*a, len(regions), 8, side.cuda_stream)
+ rc = _L2P_EXT[0].l2p_launch(*a, len(regions), blocks, mode, side.cuda_stream)
  if rc:
   raise RuntimeError(f'l2p launch failed: {rc}')
  return side
 
 
 def _l2p_issue(tokens, state):
- regions = state.get('l2p', {}).get(tokens)
- return None if regions is None or not _L2P_EXT else _l2p_go(regions, state)
+ plan = state.get('l2p', {}).get(tokens)
+ return None if plan is None or not _L2P_EXT else _l2p_go(plan, state)
 
 
 def _l2p_join(side):
@@ -7743,10 +7772,12 @@ def _l2p_select(state):
    print(f'L2P M={m} skip (R2 not selected)', flush=True)
    continue
   variants = {'none': None}
-  for lab, pmb, rt in (('o', 0, False), ('o_r', 0, True), ('o_r_p12', 12, True), ('o_r_p24', 24, True)):
+  for lab, mode, blocks, pmb, rt in (('b8_o', 0, 8, 0, False), ('b132_o', 0, 132, 0, False), ('b132_orp12', 0, 132, 12, True),
+                                           ('ld_o', 1, 132, 0, False), ('ld_or', 1, 132, 0, True), ('ld_orp12', 1, 132, 12, True),
+                                           ('ld_orp24', 1, 132, 24, True)):
    r = _l2p_regions(state, m, pmb, rt)
    if r is not None:
-    variants[lab] = r
+    variants[lab] = (mode, blocks, r)
   g = torch.Generator(device=dev).manual_seed(4100 + m)
   xq = torch.randn(m, 8192, device=dev, generator=g).to(torch.bfloat16)
   xo = torch.randn(m, 1024, device=dev, generator=g).to(torch.bfloat16)
@@ -7774,7 +7805,7 @@ def _l2p_select(state):
    ok[lab] = ref is not None and _okh_same(ref, got)
   med = _okh_time({lab: chain(regs) for lab, regs in variants.items()}, dev, reps=30)
   pick = _okh_pick(med, 'none', 0.97, allowed=[k for k in variants if k != 'none' and ok[k]])
-  mb = {lab: sum(b for _, b in regs) / 2 ** 20 for lab, regs in variants.items() if regs is not None}
+  mb = {lab: sum(b for _, b in regs[2]) / 2 ** 20 for lab, regs in variants.items() if regs is not None}
   print(f'L2P M={m} ' + ' '.join(f'{k}={v:.2f}us' + ('' if ok[k] else '(differs)') for k, v in med.items())
               + ' MB ' + ' '.join(f'{k}={v:.1f}' for k, v in mb.items()) + f' pick={pick}', flush=True)
   if pick != 'none':
