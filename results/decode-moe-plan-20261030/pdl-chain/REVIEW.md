@@ -78,7 +78,8 @@ the real stock norm predecessor, residual output, logits and routing results.
 There is one registered union of passing components per shape. No performance
 mask sweep is performed. The whole layer must then match all output and cache
 bytes and beat its exact parent by >3% in **both** interleaved cold-L2 arm
-orders. No new diagnostic starts after 278 seconds. Failure, missing plans,+unsupported formats, nonzero local memory, no residency or budget expiry keeps
+orders. No new diagnostic starts after 278 seconds. Failure, missing plans,
+unsupported formats, nonzero local memory, no residency or budget expiry keeps
 the parent. Preparation <300 seconds remains unverified on H200.
 
 Actual-execution evidence must include P16_RESOURCE, P16_COMPONENTS,
