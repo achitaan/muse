@@ -5,7 +5,7 @@
 # into acc so the decode is kept). Masks 0..6 are timed round-robin with the incumbent (cold L2, CUDA
 # graphs, 16 rounds, raw samples printed) to measure which stream binds. Ablated outputs are not used.
 _S2C_INST = (128, 64, 3, 2, 4, True, 1)
-_S2C_MASKS = (0, 1, 2, 4, 3, 5, 6)
+_S2C_MASKS = (0, 1, 2, 3)  # v4: masks 4/5/6 (no WGMMA) hung on GPU in v3 (job 44254e1c65d94cf1); dropped
 
 
 def _s2c_core(core):

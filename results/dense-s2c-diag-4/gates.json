@@ -1,0 +1,17 @@
+{
+  "candidate": "candidates/dense_s2c_diag.py",
+  "source_sha256": "6f0b11960e67214585673c898d8b3f50688ed2727046150652eb5daaf9dbb602",
+  "kind": "DIAGNOSTIC: no routing change; runtime kernel_fn is best/verified.py",
+  "question": "which stream binds the c12 WGMMA kernel at (128, unpooler): weight HBM loads, x TMA from L2, WGMMA, or decode",
+  "kernel": "S2b pipelined m32w (128,64,3,2,4,True,1)",
+  "masks": {
+    "0": "full",
+    "1": "no weight LDG",
+    "2": "no x TMA/wait",
+    "3": "neither (decode+MMA only)"
+  },
+  "offline_compile": "results/s2c-offline/s2c-resources.txt (0 spill all; SASS counts confirm each ablation)",
+  "timing": "16 round-robin rounds (alternating order), cold L2 flush, CUDA graphs, raw samples logged; incumbent included",
+  "interpretation_rule": "the stream whose removal moves the full time toward the incumbent-beating range is the binding one; decide the next mechanism (x multicast vs TMA weight staging vs other) from these numbers only",
+  "revision": "v4: v3 job 44254e1c65d94cf1 timed out; abl4 (no WGMMA) hung on its first eager launch after abl0/1/2 ran rc 0. Masks 4/5/6 dropped."
+}
