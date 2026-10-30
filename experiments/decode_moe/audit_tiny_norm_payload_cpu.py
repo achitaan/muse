@@ -1,8 +1,11 @@
 """Prevent parent/guard/interface drift in the unsubmitted norm payload."""
 
 import ast
+import contextlib
 import hashlib
+import io
 import json
+from types import SimpleNamespace
 
 from build_tiny_norm_source import OUT, derive
 from build_tiny_norm_whole import GATE_SHA
@@ -45,15 +48,55 @@ def main():
         if isinstance(n,ast.Assign):
             assert all(isinstance(target,ast.Attribute)and isinstance(target.value,ast.Name)and target.value.id=='self'for target in n.targets)
     assert 'CUDA_TN_SRC'in loader and 'CPP_TN_SRC'in loader
-    assert 'okc_moe_tiny_norm_whole_v1_'in loader
+    assert 'okc_moe_tiny_norm_whole_v2_resources_'in loader
+    assert loader.index('okc_tnorm_resources()')<loader.index('_TNormExtension(')
+    assert 'metadata[3] >= 1'in loader and 'metadata[4:] == [214784, 288]'in loader
     assert '_tn_ext'not in ast.unparse(last(t,'_tn_launch'))
+    # Execute the real loader guard with a simulated native API boundary.
+    # The impossible-resource cases must fail before a new module is returned;
+    # no mock kernel call is made. This tests the guard,not GPU attributes.
+    guard_cases=0
+    for metadata,valid in [([146,0,0,1,214784,288],True),
+                           ([143,0,0,1,214784,288],True),
+                           ([146,8,0,1,214784,288],False),
+                           ([146,0,64,1,214784,288],False),
+                           ([146,0,0,0,214784,288],False),
+                           ([146,0,0,1,214912,288],False),
+                           ([146,0,0,1,214784,320],False)]:
+        calls={'query':0,'launch':0,'set_pdl':[],'build':0}
+        def query():
+            calls['query']+=1
+            return metadata
+        def run(*args):calls['launch']+=1
+        def build(**kwargs):
+            calls['build']+=1
+            assert 'okc_tnorm_resources'in kwargs['functions']
+            return SimpleNamespace(okc_tnorm_run=run,okc_tnorm_resources=query,
+                                   okc_tnorm_set_pdl=lambda on:calls['set_pdl'].append(on))
+        scope=dict(_TN_EXTS={},CUDA_TN_SRC=cuda,CPP_TN_SRC=cpp,DQ7=True,PDL=False,MAIN_NS=3,
+                   torch=SimpleNamespace(cuda=SimpleNamespace(get_device_capability=lambda:(9,0))),load_inline=build)
+        unit=ast.Module(body=[adapter,last(t,'_tn_ext')],type_ignores=[])
+        exec(compile(unit,'<actual-norm-loader-guard>','exec'),scope)
+        with contextlib.redirect_stdout(io.StringIO()):
+            try:
+                result=scope['_tn_ext'](('-DOKC_TINY=1','-DOKC_WS=1'))
+            except RuntimeError:
+                assert not valid
+            else:
+                assert valid
+                assert scope['_tn_ext'](('-DOKC_TINY=1','-DOKC_WS=1'))is result
+        assert calls['query']==calls['build']==1 and calls['launch']==0
+        assert calls['set_pdl']==([0]if valid else [])
+        guard_cases+=1
     report=dict(source_sha256=binding['source_sha256'],parent_prefix_and_all_definitions_exact=True,
         unchanged_gate_launch_mutation_and_prepare_functions=names,shared_harness_exact=True,
         private_CUDA_and_CPP_binding_exact=True,no_TR8_combination=True,no_private_lazy_build_in_timed_launch=True,
         no_loaded_module_attribute_assignment=True,
         GPU_jobs=0,admitted_for_GPU=False,
         limitation='Static source/interface evidence only; no H200 correctness,resource or speed claim.')
-    (OUT/'payload-cpu-audit.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    report['actual_resource_query_before_private_module_return']=True
+    report['mock_native_resource_guard_cases']=guard_cases
+    (OUT/'payload-cpu-audit.json').write_bytes((json.dumps(report,indent=2)+'\n').encode())
     print(json.dumps(report,indent=2))
 
 

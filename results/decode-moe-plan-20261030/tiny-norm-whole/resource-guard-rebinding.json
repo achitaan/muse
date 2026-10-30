@@ -1,0 +1,23 @@
+{
+  "archived_payload_sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
+  "new_payload_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "new_CUDA_sha256": "dcfd3b845c748711aefc27ff07f7ab7cbf7a16aed739fd5dc12f0e2a33a631ce",
+  "changed_top_level_definitions": [
+    "CUDA_TN_SRC",
+    "CPP_TN_SRC",
+    "_tn_ext"
+  ],
+  "old_CUDA_is_exact_prefix": true,
+  "entire_device_prefix_byte_exact": true,
+  "old_CPP_is_exact_prefix": true,
+  "four_compiled_cubins_identical": {
+    "TINY_LUT": true,
+    "TINY_PRMT": true,
+    "TINY2_LUT": true,
+    "TINY2_PRMT": true
+  },
+  "new_guard_mocks": 7,
+  "kernel_prepare_and_shared_harness_unchanged": true,
+  "GPU_calls": 0,
+  "not_admitted": true
+}

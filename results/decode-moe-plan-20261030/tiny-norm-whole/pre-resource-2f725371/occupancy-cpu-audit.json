@@ -1,0 +1,58 @@
+{
+  "header": "CUDA13.0 cuda_occupancy.h;unmodified;local compiler only",
+  "compiler": "g++.exe (MinGW.org GCC-6.3.0-1) 6.3.0",
+  "model_inputs": "SM90:64K registers;228KiB shared/SM;227KiB per block;1KiB driver reserve;2048 threads/SM;288-thread block;three named-barrier IDs;132 SMs",
+  "rows": [
+    {
+      "status": 0,
+      "active_blocks_per_SM": 1,
+      "registers_per_thread": 146,
+      "dynamic_shared_bytes": 214784,
+      "allocated_registers_per_block": 43776,
+      "allocated_shared_bytes_per_block": 215808,
+      "block_limit_registers": 1,
+      "block_limit_shared": 1,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    },
+    {
+      "status": 0,
+      "active_blocks_per_SM": 1,
+      "registers_per_thread": 143,
+      "dynamic_shared_bytes": 214784,
+      "allocated_registers_per_block": 41472,
+      "allocated_shared_bytes_per_block": 215808,
+      "block_limit_registers": 1,
+      "block_limit_shared": 1,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    },
+    {
+      "status": 0,
+      "active_blocks_per_SM": 0,
+      "registers_per_thread": 146,
+      "dynamic_shared_bytes": 232449,
+      "allocated_registers_per_block": 43776,
+      "allocated_shared_bytes_per_block": 233600,
+      "block_limit_registers": 1,
+      "block_limit_shared": 0,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    },
+    {
+      "status": 0,
+      "active_blocks_per_SM": 0,
+      "registers_per_thread": 256,
+      "dynamic_shared_bytes": 214784,
+      "allocated_registers_per_block": 73728,
+      "allocated_shared_bytes_per_block": 215808,
+      "block_limit_registers": 0,
+      "block_limit_shared": 1,
+      "block_limit_warps": 7,
+      "block_limit_barriers": 21
+    }
+  ],
+  "GPU_calls": 0,
+  "executable_sha256": "b1082d16c96cea8a9f98bff4cf17e6773c6f17d53956bca52bf63aaa5e75cd34",
+  "limitation": "Predicted occupancy for supplied architecture/function inputs;actual H200 attributes and residency remain unqueried."
+}

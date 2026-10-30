@@ -27,13 +27,18 @@ def main():
     ext=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='_ext')
     loader=ast.get_source_segment(base,ext)
     for old,new in [('_ext(', '_tn_ext('),('_EXTS','_TN_EXTS'),('CUDA_SRC','CUDA_TN_SRC'),
-                    ('CPP_SRC','CPP_TN_SRC'),('okc_moe_w4a16_v216x_pair1dq8_','okc_moe_tiny_norm_whole_v1_'),
-                    ('functions=["okc_run", "okc_set_pdl"]','functions=["okc_tnorm_run", "okc_tnorm_set_pdl"]')]:
+                    ('CPP_SRC','CPP_TN_SRC'),('okc_moe_w4a16_v216x_pair1dq8_','okc_moe_tiny_norm_whole_v2_resources_'),
+                    ('functions=["okc_run", "okc_set_pdl"]','functions=["okc_tnorm_run", "okc_tnorm_set_pdl", "okc_tnorm_resources"]')]:
         assert old in loader;loader=loader.replace(old,new)
     marker='        _TN_EXTS[defines].okc_set_pdl(1 if PDL else 0)'
     assert marker in loader
     # Adapt our own object; never assign attributes on a loaded extension module.
-    aliases='        _TN_EXTS[defines] = _TNormExtension(_TN_EXTS[defines])\n'
+    aliases='''        metadata = _TN_EXTS[defines].okc_tnorm_resources()
+        print('TNORM_RESOURCE', tag, dict(zip(('registers', 'local_bytes', 'static_shared_bytes', 'blocks_per_SM', 'dynamic_shared_bytes', 'threads'), metadata)), flush=True)
+        if not (metadata[1] == metadata[2] == 0 and metadata[3] >= 1 and metadata[4:] == [214784, 288]):
+            raise RuntimeError('tnorm resource guard rejected before probe: ' + repr(metadata))
+        _TN_EXTS[defines] = _TNormExtension(_TN_EXTS[defines])
+'''
     loader=loader.replace(marker,aliases+marker,1)
     marker='    defines = tuple(MAIN_DEFINES if defines is None else defines)'
     assert marker in loader
@@ -64,8 +69,9 @@ def main():
         prepare_cutoffs=dict(new_diagnostics_seconds=274,timing_seconds=278),
         CUDA_compiles='Four tiny/PRMT/LUT variants;zero stack/spills',
         GPU_jobs=0,admitted_for_GPU=False,
-        next_action='Keep TR8 first; no GPU launch of this separate hypothesis until its independent lifetime/resource review and evaluation admission.')
-    (OUT/'payload-binding.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8');print(json.dumps(record,indent=2))
+        next_action='TR8 is closed; fresh global-job/quota/identity/spacing admission required before one paced MoE check.',
+        runtime_resource_gate='Before any new-path probe: query function attributes and occupancy;require zero local/static shared bytes,at least one block/SM,214784 dynamic bytes and288 threads.')
+    (OUT/'payload-binding.json').write_bytes((json.dumps(record,indent=2)+'\n').encode());print(json.dumps(record,indent=2))
 
 
 if __name__=='__main__':main()

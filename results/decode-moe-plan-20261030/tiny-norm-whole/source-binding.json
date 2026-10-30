@@ -1,8 +1,8 @@
 {
   "retained_MoE_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
   "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
-  "candidate_CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
-  "CUDA_bytes": 140583,
+  "candidate_CUDA_sha256": "dcfd3b845c748711aefc27ff07f7ab7cbf7a16aed739fd5dc12f0e2a33a631ce",
+  "CUDA_bytes": 141464,
   "exact_inverse_before_private_names": true,
   "scope": "TINY/TINY2 WS epilogue norm and whole-row finalization only; original routing and GEMM/ybuf/inter arithmetic retained.",
   "hypothesis": "Remove256 norm atomics per route; transfer the retained MAIN two-pass row-norm ownership to NT256 tiny builds.",
@@ -15,5 +15,7 @@
   "unresolved": "Whole-row finalizer lowers useful CTA count and doubles logical ybuf reads; no speed benefit established.",
   "performance_gate": "Existing greater-than3% paired cold-L2 graph gate required later; no GPU admission.",
   "GPU_jobs": 0,
-  "admitted_for_GPU": false
+  "admitted_for_GPU": false,
+  "prepare_resource_query_only_added": true,
+  "device_prefix_sha256": "8b7954069e60bf215a64e313f7c18b6ff30f163d55a93fdd4cb8c79cf7a41fa4"
 }

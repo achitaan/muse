@@ -2708,3 +2708,18 @@ void okc_tnorm_run(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scra
 }
 
 
+
+std::vector<int64_t> okc_tnorm_resources() {
+  const size_t sm = okc_tnorm_smem_bytes();
+  const auto kernel = tiny_norm_whole::moe_tnorm_fused<false>;
+  cudaError_t error = cudaFuncSetAttribute(kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm);
+  TORCH_CHECK(error == cudaSuccess, "tnorm shared attribute: ", cudaGetErrorString(error));
+  cudaFuncAttributes attrs{};
+  error = cudaFuncGetAttributes(&attrs, kernel);
+  TORCH_CHECK(error == cudaSuccess, "tnorm function attributes: ", cudaGetErrorString(error));
+  int blocks = 0;
+  error = cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kernel, tiny_norm_whole::NTL, sm);
+  TORCH_CHECK(error == cudaSuccess, "tnorm occupancy: ", cudaGetErrorString(error));
+  return {(int64_t)attrs.numRegs, (int64_t)attrs.localSizeBytes,
+          (int64_t)attrs.sharedSizeBytes, blocks, (int64_t)sm, tiny_norm_whole::NTL};
+}

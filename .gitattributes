@@ -30,3 +30,4 @@ experiments/decode_moe/*attention_finoutline* -text
 experiments/decode_moe/*wgs_live_snapshot* -text
 experiments/decode_moe/*moe_dynamic_b* -text
 experiments/decode_moe/refresh_public_moe_source.py -text
+experiments/decode_moe/*attention_page1* -text

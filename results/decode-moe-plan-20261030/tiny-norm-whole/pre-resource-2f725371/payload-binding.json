@@ -1,0 +1,19 @@
+{
+  "source_sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
+  "bytes": 336569,
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
+  "gate_source_sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
+  "actual_path_marker": "tiny_norm_whole::moe_tnorm_fused",
+  "baseline_definitions_exact": true,
+  "scope": "Only prepare-selected M1..8; original routing,GEMM/inter/ybuf arithmetic and all M>8 fallbacks retained. Their byte gates remain mandatory.",
+  "gate": "Human-approved MoE norm/output bounds; inter/ybuf bytes;15 changing fixtures per shape;>3% on both one/skew populations in both arm orders.",
+  "prepare_cutoffs": {
+    "new_diagnostics_seconds": 274,
+    "timing_seconds": 278
+  },
+  "CUDA_compiles": "Four tiny/PRMT/LUT variants;zero stack/spills",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "next_action": "Keep TR8 first; no GPU launch of this separate hypothesis until its independent lifetime/resource review and evaluation admission."
+}

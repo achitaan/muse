@@ -890,3 +890,9 @@ A numerical-evidence gap was corrected:when WGS runs,the old M32 diagnostic samp
 ## Global-job reconciliation: MoE tail diagnostic
 
 A fresh preflight found `63c17c9caa984361` already active from `decode-next`. Held the norm launch; no new GPU job in this packet. The observed diagnostic is now complete and passes, but its selector is empty, so its point estimate is not new-path gain. Preserved raw/source snapshots and phase timings with the source-binding limitation in `observed-tail-63c17/REVIEW.md`. Global MoE checks are 14; Decode remains one. Tiny norm source `2f725371` stays unrun/unadmitted; next normal slot is 2026-10-30T22:06:10.172159+00:00.
+
+## Norm resource guard and independent CPU audit
+
+Archived unrun2f725371;current690ef087 adds only prepare-time resource queries/guards. Device prefix and four rebuilt cubins remain byte-identical.480CPU oracle fixtures,five mutation defects and seven loader-boundary cases pass. NVIDIA offline occupancy predicts one block/SM for the compiled layout. Native host bridge,H200 resources,numerical/replay gates and speed remain unverified. See tiny-norm-whole/REVIEW.md. No new GPU check.
+
+Attention metadata specialization removes160of3560instructions but misses its fixed5%footprint screen;CPU rejected. Dynamic-B direct logical ownership passes its algebra model but still spills heavily;CPU rejected. No parameter sweep or GPU rerun. Overall API snapshot at21:27UTC shows259of1715 and exposes ranks only. Top50 remains unmet;no overall speedup is invented.

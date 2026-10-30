@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T21:13:46.102975+00:00",
+  "updated_at": "2026-10-30T22:00:41.514708+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,7 +23,7 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "moe-dynamic-b/REVIEW.md",
+  "newest_CPU_packet": "tiny-norm-whole/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
@@ -34,7 +34,7 @@
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 4,
   "next_diagnostic_source": "experiments/decode_moe/moe_tiny_norm_whole.py",
-  "next_diagnostic_sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
+  "next_diagnostic_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -62,29 +62,35 @@
   "earliest_new_check_utc": "2026-10-30T22:06:10.172159+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
-    "sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
-    "CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
+    "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+    "CUDA_sha256": "dcfd3b845c748711aefc27ff07f7ab7cbf7a16aed739fd5dc12f0e2a33a631ce",
     "CPU_compiles": "TINY/TINY2,PRMT/LUT,zero stack/spills;146regs PRMT,143LUT",
     "admitted_for_GPU": false,
-    "order": "TR8 is closed on performance;whole-row norm is next for a paced MoE check."
+    "order": "TR8 is closed on performance;whole-row norm is next for a paced MoE check.",
+    "actual_resource_guard_added": true,
+    "CPU_numerical_cases": 480,
+    "CPU_guard_cases": 7
   },
   "Decode_evaluation_hold": "Human reiterated2026-10-30: continue other tracks and save Decode checks until good results. Preserve the final check; component gains must justify complete-layer validation.",
   "latest_attention_screen": {
-    "source": "experiments/decode_moe/attention_finoutline.py",
-    "sha256": "fdf4947ac4d35060600bd89fb2eee3c4a1844750315a7b7dfc7d40bf9ae65488",
-    "outcome": "CPU reject: compiled kernel instruction count3560->3608;zero added stack/spills;no GPU job.",
-    "evidence": "attention-finoutline/REVIEW.md"
+    "CUDA_sha256": "cbdf9f3fa7b1bfaa4a6a81ac2b3091ac93b344c299df4384d3528400f9b47c01",
+    "outcome": "CPU reject:instruction ratio.95505618 misses fixed.95 gate;resources unchanged.",
+    "evidence": "attention-page1-constants/REVIEW.md"
   },
   "historical_diagnostic_scope_correction": "wgs-live-snapshot/REVIEW.md;M32 WGS old inter/SS snapshots were unused buffers,not proof of live xB/norm statistics.",
   "latest_large_MoE_screen": {
-    "CUDA": "86b0200fb6dee37926c29794b61499e664b2d90b6d49201bd71eb625ffcae3ac",
-    "decision": "Both dynamic-B prototypes fail compiler spill screen;no GPU admission.",
-    "evidence": "moe-dynamic-b/REVIEW.md"
+    "CUDA": "cbc5f4e2b44adf4cdf89c677dc474bc4e492dabe31dfa81b62e4c3062c2750e2",
+    "decision": "Direct logical-owner correction still fails spill screen;no GPU.",
+    "evidence": "moe-dynamic-b/producer-range/direct-owner/cpu-audit.json"
   },
   "observed_other_worktree_check": {
     "job_id": "63c17c9caa984361",
     "status": "done",
     "evidence": "observed-tail-63c17/REVIEW.md",
     "outcome": "Passed;selected=[];no new-path speedup."
-  }
+  },
+  "latest_overall_rank": 259,
+  "latest_overall_ranked": 1715,
+  "latest_overall_board": "overall-board-20261030T2126.json",
+  "overall_API_measure": "rank across the problems; the API gives ranks only"
 }

@@ -49,6 +49,26 @@ def derive():
         src=src.replace(old,new)
     src='#if !OKC_TINY || !OKC_WS\n#error Tiny WS builds only\n#endif\n'+src
     cpp=vals['CPP_SRC'].replace('okc_run','okc_tnorm_run').replace('okc_set_pdl','okc_tnorm_set_pdl')
+    # Host metadata only: the device prefix and every kernel body stay exact.
+    device_prefix=src.split('#include <torch/extension.h>',1)[0]
+    src+='''
+std::vector<int64_t> okc_tnorm_resources() {
+  const size_t sm = okc_tnorm_smem_bytes();
+  const auto kernel = tiny_norm_whole::moe_tnorm_fused<false>;
+  cudaError_t error = cudaFuncSetAttribute(kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm);
+  TORCH_CHECK(error == cudaSuccess, "tnorm shared attribute: ", cudaGetErrorString(error));
+  cudaFuncAttributes attrs{};
+  error = cudaFuncGetAttributes(&attrs, kernel);
+  TORCH_CHECK(error == cudaSuccess, "tnorm function attributes: ", cudaGetErrorString(error));
+  int blocks = 0;
+  error = cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kernel, tiny_norm_whole::NTL, sm);
+  TORCH_CHECK(error == cudaSuccess, "tnorm occupancy: ", cudaGetErrorString(error));
+  return {(int64_t)attrs.numRegs, (int64_t)attrs.localSizeBytes,
+          (int64_t)attrs.sharedSizeBytes, blocks, (int64_t)sm, tiny_norm_whole::NTL};
+}
+'''
+    cpp+='\nstd::vector<int64_t> okc_tnorm_resources();\n'
+    assert src.split('#include <torch/extension.h>',1)[0]==device_prefix
     return parent,src,cpp,vals
 
 
@@ -65,7 +85,9 @@ def main():
         unresolved='Whole-row finalizer lowers useful CTA count and doubles logical ybuf reads; no speed benefit established.',
         performance_gate='Existing greater-than3% paired cold-L2 graph gate required later; no GPU admission.',
         GPU_jobs=0,admitted_for_GPU=False)
-    (OUT/'source-binding.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+    record['prepare_resource_query_only_added']=True
+    record['device_prefix_sha256']=hashlib.sha256(src.split('#include <torch/extension.h>',1)[0].encode()).hexdigest()
+    (OUT/'source-binding.json').write_bytes((json.dumps(record,indent=2)+'\n').encode())
     print(json.dumps(record,indent=2))
 
 

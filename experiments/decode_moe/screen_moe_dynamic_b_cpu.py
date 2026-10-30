@@ -4,6 +4,7 @@ An offline prototype only. No Python submission or GPU admission is created.
 """
 
 import ast
+import bisect
 import hashlib
 import itertools
 import json
@@ -143,12 +144,55 @@ def producer_range_source(src):
     return src
 
 
+def direct_owner_source(src):
+    # If a nonempty range contains stage zero of a split unit, that range's
+    # logical ID is already the fixup owner. Recomputing it is redundant.
+    old='(s0 == 0 && !PB ? (int)blockIdx.x : wgs_cta_of(S, PB, u << 4, gridDim.x))'
+    new='(s0 == 0 ? (PB ? S.wgs_blogical : (int)blockIdx.x) : wgs_cta_of(S, PB, u << 4, gridDim.x))'
+    assert src.count(old)==1
+    changed=src.replace(old,new,1)
+    assert changed.replace(new,old,1)==src
+    return changed
+
+
+def weighted_owner_model():
+    # Independent expanded cost-per-stage oracle. It covers repeated cut
+    # positions/empty ranges as well as changing per-job stage costs.
+    cases=0;first_segments=0
+    for job_costs in ([1],[255],[1,255],[255,1],[3,7,2],[8,1,4,255]):
+        prefix=[0]
+        for cost in job_costs:
+            for _ in range(256):prefix.append(prefix[-1]+cost)
+        total=prefix[-1]
+        for grid in (1,2,7,32,132,257,512):
+            cuts=[bisect.bisect_right(prefix,total*c//grid)-1 for c in range(grid)] + [len(prefix)-1]
+            assert cuts==sorted(cuts)
+            for logical,(a,b) in enumerate(zip(cuts,cuts[1:])):
+                for unit in range((a+15)//16,(b+15)//16):
+                    first=unit*16
+                    if first>=b:continue
+                    xe=prefix[first+1]
+                    # Retained wgs_cta_of's defining largest-cut inequality.
+                    owner=max(c for c in range(grid) if total*c//grid<xe)
+                    assert owner==logical and cuts[owner]<=first<cuts[owner+1]
+                    first_segments+=1
+            cases+=1
+    return dict(cases=cases,first_segments=first_segments,logical_owner_identity=True,
+                proof='Disjoint monotone half-open stage ranges have one owner for every stage. A processed segment beginning at its unit stage0 belongs to the currently claimed logical range;the retained largest-cut inequality identifies that same owner.')
+
+
 def main():
     global OUT
     variant='--producer-range'in sys.argv
+    direct='--direct-owner'in sys.argv
+    assert not direct or variant,'Direct owner requires producer-range shared logical ID'
     if variant:OUT=OUT/'producer-range'
+    if direct:OUT=OUT/'direct-owner'
     OUT.mkdir(exist_ok=True);raw,tree,parent,src=derive();models=model()
     if variant:src=producer_range_source(src)
+    if direct:
+        src=direct_owner_source(src)
+        models['weighted_direct_owner']=weighted_owner_model()
     (OUT/'parent.cu').write_bytes(parent.encode());(OUT/'candidate.cu').write_bytes(src.encode())
     sys.path.insert(0,str(ROOT.parent/'opus-fresh/experiments/opus_fresh'))
     import nvrtc_screen_alternatives as nv
@@ -182,9 +226,9 @@ def main():
     report=dict(parent_sha256=hashlib.sha256(raw).hexdigest(),CUDA_sha256=hashlib.sha256(src.encode()).hexdigest(),
         exact_inverse=True,model=models,compiler=results,resources_no_worse=no_regression,
         scope='Original logical A/B K partitions,all math,weights,scratch geometry and fixup slots. B ranges assigned once to physical CTAs after A completion.',
-        tradeoff='Adds a576-thread CTA join and loses early B prefetch; input-stage A/B readiness remains original. No time saving established.',
+        tradeoff=('Adds two576-thread CTA joins'if variant else 'Adds one576-thread CTA join')+' and loses early B prefetch; input-stage A/B readiness remains original. No time saving established.',
         decision='CPU reject'if not no_regression else 'CPU screen only; numerical/resource/latency review required',
-        producer_range_variant=variant,mid_CTA_joins=2 if variant else 1,
+        producer_range_variant=variant,direct_owner_variant=direct,mid_CTA_joins=2 if variant else 1,
         GPU_jobs=0,admitted_for_GPU=False,Decode_checks_used=0)
     (OUT/'cpu-audit.json').write_bytes((json.dumps(report,indent=2)+'\n').encode())
     print(json.dumps({k:v for k,v in report.items()if k!='compiler'},indent=2))

@@ -45,7 +45,7 @@ def main():
         row_columns_exactly_once=True,token_owner_cases=32,shared_reduction_bytes=288,
         compiles=compiles,GPU_jobs=0,admitted_for_GPU=False,
         limitation='Compilation/layout evidence only; H200 numerical gates,barrier lifetime,resources and whole-kernel performance remain unverified.')
-    (OUT/'cpu-audit.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    (OUT/'cpu-audit.json').write_bytes((json.dumps(report,indent=2)+'\n').encode())
 
 
 if __name__=='__main__':main()

@@ -1,12 +1,12 @@
 {
-  "candidate_CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
+  "candidate_CUDA_sha256": "dcfd3b845c748711aefc27ff07f7ab7cbf7a16aed739fd5dc12f0e2a33a631ce",
   "row_columns_exactly_once": true,
   "token_owner_cases": 32,
   "shared_reduction_bytes": 288,
   "compiles": {
     "TINY_LUT": {
       "rc": 0,
-      "seconds": 0.969,
+      "seconds": 1.39,
       "cubin_sha256": "ca1a0a3138845730a9214d397a3aaf9de4f1ebe9e9eaa1b024b1764f7a042722",
       "kernels": [
         {
@@ -22,7 +22,7 @@
     },
     "TINY_PRMT": {
       "rc": 0,
-      "seconds": 1.0,
+      "seconds": 0.875,
       "cubin_sha256": "4a11685c1c13514a5390d560930d32f1e9d269d6c174feb0df3d88768241acc2",
       "kernels": [
         {
@@ -38,7 +38,7 @@
     },
     "TINY2_LUT": {
       "rc": 0,
-      "seconds": 1.219,
+      "seconds": 0.86,
       "cubin_sha256": "4fe49494c2bb6aef4b774e1e8789c39b73bb50ab9fdbee207673f4f0296fdd0e",
       "kernels": [
         {
@@ -54,7 +54,7 @@
     },
     "TINY2_PRMT": {
       "rc": 0,
-      "seconds": 1.359,
+      "seconds": 0.812,
       "cubin_sha256": "7bcba6dc0a551b35f561ebcaae49a1bcacb87d322c1f5e0b2863154f112abe89",
       "kernels": [
         {

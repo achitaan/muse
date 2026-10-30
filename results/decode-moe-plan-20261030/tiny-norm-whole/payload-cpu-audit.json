@@ -1,5 +1,5 @@
 {
-  "source_sha256": "2f725371e87dc6ae564ca9ed052d922df584c917da2a1a29116d96b3adc0f7ad",
+  "source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "parent_prefix_and_all_definitions_exact": true,
   "unchanged_gate_launch_mutation_and_prepare_functions": [
     "_tr_launch",
@@ -19,5 +19,7 @@
   "no_loaded_module_attribute_assignment": true,
   "GPU_jobs": 0,
   "admitted_for_GPU": false,
-  "limitation": "Static source/interface evidence only; no H200 correctness,resource or speed claim."
+  "limitation": "Static source/interface evidence only; no H200 correctness,resource or speed claim.",
+  "actual_resource_query_before_private_module_return": true,
+  "mock_native_resource_guard_cases": 7
 }

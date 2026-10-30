@@ -1,0 +1,23 @@
+{
+  "source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+  "cases": 480,
+  "maxima": {
+    "norm_relative": 7.158784832307608e-08,
+    "output_relative": 7.232990517365782e-05,
+    "worst_row": 0.000163976132874385
+  },
+  "mutants_rejected": [
+    "missing_warp",
+    "wrong_domain",
+    "nan_times_zero",
+    "missing_weight",
+    "store_stride"
+  ],
+  "GPU_calls": 0,
+  "oracle": "Pinned MoE TASK.md RMSNorm/weighted-sum formula on scaled FP32 ybuf, independent FP64 dense evaluation.",
+  "limitations": [
+    "No GEMM/SwiGLU or routing-kernel simulation.",
+    "CPU FMA/rsqrt behavior differs from CUDA.",
+    "No GPU byte/variance, replay, residency or latency claim."
+  ]
+}

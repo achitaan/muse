@@ -1,0 +1,81 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "CUDA_sha256": "cbdf9f3fa7b1bfaa4a6a81ac2b3091ac93b344c299df4384d3528400f9b47c01",
+  "constants": {
+    "off32": 1,
+    "lp": 0,
+    "P": 1,
+    "lrb": 7,
+    "row_bytes": 128,
+    "Hkv": 2,
+    "Hq": 16
+  },
+  "substitutions": {
+    "off32": 6,
+    "lp": 14,
+    "P": 4,
+    "lrb": 6,
+    "row_bytes": 3,
+    "Hkv": 10,
+    "Hq": 13
+  },
+  "exact_inverse": true,
+  "resources": {
+    "parent": {
+      "kernels": [
+        {
+          "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_449eb8d6_1388817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+          "registers": 128,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "entry": {
+        "instructions": 3560,
+        "calls": [
+          "CALL.REL.NOINC 0xd920 ;",
+          "CALL.REL.NOINC 0xd920 ;",
+          "CALL.REL.NOINC 0xd920 ;",
+          "CALL.REL.NOINC 0xd920 ;"
+        ],
+        "local_instructions": []
+      },
+      "cubin_sha256": "06e15536a756ae815ebfe9f68a962cde7414479a640de7cb956e0a9f6ece4196"
+    },
+    "constant": {
+      "kernels": [
+        {
+          "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_0f67cf87_1388817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+          "registers": 128,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "entry": {
+        "instructions": 3400,
+        "calls": [
+          "CALL.REL.NOINC 0xcee0 ;",
+          "CALL.REL.NOINC 0xcee0 ;",
+          "CALL.REL.NOINC 0xcee0 ;",
+          "CALL.REL.NOINC 0xcee0 ;"
+        ],
+        "local_instructions": []
+      },
+      "cubin_sha256": "2f03c733e96337c3afa669576389999c08589251788186b2b7b304fa6a175fe8"
+    }
+  },
+  "compiled_instruction_ratio": 0.9550561797752809,
+  "no_resource_regression": true,
+  "scope": "L1 address arithmetic only within guarded metadata family;arithmetic,all key coverage,masks,cache writes,barriers,splits and precision rules remain original.",
+  "decision": "CPU reject",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "Decode_checks_used": 0,
+  "limitation": "Static footprint is not dynamic instruction count,cache-miss evidence or a latency prediction."
+}
