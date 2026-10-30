@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T23:19:12.443249+00:00",
+  "updated_at": "2026-10-30T23:20:13.444884+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -59,7 +59,7 @@
   },
   "current_focus": "Shared norm candidate e5c0e7ec awaits paced GPU slot. Separate helper-register CPU prototype compiled; no GPU admission.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-31T00:11:17.108395+00:00",
+  "earliest_new_check_utc": "2026-10-31T00:18:18.499637+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -198,9 +198,9 @@
     "actual_GPU_resources_verified": false
   },
   "external_live_job": {
-    "id": "eaebaa8ffe6f4c29",
+    "id": "0b48e4f57db44c68",
     "track": "muse_attention_decode",
-    "submitted_utc": "2026-10-30T23:11:17.108395+00:00",
+    "submitted_utc": "2026-10-30T23:18:18.499637+00:00",
     "status_at_snapshot": "running",
     "owned": false
   },
@@ -208,5 +208,18 @@
     "decision": "Park stream-K cut/fixup/tail variants;existing work already covers plausible mechanisms",
     "source": "wgs-fixup-screen/REVIEW.md",
     "new_GPU_calls": 0
+  },
+  "previous_external_job_terminal": {
+    "id": "eaebaa8ffe6f4c29",
+    "status": "done",
+    "passed": true,
+    "source_binding": "unknown;not a retained-source performance claim"
+  },
+  "pacing_scope_blocker": {
+    "first_observed_utc": "2026-10-30T23:12:54Z",
+    "consecutive_goal_turns": 2,
+    "condition": "Other client keeps launching checks;global60minute interval keeps moving. Human scope clarification pending.",
+    "unaffected_work_completed": "Both tiny alternatives packaged;largerWGSfixup avenue reviewed and parked.",
+    "goal_status": "active;not achieved"
   }
 }
