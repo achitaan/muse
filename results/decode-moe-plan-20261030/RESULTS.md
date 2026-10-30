@@ -126,6 +126,25 @@ measured improvement. At 1 token the fused kernel (23.8 µs) is only about 1 µs
 separate pooler plus router. The pooler at T = 1 is register-bound at one CTA per SM, so the router's
 loads add to its critical path rather than overlapping it.
 
+## After R2: R2b, S1 and the leaderboard
+
+- **Board (02:58 UTC):** Decode **2.0339x, rank 217 / 1003** (was 2.0071, rank 234). Overall rank 217 / 1641.
+
+| Job | Candidate | Result |
+|---|---|---|
+| `d8fbc31bb5bb43e6` | R2b: router prologue stages x in shared memory and preloads all 32 weights; same FMA order | Gate PASS (T = 1: 30.88 -> 29.12 us; T = 8: 39.26 -> 32.48 us). 13/13 passed, **2.0334x**, a tie with R2's 2.0339x. The fused kernel stayed at 24.0 / 22.4 us, so the load pattern was not the cost. **Not submitted.** |
+| `69b63d4def8542ac` | S1: scored R2 plus a prepare A/B of `_sfn_kernel` num_warps (4/8/16/32), bitwise-gated | Every variant was bitwise equal to 8 warps. Graph times were T = 1: 8.10 / 7.87 / 7.65 / 7.62 us and T = 8: 8.35 / 7.74 / 7.26 / 7.81 us (each including about 4 us of graph-launch overhead). No variant was > 3% faster at both token counts, so 8 warps were kept. 13/13 passed, 2.0129x (in this run the R2 gate kept the parent path at T = 1: 30.24 vs 30.53 us). **Measured closure for the `_sfn` launch configuration: at most about 0.5 us.** |
+
+**`_pn` fold into the moe_fused prologue: closed on measurement.**
+- P2 (`3b53f3cb`, `b9c4f2c1`) measured the routing + `_pn` pair at 4.5-5.6 us. One fused launch did the same work in 4.5-5.4 us, so removing a launch boundary gains about 0.
+- The `_pn_inputs_kernel` itself is 1.5-2.5 us in every profile. That is the ceiling for folding it into `moe_fused`, about 1% of the score.
+- The fold would need either a grid barrier or redundant row reductions inside a kernel already at 96 registers. Not pursued.
+
+**`_sfn` fold into the sliced unpooler: not implemented.**
+- The ceiling is the kernel's 3.3-3.9 us at the four shapes with T <= 8.
+- The unpooler is a cluster-reduction GEMV (`smtrace_gemv`, RED = 2). The fold needs a grid-wide two-stage reduction over 8,192 columns, and FP32 reduction order cannot match the Triton kernel bitwise.
+- Lower value than removing the fused router's measured 10 us overhead (next item).
+
 ## Remaining work (needs a decision; not started)
 
 Both remaining Phase 3 items require editing the generated Dense kernel family. The small-token

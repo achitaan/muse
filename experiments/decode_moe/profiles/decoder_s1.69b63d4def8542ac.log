@@ -1,0 +1,6 @@
+R2_GATE M=1 PASS parent=30.53us fused=30.24us use=False
+R2_GATE M=8 PASS parent=38.91us fused=33.22us use=True
+R2_DONE 256.8s sel=(8,)
+S1_SFN T=1 nw8=7.87us nw4=8.10us nw16=7.65us nw32=7.62us
+S1_SFN T=8 nw8=7.74us nw4=8.35us nw16=7.26us nw32=7.81us
+S1_SELECT sfn_nw=8
