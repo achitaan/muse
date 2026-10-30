@@ -1,0 +1,571 @@
+{
+  "job_id": "7f34a396bd784aa1",
+  "source_sha256": "5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550",
+  "status": "done",
+  "official_passed": true,
+  "official_tests_passed": 5,
+  "official_benchmarks": 6,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "flags": [],
+  "prepare_seconds": 166.933453065,
+  "numerical_shapes": {
+    "1": {
+      "ss": 5.029569678400933e-07,
+      "out": 6.122009126741982e-07,
+      "worst_row": 6.122009126741982e-07
+    },
+    "2": {
+      "ss": 1.755806861359084e-07,
+      "out": 6.90765238195041e-06,
+      "worst_row": 9.804752069112556e-06
+    },
+    "3": {
+      "ss": 2.0774930660312056e-07,
+      "out": 7.17189256341021e-07,
+      "worst_row": 1.0961335320326197e-06
+    },
+    "4": {
+      "ss": 1.5714556590683629e-07,
+      "out": 7.525586997012709e-05,
+      "worst_row": 0.00016183442563896894
+    },
+    "5": {
+      "ss": 1.3656626248496692e-07,
+      "out": 5.7472873345670225e-05,
+      "worst_row": 0.0001812750324328806
+    },
+    "6": {
+      "ss": 1.512403763858258e-07,
+      "out": 3.473756886716347e-05,
+      "worst_row": 6.769331026124839e-05
+    },
+    "7": {
+      "ss": 1.746698630545262e-07,
+      "out": 5.8006715477470035e-05,
+      "worst_row": 0.00016523676961688208
+    },
+    "8": {
+      "ss": 1.449991931818721e-07,
+      "out": 6.091674123732729e-05,
+      "worst_row": 0.00013831531536649672
+    }
+  },
+  "full_numerical_fixtures_passed": 120,
+  "exact_inter_ybuf_confirmed": true,
+  "paired_timings": [
+    {
+      "M": 1,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 22.431999444961548,
+        "candidate": 21.75999991595745
+      },
+      "gain_percent": 2.9957183738921422,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 1,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 21.983999758958817,
+        "parent": 22.143999114632607
+      },
+      "gain_percent": 0.7225404717798423,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 22.23999984562397,
+        "candidate": 21.983999758958817
+      },
+      "gain_percent": 1.151079534362165,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 21.79200015962124,
+        "parent": 22.08000048995018
+      },
+      "gain_percent": 1.3043492931987255,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 22.52800017595291,
+        "candidate": 22.52800017595291
+      },
+      "gain_percent": 0.0,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 22.463999688625336,
+        "parent": 22.336000576615334
+      },
+      "gain_percent": -0.57306191218498,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 30.17600066959858,
+        "candidate": 30.239999294281006
+      },
+      "gain_percent": -0.21208451505272397,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 30.17600066959858,
+        "parent": 29.888000339269638
+      },
+      "gain_percent": -0.9635985246913226,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 38.336001336574554,
+        "candidate": 38.59199956059456
+      },
+      "gain_percent": -0.6677749767703745,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 38.30400109291077,
+        "parent": 38.52799907326698
+      },
+      "gain_percent": 0.5813901208060357,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 53.05600166320801,
+        "candidate": 53.31199988722801
+      },
+      "gain_percent": -0.48250568455014964,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 53.119998425245285,
+        "parent": 53.15199866890907
+      },
+      "gain_percent": 0.060205155902270935,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 45.632001012563705,
+        "candidate": 45.184001326560974
+      },
+      "gain_percent": 0.9817664710328744,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 45.40799930691719,
+        "parent": 45.823998749256134
+      },
+      "gain_percent": 0.9078200368659362,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 53.31199988722801,
+        "candidate": 53.599998354911804
+      },
+      "gain_percent": -0.540213213334706,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 53.568001836538315,
+        "parent": 53.50400134921074
+      },
+      "gain_percent": -0.11961813268854815,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 35.45600175857544,
+        "candidate": 35.74400022625923
+      },
+      "gain_percent": -0.8122700062032084,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 35.551998764276505,
+        "parent": 35.48799827694893
+      },
+      "gain_percent": -0.18034403301114832,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 50.464000552892685,
+        "candidate": 50.65599828958511
+      },
+      "gain_percent": -0.3804647562398289,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 50.40000006556511,
+        "parent": 50.71999877691269
+      },
+      "gain_percent": 0.6309123009940576,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 50.87999999523163,
+        "candidate": 50.65599828958511
+      },
+      "gain_percent": 0.4402549246609877,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 51.13599821925163,
+        "parent": 50.52800104022026
+      },
+      "gain_percent": -1.2032876158061478,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 65.72800129652023,
+        "candidate": 64.83200192451477
+      },
+      "gain_percent": 1.3631927859228843,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 65.60000032186508,
+        "parent": 65.5680000782013
+      },
+      "gain_percent": -0.04880466633971903,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 42.847998440265656,
+        "candidate": 43.07200014591217
+      },
+      "gain_percent": -0.5227821924022713,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 42.688000947237015,
+        "parent": 42.78400167822838
+      },
+      "gain_percent": 0.2243846466568722,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 66.72000139951706,
+        "candidate": 64.89600241184235
+      },
+      "gain_percent": 2.733811375021822,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 66.20799750089645,
+        "parent": 65.95200300216675
+      },
+      "gain_percent": -0.3881527278577046,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 50.592001527547836,
+        "candidate": 50.81599950790405
+      },
+      "gain_percent": -0.44275374287030544,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 50.71999877691269,
+        "parent": 50.4320003092289
+      },
+      "gain_percent": -0.5710629479653839,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": [
+        "parent",
+        "candidate"
+      ],
+      "microseconds": {
+        "parent": 58.33600088953972,
+        "candidate": 58.59199911355972
+      },
+      "gain_percent": -0.4388340306438643,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": [
+        "candidate",
+        "parent"
+      ],
+      "microseconds": {
+        "candidate": 58.9120015501976,
+        "parent": 58.687999844551086
+      },
+      "gain_percent": -0.38168229661912356,
+      "candidate_pass": false,
+      "logged_pick": "parent"
+    }
+  ],
+  "selected_shapes": [],
+  "profile_new_route_marker": false,
+  "parent_only_point_estimate": 2.3433891315704805,
+  "point_estimate_CI": [
+    2.308238294596923,
+    2.3785399685440374
+  ],
+  "maximum_observed_pair_gain_percent": 2.9957183738921422,
+  "decision": "Reject routing candidate: no pair meets strict3% gate; no shape selected. This is now a measured performance rejection.",
+  "scored_submissions": 0,
+  "publication": false,
+  "checks_left": 15,
+  "scores_left": 10,
+  "earliest_next_check_utc": "2026-10-30T21:08:19.932668+00:00",
+  "evaluator": {
+    "code_sha256": "afcead6a6ff090aa50fe9bc907f0fa8f4ba73d95fa92af93ec260b5e8ff00f00",
+    "files": {
+      "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+      "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+      "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+      "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+      "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+      "problems/muse_moe_w4a16/baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+      "problems/muse_moe_w4a16/reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+      "problems/muse_moe_w4a16/task.yml": "cc6870087c1a115e69f40093478553e0a03c1b3e92f527c2e55c4115e2db42ad"
+    },
+    "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+  }
+}

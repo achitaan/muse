@@ -864,3 +864,11 @@ A source ownership model establishes256 norm atomic arrivals per local route and
 2026-10-30T20:07:53.726127+00:00; source5d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550; normal spacing60.691minutes; no active job; MoE checks16before/15expected after,10scores. Fresh official identity unchanged; CPU gates pass. One full MoE check admitted. Stop on numerical/resource/integrity failure,empty selection or no new-path gain; no automatic publication or score. Final Decode check remains reserved.
 
 Bounded TR8 check acknowledged as7f34a396bd784aa1. Source remains5d691341; one upload, no retry. Result pending; no speedup claim.
+
+### Bounded TR8 H200 outcome7f34a396bd784aa1: performance rejection
+
+5/5official tests,6benchmarks,integrity/no flags,prepare166.933453s. All120 new/parent probe fixtures pass the approved MoE gate,with exact inter/ybuf. Maximum norm relativeL2 is5.029569678400933e-07,output relativeL2 7.525586997012709e-05,worst row 0.0001812750324328806.
+
+All32 paired timings fail the strict3% gate; largest observed pair gain is2.9957183738921422%. No M1..8 shape is selected. All official benchmark profiles retain moe_fused and lack moe_tr8_fused. The2.343389132x point is the parent fallback,not a new-algorithm speedup. TR8 routing is closed on actual performance evidence; no scored submission/publication/retry. Raw samples and source-bound metrics:tinyroute-bounded/outcome.json.
+
+MoE checks15,scores10 remain. Final Decode check and published2.075466170x remain unchanged. Next normal check not before2026-10-30T21:08:19.932668+00:00. Separate whole-row norm payload2f725371 is prepared but unrun and not yet GPU-admitted.

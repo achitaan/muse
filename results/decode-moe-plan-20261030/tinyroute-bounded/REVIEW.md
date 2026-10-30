@@ -1,3 +1,5 @@
+> H200 outcome7f34a396bd784aa1: numerical gates pass all120fixtures,but all32 performance comparisons fail strict3%. Empty selection; all scored-shape profiles are parent. Candidate closed without score/publication. The prelaunch review below is historical; see outcome.json.
+
 # TR8 with the human-approved MoE boundary gate
 
 Source `moe_tinyroute_bounded.py`,SHA2565d691341d127fdf6f866be9b7e99d06502655665b19d1d229b1ca1cff1941550,193796 bytes,is unsubmitted. It changes the prepare-time gate of the frozen TR8 source95833547. CUDA,extension builder,scratch allocator,all timed dispatch definitions and precision operations remain exact. Other edits are the diagnostic label BITWISE to BOUNDED and the274s cutoff before starting each new shape diagnostic; timing retains its278s cutoff. The prior gate-only25e8efa3 payload is archived as gate-only-25e8efa3.py.

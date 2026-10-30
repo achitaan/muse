@@ -1,0 +1,57 @@
+TR8B_NUMERICAL_PASS 1 {'ss': 5.029569678400933e-07, 'out': 6.122009126741982e-07, 'worst_row': 6.122009126741982e-07} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 1 True five_route_patterns_three_inputs
+TR8_TIME 1 one parent,candidate {'parent': 22.431999444961548, 'candidate': 21.75999991595745} pick= parent
+TR8_TIME 1 one candidate,parent {'candidate': 21.983999758958817, 'parent': 22.143999114632607} pick= parent
+TR8_TIME 1 skew parent,candidate {'parent': 22.23999984562397, 'candidate': 21.983999758958817} pick= parent
+TR8_TIME 1 skew candidate,parent {'candidate': 21.79200015962124, 'parent': 22.08000048995018} pick= parent
+TR8_SELECT 1 False
+TR8B_NUMERICAL_PASS 2 {'ss': 1.755806861359084e-07, 'out': 6.90765238195041e-06, 'worst_row': 9.804752069112556e-06} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 2 True five_route_patterns_three_inputs
+TR8_TIME 2 one parent,candidate {'parent': 22.52800017595291, 'candidate': 22.52800017595291} pick= parent
+TR8_TIME 2 one candidate,parent {'candidate': 22.463999688625336, 'parent': 22.336000576615334} pick= parent
+TR8_TIME 2 skew parent,candidate {'parent': 30.17600066959858, 'candidate': 30.239999294281006} pick= parent
+TR8_TIME 2 skew candidate,parent {'candidate': 30.17600066959858, 'parent': 29.888000339269638} pick= parent
+TR8_SELECT 2 False
+TR8B_NUMERICAL_PASS 3 {'ss': 2.0774930660312056e-07, 'out': 7.17189256341021e-07, 'worst_row': 1.0961335320326197e-06} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 3 True five_route_patterns_three_inputs
+TR8_TIME 3 one parent,candidate {'parent': 38.336001336574554, 'candidate': 38.59199956059456} pick= parent
+TR8_TIME 3 one candidate,parent {'candidate': 38.30400109291077, 'parent': 38.52799907326698} pick= parent
+TR8_TIME 3 skew parent,candidate {'parent': 53.05600166320801, 'candidate': 53.31199988722801} pick= parent
+TR8_TIME 3 skew candidate,parent {'candidate': 53.119998425245285, 'parent': 53.15199866890907} pick= parent
+TR8_SELECT 3 False
+TR8B_NUMERICAL_PASS 4 {'ss': 1.5714556590683629e-07, 'out': 7.525586997012709e-05, 'worst_row': 0.00016183442563896894} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 4 True five_route_patterns_three_inputs
+TR8_TIME 4 one parent,candidate {'parent': 45.632001012563705, 'candidate': 45.184001326560974} pick= parent
+TR8_TIME 4 one candidate,parent {'candidate': 45.40799930691719, 'parent': 45.823998749256134} pick= parent
+TR8_TIME 4 skew parent,candidate {'parent': 53.31199988722801, 'candidate': 53.599998354911804} pick= parent
+TR8_TIME 4 skew candidate,parent {'candidate': 53.568001836538315, 'parent': 53.50400134921074} pick= parent
+TR8_SELECT 4 False
+TR8B_NUMERICAL_PASS 5 {'ss': 1.3656626248496692e-07, 'out': 5.7472873345670225e-05, 'worst_row': 0.0001812750324328806} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 5 True five_route_patterns_three_inputs
+TR8_TIME 5 one parent,candidate {'parent': 35.45600175857544, 'candidate': 35.74400022625923} pick= parent
+TR8_TIME 5 one candidate,parent {'candidate': 35.551998764276505, 'parent': 35.48799827694893} pick= parent
+TR8_TIME 5 skew parent,candidate {'parent': 50.464000552892685, 'candidate': 50.65599828958511} pick= parent
+TR8_TIME 5 skew candidate,parent {'candidate': 50.40000006556511, 'parent': 50.71999877691269} pick= parent
+TR8_SELECT 5 False
+TR8B_NUMERICAL_PASS 6 {'ss': 1.512403763858258e-07, 'out': 3.473756886716347e-05, 'worst_row': 6.769331026124839e-05} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 6 True five_route_patterns_three_inputs
+TR8_TIME 6 one parent,candidate {'parent': 50.87999999523163, 'candidate': 50.65599828958511} pick= parent
+TR8_TIME 6 one candidate,parent {'candidate': 51.13599821925163, 'parent': 50.52800104022026} pick= parent
+TR8_TIME 6 skew parent,candidate {'parent': 65.72800129652023, 'candidate': 64.83200192451477} pick= parent
+TR8_TIME 6 skew candidate,parent {'candidate': 65.60000032186508, 'parent': 65.5680000782013} pick= parent
+TR8_SELECT 6 False
+TR8B_NUMERICAL_PASS 7 {'ss': 1.746698630545262e-07, 'out': 5.8006715477470035e-05, 'worst_row': 0.00016523676961688208} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 7 True five_route_patterns_three_inputs
+TR8_TIME 7 one parent,candidate {'parent': 42.847998440265656, 'candidate': 43.07200014591217} pick= parent
+TR8_TIME 7 one candidate,parent {'candidate': 42.688000947237015, 'parent': 42.78400167822838} pick= parent
+TR8_TIME 7 skew parent,candidate {'parent': 66.72000139951706, 'candidate': 64.89600241184235} pick= parent
+TR8_TIME 7 skew candidate,parent {'candidate': 66.20799750089645, 'parent': 65.95200300216675} pick= parent
+TR8_SELECT 7 False
+TR8B_NUMERICAL_PASS 8 {'ss': 1.449991931818721e-07, 'out': 6.091674123732729e-05, 'worst_row': 0.00013831531536649672} inter/ybuf=bytes,ss<=1e-5,out<=.001,worst_row<=.005
+TR8_BOUNDED 8 True five_route_patterns_three_inputs
+TR8_TIME 8 one parent,candidate {'parent': 50.592001527547836, 'candidate': 50.81599950790405} pick= parent
+TR8_TIME 8 one candidate,parent {'candidate': 50.71999877691269, 'parent': 50.4320003092289} pick= parent
+TR8_TIME 8 skew parent,candidate {'parent': 58.33600088953972, 'candidate': 58.59199911355972} pick= parent
+TR8_TIME 8 skew candidate,parent {'candidate': 58.9120015501976, 'parent': 58.687999844551086} pick= parent
+TR8_SELECT 8 False
+TR8_DONE 166.93339898600243 []
