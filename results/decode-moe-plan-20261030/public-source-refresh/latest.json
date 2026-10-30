@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-30T20:44:13.595462+00:00",
+  "repository": "vjeux/okc-2026",
+  "commit": "f35a41ee1c13e316dabbf772830d47b23b453393",
+  "commit_date": "2026-10-28T02:03:32Z",
+  "commit_url": "https://github.com/vjeux/okc-2026/commit/f35a41ee1c13e316dabbf772830d47b23b453393",
+  "previous_upstream_pin": "f35a41ee1c13e316dabbf772830d47b23b453393",
+  "files": {
+    "muse_moe_w4a16.py": {
+      "url": "https://raw.githubusercontent.com/vjeux/okc-2026/f35a41ee1c13e316dabbf772830d47b23b453393/muse_moe_w4a16.py",
+      "bytes": 179162,
+      "sha256": "10e0690d7fc21244bf29f6df2916b89f0ddcbe8f94d7afe15983478d315883a3"
+    },
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/vjeux/okc-2026/f35a41ee1c13e316dabbf772830d47b23b453393/LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  },
+  "upstream_CUDA_sha256": "18e7de001e26f44eed941caf2350d50927bd6772dfc9e28a7a57764184b25593",
+  "retained_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "native_text_equal": false,
+  "imported_or_executed": false,
+  "GPU_jobs": 0,
+  "retained_sources_changed": false
+}

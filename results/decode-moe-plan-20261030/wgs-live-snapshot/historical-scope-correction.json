@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-30T21:04:00.563578+00:00",
+  "source_snapshot": "experiments/decode_moe/moe_repeat_v2_runtime.py::_mr_snapshot",
+  "retained_MoE_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "conditional_scope": "WGS selected; usual PRMT MAIN at M>16",
+  "live_WGS_SwiGLU": "scratch[2] xB,swizzled after inter and xA",
+  "WGS_SS": "Shared row reduction,not written to the observed ss_cur region",
+  "still_valid": "Old ybuf/output comparisons; tiny/MID live inter/SS comparisons",
+  "not_established": "WGS live SwiGLU equality or WGS norm statistics",
+  "current_tiny_norm_payload_unchanged": true
+}

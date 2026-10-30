@@ -1,3 +1,5 @@
+> Scope correction2026-10-30: when WGS runs at M32,the old snapshot reads unused row-major inter and SS regions. Those byte observations do not establish live SwiGLU xB equality or WGS shared norm statistics. The recorded ybuf/output observations remain valid. Tiny/MID live inter/atomic-SS observations and the MoE-only authorization are unaffected. See ../wgs-live-snapshot/REVIEW.md. Raw evidence is preserved.
+
 # H200 MoE bit-stability diagnosis
 
 Job `9dc89929ea384b7d`, source `b493dc7b`; all 75 fixture records are represented by the retained compact summary.

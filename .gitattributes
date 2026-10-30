@@ -27,3 +27,6 @@ experiments/decode_moe/*pdl32_residency* -text
 experiments/decode_moe/profiles/dense_real_attention_handoff* -text
 experiments/decode_moe/*tiny_norm* -text
 experiments/decode_moe/*attention_finoutline* -text
+experiments/decode_moe/*wgs_live_snapshot* -text
+experiments/decode_moe/*moe_dynamic_b* -text
+experiments/decode_moe/refresh_public_moe_source.py -text

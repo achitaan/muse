@@ -1,0 +1,239 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "layout_cases": [
+    {
+      "M": 1,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 1,
+      "mode": "one",
+      "routes": 1,
+      "jobs": 1,
+      "padded_rows": 8
+    },
+    {
+      "M": 1,
+      "mode": "hot",
+      "routes": 8,
+      "jobs": 8,
+      "padded_rows": 64
+    },
+    {
+      "M": 1,
+      "mode": "all",
+      "routes": 8,
+      "jobs": 8,
+      "padded_rows": 64
+    },
+    {
+      "M": 8,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 8,
+      "mode": "one",
+      "routes": 8,
+      "jobs": 7,
+      "padded_rows": 56
+    },
+    {
+      "M": 8,
+      "mode": "hot",
+      "routes": 64,
+      "jobs": 8,
+      "padded_rows": 64
+    },
+    {
+      "M": 8,
+      "mode": "all",
+      "routes": 64,
+      "jobs": 27,
+      "padded_rows": 216
+    },
+    {
+      "M": 17,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 17,
+      "mode": "one",
+      "routes": 17,
+      "jobs": 14,
+      "padded_rows": 112
+    },
+    {
+      "M": 17,
+      "mode": "hot",
+      "routes": 136,
+      "jobs": 8,
+      "padded_rows": 192
+    },
+    {
+      "M": 17,
+      "mode": "all",
+      "routes": 136,
+      "jobs": 32,
+      "padded_rows": 264
+    },
+    {
+      "M": 32,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 32,
+      "mode": "one",
+      "routes": 32,
+      "jobs": 21,
+      "padded_rows": 168
+    },
+    {
+      "M": 32,
+      "mode": "hot",
+      "routes": 256,
+      "jobs": 8,
+      "padded_rows": 256
+    },
+    {
+      "M": 32,
+      "mode": "all",
+      "routes": 256,
+      "jobs": 32,
+      "padded_rows": 360
+    },
+    {
+      "M": 65,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 65,
+      "mode": "one",
+      "routes": 65,
+      "jobs": 28,
+      "padded_rows": 224
+    },
+    {
+      "M": 65,
+      "mode": "hot",
+      "routes": 520,
+      "jobs": 16,
+      "padded_rows": 576
+    },
+    {
+      "M": 65,
+      "mode": "all",
+      "routes": 520,
+      "jobs": 32,
+      "padded_rows": 616
+    },
+    {
+      "M": 128,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 128,
+      "mode": "one",
+      "routes": 128,
+      "jobs": 32,
+      "padded_rows": 264
+    },
+    {
+      "M": 128,
+      "mode": "hot",
+      "routes": 1024,
+      "jobs": 16,
+      "padded_rows": 1024
+    },
+    {
+      "M": 128,
+      "mode": "all",
+      "routes": 1024,
+      "jobs": 32,
+      "padded_rows": 1136
+    },
+    {
+      "M": 257,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 257,
+      "mode": "one",
+      "routes": 257,
+      "jobs": 32,
+      "padded_rows": 344
+    },
+    {
+      "M": 257,
+      "mode": "hot",
+      "routes": 2056,
+      "jobs": 40,
+      "padded_rows": 2112
+    },
+    {
+      "M": 257,
+      "mode": "all",
+      "routes": 2056,
+      "jobs": 46,
+      "padded_rows": 2168
+    },
+    {
+      "M": 384,
+      "mode": "none",
+      "routes": 0,
+      "jobs": 0,
+      "padded_rows": 0
+    },
+    {
+      "M": 384,
+      "mode": "one",
+      "routes": 384,
+      "jobs": 32,
+      "padded_rows": 504
+    },
+    {
+      "M": 384,
+      "mode": "hot",
+      "routes": 3072,
+      "jobs": 48,
+      "padded_rows": 3072
+    },
+    {
+      "M": 384,
+      "mode": "all",
+      "routes": 3072,
+      "jobs": 64,
+      "padded_rows": 3168
+    }
+  ],
+  "wrong_value_and_wrong_buffer_mutants_detected": 26,
+  "actual_4096_column_offset_case_pass": true,
+  "EMAX": 3072,
+  "JMAX": 88,
+  "WGS_XROWS": 3776,
+  "historical_correction": "M32 WGS diagnostic sampled unused inter and ss buffers. Its ybuf/output byte observations remain valid;live xB equality and WGS norm statistics were not established.",
+  "GPU_jobs": 0,
+  "Decode_checks_used": 0,
+  "limitation": "CPU layout and buffer ownership only; no GPU snapshot or numerical-performance claim."
+}

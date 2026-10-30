@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T20:28:22.974932+00:00",
+  "updated_at": "2026-10-30T21:05:45.105691+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,7 +23,7 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "tiny-norm-whole/REVIEW.md",
+  "newest_CPU_packet": "moe-dynamic-b/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
@@ -74,5 +74,11 @@
     "sha256": "fdf4947ac4d35060600bd89fb2eee3c4a1844750315a7b7dfc7d40bf9ae65488",
     "outcome": "CPU reject: compiled kernel instruction count3560->3608;zero added stack/spills;no GPU job.",
     "evidence": "attention-finoutline/REVIEW.md"
+  },
+  "historical_diagnostic_scope_correction": "wgs-live-snapshot/REVIEW.md;M32 WGS old inter/SS snapshots were unused buffers,not proof of live xB/norm statistics.",
+  "latest_large_MoE_screen": {
+    "CUDA": "86b0200fb6dee37926c29794b61499e664b2d90b6d49201bd71eb625ffcae3ac",
+    "decision": "Both dynamic-B prototypes fail compiler spill screen;no GPU admission.",
+    "evidence": "moe-dynamic-b/REVIEW.md"
   }
 }

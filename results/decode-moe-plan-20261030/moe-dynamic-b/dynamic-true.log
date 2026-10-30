@@ -1,0 +1,46 @@
+preflight.cu(126): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+preflight.cu(141): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+preflight.cu(141): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+preflight.cu(144): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+preflight.cu(151): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+preflight.cu(532): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+preflight.cu(942): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+preflight.cu(1645): warning #177-D: variable "okc::WGS_FIXF" was declared but never referenced
+  constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;  // + doneAs
+                   ^
+
+preflight.cu(1800): warning #177-D: variable "okc::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
+                ^
+
+ptxas info    : 250 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+ptxas         .     80 bytes stack frame, 284 bytes spill stores, 532 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 80 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

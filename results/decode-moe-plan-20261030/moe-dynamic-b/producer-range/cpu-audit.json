@@ -1,0 +1,89 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "CUDA_sha256": "86b0200fb6dee37926c29794b61499e664b2d90b6d49201bd71eb625ffcae3ac",
+  "exact_inverse": true,
+  "model": {
+    "ownership_cases": 288,
+    "logical_fixup_owner_mutants_detected": 5971,
+    "role_arrival_orders": 720,
+    "consumer_join_count": 512,
+    "mid_join_count": 576,
+    "producer_warps_retained_until_mid_join": 2,
+    "caveat": "These are ownership/liveness models,not latency forecasts,CUDA race validation or a proof of FP32 atomic summation stability."
+  },
+  "compiler": {
+    "parent": {
+      "false": {
+        "rc": 0,
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 96,
+            "stack_frame": 16,
+            "spill_stores": 56,
+            "spill_loads": 124,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "C751_serialization": false
+      },
+      "true": {
+        "rc": 0,
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+            "registers": 96,
+            "stack_frame": 16,
+            "spill_stores": 56,
+            "spill_loads": 124,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "C751_serialization": false
+      }
+    },
+    "dynamic": {
+      "false": {
+        "rc": 0,
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 96,
+            "stack_frame": 80,
+            "spill_stores": 284,
+            "spill_loads": 532,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "C751_serialization": false
+      },
+      "true": {
+        "rc": 0,
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+            "registers": 96,
+            "stack_frame": 80,
+            "spill_stores": 284,
+            "spill_loads": 532,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "C751_serialization": false
+      }
+    }
+  },
+  "resources_no_worse": false,
+  "scope": "Original logical A/B K partitions,all math,weights,scratch geometry and fixup slots. B ranges assigned once to physical CTAs after A completion.",
+  "tradeoff": "Adds two576-thread CTA joins and a shared logical-ID field;global scratch layouts and input-stage A/B readiness remain original. Early B prefetch is delayed. No time saving established.",
+  "decision": "CPU reject",
+  "producer_range_variant": true,
+  "mid_CTA_joins": 2,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "Decode_checks_used": 0
+}
