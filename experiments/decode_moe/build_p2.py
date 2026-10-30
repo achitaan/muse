@@ -86,7 +86,7 @@ def _p2_route_pn(logits, x, local_start, state):
     i = torch.empty((rows, 8), dtype=torch.int32, device=dev)
     loc = torch.empty((rows, 8), dtype=torch.int32, device=dev)
     _p2_kernel[(rows,)](logits, x, p2['gain'], p2['bias'], local_start, out, w, i, loc, x.stride(0), hidden,
-                        RMS_EPS, 4096, p2['mode'], num_warps=4, enable_fp_fusion=False)
+                        RMS_EPS, 4096, p2['mode'], num_warps=p2['nw'], enable_fp_fusion=False)
     return (w, i, out, loc)
 
 
@@ -94,10 +94,11 @@ def _p2_gate(state, weights):
     dev = weights['router_bias'].device
     gain = state['pre_expert_norm']._get_effective_weight()
     start = torch.tensor([64], dtype=torch.int32, device=dev)
-    for mode in (0, 1, 2, 3):
-        state['p2'] = {'gain': gain, 'bias': weights['router_bias'].float().contiguous(), 'mode': mode}
+    # fewer warps: the 24 serial 256-wide reductions become warp shuffles (judge: 4 warps took 4.4-5.4 us)
+    for mode, nw in ((0, 1), (0, 2), (0, 4), (1, 4), (2, 4), (3, 4)):
+        state['p2'] = {'gain': gain, 'bias': weights['router_bias'].float().contiguous(), 'mode': mode, 'nw': nw}
         bad = _p2_try(state, dev, start)
-        print(f'P2_GATE mode={mode} {"FAIL" if bad else "PASS"} {bad[:3]}', flush=True)
+        print(f'P2_GATE mode={mode} nw={nw} {"FAIL" if bad else "PASS"} {bad[:3]}', flush=True)
         if not bad:
             return
     state['p2'] = None

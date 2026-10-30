@@ -1,0 +1,106 @@
+# decode-moe-plan: implementation results (2026-10-30, branch `argon/decode-moe-20261030`)
+
+Parent for every Decode candidate: `board_best/decoder_finreg_fp8pv_scored_2.0071.py` (scored 2.0071x,
+job `646774bad23e4c7f`). The parent's own Decode checks span 1.9968x to 2.0064x, so single runs cannot
+resolve changes below about ±1.5%. Every number below was measured by the official service on an H200.
+The raw logs are in `experiments/decode_moe/profiles/`.
+
+## Phase 0: prepare-time A/B harness
+
+**Status: built per candidate. A shared module was not built.**
+
+- The R1 harness is in `build_r1.py` and the WQ profiler is in `build_wq.py`. Each one:
+  - compiles nothing extra (it reuses the extensions the candidate already builds);
+  - checks every variant's output against the incumbent;
+  - times the variants as interleaved cold-L2 CUDA-graph replays;
+  - prints a table to the judge log.
+- **Constraint found:** Decode `prepare` already takes 254–263 s against the 300 s limit. The first R1 run
+  skipped its harness at 256.3 s (job `de55689ac40c483a`). The Decode file also has only about 3–5 KB
+  of headroom under 1 MB.
+- **Consequence:** MoE-kernel experiments run as profilers on the MoE track. It shares the identical
+  kernel and has ample prepare time and file size. Decode then gets only the chosen setting.
+
+## Phase 1: MoE at 16 and 32 tokens (WQ)
+
+Job `6834342880f5474e` (MoE track, 5/5 tests passed, 2.3387x on the unchanged timed path).
+
+- **Change:** a runtime stream-K range quantum `q` per phase. It rounds each CTA's stage range to `q`
+  stages, so `q = 16` gives whole units and no fixups.
+- **Also profiled:** reduced grids of 120, 100 and 66 CTAs, and MAIN versus MID at 16 tokens.
+- **Workloads:**
+  - Decode-like routing from the `muse_decode_layer` reference model: T = 16 and 32, three draws
+    each, plus one draw at T = 128.
+  - MoE-track routing: T = 16 and 32, two draws each, plus one draw at T = 128.
+- **Offline (NVRTC sm_90a):** MAIN compiles at 96 registers, 8 B stack and 16/16 B spills (parent:
+  52/84 B spills). TINY and MID are unchanged. A CPU model of range partition, owner lookup and fixup-slot
+  uniqueness passed on 300 random job sets.
+- **GPU result:** every quantum was slower than the incumbent fine split. The table shows the median
+  time relative to the incumbent:
+
+| Workload | q = 1/8 | q = 4/4 | q = 8/8 | q = 16/16 | grid 120 | grid 66 |
+|---|---:|---:|---:|---:|---:|---:|
+| Decode-like T = 16 | 1.058 | 1.102 | 1.138 | 1.079 | 1.019 | 1.299 |
+| Decode-like T = 32 | 1.082 | 1.081 | 1.085 | 1.115 | 0.995 | 1.391 |
+| MoE T = 32 | 1.036 | 1.054 | 1.087 | 1.106 | 1.019 | 1.513 |
+| Decode-like T = 128 | 1.061 | 1.044 | 1.097 | 1.116 | 1.053 | 1.591 |
+
+- **Decision: closed.**
+  - Coarser splits cost more in load imbalance than they save in fixups.
+  - Fewer CTAs lose HBM parallelism. Grid 120 is within noise.
+
+**16-token skinny tile (`skinny_ring_ws` holding 9–16 tokens per expert): closed, not implemented.**
+- The WQ run measured the MAIN (WGS) build against MID at 16 tokens on the same draws:
+  - 0.966x on draw 3 (busiest expert has 14 tokens);
+  - 1.12x on draw 2 (busiest expert has 8 tokens);
+  - 1.06–1.10x on the MoE-track draws.
+- So re-streaming the weights of split experts costs at most a few percent, and only when one expert
+  is heavily loaded. That is well below the +18% traffic that the earlier analysis predicted as an
+  upper bound.
+- The change would mean rewriting the tuned mma.sync skinny ring for two n8 token tiles. That is
+  multi-day work, testable only through 8-minute judge checks, for a gain bounded at about 3% of
+  `moe_fused` on decode 16. **Not worth it under the current constraints.**
+
+## Phase 2: routing + pre-expert norm fused for more than 8 tokens (P2)
+
+| Job | Gate | Tests | Speedup | Note |
+|---|---|---|---:|---|
+| `ddc5d0263caa4435` | bitwise: FAIL in all 4 modes | 13/13 | 2.0000x (parent path) | ids, normalized rows and local ids exact; SGLang's weights differ by 1–2 ULP (≤ 3e-8) |
+| `3b53f3cb23054eb9` | ids/rows exact, weights ≤ 1e-6 relative: PASS (mode 0) | 13/13 | 2.0001x | `_p2_kernel` 4.4–5.4 µs, versus routing_kernel + `_pn` 4.5–5.6 µs: **no gain** |
+| `b9c4f2c1a7634ce2` | the same, trying 1–2 warps first | pending | | the 24 serial 256-wide reductions become warp shuffles |
+
+**Folding `_pn` into the `moe_fused` prologue: not implemented.**
+- The pre-expert norm needs whole-row sums before any expert GEMM reads `x`.
+- Inside the persistent kernel this would need one of:
+  - a grid-wide barrier, costing about the same as the separate launch;
+  - redundant per-CTA row reductions: at T = 32, 132 CTAs × 256 KB = 34 MB of L2 reads;
+  - edits to every x-staging path (TMA skinny loads and the WGS gather).
+- P2 already removes the routing+norm launch pair outside the kernel and showed that launch removal
+  alone is worth at most about 1 µs.
+
+## Phase 3: small-token router/pooler (R1) and `_sfn`
+
+| Job | Result |
+|---|---|
+| `de55689ac40c483a` | 13/13 passed, 1.9990x. The harness skipped at 256.3 s (cutoff 240 s), so this measures the parent path. |
+| `209ff320073b48f6` | Harness ran. Router launched first on the side stream: 1 token 32.38 → 25.38 µs, 8 tokens 40.80 → 34.72 µs. **The judge benchmark recheck FAILED at verify 1 (8 tokens): "routing: 2 of this GPU's experts touched where the reference touches 5".** |
+| `522bb253f6144f71` | 13/13 passed, 1.9968x. Same-stream orders (router then pooler, or pooler then router) were 31.4–31.5 µs at 1 token and 40.8–41.7 µs at 8 tokens versus parent 32.2 / 39.9: below the 3% gate, so the parent was kept. |
+
+- **Decision: R1 closed.** Only the concurrent arrangement helps, and it produced wrong routing under the
+  judge's repeated-replay recheck at 8 tokens. Inspection did not find the root cause; it was not a
+  numeric difference (the eager outputs were bitwise equal in the harness). It must not ship.
+- **`_sfn` fold into the sliced unpooler: not implemented.**
+  - `_sfn` needs two full-row RMS reductions: over the 1,024-column branch, then the 8,192-column
+    updated stream.
+  - The sliced unpooler GEMV (`smtrace_gemv`) spreads a row's 1,024 outputs across CTAs, so the fold
+    requires a last-CTA reduction inside the Dense kernel family.
+  - The bound is 3.5–3.7 µs on the four shapes with 8 or fewer tokens: about +1% score if fully
+    removed.
+  - Deferred behind the larger levers. It is still the best remaining small-token item.
+
+## Overall
+
+- No candidate has shown a gain outside measurement noise. **Nothing has been submitted for a score from
+  this branch.**
+- The measured opportunity that remains is the one R1 exposed: about 6–7 µs at 1 and 8 tokens from
+  overlapping the FP32 router with the pooler. A correct version would need the router fused into the
+  pooler kernel, as `sk2f` already does for 9–32 tokens, rather than two concurrently launched kernels.
