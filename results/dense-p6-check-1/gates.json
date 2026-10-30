@@ -1,0 +1,9 @@
+{
+  "candidate": "candidates/dense_p6.py",
+  "source_sha256": "0aa1ed566faebea6025c951c80541f586df156ce977a74889f93621962458322",
+  "scope": "unpooler M32 (8192x4096): v18d native c12 GEMV MT=4, geometries (1,4,16,1) (1,8,8,1) (2,4,8,1) RED0, (1,4,8,2) RED2, (1,8,4,2) RED3",
+  "why": "unpooler M32 m32w WGMMA ~17.0 us kernel vs same-size pooler M32 GEMV ~16.3 us; no GEMV ever tried for unpooler M32",
+  "offline_compile": "results/p6-offline/summary.txt: 116-128 regs, 0 spill",
+  "gates": "v18d_v18d_native_plan (bit-exact pack, one-hot, FP64 random); ABBA 16 pairs median >= 1.03, wins >= 0.75; official checker",
+  "markers": "P6 / P6_SELECT / P6_KEEP / P6_USE"
+}
