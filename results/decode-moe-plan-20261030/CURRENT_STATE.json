@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T20:15:53.602099+00:00",
+  "updated_at": "2026-10-30T20:28:22.974932+00:00",
   "goal": "active; top 50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -66,6 +66,13 @@
     "CUDA_sha256": "20e9051dfded77ba273d598bd3c0e0049001498d133d33e8c16e80875de6da24",
     "CPU_compiles": "TINY/TINY2,PRMT/LUT,zero stack/spills;146regs PRMT,143LUT",
     "admitted_for_GPU": false,
-    "order": "Separate norm hypothesis;TR8 routing remains first."
+    "order": "TR8 is closed on performance;whole-row norm is next for a paced MoE check."
+  },
+  "Decode_evaluation_hold": "Human reiterated2026-10-30: continue other tracks and save Decode checks until good results. Preserve the final check; component gains must justify complete-layer validation.",
+  "latest_attention_screen": {
+    "source": "experiments/decode_moe/attention_finoutline.py",
+    "sha256": "fdf4947ac4d35060600bd89fb2eee3c4a1844750315a7b7dfc7d40bf9ae65488",
+    "outcome": "CPU reject: compiled kernel instruction count3560->3608;zero added stack/spills;no GPU job.",
+    "evidence": "attention-finoutline/REVIEW.md"
   }
 }

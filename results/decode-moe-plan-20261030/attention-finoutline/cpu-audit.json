@@ -1,0 +1,65 @@
+{
+  "CUDA_sha256": "554882be51ec56dea92eecd5781a5b7a97c77ba8f4e6b37b368013308785fef0",
+  "resources": {
+    "parent": {
+      "kernels": [
+        {
+          "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_45b32139_3366817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+          "registers": 128,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "functions": {
+        "_ZN51_GLOBAL__N__00000000_12_preflight_cu_45b32139_3366817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE": {
+          "instructions": 3560,
+          "calls": [
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;"
+          ],
+          "local_instructions": []
+        }
+      },
+      "cubin_sha256": "f643414473e23018cdb8f876e99f16fbb4fdbbd3633b237c661ec72aeb192ea2"
+    },
+    "outlined": {
+      "kernels": [
+        {
+          "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_6d2c63cf_3366817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+          "registers": 128,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "functions": {
+        "_ZN51_GLOBAL__N__00000000_12_preflight_cu_6d2c63cf_3366817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE": {
+          "instructions": 3608,
+          "calls": [
+            "CALL.REL.NOINC 0xdbe0 ;",
+            "CALL.REL.NOINC 0xdbe0 ;",
+            "CALL.REL.NOINC 0xdbe0 ;",
+            "CALL.REL.NOINC 0xdbe0 ;",
+            "CALL.REL.NOINC 0xcf40 ;"
+          ],
+          "local_instructions": []
+        }
+      },
+      "cubin_sha256": "a0829f3bdeb19e0f3c67773a30c13038f529ccd15d2b5e2623a472643dbf59fb"
+    }
+  },
+  "clean_resource_screen": true,
+  "decision": "CPU reject",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "Decode_checks_used": 0,
+  "compiled_kernel_instruction_ratio": 1.0134831460674156,
+  "count_scope": "Includes embedded leaf subroutines; not dynamic instruction count or measured instruction-cache pressure."
+}

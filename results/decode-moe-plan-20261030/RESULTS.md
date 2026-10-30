@@ -872,3 +872,9 @@ Bounded TR8 check acknowledged as7f34a396bd784aa1. Source remains5d691341; one u
 All32 paired timings fail the strict3% gate; largest observed pair gain is2.9957183738921422%. No M1..8 shape is selected. All official benchmark profiles retain moe_fused and lack moe_tr8_fused. The2.343389132x point is the parent fallback,not a new-algorithm speedup. TR8 routing is closed on actual performance evidence; no scored submission/publication/retry. Raw samples and source-bound metrics:tinyroute-bounded/outcome.json.
 
 MoE checks15,scores10 remain. Final Decode check and published2.075466170x remain unchanged. Next normal check not before2026-10-30T21:08:19.932668+00:00. Separate whole-row norm payload2f725371 is prepared but unrun and not yet GPU-admitted.
+
+## Other-track focus and Decode hold,2026-10-30T20:28Z
+
+Human reiterated: optimize other tracks and conserve Decode until good results. Preserve the final Decode check. MoE whole-row norm2f725371 remains next,not before21:08:19.932668UTC. No GPU job was started in this packet.
+
+A distinct Attention L1-flat finalizer outlining candidate fdf4947a was implemented with exact source inverse and unchanged arithmetic/launch plans. CPU sm90a compilation keeps128regs and zero stack/spills,but compiled kernel text grows3560->3608instructions. Its predeclared footprint gate rejects GPU admission. This is a static readiness rejection,not an H200 performance result. Complete source/logs/cubins/SASS and limitations:attention-finoutline/REVIEW.md. Existing failed split/coop,wide-tile,identity-scale,two-bank and external-finalizer paths were not rerun. A3 board source has raw Windows-line-ending hash1a2a5e5f and normalized hashada6df95,matching the board ledger; retained9e and A3 native CUDA are identical241b67fe. Verified sources were not edited.
