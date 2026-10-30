@@ -556,3 +556,28 @@ integration. Only one-token sliding passed its public-run gates. M16/32 was
 not implemented or GPU-tested; there is no claim that the complete extension
 backlog or top-50 objective is finished. No further GPU jobs were launched.
 The final recorded quota remains **1 check / 7 scored runs**.
+
+### TR8 MoE candidate: source frozen, GPU evidence pending
+
+After publishing the Decode PDL gain, return to the requested MoE-first order.
+The previous turn made verified progress. No active GPU job was observed in
+50 recent jobs (all terminal, including one duplicate). Fresh quotas show
+MoE 19 checks / 10 scored runs and Decode 1 / 7. The remaining Decode check
+is preserved. The last check predates 07:31 UTC; this admission is after
+12:18 UTC, satisfying the shared 60-minute spacing policy. One MoE check is
+planned, leaving 18 checks and 10 scores. No score is preauthorized by this
+candidate's CPU evidence; a material measured gain is still required.
+
+TR8 replaces only small-route table construction with one warp and one CTA
+barrier, retaining exact stable expert/route order, all arithmetic and every
+completion dependency. Source SHA256
+`958335479991016b3cebae2ad9517ef8f75c036fc1d8ac63a0b8459395219498`,
+190,786 bytes. Baseline is retained `33114871`; board CUDA equality and
+current official task identity were verified. Eight CPU compiler screens and
+3,648 ownership/fallback models passed, with no spills but 2-5 extra registers.
+This is not GPU validation or a claimed speedup. The exact frozen payload,
+resource logs, review, source inverse and stopping criteria are in `tinyroute/`.
+The candidate must pass bytewise changing-route graph probes and >3% in both
+arm orders on two synthetic routing populations before selecting each M<=8.
+All larger/failed paths remain parent. Synthetic routes are not official
+benchmark measurements. No repeat of the rejected stream-K or skinny16 work.

@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-30T12:27:49.732859+00:00",
+  "source_sha256": "958335479991016b3cebae2ad9517ef8f75c036fc1d8ac63a0b8459395219498",
+  "source_bytes": 190786,
+  "official_identity_equal": true,
+  "unchanged_original_AST_except_CUDA_literal": true,
+  "all_CPU_compiles_passed": true,
+  "CPU_models_only_not_GPU_proof": true,
+  "max_new_jobs": 1,
+  "track": "muse_moe_w4a16",
+  "no_Decode_check_spent": true,
+  "stop_after_check_if_no_real_gain": true,
+  "spacing": "Last known check finished before 07:31 UTC; admission after 12:18 UTC, exceeds 60-minute floor.",
+  "quota_before": {
+    "MoE_checks": 19,
+    "MoE_scores": 10,
+    "Decode_checks": 1,
+    "Decode_scores": 7
+  }
+}

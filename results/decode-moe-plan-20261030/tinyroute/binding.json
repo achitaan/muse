@@ -1,0 +1,14 @@
+{
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "candidate_CUDA_sha256": "b0ff69a1c7f55dfb64bed94e1226e3ebff59a7c73ca1696db2a9d1bd879d24fb",
+  "candidate_sha256": "958335479991016b3cebae2ad9517ef8f75c036fc1d8ac63a0b8459395219498",
+  "candidate_bytes": 190786,
+  "hypothesis": "One-warp exact route tables remove three compute-CTA barriers at M<=8.",
+  "unchanged": "All GEMM, norm, accumulation, completion, weight layouts and M>8 paths.",
+  "added_memory": "No new timed traffic or allocation; prepare duplicates two compiled modules only.",
+  "acceptance": "Bitwise graph replay on 5 routing patterns x 3 changing inputs; >3% both orders on two populations.",
+  "actual_path_marker": "okc::moe_tr8_fused",
+  "GPU_job_launched": false,
+  "stop": "Reject correctness, resource, preparation-budget failure or empty selection; no parameter sweep."
+}

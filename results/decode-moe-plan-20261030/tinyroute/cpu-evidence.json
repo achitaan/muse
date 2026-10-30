@@ -1,0 +1,124 @@
+{
+  "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "parent_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "candidate_CUDA_sha256": "b0ff69a1c7f55dfb64bed94e1226e3ebff59a7c73ca1696db2a9d1bd879d24fb",
+  "exact_inverse": true,
+  "seed": 20261030,
+  "exact_route_tables": 2911,
+  "oversized_histogram_fallbacks": 737,
+  "GPU_validated": false,
+  "compiles": {
+    "TINY_LUT_parent": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 141,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY_LUT_candidate": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc13moe_tr8_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY_PRMT_parent": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY_PRMT_candidate": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc13moe_tr8_fusedILb0EEEvNS_6ParamsE",
+          "registers": 148,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_LUT_parent": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 141,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_LUT_candidate": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc13moe_tr8_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_PRMT_parent": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 146,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    },
+    "TINY2_PRMT_candidate": {
+      "rc": 0,
+      "kernels": [
+        {
+          "symbol": "_ZN3okc13moe_tr8_fusedILb0EEEvNS_6ParamsE",
+          "registers": 148,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ]
+    }
+  }
+}
