@@ -1,0 +1,68 @@
+{
+  "job_id": "9a4978c5acc24ed0",
+  "source_sha256": "958335479991016b3cebae2ad9517ef8f75c036fc1d8ac63a0b8459395219498",
+  "status": "done",
+  "passed": true,
+  "tests_passed": 5,
+  "benchmarks_passed": 6,
+  "prepare_s": 166.684423715,
+  "API_speedup": 2.351089982903433,
+  "API_interval": [
+    2.3158236331598814,
+    2.3863563326469843
+  ],
+  "flags": [],
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "selected": [],
+  "bitwise_failed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "timing_started": false,
+  "new_path_in_timed_profiles": false,
+  "decision": "Reject; no scored submission and no Decode transfer.",
+  "interpretation": "Official score measures the unchanged parent fallback. It is not a speedup or a measurement of TR8 performance.",
+  "cause": "Unresolved: CPU table proof does not prove GPU tables; existing FP32 atomic norm reductions are a plausible scheduling-sensitive source, not a diagnosed cause.",
+  "source_observations": {
+    "warp_counter_used_only_in_generic_route": true,
+    "norm_statistics_use_FP32_atomicAdd": true,
+    "numeric_expressions_unchanged": true
+  },
+  "quota_after": {
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 2,
+        "left": 18
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 19,
+        "left": 1
+      }
+    }
+  },
+  "next_constraint": "No repeat or neighboring knob run. Preserve Decode final check; any reopening requires a distinct causal diagnostic and spacing compliance."
+}

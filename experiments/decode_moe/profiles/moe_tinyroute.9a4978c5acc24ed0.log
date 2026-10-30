@@ -1,0 +1,17 @@
+TR8_BITWISE_FAIL 1 four 0
+TR8_BITWISE 1 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 2 four 0
+TR8_BITWISE 2 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 3 all 0
+TR8_BITWISE 3 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 4 four 2
+TR8_BITWISE 4 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 5 four 0
+TR8_BITWISE 5 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 6 four 0
+TR8_BITWISE 6 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 7 four 0
+TR8_BITWISE 7 False five_route_patterns_three_inputs
+TR8_BITWISE_FAIL 8 four 1
+TR8_BITWISE 8 False five_route_patterns_three_inputs
+TR8_DONE 166.6843719460012 []

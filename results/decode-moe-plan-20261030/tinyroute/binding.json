@@ -9,6 +9,7 @@
   "added_memory": "No new timed traffic or allocation; prepare duplicates two compiled modules only.",
   "acceptance": "Bitwise graph replay on 5 routing patterns x 3 changing inputs; >3% both orders on two populations.",
   "actual_path_marker": "okc::moe_tr8_fused",
-  "GPU_job_launched": false,
-  "stop": "Reject correctness, resource, preparation-budget failure or empty selection; no parameter sweep."
+  "GPU_job_launched": true,
+  "stop": "Reject correctness, resource, preparation-budget failure or empty selection; no parameter sweep.",
+  "check_job": "9a4978c5acc24ed0"
 }

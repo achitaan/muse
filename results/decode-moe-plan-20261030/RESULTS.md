@@ -581,3 +581,37 @@ The candidate must pass bytewise changing-route graph probes and >3% in both
 arm orders on two synthetic routing populations before selecting each M<=8.
 All larger/failed paths remain parent. Synthetic routes are not official
 benchmark measurements. No repeat of the rejected stream-K or skinny16 work.
+
+TR8 check acknowledged once: **`9a4978c5acc24ed0`**, source `95833547`, MoE track.
+No upload retry and no scored run. Official status is being followed by job ID.
+
+### TR8 check closed: strict byte guard failed, no publication
+
+`9a4978c5acc24ed0` / source `95833547` completed **5/5 tests, 6/6 benchmarks,
+integrity, no flags**, prepare **166.684424 s**, point **2.351089983x** with
+CI [2.315823633, 2.386356333]. Every M1..8 candidate failed a changing-input
+byte comparison (mostly four-local routing, M3 on all-local). Every path
+remained parent. There were **no timing comparisons and no new-path markers
+in timed profiles**. This is fallback validation, not a candidate speed result.
+No scored upload or Decode transfer follows. One check used, no retry.
+
+Static follow-up confirms `S.wc` has no consumer outside generic routing,
+and the unchanged skinny epilogues accumulate FP32 norm statistics with
+`atomicAdd` across CTA contributions. Changed scheduling could change rounding
+and thus byte comparisons; this is only a plausible explanation. The log does
+not include mismatch magnitudes or a repeated-parent stability control, so it
+cannot distinguish that explanation from a GPU routing/synchronization defect.
+The CPU counting-sort proof is not GPU validation. Keep the failed evidence;
+do not relax the user's bytewise guard or claim a numerical diagnosis.
+
+Transfer feasibility was separately verified: Decode's routing function is
+byte-identical, and compressing the derivation would produce a 941,426-byte
+source before its wrapper. It is **not built or transferred**, because the
+standalone guard failed. Existing PDL source `c15df9d3` remains unchanged.
+
+Fresh quotas after this job: **MoE 18 checks / 10 scores; Decode 1 check /
+7 scores**. No job remains pending. The fresh Decode board snapshot during the
+check reports **2.0755x, rank 228/1035** (earlier 210); the score did not change.
+Top 50 is currently 2.2252x, requiring about 6.7275% lower weighted latency at
+fixed references. This packet does not meet top 50. Raw results, profiles,
+strict guard failures and `outcome.json` preserve the source-bound decision.

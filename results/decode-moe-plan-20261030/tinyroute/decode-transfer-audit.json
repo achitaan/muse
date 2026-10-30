@@ -1,0 +1,10 @@
+{
+  "decode_baseline_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "decode_moe_CUDA_sha256": "f243603068b41ecc1b37279e9a6c50ae9c6a5d003c3e512eb71bc3c2030eeba2",
+  "standalone_route_identical": true,
+  "route_SHA256": "2f3d7c579dbec876619c77034c1a566c43e99f1976b9589ad9936e583bcd6c83",
+  "compressed_source_only_bytes": 941426,
+  "remaining_bytes_before_gating_wrapper": 58574,
+  "producer_trigger_and_FINREG_not_changed": true,
+  "status": "Transfer feasibility only; no Decode candidate built or tested. Standalone gain and whole-layer gates required."
+}

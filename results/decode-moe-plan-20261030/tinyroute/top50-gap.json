@@ -1,0 +1,8 @@
+{
+  "current_rank": 228,
+  "current_speedup": 2.0755,
+  "top50_speedup": 2.2252,
+  "required_factor": 1.0721271982654783,
+  "required_latency_reduction_percent": 6.7274851698723825,
+  "note": "Snapshot during MoE check; rank changed from 210 to 228 while the retained score stayed 2.0755. No new speedup is inferred."
+}
