@@ -1,0 +1,78 @@
+{
+  "job_id": "9dc89929ea384b7d",
+  "status": "done",
+  "source_sha256": "b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12",
+  "tests": 5,
+  "benchmarks": 6,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 138.934373177,
+  "parent_point_not_new_speedup": 2.3439131727945193,
+  "parent_point_CI": [
+    2.3087544752026012,
+    2.379071870386437
+  ],
+  "cases": 75,
+  "retained_summary_complete": true,
+  "all_inter_and_ybuf_comparisons_bitwise_equal": true,
+  "all_nonfinite_counts_zero": true,
+  "table": [
+    {
+      "M": 1,
+      "fixtures": 15,
+      "parent_consecutive_ss_changed": 12,
+      "parent_consecutive_output_changed": 1,
+      "TR8_inter_or_ybuf_changes": 0,
+      "TR8_ss_changed": 11,
+      "TR8_output_changed": 1
+    },
+    {
+      "M": 3,
+      "fixtures": 15,
+      "parent_consecutive_ss_changed": 12,
+      "parent_consecutive_output_changed": 6,
+      "TR8_inter_or_ybuf_changes": 0,
+      "TR8_ss_changed": 12,
+      "TR8_output_changed": 6
+    },
+    {
+      "M": 8,
+      "fixtures": 15,
+      "parent_consecutive_ss_changed": 12,
+      "parent_consecutive_output_changed": 8,
+      "TR8_inter_or_ybuf_changes": 0,
+      "TR8_ss_changed": 12,
+      "TR8_output_changed": 8
+    },
+    {
+      "M": 16,
+      "fixtures": 15,
+      "parent_consecutive_ss_changed": 12,
+      "parent_consecutive_output_changed": 7,
+      "TR8_inter_or_ybuf_changes": null,
+      "TR8_ss_changed": null,
+      "TR8_output_changed": null
+    },
+    {
+      "M": 32,
+      "fixtures": 15,
+      "parent_consecutive_ss_changed": 0,
+      "parent_consecutive_output_changed": 0,
+      "TR8_inter_or_ybuf_changes": null,
+      "TR8_ss_changed": null,
+      "TR8_output_changed": null
+    }
+  ],
+  "parent_max_output_relative_L2": 7.838855706197758e-05,
+  "TR8_vs_parent_max_output_relative_L2": 7.839812539365443e-05,
+  "parent_max_ss_relative_L2": 6.886606514454298e-07,
+  "TR8_vs_parent_max_ss_relative_L2": 5.164954885840724e-07,
+  "inference": "Differences localize to norm sums; unchanged parent also varies. Consistent with source atomic FP32 accumulation order. No routing/GEMM mismatch observed in these fixtures; not a general proof or exact reproduction of the earlier job.",
+  "TR8_status": "Still rejected under current strict byte gate; no performance comparison, score or transfer.",
+  "cumulative_diagnostic_checks": 2,
+  "GPU_job_pending": false,
+  "finished_at": 1793374011.9616692
+}

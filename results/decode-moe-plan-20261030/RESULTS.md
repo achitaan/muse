@@ -712,3 +712,12 @@ Source `moe_repeat_diag_v2.py` SHA256 `b493dc7b9046bf559c25daa70544a2781fe69caf9
 Logging-only retry acknowledged once: **`9dc89929ea384b7d`**, source `b493dc7b`, MoE. No upload retry or scored run. Two cumulative diagnostic checks; follow this exact job.
 
 Private-norm final CPU freeze supersedes the provisional `aa272590`: **`7f5a03dd52e9c888fe7d9854c4acbe96b0b79bca90806283d0c49a58f77ca671`**, 991647 bytes / 8353 headroom. Added explicit unsupported-input fallback, a late source marker, and source modification/license notice. Derived scalar arithmetic body `704caa11` is unchanged, so the existing 175-register proxy screens remain source-bound to that body. Latest adapter/integration audits match the frozen payload; no GPU result is assigned to either Decode draft.
+
+
+### MoE localization complete: unchanged parent itself is bit-variable
+
+`9dc89929ea384b7d` completed 5/5 tests, 6/6 benchmarks, integrity/no flags; prepare **138.934373177 s**. The compact footer retains all75 cases (M1,3,8,16,32; 15 each) and both tiny modules. Every inter/SwiGLU and FP32 ybuf comparison is bit-identical and finite. Parent consecutive output changes occur in 1/15,6/15,8/15,7/15,0/15 fixtures by M; norm sums change in 12/15 for M1-16. TR8 versus parent has no inter/ybuf differences; its norm/output differences are the same class seen in unchanged-parent controls. Parent max output relative L2 7.838855706197758e-05, TR8-parent 7.839812539365443e-05. This localizes the observed variability to norm accumulation and supports the source-backed FP32 atomic-order explanation; it is not a whole-domain route proof or an exact historical-input reproduction.
+
+The unchanged-parent point 2.3439131727945193x is not a new speed result. Strict byte gates and TR8 rejection remain intact. No timing comparison, score, transfer or publication. Two cumulative diagnostic checks, including the reporting repair; no further diagnostic retry. Raw source/status/profiles, decoded summary and DIAGNOSIS.md preserve the finding.
+
+The fresh quota snapshot confirms MoE 16 checks/10 scored, Decode 1 check/7 scored, Attention 20/10, Dense 9/10, Prefill 20/10. An asynchronous user question asks whether the MoE norm/output guard may use SS relative L2 <=1e-5, output relative L2 <=0.001 and official-formula worst-row error <=0.005 while retaining exact inter/ybuf and every precision boundary. This is a proposed change to the pasted Hard rules, not an active exemption. Decode keeps its current byte gates; no dependent MoE gate implementation/evaluation proceeds without the answer.
