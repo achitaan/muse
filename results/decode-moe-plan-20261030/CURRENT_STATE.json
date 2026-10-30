@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-10-30T23:21:37.264863+00:00",
-  "goal": "blocked on pacing scope;top50 not achieved",
+  "updated_at": "2026-10-30T23:32:57.807099+00:00",
+  "goal": "Objective unmet;current turn resumed work;native goal still reports blocked",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
   "working_decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
@@ -9,14 +9,14 @@
   "latest_decode_board_snapshot": "tinyroute/decode-board-during-check.json",
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
-  "newest_experiment": "Tiny whole-row norm with actual resource guard",
-  "newest_check": "34a6e66a63f44a13",
+  "newest_experiment": "Sparse shared norm aggregation",
+  "newest_check": "0db9141b952a4efe",
   "newest_check_status": "done",
-  "newest_decision": "Reject whole-row tiny norm on measured performance;no score,rerun or Decode transfer.",
-  "newest_outcome": "tiny-norm-whole/outcome-34a6e66a.json",
+  "newest_decision": "Reject shared norm grouping on performance. Official point timed parent fallback,not a new-path gain. No score,rerun or Decode transfer.",
+  "newest_outcome": "norm-group/outcome-0db9141b.json",
   "gpu_job_pending": false,
   "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
-  "moe_checks_left": 13,
+  "moe_checks_left": 12,
   "moe_scores_left": 10,
   "decode_checks_left": 1,
   "decode_scores_left": 7,
@@ -29,12 +29,12 @@
   "draft_admitted_for_GPU": false,
   "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
   "new_GPU_jobs_this_packet": 0,
-  "pending_user_question": "Clarify whether60minute spacing applies to owned checks or all clients;default remains global.",
+  "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 0,
-  "next_diagnostic_source": "experiments/decode_moe/moe_norm_group.py",
-  "next_diagnostic_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
+  "next_diagnostic_source": null,
+  "next_diagnostic_sha256": null,
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Await pacing-scope clarification or external activity change;both MoE payloads preserved and unsubmitted.",
+  "current_focus": "Shared aggregation closed. Retain incumbent;assess distinct register alternative conservatively before any future paced check.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-31T00:18:18.499637+00:00",
+  "earliest_new_check_utc": "2026-10-31T00:26:49.945986+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -96,7 +96,7 @@
   "overall_API_measure": "rank across the problems; the API gives ranks only",
   "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "admission": "tiny-norm-whole/admission-690ef087.json",
-  "moe_checks_after_ack_expected": 13,
+  "moe_checks_after_ack_expected": 12,
   "closed_norm_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "remaining_track_limits": {
     "muse_bf16_proj": {
@@ -119,8 +119,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 4,
-        "left": 16
+        "used": 5,
+        "left": 15
       }
     },
     "muse_moe_w4a16": {
@@ -131,8 +131,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 7,
-        "left": 13
+        "used": 8,
+        "left": 12
       }
     },
     "muse_decode_layer": {
@@ -168,7 +168,8 @@
     "payload_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
     "ownership_cases": 396,
     "shared_bytes": 217600,
-    "codegen_review": "Explicit shared-address revision rejected;exact e5 restored. Generic address queries unchanged."
+    "codegen_review": "Explicit shared-address revision rejected;exact e5 restored. Generic address queries unchanged.",
+    "status": "GPU-tested;reject on performance;closed"
   },
   "observed_dense_checks": [
     "e26e498c24e8487b",
@@ -195,7 +196,8 @@
     "packaged_CUDA_sha256": "72611e8617e1d25f2f9af5b37ac5fd3c5b960f480c2b4ec17d2aae70109ad007",
     "compiled_dynamic_shared_bytes": 214784,
     "resource_guard_mock_cases": 7,
-    "actual_GPU_resources_verified": false
+    "actual_GPU_resources_verified": false,
+    "decision_after_shared_result": "Unrun and conditional;do not auto-spend a check. Shared aggregation established no>=3% opportunity. Distinct helper design needs a renewed cost argument."
   },
   "external_live_job": {
     "id": "0b48e4f57db44c68",
@@ -220,6 +222,15 @@
     "consecutive_goal_turns": 3,
     "condition": "Other client keeps launching checks;global60minute interval keeps moving. Human scope clarification pending.",
     "unaffected_work_completed": "Both tiny alternatives packaged;largerWGSfixup avenue reviewed and parked.",
-    "goal_status": "blocked;three consecutive observations;scope question pending"
-  }
+    "goal_status": "Resolved by human:Space only your own checks"
+  },
+  "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
+  "owned_live_job": {
+    "id": "0db9141b952a4efe",
+    "source_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
+    "ack": "norm-group/check-ack-e5c0e7ec.json",
+    "status": "done"
+  },
+  "native_goal_status_last_observed": "blocked;human replied and current foreground work resumed;tool cannot set active",
+  "owned_status_session": null
 }

@@ -36,3 +36,7 @@ An explicit atom.shared.add.f32 revision33a3adfe was compiled to test a suspecte
 A separate code-only NTT4 cap was screened out by retained duplicate-route coverage:at M17,136routes to one expert form64/64/8chunks;NTT8remains reachable. At M32,256routes form four64-row chunks. Do not remove those cases based only on token count without an explicit uniqueness contract or full fallback. This differs from the old reduced-geometry WGS32 experiment,which already lost.
 
 Shared-quota snapshot found completed Dense checks e26e498c24e8487b and dc821d6f1ad94fbf. Their raw results are saved as observations without a local uploaded-source binding. P2 reports o=[] and router=[];no transfer is justified. P1 small-projection trials mostly lose. These runs are not proof of a new retained-source gain. Last observed global check moves normal eligibility to2026-10-30T23:16:02.013406Z. Refresh activity/quotas/identity at admission.
+
+## Terminal H200 result
+
+Check0db9141b952a4efe passed5tests/6benchmarks/integrity and120private numerical fixtures. Actual tiny resources:146registers,zero local/static,217600dynamic bytes,288threads,one block/SM. Preparation166.309s. Inter/ybuf bytes pass;SSmax4.787e-7,outmax1.257e-4,worstrowmax3.438e-4. Of32paired comparisons,six are faster;none beats3%. New/old ranges0.985888..1.023490. Choicesempty;all6official profilesuseparent. Point2.3431547785x is fallback-only. Reject;no score,rerun or Decode transfer. Raw and outcome files preserved.

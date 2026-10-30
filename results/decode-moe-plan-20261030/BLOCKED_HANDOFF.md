@@ -1,3 +1,5 @@
+> Resolved by human2026-10-30: "Space only your own checks". MoE check0db9141b952a4efe launched. Historical blocker record follows.
+
 # Pacing-scope blocker
 
 Goal remains unmet. Three consecutive goal turns observed the same constraint: another client keeps launching Attention checks, moving the globally interpreted 60-minute interval. The pending human question asks whether spacing should apply only to this worker's checks, while still waiting for all other GPU jobs to finish. The current interpretation remains global until clarified.
