@@ -1,0 +1,10 @@
+{
+  "GPU_jobs": 0,
+  "layer_inverse_exact": true,
+  "selector_inverse_exact": true,
+  "public_dispatch_and_O_U_FPR_AST_unchanged": true,
+  "full_scored_parent_prefix_identical": true,
+  "candidate_sha256": "7f5a03dd52e9c888fe7d9854c4acbe96b0b79bca90806283d0c49a58f77ca671",
+  "bytes": 991647,
+  "limitation": "Static integration/source proof; no H200 build, numerical bytes, overlap or performance validation."
+}

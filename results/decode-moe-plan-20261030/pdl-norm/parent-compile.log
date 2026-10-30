@@ -1,0 +1,6 @@
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 175 registers, used 1 barriers, 64 bytes smem
+ptxas info    : Compile time = 0.000 ms

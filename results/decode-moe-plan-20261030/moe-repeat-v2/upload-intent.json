@@ -3,6 +3,7 @@
   "mode": "check",
   "problem": "muse_moe_w4a16",
   "source_sha256": "b493dc7b9046bf559c25daa70544a2781fe69caf9aafc3a500283c09e7850d12",
-  "acknowledged_jobs": 0,
-  "retry_of": "d563fa2d0a1b47e6"
+  "acknowledged_jobs": 1,
+  "retry_of": "d563fa2d0a1b47e6",
+  "job_id": "9dc89929ea384b7d"
 }

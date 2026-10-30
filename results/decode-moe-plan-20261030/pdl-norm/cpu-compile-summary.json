@@ -1,0 +1,70 @@
+{
+  "GPU_jobs": 0,
+  "selected_instance": "8192,256,PDL,prefetch,std,no_router,no_post_weight,gate",
+  "records": {
+    "parent": {
+      "rc": 0,
+      "log": "ptxas info    : 28 bytes gmem\nptxas info    : Compiling entry function '_ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE' for 'sm_90a'\nptxas info    : Function properties for _ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 175 registers, used 1 barriers, 64 bytes smem\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 116696,
+      "cubin_sha256": "aa1130bfe8b6b5e4b49fa6d4f1301b642e98496e0ca157a6d90e8c55fc096710",
+      "seconds": 0.61,
+      "kernels": [
+        {
+          "symbol": "_ZN6sglang31muse_spark_norm_residual_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE",
+          "registers": 175,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 64,
+          "warnings": []
+        }
+      ],
+      "device_proxy_sha256": "265d7fd08a767ff3bfcf4bc5a5917545effde83b0a35d5b674afe687bb0fba04",
+      "trigger_address": 23792,
+      "wait_address": 80,
+      "first_LDG": 272,
+      "last_STG": 23776,
+      "math_counts": {
+        "FFMA": 250,
+        "SHFL.BFLY": 20,
+        "FADD": 20,
+        "MUFU.RSQ": 2,
+        "FMUL": 294,
+        "F2FP.BF16.F32.PACK_AB": 120
+      }
+    },
+    "early": {
+      "rc": 0,
+      "log": "ptxas info    : 28 bytes gmem\nptxas info    : Compiling entry function '_ZN6sglang16pdln_norm_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE' for 'sm_90a'\nptxas info    : Function properties for _ZN6sglang16pdln_norm_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 175 registers, used 1 barriers, 64 bytes smem\nptxas info    : Compile time = 0.000 ms\n",
+      "cubin_bytes": 116312,
+      "cubin_sha256": "3fc43f79e197f5a12778c51239036bad75138ede69bad0dcdb14fd45a915b02e",
+      "seconds": 0.266,
+      "kernels": [
+        {
+          "symbol": "_ZN6sglang16pdln_norm_kernelILx8192ELi256ELb1ELb1ELb0ELb0ELb0ELb1EEEvNS_18NormResidualParamsE",
+          "registers": 175,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 64,
+          "warnings": []
+        }
+      ],
+      "device_proxy_sha256": "af08c188ed33f0647030ab11857e0f2661ad4ed10838fd356d2ecde8af63372b",
+      "trigger_address": 208,
+      "wait_address": 224,
+      "first_LDG": 288,
+      "last_STG": 23792,
+      "math_counts": {
+        "FFMA": 250,
+        "SHFL.BFLY": 20,
+        "FADD": 20,
+        "MUFU.RSQ": 2,
+        "FMUL": 294,
+        "F2FP.BF16.F32.PACK_AB": 120
+      }
+    }
+  },
+  "arithmetic_instruction_counts_match": true,
+  "limitation": "Device proxy: exact scalar body/vector storage/CTA reduction; selected CUDA intrinsic/type adapters replace SDK host-heavy headers. Actual SDK build, resources and execution remain unverified."
+}

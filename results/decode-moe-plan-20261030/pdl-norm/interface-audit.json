@@ -1,0 +1,39 @@
+{
+  "GPU_jobs": 0,
+  "SDK_signature_and_dispatch_only": true,
+  "cases": [
+    {
+      "m": 16,
+      "SDK_arguments_match": true,
+      "pre_norm_bf16": false,
+      "router_output": null,
+      "config": [
+        8192,
+        256,
+        true,
+        1
+      ]
+    },
+    {
+      "m": 32,
+      "SDK_arguments_match": true,
+      "pre_norm_bf16": false,
+      "router_output": null,
+      "config": [
+        8192,
+        256,
+        true,
+        1
+      ]
+    }
+  ],
+  "unadmitted_call_rejected": true,
+  "unsupported_stride_calls_parent": true,
+  "preparation_join_order": [
+    "core",
+    "norm_join",
+    "projection_join"
+  ],
+  "arithmetic_executed": false,
+  "limitation": "Records the pinned SDK adapter argument list and metadata on CPU. No CUDA/TVM link, graph replay or numerical validation."
+}

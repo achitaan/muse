@@ -1,0 +1,19 @@
+{
+  "upstream_commit": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "canonical_LF_hashes": {
+    "norm_residual.cuh": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+    "cta.cuh": "70d77c58422e12c34a5f49b910c683f1cbf86eac5d49fa81fbaf340c9f4d7bf2",
+    "warp.cuh": "a4dbbd6a40780cd5f7b815f001ead3b4dccb8cfdb3532937951ccf71a4a747a6",
+    "math.cuh": "73e182466976d821f8ad89017fd2492c50ea456d5e7007d4e869cb6730568477",
+    "utils.cuh": "d7e858444067635f6d52f3958be4341e35e5bd0bc6437a21b085ce1a1b2218b9",
+    "vec.cuh": "11224cc483b7fbc93e2bcb1c2092715d80f1fa645920f4c82ee0e1d45a4eb551",
+    "type.cuh": "4c72b0892e8d003490bdab2633056172a674bc6a9689be552861564c7aaf8edc"
+  },
+  "derived_header_sha256": "704caa11f27725ce130cfc3951de262c32909c9c41b65891a2353cf980bfbb35",
+  "source_with_query_sha256": "52667230a6bd69d589fba7323768961f16bd7110a06b432bd8cef53e5d01f914",
+  "inverse_exact": true,
+  "changes": "Scalar outgoing trigger moved before incoming wait; private scalar kernel and host class names.",
+  "arithmetic_and_reduction_source_unchanged": true,
+  "GPU_jobs": 0,
+  "cluster_path_unchanged_and_unused": true
+}

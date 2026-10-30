@@ -1,0 +1,32 @@
+{
+  "GPU_jobs": 0,
+  "model": {
+    "16": {
+      "FPR_threads": 416,
+      "FPR_registers_per_block_estimate": 36608,
+      "norm_registers_per_block_estimate": 45056,
+      "same_SM_register_sum": 81664,
+      "illustrative_register_budget": 65536,
+      "fits_together_by_registers": false,
+      "pooler_row_tiles": 128,
+      "weight_payload_per_stage": 24576,
+      "prologue_stages": 5,
+      "full_grid_prologue_weight_request_bytes": 15728640,
+      "parent_first_stage_request_bytes": 3145728
+    },
+    "32": {
+      "FPR_threads": 384,
+      "FPR_registers_per_block_estimate": 49152,
+      "norm_registers_per_block_estimate": 45056,
+      "same_SM_register_sum": 94208,
+      "illustrative_register_budget": 65536,
+      "fits_together_by_registers": false,
+      "pooler_row_tiles": 128,
+      "weight_payload_per_stage": 24576,
+      "prologue_stages": 3,
+      "full_grid_prologue_weight_request_bytes": 9437184,
+      "parent_first_stage_request_bytes": 3145728
+    }
+  },
+  "scope": "Static logical requests and illustrative register arithmetic only. Norm/FPR are not assumed to co-reside; available SMs, tails, stage completion, cache/HBM traffic and actual overlap are unmeasured."
+}

@@ -1,0 +1,23 @@
+{
+  "status": "CPU derivation; GPU-unvalidated, not admitted",
+  "candidate_sha256": "7f5a03dd52e9c888fe7d9854c4acbe96b0b79bca90806283d0c49a58f77ca671",
+  "bytes": 991647,
+  "headroom": 8353,
+  "scored_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "CPU_chain_parent_sha256": "985abda3f1a91e6daca07a38e9f91a397b4942ef892285704ddbd1792bff9a40",
+  "full_scored_parent_prefix_identical": true,
+  "changed_functions": {
+    "_p16_layer": {
+      "old_sha256": "f105e50b24f88b427d67d4bcbb2fd4ddd23476a8af8dac52b493b6db70727309",
+      "new_sha256": "346fc72a2095b787d40ec9abae8d32c19c2805fe87d195ce91e757c519cb0890"
+    },
+    "_p16_select": {
+      "old_sha256": "5089daafd0a598dce569cf2dc688c1e8c535d5d7600585e5be096e6dd20229b2",
+      "new_sha256": "7b5115124373a04fced30fd15335ec5c610953f35160a6ade3683ec438c583ee"
+    }
+  },
+  "norm_source_sha256": "52667230a6bd69d589fba7323768961f16bd7110a06b432bd8cef53e5d01f914",
+  "shared_gate": "bit2 now denotes private norm + FPR; unit bytes, then whole-layer bytes and >3% both orders.",
+  "GPU_jobs": 0,
+  "prepare_time_unverified": true
+}
