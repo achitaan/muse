@@ -27,7 +27,13 @@ Anti-loop rule: nothing in `DENSE_LEDGER.md` section 1/1b is retried.
 | 1 | H1 qkv M1/M8/M16 wave balance | `experiments/dense_p1.py`: 7 v18d geometries, per-shape gated selector (commit `677e0c2`) | NVRTC 14 instances, 0 spill | driver first refused (reserve); user allowed reserved checks; check `e26e498c24e8487b` passed (1.4901x, runtime unchanged = noise) | **reverted (all KEEP): every layout slower, 3–65%. H1 refuted**; the incumbent geometry is the local optimum |
 | 2 | H2 o M8 wider CTAs + router M8/M16 alternative splits | `experiments/dense_p2_o8.py` (commit `fbdf87d`) | NVRTC o 50 regs, 0 spill; router one-hot exact, relL2 2.5e-6 | check `dc821d6f1ad94fbf` passed 1.5177x (runtime unchanged) | **reverted (all KEEP)**: o M8 (4,8,2,1) 1.025 (14/16), router M16 S16/WK4 1.028 (16/16) — real but below the 3% gate, ≈ 0.1% score each; router M16 S8/WK8 3% slower |
 
-Loop stopped after pass 2 (22:22 UTC, ~18 of 60 min, 2 of 6 passes, 2 of the 4 freed checks). Reason: no remaining hypothesis that fits the window can close a +2.75% gap. Both measured levers were local layout neighbourhoods, and they're exhausted (P1 slower everywhere, P2 under +0.2% total).
+Loop stopped after pass 2 (22:22 UTC, ~18 of 60 min, 2 of 6 passes, 2 of the 4 freed checks).
+
+**Continuous mode (user request after the self-review):** the loop resumes with one hypothesis per pass, the same gates and the ledger. Pass/time caps are lifted; checks are limited by daily quota.
+
+| Pass | Hypothesis | Change | Validation | Benchmark | Verdict |
+|---|---|---|---|---|---|
+| 3 | H3: find what makes qkv M1 slow (DIAG ablation) + ST 3/4 loads in flight | `experiments/dense_p3.py` (commit `751a559`) | NVRTC 7 instances, 0 spill | check `a61fe75d5a5f427b` passed (1.5098x, runtime unchanged) | **reverted**: ST3/ST4 9–25% slower. Diagnostic: qkv M1 body ≈ 8.4 µs = 7.2 weight streaming + 0.4 cluster reduction + ≈ 0.8 decode/MMA/x (hidden). Oracle #4 dead | Reason: no remaining hypothesis that fits the window can close a +2.75% gap. Both measured levers were local layout neighbourhoods, and they're exhausted (P1 slower everywhere, P2 under +0.2% total).
 
 ## Self-review
 
