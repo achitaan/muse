@@ -1,0 +1,36 @@
+{
+  "source_sha256": "25e8efa38242ac524740bc9e1aa14419c0ad20ab02cd900ac83b4678ef6f5d8f",
+  "checks_passed": true,
+  "acceptance_cases": [
+    "identical",
+    "inter_signed_zero",
+    "ybuf_signed_zero",
+    "ss_below",
+    "ss_above",
+    "out_below",
+    "out_above",
+    "row_floor_below",
+    "row_floor_above",
+    "inter_nonfinite",
+    "ybuf_nonfinite",
+    "ss_nonfinite",
+    "out_nonfinite",
+    "dtype",
+    "shape",
+    "empty_valid_prefix"
+  ],
+  "generation_cases": [
+    1,
+    2,
+    3,
+    4,
+    901,
+    902
+  ],
+  "all_timed_definitions_unchanged": true,
+  "CUDA_unchanged": true,
+  "Decode_and_Attention_gate_unchanged": true,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Gate formulas and source/snapshot ownership only; actual H200 worst-row bounds,selected new path and performance unverified."
+}

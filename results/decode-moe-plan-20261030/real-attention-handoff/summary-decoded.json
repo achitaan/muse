@@ -1,0 +1,99 @@
+{
+  "enables_nothing": true,
+  "timed_path": "unchanged Dense parent",
+  "errors": {},
+  "resources": {
+    "8": {
+      "query": 420000,
+      "attrs": [
+        42,
+        0,
+        0,
+        196736,
+        1
+      ]
+    },
+    "4": {
+      "query": 420000,
+      "attrs": [
+        42,
+        0,
+        0,
+        98368,
+        2
+      ]
+    },
+    "early_attention": [
+      131,
+      0,
+      0,
+      58368,
+      3
+    ]
+  },
+  "byte_pass": {
+    "parent_repeat": true,
+    "late8": false,
+    "early8": true,
+    "early4": false
+  },
+  "orders": [
+    {
+      "order": [
+        "parent",
+        "early8"
+      ],
+      "times_us": {
+        "parent": 23.77600036561489,
+        "early8": 21.856000646948814
+      }
+    },
+    {
+      "order": [
+        "early8",
+        "parent"
+      ],
+      "times_us": {
+        "early8": 21.663999184966087,
+        "parent": 23.19999970495701
+      }
+    }
+  ],
+  "gates": {
+    "late8_real_transfer": false,
+    "early8_causal_signal": false,
+    "early4_additional_schedule": false
+  },
+  "budget_stop": false,
+  "mismatches": [
+    {
+      "arm": "late8",
+      "seed": 0,
+      "byte_mismatch_fields": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ]
+    },
+    {
+      "arm": "early4",
+      "seed": 0,
+      "byte_mismatch_fields": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          109
+        ]
+      ]
+    }
+  ],
+  "prepare_s": 94.57679264596663
+}

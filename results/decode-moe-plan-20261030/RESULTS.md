@@ -827,3 +827,26 @@ CPU sizeof/planner audit proves M32 sliding uses256 Attention CTAs,128 threads,5
 Frozen `dense_real_attention_handoff.py`,SHA25674f71a73387abce17a9ed58eb38b7adfa47becc9409964404447dd58f7ca83a7,764282 bytes,preserves timed Dense prefix. It embeds exact c15df9d3 Attention Python/CUDA in an isolated namespace,and a source-inverse early-signal variant. Parent/private M32 device proxies use129 regs,zero stack/spills; signal movesfrom30128 to176,after one independent seq_lens load,before path exits/mainloop. Private typed alias forwards all28 arguments. CPU source/ABI/namespace/protocol checks pass. Four fixed arms separate original chain,late ST8 PDL,entry-signal ST8,and entry-signal ST4; duplicate parent graph tests byte stability only. All intermediate/output/all-cache bytes must match; >3% and >=1.5us both orders plus causal controls. No failed family repeats or parameter sweep.
 
 Admission recorded before upload at2026-10-30T19:05:02.681038+00:00, 61.208 minutes after the previous check,normal spacing. Dense5 before/4 expected after,no active jobs,official numerical identity unchanged,Decode1 reserved. At most one check,no retry at the reserve,no scored/publication path. See real-attention-handoff/REVIEW.md.
+
+Real-producer check **f6a94233fbe643b7** acknowledged for frozen source74f71a73. This is the one admitted job; no transport retry. Dense4 expected after,Decode1 preserved. Follow to terminal status; no further Dense check at reserve.
+
+
+### Human authorization: bounded MoE norm variance
+
+At2026-10-30T19:11:31.112096+00:00,human replied **Allow bounded MoE norm variance** to the pending exact-limit question. Authorized only MoE norm sums/final outputs: norm-sum relativeL2 <=1e-5,output relativeL2 <=0.001,worst-row <=0.005 using the official denominator floor(max(rowNorm,0.1*meanRowNorm,1e-12)). Inter/SwiGLU and FP32 ybuf remain byte-exact. All BF16/FP32 materializations,finite/shape/dtype checks and >3% paired performance gate remain. This does NOT relax any Decode or Attention byte gate,and does not authorize arbitrary precision changes. The live real-Attention check remains unchanged.
+
+
+### Real Attention/O32 H200 outcome
+
+**f6a94233fbe643b7**,source74f71a73,terminaldone: retained Dense9/9 tests,30 benchmarks,integrity/no flags; prepare94.576792646s. ST8:42 registers,0 local/static,196736 dynamic,1block/SM. ST4:42/0/0,98368 dynamic,2blocks/SM. Early Attention:131 registers,0 local/static,58368 dynamic,3blocks/SM. CPU predicted129 Attention registers; H200 queries are authoritative.
+
+Unchanged parent repeat and early8 pass all three fresh input/cache byte probes. Late8 and early4 differ on normal seed0 in one byte of the Attention intermediate,then5/109 O-output bytes respectively; caches match. This does not establish a projection-arithmetic error: the first discrepancy is already in Attention. No numerical rule is relaxed for this track.
+
+Eligible real-chain timing only parent/early8:23.776000366->21.856000647us (save1.919999719),reverse23.199999705->21.663999185 (save1.536000520). Net savings exceed3% and1.5us in both orders. However,the predeclared signal-causality gate also requires a byte-qualified late8 control;that control failed. All formal deployment gates remainfalse. Retain the exact source-bound net observation without claiming causal proof or an admitted optimization. No stage4 timing,no whole-layer claim,no final Decode check,no score/publication. Dense is now at its4-check reserve; no retry.
+
+
+### TR8 numerical-gate implementation after human approval
+
+Frozen `moe_tinyroute_bounded.py`,SHA25625e8efa38242ac524740bc9e1aa14419c0ad20ab02cd900ac83b4678ef6f5d8f,193796 bytes. Relative to TR8 source95833547,only prepare-time numerical admission and its diagnostic label change. CUDA and ALL timed kernel/dispatch/extension/scratch definitions remain exact. Snapshot copies the diagnosed completed-generation observer. Exact finite inter/ybuf; norm-sum relativeL2<=1e-5,output relativeL2<=.001,worstrow<=.005 with official floor; all-nonlocal zero mandatory. Five patterns x3seeds and original >3% both orders on one/skew populations retained.
+
+Sixteen analytical acceptance cases and six generation/bank cases pass CPU. Old75 H200 fixtures support inter/ybuf equality and global/SS variance bounds,but do not prove the new worst-row limit; fresh H200 gate still required. No new CUDA compile or GPU job for this gate-only implementation. Reopening is enabled by explicit human authorization after the original check admitted no timed TR8 path,not a measured speed rejection. No Decode/Attention gate changes. Source not yet admitted/submitted. Normal-spacing earliest new check 2026-10-30T20:07:12.259430+00:00; obtain fresh quota/jobs/official identity at admission.

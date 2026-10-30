@@ -1,0 +1,16 @@
+{
+  "source_sha256": "25e8efa38242ac524740bc9e1aa14419c0ad20ab02cd900ac83b4678ef6f5d8f",
+  "bytes": 193796,
+  "retained_MoE_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "prior_TR8_source_sha256": "958335479991016b3cebae2ad9517ef8f75c036fc1d8ac63a0b8459395219498",
+  "CUDA_AST_exact": true,
+  "timed_dispatch_ext_and_scratch_AST_exact": true,
+  "parent_prepare_change": "Diagnostic label only; original >3% both orders on one/skew populations retained.",
+  "gate_change": "Human authorizes MoE ss/output variance only. Exact finite inter/ybuf,ss relativeL2<=1e-5,out relativeL2<=.001,worstrow<=.005 with official floor; nonlocal outputs exactly zero.",
+  "reopened_because": "Prior TR8 check selected no timed new path due the now-superseded byte gate;75 H200 diagnostic fixtures localize variation to ss/out and preserve inter/ybuf bytes.",
+  "actual_path_marker": "okc::moe_tr8_fused",
+  "unchanged": "Every precision boundary,route job,GEMM,norm implementation,completion,generation,both banks,M>8 fallback.",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "Decode_or_Attention_gate_relaxed": false
+}

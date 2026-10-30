@@ -1,0 +1,83 @@
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 4 23.77600036561489 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 64, 1, 2, 2, True, 4) 8 18.559999763965607 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 64, 2, 2, 2, True, 2) 4 17.920000478625298 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 32, 1, 2, 2, True, 4) 4 24.224000051617622 baseline 14.655999839305878
+WG_CANDIDATE 16 qkv_gate (16, 32, 2, 2, 2, True, 2) 4 27.807999402284622 baseline 14.655999839305878
+WG_KEEP 16 qkv_gate baseline 14.368000440299511 best 17.920000478625298
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 4 24.224000051617622 baseline 16.00000075995922
+WG_CANDIDATE 32 qkv_gate (32, 64, 1, 2, 2, True, 4) 8 18.751999363303185 baseline 16.00000075995922
+WG_CANDIDATE 32 qkv_gate (32, 64, 2, 2, 2, True, 2) 4 19.58400011062622 baseline 16.00000075995922
+WG_CANDIDATE 32 qkv_gate (32, 32, 1, 2, 2, True, 4) 4 24.671999737620354 baseline 16.00000075995922
+WG_CANDIDATE 32 qkv_gate (32, 32, 2, 2, 2, True, 2) 4 27.871999889612198 baseline 16.00000075995922
+WG_KEEP 32 qkv_gate baseline 16.00000075995922 best 18.751999363303185
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 4 22.39999920129776 baseline 20.8320003002882
+WG_CANDIDATE 32 unpooler (32, 64, 1, 2, 2, True, 4) 8 27.2000003606081 baseline 20.8320003002882
+WG_CANDIDATE 32 unpooler (32, 64, 2, 2, 2, True, 2) 4 32.99200162291527 baseline 20.8320003002882
+WG_CANDIDATE 32 unpooler (32, 32, 1, 2, 2, True, 4) 4 31.74399957060814 baseline 20.8320003002882
+WG_CANDIDATE 32 unpooler (32, 32, 2, 2, 2, True, 2) 4 45.40799930691719 baseline 20.8320003002882
+WG_KEEP 32 unpooler baseline 20.800000056624413 best 22.39999920129776
+EAC_BYTES {'parent_repeat': True, 'late8': False, 'early8': True, 'early4': False}
+EAC_TIMES ('parent', 'early8') {'parent': 23.77600036561489, 'early8': 21.856000646948814}
+EAC_TIMES ('early8', 'parent') {'early8': 21.663999184966087, 'parent': 23.19999970495701}
+EAC_SUMMARY_Z64 eNqVUtGOrCAM/RXj82Qiigj7vH8xMYSRjpoouoAPk4n/vgU14+59uWuMFnp62p72lYJR9wGcNJPvetOmH4m3C1yS1PcjaDkr3+FdupimU6YFnXyCcZDMyoLxKeLA2sk6xLxWPFlw02IbiBcpj9+vBewTLZpn+CBIeR8jbjS/JFl8iWBVwfBfBxb633GCF4xfkjyGgbLDUyIKS+snE5CkIAe03KBFhN6fHrA5t9W5dSMtzKD8W4JBeQgtPNTg4ODnb3880wMQaCerYSvxtdnBTE9ibQz1rq+Ty7kANPPiWlUM2y1YyQjl4pw2J1deBiejTFDOCV0x6TnTDsWgnfGfTGcyxgohBOFUMJbx6h0V6yAiPFVGRVllZF0DVYuKbDxRG1RMDdJbZdwjVvBTKdmoxSHA9a1Rw283lUrrPgwqQJoO9DLAWcz7olvw0vlpPsWOvRuVR/gus7JjWNBtVuh3ABovsmPIB14+ehh0DLqFhcN2brgbZV1HDXeafaR/5yGZQKag0YxrhDLKABH0WlasEjmjJYrMivUbfxEIvw==
+EAC_DONE 94.57679264596663 enables_nothing=True
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 19:09:44 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-30T19:11:31.112096+00:00",
+  "human_reply": "Allow bounded MoE norm variance",
+  "scope": "MoE norm sums and final output only",
+  "norm_sum_relative_L2_max": 1e-05,
+  "output_relative_L2_max": 0.001,
+  "output_worst_row_max": 0.005,
+  "worst_row_denominator": "max(reference row norm,0.1*average reference row norm,1e-12)",
+  "exact_buffers": [
+    "GEMM/SwiGLU inter",
+    "FP32 ybuf"
+  ],
+  "precision_rules_unchanged": true,
+  "performance_gate": "greater than3% in both paired graph arm orders",
+  "Decode_and_Attention_byte_gates_unchanged": true
+}

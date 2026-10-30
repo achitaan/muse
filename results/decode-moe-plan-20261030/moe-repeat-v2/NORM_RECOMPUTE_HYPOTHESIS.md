@@ -1,5 +1,8 @@
 # Source-backed MoE norm hypothesis: not implemented or admitted
 
+> Update2026-10-30: the human explicitly authorized bounded MoE norm/output variance. See ../tinyroute-bounded/authorization.json and REVIEW.md for exact limits and unchanged-byte buffers. The historical permission barrier below is superseded for MoE only. Norm recomputation remains unimplemented/unadmitted; TR8 is reopened first. WGS-default-off below refers to the CUDA macro default/tiny paths; retained MAIN explicitly enables WGS when eligible. Decode/Attention byte gates remain unchanged.
+
+
 The H200 MoE repeat diagnostic9dc89929 retained75 fixtures. Every compared BF16 SwiGLU/inter and FP32 ybuf was byte-identical; differences began in norm sums and sometimes final BF16 output, including unchanged-parent controls. This supports an atomic-order explanation, without proving a general numerical bound or every route correct.
 
 The CPU bridge in decode-source-bridge.json compares retained standalone33114871 and Decode c15df9d3. Their CUDA sources differ only in wgs_flush and wgs_seg bodies (FINREG). All remaining CUDA text,including tiny atomic norm sites/finalization,is exact; TINY/TINY2/MID define tuples match and WGS defaults off. This is source evidence of relevant byte-gate risk, not a Decode GPU repeat measurement or a compiler equality proof.
