@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-30T05:59:03.367436+00:00",
+  "gpu": "H200",
+  "files": {
+    "TASK.md": {
+      "official_sha256": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46",
+      "local_normalized_sha256": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46",
+      "normalized_equal": true
+    },
+    "AGENTS.md": {
+      "official_sha256": "cd0a128be02be76956ac4b1e49ebea3dc287f1c9e6d3256e659b0b7772465fa8",
+      "local_normalized_sha256": "cd0a128be02be76956ac4b1e49ebea3dc287f1c9e6d3256e659b0b7772465fa8",
+      "normalized_equal": true
+    },
+    "baseline.py": {
+      "official_sha256": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+      "local_normalized_sha256": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+      "normalized_equal": true
+    },
+    "checks.py": {
+      "official_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "local_normalized_sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "normalized_equal": true
+    },
+    "nvfp4.py": {
+      "official_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "local_normalized_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "normalized_equal": true
+    },
+    "reference.py": {
+      "official_sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+      "local_normalized_sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+      "normalized_equal": true
+    },
+    "template.py": {
+      "official_sha256": "fa180988357910e7ce3332ef59045b0aa013c20416e537f199b31299f0a79d00",
+      "local_normalized_sha256": null,
+      "normalized_equal": false
+    }
+  }
+}

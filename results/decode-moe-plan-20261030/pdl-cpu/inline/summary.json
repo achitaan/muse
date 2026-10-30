@@ -1,0 +1,40 @@
+[
+  {
+    "rc": 0,
+    "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\n",
+    "cubin_bytes": 303800,
+    "cubin_sha256": "f6caa06da539ae872cb788cf377a25a79311c0cd21361a4da5c1ebffecc43f85",
+    "seconds": 3.187,
+    "kernels": [
+      {
+        "symbol": "_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+        "registers": 50,
+        "stack_frame": 0,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "smem_static": 0,
+        "warnings": []
+      }
+    ],
+    "name": "o1",
+    "source_sha256": "8c22953ba4e203dbeea882b5fe45eb98f9e17de1f7883d522c9faf99853361d3",
+    "proxy_sha256": "c09a99c420c3c532255549624f6bd3f8c101696d20c00535bb23127add866109",
+    "CPU_only": true,
+    "GPU_jobs": 0,
+    "ordering_excerpt": [
+      "Function : _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "/*0060*/                   ACQBULK ;                                                /* 0x000000000000782e */",
+      "/*0100*/                   LDG.E.NA.128.CONSTANT R8, desc[UR4][R30.64+0x400] ;      /* 0x000400041e087981 */",
+      "/*0120*/                   LDG.E.NA.128.CONSTANT R44, desc[UR4][R30.64] ;           /* 0x000000041e2c7981 */",
+      "/*0140*/                   LDG.E.NA.128.CONSTANT R4, desc[UR4][R30.64+0x200] ;      /* 0x000200041e047981 */",
+      "/*0170*/                   LDG.E.NA.128.CONSTANT R20, desc[UR4][R30.64+0x600000] ;  /* 0x600000041e147981 */",
+      "/*01c0*/                   LDG.E.CONSTANT R2, desc[UR4][R14.64] ;                   /* 0x000000040e027981 */",
+      "/*0270*/                   LDG.E.NA.128.CONSTANT R16, desc[UR4][R30.64+0x600200] ;  /* 0x600200041e107981 */",
+      "/*02b0*/                   LDG.E.NA.128.CONSTANT R12, desc[UR4][R30.64+0x600400] ;  /* 0x600400041e0c7981 */",
+      "/*02c0*/                   LDG.E.128.STRONG.GPU R24, desc[UR4][R40.64] ;            /* 0x0000000428187981 */",
+      "/*02d0*/                   LDG.E.128.STRONG.GPU R32, desc[UR4][R40.64+0x10] ;       /* 0x0000100428207981 */",
+      "/*0a60*/                   LDG.E.128.STRONG.GPU R24, desc[UR4][R40.64+0x80] ;       /* 0x0000800428187981 */",
+      "/*0a80*/                   LDG.E.128.STRONG.GPU R28, desc[UR4][R40.64+0x90] ;       /* 0x00009004281c7981 */"
+    ]
+  }
+]

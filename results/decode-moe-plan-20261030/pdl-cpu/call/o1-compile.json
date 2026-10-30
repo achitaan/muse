@@ -1,0 +1,23 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 6136 bytes gmem\nptxas info    : Compiling entry function '_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'\nptxas info    : Function properties for _Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 50 registers, used 1 barriers\nptxas info    : Compile time = 0.000 ms\nptxas info    : Function properties for _Z16smallm2_pdl_waitj\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_bytes": 306104,
+  "cubin_sha256": "ec49a3da72dddef8cee8615df8bdb88d623ccf5d95200d13cfae6454f0cc2467",
+  "seconds": 1.5,
+  "kernels": [
+    {
+      "symbol": "_Z12smallm2_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi1024ELi0ELi8192ELi1024ELi4ELi8ELi2ELi1ELi7EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj",
+      "registers": 50,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "name": "o1",
+  "source_sha256": "fc0697c2b73ba5c13278962564f4345dc175ac60a5c9f6482ffb7303a0402b69",
+  "proxy_sha256": "a4361638edc9d287b30f406c24697cac20be7174d3d2745860148ae6a3265fe0",
+  "CPU_only": true,
+  "GPU_jobs": 0
+}

@@ -1,0 +1,11 @@
+{
+  "verified_at": "2026-10-30T05:57:52.015440+00:00",
+  "parent_exact_prefix": true,
+  "parent_sha256": "75fa2a73b4de60410c10dc3609141f3677c9ff79acff0512e45fdd6b5084f747",
+  "candidate_sha256": "044f8606805c8c79fcaff621a40edbb2f7a703217346bf19e78cc735fce019ad",
+  "candidate_bytes": 962982,
+  "bit_comparator_positive_negative_zero_distinguished": true,
+  "bit_comparator_dtype_nan_none_guards": true,
+  "O_host_arity_and_types": true,
+  "GPU_runs": 0
+}

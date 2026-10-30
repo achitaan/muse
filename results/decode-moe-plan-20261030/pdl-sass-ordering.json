@@ -1,0 +1,226 @@
+{
+  "o1": {
+    "independent_LDGs_before_wait_call": [
+      [
+        "0x150",
+        "LDG.E.NA.128.CONSTANT R32, desc[UR4][R30.64]"
+      ],
+      [
+        "0x180",
+        "LDG.E.NA.128.CONSTANT R24, desc[UR4][R30.64+0x200]"
+      ],
+      [
+        "0x1a0",
+        "LDG.E.CONSTANT R3, desc[UR4][R2.64]"
+      ],
+      [
+        "0x1c0",
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R30.64+0x400]"
+      ],
+      [
+        "0x1e0",
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R30.64+0x600000]"
+      ],
+      [
+        "0x210",
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R30.64+0x600200]"
+      ],
+      [
+        "0x230",
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R30.64+0x600400]"
+      ]
+    ],
+    "call_at": "0x250",
+    "wait_helper_at": "0x1700",
+    "helper": [
+      [
+        "0x1700",
+        "IMAD.MOV.U32 R31, RZ, RZ, 0x0"
+      ],
+      [
+        "0x1710",
+        "ACQBULK"
+      ],
+      [
+        "0x1720",
+        "RET.REL.NODEC R30 0x0"
+      ],
+      [
+        "0x1730",
+        "BRA 0x1730"
+      ],
+      [
+        "0x1740",
+        "NOP"
+      ]
+    ],
+    "first_coherent_dependent_load_after_call": [
+      "0x500",
+      "LDG.E.128.STRONG.GPU R32, desc[UR4][R40.64+0x10]"
+    ]
+  },
+  "o8": {
+    "independent_LDGs_before_wait_call": [
+      [
+        "0x180",
+        "LDG.E.NA.128.CONSTANT R48, desc[UR4][R24.64]"
+      ],
+      [
+        "0x1a0",
+        "LDG.E.NA.128.CONSTANT R44, desc[UR4][R24.64+0x200]"
+      ],
+      [
+        "0x1b0",
+        "LDG.E.CONSTANT R3, desc[UR4][R6.64]"
+      ],
+      [
+        "0x1c0",
+        "LDG.E.NA.128.CONSTANT R8, desc[UR4][R24.64+0x400]"
+      ],
+      [
+        "0x1d0",
+        "LDG.E.NA.128.CONSTANT R12, desc[UR4][R24.64+0x600000]"
+      ],
+      [
+        "0x1f0",
+        "LDG.E.NA.128.CONSTANT R16, desc[UR4][R24.64+0x600200]"
+      ],
+      [
+        "0x200",
+        "LDG.E.NA.128.CONSTANT R20, desc[UR4][R24.64+0x600400]"
+      ]
+    ],
+    "call_at": "0x220",
+    "wait_helper_at": "0x1760",
+    "helper": [
+      [
+        "0x1760",
+        "IMAD.MOV.U32 R25, RZ, RZ, 0x0"
+      ],
+      [
+        "0x1770",
+        "ACQBULK"
+      ],
+      [
+        "0x1780",
+        "RET.REL.NODEC R24 0x0"
+      ],
+      [
+        "0x1790",
+        "BRA 0x1790"
+      ],
+      [
+        "0x17a0",
+        "NOP"
+      ]
+    ],
+    "first_coherent_dependent_load_after_call": [
+      "0x2c0",
+      "LDG.E.128.STRONG.GPU R24, desc[UR4][R52.64]"
+    ]
+  },
+  "r1": {
+    "independent_LDGs_before_wait_call": [
+      [
+        "0x170",
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64]"
+      ],
+      [
+        "0x180",
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200]"
+      ],
+      [
+        "0x190",
+        "LDG.E.CONSTANT R2, desc[UR6][R8.64]"
+      ],
+      [
+        "0x1a0",
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400]"
+      ]
+    ],
+    "call_at": "0x1c0",
+    "wait_helper_at": "0xee90",
+    "helper": [
+      [
+        "0xee90",
+        "IMAD.MOV.U32 R6, RZ, RZ, R0"
+      ],
+      [
+        "0xeea0",
+        "MOV R7, 0x0"
+      ],
+      [
+        "0xeeb0",
+        "ACQBULK"
+      ],
+      [
+        "0xeec0",
+        "RET.REL.NODEC R6 0x0"
+      ],
+      [
+        "0xeed0",
+        "IMAD.SHL.U32 R2, R0, 0x2, RZ"
+      ]
+    ],
+    "first_coherent_dependent_load_after_call": [
+      "0x300",
+      "LDG.E.STRONG.GPU R9, desc[UR6][R8.64]"
+    ],
+    "topk_bypass_branch": [
+      "0x70",
+      "@!P0 BRA 0x4710"
+    ]
+  },
+  "r8": {
+    "independent_LDGs_before_wait_call": [
+      [
+        "0x170",
+        "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64]"
+      ],
+      [
+        "0x180",
+        "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200]"
+      ],
+      [
+        "0x190",
+        "LDG.E.CONSTANT R2, desc[UR6][R8.64]"
+      ],
+      [
+        "0x1a0",
+        "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400]"
+      ]
+    ],
+    "call_at": "0x1c0",
+    "wait_helper_at": "0xee90",
+    "helper": [
+      [
+        "0xee90",
+        "IMAD.MOV.U32 R6, RZ, RZ, R0"
+      ],
+      [
+        "0xeea0",
+        "MOV R7, 0x0"
+      ],
+      [
+        "0xeeb0",
+        "ACQBULK"
+      ],
+      [
+        "0xeec0",
+        "RET.REL.NODEC R6 0x0"
+      ],
+      [
+        "0xeed0",
+        "IMAD.SHL.U32 R2, R0, 0x2, RZ"
+      ]
+    ],
+    "first_coherent_dependent_load_after_call": [
+      "0x300",
+      "LDG.E.STRONG.GPU R9, desc[UR6][R8.64]"
+    ],
+    "topk_bypass_branch": [
+      "0x70",
+      "@!P0 BRA 0x4710"
+    ]
+  }
+}

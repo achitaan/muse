@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-10-30T06:01:29.520100+00:00",
+  "mode": "check",
+  "problem": "muse_decode_layer",
+  "candidate": "experiments\\decode_moe\\decoder_pdl_diag.py",
+  "sha256": "044f8606805c8c79fcaff621a40edbb2f7a703217346bf19e78cc735fce019ad",
+  "cpu_ordering_verified": true,
+  "production_dispatch_unchanged": true,
+  "checks_left_before": 3,
+  "scores_left_before": 8,
+  "earliest_upload_utc": "2026-10-30T06:01:30.947056+00:00",
+  "transport_attempts": 1,
+  "job_id": "d5f8835a8a85480f",
+  "decision": "One Step 1 diagnostic explicitly requested by the latest human brief; no public score.",
+  "upload_started_at": "2026-10-30T06:01:43.412891+00:00",
+  "acknowledged_at": "2026-10-30T06:02:20.923910+00:00"
+}

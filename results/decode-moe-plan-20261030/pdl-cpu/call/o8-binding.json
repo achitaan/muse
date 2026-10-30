@@ -1,0 +1,50 @@
+{
+  "parent_CUDA_sha256": "b70b4515aaa67a89fde3e23109b1e3f6233cac0be57ff371201d95ee8c9acb56",
+  "CUDA_sha256": "1855cfdffe9e2094086ac138788d017cd1c2bd981d2d653ac4de69f45aaee7c7",
+  "form": "call",
+  "fused": false,
+  "instance": [
+    1,
+    1,
+    1,
+    2,
+    0,
+    0,
+    256,
+    0,
+    8192,
+    1024,
+    1,
+    8,
+    2,
+    1,
+    6
+  ],
+  "exact_inverse": true,
+  "edits": [
+    {
+      "old": "ld.global.nc.v4.u32",
+      "new": "ld.global.cg.v4.u32"
+    },
+    {
+      "old": "if constexpr (C12 && !RO) my_e = v18s_lde(esc + (size_t)gw * 32 + lane);",
+      "new": "// PDL: escape word is loaded by the independent preamble."
+    },
+    {
+      "old": "// Never taken, but ptxas cannot prove it:",
+      "new": "__device__ __noinline__ void v18s_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+    },
+    {
+      "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+      "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = v18s_lde(esc + (size_t)gw * 32 + lane);\n    v18s_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w ^ (uint32_t)w[1][0][0].x ^ (uint32_t)w[1][0][0].y ^ (uint32_t)w[1][0][0].z ^ (uint32_t)w[1][0][0].w ^ (uint32_t)w[1][0][1].x ^ (uint32_t)w[1][0][1].y ^ (uint32_t)w[1][0][1].z ^ (uint32_t)w[1][0][1].w ^ (uint32_t)w[1][0][2].x ^ (uint32_t)w[1][0][2].y ^ (uint32_t)w[1][0][2].z ^ (uint32_t)w[1][0][2].w);"
+    },
+    {
+      "old": "cudaLaunchAttribute at[1];",
+      "new": "cudaLaunchAttribute at[2];"
+    },
+    {
+      "old": "  if (query == 1) {",
+      "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+    }
+  ]
+}

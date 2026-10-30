@@ -1,0 +1,30 @@
+{
+  "source_sha256": "75fa2a73b4de60410c10dc3609141f3677c9ff79acff0512e45fdd6b5084f747",
+  "scope": "read-only audit while Step 1 runs; no production edits",
+  "flags": {
+    "_native_moe_PDL": {
+      "value": false,
+      "line": 289
+    },
+    "attention": {
+      "default": null,
+      "effective_default": false,
+      "line": 619,
+      "incoming_only": true
+    },
+    "_fpr_PDL": {
+      "value": 0,
+      "line": 7202
+    }
+  },
+  "historical_evidence": [
+    {
+      "source": "root HANDOFF.md lines 325-340",
+      "finding": "Two direct-wait placements and a weight-load clobber had no independent global loads before the wait; no GPU check was spent."
+    },
+    {
+      "source": "parent flags and existing launchers",
+      "finding": "Incoming PDL is disabled. The inspected records do not establish a measured reason to activate all flags. Any production enablement remains conditional on Step 1 and its own bitwise/performance gate."
+    }
+  ]
+}

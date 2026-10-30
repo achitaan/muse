@@ -256,3 +256,123 @@ Each item is multi-hour, judge-only work at about 8 minutes per Decode check.
 - The measured opportunity that remains is the one R1 exposed: about 6–7 µs at 1 and 8 tokens from
   overlapping the FP32 router with the pooler. A correct version would need the router fused into the
   pooler kernel, as `sk2f` already does for 9–32 tokens, rather than two concurrently launched kernels.
+
+## PDL early-start diagnostic: Step 1 (2026-10-30, current)
+
+This section supersedes the older "Remaining work" wording above. The human's new brief
+authorizes one timing-only PDL check, followed by production work only if its ceiling gate passes.
+Worktree `decode-moe-plan`, branch `argon/decode-moe-20261030`; parent commit
+`58db7a68d84c71e0cc0d4d8d7f3b6492610a7b1d`. No other worktree or `best/` is edited.
+
+Baseline: `experiments/decode_moe/decoder_r2f.py`, full SHA256
+`75fa2a73b4de60410c10dc3609141f3677c9ff79acff0512e45fdd6b5084f747`.
+Its historical scored result remains 2.0510x (`94572fe644414691`). No new performance
+claim is inferred from its other runs, and no live rank has been requested here.
+
+### CPU evidence and bounded implementation
+
+- A single-inline-assembly weight-load-plus-wait prototype compiled, but SASS placed
+  `ACQBULK` at `0x60` before every global load. Rejected on CPU; zero GPU jobs.
+- A `__noinline__` device wait helper produces real independent weight/escape `LDG`s
+  before the call to the helper containing `ACQBULK`. This is a different compiler
+  mechanism from the previously rejected direct-wait placement.
+- Exact source edits are invertible and leave the math/store bodies intact. Dependent
+  activation loads use coherent `ld.global.cg`; immutable packed weights/escapes retain
+  the original load instructions. No rounding boundary is removed.
+- For R2f, all ordinary CTAs wait before the FP32 router staging reads. CTA 128 takes
+  the separate top-k path, waits at its entry, and never executes the weight preamble.
+  Its SASS branches at `0x70` to `0x4710`, then waits at `0x4730`. The normal path calls
+  the wait helper at `0x1c0`, before the first coherent router load at `0x300`.
+- The launch attribute array has two entries and appends programmatic serialization
+  after any cluster attribute. The four selected instances are noncluster RED0/S1.
+- The one-CTA spin triggers dependents before its 5,000 ns busy loop. CPU SASS emits
+  `PREEXIT` at `0x20`, before the first timer read at `0x50`.
+
+| Twin | Original registers | PDL registers | Stack / spills | Independent LDGs before wait call |
+|---|---:|---:|---|---:|
+| O1 smallm2 | 50 | 50 | 0 / 0 | 6 packed vectors + 1 escape |
+| O8 v18s | 50 | 56 | 0 / 0 | 6 packed vectors + 1 escape |
+| R2f1 v18s | 64 | 64 | 0 / 0 | 3 packed vectors + 1 escape |
+| R2f8 smallm2 | 64 | 64 | 0 / 0 | 3 packed vectors + 1 escape |
+
+All numbers in this table are CPU NVRTC sm_90a compiler resources, not GPU timing.
+Raw source, compiler logs, CUBINs, SASS and hashes are under `pdl-cpu/`; explicit
+instruction addresses are in `pdl-sass-ordering.json`. Actual judge resources must
+also be printed and validated by the diagnostic before measurements.
+
+Candidate `experiments/decode_moe/decoder_pdl_diag.py`, SHA256
+`044f8606805c8c79fcaff621a40edbb2f7a703217346bf19e78cc735fce019ad`,
+962,982 bytes (37,018 bytes of headroom). Its original R2f prefix is retained exactly;
+only a prepare wrapper and diagnostic helpers are appended. Production `kernel_fn`
+and dispatch remain unchanged, irrespective of diagnostic results.
+
+The diagnostic uses shared `_okh_time` for both arm orders, 30 replays per arm per
+order, cold L2, and a separate scratch/counter for the PDL R2f twin. Each pair is also
+captured and replayed on three changing input sets. `_okh_same` checks shape/dtype and
+values; byte views additionally distinguish signed zero, with finite-output checks.
+The signed-zero, dtype, nonfinite and missing-output guards passed CPU tests. Timing
+and CUDA graph correctness have not yet been validated on H200.
+
+Measurements planned: spin-to-O, spin-to-R2f, and QKV-to-spin-to-O-to-spin-to-R2f,
+for M1 and M8. The last chain has real QKV and projection kernels but independent
+probe inputs and spins substituting for attention/norm; it is a synthetic ceiling,
+not an end-to-end Decode gain. The conservative combined gate requires at least
+1.5 us savings for each handoff and 3 us for the two-handoff chain in both arm orders.
+Every result prints `PDL_DIAG`; no production path is enabled in this source.
+
+### Identity, quota and launch record
+
+Official `okc show muse_decode_layer --json` was read before launch. TASK, AGENTS,
+baseline, checker, reference and NVFP4 helper match the local pinned contents after
+newline normalization (`pdl-official-identity.json`). The official TASK now explicitly
+documents load-time weighting and geometric-mean aggregation; it agrees with the
+earlier empirical fit. The official template is absent locally and is not imported.
+
+At 2026-10-30 05:57 UTC, Decode quota was 3 checks and 8 scored runs remaining.
+The routine four-check reserve was already crossed before this request. This new
+direct brief specifically requests one diagnostic check; use that one check and
+leave the remaining two. No public submission is authorized by an unchanged timed path.
+Latest check was `bad2bc21ae5b420b` at 05:01:30.947 UTC; observe the 60-minute
+spacing before upload. The 50-job snapshot contains no active queued/running job;
+an old `duplicate` MoE record is not a new evaluation.
+
+GPU launch: pending. Binding and preflight are saved in `pdl-diag-binding.json` and
+`pdl-preflight.json`. No publication, board change, new production enablement or
+GPU-derived speedup is claimed at this point.
+
+### Step 1 check launched
+
+At 2026-10-30T06:01:43.412891+00:00, source `044f8606` was uploaded once. The CLI acknowledged
+job **`d5f8835a8a85480f`**, problem `muse_decode_layer`, check mode. No TLS failure or retry.
+Production dispatch is unchanged. Result and prepare-time PDL measurements are pending.
+
+### Step 1 result: ceiling passed (job d5f8835a8a85480f)
+
+H200 check passed **13/13**, benchmark validation and integrity, no flags. Prepare
+completed in **262.064 s**. Both R2f parent gates selected M1/M8. All four PDL
+extensions built, all six diagnostic pairs passed bitwise checks across three
+changing-input graph replays. Actual GPU resource queries reported O1/O8 56 registers
+and 0 local bytes, with 1/4 blocks per SM respectively; R2f1/R2f8 64 registers,
+0 local bytes, 1 block per SM. O1's judge count differs from the CPU NVRTC count;
+use the actual GPU count when reasoning about integration.
+
+Times below include the same graph overhead on each arm; units are microseconds.
+
+| Tokens | Diagnostic | Order normal,PDL: normal / PDL / saving | Order PDL,normal: normal / PDL / saving |
+|---|---|---:|---:|
+| 1 | spin -> O | 15.680 / 11.872 / 3.808 | 15.840 / 11.840 / 4.000 |
+| 1 | spin -> R2f | 31.296 / 28.000 / 3.296 | 31.328 / 28.224 / 3.104 |
+| 1 | synthetic chain | 53.408 / 47.712 / 5.696 | 53.792 / 47.904 / 5.888 |
+| 8 | spin -> O | 15.872 / 12.480 / 3.392 | 15.872 / 12.512 / 3.360 |
+| 8 | spin -> R2f | 33.856 / 31.424 / 2.432 | 33.824 / 31.552 / 2.272 |
+| 8 | synthetic chain | 56.480 / 51.872 / 4.608 | 56.512 / 51.648 / 4.864 |
+
+Both shapes pass the conservative >=1.5 us-per-handoff and >=3 us combined-chain
+gates in both orders. These are synthetic-ceiling measurements, not whole-layer
+savings. The unchanged production path scored **2.046116180x**, CI
+[2.015424438, 2.076807923], and will not be submitted publicly. Full evaluator identity,
+raw result and logs: `pdl-status-final.json`, `pdl-diag-outcome.json`,
+`pdl-diag-prepare.log`. One check consumed, no scored run. The direct brief now
+conditionally authorizes Step 2 production integration; its own bitwise equality,
+>3% cold-L2 graph gates and whole-layer validation still apply. Earliest next check
+under routine spacing is 2026-10-30 07:01:46.883 UTC, not an immediate retry.

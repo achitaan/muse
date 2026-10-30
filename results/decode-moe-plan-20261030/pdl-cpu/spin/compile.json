@@ -1,0 +1,7 @@
+{
+  "rc": 0,
+  "log": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function '_Z8pdl_spiny' for 'sm_90a'\nptxas info    : Function properties for _Z8pdl_spiny\nptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 8 registers, used 0 barriers\nptxas info    : Compile time = 0.000 ms\n",
+  "cubin_bytes": 5168,
+  "cubin_sha256": "ce5f57d61e16fdfa58944ffebe01cb4b8599d30eb86a60d05c1750eb1782bf8d",
+  "seconds": 0.078
+}

@@ -1,0 +1,58 @@
+{
+  "parent_CUDA_sha256": "4acea7645727c46513c6e861c934bde780b7b6c86a3c751990013235cfdb7d7f",
+  "CUDA_sha256": "3c1366899e7a9c5b73af08e2611e1bc3a6e6b3bfeacb09c521772000d5f807fc",
+  "form": "call",
+  "fused": true,
+  "instance": [
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    1024,
+    0,
+    4096,
+    8192,
+    2,
+    16,
+    8,
+    1,
+    70
+  ],
+  "exact_inverse": true,
+  "edits": [
+    {
+      "old": "ld.global.nc.v4.u32",
+      "new": "ld.global.cg.v4.u32"
+    },
+    {
+      "old": "if constexpr (C12 && !RO) my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);",
+      "new": "// PDL: escape word is loaded by the independent preamble."
+    },
+    {
+      "old": "if (blockIdx.x == 128) { smallm2_r2_topk(ra, warp, lane); return; }\n      smallm2_r2_router(ra, warp, lane);",
+      "new": "if (blockIdx.x == 128) { asm volatile(\"griddepcontrol.wait;\" ::: \"memory\"); smallm2_r2_topk(ra, warp, lane); return; }\n      // PDL: router input loads follow the independent weight preamble."
+    },
+    {
+      "old": "r2x[i] = ra.x[(size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)]",
+      "new": "asm volatile(\"ld.global.cg.f32 %0, [%1];\" : \"=f\"(r2x[i]) : \"l\"(ra.x + (size_t)(i >> 10) * 8192 + ks * 1024 + (i & 1023)) : \"memory\")"
+    },
+    {
+      "old": "// Never taken, but ptxas cannot prove it:",
+      "new": "__device__ __noinline__ void smallm2_pdl_wait(uint32_t checksum) {\n  asm volatile(\"{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }\" :: \"r\"(checksum) : \"memory\");\n}\n\n// Never taken, but ptxas cannot prove it:"
+    },
+    {
+      "old": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);",
+      "new": "#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);\n    my_e = smallm2_lde(esc + (size_t)gw * 32 + lane);\n    smallm2_pdl_wait(my_e ^ (uint32_t)w[0][0][0].x ^ (uint32_t)w[0][0][0].y ^ (uint32_t)w[0][0][0].z ^ (uint32_t)w[0][0][0].w ^ (uint32_t)w[0][0][1].x ^ (uint32_t)w[0][0][1].y ^ (uint32_t)w[0][0][1].z ^ (uint32_t)w[0][0][1].w ^ (uint32_t)w[0][0][2].x ^ (uint32_t)w[0][0][2].y ^ (uint32_t)w[0][0][2].z ^ (uint32_t)w[0][0][2].w);\n    smallm2_r2_router(ra, warp, lane);"
+    },
+    {
+      "old": "cudaLaunchAttribute at[1];",
+      "new": "cudaLaunchAttribute at[2];"
+    },
+    {
+      "old": "  if (query == 1) {",
+      "new": "  const int pdl_attr = lc.numAttrs;\n  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n  if (query == 1) {"
+    }
+  ]
+}
