@@ -7,12 +7,13 @@ unchanged (the `best/` baselines are untouched).
 |---|---:|---:|---|---|---|
 | MoE | 2.3797x | 59 / 1131 (was 90) | `ac80911ea3d34dac` | `moe_m3_scored_2.3797.py` (M3 selector; selects nothing -> same kernels as `best/moe_verified.py`) | `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795` |
 | Attention | 2.5690x | 144 / 1087 (was 149) | `c8f7560097d348c5` | `attention_a3_scored_2.5690.py` (A3: decode 16 sliding n_splits 8) | `ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1` |
-| Decode | 2.0071x | 221 / 1000 | `646774bad23e4c7f` (other lane) | **missing**: produced on the unpushed branch `argon/top50-20261029`; best Decode file available here is `best/decoder_verified.py` (scored 1.9984x tonight, `1ead0adfff80417e`) | `d9fe7558624a1f070bbacb493b94302e90ff9bf77cdd8d4239f9d7a83ab39988` |
+| Decode | 2.0071x | 221 / 1000 | `646774bad23e4c7f` | `decoder_finreg_fp8pv_scored_2.0071.py`: D9 (`best/decoder_verified.py`) plus two changes. (1) In the MoE large-batch path, the phase-B finishing block keeps its own partial sums in registers. (2) The standalone Attention FP8 probability-times-value path. Passed 13/13 tests. Check `30184c638e2c43ea` measured 2.0064x. From branch `opus/fresh-investigation-20261029` | `648f8cee7eb0292f6b1e1bb80a7f1e945802a5bdd68ba2df17bf70d9ad1bd1c5` |
 | Dense | 1.5278x | 158 / 1411 | `6131bc96427e4486` | `best/verified.py` | `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b` |
 | Prefill | 1.6635x | 179 / 652 | (earlier scored run) | `best/prefill_verified.py` | `93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7` |
 
 Honest note: both new bests run kernels already measured as equivalent to the incumbents
 (MoE M3 selected nothing; A3's split change was not confirmed against same-night controls).
 The higher scores are favorable measurements of the same code, which the board keeps.
+The Decode file is likewise speed-neutral within noise. Its two changes each measured as ties: 1.9949x and 1.9958x in checks, against D9's 1.9902x. Its value is that it is a correct source with every required BF16 precision boundary.
 
 Retained baselines (one per problem) are in `best/`; the full experiment history is on branches `omos/decode-fresh-20261029` and `omos/other-tracks-20261029` (see `NEXT_PLAN.md` there).
