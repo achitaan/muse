@@ -1,0 +1,35 @@
+{
+  "candidate": "candidates/dense_s2.py",
+  "source_sha256": "d87ab665607673d443bc070736f7b90089f945814b1703bc9ff2334df123da33",
+  "parent": "best/verified.py edc61a1e...765b minus dead _achita_wg sweep; (32,unpooler) config kept; no S1 (closed)",
+  "scope": "(M=128, unpooler 8192x4096) only; split=1, no cluster, no inter-block reduction, no st.async epilogue",
+  "mechanism": "exact-c12 m32w_gemm WGMMA with BN=128 tokens per CTA: each decoded 64x64 weight tile feeds 128 tokens; K split across WK warpgroups of one CTA; per-warpgroup wait_group 0 kept (no in-flight register reuse)",
+  "instances": {
+    "primary": [
+      128,
+      64,
+      2,
+      2,
+      3,
+      true,
+      1
+    ],
+    "alternative": [
+      128,
+      64,
+      4,
+      2,
+      2,
+      true,
+      1
+    ]
+  },
+  "offline_compile": "results/s2-offline/s2-resources.txt: WK2 135 regs x 256 thr, WK4 125 regs x 512 thr (64000 <= 65536), 0 spill both",
+  "grid": "128 CTAs x 1 (n/R=128, m/BN=1), 1 CTA/SM; occupancy is reported by the job, not assumed",
+  "representation_gate": "pack_weight: c12 unpack == int16 bits (signed zero, escapes); escape lists <= 64 per warp else None -> incumbent",
+  "computation_gate": "one-hot over all 4096 columns bit-exact (int16 compare) at m=128 chunks; FP64 random + spike rows at m=128 and m=100 (rel L2 <= 2.5e-3, row <= 1e-2, spike row <= 2.5e-4, finite); official checker",
+  "timing_gate": "ABBA paired cold-L2 graph replay, 16 pairs, raw samples; select iff median(base/cand) >= 1.03 and win fraction >= 0.75",
+  "selected_path_marker": "S2_USE (128, unpooler, 8192, 4096); S2_SELECT/S2_KEEP in prepare log",
+  "traffic_hypothesis": "HBM weights ~53.5 MB c12 (+escape lists) vs 70.3 MB BF16; x reloaded per CTA from L2: 128 x 1 MB logical (unmeasured)",
+  "decision_rule": "S2_SELECT + pass -> one confirming check; then scored submission if whole-track gain is material (human authorized submit-when-confident 2026-10-30T01:20Z). S2_KEEP -> CLOSE."
+}

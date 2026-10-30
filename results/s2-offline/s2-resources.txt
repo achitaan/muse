@@ -1,0 +1,4 @@
+insts [(128, 64, 2, 2, 3, True, 1), (128, 64, 4, 2, 2, True, 1), (64, 64, 2, 2, 4, True, 2)] rc 0 secs 1.1
+  inst ('64', '64', '2', '2', '4', '1', '2') regs 103 stack/spill_st/spill_ld ('0', '0', '0')
+  inst ('128', '64', '4', '2', '2', '1', '1') regs 125 stack/spill_st/spill_ld ('0', '0', '0')
+  inst ('128', '64', '2', '2', '3', '1', '1') regs 135 stack/spill_st/spill_ld ('0', '0', '0')
