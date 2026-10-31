@@ -96,6 +96,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | PDLI selector: 1% gate + tolerant whole-layer probe (rel_l2<=1e-3 AND <=16 mismatching elems) | closed | 2.0434x (CI 2.013-2.074); tolerant probe still rejected: MoE run-to-run diffs reach 18-731 elems, rel_l2 up to 1.3e-3; even M1_sliding lost its selection -> selected={} | `7abd8d0d` | experiments/top50/decoder_p1_gate.py (decode-next) | Oct 31 |
 | PDLI selector: 1% gate + tolerant whole-layer/moe_unpool probe rel_l2<=2e-3 (no elem cap) | kept | 2.0975x (CI 2.066-2.129); selects M1 sliding+full mask 15 (whole-layer -4.0/-4.7 us both orders); M8 r2f-only fails 1% | `0ca71861` | experiments/top50/decoder_p1b_tol.py (decode-next) | Oct 31 |
 | PDL on _pn/_sfn Triton twins (gdc_wait/launch_dependents, launch_pdl) + MoE launch PDL scope, mask bit 16 | kept | 2.0813x (CI 2.050-2.113, noise vs p1b); in-prepare whole layer M1 sliding -4.9/-5.1 us, M1 full -6.4/-6.9 us, M8 sliding -1.5/-2.8 us (selected); M8 full -1.2 us (0.990, just misses gate) | `ac41a480` | experiments/top50/decoder_p2_pdl.py (decode-next) | Oct 31 |
+| Glue PDL (bit 16: _pn twin + MoE launch) at 16/32-token decode, batch-m probe data, on p2 | kept | 2.0900x (CI 2.059-2.121); M16 sliding selected (-2.1/-1.8 us, 0.987/0.990); M16 full, M32 both -1.2..-2.3 us but miss 1% gate | `831de9a6` | experiments/top50/decoder_p5b_glue16.py (decode-next) | Oct 31 |
 
 ## Open ideas
 
