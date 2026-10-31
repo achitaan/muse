@@ -105,4 +105,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 |---|---|---|---|---|---|
 | Single-check keep/revert on the Attention board | closed as a method | same file 1441.7 vs 1490.9 us (3.4%); use paired setup-time A/B | `8347b4ca`, `804f8d7c` | experiments/attn_next/DEAD_ENDS.md (decode-next) | Oct 30 |
 | Global TRIED ledger + tried.py helper | kept | search before trying; add after every result | - | TRIED.md, .tools/tried.py | Oct 31 |
-| 3% whole-layer gate per component | open question for the user | real 1-2 us wins (1.3-2.6% of decode1) are invisible to it | - | experiments/RESEARCH_20261031.md (decode-next) | Oct 31 |
+| Gate for small changes: paired in-prepare A/B, >=1% per change with both arm orders agreeing | kept | user decision Oct 31; replaces 3% per-component gate | - | experiments/PLAN_TOP50_20261031.md (decode-next) | Oct 31 |
