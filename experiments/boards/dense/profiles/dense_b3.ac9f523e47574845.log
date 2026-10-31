@@ -1,0 +1,11 @@
+DB_WG 16 qkv_gate KEEP ((16, 64, 1, 2, 2, True, 4), 8) cand_us=18.6 base_us=14.5 ratio A=1.193 B=1.190
+DB_WG 32 qkv_gate KEEP ((32, 64, 1, 2, 2, True, 4), 8) cand_us=17.6 base_us=15.9 ratio A=1.142 B=1.147
+DB_WG 32 unpooler KEEP ((32, 64, 1, 2, 2, True, 4), 4) cand_us=22.4 base_us=20.6 ratio A=1.006 B=1.013
+DB_O8 o m8 (4, 8, 2, 1) ratio A=1.003 B=1.000 -> KEEP
+DB_RT router m16 S16/WK4 ratio A=1.011 B=1.004 onehot_exact 1 relL2 2.5e-06 -> KEEP
+DB_BUILD dw=6.2s o8=8.0s rt=6.2s
+DB_SELECTOR o=[] router=[]
+DB_PREP total=89.6s base=89.6s build_wait=0.0s extra=0.1s
+DW_BUILD 6.2s regs=90 local=0 smem=197824 cta_per_sm=1
+DW_CHECK pack_exact=1 onehot=1 FP64=1 relL2=0.000e+00 escapes=3246
+DW_GATE ratio A=1.281 B=1.282 KEEP
