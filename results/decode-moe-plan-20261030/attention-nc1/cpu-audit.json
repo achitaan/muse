@@ -1,0 +1,120 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "parent_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "CUDA_sha256": "e29efa5e07587dfa5f61d1c0a9b51946bfc6eca6c4462370a86750359a0fd6bc",
+  "exact_inverse": true,
+  "substitutions": 26,
+  "fixed_metadata": {
+    "nc": 1
+  },
+  "resources": {
+    "flat_L1": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_4cf57624_3396817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+            "registers": 128,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "entry": {
+          "instructions": 3560,
+          "calls": [
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;",
+            "CALL.REL.NOINC 0xd920 ;"
+          ],
+          "local_instructions": []
+        },
+        "cubin_sha256": "b1281222d021abe8673b1596b9ffca64bdf15fda32d4646787e8da1444c79419"
+      },
+      "nc1": {
+        "kernels": [
+          {
+            "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_db079886_3396817attn_kernel_fp8pvILi1ELb1ELi0EEEvNS_6ParamsE",
+            "registers": 128,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "entry": {
+          "instructions": 3048,
+          "calls": [
+            "CALL.REL.NOINC 0xb910 ;",
+            "CALL.REL.NOINC 0xb910 ;",
+            "CALL.REL.NOINC 0xb910 ;",
+            "CALL.REL.NOINC 0xb910 ;"
+          ],
+          "local_instructions": []
+        },
+        "cubin_sha256": "b3c29cbc5682c442a68c3459911d6cb40b044907127217be3d02a2e0e558071d"
+      }
+    },
+    "spec_one_L1": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_f398da70_3396817attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE",
+            "registers": 102,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "entry": {
+          "instructions": 2208,
+          "calls": [],
+          "local_instructions": []
+        },
+        "cubin_sha256": "21b20c2b998ec62eef9a4121b3145c8d19549d5f8cf5e02a80180a139dfa9d99"
+      },
+      "nc1": {
+        "kernels": [
+          {
+            "symbol": "_ZN51_GLOBAL__N__00000000_12_preflight_cu_b861ad21_3396817attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE",
+            "registers": 89,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "entry": {
+          "instructions": 1560,
+          "calls": [],
+          "local_instructions": []
+        },
+        "cubin_sha256": "1dbb077a0b753ccf2b9c86d78fdf19823c5e325cf8e46676a3c85a7c8a6bfd36"
+      }
+    }
+  },
+  "gates": {
+    "flat_L1": {
+      "instruction_ratio": 0.8561797752808988,
+      "no_resource_regression": true,
+      "passes_fixed_CPU_gate": true
+    },
+    "spec_one_L1": {
+      "instruction_ratio": 0.7065217391304348,
+      "no_resource_regression": true,
+      "passes_fixed_CPU_gate": true
+    }
+  },
+  "decision": "CPU gate passed;not GPU admitted",
+  "scope": "Same nc1 behavior;no copy-count,split,coop,geometry,mask,precision or arithmetic changes.",
+  "required_fallback": "Any nc!=1 or other kernel family retains original dispatch;host eligibility/resource proof not built.",
+  "limitation": "Static instruction footprint is not dynamic work,cache-miss latency or a speedup prediction.",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false
+}

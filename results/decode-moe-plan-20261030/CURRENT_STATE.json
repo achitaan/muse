@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-10-30T23:32:57.807099+00:00",
-  "goal": "Objective unmet;current turn resumed work;native goal still reports blocked",
+  "updated_at": "2026-10-31T01:24:50.163467+00:00",
+  "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
   "working_decode_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
@@ -9,17 +9,17 @@
   "latest_decode_board_snapshot": "tinyroute/decode-board-during-check.json",
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
-  "newest_experiment": "Sparse shared norm aggregation",
-  "newest_check": "0db9141b952a4efe",
+  "newest_experiment": "Helper-register norm aggregation",
+  "newest_check": "9b9b978eed5b45d4",
   "newest_check_status": "done",
-  "newest_decision": "Reject shared norm grouping on performance. Official point timed parent fallback,not a new-path gain. No score,rerun or Decode transfer.",
-  "newest_outcome": "norm-group/outcome-0db9141b.json",
+  "newest_decision": "Reject helper-register norm grouping on performance. Close norm aggregation avenue. No score,rerun or Decode transfer.",
+  "newest_outcome": "norm-register/outcome-9b9b978e.json",
   "gpu_job_pending": false,
   "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
-  "moe_checks_left": 12,
+  "moe_checks_left": 19,
   "moe_scores_left": 10,
-  "decode_checks_left": 1,
-  "decode_scores_left": 7,
+  "decode_checks_left": 20,
+  "decode_scores_left": 10,
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Shared aggregation closed. Retain incumbent;assess distinct register alternative conservatively before any future paced check.",
+  "current_focus": "Norm aggregation closed;Attention nc1 compile-time control specialization CPU screen. Decode held until a proven component gain.",
   "next_diagnostic_track": "muse_moe_w4a16",
-  "earliest_new_check_utc": "2026-10-31T00:26:49.945986+00:00",
+  "earliest_new_check_utc": "2026-10-31T02:13:17.629506+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -96,7 +96,7 @@
   "overall_API_measure": "rank across the problems; the API gives ranks only",
   "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "admission": "tiny-norm-whole/admission-690ef087.json",
-  "moe_checks_after_ack_expected": 12,
+  "moe_checks_after_ack_expected": 19,
   "closed_norm_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "remaining_track_limits": {
     "muse_bf16_proj": {
@@ -107,8 +107,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 20,
-        "left": 0
+        "used": 2,
+        "left": 18
       }
     },
     "muse_attention_decode": {
@@ -119,8 +119,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 5,
-        "left": 15
+        "used": 0,
+        "left": 20
       }
     },
     "muse_moe_w4a16": {
@@ -131,20 +131,20 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 8,
-        "left": 12
+        "used": 1,
+        "left": 19
       }
     },
     "muse_decode_layer": {
       "scored": {
         "per_day": 10,
-        "used": 3,
-        "left": 7
+        "used": 0,
+        "left": 10
       },
       "checks": {
         "per_day": 20,
-        "used": 19,
-        "left": 1
+        "used": 0,
+        "left": 20
       }
     },
     "muse_prefill_layer": {
@@ -197,7 +197,7 @@
     "compiled_dynamic_shared_bytes": 214784,
     "resource_guard_mock_cases": 7,
     "actual_GPU_resources_verified": false,
-    "decision_after_shared_result": "Unrun and conditional;do not auto-spend a check. Shared aggregation established no>=3% opportunity. Distinct helper design needs a renewed cost argument."
+    "decision_after_shared_result": "GPU-tested and rejected;no choices;norm aggregation avenue closed"
   },
   "external_live_job": {
     "id": "0b48e4f57db44c68",
@@ -219,18 +219,36 @@
   },
   "pacing_scope_blocker": {
     "first_observed_utc": "2026-10-30T23:12:54Z",
-    "consecutive_goal_turns": 3,
+    "consecutive_goal_turns": 0,
     "condition": "Other client keeps launching checks;global60minute interval keeps moving. Human scope clarification pending.",
     "unaffected_work_completed": "Both tiny alternatives packaged;largerWGSfixup avenue reviewed and parked.",
-    "goal_status": "Resolved by human:Space only your own checks"
+    "goal_status": "Resolved;fresh audit counter0"
   },
   "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
   "owned_live_job": {
-    "id": "0db9141b952a4efe",
-    "source_sha256": "e5c0e7ec4e28ccc2c9a91af85e41231a9ec356daaf0db13667c1560d6110b85b",
-    "ack": "norm-group/check-ack-e5c0e7ec.json",
+    "id": "9b9b978eed5b45d4",
+    "source_sha256": "21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537",
+    "ack": "norm-register/check-ack-21a652cc.json",
     "status": "done"
   },
-  "native_goal_status_last_observed": "blocked;human replied and current foreground work resumed;tool cannot set active",
-  "owned_status_session": null
+  "native_goal_status_last_observed": "active;human resumed Goal mode",
+  "owned_status_session": null,
+  "attention_nc1_CPU_prototype": {
+    "CUDA_sha256": "e29efa5e07587dfa5f61d1c0a9b51946bfc6eca6c4462370a86750359a0fd6bc",
+    "gates": {
+      "flat_L1": {
+        "instruction_ratio": 0.8561797752808988,
+        "no_resource_regression": true,
+        "passes_fixed_CPU_gate": true
+      },
+      "spec_one_L1": {
+        "instruction_ratio": 0.7065217391304348,
+        "no_resource_regression": true,
+        "passes_fixed_CPU_gate": true
+      }
+    },
+    "GPU_admitted": false,
+    "Python_payload_exists": false,
+    "review": "attention-nc1/REVIEW.md"
+  }
 }

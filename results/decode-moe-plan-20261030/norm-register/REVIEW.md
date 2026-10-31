@@ -43,3 +43,7 @@ The compiler's exported constexpr values give 36576 bytes for Smem, 36608 aligne
 The parent prefix, all original definitions, shared harness, byte/variance gates, route mutations, prepare selection and timed dispatch match the retained gate by AST. Private compilation is absent from timed launch. There is no mutation of a loaded extension's attributes. Runtime validation still requires all 120 fixtures, both populations and arm orders exceeding 3%, full official tests/benchmarks/integrity and profile marker `norm_reg::moe_reg_fused` on selected scored cases. Empty selection is not a gain. M1 and M2 are not granted exceptions to the unchanged gates.
 
 Self-review after packaging: the constexpr report agrees with the loader guard; source bytes have an explicit no-conversion Git attribute; template transformations do not alter the shared candidate or its builder. The existing shared payload e5c0e7ec remains first. No automatic launch, score or integration is authorized by these CPU artifacts.
+
+## Terminal H200 result
+
+Check9b9b978eed5b45d4 passes5tests/6benchmarks/integrity and120private numericalfixtures. Actual144registers,zero local/static,214784dynamic,288threads,oneblock/SM;prepare167.163s. No32pairedcomparison meets3%;choicesempty;all6officialprofilesparent. Fallbackpoint2.3421325305x is not a new-path gain. Reject;close norm aggregation;no score,rerun or Decode transfer. See outcome-9b9b978e.json.

@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-31T01:13:14.801353+00:00",
+  "source": "experiments/decode_moe/moe_norm_register.py",
+  "source_sha256": "21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537",
+  "source_bytes": 338502,
+  "track": "muse_moe_w4a16",
+  "maximum_new_checks": 1,
+  "checks_before": 20,
+  "checks_after_expected": 19,
+  "official_files": {
+    "TASK.md": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0",
+    "AGENTS.md": "8977059f6539a81e207b639069df66b2b298e9dcc159f00a4fb93bb94150c09d",
+    "baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+    "reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+    "nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf"
+  },
+  "spacing_scope": "Human:space only your own checks;shared GPU idle required",
+  "last_owned_check": "0db9141b952a4efe",
+  "elapsed_owned_seconds": 6384.855366945267,
+  "shared_active_GPU_jobs": 0,
+  "scored_submissions": 0,
+  "Decode_checks_used": 0,
+  "admitted": true,
+  "rationale": "Distinct fixed mechanism removes shared bucket atomics,initialization and publication scan. CPU compiles preserve zero spills and original shared allocation. It is not a rerun of e5. No exposure/time gain inferred from logical counts.",
+  "design": {
+    "independent_GPU_jobs": 1,
+    "measurement_units": "Repeated cold-L2 graph timing within one job;not independent GPU jobs",
+    "arms": [
+      "parent",
+      "fixed helper-register candidate"
+    ],
+    "blocks": "M1..8,one/skew populations;both reversed arm orders",
+    "repetitions_per_arm": 25,
+    "synthetic_seed": 7,
+    "controls": "Same real weights,shape,input and inherited baseline;all unchanged M>8 paths retained",
+    "randomization_limitation": "Balanced deterministic reversal,not a randomized multi-job confirmatory study",
+    "numerics": "120fresh fixtures;inter/ybuf bytes;SS<=1e-5,out<=.001,worstrow<=.005",
+    "selection": "Strict>3%each population/order;actual selected scored profile required",
+    "statistics": "No formal significance claim from one job or replay pseudo-replicates"
+  },
+  "stop": "No gate relaxation,no marginal-timing retry,no automatic score or Decode integration. If no qualifying new path,close this norm aggregation avenue pending materially different evidence."
+}

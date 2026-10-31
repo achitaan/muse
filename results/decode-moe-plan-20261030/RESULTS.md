@@ -920,3 +920,7 @@ Packaged separate helper-register payload21a652cc with retained gates. Device pr
 Read-only larger-WGS follow-up parks stream-K fixup/tail work:disjoint stage visits,prior cut/endpoint screens and existing tail overlap. Logical counts are not exposed timing. Source-bound review in wgs-fixup-screen/REVIEW.md. No new GPU job or candidate.
 
 MoEcheck0db9141b952a4efe:full5/6/integrity and120private fixtures pass;0/32meet3% timing gate;selected=[];allofficialprofilesparent. Reject shared aggregation,retain33114871. Fallbackpoint2.3431547785x is not a new-path gain. Onecheck,zeroscores,zeroDecodechecks. Human clarified60minute spacing applies onlyown checks;no otheractiveGPUstillrequired.
+
+MoEregister9b9b978eed5b45d4:full5/6/integrity and120fixtures pass;0/32beats3%;selected=[];parent-onlyofficialprofiles. Reject and close norm aggregation. Fallbackpoint2.3421325305x is not a gain. Onecheck;zeroscores/Decodechecks.
+
+Attentionnc1 CPUprototypee29efa5e:fixedsame-copy control specialization;flat3560->3048instructions,regs128;SPECONE2208->1560,regs102->89;zero stack/spills. Bothpassfixed5%CPUgate. No payload/dispatchproof/GPUadmission or speedclaim yet.

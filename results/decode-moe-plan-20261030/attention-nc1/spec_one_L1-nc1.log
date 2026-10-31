@@ -1,0 +1,147 @@
+preflight.cu(2383): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+preflight.cu(2454): warning #177-D: variable "w0g_rank" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+        ^
+
+preflight.cu(2454): warning #177-D: variable "w0g_par" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                      ^
+
+preflight.cu(2454): warning #177-D: variable "w0g_gen" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                                   ^
+
+preflight.cu(2455): warning #177-D: variable "w0_smid" was declared but never referenced
+    unsigned w0_smid = 0;
+             ^
+
+preflight.cu(2456): warning #177-D: variable "w0_rank" was declared but never referenced
+    int w0_rank = 0;
+        ^
+
+preflight.cu(699): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(591): warning #607-D: this pragma must immediately precede a statement
+  #pragma unroll 1
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(571): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1752): warning #177-D: variable "V16t" was declared but never referenced
+      uint8_t* V16t = V16 + 0;   // PV reads it asynchronously: double buffer
+               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1621): warning #177-D: variable "thr" was declared but never referenced
+    float thr[2] = {0.f, 0.f};
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1631): warning #177-D: variable "ckey" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+              ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1631): warning #177-D: variable "cq" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+                               ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1674): warning #177-D: variable "i_lo" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+             ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1674): warning #177-D: variable "i_span" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+                       ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1693): warning #177-D: variable "i_cur" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+        ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(1693): warning #177-D: variable "cnt2" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel_fp8pv<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=13]" 
+
+preflight.cu(28): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+preflight.cu(42): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+
+preflight.cu(94): warning #177-D: function "<unnamed>::mbar_expect_tx" was declared but never referenced
+  __device__ __forceinline__ void mbar_expect_tx(uint64_t* bar, int bytes) {
+                                  ^
+
+preflight.cu(97): warning #177-D: function "<unnamed>::mbar_init_n" was declared but never referenced
+  __device__ __forceinline__ void mbar_init_n(uint64_t* bar, int count) {
+                                  ^
+
+preflight.cu(100): warning #177-D: function "<unnamed>::mbar_arrive" was declared but never referenced
+  __device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
+                                  ^
+
+preflight.cu(109): warning #177-D: function "<unnamed>::cp_async_mbar_arrive" was declared but never referenced
+  __device__ __forceinline__ void cp_async_mbar_arrive(uint64_t* bar) {
+                                  ^
+
+preflight.cu(113): warning #177-D: function "<unnamed>::bulk_load" was declared but never referenced
+  __device__ __forceinline__ void bulk_load(void* dst, const void* src, int bytes, uint64_t* bar) {
+                                  ^
+
+preflight.cu(123): warning #177-D: function "<unnamed>::bar_sync_n" was declared but never referenced
+  __device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+preflight.cu(124): warning #177-D: function "<unnamed>::bar_arrive_n" was declared but never referenced
+  __device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+preflight.cu(161): warning #177-D: function "<unnamed>::ex2h2" was declared but never referenced
+  __device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
+                                      ^
+
+preflight.cu(189): warning #177-D: function "<unnamed>::load_v_frags" was declared but never referenced
+  __device__ __forceinline__ void load_v_frags(const uint8_t* V, int kb, int hk, int g, int tig, uint32_t* b0,
+                                  ^
+
+preflight.cu(292): warning #177-D: function "<unnamed>::desc_sw128" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
+                                      ^
+
+preflight.cu(296): warning #177-D: function "<unnamed>::wgmma_m64n64k32_e4m3" was declared but never referenced
+  __device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
+                                  ^
+
+preflight.cu(328): warning #177-D: function "<unnamed>::desc_sw64" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw64(uint32_t addr) {
+                                      ^
+
+preflight.cu(429): warning #177-D: function "<unnamed>::cl_gid" was declared but never referenced
+  __device__ __forceinline__ int cl_gid(const Params& p) {
+                                 ^
+
+ptxas info    : 73 bytes gmem
+ptxas info    : Compiling entry function '_ZN51_GLOBAL__N__00000000_12_preflight_cu_b861ad21_3396817attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN51_GLOBAL__N__00000000_12_preflight_cu_b861ad21_3396817attn_kernel_fp8pvILi1ELb0ELi13EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 89 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms

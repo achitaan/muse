@@ -1,0 +1,16 @@
+{
+  "board": "muse_moe_w4a16",
+  "call_id": "kc-9b9b978eed5b45d4",
+  "cluster": "sfo3",
+  "content_hash": "e648495401ee11e6a2ccbb97894b1bb2c81d2112a31f6ad7a387ee5ed069d633",
+  "created_at": 1793409197.6295059,
+  "dedicated": false,
+  "duplicate_of": null,
+  "id": "9b9b978eed5b45d4",
+  "mode": "check",
+  "payload_ref": "muse_moe_w4a16/e648495401ee11e6a2ccbb97894b1bb2c81d2112a31f6ad7a387ee5ed069d633.py",
+  "result": null,
+  "started_at": 1793409348.1259418,
+  "status": "running",
+  "team": "achitaan"
+}

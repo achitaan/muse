@@ -1,0 +1,375 @@
+{
+  "job_id": "9b9b978eed5b45d4",
+  "source_sha256": "21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537",
+  "submitted_epoch": 1793409197.6295059,
+  "finished_epoch": 1793409569.2390666,
+  "official_passed": true,
+  "official_tests": 5,
+  "official_benchmarks": 6,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "prepare_s": 167.162789763,
+  "resources": [
+    {
+      "registers": 144,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "blocks_per_SM": 1,
+      "dynamic_shared_bytes": 214784,
+      "threads": 288
+    },
+    {
+      "registers": 144,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "blocks_per_SM": 1,
+      "dynamic_shared_bytes": 214784,
+      "threads": 288
+    }
+  ],
+  "private_numerical_cases": 120,
+  "numerical_maxima": {
+    "ss": 6.421995370842251e-07,
+    "out": 0.00010552472297095871,
+    "worst_row": 0.00021100229876641236
+  },
+  "paired_comparisons": [
+    {
+      "M": 1,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 21.888000890612602,
+      "candidate_us": 22.304000332951546,
+      "new_over_old": 1.0190058217019426
+    },
+    {
+      "M": 1,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 22.016000002622604,
+      "candidate_us": 22.5600004196167,
+      "new_over_old": 1.0247093212631402
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 21.95199951529503,
+      "candidate_us": 22.463999688625336,
+      "new_over_old": 1.0233236235712182
+    },
+    {
+      "M": 1,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 21.888000890612602,
+      "candidate_us": 22.272000089287758,
+      "new_over_old": 1.0175438223250368
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 22.87999913096428,
+      "candidate_us": 22.816000506281853,
+      "new_over_old": 0.997202857206589
+    },
+    {
+      "M": 2,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 22.655999287962914,
+      "candidate_us": 22.5600004196167,
+      "new_over_old": 0.9957627616806459
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 30.368000268936157,
+      "candidate_us": 30.271999537944794,
+      "new_over_old": 0.9968387536175847
+    },
+    {
+      "M": 2,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 30.33600002527237,
+      "candidate_us": 30.17600066959858,
+      "new_over_old": 0.9947257596406746
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 38.59199956059456,
+      "candidate_us": 38.816001266241074,
+      "new_over_old": 1.0058043560374426
+    },
+    {
+      "M": 3,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 38.784001022577286,
+      "candidate_us": 38.784001022577286,
+      "new_over_old": 1.0
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 52.86400020122528,
+      "candidate_us": 53.50400134921074,
+      "new_over_old": 1.0121065592000098
+    },
+    {
+      "M": 3,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 52.960000932216644,
+      "candidate_us": 53.599998354911804,
+      "new_over_old": 1.0120845432671781
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 45.31199857592583,
+      "candidate_us": 45.632001012563705,
+      "new_over_old": 1.0070622008892782
+    },
+    {
+      "M": 4,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 45.343998819589615,
+      "candidate_us": 45.40799930691719,
+      "new_over_old": 1.0014114433881804
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 53.599998354911804,
+      "candidate_us": 52.928000688552856,
+      "new_over_old": 0.9874627297204503
+    },
+    {
+      "M": 4,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 53.888000547885895,
+      "candidate_us": 52.99200117588043,
+      "new_over_old": 0.9833729334379504
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 35.360001027584076,
+      "candidate_us": 35.071998834609985,
+      "new_over_old": 0.9918551418381062
+    },
+    {
+      "M": 5,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 35.32800078392029,
+      "candidate_us": 35.13599932193756,
+      "new_over_old": 0.9945651761287857
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 50.335999578237534,
+      "candidate_us": 50.592001527547836,
+      "new_over_old": 1.005085862036223
+    },
+    {
+      "M": 5,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 50.52800104022026,
+      "candidate_us": 50.6879985332489,
+      "new_over_old": 1.003166511433953
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 50.56000128388405,
+      "candidate_us": 50.20799860358238,
+      "new_over_old": 0.9930379218480386
+    },
+    {
+      "M": 6,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 51.231998950242996,
+      "candidate_us": 50.303999334573746,
+      "new_over_old": 0.9818863281799617
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 65.92000275850296,
+      "candidate_us": 64.25599753856659,
+      "new_over_old": 0.9747572034237858
+    },
+    {
+      "M": 6,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 65.31199812889099,
+      "candidate_us": 64.7680014371872,
+      "new_over_old": 0.9916708000476384
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 42.97599941492081,
+      "candidate_us": 42.688000947237015,
+      "new_over_old": 0.9932986208208155
+    },
+    {
+      "M": 7,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 42.87999868392944,
+      "candidate_us": 42.14400053024292,
+      "new_over_old": 0.9828358634264054
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 65.21599739789963,
+      "candidate_us": 64.70400094985962,
+      "new_over_old": 0.9921492200001759
+    },
+    {
+      "M": 7,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 65.43999910354614,
+      "candidate_us": 64.38399851322174,
+      "new_over_old": 0.9838630714426893
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": "parent,candidate",
+      "parent_us": 50.592001527547836,
+      "candidate_us": 50.84799975156784,
+      "new_over_old": 1.0050600532948002
+    },
+    {
+      "M": 8,
+      "population": "one",
+      "order": "candidate,parent",
+      "parent_us": 50.4320003092289,
+      "candidate_us": 50.6879985332489,
+      "new_over_old": 1.0050761068855156
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": "parent,candidate",
+      "parent_us": 58.240000158548355,
+      "candidate_us": 58.111999183893204,
+      "new_over_old": 0.9978021810730308
+    },
+    {
+      "M": 8,
+      "population": "skew",
+      "order": "candidate,parent",
+      "parent_us": 58.20799991488457,
+      "candidate_us": 57.792000472545624,
+      "new_over_old": 0.992853225622814
+    }
+  ],
+  "range_new_over_old": [
+    0.9747572034237858,
+    1.0247093212631402
+  ],
+  "comparisons_faster": 18,
+  "comparisons_meeting_speed_gate": 0,
+  "selected_shapes": [],
+  "official_speedup_on_fallback": 2.3421325305245366,
+  "official_speedup_ci": [
+    2.3070005425666684,
+    2.3772645184824044
+  ],
+  "profiles": [
+    {
+      "case": {
+        "bs": 1,
+        "load": "decode 1",
+        "seed": 821912938124795190,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           22.8 \u00c2\u00b5s 100.0%      1\ntotal                                                             22.8 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "bs": 16,
+        "load": "decode 16",
+        "seed": 821956269977493095,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           93.2 \u00c2\u00b5s 100.0%      1\ntotal                                                             93.2 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "bs": 32,
+        "load": "decode 32",
+        "seed": 821999601830191001,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                          111.4 \u00c2\u00b5s 100.0%      1\ntotal                                                            111.4 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "bs": 8,
+        "load": "verify 1",
+        "seed": 822042933682888908,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           50.1 \u00c2\u00b5s 100.0%      1\ntotal                                                             50.1 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "bs": 128,
+        "load": "verify 16",
+        "seed": 822086265535586816,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           172.3 \u00c2\u00b5s 100.0%      1\ntotal                                                            172.3 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "bs": 256,
+        "load": "verify 32",
+        "seed": 822129597388284725,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           191.5 \u00c2\u00b5s 100.0%      1\ntotal                                                            191.5 \u00c2\u00b5s"
+    }
+  ],
+  "decision": "Reject helper-register norm grouping on performance. Close norm aggregation avenue. No score,rerun or Decode transfer.",
+  "GPU_checks_used": 1,
+  "scored_submissions_used": 0,
+  "Decode_checks_used": 0
+}
