@@ -62,3 +62,5 @@ results/decode-moe-plan-20261030/router-m1/*.cpp -whitespace
 results/decode-moe-plan-20261030/wgs-final-reuse/*.cu -whitespace
 results/decode-moe-plan-20261030/wgs-final-reuse/*.sass -whitespace
 results/decode-moe-plan-20261030/wgs-final-reuse/*.log -whitespace
+experiments/decode_moe/*wgs_final_reuse* -text
+experiments/decode_moe/moe_wgs_final_reuse.py -whitespace

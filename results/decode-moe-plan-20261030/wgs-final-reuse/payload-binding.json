@@ -1,0 +1,75 @@
+{
+  "source_sha256": "ae387de3a8d9fe793503c7d0af992533ee6cd581f172f7c92e3f3444bf6ff994",
+  "bytes": 335959,
+  "parent_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "packaged_CUDA_sha256": "bc7ed4346a4a4d905621e335656b7507c03e4ce4df3c0f842abeb0d36339591b",
+  "runtime_sha256": "9c75911f1d978bccc1cb268a87eec596ae167b30653672b17248bccea75c634e",
+  "live_snapshot_sha256": "c06eb9dc336757dc25f65e45013916c64331ab662a1c012165cc3165938de3f9",
+  "flags": [
+    "-DOKC_NW=16",
+    "-DOKC_FAST1=0",
+    "-DOKC_EPI4=0",
+    "-DOKC_WGS=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_NS=3",
+    "-DOKC_NSF=3",
+    "-DOKC_DQ7=1"
+  ],
+  "compiles": {
+    "parent-both": {
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "32124debb54b0c1ed2b25f847015e660e36d6a80fcddffd6fe9ce6f89f9ee3c5",
+      "local_instructions": 90
+    },
+    "packaged-both": {
+      "kernels": [
+        {
+          "symbol": "_ZN2wr13moe_readreuseILb1EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        },
+        {
+          "symbol": "_ZN2wr13moe_readreuseILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "40cc8f57291162bd0fde536f7fd2521c4224e6ad4383281f6c8430a1599d6e68",
+      "local_instructions": 90
+    }
+  },
+  "actual_marker": "wr::moe_readreuse",
+  "probes": "M17,31,32,33,128,256,257,384; five changing routes; live xB/ybuf/out bytes and parent repeat.",
+  "timing": "M32,128,256; normal/skew; both orders;25 samples/arm;all12 below.97;then6 unchanged controls within2%.",
+  "numerical": "Strict bytes even though bounded MoE norm variance is authorized. No legacy WGS inter/SS gates.",
+  "stopping": "One focused check after admission; no noise retries or sweep; public fallback if any gate fails.",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false
+}

@@ -1,0 +1,11 @@
+{
+  "source_sha256": "ae387de3a8d9fe793503c7d0af992533ee6cd581f172f7c92e3f3444bf6ff994",
+  "parent_prefix_exact": true,
+  "native_literals_exact": true,
+  "dispatch_cases": 774,
+  "resource_guard_cases": 10,
+  "host_only": true,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Mocks establish Python dispatch and rejection ordering only; native host build, attributes, bytes and latency require H200."
+}
