@@ -1,6 +1,6 @@
 # Board bests and source provenance
 
-Decode refreshed 2026-10-31 07:28 UTC from the scored run `0aa30c92` (rank 280 / 1091; #50 is 2.246x). Earlier Decode sources remain here.
+Decode refreshed 2026-10-31 09:04 UTC from scored run `e1af1dd0` (rank 272 / 1093). Earlier Decode sources remain here.
 
 Decode refreshed from the API on 2026-10-30 at 07:31 UTC. Other rows retain the 2026-10-29 23:57 UTC snapshot.
 
@@ -11,7 +11,7 @@ unchanged (the `best/` baselines are untouched).
 |---|---:|---:|---|---|---|
 | MoE | 2.3797x | 59 / 1131 (was 90) | `ac80911ea3d34dac` | `moe_m3_scored_2.3797.py` (M3 selector; selects nothing -> same kernels as `best/moe_verified.py`) | `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795` |
 | Attention | 2.5690x | 144 / 1087 (was 149) | `c8f7560097d348c5` | `attention_a3_scored_2.5690.py` (A3: decode 16 sliding n_splits 8) | `ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1` |
-| Decode | 2.0783x | 280 / 1091 (top 50 at 2.246x) | `0aa30c9234014956` | `decoder_p6_scored_2.0783.py`: the 2.0755 parent plus a 1% paired-A/B gate, a MoE-variance-tolerant whole-layer probe (rel L2 <= 2e-3), PDL on the `_pn`/`_sfn` Triton glue and the MoE launch (1/8/16/32 tokens), and an early-trigger private stock norm at 1/8 tokens. The scored prepare selected (per its log) per-shape masks; passed 13/13 and 12/12; prepare ~274 s. Checks of this lineage: 2.0682-2.0975x (`689fd93e`, `6553b299`, `831de9a6`, `d543da40`, `ac41a480`, `0ca71861`); a no-selection control scored 2.0434x (`7abd8d0d`). Branch `argon/decode-next-20261030`, `experiments/top50/` and `PROGRESS.md`. | `7079947b3a2a7f435b6a9959b88bc3301fbab1b31e9f59f5120f5427ee709fdf` |
+| Decode | 2.0970x | 272 / 1093 (top 50 at 2.2465x) | `e1af1dd068e74521` | `decoder_p10_scored_2.0970.py`: the 2.0783 bundle plus tolerant probes for the attention-adjacent PDL components (attention output is nondeterministic at 1/8 tokens; KV-cache bytes stay strict) and whole-layer tolerance 5e-3. This enables qkv->attention and attention->o PDL at 8 tokens (in-prepare layer -2.3..-5.0 us). Check `f9845bc9` 2.1043x; passed 13/13 and 12/12. Branch `argon/decode-next-20261030`, `experiments/top50/`. | `13a3be85f7704fc7435046c0a59cf8c72ef23b5676643e63110530d8eba3aafb` |
 | Dense | 1.5278x | 158 / 1411 | `6131bc96427e4486` | `best/verified.py` | `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b` |
 | Prefill | 1.6635x | 179 / 652 | (earlier scored run) | `best/prefill_verified.py` | `93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7` |
 
