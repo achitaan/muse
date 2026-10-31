@@ -72,6 +72,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | cuBLAS at 128/256 tokens | kept; custom kernels lost to it | - | - | dense-top50 track | <= Oct 31 |
 | Dense board: admit dense-top50 near-misses (o M8 v18s (4,8,2,1) NT1024; router M16 routertail S16/WK4) with robust 6-round gate instead of ABBA | closed | robust gate says both are SLOWER: o m8 cand/base 1.016/1.013, router m16 1.018/1.011 (earlier ABBA 'wins' were noise); WG M16/M32 variants also slower (1.19/1.14/1.017); check 1.5226x (noise); prepare 87.6 s | `3a5df127` | experiments/boards/dense/dense_b1.py (decode-next) | Oct 31 |
 | Researcher (dense board next steps) | diagnostic | M128/256 qkv/o/unpooler are the weak shapes (20% cut there = +4.4% board). Ranked: (1) noncluster CUTLASS persistent/Stream-K vs cuBLAS at M128 unpooler, 0-1.5%; (2) new c12 producer-decode->smem->SS-WGMMA path, 0-3%, high effort (needs >=4.4 TB/s reconstructed BF16); (3) TMA bulk-load diagnostic for small-M streams, 0-1.5%. Register-A c12 pipeline tweaks and cuBLASLt searches are closed (DENSE_LEDGER) | - | researcher ses_e6d4521c7ffesRmwAuqXi2DgAv | Oct 31 |
+| Dense board: CUTLASS 3.x sm90 GEMMs (pingpong / cooperative / stream-K persistent, headers from flashinfer/data/cutlass) vs current routes at M=128/256 for qkv/o/pooler/unpooler, robust 6-round gate | in progress | experiments/boards/dense/dense_b2.py | - | - | Oct 31 |
 
 ## Norms and glue kernels
 
