@@ -45,7 +45,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Router sidecar (separate concurrent router kernel) | closed | 30-34% slower | `18022301` | decode-moe-plan/router-sidecar | <= Oct 31 |
 | Router M=1 specialization | closed | no gain | `8efb0121` | decode-moe-plan/router-m1 | <= Oct 31 |
 | Fused routing + `_pn`; router load tweaks | closed | - | - | earlier sessions | <= Oct 31 |
-| Standalone exact top-8 routing kernel with PDL (from R2f/_RF finalizer) replacing SGLang routing_kernel at 9-256 tokens, byte-checked vs state['routing'] in prepare | in progress | decode-next pass 10, decoder_p8_topk.py | - | - | Oct 31 |
+| Exact top-8 PDL routing kernel (from _RF finalize), strict byte admission | failed admission (fixing) | valid run 2.0671x; weights not bit-equal to SGLang >8-token routing in 79-85/96 cases, ids equal except tie order; feature off | `2ef9150c` | experiments/top50/decoder_p8_topk.py (decode-next) | Oct 31 |
 
 ## qkv / o / unpooler projections
 
