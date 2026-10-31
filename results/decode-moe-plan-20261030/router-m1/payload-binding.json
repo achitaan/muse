@@ -1,0 +1,41 @@
+{
+  "source_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
+  "bytes": 717903,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "Decode_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "CUDA_parent_sha256": "c84f232fb371cc1184cfed5719302b94531be141642751362ce050122232348c",
+  "CUDA_candidate_sha256": "c2c6cba7e6fa6451891849bf6d254d0e2e8d34ea5fe1a6805ce77846366f107c",
+  "screened_candidate_CUDA_sha256": "8cba8791a059fd4f821d41ad8d581594fe60eee4303b5de767661d2e54fa920e",
+  "scope": "One-token specialization of retained129-CTA R1;all other M explicitly use retained module;public Dense unchanged",
+  "private_marker": "m1_gemv",
+  "original_public_prefix_exact": true,
+  "numerical_gate": "Twenty changing-input graph probes acrossM1,8,2,4;zero/normal/last-column spike/negative-zero/tiny values;byte-identical pooler/FP32 partials/router weights/IDs/counter;parent-repeat controls;nonM1 uses retained module.",
+  "timing_gate": "M1 normal/spike,both orders,25 samples per arm;all four cost ratios<0.97;then unchanged controls within2%;raw observations retained.",
+  "actual_resource_expectations": {
+    "parent": [
+      64,
+      0,
+      32768,
+      16384,
+      1
+    ],
+    "candidate": [
+      57,
+      0,
+      4096,
+      16384,
+      1
+    ]
+  },
+  "preparation_cutoffs_seconds": [
+    268,
+    274,
+    278
+  ],
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "no_Dense_gain_claim": true,
+  "no_Decode_transfer": true,
+  "no_scored_submission": true,
+  "next_gate": "Packaged-device,PDL/source,ABI and adapter audit;fresh quota/queue/spacing admission before any GPU job"
+}

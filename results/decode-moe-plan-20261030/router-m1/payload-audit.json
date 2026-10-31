@@ -1,0 +1,108 @@
+{
+  "source_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
+  "contract": {
+    "public_delegations": 40,
+    "native_ABI_arguments": 22,
+    "native_failure_raises": true
+  },
+  "shape_selector_cases": 258,
+  "compiler": {
+    "parent": {
+      "CUDA_sha256": "c84f232fb371cc1184cfed5719302b94531be141642751362ce050122232348c",
+      "cubin_sha256": "2fa086c92ae2af4d3cdb756110e4f1ba82ccc375b282b6cb8b1eff4876c10216",
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "instructions_match_screened_prototype": true,
+      "PDL": {
+        "wait_call": [
+          464,
+          "CALL.REL.NOINC 0xeea0"
+        ],
+        "wait_target": 61088,
+        "independent_loads": [
+          [
+            384,
+            "LDG.E.NA.128.CONSTANT R20, desc[UR6][R6.64]"
+          ],
+          [
+            400,
+            "LDG.E.NA.128.CONSTANT R16, desc[UR6][R6.64+0x200]"
+          ],
+          [
+            416,
+            "LDG.E.CONSTANT R2, desc[UR6][R8.64]"
+          ],
+          [
+            432,
+            "LDG.E.NA.128.CONSTANT R12, desc[UR6][R6.64+0x400]"
+          ]
+        ],
+        "first_coherent_load": [
+          784,
+          "LDG.E.STRONG.GPU R9, desc[UR6][R8.64]"
+        ],
+        "outgoing_trigger_count": 1,
+        "wait_instruction_count": 2
+      }
+    },
+    "candidate": {
+      "CUDA_sha256": "c2c6cba7e6fa6451891849bf6d254d0e2e8d34ea5fe1a6805ce77846366f107c",
+      "cubin_sha256": "152b7e33b73012282402c62f77d147f61b77b5d627f7199d7bd000b14e830fbf",
+      "kernels": [
+        {
+          "symbol": "_Z7m1_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi1ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 57,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 4096,
+          "warnings": []
+        }
+      ],
+      "instructions_match_screened_prototype": true,
+      "PDL": {
+        "wait_call": [
+          464,
+          "CALL.REL.NOINC 0xb600"
+        ],
+        "wait_target": 46592,
+        "independent_loads": [
+          [
+            384,
+            "LDG.E.NA.128.CONSTANT R4, desc[UR6][R2.64]"
+          ],
+          [
+            400,
+            "LDG.E.NA.128.CONSTANT R8, desc[UR6][R2.64+0x200]"
+          ],
+          [
+            416,
+            "LDG.E.CONSTANT R44, desc[UR6][R18.64]"
+          ],
+          [
+            432,
+            "LDG.E.NA.128.CONSTANT R12, desc[UR6][R2.64+0x400]"
+          ]
+        ],
+        "first_coherent_load": [
+          800,
+          "LDG.E.STRONG.GPU R19, desc[UR6][R18.64]"
+        ],
+        "outgoing_trigger_count": 1,
+        "wait_instruction_count": 2
+      }
+    }
+  },
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "CPU ABI/selector and fixed instruction/source checks;host build,GPU numerical/replay/PDL behavior and latency remain unproved."
+}

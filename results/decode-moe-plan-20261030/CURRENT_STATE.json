@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T04:03:02.455115+00:00",
+  "updated_at": "2026-10-31T04:13:35.279466+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -33,8 +33,8 @@
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 17,
-  "next_diagnostic_source": null,
-  "next_diagnostic_sha256": null,
+  "next_diagnostic_source": "experiments/decode_moe/dense_router_m1_diagnostic.py",
+  "next_diagnostic_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,8 +57,8 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Retained129-CTA M1 specialization passes CPU resource screen;prepare byte/PDL/fallback qualification before any GPU admission.",
-  "next_diagnostic_track": null,
+  "current_focus": "M1 specialization payload qualified on CPU;no GPU admission before04:41:30UTC plus fresh policy checks.",
+  "next_diagnostic_track": "muse_bf16_proj",
   "earliest_new_check_utc": "2026-10-31T04:41:30.304784+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
@@ -90,9 +90,9 @@
     "evidence": "observed-tail-63c17/REVIEW.md",
     "outcome": "Passed;selected=[];no new-path speedup."
   },
-  "latest_overall_rank": 259,
-  "latest_overall_ranked": 1715,
-  "latest_overall_board": "overall-board-20261030T2126.json",
+  "latest_overall_rank": 277,
+  "latest_overall_ranked": 1730,
+  "latest_overall_board": "scoring-review/overall-20261031.json",
   "overall_API_measure": "rank across the problems; the API gives ranks only",
   "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "admission": "tiny-norm-whole/admission-690ef087.json",
@@ -315,6 +315,12 @@
     "no_spills": true,
     "GPU_jobs": 0,
     "GPU_admitted": false,
-    "review": "router-m1/REVIEW.md"
+    "review": "router-m1/REVIEW.md",
+    "payload_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
+    "payload_bytes": 717903,
+    "packaged_CUDA_sha256": "c2c6cba7e6fa6451891849bf6d254d0e2e8d34ea5fe1a6805ce77846366f107c",
+    "CPU_payload_qualified": true,
+    "shape_selector_cases": 258,
+    "public_delegations": 40
   }
 }

@@ -1,0 +1,11 @@
+{
+  "captured_at_utc": "2026-10-31T04:13:35.252888+00:00",
+  "command": "okc leaderboard --json",
+  "board": "overall",
+  "measure": "rank across the problems; the API gives ranks only",
+  "rank": 277,
+  "ranked": 1730,
+  "overall_speedup_available": false,
+  "exact_aggregation_confirmed": false,
+  "GPU_jobs": 0
+}
