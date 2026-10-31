@@ -30,8 +30,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Stream-K cut / fixup / tail variants | parked | not run | - | decode-moe-plan/wgs-fixup-screen | <= Oct 31 |
 | Tiny routing-warp ownership | not run on GPU | no exposed routing bound | - | decode-moe-plan/route-warps | <= Oct 31 |
 | Large-M (32-256) tail 5.8-8.8 us as entitlement for readiness flags | diagnostic: unverified | phase trace resources differ from incumbent; needs resource-matched trace + actual touched-expert counts (judge floor uses 0.75 x router_distinct) | - | results/moe-phase-diagnostic-20261029/diagnostic-verdict.json | Oct 31 |
-| Fold _pn (pre-expert RMSNorm + local-id rotation) into the MoE kernel prologue: CTAs<M normalize rows into scratch + flag, route() rotates ids; removes the _pn kernel and a boundary (TINY/TINY2 first) | in progress | argon/decode-next pass 9, decoder_p7_pnfold.py | - | - | Oct 31 |
 | Researcher R1 (small-batch MoE gap vs board leaders 2.76x) | diagnostic | A/B already overlap per job; B refills vacated A slots; TINY prefetches A before routing. Top idea: publish skinny-job completion at expert boundaries (0.5-2 us at bs8/16); then diagnose short-phase latency vs dequant; whole-B smem caching low value (A and B share HBM) | - | researcher ses_e6f1573b2ffebmhXzecQ9Pkmcx | Oct 31 |
+| Fold _pn into MoE prologue (PNFOLD), first GPU attempt | failed (fixing) | CUDA misaligned address in the PNF probe -> sticky error, whole check failed (tests fail); builds+resources ok (144 regs, 0 local) | `a84ff5c0` | experiments/top50/decoder_p7_pnfold.py (decode-next) | Oct 31 |
 
 ## Pooler + router
 
