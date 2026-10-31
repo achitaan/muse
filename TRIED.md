@@ -31,7 +31,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Tiny routing-warp ownership | not run on GPU | no exposed routing bound | - | decode-moe-plan/route-warps | <= Oct 31 |
 | Large-M (32-256) tail 5.8-8.8 us as entitlement for readiness flags | diagnostic: unverified | phase trace resources differ from incumbent; needs resource-matched trace + actual touched-expert counts (judge floor uses 0.75 x router_distinct) | - | results/moe-phase-diagnostic-20261029/diagnostic-verdict.json | Oct 31 |
 | Researcher R1 (small-batch MoE gap vs board leaders 2.76x) | diagnostic | A/B already overlap per job; B refills vacated A slots; TINY prefetches A before routing. Top idea: publish skinny-job completion at expert boundaries (0.5-2 us at bs8/16); then diagnose short-phase latency vs dequant; whole-B smem caching low value (A and B share HBM) | - | researcher ses_e6f1573b2ffebmhXzecQ9Pkmcx | Oct 31 |
-| PNFOLD (_pn folded into MoE prologue) after alignment fix | closed for now (diagnosing) | valid 2.0667x; correct (rel 5e-6) but whole layer slower: M1 sliding +8.2, M1 full +10.8, M8 +4.8/+4.9 us; suspect PDL early-launched MoE grid competing with R2f CTAs for SMs without _pn in between | `b2574b49` | experiments/top50/decoder_p7_pnfold.py (decode-next) | Oct 31 |
+| PNFOLD v2: norm after FAST1 prefetch, MoE PDL on vs off (serial) | closed | isolated: parent _pn+MoE 25.4 us vs PNF MoE 31.0-31.6 us (M1), 75 vs 81-82 (M8); layer +5.4..+8.3 us both modes; nothing selected; prepare grew to 282 s | `db30df75` | experiments/top50/decoder_p7_pnfold.py (decode-next) | Oct 31 |
 
 ## Pooler + router
 
