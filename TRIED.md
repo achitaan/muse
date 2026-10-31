@@ -34,6 +34,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | PNFOLD v3: phase-A x via nc (LDG.CONSTANT) again | closed | isolated PNF MoE still 4.5-5 us slower than _pn+parent (M1 30.0 vs 25.4; M8 80.7 vs 75.2); layer +5..+16%; cause unexplained (not flags, not loads); PNF line closed | `97c2ab82` | experiments/top50/decoder_p7_pnfold.py (decode-next) | Oct 31 |
 | Lesson from PNFOLD: with PDL, MoE prologue/weight prefetch already overlaps the small _pn kernel, so removing _pn saves nothing and in-kernel norm adds its latency to the critical path (+4.5-6.5 us) | diagnostic | explains PNF regression | - | PROGRESS.md (decode-next) | Oct 31 |
 | Publish skinny-job phase-A completion at expert boundaries (EBPUB) for TINY/TINY2/MID | closed | correct (probes pass), no gain: isolated MoE M1 30.6->30.1 (1.7%, passes) but layer M1 sliding/full within +-1%; M8 79.4 vs 79.7; M16 109.4 vs 109.2; nothing selected | `c1d5a6f1` | experiments/top50/decoder_p12_ebpub.py (decode-next) | Oct 31 |
+| WGS (>16 tok) finalizer: replace 1-CTA-per-token two-pass OKC_WGSFINSS with epilogue ss atomics + column-segment finalizer (FINCOL) over ~4x more CTAs; optional immediate doneAs release + no WGSREORD for small stage counts (oracle-lite #2) | in progress | decode-next pass 15, decoder_p13_wgsfin.py; est. 3.5-5 us at 32/128/256 tok | - | - | Oct 31 |
 
 ## Pooler + router
 
