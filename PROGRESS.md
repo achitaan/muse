@@ -76,3 +76,17 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 | 25 | MoE at 1/8 tokens issues an L2 prefetch (evict-last) of the sliced-unpooler weights during its barrier wait (`decoder_p23_upf.py`) | built and compile-checked (18 NVRTC builds, +2-4 regs, no spills); **waiting for the daily quota reset at 00:00 UTC** (0/10 runs, 0/20 checks left) | pending | hard-fixer | $95 |
 | 26 | Per-shape MoE build selection by robust whole-layer A/B (`decoder_p24_moesel.py`): M=8 tiny2 vs tiny/mid; M=16 mid vs main; M=32 main vs mid. TINY builds trap if an expert gets more than 8 tokens, so they are never offered above 8 | built (AST OK, 984 KB); waiting for the quota reset | pending | fixer | $97 |
 | 27 | sk2 (fused pooler/router, 9-32 tokens) PDL with 2 weight stages before the wait (existing `sk2_set_pdl`, was 0), as mask 512 together with glue PDL at M16/M32 (`decoder_p25_sk2pdl.py`) | built (AST OK); queued to auto-check after the quota reset (background `after_reset2.ps1`) | pending | direct (small edit) | $97 |
+
+## Loop 3: other boards (Attention, MoE, Dense)
+
+| Pass | Item | Result | Kept/reverted | Lane | Usage |
+|---|---|---|---|---|---|
+| B1 | MoE board: background prebuild + robust per-M build selection (`88569ac0`) | 2.3442x (noise); prepare 59 s; current builds best | closed | fixer | $86 |
+| B2 | Dense board: dense-top50 near-misses through the robust gate (`3a5df127`) | 1.5226x (noise); both near-misses 1-2% slower | closed | fixer | $87 |
+| B3 | Attention board: per-shape plan autotune in the first kernel_fn call (`07f498fd`) | 2.5324x (noise); inconclusive, timing likely never ran | closed | fixer | $88 |
+| R3-R5 | Researchers: attention, dense and MoE next steps | Attention: partial FA4-style cubic exp2 emulation for q_len 8 (+1.3-3.3% est.); small-shape direct-finalize kernel (+2-4.6%, hard). Dense: CUTLASS persistent/Stream-K at m=128/256 (0-1.5%); c12 smem-decode WGMMA (0-3%, hard). MoE: WGS M<=32 build with 32-row X slots and NS=4 (3-10% bs32); per-warpgroup tail diagnostic | -> B4-B6 | researcher x3 | $95 |
+
+| B4 | Attention: 25% of q_len-8 score exp2 emulated on FMA, FA4 cubic (`attn_b2.py`, `b72f7069`, 2.4699x) | v16 full 100.2 -> 110.8 us, v32 full 184.0 -> 202.9 us (+10% slower); MUFU is not the bottleneck | closed | hard-fixer | $99 |
+| B5 | MoE: WGS M<=32 with 32-row X slots, NS=4 (`moe_b2.py`, `f0f01b32`, 2.3590x) | bit-identical, 1.007/1.007 (no gain). Selector picked MID at 32 on synthetic routes (0.944) but judge bs32 was 128.1 vs 125.8 us: synthetic routes mislead | closed | hard-fixer | $99 |
+| B6 | Dense: CUTLASS 4.5 sm90 pingpong/cooperative/stream-K vs current routes at m=128/256 (`dense_b2.py`, `df119bda`, 1.5002x) | all 10 variants slower in every case (qkv m128 29.1 vs 19.3 us; best m256 unpooler 1.016x slower) | closed | fixer | $99 |
+

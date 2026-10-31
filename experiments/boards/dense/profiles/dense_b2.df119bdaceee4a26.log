@@ -1,0 +1,20 @@
+DB_WG 16 qkv_gate KEEP ((16, 64, 1, 2, 2, True, 4), 8) cand_us=18.4 base_us=15.7 ratio A=1.200 B=1.207
+DB_WG 32 qkv_gate KEEP ((32, 64, 1, 2, 2, True, 4), 8) cand_us=18.7 base_us=15.8 ratio A=1.153 B=1.147
+DB_WG 32 unpooler KEEP ((32, 64, 1, 2, 2, True, 4), 4) cand_us=22.2 base_us=20.5 ratio A=1.017 B=1.019
+DB_O8 o m8 (4, 8, 2, 1) ratio A=1.010 B=1.006 -> KEEP
+DB_RT router m16 S16/WK4 ratio A=1.014 B=1.000 onehot_exact 1 relL2 2.4e-06 -> KEEP
+DB_BUILD o8=10.4s rt=8.3s
+DB_SELECTOR o=[] router=[]
+DB_PREP total=99.6s base=99.5s build_wait=0.0s extra=0.1s
+DC_ENV cutlass=4.5.0 sk=1 root=...packages/flashinfer/data/cutlass
+DC_BUILD a=87s b=78s c=80s
+DC_qkv_gate m128 base=19.3us ok=10/10 best=sk128x64/h 29.1us -> KEEP slower
+DC_o m128 base=11.7us ok=10/10 best=pp128x64 13.7us -> KEEP slower
+DC_pooler m128 base=30.8us ok=10/10 best=sk128x64/s2 34.5us -> KEEP slower
+DC_unpooler m128 base=29.0us ok=10/10 best=pp128x64 30.1us -> KEEP slower
+DC_qkv_gate m256 base=26.2us ok=10/10 best=sk128x64/sk 32.9us -> KEEP slower
+DC_o m256 base=13.4us ok=10/10 best=co128x128 14.7us -> KEEP slower
+DC_pooler m256 base=37.5us ok=10/10 best=pp128x64 38.0us [pp128x64 38.0us ratio A=1.061 B=1.058] [sk128x64/h 38.5us ratio A=1.076 B=1.082] -> KEEP
+DC_unpooler m256 base=33.4us ok=10/10 best=co128x128 33.7us [co128x128 33.7us ratio A=1.019 B=1.013] -> KEEP
+DC_SELECT []
+DC_PREP total=100.0s base=99.6s dc_stage=0.4s
