@@ -37,3 +37,9 @@ experiments/decode_moe/*norm_group* -text
 experiments/decode_moe/*norm_register* -text
 
 experiments/decode_moe/*attention_nc1* -text
+
+experiments/decode_moe/*route_warps* -text
+# Exact generated source and raw compiler output retain their original whitespace.
+results/decode-moe-plan-20261030/route-warps/*.log -whitespace
+results/decode-moe-plan-20261030/route-warps/*.sass -whitespace
+results/decode-moe-plan-20261030/route-warps/candidate.cu -whitespace

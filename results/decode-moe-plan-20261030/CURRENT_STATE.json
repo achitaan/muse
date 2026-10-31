@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T02:47:55.373182+00:00",
+  "updated_at": "2026-10-31T03:04:57.184147+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,7 +23,7 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "norm-group/REVIEW.md",
+  "newest_CPU_packet": "route-warps/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Attention nc1 closed. Read-only MoE all-nonlocal and R2f ownership screens preserved;no next GPU candidate admitted.",
+  "current_focus": "MoE route-warp candidate CPU screened and parked after TR8 history/opportunity review. No GPU candidate admitted;Decode checks preserved.",
   "next_diagnostic_track": null,
   "earliest_new_check_utc": "2026-10-31T03:30:50.994637+00:00",
   "newest_CPU_alternative": {
@@ -280,5 +280,15 @@
     "record": "routing-ownership-review/REVIEW.md",
     "status": "Read-only;distinct ownership possibilities,not GPU-admitted",
     "new_GPU_jobs": 0
+  },
+  "route_warp_prototype": {
+    "CUDA_sha256": "aec3724f6d3447d826b97616f5c64b8d8bda45071e72aa2ed6b8424ca0d017ed",
+    "metadata_cases": 2880,
+    "paired_CPU_compiles": 8,
+    "no_resource_regression": true,
+    "GPU_jobs": 0,
+    "GPU_admitted": false,
+    "review": "route-warps/REVIEW.md",
+    "reason": "Distinct from TR8 but no measured exposed routing bound;only two scored loads affected"
   }
 }

@@ -1,0 +1,222 @@
+{
+  "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "baseline_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "candidate_CUDA_sha256": "aec3724f6d3447d826b97616f5c64b8d8bda45071e72aa2ed6b8424ca0d017ed",
+  "exact_inverse": true,
+  "metadata": {
+    "cases": 2880,
+    "duplicate_ids_included": true,
+    "unused_rows_poisoned": true,
+    "all_count_offset_entry_position_metadata_exact": true,
+    "limitation": "CPU integer model and source access proof; not GPU race, numerical or timing validation."
+  },
+  "resources": {
+    "TINY_PRMT": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 146,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5328,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 12,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      },
+      "candidate": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 146,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5312,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 10,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      }
+    },
+    "TINY_LUT": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 141,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5352,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 12,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      },
+      "candidate": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 141,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5336,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 10,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      }
+    },
+    "TINY2_PRMT": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 146,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5376,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 12,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      },
+      "candidate": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 146,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5344,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 11,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      }
+    },
+    "TINY2_LUT": {
+      "parent": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 141,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5400,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 12,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      },
+      "candidate": {
+        "kernels": [
+          {
+            "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+            "registers": 141,
+            "stack_frame": 0,
+            "spill_stores": 0,
+            "spill_loads": 0,
+            "smem_static": 0,
+            "warnings": []
+          }
+        ],
+        "instructions": 5368,
+        "local_instructions": 0,
+        "CTA_barrier_instructions": 11,
+        "nvrtc_warning_messages": [
+          "warning #177-D: variable \"ce\" was declared but never referenced",
+          "warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+          "warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+          "warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+          "warning #177-D: variable \"okc::NSF\" was declared but never referenced"
+        ]
+      }
+    }
+  },
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "no_resource_regression": true,
+  "route_CTA_barriers": {
+    "parent": 4,
+    "TINY_candidate": 2,
+    "TINY2_candidate": 3
+  },
+  "route_histogram_rows": {
+    "parent": 8,
+    "TINY_candidate": 1,
+    "TINY2_candidate": 2
+  },
+  "decision": "CPU resource screen passed;GPU numerical/timing and affected-load opportunity remain unproven",
+  "NVRTC_warning_comparison": "Exact warning messages match paired baseline;existing unused-variable warnings retained"
+}
