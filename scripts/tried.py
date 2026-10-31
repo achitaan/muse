@@ -104,7 +104,7 @@ def main():
         for l in ledger().split('\n'):
             if l.startswith('## '):
                 area = l[3:]
-            elif l.startswith('|') and all(w.lower() in l.lower() for w in args.words):
+            elif l.startswith('|') and all(w.lower() in (area + ' ' + l).lower() for w in args.words):
                 print(f'[{area}] {l}'); n += 1
         print(f'{n} matching rows'); return
     row = '| ' + ' | '.join(cell(x) for x in (args.idea, args.outcome, args.number, args.job and f'`{args.job}`',
