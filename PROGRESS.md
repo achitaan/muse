@@ -75,4 +75,4 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 
 | 25 | MoE at 1/8 tokens issues an L2 prefetch (evict-last) of the sliced-unpooler weights during its barrier wait (`decoder_p23_upf.py`) | built and compile-checked (18 NVRTC builds, +2-4 regs, no spills); **waiting for the daily quota reset at 00:00 UTC** (0/10 runs, 0/20 checks left) | pending | hard-fixer | $95 |
 | 26 | Per-shape MoE build selection by robust whole-layer A/B (`decoder_p24_moesel.py`): M=8 tiny2 vs tiny/mid; M=16 mid vs main; M=32 main vs mid. TINY builds trap if an expert gets more than 8 tokens, so they are never offered above 8 | built (AST OK, 984 KB); waiting for the quota reset | pending | fixer | $97 |
-
+| 27 | sk2 (fused pooler/router, 9-32 tokens) PDL with 2 weight stages before the wait (existing `sk2_set_pdl`, was 0), as mask 512 together with glue PDL at M16/M32 (`decoder_p25_sk2pdl.py`) | built (AST OK); queued to auto-check after the quota reset (background `after_reset2.ps1`) | pending | direct (small edit) | $97 |
