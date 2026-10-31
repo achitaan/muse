@@ -1,0 +1,63 @@
+{
+  "decoder_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "parent_CUDA_sha256": "fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571",
+  "candidate_CUDA_sha256": "5baeea7f74b411a4998713053de3c2c75d9e6bd7d49e1095eec609a5cf8b8fd0",
+  "exact_inverse": true,
+  "ownership": {
+    "partial_outputs_exactly_once": 2048,
+    "address_checks": 131072,
+    "original_FMA_and_shuffle_subtree_exact": true,
+    "original_topk_subtree_exact": true,
+    "arrival_total": 128,
+    "arrival_increment": 2,
+    "CTA_count": 193,
+    "pooler_CTA_count": 128,
+    "router_CTA_count": 64,
+    "topk_CTA_count": 1,
+    "per_CTA_threads": 1024,
+    "original_register_budget": 64,
+    "progress_argument": "Only top-k waits on this grid;pooler and router CTAs do not. With capacity for at least two CTAs, no resident-grid circular wait is introduced. Incoming-PDL ancestor progress remains a separate required GPU proof.",
+    "scheduling_assumption": "No correctness argument assumes CUDA schedules blocks in index order.",
+    "limitation": "Integer ownership/address proof,not GPU numerical,replay,race,occupancy or latency evidence."
+  },
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "resources": {
+    "parent": {
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "local_instructions": 0,
+      "dependency_wait_instructions": 2,
+      "outgoing_trigger_instructions": 1,
+      "cubin_sha256": "2fa086c92ae2af4d3cdb756110e4f1ba82ccc375b282b6cb8b1eff4876c10216"
+    },
+    "candidate": {
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "local_instructions": 0,
+      "dependency_wait_instructions": 3,
+      "outgoing_trigger_instructions": 1,
+      "cubin_sha256": "7acd39686e364eae5063b5b5352cc624e0467e4a821605527507b87b18de074f"
+    }
+  },
+  "clean_resource_screen": true,
+  "decision": "CPU screen passed;source CFG/PDL and scheduling cost evidence required before GPU admission"
+}

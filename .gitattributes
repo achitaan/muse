@@ -43,3 +43,12 @@ experiments/decode_moe/*route_warps* -text
 results/decode-moe-plan-20261030/route-warps/*.log -whitespace
 results/decode-moe-plan-20261030/route-warps/*.sass -whitespace
 results/decode-moe-plan-20261030/route-warps/candidate.cu -whitespace
+experiments/decode_moe/*router_sidecar* -text
+# Generated diagnostic retains the exact CRLF Dense parent; appended runtime is checked separately.
+experiments/decode_moe/dense_router_sidecar_diagnostic.py -whitespace
+experiments/decode_moe/check_harness_samples_cpu.py -text
+# Raw generated sources and assembly preserve compiler/source whitespace.
+results/decode-moe-plan-20261030/router-sidecar/*.log -whitespace
+results/decode-moe-plan-20261030/router-sidecar/*.sass -whitespace
+results/decode-moe-plan-20261030/router-sidecar/*.cu -whitespace
+results/decode-moe-plan-20261030/router-sidecar/*.cpp -whitespace

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T03:04:57.184147+00:00",
+  "updated_at": "2026-10-31T03:38:51.389871+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,7 +23,7 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "route-warps/REVIEW.md",
+  "newest_CPU_packet": "router-sidecar/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
@@ -33,8 +33,8 @@
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 18,
-  "next_diagnostic_source": null,
-  "next_diagnostic_sha256": null,
+  "next_diagnostic_source": "experiments/decode_moe/dense_router_sidecar_diagnostic.py",
+  "next_diagnostic_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,8 +57,8 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "MoE route-warp candidate CPU screened and parked after TR8 history/opportunity review. No GPU candidate admitted;Decode checks preserved.",
-  "next_diagnostic_track": null,
+  "current_focus": "Joint Dense-unit router-only scheduling diagnostic packaged and CPU audited. Await final admission;no Decode check or transfer.",
+  "next_diagnostic_track": "muse_bf16_proj",
   "earliest_new_check_utc": "2026-10-31T03:30:50.994637+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
@@ -290,5 +290,17 @@
     "GPU_admitted": false,
     "review": "route-warps/REVIEW.md",
     "reason": "Distinct from TR8 but no measured exposed routing bound;only two scored loads affected"
+  },
+  "router_sidecar": {
+    "payload": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+    "CUDA_candidate": "601333e455965d3054a3e9df6aa9723c3b3863953f7ea4a51d281737534d70c2",
+    "bytes": 717595,
+    "CPU_metadata_address_checks": 131072,
+    "CPU_counter_replays": 200,
+    "packaged_device_instructions_match": true,
+    "public_Dense_delegations": 40,
+    "GPU_jobs": 0,
+    "GPU_admitted": false,
+    "scope": "Joint-projection diagnostic;public Dense parent retained,no score,no Decode transfer"
   }
 }

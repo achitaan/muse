@@ -5,9 +5,10 @@ wrappers instead of copying the logic. Everything runs during prepare() on the j
 the timed path by itself; a candidate decides what to enable from the returned numbers.
 
   _okh_same(ref, out, rtol=0.0)       bitwise equality of tensor tuples (or relative tolerance per tensor)
-  _okh_time(fns, dev, reps=25)        interleaved cold-L2 CUDA-graph timing; fns = {label: zero-arg callable}
+  _okh_time(fns, dev, reps=25, samples=None) interleaved cold-L2 CUDA-graph timing; fns = {label: zero-arg callable}
                                       returns {label: median microseconds}; graphs are captured after one
-                                      eager warm-up call each and freed before returning
+                                      eager warm-up call each and freed before returning; optional samples dict
+                                      receives unsorted per-arm microseconds from the same event observations
   _okh_pick(med, base, margin=0.97)   fastest label beating med[base] by more than (1 - margin), else base
   _okh_budget(t0, limit_s)            True while elapsed prepare time is below limit_s (the judge caps at 300 s)
   _okh_bg(fn)                         start fn on a daemon thread (e.g. an extension build) and return the thread
@@ -34,7 +35,7 @@ def _okh_same(ref, out, rtol=0.0):
  return True
 
 
-def _okh_time(fns, dev, reps=25):
+def _okh_time(fns, dev, reps=25, samples=None):
  flush = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
  graphs = {}
  for lab, fn in fns.items():
@@ -56,6 +57,8 @@ def _okh_time(fns, dev, reps=25):
  for lab, a, b in evs:
   ts[lab].append(a.elapsed_time(b) * 1000.0)
  del graphs
+ if samples is not None:
+  samples.update({lab: list(v) for lab, v in ts.items()})
  return {lab: sorted(v)[len(v) // 2] for lab, v in ts.items()}
 
 

@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "stdout": "CPU timer-contract checks passed:ms to us,paired order,cold flush count,raw samples,legacy median result\n",
+  "GPU_calls": 0,
+  "harness_sha256": "1e4062eb9774aa9523802c9a57ae9779b3645e4259ec62b61c44e30fa8e6e3eb"
+}

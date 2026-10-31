@@ -1,0 +1,25 @@
+{
+  "source_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+  "bytes": 717595,
+  "Dense_parent_sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+  "Decode_parent_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "CUDA_parent_sha256": "c84f232fb371cc1184cfed5719302b94531be141642751362ce050122232348c",
+  "CUDA_candidate_sha256": "601333e455965d3054a3e9df6aa9723c3b3863953f7ea4a51d281737534d70c2",
+  "screened_device_candidate_sha256": "5baeea7f74b411a4998713053de3c2c75d9e6bd7d49e1095eec609a5cf8b8fd0",
+  "original_public_Dense_prefix_exact": true,
+  "scope": "Unscored preparation-time joint pooler/router diagnostic with actual Dense weight bank;public Dense kernel always retained.",
+  "actual_private_marker": "sidecar_gemv",
+  "numerical_gate": "Pooler output,FP32 partials,router weights,router IDs and counter byte-identical to retained R1;unchanged-parent control mandatory.12 changing probes acrossM1,8,2,4.",
+  "performance_gate": "M1 only;two populations,two arm orders,25 observations per arm,strict candidate<0.97*parent;then two unchanged-parent controls within2%;raw event observations logged.",
+  "preparation_limits": {
+    "before_probes_seconds": 268,
+    "before_marker_seconds": 274,
+    "before_timings_seconds": 278
+  },
+  "required_next": "CPU packaged-device/ABI/public-fallback audit and fresh admission;no GPU launch authorized by this record alone.",
+  "no_Dense_gain_claim": true,
+  "no_Decode_transfer": true,
+  "no_scored_submission": true,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false
+}

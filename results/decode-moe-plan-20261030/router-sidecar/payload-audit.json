@@ -1,0 +1,46 @@
+{
+  "source_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+  "runtime_contract": {
+    "public_delegations": 40,
+    "native_ABI_arguments": 22,
+    "native_failure_raises": true
+  },
+  "compiler": {
+    "parent": {
+      "CUDA_sha256": "c84f232fb371cc1184cfed5719302b94531be141642751362ce050122232348c",
+      "cubin_sha256": "2fa086c92ae2af4d3cdb756110e4f1ba82ccc375b282b6cb8b1eff4876c10216",
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "all_instructions_match_screened_prototype": true
+    },
+    "candidate": {
+      "CUDA_sha256": "601333e455965d3054a3e9df6aa9723c3b3863953f7ea4a51d281737534d70c2",
+      "cubin_sha256": "b4bb552226631511cc4c3f56fa124dba246a5dd78a6ece3b26c7872d916ab87f",
+      "kernels": [
+        {
+          "symbol": "_Z12sidecar_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "all_instructions_match_screened_prototype": true
+    }
+  },
+  "CPP_declaration_sha256": "45371553463529235ac5c5bb25751241013712b1464d6701d45f0b5ffd47c72f",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Mock ABI/delegation checks and exact packaged device instructions. Host NVCC/linking,actual occupancy,graph replay,markers and performance still require the one admitted diagnostic."
+}

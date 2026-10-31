@@ -1,0 +1,39 @@
+{
+  "candidate_CUDA_sha256": "5baeea7f74b411a4998713053de3c2c75d9e6bd7d49e1095eec609a5cf8b8fd0",
+  "cubin_sha256": "7acd39686e364eae5063b5b5352cc624e0467e4a821605527507b87b18de074f",
+  "outgoing_trigger_pc": "0x20",
+  "dispatch": {
+    "topk_CTA_128": "0x4300",
+    "router_CTA_129_to_192": "0x1410",
+    "pooler_CTA_0_to_127": "fallthrough"
+  },
+  "wait_pc": {
+    "router": "0x1430",
+    "topk": "0x4320",
+    "pooler_helper": "0xd890"
+  },
+  "independent_pooler_load_count": 4,
+  "first_route_coherent_input_load_pc": "0x1550",
+  "publication": {
+    "writer_fence_pc": "0x41f0",
+    "1024_thread_barrier_pc": "0x4240",
+    "atomic_pc": "0x42e0",
+    "source_increment": 2
+  },
+  "replay_model": {
+    "invocations": 200,
+    "counter_observations": 12800,
+    "alternating_M": [
+      1,
+      8,
+      2,
+      4
+    ],
+    "entire_partial_buffers_equal": true,
+    "stale_unused_rows_preserved": true
+  },
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Fixed source/control-flow correspondence and integer protocol model. Instruction locations alone do not prove dynamic execution, GPU memory visibility, PDL liveness or bitwise numerical equality.",
+  "next_gate": "Exact-byte graph replay and paired cold-L2 joint dense-unit timings;no full-layer claim or Decode check yet."
+}
