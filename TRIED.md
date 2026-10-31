@@ -30,6 +30,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Stream-K cut / fixup / tail variants | parked | not run | - | decode-moe-plan/wgs-fixup-screen | <= Oct 31 |
 | Tiny routing-warp ownership | not run on GPU | no exposed routing bound | - | decode-moe-plan/route-warps | <= Oct 31 |
 | Large-M (32-256) tail 5.8-8.8 us as entitlement for readiness flags | diagnostic: unverified | phase trace resources differ from incumbent; needs resource-matched trace + actual touched-expert counts (judge floor uses 0.75 x router_distinct) | - | results/moe-phase-diagnostic-20261029/diagnostic-verdict.json | Oct 31 |
+| Fold _pn (pre-expert RMSNorm + local-id rotation) into the MoE kernel prologue: CTAs<M normalize rows into scratch + flag, route() rotates ids; removes the _pn kernel and a boundary (TINY/TINY2 first) | in progress | argon/decode-next pass 9, decoder_p7_pnfold.py | - | - | Oct 31 |
 
 ## Pooler + router
 
