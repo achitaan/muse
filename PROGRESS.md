@@ -74,4 +74,5 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 | 24 | WGS: immediate `doneAs` release / no reorder for short ranges, V1-V3 (`decoder_p22_wgsrel.py`, scored `15e19cf8`, valid 2.0698x) | V1 slower 0.6-1.5%, V2 neutral, V3 slower at M32/128/256 | closed | hard-fixer | $94 |
 
 | 25 | MoE at 1/8 tokens issues an L2 prefetch (evict-last) of the sliced-unpooler weights during its barrier wait (`decoder_p23_upf.py`) | built and compile-checked (18 NVRTC builds, +2-4 regs, no spills); **waiting for the daily quota reset at 00:00 UTC** (0/10 runs, 0/20 checks left) | pending | hard-fixer | $95 |
+| 26 | Per-shape MoE build selection by robust whole-layer A/B (`decoder_p24_moesel.py`): M=8 tiny2 vs tiny/mid; M=16 mid vs main; M=32 main vs mid. TINY builds trap if an expert gets more than 8 tokens, so they are never offered above 8 | built (AST OK, 984 KB); waiting for the quota reset | pending | fixer | $97 |
 
