@@ -36,6 +36,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Publish skinny-job phase-A completion at expert boundaries (EBPUB) for TINY/TINY2/MID | closed | correct (probes pass), no gain: isolated MoE M1 30.6->30.1 (1.7%, passes) but layer M1 sliding/full within +-1%; M8 79.4 vs 79.7; M16 109.4 vs 109.2; nothing selected | `c1d5a6f1` | experiments/top50/decoder_p12_ebpub.py (decode-next) | Oct 31 |
 | WGS (>16 tok) finalizer: replace 1-CTA-per-token two-pass OKC_WGSFINSS with epilogue ss atomics + column-segment finalizer (FINCOL) over ~4x more CTAs; optional immediate doneAs release + no WGSREORD for small stage counts (oracle-lite #2) | in progress | decode-next pass 15, decoder_p13_wgsfin.py; est. 3.5-5 us at 32/128/256 tok | - | - | Oct 31 |
 | WGS finalizer segmented (variant A, identical reduction order) | failed run (fixing) | timeout at 919 s: hung after PDLS_DONE before any WGF print (build join or kernel deadlock) | `12352872` | experiments/top50/decoder_p13_wgsfin.py (decode-next) | Oct 31 |
+| Latent bug: WGS (>16 tok) with zero local jobs (all routes non-local) reads uninitialized S.jC[0] in range calc; may stall producers | open (not fixed in published kernel) | found by hard-fixer during WGF timeout diagnosis; judge tests have not hit it | - | experiments/top50/decoder_p13_wgsfin.py report (decode-next) | Oct 31 |
 
 ## Pooler + router
 
