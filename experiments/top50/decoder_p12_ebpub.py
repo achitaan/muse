@@ -465,7 +465,10 @@ def _native_moe_kernel_fn(data, state):
  tw = data['topk_weights'].to(torch.float32).contiguous()
  out = torch.empty((M, _native_moe_HIDDEN), dtype=torch.bfloat16, device=x.device)
  sfx = state.get('sfx', ())
- if _native_moe_TINY_DEFINES and M <= _native_moe_TINY_MAX_M:
+ ebp = _ebp_ext(state, M) if _EBP_ENABLED else None
+ if ebp is not None:
+  ext = ebp
+ elif _native_moe_TINY_DEFINES and M <= _native_moe_TINY_MAX_M:
   ext = _native_moe__ext(tuple(_native_moe_TINY_DEFINES) + sfx)
  elif _native_moe_TINY2_DEFINES and M <= _native_moe_TINY2_MAX_M and (sfx or '-DOKC_WGS=1' not in tuple(_native_moe_TINY2_DEFINES)):
   ext = _native_moe__ext(tuple(_native_moe_TINY2_DEFINES) + sfx)
@@ -8084,7 +8087,7 @@ def _pdli_attention(data, on):
     return _native_attn_kernel_fn(data)
 
 
-_PDLI_SELECTOR_REV = 'p10_tol5_attn_all'
+_PDLI_SELECTOR_REV = 'p12_ebpub'
 
 
 def _pdli_tol_pair(label,seed,index,a,b,n_out):
@@ -8615,3 +8618,305 @@ def kernel_fn(data, state):
     if cfg['batch'] == 1 and cfg['q_len'] == cfg['tokens'] and cfg['tokens'] in (1, 8) and mask:
         return _pdli_layer(data, state, mask)
     return _pdls_parent_kernel_fn(data, state)
+
+
+# EBPUB: publish completed skinny jobs, without changing arithmetic, scheduling,
+# counter targets, workspace layout, or the parent's MAIN/WGS extensions.
+_EBP_ENABLED = True
+_EBP_EXT = {}
+_EBP_ERRORS = {}
+
+
+def ebp_derive(source):
+    original = source
+    edits = []
+    def replace(old, new):
+        nonlocal source
+        assert source.count(old) == 1, (old[:100], source.count(old))
+        edits.append((old, new))
+        source = source.replace(old, new)
+
+    replace('namespace okc {', '''#ifndef OKC_EBPUB
+#define OKC_EBPUB 0
+#endif
+namespace okc {''')
+    anchor = 'constexpr int SK_T = OKC_SKT;   // max tokens of a skinny job (8: 1 n-tile; 16: 2 n-tiles via smem x)'
+    replace(anchor, anchor + '''
+#if OKC_EBPUB
+static_assert(OKC_TINY && !OKC_WGS && !SKDYN,
+              "EBPUB is only for static TINY/TINY2/MID; never MAIN/WGS or the dynamic pool");
+#endif''')
+
+    # The requested builds have SKDYN=0 (OKC_TINY=1, OKC_TDYN=0).
+    # Do not edit the MAIN dynamic ring's prefetched pool-credit bookkeeping.
+    anchor = '''    nwc0 = nwn0; nwc1 = nwn1;
+  }
+  seq = seq0 + nU;
+  if (!PB) {'''
+    replace(anchor, '''#if OKC_EBPUB
+    // Every writer fences its own stores, then thread 0 publishes this job's
+    // complete intersection with [v0,v1). The condition is CTA-uniform.
+    if (!PB && (rb == RB_A - 1 || i == nU - 1)) {
+      __threadfence();
+      CTA_SYNC();
+      if (tid == 0) {
+        const int a = max(v0, (j - njF) * RB_A);
+        atomicAdd(p.doneA + j, v + 1 - a);
+      }
+    }
+#endif
+    nwc0 = nwn0; nwc1 = nwn1;
+  }
+  seq = seq0 + nU;
+  if (!PB && !OKC_EBPUB) {''')
+
+    anchor = '''      if (q == nA - 1) {  // this CTA's phase A is done: credit its units to the jobs' counters
+        __threadfence();
+        __syncwarp();
+        if (lane == 0) {
+          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;
+          for (int jj = jf; jj <= jl; ++jj) {
+            const int a = max(a0, (jj - njF) * RB_A), b = min(a1, (jj - njF + 1) * RB_A);
+            atomicAdd(p.doneA + jj, b - a);
+          }
+        }
+      }'''
+    replace(anchor, '''#if OKC_EBPUB
+      // All phase-A stores belong to this helper warp, including the last
+      // unit (WSBL only transfers phase-B epilogues to compute warps).
+      // Keep the parent's per-writer fence -> warp join -> lane-0 atomic.
+      if (rb == RB_A - 1 || q == nA - 1) {
+        __threadfence();
+        __syncwarp();
+        if (lane == 0) {
+          const int a = max(a0, (j - njF) * RB_A);
+          atomicAdd(p.doneA + j, v + 1 - a);
+        }
+      }
+#else
+''' + anchor + '\n#endif')
+    reverse = source
+    for old, new in reversed(edits):
+        assert reverse.count(new) == 1
+        reverse = reverse.replace(new, old)
+    assert reverse == original
+    return source, edits
+
+
+def _ebp_bucket(m):
+    return 1 if 0 < m <= 4 else 8 if 4 < m <= 8 else 16 if 8 < m <= 16 else 0
+
+
+def _ebp_build():
+    if not _EBP_ENABLED:
+        return
+    try:
+        if torch.cuda.get_device_capability() != (9, 0):
+            return
+        source, edits = ebp_derive(_native_moe_CUDA_SRC)
+        sha = hashlib.sha256(source.encode()).hexdigest()[:12]
+        for bucket, base in ((1, _native_moe_TINY_DEFINES), (8, _native_moe_TINY2_DEFINES),
+                             (16, _native_moe_MID_DEFINES)):
+            for sfx in (('-DOKC_PRMTSC=1',), ()):
+                key = (bucket, sfx)
+                try:
+                    defines = tuple(base) + sfx + (('-DOKC_DQ7=1',) if _native_moe_DQ7 else ())
+                    tag = hashlib.sha256(repr(defines).encode()).hexdigest()[:10]
+                    ext = load_inline('okc_ebpub_' + sha + '_' + tag,
+                        cpp_sources=_native_moe_CPP_SRC, cuda_sources=source,
+                        functions=['okc_run', 'okc_set_pdl'],
+                        extra_cuda_cflags=['-O3', '-lineinfo', '-gencode=arch=compute_90a,code=sm_90a',
+                            '-DOKC_NS=3', '-DOKC_NSF=3', '-DOKC_EBPUB=1', *defines], verbose=False)
+                    ext.okc_set_pdl(1 if _native_moe_PDL else 0)
+                    _EBP_EXT[key] = ext
+                except Exception as e:
+                    _EBP_ERRORS[key] = repr(e)[-300:]
+        print('EBP_BUILD', sha, 'edits=', len(edits), 'ready=', len(_EBP_EXT),
+              'errors=', _EBP_ERRORS, flush=True)
+    except Exception as e:
+        _EBP_ERRORS['source'] = repr(e)[-300:]
+        print('EBP_BUILD_ERROR', _EBP_ERRORS['source'], flush=True)
+
+
+_ebp_thread = _okh_bg(_ebp_build)
+
+
+def _ebp_ext(native, m):
+    bucket = _ebp_bucket(m)
+    p = native.get('ebp', {})
+    if bucket and p.get('on', {}).get(bucket, False):
+        return p.get('exts', {}).get((bucket, tuple(native.get('sfx', ()))))
+    return None
+
+
+def _ebp_call(state, m, on, fn):
+    # Preparation only: graph capture bakes in the chosen extension. No toggle,
+    # allocation, device inspection or input-data dispatch is needed on replay.
+    flags = state['ebp']['on']
+    bucket = _ebp_bucket(m)
+    old = flags.get(bucket, False)
+    flags[bucket] = on
+    try:
+        return fn()
+    finally:
+        flags[bucket] = old
+
+
+def _ebp_same(a, b, tol=True, exact_zero=False):
+    # Quiet _pdli_tol_pair equivalent: parent kernel is the numerical oracle.
+    if a.shape != b.shape or a.dtype != b.dtype:
+        return False
+    if not a.is_floating_point() or not tol:
+        return bool(torch.equal(a.contiguous().view(torch.uint8), b.contiguous().view(torch.uint8)))
+    if not (bool(torch.isfinite(a).all()) and bool(torch.isfinite(b).all())):
+        return False
+    if exact_zero and not bool((b[a == 0] == 0).all()):
+        return False
+    if torch.equal(a, b):
+        return True
+    a64, b64 = a.double(), b.double()
+    norm = float(torch.linalg.vector_norm(a64))
+    return norm != 0. and float(torch.linalg.vector_norm(a64 - b64)) <= 5e-3 * norm
+
+
+def _ebp_probe(fns, mutate, start, cache=(), seeds=3, tol=True, exact_zero=False, zero_seed=None):
+    # Changing-input graph replays also exercise the parent's scratch reset,
+    # including alternation between default and EBPUB using the same scratch.
+    captures = {}
+    for lab in ('parent', 'ebp'):
+        if not _okh_budget(start, 276.):
+            return False
+        fns[lab]()
+        torch.cuda.synchronize()
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph):
+            out = fns[lab]()
+        captures[lab] = (graph, out)
+    for seed in range(seeds):
+        if not _okh_budget(start, 276.):
+            return False
+        mutate(seed)
+        snapshots = {}
+        # Both orders matter: catch stale intermediate/counter reuse in either direction.
+        for lab in (('parent', 'ebp') if seed % 2 == 0 else ('ebp', 'parent')):
+            graph, out = captures[lab]
+            graph.replay()
+            torch.cuda.synchronize()
+            snapshots[lab] = (tuple(x.clone() for x in out),
+                              tuple(x.view(torch.uint8).clone() for x in cache))
+        ref, rc = snapshots['parent']; cand, cc = snapshots['ebp']
+        if seed == zero_seed and any(bool(torch.count_nonzero(x)) for x in ref + cand):
+            return False
+        if len(ref) != len(cand) or not all(_ebp_same(a, b, tol, exact_zero) for a, b in zip(ref, cand)):
+            return False
+        if not all(torch.equal(a, b) for a, b in zip(rc, cc)):
+            return False
+    return True
+
+
+def _ebp_time(fns, dev, start):
+    results = []
+    for order in (('parent', 'ebp'), ('ebp', 'parent')):
+        if not _okh_budget(start, 276.):
+            return False, results
+        times = _okh_time({lab: fns[lab] for lab in order}, dev, reps=25)
+        results.append(times)
+    return all(_okh_pick(t, 'parent', .99) == 'ebp' for t in results), results
+
+
+def _ebp_select(state, start):
+    native, p = state['native_moe'], state['ebp']
+    dev = native['w'][0].device
+    for m in (1, 8, 16):
+        key = (m, tuple(native.get('sfx', ())))
+        if key not in p['exts'] or not _okh_budget(start, 276.):
+            continue
+        gen = torch.Generator(device=dev).manual_seed(91200 + m)
+        x = torch.randn((m, _native_moe_HIDDEN), device=dev, generator=gen).to(torch.bfloat16)
+        ids = torch.full((m, 8), -1, dtype=torch.int32, device=dev)
+        tw = torch.full((m, 8), .125, dtype=torch.float32, device=dev)
+        data = {'hidden_states': x, 'topk_ids': ids, 'topk_weights': tw,
+                'config': {'local_start': native['lo'], 'local_count': native['cnt']}}
+        rows = torch.arange(m, dtype=torch.int32, device=dev)
+        cols = torch.arange(8, dtype=torch.int32, device=dev)
+        def mutate(seed):
+            x.normal_(generator=gen)
+            tw.uniform_(.01, .25, generator=gen)
+            ids.fill_(-1)
+            if seed == 0:  # one local route per row
+                ids[:, 0] = native['lo'] + rows % native['cnt']
+            elif seed == 1:  # all eight local; MID exercises split jobs
+                ids.copy_((native['lo'] + cols).expand(m, 8))
+            elif seed == 2:  # duplicates, plus zero rows mixed with nonzero rows
+                # <=8 entries/expert even without MID's split-job support.
+                ids.copy_((native['lo'] + rows[:, None]).expand(m, 8))
+                if m > 1:
+                    ids[-1].fill_(-1)
+            # seed 3: entirely nonlocal; exact-zero assertion below
+        def run(on):
+            return _ebp_call(state, m, on, lambda: (_native_moe_kernel_fn(data, native),))
+        fns = {'parent': lambda: run(False), 'ebp': lambda: run(True)}
+        ok = _ebp_probe(fns, mutate, start, seeds=4, tol=True, exact_zero=True, zero_seed=3)
+        print('EBP_PROBE', m, 'one/eight/duplicates/none=', ok, flush=True)
+        if not ok:
+            continue
+        # Sparse, realistic shard coverage: 2 / 9 / 13 distinct local experts.
+        # At M=8/16, a second route per row exposes >M distinct local experts.
+        x.normal_(generator=gen); ids.fill_(-1); tw.fill_(.125)
+        distinct = {1: 2, 8: 9, 16: 13}[m]
+        ids[:, :2] = native['lo'] + (2 * rows[:, None] + cols[:2]) % distinct
+        unit_ok, times = _ebp_time(fns, dev, start)
+        print('EBP_UNIT', m, 'AB/BA=', times, 'pass=', unit_ok, flush=True)
+        if not unit_ok:
+            continue
+        layer_passes = []
+        for sliding in ((True,) if m == 16 else (True, False)):
+            if not _okh_budget(start, 276.):
+                break
+            layer = (_pdli_data_b if m == 16 else _pdli_data)(m, sliding, dev, gen)
+            def lmut(seed):
+                layer['attn_input'].normal_(generator=gen)
+                layer['stream'].normal_(generator=gen)
+            def lrun(on):
+                return _ebp_call(state, m, on, lambda: _ebp_parent_kernel_fn(layer, state))
+            arms = {'parent': lambda: lrun(False), 'ebp': lambda: lrun(True)}
+            correct = _ebp_probe(arms, lmut, start, (layer['k_cache'], layer['v_cache']), tol=True)
+            passed, timing = _ebp_time(arms, dev, start) if correct else (False, [])
+            layer_passes.append(passed)
+            print('EBP_LAYER', (m, sliding), 'tol=', correct, 'AB/BA=', timing, 'pass=', passed, flush=True)
+            del layer, arms
+        expected = 1 if m == 16 else 2
+        # One switch per bucket: both sliding/full layer gates must win for 1/8.
+        p['on'][m] = len(layer_passes) == expected and all(layer_passes)
+        print('EBP_SELECT', m, p['on'][m], flush=True)
+
+
+_ebp_parent_prepare = prepare
+_ebp_parent_kernel_fn = kernel_fn
+
+
+def prepare(weights):
+    start = _okh_clock.perf_counter()
+    state = _ebp_parent_prepare(weights)
+    p = {'on': {1: False, 8: False, 16: False}, 'exts': {}}
+    state['ebp'] = p
+    native = state.get('native_moe')
+    if native is not None:
+        native['ebp'] = p
+    try:
+        if _EBP_ENABLED and native is not None and _okh_budget(start, 276.):
+            _ebp_thread.join(max(0., 276. - (_okh_clock.perf_counter() - start)))
+            if not _ebp_thread.is_alive() and _okh_budget(start, 276.):
+                p['exts'] = dict(_EBP_EXT)
+                _ebp_select(state, start)
+        torch.cuda.synchronize()
+    except Exception as e:
+        p['on'] = {1: False, 8: False, 16: False}
+        print('EBP_ERROR', repr(e)[-500:], flush=True)
+    print('EBP_DONE', 'rev=', _PDLI_SELECTOR_REV, 'elapsed_s=',
+          _okh_clock.perf_counter() - start, 'on=', p['on'], flush=True)
+    return state
+
+
+def kernel_fn(data, state):
+    return _ebp_parent_kernel_fn(data, state)
