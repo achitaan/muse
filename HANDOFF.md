@@ -109,3 +109,10 @@ Downloaded okc binary, Triton wheel and compiler/cache files, Python caches, and
 Human removed the60-minute interval. Owned override is results/decode-moe-plan-20261030/EVALUATION_POLICY_OVERRIDE.json; sparing checks, fresh admission, idle queue and reserve4 remain. M1 diagnostic8efb0121db7848c2 passed9/30/integrity and20 byte probes but0/4 pairs met3%;closed without retry/score/Decode transfer. Dense quota16,MoE19,Attention18,Decode20,Prefill20;all10 scores. See router-m1/outcome.json for exact source and raw pairs.
 
 New CPU-only WGS finalizer read-reuse source b6199d97 preserves norm/reduction/BF16 arithmetic and keeps first-pass float4 values for the second pass. Both compiler arms use96 registers and the same existing stack/spills. It removes16 static LDG instructions;no GPU gain is claimed. Runnable source-bound diagnostic and numerical/timing qualification remain. See wgs-final-reuse/REVIEW.md. Incumbents unchanged.
+
+
+## 2026-10-31: WGS read-reuse GPU closure
+
+MoE check5a9d8a25bda34b31,sourceae387de3 at35ec349:private false/true markers and all12 paired timings observed;0/12 met3%. Ratios0.994471703..1.005541232. Public fallback passed5 tests/6 benchmarks/integrity;2.360919872x is a fallback point,not a gain. No score,Decode transfer or retry. Server16000-character tail clipped early attributes and31 byte-pass messages;full gate traversal follows from frozen control flow reaching markers/timing. See wgs-final-reuse/outcome.json.
+
+MoE18 checks,Attention18,Dense16,Decode20,Prefill20;10 scores each. Existing DBG global-timer hooks were inspected as a way to measure retained routing/gather/A/B/grid-join/finalization before another change. No such job is admitted yet. See wgs-final-reuse/NEXT_MEASUREMENT.md. Fixed spacing stays disabled; incumbents unchanged.

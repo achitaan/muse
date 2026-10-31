@@ -1,0 +1,87 @@
+{
+  "source": "public incumbent fallback in5a9d8a25bda34b31",
+  "unit": "ns",
+  "rows": [
+    {
+      "case": {
+        "bs": 1,
+        "load": "decode 1",
+        "seed": 3527973734427543259,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 24887.14280284313,
+      "event_median_ns": 27503.99988144636,
+      "paired_speedup": 3.141220267061348,
+      "roofline_ns": 11416.507733333334
+    },
+    {
+      "case": {
+        "bs": 16,
+        "load": "decode 16",
+        "seed": 3528222803575880680,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 94014.19852116579,
+      "event_median_ns": 97904.00043129921,
+      "paired_speedup": 2.0046334225140923,
+      "roofline_ns": 52519.458133333326
+    },
+    {
+      "case": {
+        "bs": 32,
+        "load": "decode 32",
+        "seed": 3528471872724218102,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 127111.05254253927,
+      "event_median_ns": 131007.99918174744,
+      "paired_speedup": 1.642909817943682,
+      "roofline_ns": 70755.39626666668
+    },
+    {
+      "case": {
+        "bs": 8,
+        "load": "verify 1",
+        "seed": 3528720941872555525,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 63437.814593993746,
+      "event_median_ns": 66463.99945020676,
+      "paired_speedup": 2.2674173349070346,
+      "roofline_ns": 37318.92906666667
+    },
+    {
+      "case": {
+        "bs": 128,
+        "load": "verify 16",
+        "seed": 3528970011020892949,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 183496.2071971116,
+      "event_median_ns": 187983.99716615677,
+      "paired_speedup": 2.593099951056119,
+      "roofline_ns": 101341.04746666664
+    },
+    {
+      "case": {
+        "bs": 256,
+        "load": "verify 32",
+        "seed": 3529219080169230374,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 218553.15817345705,
+      "event_median_ns": 220463.99861574173,
+      "paired_speedup": 2.8470145285518864,
+      "roofline_ns": 108944.31573333332
+    }
+  ],
+  "reconstructed_geomean_speedup": 2.3609198716622215,
+  "is_candidate_gain": false,
+  "overall_aggregation": "unknown;not inferred from this track"
+}

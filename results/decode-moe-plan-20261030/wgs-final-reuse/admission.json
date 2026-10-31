@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-31T04:50:37.394977+00:00",
+  "track": "muse_moe_w4a16",
+  "source_sha256": "ae387de3a8d9fe793503c7d0af992533ee6cd581f172f7c92e3f3444bf6ff994",
+  "source_commit": "35ec34989daa1f7a5c1b7386fd7b0b36d06c5a4b",
+  "official_identity_matches": true,
+  "official_identity": "official-identity.json",
+  "CPU_audit": "payload-audit.json",
+  "CPU_both_entry_resources": "payload-binding.json",
+  "live_jobs": [],
+  "checks_before": 19,
+  "expected_after": 18,
+  "checks_admitted": 1,
+  "publication": false,
+  "Decode_check": false,
+  "fixed_spacing_minutes": 0,
+  "policy_override": "../EVALUATION_POLICY_OVERRIDE.json",
+  "opportunity": "Remove a real second ybuf read with no added compiler resource cost; exposed duration unknown. One complete-MoE paired diagnostic decides profitability.",
+  "stopping": "Full numerical and resource gates;all12 timings<.97;6 unchanged controls within2%;no noise retry or sweep."
+}

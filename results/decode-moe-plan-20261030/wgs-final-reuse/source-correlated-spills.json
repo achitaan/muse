@@ -1,0 +1,55 @@
+{
+  "parent-both": {
+    "cubin_sha256": "32124debb54b0c1ed2b25f847015e660e36d6a80fcddffd6fe9ce6f89f9ee3c5",
+    "finalizer_source_lines_including_NVRTC_declaration": [
+      2461,
+      2521
+    ],
+    "total_local_instructions": 90,
+    "source_mapped_finalizer_local_instructions": [
+      {
+        "source_line": 2467,
+        "instruction": "/*5aff0*/                   LDL.LU R89, [R1+0x4]                                                                                 (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2477,
+        "instruction": "/*5b3c0*/                   STL [R1+0x4], R89                                                                                    (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2467,
+        "instruction": "/*5aff0*/                   LDL.LU R89, [R1+0x4]                                                                                 (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2477,
+        "instruction": "/*5b3c0*/                   STL [R1+0x4], R89                                                                                    (*\"SpillRefill\"*);"
+      }
+    ]
+  },
+  "packaged-both": {
+    "cubin_sha256": "40cc8f57291162bd0fde536f7fd2521c4224e6ad4383281f6c8430a1599d6e68",
+    "finalizer_source_lines_including_NVRTC_declaration": [
+      2461,
+      2522
+    ],
+    "total_local_instructions": 90,
+    "source_mapped_finalizer_local_instructions": [
+      {
+        "source_line": 2467,
+        "instruction": "/*5af10*/                   LDL.LU R91, [R1]                                                                                        (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2477,
+        "instruction": "/*5b340*/                   STL [R1], R91                                                                                           (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2467,
+        "instruction": "/*5af10*/                   LDL.LU R91, [R1]                                                                                        (*\"SpillRefill\"*);"
+      },
+      {
+        "source_line": 2477,
+        "instruction": "/*5b340*/                   STL [R1], R91                                                                                           (*\"SpillRefill\"*);"
+      }
+    ]
+  },
+  "limitation": "Source-correlated static disassembly only; debug locations do not establish dynamic spill traffic or timing."
+}
