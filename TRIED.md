@@ -156,3 +156,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Sub-1% whole-layer admission (<0.993 both orders) with independent 6-round confirmation | kept | scored 2.0717x (noise); adds M16 full (confirm 0.9921/0.9922); M16 sliding confirmed 0.989/0.991; M32 not admitted; prepare 99.8 s | `848a03ac` | experiments/top50/decoder_p17_gate.py (decode-next) | Oct 31 |
 | H200 bandwidth-ceiling microbenchmarks (prefill-board check as a diagnostic) | diagnostic | graph-replay floor 9.6 us per launch (132x256 on 16 KB); random 128-B row gather (attention KV pattern, 328 MB useful) best 3.81 TB/s incl. floor (~4.3 TB/s excl.), sorted 4.06 (~4.5); contiguous 128 MB cold ld.v4 best 2.98 TB/s incl. floor; TMA bulk no better than ld.v4 at 28/50 MB. Our full-context attention (d16 87 us for 328 MB) is within ~5-10% of the random-gather ceiling | `b7a92e20` | experiments/boards/diag/bwdiag.py (decode-next) | Oct 31 |
 | Lesson: in-prepare MoE A/B with reference-like routes (3 draws, 256 MB L2 flush) picked MID at bs32 (0.944) but the judge measured MAIN faster (125.8 vs 128.1 us) | diagnostic | MID vs MAIN at 32 tokens depends on per-draw routing; few draws mislead; judge uses fresh inputs per rep. Don't trust in-prepare MoE build selection without many draws | `f0f01b32` | experiments/boards/moe/moe_b2.py (decode-next) | Oct 31 |
+
+## Dense c12 BF16
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| B7 vec2 plus cluster2/4 X TMA multicast with remote stage-ready handshake, two token-split m64n64 MMA WGs, and cluster2 combined; distinct from closed MoE activation multicast | parked pending H200: 13 sm_90a instances compile, zero spills; full single-MMA 90 regs, dual-MMA 58; 2400 cluster parity schedules pass; no GPU check spent | decode-next/dense_b7 | `offline-dw7` | .slim/worktrees/decode-next/experiments/boards/dense/dense_b7.py | Oct 31 |
