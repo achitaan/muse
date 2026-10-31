@@ -68,6 +68,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | M=32 warpgroup unpooler | closed | 22.3 vs 20.6 us | `ec1ea264` | decode-moe-plan/o32-resource-fixed | <= Oct 31 |
 | Fixed o projection for 9-16 tokens | prepared, never measured | - | - | experiments/prepared/decoder_output_projection_review.md | <= Oct 31 |
 | cuBLAS at 128/256 tokens | kept; custom kernels lost to it | - | - | dense-top50 track | <= Oct 31 |
+| Dense board: admit dense-top50 near-misses (o M8 v18s (4,8,2,1) NT1024; router M16 routertail S16/WK4) with robust 6-round gate instead of ABBA | in progress | experiments/boards/dense/dense_b1.py (decode-next) | - | - | Oct 31 |
 
 ## Norms and glue kernels
 
