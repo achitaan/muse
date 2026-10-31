@@ -52,3 +52,7 @@ results/decode-moe-plan-20261030/router-sidecar/*.log -whitespace
 results/decode-moe-plan-20261030/router-sidecar/*.sass -whitespace
 results/decode-moe-plan-20261030/router-sidecar/*.cu -whitespace
 results/decode-moe-plan-20261030/router-sidecar/*.cpp -whitespace
+experiments/decode_moe/*router_m1* -text
+results/decode-moe-plan-20261030/router-m1/*.log -whitespace
+results/decode-moe-plan-20261030/router-m1/*.sass -whitespace
+results/decode-moe-plan-20261030/router-m1/*.cu -whitespace

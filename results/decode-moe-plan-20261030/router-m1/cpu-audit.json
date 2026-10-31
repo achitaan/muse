@@ -1,0 +1,68 @@
+{
+  "decoder_sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+  "parent_CUDA_sha256": "fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571",
+  "candidate_CUDA_sha256": "8cba8791a059fd4f821d41ad8d581594fe60eee4303b5de767661d2e54fa920e",
+  "exact_inverse": true,
+  "scope": "m1 only;129 CTAs and existing mixed router/pooler ownership retained;dynamic shared allocation unchanged",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "resources": {
+    "parent": {
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi0ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 64,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 32768,
+          "warnings": []
+        }
+      ],
+      "instructions": 3888,
+      "global_load_instructions": 114,
+      "shared_load_instructions": 272,
+      "predicate_set_instructions": 556,
+      "local_instructions": 0,
+      "cubin_sha256": "2fa086c92ae2af4d3cdb756110e4f1ba82ccc375b282b6cb8b1eff4876c10216"
+    },
+    "candidate": {
+      "kernels": [
+        {
+          "symbol": "_Z9v18s_gemvILi1ELi1ELi1ELi1ELi0ELi0ELi1024ELi1ELi4096ELi8192ELi2ELi16ELi8ELi1ELi70EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj6R2Args",
+          "registers": 57,
+          "stack_frame": 0,
+          "spill_stores": 0,
+          "spill_loads": 0,
+          "smem_static": 4096,
+          "warnings": []
+        }
+      ],
+      "instructions": 2984,
+      "global_load_instructions": 114,
+      "shared_load_instructions": 64,
+      "predicate_set_instructions": 503,
+      "local_instructions": 0,
+      "cubin_sha256": "e93f94493cb6036cd1363180ee24bdc524d28f2b339f6af480dd47fa3c4d8456"
+    }
+  },
+  "clean_resource_screen": true,
+  "instruction_ratio": 0.7674897119341564,
+  "decision": "CPU resource screen passes;dynamic work,exact bytes and latency unproven",
+  "limitation": "Specialized source/compiler evidence only;lower static count or shared allocation does not prove exposed time saved.",
+  "bounds": {
+    "host_M_cases": 258,
+    "only_M1_enters": true,
+    "all_shared_input_indices": 1024,
+    "shared_input_max_index": 1023,
+    "unique_router_partials": 2048,
+    "part_buffer_entries": 16384,
+    "original_grid_CTA_count": 129,
+    "original_FMA_shuffles_and_counter_expressions_retained": true,
+    "limitation": "Source guard/index argument;not GPU bitwise or race validation."
+  },
+  "register_capacity_upper_bound_blocks_per_SM": {
+    "parent": 1,
+    "candidate": 1
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T03:54:48.325506+00:00",
+  "updated_at": "2026-10-31T04:03:02.455115+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -23,7 +23,7 @@
   "preserve_final_decode_check": true,
   "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
-  "newest_CPU_packet": "router-sidecar/REVIEW.md",
+  "newest_CPU_packet": "router-m1/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Joint pooler/router redistribution closed on H200 performance;Decode checks preserved. No next GPU candidate admitted.",
+  "current_focus": "Retained129-CTA M1 specialization passes CPU resource screen;prepare byte/PDL/fallback qualification before any GPU admission.",
   "next_diagnostic_track": null,
   "earliest_new_check_utc": "2026-10-31T04:41:30.304784+00:00",
   "newest_CPU_alternative": {
@@ -305,5 +305,16 @@
     "job_id": "18022301274f4d18",
     "status": "Closed;30.35 to33.50percent slower in four private comparisons",
     "outcome": "router-sidecar/outcome.json"
+  },
+  "router_m1_prototype": {
+    "CUDA_sha256": "8cba8791a059fd4f821d41ad8d581594fe60eee4303b5de767661d2e54fa920e",
+    "source": "router-m1/candidate.cu",
+    "registers": 57,
+    "static_shared_bytes": 4096,
+    "static_instruction_ratio": 0.7674897119341564,
+    "no_spills": true,
+    "GPU_jobs": 0,
+    "GPU_admitted": false,
+    "review": "router-m1/REVIEW.md"
   }
 }
