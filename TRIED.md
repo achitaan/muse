@@ -107,6 +107,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Top-k folded into the router at 16-256 tokens | open (not tried) | - | - | RESEARCH_20261031.md | Oct 31 |
 | MoE readiness flags at 32+ tokens | open (not tried) | tail 5.8-8.8 us | - | RESEARCH_20261031.md | Oct 31 |
 | Consumer-side redundant exact norm: attention-boundary norm inside the R2f prologue, pooled-input norm inside tiny MoE staging (no global barrier; Hazy-style) | open (not tried) | est. 2-4 us at T=1/8, 0.7-1.4% Decode; different from closed producer-last-CTA and cluster norms | - | researcher ses_e6f618865ffeGiiwqHHpNWnD1i | Oct 31 |
+| MoE PDL as a per-call okc_run argument instead of the process-global okc_set_pdl scope (reviewer major; thread-safety) | open (not tried) | needs C++ ABI change in packed MoE source; current scope safe while MoE runs on one thread | - | experiments/top50/decoder_p6_final.py ~478, ~7111 (decode-next) | Oct 31 |
 
 ## Process
 
