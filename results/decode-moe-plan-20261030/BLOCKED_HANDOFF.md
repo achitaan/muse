@@ -1,3 +1,5 @@
+> Current 2026-10-31: queue snapshot router-m1/jobs-20261031T041838Z.json contains 47 done and 3 duplicate jobs, with none active. Only own-check pacing remains until 04:41:30.304784 UTC; this is not a blocked goal. Historical record below remains preserved.
+
 > Resolved by human2026-10-30: "Space only your own checks". MoE check0db9141b952a4efe launched. Historical blocker record follows.
 
 # Pacing-scope blocker

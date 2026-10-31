@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T04:13:35.279466+00:00",
+  "updated_at": "2026-10-31T04:20:28.500704+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -21,7 +21,7 @@
   "decode_checks_left": 20,
   "decode_scores_left": 10,
   "preserve_final_decode_check": true,
-  "spacing_policy": "60 minutes between new checks; quota is not a target. Do not launch another check immediately.",
+  "spacing_policy": "60 minutes between this task's own new checks. Other clients do not reset this clock; require idle shared GPU queue before launch. Quota is not a target.",
   "numerical_question": "Resolved: human allows bounded MoE norm/output variance only; Decode and Attention exact-byte gates unchanged.",
   "newest_CPU_packet": "router-m1/REVIEW.md",
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
@@ -322,5 +322,17 @@
     "CPU_payload_qualified": true,
     "shape_selector_cases": 258,
     "public_delegations": 40
-  }
+  },
+  "next_own_check_eligible_at_utc": "2026-10-31T04:41:30.304784+00:00",
+  "queue_snapshot": "router-m1/jobs-20261031T041838Z.json",
+  "queue_snapshot_status_counts": {
+    "done": 47,
+    "duplicate": 3
+  },
+  "queue_wait_required_at_snapshot": false,
+  "current_wait_reason": "Finite own-check pacing only; no user answer pending. Goal remains active.",
+  "additional_read_only_reviews": [
+    "upstream-review/REVIEW.md",
+    "attention-l8-ownership/REVIEW.md"
+  ]
 }
