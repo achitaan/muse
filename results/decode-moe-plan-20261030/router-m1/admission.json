@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-31T04:27:42.515665+00:00",
+  "source_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
+  "source_commit": "0f3ae1119281660840125386a6520efc2ddbf635",
+  "track": "muse_bf16_proj",
+  "scope": "One unscored M1 joint pooler/router diagnostic;public Dense delegates incumbent;no Dense performance claim or Decode transfer.",
+  "CPU_packaged_audit_sha256": "e2073f919122b7d63d6976e4801f29d753d17f03c60c354c300d7d1eebd71228",
+  "official_identity": {
+    "AGENTS.md": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc",
+    "TASK.md": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+    "baseline.py": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+    "reference.py": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055"
+  },
+  "official_identity_matches": true,
+  "live_jobs": [],
+  "Dense_checks_before": 17,
+  "expected_after": 16,
+  "fixed_spacing_minutes": 0,
+  "spacing_override": "Human 2026-10-31: Wait don't follow 60m spacing just do when you think ur fine",
+  "GPU_jobs_admitted": 1,
+  "parameter_sweep": false,
+  "timing_noise_retry": false,
+  "publication": false
+}

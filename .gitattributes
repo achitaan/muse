@@ -58,3 +58,7 @@ results/decode-moe-plan-20261030/router-m1/*.log -whitespace
 results/decode-moe-plan-20261030/router-m1/*.sass -whitespace
 results/decode-moe-plan-20261030/router-m1/*.cu -whitespace
 results/decode-moe-plan-20261030/router-m1/*.cpp -whitespace
+# Preserve exact retained-source and compiler output bytes in this CPU-only screen.
+results/decode-moe-plan-20261030/wgs-final-reuse/*.cu -whitespace
+results/decode-moe-plan-20261030/wgs-final-reuse/*.sass -whitespace
+results/decode-moe-plan-20261030/wgs-final-reuse/*.log -whitespace

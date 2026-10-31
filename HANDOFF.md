@@ -102,3 +102,10 @@ Optional offline SM90 compilation used Triton3.8.0, Python3.14.4, and no GPU. Re
 ## What was excluded from Git
 
 Downloaded okc binary, Triton wheel and compiler/cache files, Python caches, and all authentication material. Code, original task, candidate payloads, raw evaluation evidence, scripts and this handoff are committed. Do not restore credentials from repository history; none should be present.
+
+
+## 2026-10-31: fixed spacing lifted; M1 closed; WGS read-reuse CPU candidate
+
+Human removed the60-minute interval. Owned override is results/decode-moe-plan-20261030/EVALUATION_POLICY_OVERRIDE.json; sparing checks, fresh admission, idle queue and reserve4 remain. M1 diagnostic8efb0121db7848c2 passed9/30/integrity and20 byte probes but0/4 pairs met3%;closed without retry/score/Decode transfer. Dense quota16,MoE19,Attention18,Decode20,Prefill20;all10 scores. See router-m1/outcome.json for exact source and raw pairs.
+
+New CPU-only WGS finalizer read-reuse source b6199d97 preserves norm/reduction/BF16 arithmetic and keeps first-pass float4 values for the second pass. Both compiler arms use96 registers and the same existing stack/spills. It removes16 static LDG instructions;no GPU gain is claimed. Runnable source-bound diagnostic and numerical/timing qualification remain. See wgs-final-reuse/REVIEW.md. Incumbents unchanged.

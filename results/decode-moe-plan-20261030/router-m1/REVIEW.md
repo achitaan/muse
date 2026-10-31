@@ -27,3 +27,11 @@ Freeze20 changing-input graph probes across M1,8,2,4: zero, normal, last-column 
 Timing remains the fixed M1 normal/spike design: both arm orders,25 observations per arm, all four candidate costs below0.97 times parent, then both unchanged timing controls within2%. Preserve raw unsorted event observations. These are repeated observations in one job, not independent jobs or significance estimates. Preparation cutoffs remain268/274/278 seconds. Failed correctness/control/resources/timing closes the candidate without noise retries or a parameter sweep. A positive unit result still requires a credible whole-layer opportunity before a Decode check; no score or transfer is automatic.
 
 Final CPU self-review: immutable old runtime is hash-bound before adaptation; generated Python parses below1MB; ABI, shape fallback, exact device binding and PDL/source checks pass. GPU host build, actual resources, byte equality, marker and latency are still pending. GPU jobs used by this packet:zero; fresh quota/queue/identity/spacing admission is mandatory.
+
+## GPU outcome — closed
+
+The human removed fixed60-minute spacing on2026-10-31: "Wait don't follow60m spacing just do when you think ur fine". Fresh queue, quota and five official files were checked before admission. Job `8efb0121db7848c2` completed on H200:9 tests,30 benchmarks and integrity passed; preparation99.248623382 seconds. Actual parent/candidate resources matched the frozen guards, all20 changing-input byte probes passed, and the `m1_gemv` execution marker appeared.
+
+Four parent/candidate median costs in microseconds were25.184/25.376,25.408/25.024,25.280/25.120 and25.344/25.184. Candidate/parent ratios are1.007624,0.984887,0.993671 and0.993687. None passes the predeclared0.97 gate. Unchanged timing controls were conditional on all four primary passes and were therefore not run. Raw25-observation arms remain in the saved log and outcome JSON.
+
+Close without a noise retry, score or Decode integration. The official public Dense path remains the incumbent; its1.502905751x point is not a candidate gain. One Dense check used; fresh quota is16 checks/10 scores, with20 Decode checks still available. Verified incumbents remain unchanged.

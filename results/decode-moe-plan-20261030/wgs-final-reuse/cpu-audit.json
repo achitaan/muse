@@ -1,0 +1,64 @@
+{
+  "baseline_sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+  "baseline_CUDA_sha256": "1e60cf469ebff8d0f1e63a223f41f041374a1f30f90e4201a819ee178353270c",
+  "candidate_CUDA_sha256": "b6199d97ff4907e55b674e55b1f8f04f38df7f7c90c2f0ed2ac5c5df429d9520",
+  "exact_inverse": true,
+  "resources": {
+    "parent": {
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "673f850661d5450e8165f58c3f7c4603f0c807039d50214490c9369f0eecedae",
+      "instructions": 25088,
+      "local_instructions": 45,
+      "global_load_instructions": 269
+    },
+    "candidate": {
+      "kernels": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "registers": 96,
+          "stack_frame": 16,
+          "spill_stores": 56,
+          "spill_loads": 124,
+          "smem_static": 0,
+          "warnings": []
+        }
+      ],
+      "cubin_sha256": "5b2acf1f5a33d010694816a1d7a89adb94554ddc0bd7442fe38663f0773ccf0e",
+      "instructions": 25032,
+      "local_instructions": 45,
+      "global_load_instructions": 253
+    }
+  },
+  "CPU_portability_shim": "Identical wgs_cta_of forward declaration in both NVRTC inputs; not a production source change.",
+  "compile_invocations": 3,
+  "successful_compiles": 2,
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "added_live_values_per_thread": 64,
+  "logical_read_saving_bytes_per_local_route": 16384,
+  "summary_recovery": "Read existing raw logs, CUBIN and SASS after fixing report-only symbol key; no recompile.",
+  "no_resource_regression": true,
+  "decision": "CPU resource screen passes; GPU resources, bytes, timing and affected-load bound remain unproved.",
+  "flags": [
+    "-DOKC_NW=16",
+    "-DOKC_FAST1=0",
+    "-DOKC_EPI4=0",
+    "-DOKC_WGS=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_NS=3",
+    "-DOKC_NSF=3",
+    "-DOKC_DQ7=1"
+  ],
+  "retained_math": "Same norm sum expression, warp/cross-warp reduction order, epsilon, route order and BF16 output.",
+  "ownership": "Thread-private values; identical qv>=0 guard in both passes; no invalid-slot read."
+}
