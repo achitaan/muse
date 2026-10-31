@@ -70,6 +70,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Boundary-norm follow-up | parked | single-CTA and gates already kept | - | decode-moe-plan/boundary-norm-source-review | <= Oct 31 |
 | Fold boundary norm into producer GEMV last CTA (o / unpooler) | closed (inspection, no GPU run) | last-block norm serializes the row on one SM; full-grid spin needs unproven residency; ceiling marginal after fences | - | .slim/worktrees/decode-fresh/experiments/prepared/decoder_projection_norm_fusion_review.md | Oct 31 |
 | Early stock-norm PDL trigger (pdls1 port) at M1, bit 32, on top of p2 | closed | 2.0503x (noise); unit norm->R2f -1.9/-2.3 us (bytes ok) but whole layer only -0.5/-0.1 us (0.993/0.999, fails 1%); M1_full layer rel_l2 3.1e-3 (594 elems) rejected | `f82e5ab8` | experiments/top50/decoder_p3_norm.py (decode-next) | Oct 31 |
+| Early stock-norm PDL trigger extended to M8 (bit 32 at M1/M8, on p3) | kept | 2.0891x (CI 2.058-2.120); selected M1 sliding mask 63 (layer -1.4/-1.4 us) and M8 full mask 52 (-2.1/-2.1 us); unit M8 norm->R2f -1.2/-1.4 us | `d543da40` | experiments/top50/decoder_p4_norm8.py (decode-next) | Oct 31 |
 
 ## Attention
 
