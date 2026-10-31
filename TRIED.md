@@ -92,6 +92,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | PDL handoffs for qkv -> attention -> o, norm -> R2f, MoE -> unpooler at 1/8 tokens | kept | 2.0755x | `452fbd9d` | board_best/decoder_pdli_scored_2.0755.py | <= Oct 31 |
 | L2 weight prefetch during attention and the norm | closed | best -0.8 us; +20-25 us with pooler weights | `94c68965`, `bad2bc21` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | PDLI selector: 1% gate + tolerant whole-layer probe (rel_l2<=1e-3 AND <=16 mismatching elems) | closed | 2.0434x (CI 2.013-2.074); tolerant probe still rejected: MoE run-to-run diffs reach 18-731 elems, rel_l2 up to 1.3e-3; even M1_sliding lost its selection -> selected={} | `7abd8d0d` | experiments/top50/decoder_p1_gate.py (decode-next) | Oct 31 |
+| PDLI selector: 1% gate + tolerant whole-layer/moe_unpool probe rel_l2<=2e-3 (no elem cap) | kept | 2.0975x (CI 2.066-2.129); selects M1 sliding+full mask 15 (whole-layer -4.0/-4.7 us both orders); M8 r2f-only fails 1% | `0ca71861` | experiments/top50/decoder_p1b_tol.py (decode-next) | Oct 31 |
 
 ## Open ideas
 
