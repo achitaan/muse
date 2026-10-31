@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-31T02:14:32.660644+00:00",
+  "source": "experiments/decode_moe/attention_nc1.py",
+  "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "source_bytes": 328054,
+  "frozen_commit": "9001b20",
+  "track": "muse_attention_decode",
+  "maximum_new_checks": 1,
+  "checks_before": 20,
+  "checks_after_expected": 19,
+  "official_files": {
+    "baseline.py": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+    "reference.py": "386f7f67a1d788501e8fb9005d340423d098a0946e23810ba10878228c11a37b",
+    "template.py": "18e15dfdfdcebb8251d94530947f4ccfa1c19f598a8240a0b76c6574eddecb6d",
+    "TASK.md": "fdc57e97579dd8579bb6cc284e454578962d30a65b1b7a526719ce220b0bba76",
+    "AGENTS.md": "c01682737af060546f7f17c480cc37309c28e6c2de1cc13c669f3f66307d3476"
+  },
+  "spacing_scope": "Only own checks;human clarification",
+  "last_owned_check": "9b9b978eed5b45d4",
+  "elapsed_owned_seconds": 3675.0311381816864,
+  "shared_active_GPU_jobs": 0,
+  "scored_submissions": 0,
+  "Decode_checks_used": 0,
+  "admitted": true,
+  "design": {
+    "independent_jobs": 1,
+    "comparison": "Same parent vs fixed nc1 compilation;no plan sweep",
+    "cohorts": "Two fixed synthetic cohorts and normal/coherent distributions per family;two reversed arm orders,25measurements per arm",
+    "replication": "Graph measurements are repeated samples within one job,not independent jobs",
+    "numerics": "Exact output/entirecache bytes and parent-repeat controls;3changinginputs per12configurations;no tolerance relaxation",
+    "performance": "8comparisons/family each strict>3%;nearbybothorders<=2%regression",
+    "resources": "Native0local/static;expectedshared67584/58368;threads256/128;blocks>=1 before probes",
+    "full_check": "16tests,12benchmarkrows,integrity;weighted46sliding+16full acrosssixloads",
+    "publication": "No automatic score;real selected new-path profile and material weighted-load/control evidence required"
+  },
+  "stop": "Any resource/byte/control/budget/performance failure disables family. Empty choices or fallback-only point is not a gain. No noise retry or Decode transfer."
+}

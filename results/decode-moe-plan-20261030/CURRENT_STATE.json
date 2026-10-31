@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T02:03:21.253783+00:00",
+  "updated_at": "2026-10-31T02:14:32.660644+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -9,12 +9,12 @@
   "latest_decode_board_snapshot": "tinyroute/decode-board-during-check.json",
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
-  "newest_experiment": "Helper-register norm aggregation",
-  "newest_check": "9b9b978eed5b45d4",
-  "newest_check_status": "done",
+  "newest_experiment": "Attention nc1 fixed control specialization",
+  "newest_check": "918d0b03653d48ec",
+  "newest_check_status": "submitted",
   "newest_decision": "Reject helper-register norm grouping on performance. Close norm aggregation avenue. No score,rerun or Decode transfer.",
   "newest_outcome": "norm-register/outcome-9b9b978e.json",
-  "gpu_job_pending": false,
+  "gpu_job_pending": true,
   "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
   "moe_checks_left": 19,
   "moe_scores_left": 10,
@@ -59,7 +59,7 @@
   },
   "current_focus": "Attention nc1 payload066d8932 ready for paced admission;CPUinterfacechecks pass;actualGPUevidence pending.",
   "next_diagnostic_track": "muse_attention_decode",
-  "earliest_new_check_utc": "2026-10-31T02:13:17.629506+00:00",
+  "earliest_new_check_utc": null,
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -226,13 +226,13 @@
   },
   "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
   "owned_live_job": {
-    "id": "9b9b978eed5b45d4",
-    "source_sha256": "21a652ccf6f5dd4bc72bea7b68d30654a639129f23fb9a110b732e67897bd537",
-    "ack": "norm-register/check-ack-21a652cc.json",
-    "status": "done"
+    "id": "918d0b03653d48ec",
+    "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+    "ack": "attention-nc1/check-ack-066d8932.json",
+    "status": "submitted"
   },
   "native_goal_status_last_observed": "active;human resumed Goal mode",
-  "owned_status_session": null,
+  "owned_status_session": 48365,
   "attention_nc1_CPU_prototype": {
     "CUDA_sha256": "e29efa5e07587dfa5f61d1c0a9b51946bfc6eca6c4462370a86750359a0fd6bc",
     "gates": {
@@ -275,6 +275,11 @@
     "session_id": 23313,
     "target_utc": "2026-10-31T02:13:21Z",
     "purpose": "Read-only foreground countdown;no automatic GPU action",
-    "status_at_creation": "running"
+    "status_at_creation": "terminal"
+  },
+  "boundary_norm_followup": {
+    "decision": "Park;fixed-size singleCTA and precomputed gates already retained",
+    "source": "boundary-norm-source-review/REVIEW.md",
+    "GPU_calls": 0
   }
 }
