@@ -29,6 +29,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Norm group / norm register / whole-row tiny norm | closed | slower on GPU | - | decode-moe-plan CURRENT_STATE | <= Oct 31 |
 | Stream-K cut / fixup / tail variants | parked | not run | - | decode-moe-plan/wgs-fixup-screen | <= Oct 31 |
 | Tiny routing-warp ownership | not run on GPU | no exposed routing bound | - | decode-moe-plan/route-warps | <= Oct 31 |
+| Large-M (32-256) tail 5.8-8.8 us as entitlement for readiness flags | diagnostic: unverified | phase trace resources differ from incumbent; needs resource-matched trace + actual touched-expert counts (judge floor uses 0.75 x router_distinct) | - | results/moe-phase-diagnostic-20261029/diagnostic-verdict.json | Oct 31 |
 
 ## Pooler + router
 
