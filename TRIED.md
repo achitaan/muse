@@ -82,6 +82,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | `nc1` builds | closed | no family enabled | `1d606d43` | decode-moe-plan/attention-nc1 | <= Oct 31 |
 | Page-1 constants | rejected on CPU | instruction ratio 0.955 misses the 0.95 gate | - | decode-moe-plan/attention-page1-constants | <= Oct 31 |
 | One-query FP8 QK | closed | no usable gain | - | HANDOFF | <= Oct 31 |
+| Senior advice chain HYA (HYA_ROUTE) -> AX1 -> KS1/KS2/KS3 | diagnostic | names absent from all refs; QK-norm/RoPE/FP8 cache write, 8-way GQA packing, 64-key tiles, length-balanced splits already in attn_kernel_fp8pv | - | researcher ses_e6f618865ffeGiiwqHHpNWnD1i; git grep all refs | Oct 31 |
 
 ## Across kernels
 
