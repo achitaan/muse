@@ -112,6 +112,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Integrated PDL bundle p6 (gate 1% + tol probe + glue PDL 1/8/16/32 + early norm 1/8 + review fixes) | kept | checks: p5 2.0960 (6553b299), p6 2.0682 (689fd93e, prepare 273.7 s); all 13/13 tests; check-level gain within ~3% noise; scored submit 0aa30c92 | `6553b299, 689fd93e, 0aa30c92` | experiments/top50/decoder_p6_final.py (decode-next) | Oct 31 |
 | M8 qkv->attention / attention->o PDL with tolerant probe (attention output nondeterministic at M8; cache bytes strict) | kept | 2.0942x (CI 2.063-2.126); M8 sliding mask 18 (layer -2.3/-3.5 us), M8 full mask 19 (qa+o+glue, layer -4.7/-5.0 us vs ~-2.5 before) | `c5f34d4f` | experiments/top50/decoder_p9_tolattn.py (decode-next) | Oct 31 |
 | Selection stability: tolerant attention probes at all M + whole-layer tol 5e-3 | kept | 2.1043x (CI 2.073-2.136), best check so far; selected M1 30/31, M8 18/19, PDLS M1 sliding 62; M16/M32 not selected this run | `f9845bc9` | experiments/top50/decoder_p10_tol5.py (decode-next) | Oct 31 |
+| MoE (TINY/TINY2) issues L2 bulk prefetch of the sliced-unpooler c12 weights (6.3 MB) during its barrier wait/finalize so the PDL unpooler streams from L2 (M1/M8); differs from closed prefetch during attention/norm | in progress | decode-next pass 25, decoder_p23_upf.py | - | - | Oct 31 |
 
 ## Open ideas
 
