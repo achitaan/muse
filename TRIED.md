@@ -41,6 +41,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | In-layer per-shape MoE build selection (TINY/TINY2/MID/MAIN) by robust whole-layer A/B with real-router routes (M=8: TINY2 vs MID; M=16: MID vs TINY2 vs MAIN; M=32: MAIN vs MID) | in progress | decode-next pass 26, decoder_p24_moesel.py; earlier MID vs MAIN at 32 = tie on MoE board (63c17c9c) | - | - | Oct 31 |
 | MoE board: background prebuild of MoE exts + robust per-M build selection (M8 tiny2/mid/tiny, M16 mid/main, M32 main/mid) | closed | check 2.3442x (noise vs 2.3797 best); prepare 59 s; no override adopted: M8 mid 1.003/1.000, tiny 0.992/0.998; M16 main 1.084/1.088; M32 mid 1.037/1.038 -> current builds are best | `88569ac0` | experiments/boards/moe/moe_b1.py (decode-next) | Oct 31 |
 | Researcher (MoE board next steps) | diagnostic | tail marker DBG(3) is thread 0 only (may misattribute tail); ranked: (1) per-warpgroup end-time diagnostic; (2) WGS M<=32 build with X slots capped at 32 rows -> 4th weight slot (NS=4), est. 3-10% bs32; (3) MID helper-warp epilogue overlap 2-6% bs16 (MID already uses OKC_WS helper: check); no public W4A16 MoE >=4.4 TB/s at 16-32 tokens; FP4->FP8 weight path impossible with BF16 activations | - | researcher ses_e6d44e8edffeRJaWBvjNq01iZF | Oct 31 |
+| WGS build for M<=32 with X slots capped at 32 rows freeing smem for a 4th weight-ring slot (NS=4), selected by robust A/B; distinct from closed WGS 4-tile and TINY NS4 | in progress | experiments/boards/moe/moe_b2.py (also applies to decode d32) | - | - | Oct 31 |
 
 ## Pooler + router
 
