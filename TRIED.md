@@ -67,6 +67,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | `_sfn` warp variants | closed | - | - | earlier sessions | <= Oct 31 |
 | M=1 norm PDL integration (`decoder_pdls1_draft.py`) | **parked, never run on GPU** | unit gain alone below the 3% layer gate | - | decode-moe-plan CURRENT_STATE | <= Oct 31 |
 | Boundary-norm follow-up | parked | single-CTA and gates already kept | - | decode-moe-plan/boundary-norm-source-review | <= Oct 31 |
+| Fold boundary norm into producer GEMV last CTA (o / unpooler) | closed (inspection, no GPU run) | last-block norm serializes the row on one SM; full-grid spin needs unproven residency; ceiling marginal after fences | - | .slim/worktrees/decode-fresh/experiments/prepared/decoder_projection_norm_fusion_review.md | Oct 31 |
 
 ## Attention
 
@@ -95,7 +96,6 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 |---|---|---|---|---|---|
 | PDL for MoE | open (not tried) | switch exists; `_native_moe_PDL = False` | - | decoder source | Oct 31 |
 | PDL for stock norm / `_sfn` / `_pn` / `routing_kernel` | open (not tried) | - | - | `_PDLI_NORM_THREADS = []` | Oct 31 |
-| Folding the norm into the producer's last CTA | open (not tried) | - | - | RESEARCH_20261031.md | Oct 31 |
 | Top-k folded into the router at 16-256 tokens | open (not tried) | - | - | RESEARCH_20261031.md | Oct 31 |
 | MoE readiness flags at 32+ tokens | open (not tried) | tail 5.8-8.8 us | - | RESEARCH_20261031.md | Oct 31 |
 
