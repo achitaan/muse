@@ -1,0 +1,32 @@
+DB_WG 16 qkv_gate KEEP ((16, 64, 1, 2, 2, True, 4), 8) cand_us=18.5 base_us=14.7 ratio A=1.197 B=1.182
+DB_WG 32 qkv_gate KEEP ((32, 64, 1, 2, 2, True, 4), 8) cand_us=17.5 base_us=15.9 ratio A=1.143 B=1.132
+DB_WG 32 unpooler KEEP ((32, 64, 1, 2, 2, True, 4), 4) cand_us=22.5 base_us=20.6 ratio A=1.013 B=1.019
+DB_O8 o m8 (4, 8, 2, 1) ratio A=1.022 B=1.013 -> KEEP
+DB_RT router m16 S16/WK4 ratio A=1.021 B=1.011 onehot_exact 1 relL2 2.5e-06 -> KEEP
+DB_BUILD dw=5.5s o8=7.1s rt=4.9s
+DB_SELECTOR o=[] router=[]
+DB_PREP total=89.3s base=89.2s build_wait=0.0s extra=0.1s
+DW_BUILD vec2 regs=90 local=0 smem=197832 cta_per_sm=1
+DW_BUILD vec2_ahead regs=90 local=0 smem=197832 cta_per_sm=1
+DW_BUILD vec2_ahead_wait1 regs=90 local=0 smem=197832 cta_per_sm=1
+DW_BUILD producer-only regs=13 local=0 smem=197832 cta_per_sm=1
+DW_BUILD producer+X regs=40 local=0 smem=197832 cta_per_sm=1
+DW_BUILD producer+decode regs=50 local=0 smem=197832 cta_per_sm=1
+DW_BUILD producer+MMA regs=90 local=0 smem=197832 cta_per_sm=1
+DW_DIAG producer-only 22.192
+DW_DIAG producer+X 26.224
+DW_DIAG producer+decode 26.272
+DW_DIAG producer+MMA 28.608
+DW_DIAG full 31.968
+DW_BW producer-only c12_bytes/s=2.268009e+12
+DW_BOTTLENECK marginal_decode_us=3.360 marginal_mma_us=5.696 full/raw=1.441 nonadditive=1
+DW_ABLATION X_us=4.032 decode_over_X_us=0.048 MMA_over_X_us=2.384 nonadditive=1
+DW_CHECK vec2 pack_exact=1 onehot=1 FP64=1 relL2=0.000e+00
+DW_CHECK vec2_ahead pack_exact=1 onehot=1 FP64=1 relL2=0.000e+00
+DW_CHECK vec2_ahead_wait1 pack_exact=1 onehot=1 FP64=1 relL2=0.000e+00
+DW_VAR vec2 30.560
+DW_VAR vec2_ahead 31.504
+DW_VAR vec2_ahead_wait1 31.712
+DW_GATE vec2 ratio A=1.095 B=1.093 KEEP
+DW_CASE unpooler 128 1.095 1.093 KEEP
+DW_PREP total=89.5s
