@@ -35,3 +35,5 @@ experiments/decode_moe/profiles/*tiny_norm* -text
 experiments/decode_moe/*norm_group* -text
 
 experiments/decode_moe/*norm_register* -text
+
+experiments/decode_moe/*attention_nc1* -text

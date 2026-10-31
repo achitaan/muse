@@ -1,0 +1,6 @@
+{
+  "source_sha256": "89a94912a2c969ad1f10da6650a2f441743193fc528e89b2065ab3bcebe24731",
+  "GPU_calls": 0,
+  "defect": "Short full ctx129 fixture selects nc3 in actual parent plan;strict nc1 diagnostic would reject before launch.",
+  "repair": "Use short full ctx63,whose actual plan hasnc1;kernel code and all gates unchanged."
+}

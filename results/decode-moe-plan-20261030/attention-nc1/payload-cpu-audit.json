@@ -1,0 +1,17 @@
+{
+  "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "parent_prefix_and_functions_exact": true,
+  "private_CPP_CUDA_binding_exact": true,
+  "resource_guard_cases": 15,
+  "actual_parent_plan_fixture_cases": 12,
+  "dispatcher_and_rejection_cases": 16,
+  "public_wrapper_cases": 4,
+  "synthetic_scratch_reset_device_scoped": true,
+  "calibration_receives_device_only": true,
+  "raw_byte_snapshots": true,
+  "no_private_build_or_resource_query_in_dispatch": true,
+  "no_loaded_module_attribute_mutation": true,
+  "GPU_calls": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Static and mocked integration evidence only;host compile,H200 resources,repeatability and performance pending."
+}

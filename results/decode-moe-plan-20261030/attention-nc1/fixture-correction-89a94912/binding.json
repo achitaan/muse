@@ -1,0 +1,15 @@
+{
+  "source_sha256": "89a94912a2c969ad1f10da6650a2f441743193fc528e89b2065ab3bcebe24731",
+  "bytes": 327672,
+  "CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "marker": "attn_kernel_nc1",
+  "parent_prefix_exact": true,
+  "calibration": "First eager setup;fixed independent synthetic inputs;no caller activation/length values cached",
+  "numerical_gate": "Exact output/cache bytes and unchanged-parent repeated controls;no MoE variance exception",
+  "timing_gate": "Each family needs8strict>3% comparisons,two arm orders/two cohorts/two distributions;nearby<=2%regression",
+  "scope": "Only metadata-guarded L1 nc1 flat/SPEC-ONE,flags0;all other native and Torch fallbacks original",
+  "GPU_jobs": 0,
+  "admitted_for_GPU": false,
+  "pending": "CPU runtime/interface audit;actual host compilation,resources,bytes/replay and timing on H200"
+}
