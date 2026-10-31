@@ -8101,7 +8101,7 @@ def _pdli_layer(data, state, mask):
    for tensor in (topk_weights, topk_ids):
     tensor.record_stream(main_stream)
  expert_input, local_ids = _pn_expert_inputs(expert_input, topk_ids, data['local_start'], state, pdl=bool(mask & 16))
- expert_output = _experts(expert_input, topk_weights, local_ids, state, pdl=bool(mask & 16))
+ expert_output = _experts_upf(expert_input, topk_weights, local_ids, state, state['pdli']['plans']['u'+str(tokens)], pdl=bool(mask & 16)) if mask & 256 and tokens in (1,8) else _experts(expert_input, topk_weights, local_ids, state, pdl=bool(mask & 16))
  if tokens <= SLICED_UNPOOL_MAX_TOKENS:
   unpooled = _pdli_project(expert_output, 'unpooler', state) if mask & 8 else _achita_dense_project(expert_output, 'unpooler', state, UNPOOL_SLICE)
   next_attn_input, stream = _sfn_boundary(stream, unpooled, state, pdl=bool(mask & 16))
@@ -8219,7 +8219,7 @@ def _pdli_attention(data, on):
     return _native_attn_kernel_fn(data)
 
 
-_PDLI_SELECTOR_REV = 'p21_merge_gate_r2n'
+_PDLI_SELECTOR_REV = 'p23_upf'
 
 
 def _pdli_tol_pair(label,seed,index,a,b,n_out):
@@ -9072,3 +9072,222 @@ def kernel_fn(data,state):
                 and stream.is_contiguous() and not stream.data_ptr()%16):
             return _pdli_layer(data,state,mask)
     return _rn_parent_kernel_fn(data,state)
+
+
+# UPF: prefetch the next sliced-unpooler plan after each CTA finishes phase B.
+# TINY has OKC_L2H=0 (normal), TINY2 streams weights evict-first; use evict-last
+# for UPF, unlike normal-priority bulk prefetch. Hints never affect arithmetic.
+def upf_derive(source):
+    original, edits = source, []
+    def replace(old, new):
+        nonlocal source
+        assert source.count(old) == 1, old[:100]
+        edits.append((old,new)); source = source.replace(old,new)
+    replace('namespace okc {', '''#ifndef OKC_UPF
+#define OKC_UPF 0
+#endif
+namespace okc {''')
+    replace('struct Params {', '''struct Params {
+#if OKC_UPF
+  const unsigned char* upf_wp; const unsigned char* upf_esc;
+  unsigned upf_wn, upf_en;
+#endif''')
+    anchor = 'struct Smem {'
+    replace(anchor, '''#if OKC_UPF
+static_assert(OKC_TINY && OKC_WS && OKC_WSB && !OKC_SPLIT && !OKC_WGS && !SKDYN,
+              "UPF requires resident static TINY/TINY2");
+__device__ __forceinline__ void upf_l2(const unsigned char* ptr, unsigned bytes) {
+  // One warp per CTA, disjoint 4KB stripes. Each valid 128B line exactly once;
+  // even the final partial line uses an in-bounds address. No loads or stores.
+  if (threadIdx.x < 32)
+    for (unsigned i = (blockIdx.x * 32 + threadIdx.x) * 128;
+         i < bytes; i += gridDim.x * 4096)
+      asm volatile("prefetch.global.L2::evict_last [%0];" :: "l"(ptr + i) : "memory");
+}
+#endif
+''' + anchor)
+    anchor = '  // programmatic dependent launch: the next kernel may start its own prologue now'
+    replace(anchor, '''#if OKC_UPF
+  upf_l2(p.upf_wp, p.upf_wn);
+  upf_l2(p.upf_esc, p.upf_en);
+#endif
+''' + anchor)
+    anchor = '  p.dbg = scratch.size() > 3 ? (unsigned long long*)scratch[3].data_ptr() : nullptr;'
+    replace(anchor, '''#if OKC_UPF
+  TORCH_CHECK((p.M == 1 || p.M == 8) && grid > 0 && grid <= 65535 && scratch.size() == 5,
+              "UPF requires M=1/8 and [parent scratch..., wp, esc]");
+  for (int i = 3; i < 5; ++i) {
+    TORCH_CHECK(scratch[i].is_cuda() && scratch[i].device() == x.device() &&
+                scratch[i].is_contiguous() && ((uintptr_t)scratch[i].data_ptr() % 128 == 0) &&
+                scratch[i].numel() * scratch[i].element_size() <= 0x7fffffff,
+                "UPF requires contiguous aligned buffers on the input device, <=2GB");
+  }
+  p.upf_wp = (const unsigned char*)scratch[3].data_ptr();
+  p.upf_esc = (const unsigned char*)scratch[4].data_ptr();
+  p.upf_wn = scratch[3].numel() * scratch[3].element_size();
+  p.upf_en = scratch[4].numel() * scratch[4].element_size();
+  p.dbg = nullptr;
+#else
+''' + anchor + '\n#endif')
+    reverse = source
+    for old,new in reversed(edits):
+        assert reverse.count(new) == 1
+        reverse = reverse.replace(new,old)
+    assert reverse == original
+    return source, edits
+
+
+_UPF_EXT, _UPF_ERRORS = {}, {}
+
+
+def _upf_build(source, m, base, sfx):
+    try:
+        if torch.cuda.get_device_capability() != (9,0):
+            return
+        defines = tuple(base) + sfx + (('-DOKC_DQ7=1',) if _native_moe_DQ7 else ())
+        tag = hashlib.sha256((source+repr(defines)).encode()).hexdigest()[:16]
+        ext = load_inline('okc_upf_'+tag, cpp_sources=_native_moe_CPP_SRC, cuda_sources=source,
+            functions=['okc_run','okc_set_pdl'], extra_cuda_cflags=['-O3','-lineinfo',
+                '-gencode=arch=compute_90a,code=sm_90a','-DOKC_NS=3','-DOKC_NSF=3','-DOKC_UPF=1',*defines], verbose=False)
+        ext.okc_set_pdl(1 if _native_moe_PDL else 0)
+        _UPF_EXT[m,sfx] = ext
+        print('UPF_BUILD',m,bool(sfx),'ok',flush=True)
+    except Exception as e:
+        _UPF_ERRORS[m,sfx] = repr(e)[-200:]
+        print('UPF_BUILD',m,bool(sfx),_UPF_ERRORS[m,sfx],flush=True)
+
+
+def _upf_kickoff():
+    try:
+        source, edits = upf_derive(_native_moe_CUDA_SRC)
+        assert len(edits) == 5
+        return {(m,s):_okh_bg(lambda m=m,d=d,s=s:_upf_build(source,m,d,s))
+                for s in (('-DOKC_PRMTSC=1',),())
+                for m,d in ((1,_native_moe_TINY_DEFINES),(8,_native_moe_TINY2_DEFINES))}
+    except Exception as e:
+        _UPF_ERRORS['source'] = repr(e)[-200:]
+        print('UPF_BUILD',_UPF_ERRORS['source'],flush=True)
+        return {}
+
+
+_UPF_THREADS = _upf_kickoff()
+
+
+def _experts_upf(x, topk_weights, topk_ids, state, pp, pdl=False):
+    native, m = state['native_moe'], x.shape[0]
+    ext = state['upf']['exts'][m,tuple(native.get('sfx',()))]
+    assert m in (1,8) and native['lo'] == 0 and native['cnt'] == 32
+    x = x.to(torch.bfloat16).contiguous()
+    ids = topk_ids.to(torch.int32).contiguous()
+    if ids.data_ptr() & 15:
+        ids = ids.clone()
+    tw = topk_weights.to(torch.float32).contiguous()
+    out = torch.empty((m,_native_moe_HIDDEN),dtype=torch.bfloat16,device=x.device)
+    # Keep both weight tensors alive in state; never mutate parent's scratch/ext.
+    scratch = native['scratch'][:3] + [pp['wp'],pp['esc']]
+    ext.okc_set_pdl(1 if pdl or _native_moe_PDL else 0)
+    try:
+        ext.okc_run(native['w'],scratch,x,ids,tw,out,native['lo'],native['cnt'],native['grid'])
+    finally:
+        ext.okc_set_pdl(1 if _native_moe_PDL else 0)
+    return out
+
+
+def _upf_base(data, state):
+    cfg, stream = data['config'], data['stream']
+    key = cfg['tokens'],bool(cfg['window'])
+    mask = state.get('rn',{}).get('selected',{}).get(key,0) if key[0] == 1 else 0
+    if (mask and stream.dtype == torch.float32 and tuple(stream.shape) == (1,8192)
+            and stream.is_contiguous() and not stream.data_ptr()%16):
+        return mask
+    return (state.get('pdls',{}).get('selected',{}).get(key,0) or
+            state.get('pdli',{}).get('selected',{}).get(key,0))
+
+
+def _upf_probe(state, m, gen, start):
+    native = state['native_moe']; dev = native['w'][0].device
+    x = torch.randn((m,4096),device=dev,generator=gen).to(torch.bfloat16)
+    ids = torch.empty((m,8),dtype=torch.int32,device=dev)
+    tw = torch.empty((m,8),device=dev)
+    rows = torch.arange(m,device=dev,dtype=torch.int32)[:,None]
+    cols = torch.arange(8,device=dev,dtype=torch.int32)[None,:]
+    def mutate(seed):
+        x.normal_(generator=gen); tw.uniform_(.01,.25,generator=gen)
+        ids.copy_((rows+cols)%native['cnt'])
+        if seed == 1:
+            ids.copy_(rows.expand(m,8))  # repeated routes: eight entries per expert
+        elif seed == 2:
+            ids.fill_(-1)  # no local work; every CTA still prefetches
+    def run(on):
+        y = (_experts_upf(x,tw,ids,state,state['pdli']['plans']['u'+str(m)],pdl=True)
+             if on else _experts(x,tw,ids,state,pdl=True))
+        return y,_pdli_project(y,'unpooler',state)
+    mutate(0)
+    # Oracle: unchanged default MoE + identical unpooler on the same inputs.
+    # Only the existing atomic sum-of-squares arrival-order nondeterminism is tolerated.
+    ok = _okh_budget(start,270.) and _pdli_probe(
+        {'parent':lambda:run(False),'pdl':lambda:run(True)},mutate,label='UPF_unit_'+str(m),tol=True)
+    print('UPF_PROBE',m,ok,flush=True)
+    return ok and _okh_budget(start,270.)
+
+
+def _upf_select(state, start):
+    native, p = state['native_moe'], state['upf']
+    dev = native['w'][0].device
+    gen = torch.Generator(device=dev).manual_seed(92300)
+    for m in (1,8):
+        if ((m,tuple(native.get('sfx',()))) not in p['exts'] or
+                'u'+str(m) not in state.get('pdli',{}).get('plans',{}) or not _okh_budget(start,270.)):
+            continue
+        if not _upf_probe(state,m,gen,start):
+            continue
+        for sliding in (True,False):
+            if not _okh_budget(start,270.):
+                break
+            data = _pdli_data(m,sliding,dev,gen)
+            base = _upf_base(data,state)
+            def mutate(seed):
+                data['attn_input'].normal_(generator=gen); data['stream'].normal_(generator=gen)
+            # Shift _pdli_ab's 278s epoch to enforce this stage's 270s deadline.
+            ok = _pdli_ab('UPF_layer_'+str((m,sliding)),
+                {'parent':lambda:_upf_parent_kernel_fn(data,state),
+                 'pdl':lambda:_pdli_layer(data,state,base|256)},mutate,dev,start-8.,
+                (data['k_cache'],data['v_cache']),tol=True)
+            if ok and _okh_budget(start,270.):
+                p['selected'][m,sliding] = base|256
+            print('UPF_SELECT',(m,sliding),'base=',base,'mask=',p['selected'].get((m,sliding),0),flush=True)
+            del data
+
+
+_upf_parent_prepare, _upf_parent_kernel_fn = prepare, kernel_fn
+
+
+def prepare(weights):
+    start = _okh_clock.perf_counter()
+    state = _upf_parent_prepare(weights)
+    p = state['upf'] = {'selected':{},'exts':{}}
+    try:
+        native = state.get('native_moe')
+        if native is not None and _okh_budget(start,270.):
+            for (m,sfx),th in _UPF_THREADS.items():
+                if sfx == tuple(native.get('sfx',())):
+                    th.join(max(0.,270.-(_okh_clock.perf_counter()-start)))
+            p['exts'] = dict(_UPF_EXT)
+            if _okh_budget(start,270.):
+                _upf_select(state,start)
+        torch.cuda.synchronize()
+    except Exception as e:
+        p['selected'].clear()
+        print('UPF_OFF',repr(e)[-300:],flush=True)
+    print('UPF_DONE',round(_okh_clock.perf_counter()-start,2),p['selected'],flush=True)
+    return state
+
+
+def kernel_fn(data,state):
+    cfg = data['config']
+    key = cfg['tokens'],bool(cfg['window'])
+    mask = state.get('upf',{}).get('selected',{}).get(key,0)
+    if (mask and cfg['batch'] == 1 and cfg['q_len'] == key[0] and key[0] in (1,8)
+            and _upf_base(data,state) == (mask & ~256)):
+        return _pdli_layer(data,state,mask)
+    return _upf_parent_kernel_fn(data,state)
