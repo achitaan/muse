@@ -53,6 +53,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Router M=1 specialization | closed | no gain | `8efb0121` | decode-moe-plan/router-m1 | <= Oct 31 |
 | Fused routing + `_pn`; router load tweaks | closed | - | - | earlier sessions | <= Oct 31 |
 | Own top-8 PDL routing kernel (_RF finalize math) replacing SGLang routing at 9-256 tokens, judge-semantics admission | closed | admitted (weights rel<=4.8e-7, ids equal except 1 exact tie) but producer+routing unit chain slower by 2.4-3.1 us at T=16/32/128/256 in both orders; SGLang's routing kernel is already fast; none of 12 candidate formulas reproduce SGLang weights bit-exactly | `e057dc9d` | experiments/top50/decoder_p8_topk.py (decode-next) | Oct 31 |
+| Enable sk2 (fused pooler/router at 9-32 tok) PDL: 2 weight stages before griddepcontrol.wait (existing sk2_set_pdl, default 0), mask 512 with glue PDL at M16/M32 | in progress | decode-next pass 27, decoder_p25_sk2pdl.py; queued after quota reset | - | - | Oct 31 |
 
 ## qkv / o / unpooler projections
 
