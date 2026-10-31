@@ -37,7 +37,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Latent bug: WGS (>16 tok) with zero local jobs (all routes non-local) reads uninitialized S.jC[0] in range calc; may stall producers | open (not fixed in published kernel) | found by hard-fixer during WGF timeout diagnosis; judge tests have not hit it | - | experiments/top50/decoder_p13_wgsfin.py report (decode-next) | Oct 31 |
 | WGS finalizer segmented (variant A, identical reduction order) with bounded waits | closed | bit-identical at M32/128/256 (probes bits=True) but isolated MoE not faster: M32 136.96 vs 137.66, M128 242.8 vs 244.7, M256 245.2 vs 244.8 us; the finalizer isn't the tail bottleneck | `f35cb9c2` | experiments/top50/decoder_p15_prebuild.py (decode-next) | Oct 31 |
 | TINY/TINY2 skinny ring NS 3->4 (one more weight-load lookahead slot, same smem) | closed | isolated MoE slower: M1 ratio 1.056/1.066, M8 1.030/1.033 (6-round medians); outputs not bit-equal but within tol | `482d0e7c` | experiments/top50/decoder_p18_moeb.py (decode-next) | Oct 31 |
-| WGS: immediate doneAs release after phase-A epilogue + no WGSREORD for small stage counts (oracle-lite #2 change 2) | in progress | decode-next pass 24, decoder_p22_wgsrel.py; finalizer half closed (f35cb9c2) | - | - | Oct 31 |
+| WGS: immediate doneAs release after phase-A epilogue + no WGSREORD for small stage counts (oracle-lite #2 change 2) | closed | V1 slower 0.6-1.5%, V2 neutral (0.997-1.001), V3 slower; at M32/128/256; nothing selected; scored 2.0698x (noise) | `15e19cf8` | experiments/top50/decoder_p22_wgsrel.py (decode-next) | Oct 31 |
 
 ## Pooler + router
 
