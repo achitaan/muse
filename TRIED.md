@@ -80,6 +80,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Fold boundary norm into producer GEMV last CTA (o / unpooler) | closed (inspection, no GPU run) | last-block norm serializes the row on one SM; full-grid spin needs unproven residency; ceiling marginal after fences | - | .slim/worktrees/decode-fresh/experiments/prepared/decoder_projection_norm_fusion_review.md | Oct 31 |
 | Early stock-norm PDL trigger (pdls1 port) at M1, bit 32, on top of p2 | closed | 2.0503x (noise); unit norm->R2f -1.9/-2.3 us (bytes ok) but whole layer only -0.5/-0.1 us (0.993/0.999, fails 1%); M1_full layer rel_l2 3.1e-3 (594 elems) rejected | `f82e5ab8` | experiments/top50/decoder_p3_norm.py (decode-next) | Oct 31 |
 | Early stock-norm PDL trigger extended to M8 (bit 32 at M1/M8, on p3) | kept | 2.0891x (CI 2.058-2.120); selected M1 sliding mask 63 (layer -1.4/-1.4 us) and M8 full mask 52 (-2.1/-2.1 us); unit M8 norm->R2f -1.2/-1.4 us | `d543da40` | experiments/top50/decoder_p4_norm8.py (decode-next) | Oct 31 |
+| R2f consumer-side attention-boundary norm at M1 (R2n: every R2f CTA recomputes post-norm/residual/pre-norm; removes the stock norm kernel) | kept | bit-identical (rel 0, same ids); whole-layer M1 full 0.974/0.979 selected (mask 159); M1 sliding 0.989/0.997 not selected; scored 2.0718x (noise) | `9b254bbb` | experiments/top50/decoder_p19_r2norm.py (decode-next) | Oct 31 |
 
 ## Attention
 
@@ -118,7 +119,6 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | PDL for stock norm / `_sfn` / `_pn` / `routing_kernel` | open (not tried) | - | - | `_PDLI_NORM_THREADS = []` | Oct 31 |
 | Top-k folded into the router at 16-256 tokens | open (not tried) | - | - | RESEARCH_20261031.md | Oct 31 |
 | MoE readiness flags at 32+ tokens | open (not tried) | tail 5.8-8.8 us | - | RESEARCH_20261031.md | Oct 31 |
-| Consumer-side redundant exact norm: attention-boundary norm inside the R2f prologue, pooled-input norm inside tiny MoE staging (no global barrier; Hazy-style) | open (not tried) | est. 2-4 us at T=1/8, 0.7-1.4% Decode; different from closed producer-last-CTA and cluster norms | - | researcher ses_e6f618865ffeGiiwqHHpNWnD1i | Oct 31 |
 | MoE PDL as a per-call okc_run argument instead of the process-global okc_set_pdl scope (reviewer major; thread-safety) | open (not tried) | needs C++ ABI change in packed MoE source; current scope safe while MoE runs on one thread | - | experiments/top50/decoder_p6_final.py ~478, ~7111 (decode-next) | Oct 31 |
 
 ## Process
