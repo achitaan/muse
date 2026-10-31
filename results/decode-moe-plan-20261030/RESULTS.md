@@ -928,3 +928,5 @@ Attentionnc1 CPUprototypee29efa5e:fixedsame-copy control specialization;flat3560
 Attentionnc1 packaginga7e42358:5376actual Python-launch cases/17boundary probes;two-entry launcher preserves Params/grid and excludes coop/PDL/clusters. Packaged compile retains3048/1560instructions,128/89regs,zero spills;shared67584/58368,threads256/128. No GPU wrapper/admission yet.
 
 Attentionpayload066d8932:fixed independent eager-setup calibration,exact output/cache+parent-repeat gates,8speed+2nearby comparisons/family. CPU15resource/12fixture/16dispatcher/4public-wrapper cases pass;synthetic scratch reset isolated. No GPUadmission. Earlierfixture89a andpre-reset997 archived. Nextownedslot02:13:17Z.
+
+Attention918d0b03653d48ec:full16/12/integritypass,actualresources128/89regs,zero local/static,9changingprivatebyteprobespass. Then fixtureguardfails beforetiming dueactualretainedB1full nc8/coop override omittedbyCPUaudit. Selected[];2.5709568336x is fallback-only. Diagnosed onefixture hkv2->4 repair;CUDA/gates/dispatchunchanged;CPUaudits fixedactual_TUNED and reproducecounterexample. Oneboundedretry allowedbydiagnosed-defect spacingexception;see bounded-repair-decision.json.

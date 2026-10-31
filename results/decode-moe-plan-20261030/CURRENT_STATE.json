@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T02:14:32.660644+00:00",
+  "updated_at": "2026-10-31T02:27:27.919836+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -11,10 +11,10 @@
   "latest_top50_speedup": 2.2252,
   "newest_experiment": "Attention nc1 fixed control specialization",
   "newest_check": "918d0b03653d48ec",
-  "newest_check_status": "submitted",
-  "newest_decision": "Reject helper-register norm grouping on performance. Close norm aggregation avenue. No score,rerun or Decode transfer.",
-  "newest_outcome": "norm-register/outcome-9b9b978e.json",
-  "gpu_job_pending": true,
+  "newest_check_status": "done",
+  "newest_decision": "Inconclusive:setup fixture selected retained nc8/cooperative override;allscoredrowsparent. Not a performance win or performance rejection.",
+  "newest_outcome": "attention-nc1/outcome-918d0b03.json",
+  "gpu_job_pending": false,
   "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
   "moe_checks_left": 19,
   "moe_scores_left": 10,
@@ -34,7 +34,7 @@
   "dense_checks_after_ack_expected": 4,
   "dense_checks_left": 0,
   "next_diagnostic_source": "experiments/decode_moe/attention_nc1.py",
-  "next_diagnostic_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "next_diagnostic_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Attention nc1 payload066d8932 ready for paced admission;CPUinterfacechecks pass;actualGPUevidence pending.",
+  "current_focus": "One bounded fixture-only repair,CUDAunchanged;CPUaudits nowretain _TUNED and reproduce failure.",
   "next_diagnostic_track": "muse_attention_decode",
   "earliest_new_check_utc": null,
   "newest_CPU_alternative": {
@@ -229,10 +229,10 @@
     "id": "918d0b03653d48ec",
     "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
     "ack": "attention-nc1/check-ack-066d8932.json",
-    "status": "submitted"
+    "status": "done"
   },
   "native_goal_status_last_observed": "active;human resumed Goal mode",
-  "owned_status_session": 48365,
+  "owned_status_session": null,
   "attention_nc1_CPU_prototype": {
     "CUDA_sha256": "e29efa5e07587dfa5f61d1c0a9b51946bfc6eca6c4462370a86750359a0fd6bc",
     "gates": {
@@ -266,10 +266,11 @@
       }
     },
     "runtime_wrapper_exists": true,
-    "payload_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+    "payload_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
     "payload_bytes": 328054,
     "resource_guard_cases": 15,
-    "public_wrapper_cases": 4
+    "public_wrapper_cases": 4,
+    "GPU_repair_decision": "attention-nc1/bounded-repair-decision.json"
   },
   "owned_interval_timer": {
     "session_id": 23313,

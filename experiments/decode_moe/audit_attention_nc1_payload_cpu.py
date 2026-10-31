@@ -5,7 +5,7 @@ import json
 from types import SimpleNamespace
 
 from attention_nc1_source import OUT, ROOT, PARENT_SHA, derive
-from audit_attention_nc1_selector_cpu import Tensor, Recorder
+from audit_attention_nc1_selector_cpu import Tensor, Recorder, retained_launch_scope
 
 
 def functions(tree, name):
@@ -48,17 +48,7 @@ def main():
     pure['_WS'] = {('cuda:0',1,None):tuple(owned),('cuda:1',1,None):tuple(other)}
     pure['_nc1_reset_workspace']('cuda:0')
     assert all(x.zeros == 1 for x in owned) and other[0].zeros == caller.zeros == 0
-    scope = {}
-    for n in before.body:
-        if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name):
-            try: scope[n.targets[0].id] = ast.literal_eval(n.value)
-            except (ValueError, TypeError): pass
-    scope.update(torch=SimpleNamespace(empty=lambda shape, **kw: Tensor(shape), bfloat16='bf16'),
-                 _num_sms=lambda dev:132, _workspace=lambda *a, **kw:(None,None,None),
-                 _inv_freq=lambda *a:None, _TUNED={})
-    originals = [n for n in before.body if isinstance(n, ast.FunctionDef)
-                 and n.name in ('_splits','_copies','_headroom','_plan','_launch')]
-    exec(compile(ast.Module(body=originals, type_ignores=[]), '<actual-parent-launch>', 'exec'), scope)
+    scope = retained_launch_scope(parent)
     init = functions(tree, '_nc1_initialize')[0]
     groups_node = next(n.value for n in ast.walk(init) if isinstance(n, ast.Assign)
                        and any(isinstance(t, ast.Name) and t.id == 'groups' for t in n.targets))
@@ -77,6 +67,14 @@ def main():
             assert pure['_nc1_run_family'](recorder.args) == expected, (expected, configs, recorder.args[13:])
             sample_args[expected] = recorder.args
             fixture_cases += 1
+    # Reproduce the diagnosed H200 fixture failure under retained overrides.
+    bad = dict(config=dict(batch=1,q_len=1,num_q_heads=16,num_kv_heads=2,head_dim=64,
+                           page_size=1,window=0,rope_theta=0.,sm_scale=.125,qk_scale_factor=5.4730064863875),
+               qkv=Tensor(),page_table=Tensor((1,64)))
+    bad.update({k:Tensor() for k in ('seq_lens','cache_loc','k_cache','v_cache','k_scale','v_scale')})
+    record = Recorder();scope['_launch'](bad,_mod=record)
+    assert record.args[20] == 252 and record.args[22] == 8 and record.args[27] == 2
+    assert pure['_nc1_run_family'](record.args) is None
     class Module:
         def run(self, *args): return 'parent'
         def run_nc1(self, *args): return 'candidate'
@@ -145,6 +143,7 @@ def main():
                   actual_parent_plan_fixture_cases=fixture_cases, dispatcher_and_rejection_cases=routes,
                   public_wrapper_cases=public_cases,
                   synthetic_scratch_reset_device_scoped=True,
+                  actual_retained_tuning_preserved=True, diagnosed_GPU_counterexample_reproduced=True,
                   calibration_receives_device_only=True, raw_byte_snapshots=True,
                   no_private_build_or_resource_query_in_dispatch=True, no_loaded_module_attribute_mutation=True,
                   GPU_calls=0, admitted_for_GPU=False,

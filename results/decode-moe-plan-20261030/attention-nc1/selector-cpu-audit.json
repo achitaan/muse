@@ -3,7 +3,7 @@
   "actual_retained_launch_cases": 5376,
   "accepted": {
     "flat_L1": 336,
-    "spec_one_L1": 20
+    "spec_one_L1": 18
   },
   "boundary_counterexamples": 17,
   "exact_screened_entries_only": true,

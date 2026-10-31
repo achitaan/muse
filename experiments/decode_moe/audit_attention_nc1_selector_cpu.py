@@ -43,8 +43,8 @@ def native_entry(args):
     return L, False, mode
 
 
-def main():
-    raw = (ROOT / 'best/attention_checked.py').read_bytes()
+def retained_launch_scope(raw=None):
+    raw = (ROOT / 'best/attention_checked.py').read_bytes() if raw is None else raw
     assert hashlib.sha256(raw).hexdigest() == SHA
     tree = ast.parse(raw)
     scope = {}
@@ -54,12 +54,26 @@ def main():
                 scope[n.targets[0].id] = ast.literal_eval(n.value)
             except (ValueError, TypeError):
                 pass
+    tuned = next(n for n in tree.body if isinstance(n, ast.Assign)
+                 and getattr(n.targets[0], 'id', '') == '_TUNED')
+    # literal_eval rejects the retained dict(...) constructors. Execute this
+    # exact frozen metadata assignment instead of replacing it with an empty map.
+    for call in (n for n in ast.walk(tuned.value) if isinstance(n, ast.Call)):
+        assert isinstance(call.func, ast.Name) and call.func.id == 'dict' and not call.args
+    exec(compile(ast.Module(body=[tuned], type_ignores=[]), '<retained-tuning>', 'exec'),
+         {'__builtins__': {}, 'dict': dict}, scope)
+    assert scope['_TUNED'][(1,1,False,1)] == dict(nc=8,coop=1,n_splits=252)
     names = ('_splits', '_copies', '_headroom', '_plan', '_launch')
     nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in names]
     scope.update(torch=SimpleNamespace(empty=lambda shape, **kw: Tensor(shape), bfloat16='bf16'),
                  _num_sms=lambda device: 132, _workspace=lambda *a, **kw: (None, None, None),
-                 _inv_freq=lambda *a: None, _TUNED={})
+                 _inv_freq=lambda *a: None)
     exec(compile(ast.Module(body=nodes, type_ignores=[]), '<retained-attention-launch>', 'exec'), scope)
+    return scope
+
+
+def main():
+    scope = retained_launch_scope()
     cases, accepted = 0, {'flat_L1': 0, 'spec_one_L1': 0}
     for B, L, P, pages, window, pairs in itertools.product((1, 2, 16, 32), (1, 8),
             (1, 2, 8), (1, 31, 2048, 80001), (0, 2048), (1, 2)):

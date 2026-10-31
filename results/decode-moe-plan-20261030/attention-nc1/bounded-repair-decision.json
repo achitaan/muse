@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-31T02:27:27.919836+00:00",
+  "failed_job": "918d0b03653d48ec",
+  "old_source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "repaired_source_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
+  "CUDA_unchanged": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+  "exact_payload_change": "Only fixed short-full synthetic fixture hkv2->hkv4;retains its full/noRoPE coverage and avoids unrelated B1/pairs1 override.",
+  "CPU_audit_repair": "Evaluate exact frozen _TUNED assignment including dict constructors;reproduce nc8/coop1/252splits failure;all12fixturespasswithactualtuning.",
+  "gates_unchanged": true,
+  "geometry_math_and_actual_dispatch_unchanged": true,
+  "maximum_GPU_retries": 1,
+  "spacing_exception_reason": "Diagnosed bounded setup defect,not timing noise or parameter sweep;recorded before retry.",
+  "policy_source": "Shared EVALUATION_POLICY.json:Only a diagnosed bounded defect;record the reason before any exception to spacing.",
+  "scored_submissions": 0,
+  "Decode_checks": 0
+}

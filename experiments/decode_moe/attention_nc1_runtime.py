@@ -158,7 +158,7 @@ def _nc1_initialize(dev):
             'spec_one_L1': [(1,10,True,1,0,2,1.,False),
                             (1,2047,True,1,17,2,1./64,False),
                             (1,8192,True,1,9,4,1.,True),
-                            (1,63,False,1,0,2,1.,False),
+                            (1,63,False,1,0,4,1.,False),
                             (1,80000,True,1,0,2,1.,False),
                             (1,80000,True,1,17,2,1.,True)],
             'flat_L1': [(2,129,False,64,0,2,1./64,False),

@@ -1,5 +1,5 @@
 {
-  "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "source_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
   "parent_prefix_and_functions_exact": true,
   "private_CPP_CUDA_binding_exact": true,
   "resource_guard_cases": 15,
@@ -7,6 +7,8 @@
   "dispatcher_and_rejection_cases": 16,
   "public_wrapper_cases": 4,
   "synthetic_scratch_reset_device_scoped": true,
+  "actual_retained_tuning_preserved": true,
+  "diagnosed_GPU_counterexample_reproduced": true,
   "calibration_receives_device_only": true,
   "raw_byte_snapshots": true,
   "no_private_build_or_resource_query_in_dispatch": true,

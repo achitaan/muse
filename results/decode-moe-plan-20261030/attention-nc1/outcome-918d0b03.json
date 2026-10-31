@@ -1,0 +1,252 @@
+{
+  "job_id": "918d0b03653d48ec",
+  "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
+  "official_tests": 16,
+  "official_benchmarks": 12,
+  "passed": true,
+  "integrity": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "official_speedup_on_fallback": 2.570956833553285,
+  "official_CI": [
+    2.5323924810499854,
+    2.6242364582962954
+  ],
+  "private_resources": [
+    128,
+    0,
+    0,
+    67584,
+    256,
+    2,
+    89,
+    0,
+    0,
+    58368,
+    128,
+    3
+  ],
+  "private_byte_configurations_passed": [
+    "NC1_BYTES_PASS spec_one_L1 1 10 1 three_changing_inputs;output_and_entire_cache_bytes",
+    "NC1_BYTES_PASS spec_one_L1 1 2047 1 three_changing_inputs;output_and_entire_cache_bytes",
+    "NC1_BYTES_PASS spec_one_L1 1 8192 1 three_changing_inputs;output_and_entire_cache_bytes"
+  ],
+  "private_changing_input_probes_passed": 9,
+  "private_performance_comparisons": 0,
+  "selected_families": [],
+  "profiles": [
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "decode 1",
+        "page": 1,
+        "seed": 5887683139784532,
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 0,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, false, 1...       4.5 \u00c2\u00b5s 100.0%      1\ntotal                                                              4.5 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "decode 1",
+        "page": 1,
+        "seed": 6025082606432882,
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 1,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, false, 1...      10.0 \u00c2\u00b5s 100.0%      1\ntotal                                                             10.0 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "decode 16",
+        "page": 1,
+        "seed": 6162482073081233,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 2,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, false, 1...       7.4 \u00c2\u00b5s 100.0%      1\ntotal                                                              7.4 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "decode 16",
+        "page": 1,
+        "seed": 6299881539729585,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 3,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, true, 0>...      84.9 \u00c2\u00b5s 100.0%      1\ntotal                                                             84.9 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "decode 32",
+        "page": 1,
+        "seed": 6437281006377938,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 4,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, false, 1...       9.2 \u00c2\u00b5s 100.0%      1\ntotal                                                              9.2 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "decode 32",
+        "page": 1,
+        "seed": 6574680473026292,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 5,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<1, true, 0>...     164.9 \u00c2\u00b5s 100.0%      1\ntotal                                                            164.9 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "verify 1",
+        "page": 1,
+        "q_len": 8,
+        "seed": 6712079939674647,
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 6,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, false, 1...       6.8 \u00c2\u00b5s 100.0%      1\ntotal                                                              6.8 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "verify 1",
+        "page": 1,
+        "q_len": 8,
+        "seed": 6849479406323003,
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 7,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, false, 1...      14.0 \u00c2\u00b5s 100.0%      1\ntotal                                                             14.0 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "verify 16",
+        "page": 1,
+        "q_len": 8,
+        "seed": 6986878872971360,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 8,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, false, 3...      11.3 \u00c2\u00b5s 100.0%      1\ntotal                                                             11.3 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "verify 16",
+        "page": 1,
+        "q_len": 8,
+        "seed": 7124278339619718,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 9,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, true, 0>...     100.5 \u00c2\u00b5s 100.0%      1\ntotal                                                            100.5 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "heads": "tp8",
+        "layer": "sliding",
+        "load": "verify 32",
+        "page": 1,
+        "q_len": 8,
+        "seed": 7261677806268077,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "event": "profile",
+      "index": 10,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, false, 3...      14.8 \u00c2\u00b5s 100.0%      1\ntotal                                                             14.8 \u00c2\u00b5s"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "coherent",
+        "heads": "tp8",
+        "layer": "full",
+        "load": "verify 32",
+        "page": 1,
+        "q_len": 8,
+        "seed": 7399077272916437,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "event": "profile",
+      "index": 11,
+      "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel_fp8pv<8, true, 0>...     186.0 \u00c2\u00b5s 100.0%      1\ntotal                                                            186.0 \u00c2\u00b5s"
+    }
+  ],
+  "setup_time_s": 47.518447650945745,
+  "decision": "Inconclusive:setup fixture selected retained nc8/cooperative override;allscoredrowsparent. Not a performance win or performance rejection.",
+  "diagnosis": "CPU audits overwrote _TUNED with{} afterliteral_eval rejected dict(...) constructors;actual parent overrides B1full,pairs1 to252splits,nc8,coop1.",
+  "GPU_checks_used": 1,
+  "scored_submissions_used": 0
+}
