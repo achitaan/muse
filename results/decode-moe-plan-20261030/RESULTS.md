@@ -924,3 +924,5 @@ MoEcheck0db9141b952a4efe:full5/6/integrity and120private fixtures pass;0/32meet3
 MoEregister9b9b978eed5b45d4:full5/6/integrity and120fixtures pass;0/32beats3%;selected=[];parent-onlyofficialprofiles. Reject and close norm aggregation. Fallbackpoint2.3421325305x is not a gain. Onecheck;zeroscores/Decodechecks.
 
 Attentionnc1 CPUprototypee29efa5e:fixedsame-copy control specialization;flat3560->3048instructions,regs128;SPECONE2208->1560,regs102->89;zero stack/spills. Bothpassfixed5%CPUgate. No payload/dispatchproof/GPUadmission or speedclaim yet.
+
+Attentionnc1 packaginga7e42358:5376actual Python-launch cases/17boundary probes;two-entry launcher preserves Params/grid and excludes coop/PDL/clusters. Packaged compile retains3048/1560instructions,128/89regs,zero spills;shared67584/58368,threads256/128. No GPU wrapper/admission yet.

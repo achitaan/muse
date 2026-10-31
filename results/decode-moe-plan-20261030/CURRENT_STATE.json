@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T01:24:50.163467+00:00",
+  "updated_at": "2026-10-31T01:39:38.484903+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -57,7 +57,7 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Norm aggregation closed;Attention nc1 compile-time control specialization CPU screen. Decode held until a proven component gain.",
+  "current_focus": "Attention nc1 guard/native packaging passes CPU checks;runtime wrapper and H200 gates pending.",
   "next_diagnostic_track": "muse_moe_w4a16",
   "earliest_new_check_utc": "2026-10-31T02:13:17.629506+00:00",
   "newest_CPU_alternative": {
@@ -249,6 +249,22 @@
     },
     "GPU_admitted": false,
     "Python_payload_exists": false,
-    "review": "attention-nc1/REVIEW.md"
+    "review": "attention-nc1/REVIEW.md",
+    "packaged_CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+    "selector_cases": 5376,
+    "boundary_counterexamples": 17,
+    "layouts": {
+      "flat_L1": {
+        "dynamic_shared_bytes": 67584,
+        "threads": 256,
+        "launch_bounds_min_blocks": 2
+      },
+      "spec_one_L1": {
+        "dynamic_shared_bytes": 58368,
+        "threads": 128,
+        "launch_bounds_min_blocks": 2
+      }
+    },
+    "runtime_wrapper_exists": false
   }
 }

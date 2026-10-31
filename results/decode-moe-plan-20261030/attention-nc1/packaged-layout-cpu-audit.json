@@ -1,0 +1,56 @@
+{
+  "packaged_CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+  "layouts": {
+    "flat_L1": {
+      "dynamic_shared_bytes": 67584,
+      "threads": 256,
+      "launch_bounds_min_blocks": 2
+    },
+    "spec_one_L1": {
+      "dynamic_shared_bytes": 58368,
+      "threads": 128,
+      "launch_bounds_min_blocks": 2
+    }
+  },
+  "kernels": [
+    {
+      "symbol": "_ZN45_GLOBAL__N__00000000_12_preflight_cu_5e48e12815attn_kernel_nc1ILi1ELb1ELi0EEEvNS_6ParamsE",
+      "registers": 128,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    },
+    {
+      "symbol": "_ZN45_GLOBAL__N__00000000_12_preflight_cu_5e48e12815attn_kernel_nc1ILi1ELb0ELi13EEEvNS_6ParamsE",
+      "registers": 89,
+      "stack_frame": 0,
+      "spill_stores": 0,
+      "spill_loads": 0,
+      "smem_static": 0,
+      "warnings": []
+    }
+  ],
+  "entries": {
+    "_ZN45_GLOBAL__N__00000000_12_preflight_cu_5e48e12815attn_kernel_nc1ILi1ELb1ELi0EEEvNS_6ParamsE": {
+      "instructions": 3048,
+      "calls": [
+        "CALL.REL.NOINC 0xb910 ;",
+        "CALL.REL.NOINC 0xb910 ;",
+        "CALL.REL.NOINC 0xb910 ;",
+        "CALL.REL.NOINC 0xb910 ;"
+      ],
+      "local_instructions": []
+    },
+    "_ZN45_GLOBAL__N__00000000_12_preflight_cu_5e48e12815attn_kernel_nc1ILi1ELb0ELi13EEEvNS_6ParamsE": {
+      "instructions": 1560,
+      "calls": [],
+      "local_instructions": []
+    }
+  },
+  "zero_stack_spills": true,
+  "GPU_calls": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Compile-time sizes/device compilation only;host compile,actual attributes,numerics and timing pending."
+}

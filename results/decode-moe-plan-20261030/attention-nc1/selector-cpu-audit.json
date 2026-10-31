@@ -1,0 +1,14 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "actual_retained_launch_cases": 5376,
+  "accepted": {
+    "flat_L1": 336,
+    "spec_one_L1": 20
+  },
+  "boundary_counterexamples": 17,
+  "exact_screened_entries_only": true,
+  "cooperative_and_PDL_excluded": true,
+  "GPU_calls": 0,
+  "admitted_for_GPU": false,
+  "limitation": "Metadata/selector evidence;no CUDA resource,cache-write,replay or numerical validation."
+}

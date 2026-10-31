@@ -1,0 +1,16 @@
+{
+  "parent_sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+  "parent_CUDA_sha256": "241b67fe0008bbae53435b53d1bb6d647ded0b5718118875c0ec368b718b41db",
+  "packaged_CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+  "device_prefix_inverse_exact": true,
+  "run_parameter_setup_inverse_exact": true,
+  "instantiated_entries": [
+    "attn_kernel_nc1<1,true,0>",
+    "attn_kernel_nc1<1,false,13>"
+  ],
+  "kernel_math": "Screened prefix unchanged except identifier rename;nc==1 integer specialization only",
+  "host_scope": "Preserve original Params setup and grid;guard requested coop/PDL off;instantiate two entries only",
+  "resource_query": "Six values per family;called before launch to set shared-memory attributes and validate resources",
+  "GPU_calls": 0,
+  "admitted_for_GPU": false
+}
