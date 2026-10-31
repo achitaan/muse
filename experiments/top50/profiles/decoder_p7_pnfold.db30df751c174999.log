@@ -1,0 +1,90 @@
+PDLI_NORM_WARM_DONE
+PDLI_BUILD o1 116212cd178d0f885b68a4b7f2cc0dcdbc22b7052dc9f4cfa688da26a811974c
+PDLI_BUILD o8 435e7f65ef1d56e903a428cf5d0dbb67d1aa11c580a049b55a5d3311212e1e5e
+PDLI_BUILD r1 fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571
+PDLI_BUILD r8 f82767cd894da379abfc96cc79f5e51c92080694d39b171bb3e4863b1d1542d8
+PDLI_BUILD u1 e3d66bbf5ce64090cbefc7948a28fc653496013b9ed380a9b70c6cc304d409ff
+PDLI_BUILD u8 c3d8a7eb0342bab42fc40102de85b47e8f1235d6b5aeed3b255e2a3ac098c002
+PDLI_BUILD q1 2079ad9890dd97171597bcdef12456aa71abe6ae90dd3dc39e9b88f2cc5d63fb
+PDLI_BUILD q8 d3972adcaec566a7d9dfd3969670b2030a5da55b15aff1f1feff4d6c34f54758
+PDLS_BUILD f24c9d33e6be7f433a8c9629019f66f250b569f4cd235fd80b098499c399795e
+PDLS_RESOURCE regs_local_shared_blocks= [175, 0, 64, 1]
+PNF_BUILD_OK ('tiny', ('-DOKC_PRMTSC=1',)) ec3af0917e72
+PNF_BUILD_OK ('tiny', ()) ec3af0917e72
+PNF_BUILD_OK ('tiny2', ('-DOKC_PRMTSC=1',)) ec3af0917e72
+PNF_BUILD_OK ('tiny2', ()) ec3af0917e72
+R2_GATE M=1 PASS parent=30.46us fused=24.64us use=True
+R2_DIAG M=1 parent=30.46us fused=24.64us pool_only=18.59us f_notopk=23.23us f_nomath=21.22us f_neither=19.87us
+R2_GATE M=8 PASS parent=39.52us fused=28.06us use=True
+R2_DIAG M=8 parent=39.52us fused=28.06us pool_only=19.17us f_notopk=26.72us f_nomath=24.86us f_neither=23.10us
+R2_DONE 280.9s sel=(1, 8)
+PDLI_SKIP_PREPARE 280.8739920530352 built= ['o1', 'o8', 'q1', 'q8', 'r1', 'r8', 'u1', 'u8']
+PDLS_DONE 280.874020836025 {}
+PNF_RESOURCE ('tiny', ('-DOKC_PRMTSC=1',)) regs_local_shared_blocks= [144, 0, 214912, 1] grid= 132
+PNF_RESOURCE ('tiny2', ('-DOKC_PRMTSC=1',)) regs_local_shared_blocks= [144, 0, 214912, 1] grid= 132
+PDLI_DIFF PNF_experts_M1_pdl seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (1, 4096), 2)]
+PDLI_TOL PNF_experts_M1_pdl 0 rel_l2=1.94315e-06 mismatches= 2 accepted= True
+PNF_PROBE 1 pdl local_nonlocal_duplicate_rel_l2_le_2e-3= True
+PDLI_DIFF PNF_experts_M1_serial seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (1, 4096), 1)]
+PDLI_TOL PNF_experts_M1_serial 0 rel_l2=1.38203e-09 mismatches= 1 accepted= True
+PNF_PROBE 1 serial local_nonlocal_duplicate_rel_l2_le_2e-3= True
+PNF_EXPERT_TIME 1 no_R2f_one_local_route_per_row ('parent', 'pdl', 'serial') {'parent': 25.472000241279602, 'pdl': 31.55200183391571, 'serial': 30.94400092959404}
+PNF_EXPERT_TIME 1 no_R2f_one_local_route_per_row ('serial', 'pdl', 'parent') {'serial': 30.880000442266464, 'pdl': 30.751999467611313, 'parent': 25.34399926662445}
+PDLI_DIFF PNF_experts_M8_pdl seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (8, 4096), 5)]
+PDLI_TOL PNF_experts_M8_pdl 0 rel_l2=4.7643e-07 mismatches= 5 accepted= True
+PNF_PROBE 8 pdl local_nonlocal_duplicate_rel_l2_le_2e-3= True
+PDLI_DIFF PNF_experts_M8_serial seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (8, 4096), 2402)]
+PDLI_TOL PNF_experts_M8_serial 0 rel_l2=0.00113512 mismatches= 2364 accepted= True
+PDLI_DIFF PNF_experts_M8_serial seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 4096), 1)]
+PDLI_TOL PNF_experts_M8_serial 2 rel_l2=1.94041e-10 mismatches= 1 accepted= True
+PNF_PROBE 8 serial local_nonlocal_duplicate_rel_l2_le_2e-3= True
+PNF_EXPERT_TIME 8 no_R2f_one_local_route_per_row ('parent', 'pdl', 'serial') {'parent': 74.62400197982788, 'pdl': 81.82399719953537, 'serial': 81.91999793052673}
+PNF_EXPERT_TIME 8 no_R2f_one_local_route_per_row ('serial', 'pdl', 'parent') {'serial': 81.11999928951263, 'pdl': 81.216000020504, 'parent': 75.45600086450577}
+PNF_CANDIDATE_PROBE PNF_layer_M1_sliding pdl True
+PNF_CANDIDATE_PROBE PNF_layer_M1_sliding serial True
+PNF_LAYER_TIME PNF_layer_M1_sliding ('parent', 'pdl', 'serial') {'parent': 80.54400235414505, 'pdl': 86.46400272846222, 'serial': 85.60000360012054}
+PNF_LAYER_TIME PNF_layer_M1_sliding ('serial', 'pdl', 'parent') {'serial': 86.2400010228157, 'pdl': 86.2400010228157, 'parent': 80.83199709653854}
+PNF_CANDIDATE_RATIOS PNF_layer_M1_sliding {'pdl': [1.0735002011482797, 1.0669042473343608], 'serial': [1.0627731562648786, 1.0669042473343608]} passing= {}
+PNF_SELECT PNF_layer_M1_sliding mode= None mask= 0
+PNF_CANDIDATE_PROBE PNF_layer_M1_full pdl True
+PNF_CANDIDATE_PROBE PNF_layer_M1_full serial True
+PNF_LAYER_TIME PNF_layer_M1_full ('parent', 'pdl', 'serial') {'parent': 75.26399940252304, 'pdl': 81.24800026416779, 'serial': 81.56800270080566}
+PNF_LAYER_TIME PNF_layer_M1_full ('serial', 'pdl', 'parent') {'serial': 81.63200318813324, 'pdl': 81.28000050783157, 'parent': 75.29599964618683}
+PNF_CANDIDATE_RATIOS PNF_layer_M1_full {'pdl': [1.0795068148005451, 1.0794730249915447], 'serial': [1.083758547889116, 1.0841479437383004]} passing= {}
+PNF_SELECT PNF_layer_M1_full mode= None mask= 0
+PDLI_DIFF PNF_layer_M8_sliding_pdl seed= 0 byte_mismatches= [(1, 'torch.float32', (8, 8192), 1)]
+PDLI_TOL PNF_layer_M8_sliding_pdl 0 rel_l2=7.24982e-09 mismatches= 1 accepted= True
+PDLI_DIFF PNF_layer_M8_sliding_pdl seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 1080), (1, 'torch.float32', (8, 8192), 4462)]
+PDLI_TOL PNF_layer_M8_sliding_pdl 1 rel_l2=0.00131778 mismatches= 1056 accepted= True
+PDLI_TOL PNF_layer_M8_sliding_pdl 1 rel_l2=0.00123175 mismatches= 1790 accepted= True
+PDLI_DIFF PNF_layer_M8_sliding_pdl seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 5), (1, 'torch.float32', (8, 8192), 21)]
+PDLI_TOL PNF_layer_M8_sliding_pdl 2 rel_l2=6.86048e-05 mismatches= 5 accepted= True
+PDLI_TOL PNF_layer_M8_sliding_pdl 2 rel_l2=2.76542e-05 mismatches= 9 accepted= True
+PNF_CANDIDATE_PROBE PNF_layer_M8_sliding pdl True
+PDLI_DIFF PNF_layer_M8_sliding_serial seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 1), (1, 'torch.float32', (8, 8192), 3)]
+PDLI_TOL PNF_layer_M8_sliding_serial 1 rel_l2=7.59145e-06 mismatches= 1 accepted= True
+PDLI_TOL PNF_layer_M8_sliding_serial 1 rel_l2=1.11341e-05 mismatches= 1 accepted= True
+PNF_CANDIDATE_PROBE PNF_layer_M8_sliding serial True
+PNF_LAYER_TIME PNF_layer_M8_sliding ('parent', 'pdl', 'serial') {'parent': 111.29599809646606, 'pdl': 118.52800101041794, 'serial': 118.33599954843521}
+PNF_LAYER_TIME PNF_layer_M8_sliding ('serial', 'pdl', 'parent') {'serial': 118.6240017414093, 'pdl': 118.49600076675415, 'parent': 111.93600296974182}
+PNF_CANDIDATE_RATIOS PNF_layer_M8_sliding {'pdl': [1.0649799007838856, 1.0586048958598746], 'serial': [1.0632547582336898, 1.0597484151142627]} passing= {}
+PNF_SELECT PNF_layer_M8_sliding mode= None mask= 0
+PDLI_DIFF PNF_layer_M8_full_pdl seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 57), (1, 'torch.float32', (8, 8192), 315)]
+PDLI_TOL PNF_layer_M8_full_pdl 1 rel_l2=0.000232447 mismatches= 56 accepted= True
+PDLI_TOL PNF_layer_M8_full_pdl 1 rel_l2=0.000237695 mismatches= 127 accepted= True
+PDLI_DIFF PNF_layer_M8_full_pdl seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 22), (1, 'torch.float32', (8, 8192), 114)]
+PDLI_TOL PNF_layer_M8_full_pdl 2 rel_l2=0.000140332 mismatches= 22 accepted= True
+PDLI_TOL PNF_layer_M8_full_pdl 2 rel_l2=6.59356e-05 mismatches= 55 accepted= True
+PNF_CANDIDATE_PROBE PNF_layer_M8_full pdl True
+PDLI_DIFF PNF_layer_M8_full_serial seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 13), (1, 'torch.float32', (8, 8192), 69)]
+PDLI_TOL PNF_layer_M8_full_serial 1 rel_l2=0.0001131 mismatches= 13 accepted= True
+PDLI_TOL PNF_layer_M8_full_serial 1 rel_l2=7.96935e-05 mismatches= 31 accepted= True
+PDLI_DIFF PNF_layer_M8_full_serial seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 1144), (1, 'torch.float32', (8, 8192), 4965)]
+PDLI_TOL PNF_layer_M8_full_serial 2 rel_l2=0.00137597 mismatches= 1121 accepted= True
+PDLI_TOL PNF_layer_M8_full_serial 2 rel_l2=0.00135521 mismatches= 1954 accepted= True
+PNF_CANDIDATE_PROBE PNF_layer_M8_full serial True
+PNF_LAYER_TIME PNF_layer_M8_full ('parent', 'pdl', 'serial') {'parent': 132.83200562000275, 'pdl': 139.52000439167023, 'serial': 138.91200721263885}
+PNF_LAYER_TIME PNF_layer_M8_full ('serial', 'pdl', 'parent') {'serial': 139.26400244235992, 'pdl': 139.55199718475342, 'parent': 133.05599987506866}
+PNF_CANDIDATE_RATIOS PNF_layer_M8_full {'pdl': [1.050349302040956, 1.0488215286479685], 'serial': [1.0457721131609605, 1.0466570659956724]} passing= {}
+PNF_SELECT PNF_layer_M8_full mode= None mask= 0
+PNF_DONE elapsed_s= 281.9904019240057 selected= {}

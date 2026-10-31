@@ -1,0 +1,157 @@
+ accepted= True
+PDLI_BITWISE qkv_attention_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M8_sliding order=parent,pdl parent_us=22.304000 pdl_us=23.104001 saving_us=-0.800001 ratio=1.035868 pick=parent
+PDLI_TIME qkv_attention_M8_sliding order=pdl,parent parent_us=22.208000 pdl_us=23.040000 saving_us=-0.832001 ratio=1.037464 pick=parent
+PDLI_BITWISE attention_o_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M8_sliding order=parent,pdl parent_us=17.312000 pdl_us=16.832000 saving_us=0.480000 ratio=0.972274 pick=pdl
+PDLI_TIME attention_o_M8_sliding order=pdl,parent parent_us=16.992001 pdl_us=16.576000 saving_us=0.416001 ratio=0.975518 pick=pdl
+PDLI_COMPONENTS M8_sliding qa= False o= True r2f= True unpool= False glue_pdl= True candidate_mask= 22
+PDLI_DIFF whole_layer_M8_sliding seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 10), (1, 'torch.float32', (8, 8192), 41)]
+PDLI_TOL whole_layer_M8_sliding 1 rel_l2=7.81683e-05 mismatches= 10 accepted= True
+PDLI_TOL whole_layer_M8_sliding 1 rel_l2=4.14734e-05 mismatches= 18 accepted= True
+PDLI_BITWISE whole_layer_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M8_sliding order=parent,pdl parent_us=118.015997 pdl_us=116.704002 saving_us=1.311995 ratio=0.988883 pick=pdl
+PDLI_TIME whole_layer_M8_sliding order=pdl,parent parent_us=118.784003 pdl_us=116.448000 saving_us=2.336003 ratio=0.980334 pick=pdl
+PDLI_SELECT M8_sliding mask= 22
+PDLI_DIFF qkv_attention_M8_full seed= 1 byte_mismatches= [(1, 'torch.bfloat16', (1, 8, 1024), 1)]
+PDLI_TOL qkv_attention_M8_full 1 rel_l2=9.77977e-09 mismatches= 1 accepted= True
+PDLI_BITWISE qkv_attention_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M8_full order=parent,pdl parent_us=29.408000 pdl_us=28.224001 saving_us=1.184000 ratio=0.959739 pick=pdl
+PDLI_TIME qkv_attention_M8_full order=pdl,parent parent_us=29.152000 pdl_us=28.128000 saving_us=1.024000 ratio=0.964874 pick=pdl
+PDLI_DIFF attention_o_M8_full seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (8, 1024), 1), (1, 'torch.bfloat16', (8, 8192), 15)]
+PDLI_TOL attention_o_M8_full 0 rel_l2=6.31949e-07 mismatches= 1 accepted= True
+PDLI_TOL attention_o_M8_full 0 rel_l2=5.45739e-06 mismatches= 15 accepted= True
+PDLI_DIFF attention_o_M8_full seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 1024), 2)]
+PDLI_TOL attention_o_M8_full 1 rel_l2=1.97057e-08 mismatches= 2 accepted= True
+PDLI_BITWISE attention_o_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M8_full order=parent,pdl parent_us=25.184000 pdl_us=24.320001 saving_us=0.863999 ratio=0.965693 pick=pdl
+PDLI_TIME attention_o_M8_full order=pdl,parent parent_us=25.119999 pdl_us=24.160000 saving_us=0.960000 ratio=0.961783 pick=pdl
+PDLI_COMPONENTS M8_full qa= True o= True r2f= True unpool= False glue_pdl= True candidate_mask= 23
+PDLI_BITWISE whole_layer_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M8_full order=parent,pdl parent_us=111.808002 pdl_us=109.215997 saving_us=2.592005 ratio=0.976817 pick=pdl
+PDLI_TIME whole_layer_M8_full order=pdl,parent parent_us=112.800002 pdl_us=108.127996 saving_us=4.672006 ratio=0.958582 pick=pdl
+PDLI_SELECT M8_full mask= 23
+PDLI_DIFF whole_layer_M16_sliding_b seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 7910), (1, 'torch.float32', (16, 8192), 31598)]
+PDLI_TOL whole_layer_M16_sliding_b 0 rel_l2=0.00132841 mismatches= 7754 accepted= True
+PDLI_TOL whole_layer_M16_sliding_b 0 rel_l2=0.00121951 mismatches= 11877 accepted= True
+PDLI_DIFF whole_layer_M16_sliding_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 11949), (1, 'torch.float32', (16, 8192), 48002)]
+PDLI_TOL whole_layer_M16_sliding_b 1 rel_l2=0.00167437 mismatches= 11696 accepted= True
+PDLI_TOL whole_layer_M16_sliding_b 1 rel_l2=0.00148192 mismatches= 18096 accepted= True
+PDLI_DIFF whole_layer_M16_sliding_b seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 152), (1, 'torch.float32', (16, 8192), 1275)]
+PDLI_TOL whole_layer_M16_sliding_b 2 rel_l2=0.000134305 mismatches= 152 accepted= True
+PDLI_TOL whole_layer_M16_sliding_b 2 rel_l2=7.96392e-05 mismatches= 581 accepted= True
+PDLI_BITWISE whole_layer_M16_sliding_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M16_sliding_b order=parent,pdl parent_us=168.288007 pdl_us=165.984005 saving_us=2.304003 ratio=0.986309 pick=pdl
+PDLI_TIME whole_layer_M16_sliding_b order=pdl,parent parent_us=168.191999 pdl_us=164.800003 saving_us=3.391996 ratio=0.979833 pick=pdl
+PDLI_SELECT M16_sliding_b mask= 16
+PDLI_DIFF whole_layer_M16_full_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 2), (1, 'torch.float32', (16, 8192), 13)]
+PDLI_TOL whole_layer_M16_full_b 1 rel_l2=2.06561e-06 mismatches= 1 accepted= True
+PDLI_TOL whole_layer_M16_full_b 1 rel_l2=2.17087e-06 mismatches= 6 accepted= True
+PDLI_BITWISE whole_layer_M16_full_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M16_full_b order=parent,pdl parent_us=214.591995 pdl_us=211.456001 saving_us=3.135994 ratio=0.985386 pick=pdl
+PDLI_TIME whole_layer_M16_full_b order=pdl,parent parent_us=213.952005 pdl_us=212.224007 saving_us=1.727998 ratio=0.991923 pick=parent
+PDLI_SELECT M16_full_b mask= 0
+PDLI_DIFF whole_layer_M32_sliding_b seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 3843), (1, 'torch.float32', (32, 8192), 15539)]
+PDLI_TOL whole_layer_M32_sliding_b 0 rel_l2=0.000667065 mismatches= 3770 accepted= True
+PDLI_TOL whole_layer_M32_sliding_b 0 rel_l2=0.00059979 mismatches= 5841 accepted= True
+PDLI_DIFF whole_layer_M32_sliding_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 4227), (1, 'torch.float32', (32, 8192), 16737)]
+PDLI_TOL whole_layer_M32_sliding_b 1 rel_l2=0.000716702 mismatches= 4136 accepted= True
+PDLI_TOL whole_layer_M32_sliding_b 1 rel_l2=0.00066777 mismatches= 6304 accepted= True
+PDLI_BITWISE whole_layer_M32_sliding_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M32_sliding_b order=parent,pdl parent_us=205.152005 pdl_us=203.199998 saving_us=1.952007 ratio=0.990485 pick=parent
+PDLI_TIME whole_layer_M32_sliding_b order=pdl,parent parent_us=203.424007 pdl_us=202.176005 saving_us=1.248002 ratio=0.993865 pick=parent
+PDLI_SELECT M32_sliding_b mask= 0
+PDLI_DIFF whole_layer_M32_full_b seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 2), (1, 'torch.float32', (32, 8192), 13)]
+PDLI_TOL whole_layer_M32_full_b 2 rel_l2=1.67784e-06 mismatches= 2 accepted= True
+PDLI_TOL whole_layer_M32_full_b 2 rel_l2=1.47332e-06 mismatches= 7 accepted= True
+PDLI_BITWISE whole_layer_M32_full_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M32_full_b order=parent,pdl parent_us=376.224011 pdl_us=372.927994 saving_us=3.296018 ratio=0.991239 pick=parent
+PDLI_TIME whole_layer_M32_full_b order=pdl,parent parent_us=375.232011 pdl_us=373.248011 saving_us=1.984000 ratio=0.994713 pick=parent
+PDLI_SELECT M32_full_b mask= 0
+PDLI_DONE rev= p11_diag_timeline elapsed_s= 266.7463038159767 selected= {(1, True): 31, (1, False): 31, (8, True): 22, (8, False): 23, (16, True): 16}
+PDLS1_UNIT_BYTES PDLS_norm_r2f_M1 True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M1 ('parent', 'pdl') {'parent': 29.311999678611755, 'pdl': 26.815999299287796} saving_us= 2.4960003793239594 passes= True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M1 ('pdl', 'parent') {'pdl': 27.135999873280525, 'parent': 29.152000322937965} saving_us= 2.01600044965744 passes= True
+PDLI_DIFF PDLS_layer_M1_sliding seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (1, 8192), 46), (1, 'torch.float32', (1, 8192), 96)]
+PDLI_TOL PDLS_layer_M1_sliding 0 rel_l2=0.000722247 mismatches= 46 accepted= True
+PDLI_TOL PDLS_layer_M1_sliding 0 rel_l2=0.000610072 mismatches= 37 accepted= True
+PDLI_BITWISE PDLS_layer_M1_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME PDLS_layer_M1_sliding order=parent,pdl parent_us=74.239999 pdl_us=74.015997 saving_us=0.224002 ratio=0.996983 pick=parent
+PDLI_TIME PDLS_layer_M1_sliding order=pdl,parent parent_us=74.047998 pdl_us=73.536001 saving_us=0.511996 ratio=0.993086 pick=parent
+PDLS_SELECT PDLS_layer_M1_sliding 0
+PDLI_BITWISE PDLS_layer_M1_full True changing_graph_inputs=3 tol= True
+PDLI_TIME PDLS_layer_M1_full order=parent,pdl parent_us=80.991998 pdl_us=80.480002 saving_us=0.511996 ratio=0.993678 pick=parent
+PDLI_TIME PDLS_layer_M1_full order=pdl,parent parent_us=81.696004 pdl_us=80.991998 saving_us=0.704005 ratio=0.991383 pick=parent
+PDLS_SELECT PDLS_layer_M1_full 0
+PDLS1_UNIT_BYTES PDLS_norm_r2f_M8 True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M8 ('parent', 'pdl') {'parent': 30.559999868273735, 'pdl': 29.311999678611755} saving_us= 1.2480001896619797 passes= True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M8 ('pdl', 'parent') {'pdl': 29.759999364614487, 'parent': 30.527999624609947} saving_us= 0.7680002599954605 passes= True
+PDLI_DIFF PDLS_layer_M8_sliding seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 5), (1, 'torch.float32', (8, 8192), 33)]
+PDLI_TOL PDLS_layer_M8_sliding 1 rel_l2=2.65387e-05 mismatches= 5 accepted= True
+PDLI_TOL PDLS_layer_M8_sliding 1 rel_l2=1.63921e-05 mismatches= 17 accepted= True
+PDLI_BITWISE PDLS_layer_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME PDLS_layer_M8_sliding order=parent,pdl parent_us=109.024003 pdl_us=108.543999 saving_us=0.480004 ratio=0.995597 pick=parent
+PDLI_TIME PDLS_layer_M8_sliding order=pdl,parent parent_us=109.984003 pdl_us=109.024003 saving_us=0.960000 ratio=0.991271 pick=parent
+PDLS_SELECT PDLS_layer_M8_sliding 0
+PDLI_DIFF PDLS_layer_M8_full seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 819), (1, 'torch.float32', (8, 8192), 3365)]
+PDLI_TOL PDLS_layer_M8_full 1 rel_l2=0.00140632 mismatches= 802 accepted= True
+PDLI_TOL PDLS_layer_M8_full 1 rel_l2=0.00147219 mismatches= 1290 accepted= True
+PDLI_BITWISE PDLS_layer_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME PDLS_layer_M8_full order=parent,pdl parent_us=108.511999 pdl_us=107.712001 saving_us=0.799999 ratio=0.992628 pick=parent
+PDLI_TIME PDLS_layer_M8_full order=pdl,parent parent_us=108.896002 pdl_us=107.327998 saving_us=1.568004 ratio=0.985601 pick=pdl
+PDLS_SELECT PDLS_layer_M8_full 0
+PDLS_DONE 266.91753369697835 {}
+TL m=1 sliding=1 mask=31 var=pdl qkv=217.8 attn=87.2 o=36.5 norm=88.2 pool_route=62.1 pn=59.4 moe=85.8 unpool=31.5 sfn=57.6 start=4121.4 qkv=217.8 attn=87.2 o=36.5 norm=88.2 pool_route=62.1 pn=59.4 moe=85.8 unpool=31.5 sfn=57.6 total=4948.4
+TL_TOTAL_NOEVENTS m=1 sliding=1 mask=31 var=pdl us=66.0
+TL m=1 sliding=1 mask=0 var=plain qkv=215.8 attn=91.2 o=61.5 norm=87.2 pool_route=65.8 pn=58.8 moe=78.9 unpool=55.0 sfn=58.2 start=3687.3 qkv=215.8 attn=91.2 o=61.5 norm=87.2 pool_route=65.8 pn=58.8 moe=78.9 unpool=55.0 sfn=58.2 total=4558.8
+TL_TOTAL_NOEVENTS m=1 sliding=1 mask=0 var=plain us=69.3
+TL_PARENT_TOTAL m=1 sliding=1 us=65.9
+TL m=1 sliding=0 mask=31 var=pdl qkv=198.3 attn=87.3 o=34.4 norm=88.0 pool_route=59.6 pn=71.2 moe=83.4 unpool=31.5 sfn=55.7 start=3883.5 qkv=198.3 attn=87.3 o=34.4 norm=88.0 pool_route=59.6 pn=71.2 moe=83.4 unpool=31.5 sfn=55.7 total=4707.5
+TL_TOTAL_NOEVENTS m=1 sliding=0 mask=31 var=pdl us=75.8
+TL m=1 sliding=0 mask=0 var=plain qkv=205.5 attn=91.3 o=53.8 norm=84.2 pool_route=65.2 pn=58.2 moe=84.1 unpool=52.0 sfn=54.3 start=3900.9 qkv=205.5 attn=91.3 o=53.8 norm=84.2 pool_route=65.2 pn=58.2 moe=84.1 unpool=52.0 sfn=54.3 total=4763.0
+TL_TOTAL_NOEVENTS m=1 sliding=0 mask=0 var=plain us=82.3
+TL_PARENT_TOTAL m=1 sliding=0 us=75.6
+TL m=8 sliding=1 mask=22 var=pdl qkv=212.8 attn=83.1 o=44.0 norm=85.6 pool_route=66.0 pn=55.7 moe=103.6 unpool=36.2 sfn=63.2 start=4069.8 qkv=212.8 attn=83.1 o=44.0 norm=85.6 pool_route=66.0 pn=55.7 moe=103.6 unpool=36.2 sfn=63.2 total=4946.3
+TL_TOTAL_NOEVENTS m=8 sliding=1 mask=22 var=pdl us=91.9
+TL m=8 sliding=1 mask=0 var=plain qkv=208.6 attn=87.9 o=48.2 norm=86.8 pool_route=66.5 pn=61.5 moe=96.2 unpool=33.7 sfn=56.0 start=4041.2 qkv=208.6 attn=87.9 o=48.2 norm=86.8 pool_route=66.5 pn=61.5 moe=96.2 unpool=33.7 sfn=56.0 total=4910.3
+TL_TOTAL_NOEVENTS m=8 sliding=1 mask=0 var=plain us=93.3
+TL_PARENT_TOTAL m=8 sliding=1 us=91.5
+TL m=8 sliding=0 mask=23 var=pdl qkv=195.3 attn=84.3 o=35.5 norm=83.5 pool_route=61.6 pn=54.7 moe=108.1 unpool=29.2 sfn=56.5 start=4306.6 qkv=195.3 attn=84.3 o=35.5 norm=83.5 pool_route=61.6 pn=54.7 moe=108.1 unpool=29.2 sfn=56.5 total=5158.7
+TL_TOTAL_NOEVENTS m=8 sliding=0 mask=23 var=pdl us=105.9
+TL m=8 sliding=0 mask=0 var=plain qkv=287.7 attn=86.8 o=46.5 norm=84.6 pool_route=66.3 pn=56.5 moe=100.2 unpool=30.2 sfn=53.9 start=4457.6 qkv=287.7 attn=86.8 o=46.5 norm=84.6 pool_route=66.3 pn=56.5 moe=100.2 unpool=30.2 sfn=53.9 total=5409.0
+TL_TOTAL_NOEVENTS m=8 sliding=0 mask=0 var=plain us=108.0
+TL_PARENT_TOTAL m=8 sliding=0 us=105.9
+TL m=16 sliding=1 mask=16 var=pdl qkv=277.0 attn=879.3 o=169.2 norm=17.0 pool_route=26.8 pn=6.4 moe=79.4 unpool=22.0 sfn=8.7 start=6274.1 qkv=277.0 attn=879.3 o=169.2 norm=17.0 pool_route=26.8 pn=6.4 moe=79.4 unpool=22.0 sfn=8.7 total=7877.2
+TL_TOTAL_NOEVENTS m=16 sliding=1 mask=16 var=pdl us=149.9
+TL m=16 sliding=1 mask=0 var=plain qkv=196.0 attn=91.1 o=53.2 norm=81.7 pool_route=113.2 pn=76.7 moe=138.0 unpool=18.8 sfn=192.2 start=5305.7 qkv=196.0 attn=91.1 o=53.2 norm=81.7 pool_route=113.2 pn=76.7 moe=138.0 unpool=18.8 sfn=192.2 total=6451.1
+TL_TOTAL_NOEVENTS m=16 sliding=1 mask=0 var=plain us=152.0
+TL_PARENT_TOTAL m=16 sliding=1 us=149.8
+TL_ERROR 32 True t be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nThe CUDA driver logged these messages, which may provide useful details:\nReturning 700 (CUDA_ERROR_ILLEGAL_ADDRESS) from cuCtxSynchronize_v2\n\n")
+[W1031 09:09:49.191353601 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191365986 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191369902 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191374418 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191378094 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191381846 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191386011 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191389748 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191393844 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 09:09:49.191397131 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-eiiy7k47/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-eiiy7k47/run/worker.py", line 323, in _setup_op
+    sync()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/__init__.py", line 1281, in synchronize
+    return torch._C._cuda_synchronize()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 700 (CUDA_ERROR_ILLEGAL_ADDRESS) from cuCtxSynchronize_v2
+
+

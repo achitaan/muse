@@ -1,0 +1,140 @@
+8us f_notopk=23.39us f_nomath=21.15us f_neither=19.87us
+R2_GATE M=8 PASS parent=39.84us fused=28.10us use=True
+R2_DIAG M=8 parent=39.84us fused=28.10us pool_only=18.98us f_notopk=26.98us f_nomath=24.29us f_neither=23.04us
+R2_DONE 261.3s sel=(1, 8)
+PDLI_RESOURCE o1 regs_local= 56000 occupancy= 1 source= 116212cd178d0f885b68a4b7f2cc0dcdbc22b7052dc9f4cfa688da26a811974c
+PDLI_RESOURCE o8 regs_local= 56000 occupancy= 4 source= 435e7f65ef1d56e903a428cf5d0dbb67d1aa11c580a049b55a5d3311212e1e5e
+PDLI_RESOURCE q1 regs_local= 78000 occupancy= 186 source= 2079ad9890dd97171597bcdef12456aa71abe6ae90dd3dc39e9b88f2cc5d63fb
+PDLI_RESOURCE q8 regs_local= 93000 occupancy= 154 source= d3972adcaec566a7d9dfd3969670b2030a5da55b15aff1f1feff4d6c34f54758
+PDLI_RESOURCE u1 regs_local= 63000 occupancy= 124 source= e3d66bbf5ce64090cbefc7948a28fc653496013b9ed380a9b70c6cc304d409ff
+PDLI_RESOURCE u8 regs_local= 62000 occupancy= 132 source= c3d8a7eb0342bab42fc40102de85b47e8f1235d6b5aeed3b255e2a3ac098c002
+PDLI_RESOURCE r1 regs_local= 64000 occupancy= 1 source= fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571
+PDLI_RESOURCE r8 regs_local= 64000 occupancy= 1 source= f82767cd894da379abfc96cc79f5e51c92080694d39b171bb3e4863b1d1542d8
+PDLI_BITWISE norm_r2f_M1 True changing_graph_inputs=3 tol= False
+PDLI_TIME norm_r2f_M1 order=parent,pdl parent_us=30.463999 pdl_us=28.991999 saving_us=1.472000 ratio=0.951681 pick=pdl
+PDLI_TIME norm_r2f_M1 order=pdl,parent parent_us=30.208001 pdl_us=29.344000 saving_us=0.864001 ratio=0.971398 pick=pdl
+PDLI_BITWISE moe_unpool_M1 True changing_routes=one,none,eight tol= True
+PDLI_TIME moe_unpool_M1 order=parent,pdl parent_us=26.303999 pdl_us=25.599999 saving_us=0.704000 ratio=0.973236 pick=pdl
+PDLI_TIME moe_unpool_M1 order=pdl,parent parent_us=26.335999 pdl_us=25.343999 saving_us=0.992000 ratio=0.962333 pick=pdl
+PDLI_BITWISE qkv_attention_M1_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M1_sliding order=parent,pdl parent_us=19.967999 pdl_us=19.616000 saving_us=0.351999 ratio=0.982372 pick=pdl
+PDLI_TIME qkv_attention_M1_sliding order=pdl,parent parent_us=19.904001 pdl_us=19.552000 saving_us=0.352001 ratio=0.982315 pick=pdl
+PDLI_BITWISE attention_o_M1_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M1_sliding order=parent,pdl parent_us=15.136000 pdl_us=13.536000 saving_us=1.600000 ratio=0.894292 pick=pdl
+PDLI_TIME attention_o_M1_sliding order=pdl,parent parent_us=14.848000 pdl_us=13.760000 saving_us=1.088001 ratio=0.926724 pick=pdl
+PDLI_COMPONENTS M1_sliding qa= True o= True r2f= True unpool= True glue_pdl= True candidate_mask= 31
+PDLI_BITWISE whole_layer_M1_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M1_sliding order=parent,pdl parent_us=77.696003 pdl_us=74.720003 saving_us=2.976000 ratio=0.961697 pick=pdl
+PDLI_TIME whole_layer_M1_sliding order=pdl,parent parent_us=77.823997 pdl_us=73.728003 saving_us=4.095994 ratio=0.947368 pick=pdl
+PDLI_SELECT M1_sliding mask= 31
+PDLI_BITWISE qkv_attention_M1_full True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M1_full order=parent,pdl parent_us=26.144000 pdl_us=25.440000 saving_us=0.704000 ratio=0.973072 pick=pdl
+PDLI_TIME qkv_attention_M1_full order=pdl,parent parent_us=25.952000 pdl_us=25.280001 saving_us=0.672000 ratio=0.974106 pick=pdl
+PDLI_BITWISE attention_o_M1_full True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M1_full order=parent,pdl parent_us=22.272000 pdl_us=21.280000 saving_us=0.992000 ratio=0.955460 pick=pdl
+PDLI_TIME attention_o_M1_full order=pdl,parent parent_us=22.496000 pdl_us=21.120001 saving_us=1.375999 ratio=0.938834 pick=pdl
+PDLI_COMPONENTS M1_full qa= True o= True r2f= True unpool= True glue_pdl= True candidate_mask= 31
+PDLI_BITWISE whole_layer_M1_full True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M1_full order=parent,pdl parent_us=72.544001 pdl_us=66.912003 saving_us=5.631998 ratio=0.922364 pick=pdl
+PDLI_TIME whole_layer_M1_full order=pdl,parent parent_us=72.287999 pdl_us=67.199998 saving_us=5.088001 ratio=0.929615 pick=pdl
+PDLI_SELECT M1_full mask= 31
+PDLI_BITWISE norm_r2f_M8 True changing_graph_inputs=3 tol= False
+PDLI_TIME norm_r2f_M8 order=parent,pdl parent_us=31.104000 pdl_us=30.400001 saving_us=0.704000 ratio=0.977366 pick=pdl
+PDLI_TIME norm_r2f_M8 order=pdl,parent parent_us=31.488001 pdl_us=30.463999 saving_us=1.024002 ratio=0.967480 pick=pdl
+PDLI_DIFF moe_unpool_M8 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 4096), 3), (1, 'torch.bfloat16', (8, 1024), 7)]
+PDLI_TOL moe_unpool_M8 2 rel_l2=3.81497e-06 mismatches= 3 accepted= True
+PDLI_TOL moe_unpool_M8 2 rel_l2=1.52384e-05 mismatches= 7 accepted= True
+PDLI_BITWISE moe_unpool_M8 True changing_routes=one,none,eight tol= True
+PDLI_TIME moe_unpool_M8 order=parent,pdl parent_us=26.880000 pdl_us=27.104000 saving_us=-0.224000 ratio=1.008333 pick=parent
+PDLI_TIME moe_unpool_M8 order=pdl,parent parent_us=26.848000 pdl_us=27.008001 saving_us=-0.160001 ratio=1.005960 pick=parent
+PDLI_DIFF qkv_attention_M8_sliding seed= 0 byte_mismatches= [(1, 'torch.bfloat16', (1, 8, 1024), 3)]
+PDLI_TOL qkv_attention_M8_sliding 0 rel_l2=8.01499e-05 mismatches= 3 accepted= True
+PDLI_BITWISE qkv_attention_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M8_sliding order=parent,pdl parent_us=21.600001 pdl_us=22.496000 saving_us=-0.895999 ratio=1.041481 pick=parent
+PDLI_TIME qkv_attention_M8_sliding order=pdl,parent parent_us=21.600001 pdl_us=22.560000 saving_us=-0.960000 ratio=1.044444 pick=parent
+PDLI_DIFF attention_o_M8_sliding seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 1024), 1), (1, 'torch.bfloat16', (8, 8192), 8)]
+PDLI_TOL attention_o_M8_sliding 2 rel_l2=3.13164e-07 mismatches= 1 accepted= True
+PDLI_TOL attention_o_M8_sliding 2 rel_l2=2.86666e-05 mismatches= 7 accepted= True
+PDLI_BITWISE attention_o_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M8_sliding order=parent,pdl parent_us=16.640000 pdl_us=16.287999 saving_us=0.352001 ratio=0.978846 pick=pdl
+PDLI_TIME attention_o_M8_sliding order=pdl,parent parent_us=16.704001 pdl_us=16.480001 saving_us=0.224000 ratio=0.986590 pick=pdl
+PDLI_COMPONENTS M8_sliding qa= False o= True r2f= True unpool= False glue_pdl= True candidate_mask= 22
+PDLI_DIFF whole_layer_M8_sliding seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 691), (1, 'torch.float32', (8, 8192), 2638)]
+PDLI_TOL whole_layer_M8_sliding 1 rel_l2=0.00120487 mismatches= 668 accepted= True
+PDLI_TOL whole_layer_M8_sliding 1 rel_l2=0.00118136 mismatches= 992 accepted= True
+PDLI_DIFF whole_layer_M8_sliding seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 454), (1, 'torch.float32', (8, 8192), 1528)]
+PDLI_TOL whole_layer_M8_sliding 2 rel_l2=0.000753596 mismatches= 445 accepted= True
+PDLI_TOL whole_layer_M8_sliding 2 rel_l2=0.000674465 mismatches= 559 accepted= True
+PDLI_BITWISE whole_layer_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M8_sliding order=parent,pdl parent_us=128.160000 pdl_us=128.511995 saving_us=-0.351995 ratio=1.002747 pick=parent
+PDLI_TIME whole_layer_M8_sliding order=pdl,parent parent_us=128.352001 pdl_us=130.239993 saving_us=-1.887992 ratio=1.014709 pick=parent
+PDLI_SELECT M8_sliding mask= 0
+PDLI_DIFF qkv_attention_M8_full seed= 1 byte_mismatches= [(1, 'torch.bfloat16', (1, 8, 1024), 2)]
+PDLI_TOL qkv_attention_M8_full 1 rel_l2=2.7434e-08 mismatches= 2 accepted= True
+PDLI_DIFF qkv_attention_M8_full seed= 2 byte_mismatches= [(1, 'torch.bfloat16', (1, 8, 1024), 1)]
+PDLI_TOL qkv_attention_M8_full 2 rel_l2=1.54466e-07 mismatches= 1 accepted= True
+PDLI_BITWISE qkv_attention_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME qkv_attention_M8_full order=parent,pdl parent_us=28.608000 pdl_us=27.712001 saving_us=0.895999 ratio=0.968680 pick=pdl
+PDLI_TIME qkv_attention_M8_full order=pdl,parent parent_us=28.704001 pdl_us=27.807999 saving_us=0.896001 ratio=0.968785 pick=pdl
+PDLI_DIFF attention_o_M8_full seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (8, 1024), 1), (1, 'torch.bfloat16', (8, 8192), 1494)]
+PDLI_TOL attention_o_M8_full 0 rel_l2=0.000161779 mismatches= 1 accepted= True
+PDLI_TOL attention_o_M8_full 0 rel_l2=0.000455604 mismatches= 1477 accepted= True
+PDLI_DIFF attention_o_M8_full seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 1024), 1)]
+PDLI_TOL attention_o_M8_full 1 rel_l2=1.22921e-09 mismatches= 1 accepted= True
+PDLI_BITWISE attention_o_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME attention_o_M8_full order=parent,pdl parent_us=24.800001 pdl_us=24.127999 saving_us=0.672001 ratio=0.972903 pick=pdl
+PDLI_TIME attention_o_M8_full order=pdl,parent parent_us=24.831999 pdl_us=24.095999 saving_us=0.736000 ratio=0.970361 pick=pdl
+PDLI_COMPONENTS M8_full qa= True o= True r2f= True unpool= False glue_pdl= True candidate_mask= 23
+PDLI_DIFF whole_layer_M8_full seed= 0 byte_mismatches= [(1, 'torch.float32', (8, 8192), 2)]
+PDLI_TOL whole_layer_M8_full 0 rel_l2=2.88065e-08 mismatches= 1 accepted= True
+PDLI_DIFF whole_layer_M8_full seed= 1 byte_mismatches= [(1, 'torch.float32', (8, 8192), 2)]
+PDLI_TOL whole_layer_M8_full 1 rel_l2=2.08424e-09 mismatches= 1 accepted= True
+PDLI_DIFF whole_layer_M8_full seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 3), (1, 'torch.float32', (8, 8192), 15)]
+PDLI_TOL whole_layer_M8_full 2 rel_l2=3.40551e-05 mismatches= 3 accepted= True
+PDLI_TOL whole_layer_M8_full 2 rel_l2=2.08611e-05 mismatches= 7 accepted= True
+PDLI_BITWISE whole_layer_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M8_full order=parent,pdl parent_us=128.800005 pdl_us=127.263993 saving_us=1.536012 ratio=0.988074 pick=pdl
+PDLI_TIME whole_layer_M8_full order=pdl,parent parent_us=128.959998 pdl_us=127.744004 saving_us=1.215994 ratio=0.990571 pick=parent
+PDLI_SELECT M8_full mask= 0
+PDLI_DIFF whole_layer_M16_sliding_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 3), (1, 'torch.float32', (16, 8192), 22)]
+PDLI_TOL whole_layer_M16_sliding_b 1 rel_l2=1.26568e-05 mismatches= 2 accepted= True
+PDLI_TOL whole_layer_M16_sliding_b 1 rel_l2=1.4345e-05 mismatches= 12 accepted= True
+PDLI_DIFF whole_layer_M16_sliding_b seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 4091), (1, 'torch.float32', (16, 8192), 16106)]
+PDLI_TOL whole_layer_M16_sliding_b 2 rel_l2=0.000981617 mismatches= 4009 accepted= True
+PDLI_TOL whole_layer_M16_sliding_b 2 rel_l2=0.000887047 mismatches= 6029 accepted= True
+PDLI_BITWISE whole_layer_M16_sliding_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M16_sliding_b order=parent,pdl parent_us=170.047998 pdl_us=168.896005 saving_us=1.151994 ratio=0.993225 pick=parent
+PDLI_TIME whole_layer_M16_sliding_b order=pdl,parent parent_us=169.888005 pdl_us=169.248000 saving_us=0.640005 ratio=0.996233 pick=parent
+PDLI_SELECT M16_sliding_b mask= 0
+PDLI_DIFF whole_layer_M16_full_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 154), (1, 'torch.float32', (16, 8192), 1005)]
+PDLI_TOL whole_layer_M16_full_b 1 rel_l2=0.000160375 mismatches= 154 accepted= True
+PDLI_TOL whole_layer_M16_full_b 1 rel_l2=0.000116372 mismatches= 436 accepted= True
+PDLI_BITWISE whole_layer_M16_full_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M16_full_b order=parent,pdl parent_us=248.127997 pdl_us=247.327998 saving_us=0.799999 ratio=0.996776 pick=parent
+PDLI_TIME whole_layer_M16_full_b order=pdl,parent parent_us=247.999996 pdl_us=246.784002 saving_us=1.215994 ratio=0.995097 pick=parent
+PDLI_SELECT M16_full_b mask= 0
+PDLI_DIFF whole_layer_M32_sliding_b seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 3806), (1, 'torch.float32', (32, 8192), 14894)]
+PDLI_TOL whole_layer_M32_sliding_b 0 rel_l2=0.000665312 mismatches= 3739 accepted= True
+PDLI_TOL whole_layer_M32_sliding_b 0 rel_l2=0.000621846 mismatches= 5578 accepted= True
+PDLI_BITWISE whole_layer_M32_sliding_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M32_sliding_b order=parent,pdl parent_us=213.599995 pdl_us=211.584002 saving_us=2.015993 ratio=0.990562 pick=parent
+PDLI_TIME whole_layer_M32_sliding_b order=pdl,parent parent_us=213.535994 pdl_us=211.232007 saving_us=2.303988 ratio=0.989210 pick=pdl
+PDLI_SELECT M32_sliding_b mask= 0
+PDLI_DIFF whole_layer_M32_full_b seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 3989), (1, 'torch.float32', (32, 8192), 15994)]
+PDLI_TOL whole_layer_M32_full_b 0 rel_l2=0.000696899 mismatches= 3910 accepted= True
+PDLI_TOL whole_layer_M32_full_b 0 rel_l2=0.000646522 mismatches= 6004 accepted= True
+PDLI_DIFF whole_layer_M32_full_b seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 311), (1, 'torch.float32', (32, 8192), 2179)]
+PDLI_TOL whole_layer_M32_full_b 1 rel_l2=0.000118823 mismatches= 307 accepted= True
+PDLI_TOL whole_layer_M32_full_b 1 rel_l2=8.35862e-05 mismatches= 947 accepted= True
+PDLI_BITWISE whole_layer_M32_full_b True changing_graph_inputs=3 tol= True
+PDLI_TIME whole_layer_M32_full_b order=parent,pdl parent_us=356.671989 pdl_us=354.880005 saving_us=1.791984 ratio=0.994976 pick=parent
+PDLI_TIME whole_layer_M32_full_b order=pdl,parent parent_us=356.543988 pdl_us=354.207993 saving_us=2.335995 ratio=0.993448 pick=parent
+PDLI_SELECT M32_full_b mask= 0
+PDLI_DONE rev= p10_tol5_attn_all elapsed_s= 263.07763079798315 selected= {(1, True): 31, (1, False): 31}
+PDLS1_UNIT_BYTES PDLS_norm_r2f_M1 True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M1 ('parent', 'pdl') {'parent': 28.28799933195114, 'pdl': 28.384000062942505} saving_us= -0.09600073099136353 passes= False
+PDLS1_UNIT_TIME PDLS_norm_r2f_M1 ('pdl', 'parent') {'pdl': 28.224000707268715, 'parent': 28.416000306606293} saving_us= 0.19199959933757782 passes= False
+PDLS1_UNIT_BYTES PDLS_norm_r2f_M8 True
+PDLS1_UNIT_TIME PDLS_norm_r2f_M8 ('parent', 'pdl') {'parent': 30.6560005992651, 'pdl': 30.719999223947525} saving_us= -0.06399862468242645 passes= False
+PDLS1_UNIT_TIME PDLS_norm_r2f_M8 ('pdl', 'parent') {'pdl': 30.97599931061268, 'parent': 30.6560005992651} saving_us= -0.31999871134757996 passes= False
+PDLS_DONE 263.1200876319781 {}

@@ -29,3 +29,27 @@ Rule: keep a pass only if all tests pass AND faster (paired in-prepare A/B >= 1%
   1. MoE at 16/32 tokens (65/91 us vs ~45-62 floor; first measure real touched-expert counts);
   2. a persistent FFN island at 1/8 tokens (R2f -> norm -> MoE without boundaries);
   3. top-k folded into `sk2` for 16/32 tokens (needs SGLang's routing source from the judge environment).
+
+## Loop 2 (goal: top 50 at ~2.246x; stop only when total usage reaches $300)
+
+Started Oct 31 ~03:40 EDT. Usage at start: $65.7 total for this session tree (`spend.py`). Current scored best: 2.0783x (`0aa30c92`). Ladder from loop 1: researcher x2, oracle-lite x2, oracle x1.
+
+| Pass | Item | Result | Kept/reverted | Lane | Usage |
+|---|---|---|---|---|---|
+| 9 | Fold `_pn` into the MoE prologue at 1/8 tokens, bit 64 (`decoder_p7_pnfold.py`) | fix 1 (Smem field moved `red` 1024->1060, broke float4 alignment): valid 2.0667x (`b2574b49`), probes OK (rel 5e-6), but layer **slower**: M1 +8.2/+10.8 us, M8 +4.8/+4.9 us; not selected | reverted (diagnosing PDL/residency) | hard-fixer | $70 |
+| R1 | Researcher: MoE small-batch gap vs board leaders (2.76x vs our 2.38x) | A and B already overlap per job; B refills vacated A slots; TINY prefetches A before routing. Top idea: publish skinny-job completion at expert boundaries (0.5-2 us at bs8/16); whole-B shared-memory caching is low value | recorded | researcher | $67 |
+| 10 | Exact top-8 routing kernel with PDL, 9-256 tokens (`decoder_p8_topk.py`) | relaxed admission passes at every T (weights rel <= 4.8e-7; 1 tie row); but unit chain **slower** by 2.4-3.1 us at T=16/32/128/256 (`e057dc9d`, 2.0776x, nothing selected) | reverted | fixer | $71 |
+| R2 | Escalation 1: researcher on full-context attention (leaders 3.22x vs our 2.57x on the attention board) | top idea (contiguous-run TMA) is dead: the reference scatters pages with `randperm` (reference.py:261). Verify-only V-transpose/overlap idea is worth about 0.4-1% of Decode and hard | recorded | researcher | $72 |
+
+| 9b | PNF v2: norm after FAST1, MoE launch with and without PDL (`db30df75`, 2.0766x) | PNF MoE alone is 6-7 us slower than `_pn` + parent MoE; layer +5.4..+8.3 us; nothing selected; prepare 282 s (too close to 300) | reverted; checking build parity (9c) | hard-fixer | $73 |
+| 9c | PNF build-parity audit | no build or config mismatch: same flags, variants, grid and fast paths; one real difference: phase-A x loads became LDG.STRONG.GPU (bypass L1) instead of LDG.CONSTANT | 9d tests nc loads after the readiness wait | hard-fixer | $74 |
+| O1 | Escalation 2: oracle-lite (`oracle` agent on Gemini 4 Argon medium) | nothing usable. W4A8 / FP8 activations breaks the BF16-activation rule. 'Unpooler 15.6 us is a red flag' is wrong: it streams 50 MB of c12 weights. 'c12 loses to BF16' is refuted by dense-top50 P3 (`a61fe75d`): c12 streams ~3.9 TB/s of c12 bytes, about 5.2 TB/s BF16-equivalent. L2 persistence of weights across single-layer replays is judge gaming. Rejected. | recorded | oracle (Argon) | $76 |
+| 11 | M8 qkv->attention and attention->o PDL with a tolerant probe; KV-cache bytes strict (`decoder_p9_tolattn.py`) | valid **2.0942x** (`c5f34d4f`); M8 sliding mask 18 (layer -2.3/-3.5 us); M8 full mask 19 (qa+o+glue, layer -4.7/-5.0 us) | kept (new lineage head) | direct (3-line edit) | $78 |
+
+| 9d | PNF with phase-A x on the nc path, budget 276 s (`97c2ab82`, valid 2.0806x) | isolated PNF MoE still 4.5-5 us slower (M1 30.0 vs 25.4 us); layer +5..+16%; cause unexplained | **closed** (4 checks spent on PNF) | hard-fixer | $80 |
+| 12 | Selection stability: tolerant attention probes at all M; whole-layer tolerance 5e-3 (`decoder_p10_tol5.py`) | valid **2.1043x** (`f9845bc9`, best check so far); M1 30/31, M8 18/19, PDLS M1 sliding 62 | kept (lineage head); scored submit `e1af1dd0` | direct (4-line edit) | $80 |
+| S2 | Scored submit of p10 (`e1af1dd0`) | **2.0970x** (CI 2.066-2.128), new board best (was 2.0783), rank 272/1093; published `board_best/decoder_p10_scored_2.0970.py` (main `94370e3`) | published | - | $82 |
+| 13 | Diagnostic: per-stage layer timeline with graph events (`decoder_p11_diag.py`, `2cf7e6bf`) | **failed run**: illegal address in the M=32 timeline graph. Event stage times inside graphs are meaningless (thousands of us). Usable: graph totals without events: M1 sliding pdl 66.0 / plain 69.3; M1 full 75.8 / 82.3; M8 sliding 91.9 / 93.3; M8 full 105.9 / 108.0; M16 sliding 149.9 / 152.0 us | closed (diagnostic only; never submit) | fixer | $83 |
+| 14 | MoE: publish phase-A completion per job at expert boundaries (OKC_EBPUB) for TINY/TINY2/MID, gated per bucket (`decoder_p12_ebpub.py`) | building | - | hard-fixer | $74 |
+
+Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs left), so the loop is frugal until the daily reset. Lesson from PNF: with PDL, small kernels before the persistent MoE kernel already overlap its prologue and weight prefetch, so fusing them in gains nothing.
