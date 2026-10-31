@@ -97,6 +97,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | One-query FP8 QK | closed | no usable gain | - | HANDOFF | <= Oct 31 |
 | Senior advice chain HYA (HYA_ROUTE) -> AX1 -> KS1/KS2/KS3 | diagnostic | names absent from all refs; QK-norm/RoPE/FP8 cache write, 8-way GQA packing, 64-key tiles, length-balanced splits already in attn_kernel_fp8pv | - | researcher ses_e6f618865ffeGiiwqHHpNWnD1i; git grep all refs | Oct 31 |
 | Researcher R2: full-context attention gap (contiguous-run TMA, V transpose on producers, lookahead, 128-key tiles) | diagnostic | top idea (contiguous 64-row runs -> swizzled tensor TMA) is dead: reference.py:261 scatters pages with randperm; verify-only idea (V transpose to producers + QK/softmax overlap) est. V 10-25% = ~0.4-1% Decode; d1 attention-board loads are dominated by sliding latency | - | researcher ses_e6ef050e4ffexFxquZ68Ytipts | Oct 31 |
+| Verify (q_len 8) attention: FP8 V transpose moved from consumers to producer warps (ldmatrix/prmt/stmatrix after cp.async) | closed | correct (cache exact) but slower: b1 q8 sliding 1.003/1.009, b1 full ~1.0, b16 q8 full 1.279/1.275 (layer 1.085) | `0898ae00` | experiments/top50/decoder_p20_attnv.py (decode-next) | Oct 31 |
 
 ## Across kernels
 
