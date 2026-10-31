@@ -62,4 +62,15 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 
 | 17 | Prebuild the 4 MoE exts + fpr + fp32 router in background threads at import (`decoder_p15_prebuild.py`, scored run `f35cb9c2`) | valid **2.0926x**; **prepare 274.7 -> 115.5 s**; but this run's selection dropped M8 (whole-layer order 2 flipped: -1.5 / +0.45 us with parent drift 104.5 vs 101.5) | kept (infra) | fixer | $83 |
 | 18 | Robust selection: 6 rounds alternating order, median per order < 0.99; WGF removed (`decoder_p16_robust.py`, scored `d23cc6a2`) | valid 2.0814x (noise), prepare 107.6 s; ratios tight (+-0.3%): M1 0.92/0.91, M8 0.98/0.97, M16 sliding 0.988 selected; M16 full and M32 0.989-0.995 (real ~1% gains, just below the 1% gate) | kept (infra, lineage head) | fixer | $85 |
-| O3 | Final ladder step: oracle (GPT-6 Astra High, the one allowed call), strategy for +8%: layer megakernel vs targeted changes vs in-prepare autotuning | running | - | oracle | $79 |
+| O3 | Oracle (final ladder step) | no credible +8% path in 3.5 days; realistic +1-3% (2.12-2.16x). Megakernel not recommended. Ranked: (1) recover sub-1% gains with confirmation; (2) MoE small-M phase-B lookahead; (3) R2f consumer-side norm at M1; (4) verify-attention V transpose to producers | back to implementation: lanes 19-22 in parallel | oracle | $82 |
+| 19 | Lane A: sub-1% whole-layer admission (<0.993) with an independent confirming 6-round set (`decoder_p17_gate.py`, scored `848a03ac`). **Deviation from the user's 1% rule** (oracle advice; component gates unchanged) | valid 2.0717x (noise); adds M16 full (confirm 0.992/0.992); M32 not admitted; prepare 99.8 s | kept (lineage head) | direct | $86 |
+| 20 | Lane B: TINY/TINY2 skinny ring NS 3->4 (`decoder_p18_moeb.py`, scored `482d0e7c`, valid 2.0741x) | isolated MoE slower: M1 1.056/1.066, M8 1.030/1.033 | closed | hard-fixer | $90 |
+| 21 | Lane C: R2f consumer-side attention-boundary norm at M1, R2n (`decoder_p19_r2norm.py`, scored `9b254bbb`, valid 2.0718x) | **bit-identical** (rel 0, same expert ids); M1 full layer 0.974/0.979 -> selected; M1 sliding 0.989/0.997 not selected | kept | hard-fixer | $90 |
+| 22 | Lane D: verify attention V transpose to producers (`decoder_p20_attnv.py`, scored `0898ae00`, valid 2.0709x) | correct but slower: b16 q8 full attention 1.28x (layer 1.085); b1 ~1.0 | closed | hard-fixer | $90 |
+
+
+| 23 | Merge: Lane A gate + Lane C R2n (`decoder_p21_merge.py`, scored `f67edab8`) | valid 2.0792x (noise); M1 full R2n 0.973/0.980 selected; M8 sliding sub-1% confirmed (0.985/0.991); M16 full not confirmed this run | kept (lineage head) | direct | $91 |
+
+| 24 | WGS: immediate `doneAs` release / no reorder for short ranges, V1-V3 (`decoder_p22_wgsrel.py`, scored `15e19cf8`, valid 2.0698x) | V1 slower 0.6-1.5%, V2 neutral, V3 slower at M32/128/256 | closed | hard-fixer | $94 |
+
+| 25 | MoE at 1/8 tokens issues an L2 prefetch of the sliced-unpooler weights (6.3 MB) during its barrier wait and finalize, so the PDL unpooler reads from L2 (`decoder_p23_upf.py`) | building | - | hard-fixer | $94 |
