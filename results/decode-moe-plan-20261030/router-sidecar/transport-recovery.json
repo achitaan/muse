@@ -1,0 +1,8 @@
+{
+  "first_upload_error_observed_in_tool_output": "remote error: tls: bad record MAC",
+  "identical_source_retry_count": 1,
+  "source_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+  "acknowledged_job": "18022301274f4d18",
+  "new_variants": 0,
+  "recovery": "Authoritative jobs inspected;identical source and CLI arguments retried with official same-code deduplication"
+}

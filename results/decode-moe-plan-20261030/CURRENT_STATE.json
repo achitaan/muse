@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T03:38:51.389871+00:00",
+  "updated_at": "2026-10-31T03:54:48.325506+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -9,13 +9,13 @@
   "latest_decode_board_snapshot": "tinyroute/decode-board-during-check.json",
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
-  "newest_experiment": "Attention nc1 fixed control specialization",
-  "newest_check": "1d606d43e3d04df4",
+  "newest_experiment": "Joint Dense-unit router-only scheduling diagnostic",
+  "newest_check": "18022301274f4d18",
   "newest_check_status": "done",
-  "newest_decision": "Closed;SPEC failed fixed performance gate andflat stopped atunchanged-parent byte control. No gain,score,Decode transfer,gate relaxation,or further repair.",
-  "newest_outcome": "attention-nc1/outcome-1d606d43.json",
+  "newest_decision": "Closed on measured performance. All byte/resource/marker gates passed;all four timings materially slower. No score,Decode transfer or scheduling-parameter retry.",
+  "newest_outcome": "router-sidecar/outcome.json",
   "gpu_job_pending": false,
-  "remaining_quotas": "attention-nc1/quotas-after-1d606d43.json",
+  "remaining_quotas": "router-sidecar/quotas-after.json",
   "moe_checks_left": 19,
   "moe_scores_left": 10,
   "decode_checks_left": 20,
@@ -28,13 +28,13 @@
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
   "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
-  "new_GPU_jobs_this_packet": 0,
+  "new_GPU_jobs_this_packet": 1,
   "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
-  "dense_checks_left": 18,
-  "next_diagnostic_source": "experiments/decode_moe/dense_router_sidecar_diagnostic.py",
-  "next_diagnostic_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+  "dense_checks_left": 17,
+  "next_diagnostic_source": null,
+  "next_diagnostic_sha256": null,
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "Joint Dense-unit router-only scheduling diagnostic packaged and CPU audited. Await final admission;no Decode check or transfer.",
-  "next_diagnostic_track": "muse_bf16_proj",
-  "earliest_new_check_utc": "2026-10-31T03:30:50.994637+00:00",
+  "current_focus": "Joint pooler/router redistribution closed on H200 performance;Decode checks preserved. No next GPU candidate admitted.",
+  "next_diagnostic_track": null,
+  "earliest_new_check_utc": "2026-10-31T04:41:30.304784+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -107,8 +107,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 2,
-        "left": 18
+        "used": 3,
+        "left": 17
       }
     },
     "muse_attention_decode": {
@@ -299,8 +299,11 @@
     "CPU_counter_replays": 200,
     "packaged_device_instructions_match": true,
     "public_Dense_delegations": 40,
-    "GPU_jobs": 0,
+    "GPU_jobs": 1,
     "GPU_admitted": false,
-    "scope": "Joint-projection diagnostic;public Dense parent retained,no score,no Decode transfer"
+    "scope": "Joint-projection diagnostic;public Dense parent retained,no score,no Decode transfer",
+    "job_id": "18022301274f4d18",
+    "status": "Closed;30.35 to33.50percent slower in four private comparisons",
+    "outcome": "router-sidecar/outcome.json"
   }
 }

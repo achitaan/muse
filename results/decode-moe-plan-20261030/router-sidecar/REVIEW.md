@@ -1,5 +1,17 @@
 # Joint pooler/router scheduling — one fixed diagnostic
 
+## Final H200 disposition — 2026-10-31
+
+Check `18022301274f4d18`, payload `a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce`, completed with9/9 tests,30/30 benchmarks and integrity passing. Official preparation took99.527442 seconds. Actual parent/candidate resources both matched64 registers, zero local bytes,32768 static/16384 dynamic shared bytes, one block/SM and132 SMs. All12 raw-byte probes passed, including unchanged-parent controls; the actual `sidecar_gemv` marker appeared.
+
+All four prespecified unit comparisons lost: parent/candidate medians were25.248/33.056,25.056/33.088,25.408/33.120 and25.024/33.408 microseconds. Candidate cost increased30.3526–33.5038%. Raw per-arm observations are preserved in `outcome.json` and `log-18022301.txt`; they are one job's observations, not independent jobs. Unchanged timing controls were correctly not reached because the four primary gates failed.
+
+This fixed ownership redistribution is closed. No score, Decode transfer, smaller-grid tuning retry or timing-noise retry follows. Its unchanged arithmetic/resource legality did not make the extra scheduling structure profitable. The individual causes of the regression were not profiled and must not be claimed as measured stages. All30 official Dense profiles used the retained public paths; the1.515255495x Dense point is not a sidecar gain. Verified sources remain retained.
+
+The official evaluator baseline/reference/checks hashes matched the fresh preflight. One identical-source retry recovered the CLI's TLS upload error; one Dense check was charged. Remaining daily checks are Dense17,Attention18,MoE19,Decode20,Prefill20, with ten scored attempts each. No shared GPU job remains. Next normal owned-check eligibility:2026-10-31 04:41:30.304784 UTC, contingent on a new admitted candidate.
+
+Final self-review: exact payload/native binding, actual resources, all byte probes, private marker, all four ratios/raw observations, official delegation, integrity and quota/queue inspected. Goal remains active and top50 is unachieved.
+
 The current Decode source is `decoder_pdli.py`, SHA256 `c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5`. Its literal `_PDLI_EXPECTED['r1']` binds the retained R1 native source `fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571`. The source-verified prototype is `5baeea7f74b411a4998713053de3c2c75d9e6bd7d49e1095eec609a5cf8b8fd0`; packaged hashes and the exact runnable payload are in `payload-binding.json`.
 
 ## Hypothesis

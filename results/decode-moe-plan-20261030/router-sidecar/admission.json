@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-31T03:40:51.951498+00:00",
+  "source_sha256": "a7d0b93a23bbf7645d89a39acced70ad6c90a4e7a4212070e25f972b4f31a1ce",
+  "source_commit": "b9a0653f124c5abd8c56e816c7f4d987707f2fb0",
+  "track": "muse_bf16_proj",
+  "scope": "One unscored joint pooler/router diagnostic;no public Dense gain or Decode check/transfer",
+  "CPU_packaged_audit_passed": true,
+  "official_identity_matches": true,
+  "live_jobs": [],
+  "Dense_checks_before": 18,
+  "expected_after": 17,
+  "own_spacing_elapsed_seconds": 4200.9568610191345,
+  "previous_owned_check": "1d606d43e3d04df4",
+  "GPU_jobs_admitted": 1,
+  "parameter_sweep": false,
+  "timing_noise_retry": false,
+  "publication": false
+}
