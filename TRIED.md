@@ -69,6 +69,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | M=1 norm PDL integration (`decoder_pdls1_draft.py`) | **parked, never run on GPU** | unit gain alone below the 3% layer gate | - | decode-moe-plan CURRENT_STATE | <= Oct 31 |
 | Boundary-norm follow-up | parked | single-CTA and gates already kept | - | decode-moe-plan/boundary-norm-source-review | <= Oct 31 |
 | Fold boundary norm into producer GEMV last CTA (o / unpooler) | closed (inspection, no GPU run) | last-block norm serializes the row on one SM; full-grid spin needs unproven residency; ceiling marginal after fences | - | .slim/worktrees/decode-fresh/experiments/prepared/decoder_projection_norm_fusion_review.md | Oct 31 |
+| Port other session's early stock-norm PDL trigger (pdls1, private SGLang norm copy) at M1 as mask bit 32, 1% gate, on top of p2 | in progress | check f82e5ab8 | - | experiments/top50/decoder_p3_norm.py (decode-next) | Oct 31 |
 
 ## Attention
 
