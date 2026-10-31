@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T02:27:27.919836+00:00",
+  "updated_at": "2026-10-31T02:47:55.373182+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -10,12 +10,12 @@
   "latest_decode_rank": 228,
   "latest_top50_speedup": 2.2252,
   "newest_experiment": "Attention nc1 fixed control specialization",
-  "newest_check": "918d0b03653d48ec",
+  "newest_check": "1d606d43e3d04df4",
   "newest_check_status": "done",
-  "newest_decision": "Inconclusive:setup fixture selected retained nc8/cooperative override;allscoredrowsparent. Not a performance win or performance rejection.",
-  "newest_outcome": "attention-nc1/outcome-918d0b03.json",
+  "newest_decision": "Closed;SPEC failed fixed performance gate andflat stopped atunchanged-parent byte control. No gain,score,Decode transfer,gate relaxation,or further repair.",
+  "newest_outcome": "attention-nc1/outcome-1d606d43.json",
   "gpu_job_pending": false,
-  "remaining_quotas": "tiny-norm-whole/quotas-after-34a6e66a.json",
+  "remaining_quotas": "attention-nc1/quotas-after-1d606d43.json",
   "moe_checks_left": 19,
   "moe_scores_left": 10,
   "decode_checks_left": 20,
@@ -32,9 +32,9 @@
   "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
   "dense_checks_after_ack_expected": 4,
-  "dense_checks_left": 0,
-  "next_diagnostic_source": "experiments/decode_moe/attention_nc1.py",
-  "next_diagnostic_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
+  "dense_checks_left": 18,
+  "next_diagnostic_source": null,
+  "next_diagnostic_sha256": null,
   "next_diagnostic_admitted": false,
   "preserved_additional_draft": {
     "source": "experiments/decode_moe/decoder_pdls1_draft.py",
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "One bounded fixture-only repair,CUDAunchanged;CPUaudits nowretain _TUNED and reproduce failure.",
-  "next_diagnostic_track": "muse_attention_decode",
-  "earliest_new_check_utc": null,
+  "current_focus": "Attention nc1 closed. Read-only MoE all-nonlocal and R2f ownership screens preserved;no next GPU candidate admitted.",
+  "next_diagnostic_track": null,
+  "earliest_new_check_utc": "2026-10-31T03:30:50.994637+00:00",
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -119,8 +119,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 0,
-        "left": 20
+        "used": 2,
+        "left": 18
       }
     },
     "muse_moe_w4a16": {
@@ -199,13 +199,7 @@
     "actual_GPU_resources_verified": false,
     "decision_after_shared_result": "GPU-tested and rejected;no choices;norm aggregation avenue closed"
   },
-  "external_live_job": {
-    "id": "0b48e4f57db44c68",
-    "track": "muse_attention_decode",
-    "submitted_utc": "2026-10-30T23:18:18.499637+00:00",
-    "status_at_snapshot": "running",
-    "owned": false
-  },
+  "external_live_job": null,
   "larger_WGS_followup": {
     "decision": "Park stream-K cut/fixup/tail variants;existing work already covers plausible mechanisms",
     "source": "wgs-fixup-screen/REVIEW.md",
@@ -217,20 +211,9 @@
     "passed": true,
     "source_binding": "unknown;not a retained-source performance claim"
   },
-  "pacing_scope_blocker": {
-    "first_observed_utc": "2026-10-30T23:12:54Z",
-    "consecutive_goal_turns": 0,
-    "condition": "Other client keeps launching checks;global60minute interval keeps moving. Human scope clarification pending.",
-    "unaffected_work_completed": "Both tiny alternatives packaged;largerWGSfixup avenue reviewed and parked.",
-    "goal_status": "Resolved;fresh audit counter0"
-  },
+  "pacing_scope_blocker": null,
   "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
-  "owned_live_job": {
-    "id": "918d0b03653d48ec",
-    "source_sha256": "066d89325f4adee4ea0156c050fcf35b98b4fbe09db4f28f09b9df85e0278837",
-    "ack": "attention-nc1/check-ack-066d8932.json",
-    "status": "done"
-  },
+  "owned_live_job": null,
   "native_goal_status_last_observed": "active;human resumed Goal mode",
   "owned_status_session": null,
   "attention_nc1_CPU_prototype": {
@@ -248,7 +231,7 @@
       }
     },
     "GPU_admitted": false,
-    "Python_payload_exists": false,
+    "Python_payload_exists": true,
     "review": "attention-nc1/REVIEW.md",
     "packaged_CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
     "selector_cases": 5376,
@@ -270,7 +253,8 @@
     "payload_bytes": 328054,
     "resource_guard_cases": 15,
     "public_wrapper_cases": 4,
-    "GPU_repair_decision": "attention-nc1/bounded-repair-decision.json"
+    "GPU_repair_decision": "attention-nc1/bounded-repair-decision.json",
+    "GPU_status": "Closed after one bounded fixture repair;no enabled families"
   },
   "owned_interval_timer": {
     "session_id": 23313,
@@ -282,5 +266,19 @@
     "decision": "Park;fixed-size singleCTA and precomputed gates already retained",
     "source": "boundary-norm-source-review/REVIEW.md",
     "GPU_calls": 0
+  },
+  "latest_transport_recovery": {
+    "job_id": "1d606d43e3d04df4",
+    "source_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
+    "same_source_tls_failures": 2,
+    "acknowledged": true,
+    "new_variants": 0,
+    "duplicate_gpu_jobs": 0,
+    "GPU_check_charge_count": 1
+  },
+  "routing_ownership_review": {
+    "record": "routing-ownership-review/REVIEW.md",
+    "status": "Read-only;distinct ownership possibilities,not GPU-admitted",
+    "new_GPU_jobs": 0
   }
 }

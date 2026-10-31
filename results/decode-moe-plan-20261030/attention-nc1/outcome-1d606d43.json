@@ -1,0 +1,129 @@
+{
+  "job_id": "1d606d43e3d04df4",
+  "source_sha256": "cc71d70669cee244ee62c7265fc3ad25a97313279df2e9c3cb8261dd5ca3a31c",
+  "packaged_CUDA_sha256": "a7e423588c8f87bd580d71d3c0aae7764dcae30b7721f79c1adfa98b6043bdb0",
+  "created_utc": "2026-10-31T02:30:50.994637+00:00",
+  "finished_utc": "2026-10-31T02:36:38.088751+00:00",
+  "official_tests_passed": 16,
+  "official_benchmarks_passed": 12,
+  "integrity_ok": true,
+  "private_initialization_seconds": 46.8110709169996,
+  "actual_resources": {
+    "flat": {
+      "regs": 128,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "dynamic_shared_bytes": 67584,
+      "threads": 256,
+      "active_blocks_per_SM": 2
+    },
+    "spec_one": {
+      "regs": 89,
+      "local_bytes": 0,
+      "static_shared_bytes": 0,
+      "dynamic_shared_bytes": 58368,
+      "threads": 128,
+      "active_blocks_per_SM": 3
+    }
+  },
+  "private_passed_configurations": 8,
+  "spec_cost_ratios_candidate_over_parent": [
+    0.970802908853598,
+    1.0147601527532277,
+    0.9963636086548654,
+    0.9711191252292584,
+    0.9781022347493799,
+    1.0,
+    1.0185872849805848,
+    0.9711191252292584
+  ],
+  "spec_comparisons_better_than_3percent": 0,
+  "flat_control_failure": {
+    "arm": "unchanged_parent_repeat",
+    "B": 4,
+    "ctx": 8192,
+    "page_size": 64,
+    "hkv": 4,
+    "variant": 2,
+    "mismatched_bytes_output_K_V": [
+      1,
+      0,
+      0
+    ],
+    "candidate_verdict": "not established on failing configuration;parent control failed first"
+  },
+  "enabled_families": [],
+  "official_new_kernel_markers": 0,
+  "official_parent_profiles": 12,
+  "fallback_only_point_speedup": 2.5394239228448323,
+  "fallback_only_CI": [
+    2.5013325640021598,
+    2.5775152816875044
+  ],
+  "decision": "Closed;SPEC failed fixed performance gate andflat stopped atunchanged-parent byte control. No gain,score,Decode transfer,gate relaxation,or further repair.",
+  "next_owned_check_not_before_utc": "2026-10-31T03:30:50.994637+00:00",
+  "live_GPU_jobs": [],
+  "per_track_limits": {
+    "muse_bf16_proj": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 2,
+        "left": 18
+      }
+    },
+    "muse_attention_decode": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 2,
+        "left": 18
+      }
+    },
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 1,
+        "left": 19
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 0,
+        "left": 20
+      }
+    },
+    "muse_prefill_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 0,
+        "left": 20
+      }
+    }
+  },
+  "private_passed_input_variants": 24
+}
