@@ -1,0 +1,22 @@
+MOE_CANDIDATE M=16 MID sum3=329.86 err=0.00e+00 incumbent=329.86
+MOE_CANDIDATE M=16 MAIN sum3=351.23 err=6.93e-04 incumbent=329.86
+MOE_CANDIDATE M=16 FALLBACK sum3=373.47 err=3.20e-04 incumbent=329.86
+MOE_KEEP M=16
+MOE_CANDIDATE M=32 MID sum3=410.91 err=5.66e-04 incumbent=415.26
+MOE_CANDIDATE M=32 MAIN sum3=415.26 err=0.00e+00 incumbent=415.26
+MOE_CANDIDATE M=32 FALLBACK sum3=454.30 err=5.71e-04 incumbent=415.26
+MOE_KEEP M=32
+MOE_CANDIDATE M=128 MAIN sum3=542.46 err=0.00e+00 incumbent=542.46
+MOE_CANDIDATE M=128 FALLBACK sum3=716.83 err=4.21e-04 incumbent=542.46
+MOE_KEEP M=128
+MOE_CANDIDATE M=256 MAIN sum3=667.90 err=0.00e+00 incumbent=667.90
+MOE_CANDIDATE M=256 FALLBACK sum3=925.12 err=3.72e-04 incumbent=667.90
+MOE_KEEP M=256
+MOE_SELECTOR selected=[] s=0.3
+MSB_CAND M=8 mid err=1.1e-06 A=1.0033 B=1.0000 adopt=0
+MSB_CAND M=8 tiny err=1.3e-07 A=0.9924 B=0.9976 adopt=0
+MSB_CAND M=16 main err=7.5e-04 A=1.0836 B=1.0875 adopt=0
+MSB_CAND M=32 mid err=6.5e-04 A=1.0368 B=1.0382 adopt=0
+MSB_PREBUILD threads=5 ok=5 fail=0 pending=0 max_s=58.7
+MSB_SELECT overrides={} stage_s=0.3
+MSB_PREPARE total_s=59.1 since_import_s=59.2
