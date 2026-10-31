@@ -38,6 +38,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | WGS finalizer segmented (variant A, identical reduction order) with bounded waits | closed | bit-identical at M32/128/256 (probes bits=True) but isolated MoE not faster: M32 136.96 vs 137.66, M128 242.8 vs 244.7, M256 245.2 vs 244.8 us; the finalizer isn't the tail bottleneck | `f35cb9c2` | experiments/top50/decoder_p15_prebuild.py (decode-next) | Oct 31 |
 | TINY/TINY2 skinny ring NS 3->4 (one more weight-load lookahead slot, same smem) | closed | isolated MoE slower: M1 ratio 1.056/1.066, M8 1.030/1.033 (6-round medians); outputs not bit-equal but within tol | `482d0e7c` | experiments/top50/decoder_p18_moeb.py (decode-next) | Oct 31 |
 | WGS: immediate doneAs release after phase-A epilogue + no WGSREORD for small stage counts (oracle-lite #2 change 2) | closed | V1 slower 0.6-1.5%, V2 neutral (0.997-1.001), V3 slower; at M32/128/256; nothing selected; scored 2.0698x (noise) | `15e19cf8` | experiments/top50/decoder_p22_wgsrel.py (decode-next) | Oct 31 |
+| In-layer per-shape MoE build selection (TINY/TINY2/MID/MAIN) by robust whole-layer A/B with real-router routes (M=8: TINY2 vs MID; M=16: MID vs TINY2 vs MAIN; M=32: MAIN vs MID) | in progress | decode-next pass 26, decoder_p24_moesel.py; earlier MID vs MAIN at 32 = tie on MoE board (63c17c9c) | - | - | Oct 31 |
 
 ## Pooler + router
 
