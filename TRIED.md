@@ -170,3 +170,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | B7 vec2 plus cluster2/4 X TMA multicast with remote stage-ready handshake, two token-split m64n64 MMA WGs, and cluster2 combined; distinct from closed MoE activation multicast | parked pending H200: 13 sm_90a instances compile, zero spills; full single-MMA 90 regs, dual-MMA 58; 2400 cluster parity schedules pass; no GPU check spent | decode-next/dense_b7 | `offline-dw7` | .slim/worktrees/decode-next/experiments/boards/dense/dense_b7.py | Oct 31 |
+
+## MoE
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| moediag v3 EARLYW pre-gather TMA and BTAIL trailing-partial-first with unchanged stream-K partitions | in progress; offline diagnostic only, no GPU check; source .slim/worktrees/decode-next/experiments/boards/diag/moediag.py; baseline job fe74255c | decode-next | - | - | Oct 31 |
