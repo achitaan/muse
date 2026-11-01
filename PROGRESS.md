@@ -135,4 +135,7 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | M7 | Oracle rank 1: MAIN weight-slot release at lg=2 + sibling hint (`moe_b8.py` check `0414170f` 2.3419x; diag `7044c658`) | bit-identical; R32 0.994/0.998, R128 0.987/0.983, R256 0.993/0.996 vs BASE: slot ownership is not the limiter (~0.5%) | closed (tiny) | direct | $123 |
 | M8 | Oracle rank 2: skinny early refill on per-warp empty arrivals (`moe_b9.py`, `97dbbb86` 2.2563x) | slower: bs8 73.8 vs ~65 us, bs16 101 vs ~94 | closed | direct | $123 |
-| D-RING | Pure TMA-ring streaming ceilings by slots x stage size (`ringdiag.py`) | building | - | fixer | $123 |
+| D-RING | Pure TMA-ring streaming ceilings (`ringdiag.py`, `8790011b`) | every ring shape 3.91-3.97 TB/s with the evict_first hint, 4.12-4.14 without; ldg.nc.v4 4.06-4.12. Ring geometry is not the limit | diagnostic | fixer | $124 |
+
+| M9 | No evict_first hint on MoE weight copies (`moe_b10.py` `e5f90e85` 2.2999x; diag `e9935c6c`) | slower in the real kernel: R256 1.03, R128 1.006, R32 0.985 (the hint protects inter/ybuf/x reuse) | closed | direct | $125 |
+| M10 | MAIN without the x gather pass: x producer copies token rows straight from hidden_states (`moe_b11.py`, `moediag9.py`) | building | - | hard-fixer | $125 |

@@ -1,0 +1,23 @@
+RD_INFO NVIDIA H200 sms=132 torch 2.14.1+cu130 cuda 13.0; TBps=1e12 B/s of bytes moved, median us over 25 reps, L2 flushed (256MB write) before each
+RD_BUILD 22s
+RD_FLOOR 3x36 ring, 1 stage/CTA (4.9 MB): med_us=8.7 min_us=8.6
+RD cfg=3x36 hint=1 cw=16 order=contig med_us=163.0 min_us=161.4 TBps=3.971 TBps_best=4.010 MB=647
+RD cfg=6x36 hint=1 cw=16 order=contig med_us=164.1 min_us=162.3 TBps=3.944 TBps_best=3.987 MB=647
+RD cfg=ldg2x512u8 hint=- cw=- order=contig med_us=157.9 min_us=156.4 TBps=4.099 TBps_best=4.138 MB=647
+RD cfg=ldg4x256u8 hint=- cw=- order=contig med_us=157.8 min_us=156.2 TBps=4.101 TBps_best=4.143 MB=647
+RD cfg=ldg1x1024u8 hint=- cw=- order=contig med_us=157.2 min_us=156.3 TBps=4.116 TBps_best=4.140 MB=647
+RD cfg=ldg2x1024u4 hint=- cw=- order=contig med_us=159.5 min_us=158.2 TBps=4.057 TBps_best=4.092 MB=647
+RD cfg=3x36 hint=0 cw=16 order=contig med_us=156.5 min_us=155.0 TBps=4.136 TBps_best=4.176 MB=647
+RD cfg=6x36 hint=0 cw=16 order=contig med_us=157.1 min_us=155.3 TBps=4.120 TBps_best=4.167 MB=647
+RD cfg=3x36 hint=1 cw=4 order=contig med_us=164.0 min_us=161.8 TBps=3.945 TBps_best=3.999 MB=647
+RD cfg=3x36 hint=1 cw=16 order=inter med_us=162.2 min_us=160.5 TBps=3.991 TBps_best=4.032 MB=647
+RD cfg=6x36 hint=1 cw=16 order=inter med_us=163.3 min_us=162.1 TBps=3.962 TBps_best=3.992 MB=647
+RD cfg=4x36 hint=1 cw=16 order=contig med_us=163.6 min_us=162.5 TBps=3.957 TBps_best=3.982 MB=647
+RD cfg=5x36 hint=1 cw=16 order=contig med_us=163.8 min_us=162.2 TBps=3.951 TBps_best=3.990 MB=647
+RD cfg=3x72 hint=1 cw=16 order=contig med_us=163.4 min_us=162.2 TBps=3.931 TBps_best=3.961 MB=642
+RD cfg=2x72 hint=1 cw=16 order=contig med_us=163.6 min_us=162.7 TBps=3.925 TBps_best=3.948 MB=642
+RD cfg=4x48 hint=1 cw=16 order=contig med_us=164.1 min_us=162.3 TBps=3.955 TBps_best=3.997 MB=649
+RD cfg=8x24 hint=1 cw=16 order=contig med_us=164.7 min_us=162.9 TBps=3.939 TBps_best=3.982 MB=649
+RD cfg=12x16 hint=1 cw=16 order=contig med_us=165.8 min_us=164.5 TBps=3.914 TBps_best=3.943 MB=649
+RD cfg=6x32 hint=1 cw=16 order=contig med_us=164.4 min_us=162.9 TBps=3.947 TBps_best=3.983 MB=649
+RD_DONE prepare 22s
