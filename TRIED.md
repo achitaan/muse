@@ -57,6 +57,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Decode: port MoE HINT (sibling-job weights EVICT_NORMAL) + ERL (MAIN slot release at lg=2) into the Decode lineage (bit-identical MoE outputs) | kept | check 2.0880x (noise band; d32 full 288.1 vs 305.4 us, others +-1%); scored 2.0867x (board best stays 2.0970); kept as lineage head on diag evidence (MAIN -0.5..-1.7%) | `a7efb0cd, a40cbaf0` | experiments/top50/decoder_p34_moehe.py (decode-next) | Nov 01 |
 | MoE board scored run of moe_b8 (HINT + ERL, bit-identical MAIN tweaks) | closed | scored 2.3696x (CI 2.334-2.405); board best stays 2.3797 | `d11ae396` | experiments/boards/moe/moe_b8.py (decode-next) | Nov 01 |
 | Skinny WS STRIDE: CTA c takes c+i*G A units then c+i*G B units (expert-major) to shrink the A->B bubble | closed | slower: diag STRIDE/BASE R1 1.011/1.008, R8 1.016/1.013, R16 1.032/1.035 (R1 bit-equal); MoE check 2.2650x (bs8 70.6, bs16 99.2 us) | `10af3ab8, 69df1e95` | experiments/boards/moe/moe_b12.py, diag/moediag10.py (decode-next) | Nov 01 |
+| MAIN finalizer (WGSFINSS): keep pass 1's y rows in registers (16 float4/thread) for pass 2 instead of re-reading them from L2 (bit-identical) | in progress | decode-next moe_b13 / moediag11 | - | - | Nov 01 |
 
 ## Pooler + router
 
