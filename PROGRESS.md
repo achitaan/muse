@@ -105,3 +105,5 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 
 | 31 | Early-trigger private norm at 16/32 tokens (`decoder_p32_norm16.py`, `ba1e91bb`, 2.0840x) | norms bit-equal; attention-boundary early norm + sk2 PDL selected at M16 sliding and M32 sliding (0.989/0.988); FFN-boundary early norm no gain | kept (lineage head); scored run `69d26d1c` | hard-fixer | $112 |
 | S4 | Scored run of pass 31 (`decoder_p32_norm16.py`, `69d26d1c`) | valid 2.0883x (noise band 2.07-2.10; board best stays 2.0970) | not published | - | $113 |
+| 32 | Glue PDL and early-trigger norm at 128/256 tokens; attention-only PDL at 16/32 (`decoder_p33_big.py`, `d2d2daa4`, 2.0667x) | no gain: every candidate at 128/256 0.994-1.004; attention-only PDL not selected | closed | fixer | $108 |
+
