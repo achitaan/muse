@@ -73,9 +73,9 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 
 | 24 | WGS: immediate `doneAs` release / no reorder for short ranges, V1-V3 (`decoder_p22_wgsrel.py`, scored `15e19cf8`, valid 2.0698x) | V1 slower 0.6-1.5%, V2 neutral, V3 slower at M32/128/256 | closed | hard-fixer | $94 |
 
-| 25 | MoE at 1/8 tokens issues an L2 prefetch (evict-last) of the sliced-unpooler weights during its barrier wait (`decoder_p23_upf.py`) | built and compile-checked (18 NVRTC builds, +2-4 regs, no spills); **waiting for the daily quota reset at 00:00 UTC** (0/10 runs, 0/20 checks left) | pending | hard-fixer | $95 |
-| 26 | Per-shape MoE build selection by robust whole-layer A/B (`decoder_p24_moesel.py`): M=8 tiny2 vs tiny/mid; M=16 mid vs main; M=32 main vs mid. TINY builds trap if an expert gets more than 8 tokens, so they are never offered above 8 | built (AST OK, 984 KB); waiting for the quota reset | pending | fixer | $97 |
-| 27 | sk2 (fused pooler/router, 9-32 tokens) PDL with 2 weight stages before the wait (existing `sk2_set_pdl`, was 0), as mask 512 together with glue PDL at M16/M32 (`decoder_p25_sk2pdl.py`) | built (AST OK); queued to auto-check after the quota reset (background `after_reset2.ps1`) | pending | direct (small edit) | $97 |
+| 25 | MoE L2 prefetch of unpooler weights (`decoder_p23_upf.py`, `2cbdfa2a`, 2.0667x) | probes OK, no whole-layer gain anywhere; nothing selected | closed | hard-fixer | $107 |
+| 26 | Per-shape MoE build selection (`decoder_p24_moesel.py`, `a6aedcc2`, 2.0607x) | selector picked MID at M32 (0.964), but judge d32 sliding got worse (180.7 vs ~157-165 us): prepare-time routes don't represent the judge's | closed (never select MoE builds in prepare) | fixer | $107 |
+| 27 | sk2 PDL at 16/32 tokens, mask 512 (`decoder_p25_sk2pdl.py`, `a7836845`) | **2.1107x (best check)**; selected 528 at M16 sliding (0.986/0.975), M16 full (0.988/0.987), M32 sliding (0.988/0.985); judge d32 full 298.5 vs ~314 us | **kept**; scored run `35724766` | direct | $107 |
 
 ## Loop 3: other boards (Attention, MoE, Dense)
 
@@ -99,5 +99,6 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 | B13 | Dense DW v4: 16-byte swizzled stores, decode-ahead (`dense_b6.py`, `993253e7`, 1.5108x) | decode is now almost free (streaming+decode 26.3 = streaming+X 26.2 vs streaming alone 22.2). Remaining costs: every block reloading X (~4 us) and the matrix math not overlapping (~5.7 us). Best 30.6 us = 1.09x of cuBLAS | iterating -> v5 (X shared across clusters of 2/4 blocks, 2 MMA groups) | hard-fixer | $106 |
 | B14 | Dense DW v5: X shared across clusters of 2/4 blocks, 2 MMA groups (`dense_b7.py`, `027ee79b`, 1.5154x) | shared X far slower (55/95 us; the rank-0 handshake serializes); 2 MMA groups 31.8; best still 30.2 us = 1.09x of cuBLAS | **DW line closed** after 5 iterations (bit-exact, plateaus ~9% behind cuBLAS) | hard-fixer | $109 |
 | O4 | Oracle-lite #3, new strategies (user request) | says <2% is left in single-kernel tuning. 3 of 4 ideas rest on wrong premises (only 2 KV heads/GPU; EP8 gives ~8-10 tokens per expert, so bs256 is ~93% of the HBM floor; dense 2 MMA groups already tested). Kept idea: fold `_sfn` into the unpooler's last block (only ever closed by inspection) | -> pass 29 | oracle (Argon) | $104 |
-| 29 | Decode: fuse `_sfn` into the sliced unpooler tail via a last-block arrival counter, M1/M8, mask 1024 (`decoder_p28_sfnfold.py`) | built (993 KB, NVRTC OK, no spills); queued for 00:10 UTC (`after_reset3.ps1`) | pending | hard-fixer | $106 |
-
+| 29 | `_sfn` folded into the unpooler tail (`decoder_p28_sfnfold.py`, `17ef7061`, 2.0834x) | bit-exact (rel 0), but no whole-layer gain; not selected | closed | hard-fixer | $107 |
+| S3 | Scored run of pass 27 (`decoder_p25_sk2pdl.py`, `35724766`) | valid 2.0877x (noise; board best stays 2.0970) | not published | - | $108 |
+| 30 | Extend PDL twins to the 16/32-token qkv, attention, o and unpooler kernels, gated by robust whole-layer A/B (`decoder_p31_pdl16.py`) | building | - | hard-fixer | $108 |
