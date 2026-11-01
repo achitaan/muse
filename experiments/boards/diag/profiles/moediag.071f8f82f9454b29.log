@@ -1,0 +1,81 @@
+MD_INFO v=3 device='NVIDIA H200' reps=24 flush_MiB=256 raw_events=1 seed_source=f0f01b3229f94cbb parent=331148716e8d
+MD_NOTE EARLYW=pre_gather_MAIN_deferred_helper_init_TINY BTAIL=same_K_splits_trailing_share_first TL=fastest_bit_equal_variant Wready_obs=consumer_full_TMA STREAM=unique_weights eq=byte_equality max_rel=elementwise_den_floor_1e-12 FINTAIL=not_added
+MD_CASE bs=1 build=TINY routes=2 jobs=2 touched=2 A_job_MB=37.749 B_job_MB=18.874
+MD_CASE bs=8 build=TINY2 routes=12 jobs=6 touched=6 A_job_MB=113.246 B_job_MB=56.623
+MD_CASE bs=32 build=MAIN routes=60 jobs=16 touched=16 A_job_MB=301.990 B_job_MB=150.995
+MD_CASE bs=128 build=MAIN routes=217 jobs=24 touched=23 A_job_MB=452.985 B_job_MB=226.492
+MD_CASE bs=256 build=MAIN routes=449 jobs=28 touched=25 A_job_MB=528.482 B_job_MB=264.241
+MD_JOBS bs=256 units_per_job=32A/16B e:tokens:nt=1:64:8,1:11:2,2:51:7,3:64:8,3:64:8,3:16:2,9:20:3,11:10:2,12:9:2,17:12:2,21:15:2,22:42:6,26:10:2,0:8:1,4:2:1,6:2:1,7:1:1,8:6:1,10:2:1,13:6:1,14:2:1,15:6:1,16:1:1,19:6:1,23:3:1,28:8:1,29:1:1,31:7:1
+MD_SETUP seconds=0.7
+MD_BUILD build=TINY TUs=4 seconds=54.1
+MD_RES build=TINY var=BASE regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=BASE med_us=30.944 min_us=30.496 touched=2 MB=56.623104 TBps=1.830
+MD_ERR bs=1 var=BASE eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=1 var=STREAM med_us=25.488 min_us=24.960 touched=2 MB=56.623104 TBps=2.222
+MD_RES build=TINY var=EARLYW regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=EARLYW med_us=30.912 min_us=30.528 touched=2 MB=56.623104 TBps=1.832
+MD_ERR bs=1 var=EARLYW eq=1 finite=1 max_abs=0 max_rel=0
+MD_RES build=TINY var=EARLYW_TL regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=EARLYW_TL med_us=31.264 min_us=30.848 touched=2 MB=56.623104 TBps=1.811
+MD_ERR bs=1 var=EARLYW_TL eq=1 finite=1 max_abs=0 max_rel=0
+MD_TL bs=1 var=EARLYW_TL us=min/med/max entry=0.0/0.1/0.2 Wready_obs=3.0/3.6/4.4 Adone=15.7/18.0/18.6 Bfirst=13.2/15.5/17.7 Bdone=22.8/24.0/24.1 exit=25.2/25.3/25.8 Wissue=0.8/0.8/0.9 gridout=25.0/25.1/25.3 Au=7/8/8 Bu=3/4/4 Ast=7/8/8 Bst=3/4/4 Atail=0.5 BoverA=132 TL_BASE=1.010
+MD_BEST bs=1 var=EARLYW med_us=30.912 BASE_ratio=0.9990
+MD_BUILD build=TINY2 TUs=4 seconds=54.3
+MD_RES build=TINY2 var=BASE regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=BASE med_us=59.072 min_us=57.728 touched=6 MB=169.869312 TBps=2.876
+MD_ERR bs=8 var=BASE eq=0 finite=1 max_abs=1.19e-07 max_rel=0.00495
+MD bs=8 var=STREAM med_us=54.016 min_us=52.896 touched=6 MB=169.869312 TBps=3.145
+MD_RES build=TINY2 var=EARLYW regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=EARLYW med_us=58.896 min_us=58.016 touched=6 MB=169.869312 TBps=2.884
+MD_ERR bs=8 var=EARLYW eq=1 finite=1 max_abs=0 max_rel=0
+MD_RES build=TINY2 var=EARLYW_TL regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=EARLYW_TL med_us=59.328 min_us=58.336 touched=6 MB=169.869312 TBps=2.863
+MD_ERR bs=8 var=EARLYW_TL eq=1 finite=1 max_abs=0 max_rel=0
+MD_TL bs=8 var=EARLYW_TL us=min/med/max entry=0.0/0.1/0.2 Wready_obs=3.2/3.8/5.4 Adone=33.1/35.1/36.3 Bfirst=31.1/33.3/35.7 Bdone=48.4/49.8/51.1 exit=52.5/52.7/53.2 Wissue=0.8/0.9/1.0 gridout=52.3/52.4/52.6 Au=23/23/24 Bu=11/12/12 Ast=23/23/24 Bst=11/12/12 Atail=1.0 BoverA=132 TL_BASE=1.004
+MD_BEST bs=8 var=EARLYW med_us=58.896 BASE_ratio=0.9970
+MD_BUILD build=MAIN TUs=8 seconds=151.7
+MD_RES build=MAIN var=BASE regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=BASE med_us=137.520 min_us=135.264 touched=16 MB=452.984832 TBps=3.294
+MD_ERR bs=32 var=BASE eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=32 var=STREAM med_us=119.424 min_us=118.336 touched=16 MB=452.984832 TBps=3.793
+MD_RES build=MAIN var=EARLYW regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=EARLYW med_us=138.464 min_us=136.608 touched=16 MB=452.984832 TBps=3.271
+MD_ERR bs=32 var=EARLYW eq=1 finite=1 max_abs=0 max_rel=0
+MD_RES build=MAIN var=BTAIL regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=BTAIL med_us=138.560 min_us=136.992 touched=16 MB=452.984832 TBps=3.269
+MD_ERR bs=32 var=BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD_RES build=MAIN var=EARLYW_BTAIL regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=EARLYW_BTAIL med_us=139.488 min_us=137.824 touched=16 MB=452.984832 TBps=3.247
+MD_ERR bs=32 var=EARLYW_BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD_RES build=MAIN var=BASE_TL regs=96/96 smem=0/0+231168 local_B=16/16 th=576
+MD bs=32 var=BASE_TL med_us=140.416 min_us=138.400 touched=16 MB=452.984832 TBps=3.226
+MD_ERR bs=32 var=BASE_TL eq=1 finite=1 max_abs=0 max_rel=0
+MD_TL bs=32 var=BASE_TL us=min/med/max entry=0.0/0.2/0.4 Wready_obs=5.5/7.2/10.1 Adone=82.8/87.7/94.5 Bfirst=80.4/87.1/93.2 Bdone=122.0/125.2/130.8 exit=131.7/132.2/135.6 Wissue=4.4/4.7/5.3 gridout=131.5/131.6/131.8 Au=4/5/5 Bu=2/3/3 Ast=52/63/63 Bst=29/31/32 Atail=6.7 BoverA=132 TL_BASE=1.021
+MD_BEST bs=32 var=BASE med_us=137.520 BASE_ratio=1.0000
+MD bs=128 var=BASE med_us=196.912 min_us=194.432 touched=23 MB=651.165696 TBps=3.307
+MD_ERR bs=128 var=BASE eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=128 var=STREAM med_us=160.896 min_us=159.872 touched=23 MB=651.165696 TBps=4.047
+MD bs=128 var=EARLYW med_us=197.264 min_us=194.976 touched=23 MB=651.165696 TBps=3.301
+MD_ERR bs=128 var=EARLYW eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=128 var=BTAIL med_us=207.728 min_us=205.120 touched=23 MB=651.165696 TBps=3.135
+MD_ERR bs=128 var=BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=128 var=EARLYW_BTAIL med_us=207.456 min_us=204.832 touched=23 MB=651.165696 TBps=3.139
+MD_ERR bs=128 var=EARLYW_BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=128 var=BASE_TL med_us=199.552 min_us=197.056 touched=23 MB=651.165696 TBps=3.263
+MD_ERR bs=128 var=BASE_TL eq=1 finite=1 max_abs=0 max_rel=0
+MD_TL bs=128 var=BASE_TL us=min/med/max entry=0.0/0.2/0.4 Wready_obs=6.3/9.1/11.6 Adone=115.7/126.6/136.7 Bfirst=115.4/126.0/135.8 Bdone=171.6/182.6/192.6 exit=194.3/196.7/197.7 Wissue=5.5/6.5/9.3 gridout=193.4/193.4/193.7 Au=4/7/7 Bu=2/4/4 Ast=54/101/102 Bst=28/48/49 Atail=10.2 BoverA=132 TL_BASE=1.013
+MD_BEST bs=128 var=BASE med_us=196.912 BASE_ratio=1.0000
+MD bs=256 var=BASE med_us=239.120 min_us=236.384 touched=25 MB=707.788800 TBps=2.960
+MD_ERR bs=256 var=BASE eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=256 var=STREAM med_us=176.992 min_us=175.040 touched=25 MB=707.788800 TBps=3.999
+MD bs=256 var=EARLYW med_us=240.224 min_us=237.152 touched=25 MB=707.788800 TBps=2.946
+MD_ERR bs=256 var=EARLYW eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=256 var=BTAIL med_us=248.144 min_us=245.504 touched=25 MB=707.788800 TBps=2.852
+MD_ERR bs=256 var=BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=256 var=EARLYW_BTAIL med_us=249.760 min_us=247.360 touched=25 MB=707.788800 TBps=2.834
+MD_ERR bs=256 var=EARLYW_BTAIL eq=1 finite=1 max_abs=0 max_rel=0
+MD bs=256 var=BASE_TL med_us=241.856 min_us=239.296 touched=25 MB=707.788800 TBps=2.926
+MD_ERR bs=256 var=BASE_TL eq=1 finite=1 max_abs=0 max_rel=0
+MD_TL bs=256 var=BASE_TL us=min/med/max entry=0.0/0.1/0.3 Wready_obs=7.9/11.4/14.4 Adone=140.9/152.8/161.6 Bfirst=140.5/152.0/160.6 Bdone=213.2/224.3/230.0 exit=232.8/236.8/238.4 Wissue=6.8/9.4/11.8 gridout=230.7/230.8/231.0 Au=5/8/10 Bu=3/5/5 Ast=70/109/131 Bst=35/59/62 Atail=9.0 BoverA=132 TL_BASE=1.011
+MD_BEST bs=256 var=BASE med_us=239.120 BASE_ratio=1.0000
+MD_DONE seconds=152.1

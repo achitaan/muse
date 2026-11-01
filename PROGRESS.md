@@ -122,4 +122,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | D-MoE2 | x-load off / MMA off / per-CTA timeline (`fe74255c`) | x off -1..-2%, MMA off -2..-5%: neither limits. Steady state ~3.75 TB/s. Losses: slow start (weights first consumed 7.4/9.5/12.5 us after entry at bs32/128/256), B last-wave quantization (bs256 448 B units over 132 CTAs, B-done spread 17 us) and 3-7 us after the last B unit | diagnostic | hard-fixer | $111 |
 
-| D-MoE3 | EARLYW (first weight stages before setup/sync) and BTAIL (finer B units in the last wave), measured in the diag harness with bit-equality vs BASE | building | - | hard-fixer | $111 |
+| D-MoE3 | EARLYW and BTAIL in the diag harness (`071f8f82`) | bit-identical; EARLYW no gain (0.997-1.007), BTAIL slower (1.04-1.06). Finalizer after the grid barrier: 6.0 us at bs256, 3.3 at bs128. New lead: at bs256 jobs (28) exceed touched experts (25) because a job holds <= 64 tokens; job-counted bytes 793 MB vs 708 unique, and phase-A rate per job-counted bytes (3.69 TB/s) matches the duplicate-free bs32 rate (3.64), so extra jobs likely re-stream weights from HBM (~20 us at bs256, ~7 at bs128) | closed / lead | hard-fixer | $113 |
+
+| D-MoE4 | Isolate the duplicate-job cost: same experts and routes with/without >64-token experts at bs128/256 (`moediag4.py`) | building | - | fixer | $113 |

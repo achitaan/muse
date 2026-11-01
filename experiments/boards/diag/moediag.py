@@ -3,29 +3,31 @@
 
 The frozen incumbent (including its license) is embedded below, not imported
 from the filesystem. All experiments run in prepare; kernel_fn returns zeros.
-V2 uses BASE/STREAM/NOB references for all six cases; NOX/NOMMA/TL for
-TINY (bs1), TINY2 (bs8), and MAIN (bs32/128/256). MID only has references.
-No NODQ, NOFIN or EMPTY variants. One C++ binding per build amortizes header
-compilation; independent CUDA translation units compile in parallel.
+V3: BASE/STREAM, EARLYW, and MAIN BTAIL/EARLYW_BTAIL. All run with
+unchanged output arithmetic; every timed MoE variant reports byte equality,
+max absolute and max elementwise relative error against a saved BASE output.
+bs16 omitted. TL is run for the fastest bit-equal variant per case; all TL
+choices compile in the same bundle to avoid late compilation overhead.
 
-24 graph/event repetitions; 256 MiB L2 write flush OUTSIDE timing. Raw us, no
-judge overhead subtraction; MB=1e6. TBps numerator is UNIQUE expert weights,
-not physical HBM traffic. MD_CASE separately reports per-job streamed bytes.
-NOX zero-initializes WGS x smem once PER LAUNCH (included overhead), removes
-global x gather/prefetch/register loads and x TMA, retains readiness waits.
-NOMMA retains every weight/x transfer and adds volatile payload checksum
-stores into dead routing scratch. The tensor core's implicit smem x reads
-become one explicit stage scan, not the original repeated MMA reuse.
-TL retains BASE math, adds no CTA/grid barriers, stores per-warp timestamps;
-MAIN probes the first weight slot with one redundant wait before phase A.
-Wready_obs is CONSUMER-OBSERVED FULL TMA completion, not first-byte HBM arrival.
-Phase-done=max over compute/helper warps; B-first=min. MAIN unit counts include
-split units on BOTH owning CTAs; Ast/Bst count the exact assigned K stages.
-Aearly is not idle (B can overlap); idleAB counts CTAs done with A and B >1us
-before the last A completion. TL/BASE timing ratio and output L2 error expose
-instrumentation perturbation. Trace statistics use the LAST cold replay.
-No performance claim should be made from NOMMA/NOX alone: allocation,
-checksum/zero-init costs, and synthetic data dependence differ.
+EARLYW MAIN starts three full packed-code+scale transfers just after the
+CTA-local routing job table is built, overlapping ent/pos scatter, x-row
+prefix, x gather and scratch setup. There was no pre-weight grid barrier.
+EARLYW TINY defers helper-only barrier initialization past existing FAST1.
+BTAIL does NOT change row width or K boundaries: MAIN already uses weighted
+stream-K, not whole-unit waves. It schedules each trailing partial B segment
+first, and designates the last-K share to finish it. This attacks the split
+fixup tail without changing dot-product partitions. The measured MAIN cases
+are checked to have at most two shares per unit; their two partial additions
+commute (finite values). This is not a general bit-equality guarantee for
+arbitrary >2-way splits; equality is measured, never presumed.
+FINTAIL omitted: the global publication barrier and norm reduction are needed.
+
+24 graph/event repetitions; 256 MiB write flush outside timing; raw us,
+MB=1e6. STREAM is unique-expert bytes, not per-job physical HBM traffic.
+TL retains v2 stamps: no phase barrier, first consumer-observed full weight
+slot completion, not literal first HBM byte. Its timings include instrumentation.
+BASE repeat equality detects schedule-dependent reference nondeterminism.
+The 235s budget is cooperative, not a kill timeout for a hung GPU kernel.
 
 Case definitions: TASK.md loads/weights plus recorded public job f0f01b3229f94cbb
 case seeds (task.yml is not shipped here). Dist omitted there means normal;
@@ -58,9 +60,9 @@ CASES = (
     (128, "verify 16", "normal", 2827104465878233812),
     (256, "verify 32", "normal", 2827189739240917158),
 )
-VARIANTS = ("BASE", "NOB", "NOX", "NOMMA", "TL")
+VARIANTS = ("BASE", "EARLYW", "BTAIL", "EARLYW_BTAIL")
 WEIGHT_BYTES = 3 * 4096 * 4096 * 9 // 16  # codes 1/2 + scales 1/16
-BUDGET_S = 240.0
+BUDGET_S = 235.0
 T0 = 0.0
 _RAN = False
 _LOG_BYTES = 0
@@ -97,20 +99,126 @@ def incumbent_namespace():
 
 
 def diagnostic_source(src):
-    """Exact-anchor instrumentation. BASE SASS equals v1 in offline checks.
+    """V3 exact-anchor edits; BASE leaves the incumbent device code unchanged.
 
-    NOX: load_x_regs, input prefetch, wgs_gather payload loop, xproducer
-      one-time zero initialization and TMA->plain mbarrier arrival. Retains
-      readiness waits, weight transfers, MMA, A epilogue/xB stores.
-    NOMMA: skinny_ring_ws's decode/MMA block and wgs_seg's decode/MMA block.
-      Keeps weight and activation transfers, waits/releases, epilogues/fixups.
-      Volatile checksum stores in dead routing wc[] keep every payload live.
-      WGS replaces MMA's implicit x-smem read with one explicit stage scan.
-    TL: grid_constant kernel parameter; shared trace-pointer field/init;
-      per-warp entry/exit, first weight-wait completion, phase boundaries,
-      helper epilogue completion; WS/WGS range metadata. No new CTA barriers.
-    NOB: same three v1 sites (WS/WGS B ranges and run_phase<PB>).
+    EARLYW MAIN: route's job-table CTA barrier -> weight-producer barrier 8;
+      producer owns ranges and preissues three slots before its existing join.
+      xproducer skips range setup; post-route barrier 7 disabled in this mode.
+    EARLYW FAST1: defer helper-only barriers until after initial weight TMAs.
+    BTAIL MAIN: trailing partial B segment first, last-K share designated
+      finisher. K boundaries, MMA, partial atomics, epilogues remain unchanged.
+    TL: inherited v2 instrumentation only (no NOX/NOMMA/NOB source edits).
     """
+    def replace(old, new, count=1):
+        nonlocal src
+        assert src.count(old) == count, (old[:100], src.count(old), count)
+        src = src.replace(old, new)
+
+    src = ('#ifndef OKC_DIAG_EARLYW\n#define OKC_DIAG_EARLYW 0\n#endif\n'
+           '#ifndef OKC_DIAG_BTAIL\n#define OKC_DIAG_BTAIL 0\n#endif\n'
+           '#ifndef OKC_DIAG_TL\n#define OKC_DIAG_TL 0\n#endif\n') + src
+
+    # Identity is known after the third routing CTA barrier, before ent/pos
+    # scatter. Only weight producer joins this named barrier; x waits at join.
+    old = '  early_issue(p, S);'
+    replace(old, '''#if OKC_WGS && OKC_DIAG_EARLYW
+  __threadfence_block();
+  asm volatile("bar.arrive 8, %0;\\n" ::"n"(NT + 32) : "memory");
+#endif
+''' + old)
+    old = '#if OKC_WGS && OKC_WGSPR'
+    replace(old, '#if OKC_WGS && OKC_WGSPR && !OKC_DIAG_EARLYW')
+    old = '''  asm volatile("bar.sync 7, %0;\\n" ::"n"(NT + 32) : "memory");
+  if ((threadIdx.x & 31) == 0) wgs_ranges(p, S);
+  __syncwarp();'''
+    replace(old, '#if !OKC_DIAG_EARLYW\n' + old + '\n#endif')
+
+    old = '__device__ void wgs_ranges(const Params& p, Smem& S);'
+    replace(old, '__device__ void md_arange(Smem& S);\n' + old)
+    old = '''  wgs_prefix(S, nj);
+  wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);'''
+    replace(old, '#if !OKC_DIAG_EARLYW\n' + old + '\n#endif')
+    old = '__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {'
+    replace(old, '''#if OKC_DIAG_EARLYW
+__device__ void md_arange(Smem& S) {
+  const int nj = S.njF + S.njS;
+  wgs_prefix(S, nj);
+  wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);
+}
+#endif
+''' + old)
+
+    old = '''__device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
+  WS_JOIN();'''
+    replace(old, '''__device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
+#if OKC_DIAG_EARLYW
+  asm volatile("bar.sync 8, %0;\\n" ::"n"(NT + 32) : "memory");
+  if ((threadIdx.x & 31) == 0) {
+    md_arange(S);
+    const int g0 = S.wgr[0], g1 = S.wgr[1];
+    int gs = wgs_split(0, g0, g1);
+    const int npre = min(WGS_NS, g1 - g0);
+    for (int i = 0; i < npre; ++i, ++gs) {
+      if (gs == g1) gs = g0;
+      const int u = gs >> 4, st = gs & 15, j = u >> 5, ub = u & 31;
+      const unsigned char* from = p.wAs + ((size_t)(((S.jE[j] << 5) + ub) * 16 + st)) * UNIT_BYTES;
+      uint64_t* bar = S.bars + BW_F + i;
+      asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n"
+                   ::"r"(smem_u32(bar)), "r"(UNIT_BYTES) : "memory");
+      asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX
+                   " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+                   ::"r"(smem_u32(ring + i * UNIT_BYTES)), "l"(from), "r"(UNIT_BYTES),
+                     "r"(smem_u32(bar)) L2H_ARG : "memory");
+    }
+    S.preissued = npre;
+    wgs_ranges(p, S);  // B range and TL metadata after initial weight issues
+  }
+  __syncwarp();
+#endif
+  WS_JOIN();''')
+    old = '      if (n >= WGS_NS) wgs_wait(S.bars + BW_E + ws, wph ^ 1, 1000 + gs);'
+    replace(old, '''#if OKC_DIAG_EARLYW
+      if (n < S.preissued) {
+        if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
+        continue;
+      }
+#endif
+''' + old)
+
+    # TINY/2 already preissue pre-routing. These barriers serve later compute
+    # release/helper epilogues, not the initial TMA completion slots.
+    old = '''      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);
+      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }'''
+    replace(old, '#if !OKC_DIAG_EARLYW\n' + old + '\n#endif', 2)
+    old = '      S.preissued = n > 0 ? n : 0;'
+    replace(old, old + '''
+#if OKC_DIAG_EARLYW
+      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);
+      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
+      asm volatile("fence.mbarrier_init.release.cluster;\\n" ::: "memory");
+#endif''')
+
+    replace('(OKC_WGSREORD && pb == 0 && (g1 & 15) != 0 && ue > g0)',
+            '(OKC_WGSREORD && (pb == 0 || OKC_DIAG_BTAIL) && (g1 & 15) != 0 && ue > g0)')
+    replace('(PB ? s0 == 0 : s1 == 16)', '(PB && !OKC_DIAG_BTAIL ? s0 == 0 : s1 == 16)')
+
+    # TL sites are generated from the separately retained v2 TL-only builder.
+    src = timeline_source(src)
+    # Two extra columns separate issue from observation and grid wait from
+    # finalization. FAST1 issues before md_trace is initialized: use p directly.
+    replace('if constexpr (COL == 0)', 'if constexpr (COL == 0 || COL == 6)')
+    replace('p.dbg[((size_t)blockIdx.x * 20 + (threadIdx.x >> 5)) * 8] = t;',
+            'p.dbg[((size_t)blockIdx.x * 20 + (threadIdx.x >> 5)) * 8 + COL] = t;')
+    replace('      uint64_t* bar = S.bars + BW_F + i;',
+            '      uint64_t* bar = S.bars + BW_F + i;\n      if (i == 0) MD_STAMP(6);')
+    replace('      uint64_t* bar = S.bars + BW_F + ws;',
+            '      uint64_t* bar = S.bars + BW_F + ws;\n      if (n == 0) MD_STAMP(6);')
+    old = '        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;'
+    replace(old, old + '\n        if (i == 0) MD_STAMP(6);')
+    replace('  DBG(4);', '  DBG(4);\n  MD_STAMP(7);')
+    return src
+
+def timeline_source(src):
     def replace(old, new, count=1):
         nonlocal src
         assert src.count(old) == count, (old[:90], src.count(old), count)
@@ -128,19 +236,8 @@ def diagnostic_source(src):
         assert new != old, name
         replace(old, new)
 
-    src = '\n'.join(f'#ifndef OKC_DIAG_{v}\n#define OKC_DIAG_{v} 0\n#endif'
-                    for v in ('NOX', 'NOMMA', 'TL', 'NOB')) + '\n' + src
     anchor = '// ---------------------------------------------------------------- routing prologue (every CTA, identical result)'
     helpers = r'''
-#if OKC_DIAG_NOMMA
-// wc[][] is dead after route()'s final CTA_SYNC. One private sink/thread;
-// unlike an empty asm input, a volatile shared store survives ptxas DCE.
-__device__ __forceinline__ void md_sink(Smem& S, uint32_t v) {
-  uint32_t a = (uint32_t)__cvta_generic_to_shared(&S.wc[threadIdx.x >> 5][threadIdx.x & 31]);
-  asm volatile("st.volatile.shared.b32 [%0], %1;" :: "r"(a), "r"(v) : "memory");
-}
-__device__ __forceinline__ uint32_t md_xor4(uint4 v) { return v.x ^ v.y ^ v.z ^ v.w; }
-#endif
 #if OKC_DIAG_TL
 // [CTA,20,8] uint64: rows 0..17 are warps, row 19 is range metadata.
 // cols 0..5: entry, W-ready observation, A-done, B-first, B-done, exit.
@@ -178,52 +275,7 @@ __device__ __forceinline__ void md_stamp(const Params& p) {
     old = '    S.xbuf_ptr = xbuf;'
     replace(old, old + '\n#if OKC_DIAG_TL\n    S.md_trace = (unsigned long long)p.dbg;\n#endif')
 
-    # NOX WS: activations reside in registers, not shared memory in this path.
-    old = '''        x[2 * c] = PB ? __ldcg(src + c * 8) : __ldg(src + c * 8);
-        x[2 * c + 1] = PB ? __ldcg(src + c * 8 + 1) : __ldg(src + c * 8 + 1);'''
-    replace(old, '''#if OKC_DIAG_NOX
-        x[2 * c] = x[2 * c + 1] = make_uint4(0, 0, 0, 0);
-#else
-''' + old + '\n#endif')
-    old = '''  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)
-    asm volatile("prefetch.global.L2 [%0];\\n" ::"l"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));'''
-    replace(old, '#if !OKC_DIAG_NOX\n' + old + '\n#endif')
-
-    def gather(s):
-        a = s.index('  for (int qb = q0; qb < q1; qb += GB) {')
-        b = s.index('  CTA_SYNC();', a)
-        return s[:a] + '#if !OKC_DIAG_NOX\n' + s[a:b] + '#endif\n' + s[b:]
-    section('__device__ void wgs_gather(', gather)
-
-    def xproducer(s):
-        old = '  WS_JOIN();  // routing tables and this CTA\'s stage ranges are ready'
-        assert s.count(old) == 1
-        s = s.replace(old, '''#if OKC_DIAG_NOX
-  // Shared storage is not persistent across launches: zero all x slots once
-  // per CTA/launch, before the existing producer/consumer join. Cost included.
-  uint4* zx = reinterpret_cast<uint4*>(ring + WGS_NS * UNIT_BYTES);
-  for (int i = threadIdx.x & 31; i < WGS_NX * WGS_XS / 16; i += 32)
-    zx[i] = make_uint4(0, 0, 0, 0);
-  __syncwarp();
-  asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
-#endif
-''' + old)
-        a = s.index('      const uint32_t bytes = (uint32_t)npad * 512u;')
-        b = s.index('      if (++xs == WGS_NX)', a)
-        s = s[:a] + '''#if OKC_DIAG_NOX
-      mbar_arrive1(bar);  // no outstanding transaction bytes; same parity
-#else
-''' + s[a:b] + '#endif\n' + s[b:]
-        return s
-    section('__device__ void wgs_xproducer(', xproducer)
-
     def skinny(s):
-        a = s.index('#if OKC_PRMTSC', s.index('const uint4 w ='))
-        b = s.index('\n    }\n#pragma unroll\n    for (int k = 0;', a)
-        s = s[:a] + '''#if OKC_DIAG_NOMMA
-      md_sink(S, md_xor4(w) ^ md_xor4(sc) ^ md_xor4(x0[2*c]) ^ md_xor4(x0[2*c+1]));
-#else
-''' + s[a:b] + '\n#endif' + s[b:]
         old = '  for (int i = 0; i < nU; ++i) {'
         assert s.count(old) == 1
         s = s.replace(old, '  if (PB && nU > 0) MD_STAMP(3);\n' + old)
@@ -236,45 +288,6 @@ __device__ __forceinline__ void md_stamp(const Params& p) {
         return s
     section('__device__ void skinny_ring_ws(', skinny)
 
-    def wgs(s):
-        old = '  float d[WGS_NT][4];'
-        assert s.count(old) == 1
-        s = s.replace(old, '''  float d[WGS_NT][4];
-#if OKC_DIAG_NOMMA
-#pragma unroll
-  for (int n = 0; n < WGS_NT; ++n)
-#pragma unroll
-    for (int k = 0; k < 4; ++k) d[n][k] = 0.f;
-#endif
-  //''')
-        old = '    const uint64_t xd = xd0 + (uint64_t)(uint32_t)(xs * (WGS_XS >> 4));'
-        assert s.count(old) == 1
-        s = s.replace(old, old + '''
-#if OKC_DIAG_NOMMA
-    // The x TMA is unchanged. Read its full payload explicitly since the
-    // tensor core no longer implicitly reads smem (one scan, not MMA reuse).
-    const uint4* xx = reinterpret_cast<const uint4*>(ring + WGS_NS * UNIT_BYTES + xs * WGS_XS);
-    const int nx = (((S.jC[u >> UBL] + 7) >> 3) << 3) * 512 / 16;
-    for (int i = tid; i < nx; i += NT) md_sink(S, md_xor4(xx[i]));
-    // Retain the x slot until the original release points below.
-#endif''')
-        old = '      const uint2 scg = scn;'
-        assert s.count(old) == 1
-        s = s.replace(old, old + '''
-#if OKC_DIAG_NOMMA
-      md_sink(S, md_xor4(cwg) ^ scg.x ^ scg.y);
-#endif''')
-        a = s.index('#pragma unroll\n        for (int jj = 0; jj < GS; ++jj) {')
-        b = s.index('        wg_wait<1>();', a) + len('        wg_wait<1>();')
-        # Empty wgmma commit groups still lower to dummy HGMMA instructions!
-        # No async MMA exists here, so omit its fence/commit/wait as well;
-        # all TMA full/empty mbarriers and release points stay intact.
-        s = s[:a] + '#if !OKC_DIAG_NOMMA\n' + s[a:b] + '\n#endif' + s[b:]
-        old = '  wg_wait<0>();'
-        assert s.count(old) == 1
-        s = s.replace(old, '#if !OKC_DIAG_NOMMA\n' + old + '\n#endif')
-        return s
-    section('__device__ __forceinline__ void wgs_seg(', wgs)
     old = '    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);'
     replace(old, '''#if OKC_DIAG_TL
     // One redundant first-slot wait, outside the register-heavy MMA phase.
@@ -328,7 +341,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(const __grid_constant__ Para
     old = '  DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered'
     replace(old, old + '\n  MD_STAMP(5);')
     old = '    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);'
-    replace(old, '#if OKC_DIAG_NOB\n    S.wsr[2] = S.wsr[3] = 0;\n#else\n' + old + '\n#endif' + '''
+    replace(old, old + '''
 #if OKC_DIAG_TL
     if (p.dbg) {
       auto z = p.dbg + ((size_t)blockIdx.x * 20 + 19) * 8;
@@ -337,7 +350,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(const __grid_constant__ Para
     }
 #endif''')
     old = '  wgs_range(S, nj, 1, blockIdx.x, gridDim.x, S.wgr[2], S.wgr[3]);'
-    replace(old, '#if OKC_DIAG_NOB\n  S.wgr[2] = S.wgr[3] = 0;\n#else\n' + old + '\n#endif' + '''
+    replace(old, old + '''
 #if OKC_DIAG_TL
   if (p.dbg) {
     auto z = p.dbg + ((size_t)blockIdx.x * 20 + 19) * 8;
@@ -348,9 +361,8 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(const __grid_constant__ Para
     }
   }
 #endif''')
-    old = '__device__ __forceinline__ void run_phase(const Params& p, Smem& S, __nv_bfloat16* xbuf) {'
-    replace(old, old + '\n#if OKC_DIAG_NOB\n  if constexpr (PB) return;\n#endif')
     return src
+
 
 
 
@@ -491,14 +503,17 @@ def measure(bs, variant, fn, flush, touched, nbytes):
 
 
 def variants_for(kind):
-    return ("BASE", "NOB") if kind == "MID" else VARIANTS
+    math = ("BASE", "EARLYW", "BTAIL", "EARLYW_BTAIL") if kind == "MAIN" else ("BASE", "EARLYW")
+    return math + tuple(v + "_TL" for v in math)
+
 
 
 def compile_unit(ns, src, kind, variant):
     """One thin-host CUDA TU; exact incumbent math/flags, unique linkage."""
     defs = tuple(ns[kind + "_DEFINES"]) + ("-DOKC_PRMTSC=1", "-DOKC_DQ7=1")
-    if variant != "BASE":
-        defs += (f"-DOKC_DIAG_{variant}=1",)
+    for macro in variant.split("_"):
+        if macro != "BASE":
+            defs += (f"-DOKC_DIAG_{macro}=1",)
     flags_as_source = "\n".join("#define " + d[2:].replace("=", " ", 1) for d in defs) + "\n"
     code = flags_as_source + src
     # torch/extension.h drags Python/pybind into every CUDA TU. Only this
@@ -540,7 +555,7 @@ def build_kind(ns, src, kind):
     cpp = ('#include <torch/extension.h>\n' + '\n'.join(declarations)
            + '\nPYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {\n' + '\n'.join(bindings) + '\n}\n')
     tag = hashlib.sha256((cpp + ''.join(c for c, _ in units)).encode()).hexdigest()[:16]
-    name = "moediag_v2_" + kind.lower() + "_" + tag
+    name = "moediag_v3_" + kind.lower() + "_" + tag
     directory = Path(_get_build_directory(name, verbose=False))
     cppfile = directory / "binding.cpp"
     cppfile.write_text(cpp)
@@ -562,7 +577,7 @@ def jobs_from_counts(counts, kind):
     return fat + [(e, c) for e, c in enumerate(counts) if 0 < c <= 8]
 
 
-def timeline_summary(bs, kind, trace, jobs, ratio, relerr):
+def timeline_summary(bs, kind, trace, jobs, ratio, relerr, variant="BASE_TL"):
     """One cold replay: max phase completion over compute/helper warps.
 
     No phase barrier is inserted. A-done can overlap another warp's B-start.
@@ -573,9 +588,9 @@ def timeline_summary(bs, kind, trace, jobs, ratio, relerr):
     per_cta = []
     for cta in rows:
         stamps = []
-        for col in range(6):
+        for col in range(8):
             values = [r[col] for r in cta[:18] if r[col] != 0]
-            stamps.append((max(values) if col in (2, 4, 5) else min(values)) if values else None)
+            stamps.append((max(values) if col in (2, 4, 5, 7) else min(values)) if values else None)
         per_cta.append(stamps)
     assert all(s[0] is not None and s[5] is not None for s in per_cta), "missing entry/exit"
     origin = min(s[0] for s in per_cta)
@@ -583,9 +598,9 @@ def timeline_summary(bs, kind, trace, jobs, ratio, relerr):
         if not values:
             return "NA"
         q = (min(values), statistics.median(values), max(values))
-        return '/'.join(f'{v:g}' if integer else f'{v:.2f}' for v in q)
+        return '/'.join(f'{v:g}' if integer else f'{v:.1f}' for v in q)
     fields = []
-    for col, label in enumerate(("entry", "Wready_obs", "Adone", "Bfirst", "Bdone", "exit")):
+    for col, label in enumerate(("entry", "Wready_obs", "Adone", "Bfirst", "Bdone", "exit", "Wissue", "gridout")):
         values = [(s[col] - origin) / 1000 for s in per_cta if s[col] is not None]
         fields.append(f"{label}={trip(values)}")
     au = [r[19][0] for r in rows]
@@ -603,12 +618,49 @@ def timeline_summary(bs, kind, trace, jobs, ratio, relerr):
     overlap = sum(s[3] is not None and s[3] < lasta for s in per_cta)
     idle = sum(s[4] is not None and s[4] < lasta - 1000 for s in per_cta)
     jnt = sum((n + 7) // 8 for _, n in jobs)
-    log(f"MD_TL bs={bs} us=min/med/max " + ' '.join(fields)
+    log(f"MD_TL bs={bs} var={variant} us=min/med/max " + ' '.join(fields)
         + f" Au={trip(au, True)} Bu={trip(bu, True)} Ast={trip(astages, True)} Bst={trip(bstages, True)}"
-        + f" jnt={jnt} At256x8={32*jnt if kind == 'MAIN' else 'NA'}"
-        + f" Atail={(lasta-statistics.median(adone))/1000:.2f} Aearly1us={early}"
-        + f" BoverA={overlap} idleAB={idle} noA={au.count(0)}"
-        + f" TL_BASE={ratio:.3f} err={relerr:.2g} last_cold=1")
+        + f" Atail={(lasta-statistics.median(adone))/1000:.1f} BoverA={overlap}"
+        + f" TL_BASE={ratio:.3f}")
+
+
+def btail_ranges(jobs, grid, source):
+    """Exact integer scheduler oracle, constants parsed from frozen CUDA.
+
+    Guard the two-share finite-addition argument; do not assert bit equality
+    for changed multiway atomic order. No CUDA execution here.
+    """
+    from bisect import bisect_right
+    costline = next(s for s in source.splitlines() if s.startswith('#define OKC_WGSB '))
+    costs = [int(v.strip()) for v in costline.split('//')[0].split(' ',2)[2].split(',')]
+    pre = [0]
+    for _, n in jobs:
+        pre.append(pre[-1] + costs[(n+7)//8-1]*256)
+    if not jobs:
+        return [(0,0)]*grid, 0
+    def stage(x):
+        j = min(len(jobs)-1, bisect_right(pre,x)-1)
+        return j*256 + (x-pre[j])//costs[(jobs[j][1]+7)//8-1]
+    bounds = [stage(pre[-1]*c//grid) for c in range(grid)] + [len(jobs)*256]
+    ranges = list(zip(bounds,bounds[1:]))
+    shares = [0]*(len(jobs)*16)
+    for lo,hi in ranges:
+        if hi > lo:
+            for unit in range(lo//16,(hi+15)//16):
+                shares[unit] += 1
+    return ranges, max(shares)
+
+
+def compare_output(bs, variant, output, reference):
+    # Byte comparison (not torch.equal: distinguish signed zero / NaN bits).
+    eq = torch.equal(output.contiguous().view(torch.uint8), reference.contiguous().view(torch.uint8))
+    a, b = output.float(), reference.float()
+    delta = (a-b).abs()
+    finite = bool(torch.isfinite(a).all() & torch.isfinite(b).all())
+    abserr = float(delta.max().item())
+    relerr = float((delta / b.abs().clamp_min(1e-12)).max().item())
+    log(f"MD_ERR bs={bs} var={variant} eq={int(eq)} finite={int(finite)} max_abs={abserr:.3g} max_rel={relerr:.3g}")
+    return eq and finite, relerr
 
 
 def run_all():
@@ -618,13 +670,12 @@ def run_all():
     ns = incumbent_namespace()
     src = diagnostic_source(ns["CUDA_SRC"])
     os.environ["TORCH_CUDA_ARCH_LIST"] = "9.0a"
-    os.environ["MAX_JOBS"] = "2"  # four bundles; at most eight compile jobs
-    log(f"MD_INFO v=2 device={torch.cuda.get_device_name(dev)!r} reps=24 flush_MiB=256 "
+    os.environ["MAX_JOBS"] = "2"
+    log(f"MD_INFO v=3 device={torch.cuda.get_device_name(dev)!r} reps=24 flush_MiB=256 "
         f"raw_events=1 seed_source=f0f01b3229f94cbb parent={INCUMBENT_SHA256[:12]}")
-    log("MD_NOTE NOX=zero_x_init_per_launch NOMMA=payload_checksums_and_single_x_smem_scan "
-        "NOB=zero_y_finalizer STREAM=unique_weight_bytes MB=1e6 TL=no_new_CTA_barriers_firstslot_probe "
-        "Wready_obs=full_TMA_consumer_observation_not_first_HBM_byte units=MAIN_256rows_WS_16rows "
-        "Aearly_is_not_idle_B_may_overlap")
+    log("MD_NOTE EARLYW=pre_gather_MAIN_deferred_helper_init_TINY BTAIL=same_K_splits_trailing_share_first "
+        "TL=fastest_bit_equal_variant Wready_obs=consumer_full_TMA STREAM=unique_weights "
+        "eq=byte_equality max_rel=elementwise_den_floor_1e-12 FINTAIL=not_added")
     ready = queue.Queue()
     stop = threading.Event()
     def worker(kind):
@@ -632,11 +683,11 @@ def run_all():
             return
         started = time.monotonic()
         try:
-            ready.put((kind, build_kind(ns, src, kind), None, time.monotonic() - started))
+            ready.put((kind, build_kind(ns, src, kind), None, time.monotonic()-started))
         except Exception as exc:
-            ready.put((kind, None, exc, time.monotonic() - started))
-    workers = [threading.Thread(target=worker, args=(k,), daemon=True)
-               for k in ("TINY", "TINY2", "MID", "MAIN")]
+            ready.put((kind, None, exc, time.monotonic()-started))
+    kinds = ("TINY", "TINY2", "MAIN")
+    workers = [threading.Thread(target=worker, args=(k,), daemon=True) for k in kinds]
     for th in workers:
         th.start()
     try:
@@ -648,93 +699,111 @@ def run_all():
         assert state["sfx"] == ("-DOKC_PRMTSC=1",)
         del raw_weights
         if over():
-            raise TimeoutError("incumbent packing budget")
+            raise TimeoutError("packing budget")
         flush = torch.zeros(256 << 20, dtype=torch.uint8, device=dev)
         stream_buf = torch.zeros(32 * WEIGHT_BYTES, dtype=torch.uint8, device=dev)
         sink = torch.zeros(1, dtype=torch.int32, device=dev)
         cases = {}
         for bs, load, dist, seed in CASES:
+            if bs == 16:
+                continue
             data = generate_input(bs, dist, seed, dev)
             ids = data["topk_ids"]
             local = ids[(ids >= 0) & (ids < 32)]
             counts = torch.bincount(local.long(), minlength=32).cpu().tolist()
             touched = sum(c > 0 for c in counts)
-            kind = "TINY" if bs <= 4 else "TINY2" if bs <= 8 else "MID" if bs <= 16 else "MAIN"
+            kind = "TINY" if bs == 1 else "TINY2" if bs == 8 else "MAIN"
             jobs = jobs_from_counts(counts, kind)
+            if kind == 'MAIN':
+                _, maxshares = btail_ranges(jobs,state['grid'],ns['CUDA_SRC'])
+                assert maxshares <= 2, f'BTAIL equality scope exceeded: {maxshares} shares'
             cases[bs] = (kind, data, touched, touched * WEIGHT_BYTES, jobs)
             log(f"MD_CASE bs={bs} build={kind} routes={local.numel()} jobs={len(jobs)} touched={touched} "
                 f"A_job_MB={len(jobs)*WEIGHT_BYTES*2/3/1e6:.3f} B_job_MB={len(jobs)*WEIGHT_BYTES/3/1e6:.3f}")
             if bs == 256:
-                log("MD_JOBS bs=256 source=routing_exact_order units_per_job=32A/16B e:tokens:nt="
-                    + ','.join(f'{e}:{n}:{(n+7)//8}' for e, n in jobs))
-        log(f"MD_SETUP seconds={time.monotonic() - T0:.1f}")
+                log("MD_JOBS bs=256 units_per_job=32A/16B e:tokens:nt="
+                    + ','.join(f'{e}:{n}:{(n+7)//8}' for e,n in jobs))
+        log(f"MD_SETUP seconds={time.monotonic()-T0:.1f}")
         seen = set()
-        base_times, base_outputs = {}, {}
-        while len(seen) < len(workers) and not over():
+        while len(seen) < len(kinds) and not over():
             try:
-                kind, bundle, exc, secs = ready.get(timeout=max(.001, BUDGET_S - (time.monotonic() - T0)))
+                kind, bundle, exc, secs = ready.get(timeout=max(.001, BUDGET_S-(time.monotonic()-T0)))
             except queue.Empty:
                 break
             seen.add(kind)
             if exc is not None:
                 error(f"build={kind}", exc)
                 continue
-            log(f"MD_BUILD build={kind} variants={','.join(variants_for(kind))} seconds={secs:.1f}")
-            for variant in variants_for(kind):
-                if over():
-                    log(f"MD_ERR build={kind} var={variant} budget_skip")
+            log(f"MD_BUILD build={kind} TUs={len(variants_for(kind))} seconds={secs:.1f}")
+            resources = set()
+            for bs,(case_kind,data,touched,nbytes,jobs) in cases.items():
+                if case_kind != kind:
                     continue
-                try:
-                    info = getattr(bundle, "okc_info_" + variant)()
-                    log(f"MD_RES build={kind} var={variant} regs={info[0]}/{info[1]} "
-                        f"smem={info[2]}/{info[3]}+{info[4]} local_B={info[5]}/{info[6]} th={info[7]}")
-                    ext = types.SimpleNamespace(okc_run=getattr(bundle, "okc_run_" + variant))
-                    call_ns = dict(ns)
-                    expected = tuple(ns[kind + "_DEFINES"]) + state["sfx"]
-                    def selected(defines=None, expected=expected, ext=ext):
-                        assert tuple(defines) == expected
-                        return ext
-                    call_ns["_ext"] = selected
-                    call = types.FunctionType(ns["kernel_fn"].__code__, call_ns)
-                except Exception as exc:
-                    error(f"build={kind} var={variant}", exc)
-                    continue
-                for bs, (case_kind, data, touched, nbytes, jobs) in cases.items():
-                    if case_kind != kind:
+                base = None
+                best = None
+                base_time = None
+                measured = {}
+                math_variants = [v for v in variants_for(kind) if not v.endswith('_TL')]
+                # After math timings choose the best correct implementation,
+                # then measure its precompiled TL counterpart.
+                for step in range(len(math_variants)+1):
+                    variant = math_variants[step] if step < len(math_variants) else (best[1]+'_TL' if best else None)
+                    if variant is None:
+                        continue
+                    if over():
+                        log(f"MD_ERR bs={bs} var={variant} budget_skip")
                         continue
                     try:
-                        if over():
-                            log(f"MD_ERR bs={bs} var={variant} budget_skip")
-                            continue
+                        if variant not in resources:
+                            info = getattr(bundle, 'okc_info_'+variant)()
+                            log(f"MD_RES build={kind} var={variant} regs={info[0]}/{info[1]} "
+                                f"smem={info[2]}/{info[3]}+{info[4]} local_B={info[5]}/{info[6]} th={info[7]}")
+                            resources.add(variant)
+                        ext = types.SimpleNamespace(okc_run=getattr(bundle,'okc_run_'+variant))
+                        call_ns = dict(ns)
+                        expected = tuple(ns[kind+'_DEFINES'])+state['sfx']
+                        def selected(defines=None, expected=expected, ext=ext):
+                            assert tuple(defines) == expected
+                            return ext
+                        call_ns['_ext'] = selected
+                        call = types.FunctionType(ns['kernel_fn'].__code__, call_ns)
                         case_state = dict(state)
-                        case_state["scratch"] = list(state["scratch"])
-                        if variant == "TL":
-                            trace = torch.zeros((state["grid"], 20, 8), dtype=torch.int64, device=dev)
-                            case_state["scratch"].append(trace)
-                        for tensor in case_state["scratch"]:
+                        case_state['scratch'] = list(state['scratch'])
+                        if variant.endswith('_TL'):
+                            trace = torch.zeros((state['grid'],20,8),dtype=torch.int64,device=dev)
+                            case_state['scratch'].append(trace)
+                        for tensor in case_state['scratch']:
                             tensor.zero_()
                         outputs = [None]
                         def fn():
-                            outputs[0] = call(data, case_state)
+                            outputs[0] = call(data,case_state)
                             return outputs[0]
-                        timing = measure(bs, variant, fn, flush, touched, nbytes)
-                        if variant == "BASE" and timing:
-                            base_times[bs] = timing[0]
-                            base_outputs[bs] = outputs[0].clone()
+                        if variant == 'BASE':
+                            base = fn().clone()  # independent launch vs timed replay
+                        timing = measure(bs,variant,fn,flush,touched,nbytes)
+                        if not timing:
+                            continue
+                        valid, relerr = compare_output(bs,variant,outputs[0],base)
+                        if variant.endswith('_TL'):
+                            timeline_summary(bs,kind,trace,jobs,timing[0]/base_time,relerr,variant)
+                            log(f"MD_BEST bs={bs} var={best[1]} med_us={best[0]:.3f} BASE_ratio={best[0]/base_time:.4f}")
+                        else:
+                            measured[variant] = timing[0]
+                            if valid and (best is None or timing[0] < best[0]):
+                                best = (timing[0],variant)
+                        if variant == 'BASE':
+                            base_time = timing[0]
                             buf = stream_buf[:nbytes]
-                            measure(bs, "STREAM", lambda: bundle.okc_diag_stream(buf, sink, state["grid"] * 4),
-                                    flush, touched, nbytes)
-                        elif variant == "TL" and timing:
-                            ref = base_outputs[bs].float()
-                            err = float(((outputs[0].float() - ref).norm() / ref.norm().clamp_min(1e-12)).item())
-                            timeline_summary(bs, kind, trace, jobs, timing[0] / base_times[bs], err)
+                            measure(bs,'STREAM',lambda: bundle.okc_diag_stream(buf,sink,state['grid']*4),
+                                    flush,touched,nbytes)
                     except Exception as exc:
-                        error(f"bs={bs} var={variant}", exc)
-        for kind in ("TINY", "TINY2", "MID", "MAIN"):
+                        error(f"bs={bs} var={variant}",exc)
+        for kind in kinds:
             if kind not in seen:
                 log(f"MD_ERR build={kind} budget_not_ready")
     finally:
         stop.set()
+
 
 
 
