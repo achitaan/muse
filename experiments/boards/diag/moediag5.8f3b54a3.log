@@ -1,0 +1,38 @@
+MD_INFO v=5 device='NVIDIA H200' reps=40 flush_MiB=256 BASE=331148716e8d WIDE=52add5ec2a29 cap=128 g=1/2
+MD_NOTE >128_expert_or_>256_launch=old_split; no_wide=3_slots wide=2_slots; pass1=cases_forward_BASE_WIDE pass2=cases_reverse_WIDE_BASE; eq=bytes rel=elementwise_floor_1e-12
+MD_CASE case=R32 routes=60 touched=16 jobs=16/16 wide_jobs=0 cnt=1:1,2:5,3:1,4:3,5:1,8:2,11:3,13:5,15:3,16:16,17:2,19:3,21:4,22:2,25:8,27:1
+MD_CASE case=R128 routes=217 touched=23 jobs=24/23 wide_jobs=1 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:11,14:23,15:8,16:13,17:12,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:11,31:68
+MD_CASE case=R128_NODUP routes=217 touched=23 jobs=23/23 wide_jobs=0 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:13,14:23,15:8,16:13,17:13,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:12,31:64
+MD_CASE case=R256 routes=449 touched=25 jobs=28/27 wide_jobs=1 cnt=0:8,1:75,2:51,3:144,4:2,6:2,7:1,8:6,9:20,10:2,11:10,12:9,13:6,14:2,15:6,16:1,17:12,19:6,21:15,22:42,23:3,26:10,28:8,29:1,31:7
+MD_CASE case=R256_NODUP routes=449 touched=25 jobs=25/25 wide_jobs=0 cnt=0:8,1:64,2:51,3:64,4:2,6:2,7:1,8:6,9:28,10:2,11:28,12:28,13:6,14:2,15:6,16:1,17:28,19:6,21:28,22:42,23:3,26:27,28:8,29:1,31:7
+MD_SETUP seconds=0.7
+MD_BUILD build=MAIN TUs=2 seconds=53.2
+MD_RES var=BASE regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD_RES var=WIDE regs=96/96 smem=0/0+231168 local_B=56/56 th=576
+MD case=R32 var=BASE pass=1 med_us=138.896 min_us=136.512 jobs=16 job_MB=452.985 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=WIDE pass=1 med_us=145.216 min_us=142.688 jobs=16 job_MB=452.985 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=BASE pass=1 med_us=196.752 min_us=192.608 jobs=24 job_MB=679.477 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=WIDE pass=1 med_us=259.168 min_us=254.656 jobs=23 job_MB=651.166 eq=0 finite=1 max_abs=0.00781 max_rel=107 rel_L2=0.000397
+MD case=R128_NODUP var=BASE pass=1 med_us=189.152 min_us=186.304 jobs=23 job_MB=651.166 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=WIDE pass=1 med_us=199.008 min_us=195.584 jobs=23 job_MB=651.166 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=BASE pass=1 med_us=238.112 min_us=235.584 jobs=28 job_MB=792.723 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=WIDE pass=1 med_us=313.920 min_us=311.136 jobs=27 job_MB=764.412 eq=0 finite=1 max_abs=0.00391 max_rel=10.2 rel_L2=0.000245
+MD case=R256_NODUP var=BASE pass=1 med_us=219.408 min_us=217.120 jobs=25 job_MB=707.789 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=WIDE pass=1 med_us=230.304 min_us=228.160 jobs=25 job_MB=707.789 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=WIDE pass=2 med_us=230.320 min_us=226.752 jobs=25 job_MB=707.789 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=BASE pass=2 med_us=219.680 min_us=216.992 jobs=25 job_MB=707.789 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=WIDE pass=2 med_us=314.240 min_us=311.712 jobs=27 job_MB=764.412 eq=0 finite=1 max_abs=0.00391 max_rel=10.2 rel_L2=0.000245
+MD case=R256 var=BASE pass=2 med_us=238.976 min_us=235.808 jobs=28 job_MB=792.723 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=WIDE pass=2 med_us=199.712 min_us=196.576 jobs=23 job_MB=651.166 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=BASE pass=2 med_us=188.608 min_us=185.888 jobs=23 job_MB=651.166 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=WIDE pass=2 med_us=259.296 min_us=254.880 jobs=23 job_MB=651.166 eq=0 finite=1 max_abs=0.00781 max_rel=107 rel_L2=0.000397
+MD case=R128 var=BASE pass=2 med_us=196.336 min_us=193.408 jobs=24 job_MB=679.477 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=WIDE pass=2 med_us=144.896 min_us=142.752 jobs=16 job_MB=452.985 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=BASE pass=2 med_us=138.480 min_us=136.128 jobs=16 job_MB=452.985 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD_SUM case=R32 WIDE_BASE=1.0455/1.0463
+MD_SUM case=R128 WIDE_BASE=1.3172/1.3207
+MD_SUM case=R128_NODUP WIDE_BASE=1.0521/1.0589
+MD_SUM case=R256 WIDE_BASE=1.3184/1.3149
+MD_SUM case=R256_NODUP WIDE_BASE=1.0497/1.0484
+MD_ZERO var=WIDE bs=256 eq=1 reference=analytic_zero BASE_not_run=known_latent_bug
+MD_DONE seconds=53.7

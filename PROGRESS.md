@@ -126,4 +126,7 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | D-MoE4 | Duplicate-job cost (`moediag4.py`, `69b28b65`) | **confirmed**: bs256 238.9 us with 28 jobs vs 220.7 with the same 25 experts and 449 routes but every expert <= 64 tokens (-7.7%); bs128 196.6 vs 189.3 (-3.7%); both orders agree. Worth ~+2.0% on the MoE board | diagnostic | fixer | $114 |
 
-| M4 | MAIN wide jobs: one job per expert up to 256 tokens (warpgroups remapped to 64-row x 64-token pairs) so busy experts stream weights once (`experiments/boards/moe/moe_b4.py`, A/B harness `moediag5.py`) | building | - | hard-fixer | $114 |
+| M4 | MAIN wide jobs g=2 (cap 128) (`moe_b4.py`; diag `8f3b54a3`, check `d9a36269` 2.199x) | much slower: R128/R256 1.32x, no-dup cases 1.05x (18 KiB stages, 2 ring slots) | closed | hard-fixer | $118 |
+
+| M5 | Hint only: sibling-job weights with EVICT_NORMAL (`moe_b5.py`, `c384c9f1` 2.3372x) / EVICT_LAST (`moe_b6.py`, `2518c47e` 2.3390x) | no gain at bs128/256 (sibling units run ~40 us apart) | closed | direct | $118 |
+| M6 | Interleave sibling jobs' units + EVICT_NORMAL hint (`moediag6.py`, `moe_b7.py`) | building | - | hard-fixer | $118 |
