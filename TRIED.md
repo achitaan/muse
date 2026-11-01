@@ -58,6 +58,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | MoE board scored run of moe_b8 (HINT + ERL, bit-identical MAIN tweaks) | closed | scored 2.3696x (CI 2.334-2.405); board best stays 2.3797 | `d11ae396` | experiments/boards/moe/moe_b8.py (decode-next) | Nov 01 |
 | Skinny WS STRIDE: CTA c takes c+i*G A units then c+i*G B units (expert-major) to shrink the A->B bubble | closed | slower: diag STRIDE/BASE R1 1.011/1.008, R8 1.016/1.013, R16 1.032/1.035 (R1 bit-equal); MoE check 2.2650x (bs8 70.6, bs16 99.2 us) | `10af3ab8, 69df1e95` | experiments/boards/moe/moe_b12.py, diag/moediag10.py (decode-next) | Nov 01 |
 | MAIN finalizer (WGSFINSS): keep pass 1's y rows in registers (16 float4/thread) for pass 2 instead of re-reading them from L2 (bit-identical) | kept | bit-identical; diag FINREG+ERL+HINT/BASE (both orders): R32 0.995/0.992, R128 0.979/0.979, R256 0.986/0.984, R256_DUP3 0.987/0.983, NODUP 0.994-1.000 (adds ~0.5-1% over ERL+HINT); MoE check 2.3327x (noise); MoE lineage head moe_b13 | `c63e59ab, 7e4461e4` | experiments/boards/moe/moe_b13.py, diag/moediag11.py (decode-next) | Nov 01 |
+| Decode: port MoE FINREG (MAIN finalizer pass 2 from registers) into the Decode lineage on top of HINT+ERL | in progress | decode-next decoder_p35_finreg.py | - | - | Nov 01 |
 
 ## Pooler + router
 
