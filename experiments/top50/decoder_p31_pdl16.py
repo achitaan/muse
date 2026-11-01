@@ -7917,7 +7917,7 @@ def twin(source, prefix, inst, *, fused=False, form='inline'):
                   CUDA_sha256=hashlib.sha256(s.encode()).hexdigest(),form=form,fused=fused,
                   instance=inst,exact_inverse=True,edits=[dict(old=a,new=b) for a,b in edits])
 
-"""Pure, invertible derivations for the bounded T1/T8 PDL integration."""
+"""Pure, invertible derivations for bounded decode PDL integration."""
 import hashlib
 import re
 
@@ -7994,6 +7994,39 @@ def pdli_export(source, prefix, inst, *, fused=False):
     return source
 
 
+def pdli_medium(source,prefix,inst):
+    # XM7: load() preloads only immutable weights. CP2: stage_weights() issues
+    # immutable weight copies, while load() reads activations and must follow wait.
+    edits=[]; original=source
+    cp=prefix=='dd_cap2_b_cpssm'
+    assert inst[0]==1 and inst[2]==1 and inst[5]==0
+    assert (inst[-1]==2 and inst[3]==2) if cp else (inst[3]==1 and inst[14:16]==(7,1))
+    if not cp:assert len(inst)==16 or (len(inst)==17 and inst[-1]==0)
+    source=edit_once(source,'ld.global.nc.v4.u32','ld.global.cg.v4.u32',edits)
+    helper=('__device__ __noinline__ void '+prefix+'_pdl_wait(uint32_t checksum) {\n'
+            '  asm volatile("{ .reg .b32 used; mov.b32 used, %0; griddepcontrol.wait; }" :: "r"(checksum) : "memory");\n}\n')
+    anchor='// Never taken, but ptxas cannot prove it:'
+    source=edit_once(source,anchor,helper+anchor,edits)
+    anchor='#pragma unroll\n    for (int s = 0; s < ST; ++s) load(s, s);'
+    check='static_assert(FMT==1 && RT==1 && DIAG==0 && '+('CP==2 && ST==2' if cp else 'XM==7 && TG==1 && ST==1')+', "fixed PDL preamble");\n'
+    words=['my_e'] if cp else ['my_e']+['(uint32_t)w[0][0][%d].%s'%(l,c) for l in range(3) for c in 'xyzw']
+    wait='    '+prefix+'_pdl_wait('+' ^ '.join(words)+');\n'
+    source=edit_once(source,anchor,check+(wait+anchor if cp else anchor+'\n'+wait),edits)
+    size=int(re.search(r'cudaLaunchAttribute at\[(\d+)\];',source)[1])
+    source=edit_once(source,'cudaLaunchAttribute at[%d];'%size,'cudaLaunchAttribute at[%d];'%(size+1),edits)
+    attr=('  const int pdl_attr = lc.numAttrs;\n'
+          '  at[pdl_attr].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n'
+          '  at[pdl_attr].val.programmaticStreamSerializationAllowed = 1;\n'
+          '  lc.attrs = at; lc.numAttrs = pdl_attr + 1;\n')
+    source=edit_once(source,'  if (query == 1) {',attr+'  if (query == 1) {',edits)
+    inverse=source
+    for a,b in reversed(edits):
+        assert inverse.count(b)==1
+        inverse=inverse.replace(b,a)
+    assert inverse==original
+    return source,{'exact_inverse':True,'prologue':'cp2' if cp else 'xm7','edits':[{'old':a,'new':b} for a,b in edits]}
+
+
 def pdli_make_sources():
     items = [
         ('o1','smallm2',tt_v10_sm2_SMALLM2_CUDA_TEMPLATE,V12_SM2_O1['o',1][0],'o'),
@@ -8006,12 +8039,22 @@ def pdli_make_sources():
         ('u8','smtrace',tt_v13_smtrace8_SMTRACE_CUDA_TEMPLATE,tt_v13_smtrace8_SMTRACE_ROUTES['unpooler',8][0],'u'),
         ('q1','v18d_native',v18d_SM_CUDA_TEMPLATE,(1,1,1,2,2,0,256,0,2304,8192,1,4,8,4),'q'),
         ('q8','qs_literal_owner5_decode5',BUNDLE_QKV_CUDA,(1,1,1,2,5,0,256,8,2304,8192,1,4,8,4),'q'),
+        ('q16','r3_qkv16_qkv_gate_push_d9_cap6_a_m32x_q',b2q_tt_v10_m32x__Q_CUDA,(1,2,1,1,5,0,128,0,2304,8192,1,4,8,4,7,1,0),'q'),
+        ('q32','m32x_q',tt_v10_m32x__Q_CUDA,(1,4,1,1,5,0,128,0,2304,8192,1,4,8,4,7,1,0),'q'),
+        ('o16','m16trace_59fcb5b72994',mt_M16TRACE_SOURCES['o'][1],mt_M16TRACE_ROUTES['o']['inst'],'o'),
+        ('u16','dd_cap2_b_cpssm',dd_decodediet_CPSSM_CUDA_TEMPLATE,(1,2,1,2,0,0,256,0,8192,4096,2,4,16,1,2),'u'),
     ]
     sources, specs, records = {}, {}, {}
     for name, prefix, source, inst, kind in items:
         source = source.replace('@@CASES@@','')
+        medium=int(name[1:])>=16
+        if medium:
+            # Export only the selected C12 specialization, not the unused BF16 dispatcher.
+            source=re.sub(r'^case [^\n]+','',source,flags=re.M)
         parent_hash = hashlib.sha256(source.encode()).hexdigest()
-        if kind in ('o','r'):
+        if medium:
+            source,proof=pdli_medium(source,prefix,inst)
+        elif kind in ('o','r'):
             source, proof = twin(source,prefix,inst,fused=kind=='r',form='call')
         elif kind == 'u':
             source, proof = pdli_unpool(source,inst)
@@ -8040,6 +8083,7 @@ def pdli_pack(sources,specs):
         assert includes <= {'cuda_runtime.h','cuda_bf16.h','stdint.h','algorithm','type_traits','cooperative_groups.h'},includes
         body = re.sub(r'^\s*#include\s+<[^>]+>[^\n]*\n','',source,flags=re.M)
         cuda += '\nnamespace pdli_'+name+' {\n'+body+'\n}\n#undef SMD\n'
+        cuda += '#undef IFD\n#undef M32D\n#undef CPSSD\n'
         if '#define DC2_DECODE' in body:
             cuda += '#undef DC2_DECODE\n'
         for suffix,types,target in (
@@ -8056,7 +8100,8 @@ def pdli_pack(sources,specs):
     return cuda,cpp,functions
 
 _PDLI_EXPECTED = {'o1': '116212cd178d0f885b68a4b7f2cc0dcdbc22b7052dc9f4cfa688da26a811974c', 'o8': '435e7f65ef1d56e903a428cf5d0dbb67d1aa11c580a049b55a5d3311212e1e5e', 'r1': 'fa82410b1833f245d3a036e442b951f5405a50cef84822c1094b0dc5c8d38571', 'r8': 'f82767cd894da379abfc96cc79f5e51c92080694d39b171bb3e4863b1d1542d8', 'u1': 'e3d66bbf5ce64090cbefc7948a28fc653496013b9ed380a9b70c6cc304d409ff', 'u8': 'c3d8a7eb0342bab42fc40102de85b47e8f1235d6b5aeed3b255e2a3ac098c002', 'q1': '2079ad9890dd97171597bcdef12456aa71abe6ae90dd3dc39e9b88f2cc5d63fb', 'q8': 'd3972adcaec566a7d9dfd3969670b2030a5da55b15aff1f1feff4d6c34f54758'}
-_PDLI_COMBINED_HASH = '785ba7a5b64d17632d15ae7918cba5684972f3f7517f0ef992076b057746af15'
+_PDLI_EXPECTED.update({'q16':'10cf7b0398a9a5dbf5df70de0a415b2e7f22e4e6f53720dc8b7b8e358bf7ad65','q32':'b1802bf53b615d7630709af78ace885d3f155ebee86923affab8bd93e4509025','o16':'aa74ea15cb8d65532374904d78f49913d02eae6c091cd9c224ad7bcc62e452d1','u16':'1112d66f1c03a4f303974d01d57682ed1ef56a7586241029bb8d5ab6d22dae0e'})
+_PDLI_COMBINED_HASH = '294d6d7fcdb70e520cdc49d4c945bc44a35cee02e5142409235a67c72e329cc8'
 
 def _p25_fpr(x, state, pdl):
     global _fpr_PDL
@@ -8074,10 +8119,10 @@ def _pdli_layer(data, state, mask):
  (batch, length, tokens) = (cfg['batch'], cfg['q_len'], cfg['tokens'])
  (hq, hkv, d) = (cfg['num_q_heads'], cfg['num_kv_heads'], cfg['head_dim'])
  dense = state['dense']
- qkv = _pdli_project(data['attn_input'], 'qkv_gate', state) if mask & 1 else _achita_dense_project(data['attn_input'], 'qkv_gate', state)
+ qkv = _pdli_project(data['attn_input'], 'qkv_gate', state) if mask & (1|2048) else _achita_dense_project(data['attn_input'], 'qkv_gate', state)
  attention_data = dict(data, qkv=qkv.reshape(batch, length, -1))
- o = _pdli_attention(attention_data, bool(mask & 1)).reshape(tokens, hq * d)
- attn_output = _pdli_project(o, 'o', state) if mask & 2 else _achita_dense_project(o, 'o', state)
+ o = _pdli_attention(attention_data, bool(mask & (1|2048))).reshape(tokens, hq * d)
+ attn_output = _pdli_project(o, 'o', state) if mask & (2|4096) else _achita_dense_project(o, 'o', state)
  split_router = tokens > ROUTER_FP32_MAX_TOKENS
  rn = tokens == 1 and bool(mask & 128)
  if rn:
@@ -8117,7 +8162,7 @@ def _pdli_layer(data, state, mask):
   unpooled = _pdli_project(expert_output, 'unpooler', state) if mask & 8 else _achita_dense_project(expert_output, 'unpooler', state, UNPOOL_SLICE)
   next_attn_input, stream = _sfn_boundary(stream, unpooled, state, pdl=bool(mask & 16))
  else:
-  ffn_output = _achita_dense_project(expert_output, 'unpooler', state)
+  ffn_output = _pdli_project(expert_output, 'unpooler', state) if mask & 8192 else _achita_dense_project(expert_output, 'unpooler', state)
   next_attn_input, stream, _ = state['ffn_boundary'](stream, ffn_output, branch_dtype=torch.bfloat16)
  return (next_attn_input, stream, topk_ids)
 
@@ -8195,6 +8240,7 @@ def _pdli_rc(rc, what):
 def _pdli_project(x, layer, state):
     m = x.shape[0]
     kind,n,k = {'qkv_gate':('q',2304,8192),'o':('o',8192,1024),'unpooler':('u',1024,4096)}[layer]
+    if layer=='unpooler' and m>8:n=8192
     name = kind + str(m)
     pp = state['pdli']['plans'][name]
     if x.dtype != torch.bfloat16 or not x.is_contiguous() or x.data_ptr()%16 or x.shape[1]!=k:
@@ -8230,7 +8276,7 @@ def _pdli_attention(data, on):
     return _native_attn_kernel_fn(data)
 
 
-_PDLI_SELECTOR_REV = 'p25_sk2pdl'
+_PDLI_SELECTOR_REV = 'p31_pdl16'
 
 
 def _pdli_tol_pair(label,seed,index,a,b,n_out):
@@ -8398,6 +8444,7 @@ def _pdli_prepare_plans(state):
     bundle = _r2_find(dense,'bundle') or {}
     sp1 = _r2_find(dense,'v12_smtrace1') or {}
     sp8 = _r2_find(dense,'v13_smtrace8') or {}
+    b2 = _r2_find(dense,'bundle2') or {}
     p = {
         'o1':(_r2_find(dense,'v12_o1') or {}).get('plans',{}).get(('o',1)),
         'o8':v18.get('plans',{}).get(('o',8)),
@@ -8405,15 +8452,22 @@ def _pdli_prepare_plans(state):
         'q8':bundle.get('qkv'),
         'u1':sp1.get('plans',{}).get(('unpooler','m',1)),
         'u8':sp8.get('plans',{}).get(('unpooler','m',8)),
+        'q16':b2.get('qkv'),
+        'q32':(_r2_find(dense,'v10_m32x') or {}).get('plans',{}).get('qkv_gate'),
+        'o16':bundle.get('mt',{}).get('plans',{}).get('o'),
+        'u16':bundle.get('dd',{}).get('cps',{}).get('plans',{}).get(('unpooler','mt',2)),
     }
     for m in (1,8):
         p['r'+str(m)] = state['r2'][m][1] if m in state.get('r2sel',()) else None
     out = {}
     for name,pp in p.items():
-        if pp is None or name not in _PDLI_EXT:
+        if not pp or name not in _PDLI_EXT:
             print('PDLI_PLAN_SKIP',name,'absent',flush=True)
             continue
         inst = _PDLI_SPECS[name]['instance']
+        if name=='u16' and (tuple(pp.get('inst',()))!=inst[:-1] or pp.get('depth')!=2):
+            print('PDLI_PLAN_SKIP',name,'instance/depth mismatch',flush=True)
+            continue
         # Bundle QKV is a packed stream with the same fixed geometry, without a cfg entry.
         cfg = tuple(pp.get('cfg',(1,4,8,4)))
         if pp.get('fmt')!=inst[0] or cfg!=tuple(inst[10:14]):
@@ -8429,6 +8483,64 @@ def _pdli_prepare_plans(state):
     state['pdli']['plans'] = out
     state['pdli']['routing_scratch'] = {'parts':torch.empty_like(state['rf']['parts']),
                                        'counter':torch.zeros((1,),dtype=torch.int32,device=state['rf']['weight'].device)}
+
+
+def _p31_select(data,state,base,gen,dev,t0,tag):
+    # New bits: 2048 QKV+native attention, 4096 O, 8192 full unpooler.
+    # O32 (async WGMMA) and U32 (TMA+WGMMA) have different prologues;
+    # do not reuse the register/cp.async derivation for them.
+    if not _okh_budget(t0,270.):return base
+    m=data['config']['tokens']; plans=state['pdli']['plans']
+    cache=(data['k_cache'],data['v_cache'])
+    def mutate(seed):
+        data['attn_input'].normal_(generator=gen);data['stream'].normal_(generator=gen)
+    def qa(on):
+        q=(_pdli_project if on else _achita_dense_project)(data['attn_input'],'qkv_gate',state)
+        return q,_pdli_attention(dict(data,qkv=q.reshape(m,1,-1)),on)
+    qfixed=_achita_dense_project(data['attn_input'],'qkv_gate',state).reshape(m,1,-1)
+    ad=dict(data,qkv=qfixed)
+    def ofn(on):
+        a=_native_attn_kernel_fn(ad).reshape(m,1024)
+        return a,(_pdli_project if on else _achita_dense_project)(a,'o',state)
+    def omut(seed):qfixed.normal_(generator=gen)
+    xx=torch.randn((m,4096),device=dev,generator=gen).to(torch.bfloat16)
+    ids=torch.full((m,8),-1,dtype=torch.int32,device=dev);ids[:,0]=0
+    tw=torch.full((m,8),.125,device=dev)
+    def ufn(on):
+        e=_experts(xx,tw,ids,state,pdl=bool(base&16))
+        return e,(_pdli_project if on else _achita_dense_project)(e,'unpooler',state)
+    def umut(seed):
+        xx.normal_(generator=gen);ids.fill_(-1)
+        if seed!=1:ids[:,0]=0
+        if seed==2:ids.copy_(torch.arange(8,dtype=torch.int32,device=dev).expand(m,8))
+    components=[]
+    if 'q'+str(m) in plans and 'attention' not in _PDLI_ERRORS and _native_attn__supported(data['config']) and _native_attn__fits(ad):
+        components.append((2048,'qa',{'parent':lambda:qa(False),'pdl':lambda:qa(True)},mutate,cache))
+    if 'o'+str(m) in plans:
+        components.append((4096,'o',{'parent':lambda:ofn(False),'pdl':lambda:ofn(True)},omut,cache))
+    if 'u'+str(m) in plans:
+        components.append((8192,'u',{'parent':lambda:ufn(False),'pdl':lambda:ufn(True)},umut,None))
+    passed=[]
+    for bit,kind,arms,mut,kv in components:
+        if not _okh_budget(t0,270.):return base
+        ok=_pdli_probe(arms,mut,kv,'p31_'+kind+'_'+tag,tol=True)
+        print('PDLI_P31_PROBE',tag,kind,ok,flush=True)
+        if ok:passed.append((bit,kind,arms))
+    ids.fill_(-1);ids[:,0]=0
+    extra=sum(bit for bit,_,_ in passed)
+    def whole(bits):
+        if not _okh_budget(t0,270.):return False
+        return _pdli_ab('whole_layer_p31_'+tag+'_'+str(bits),{
+            'parent':lambda:_pdli_layer(data,state,base) if base else _pdli_parent_kernel_fn(data,state),
+            'pdl':lambda:_pdli_layer(data,state,base|bits)},mutate,dev,t0-8.,cache,tol=True) and _okh_budget(t0,270.)
+    if extra and whole(extra):return base|extra
+    subset=0
+    if len(passed)>1:
+        for bit,kind,arms in passed:
+            if not _okh_budget(t0,270.):break
+            if _p16_robust_time('p31_'+kind+'_'+tag,arms,dev,t0,270.):subset|=bit
+        if subset and subset!=extra and whole(subset):return base|subset
+    return base
 
 
 def _pdli_select(state,t0):
@@ -8513,7 +8625,7 @@ def _pdli_select(state,t0):
                 if ok:
                     state['pdli']['selected'][m,bool(sliding)] = mask
             print('PDLI_SELECT',tag,'mask=',state['pdli']['selected'].get((m,bool(sliding)),0),flush=True)
-    # Glue-only PDL (bit 16: Triton twin + MoE launch) for 16/32-token decode layers, gated by whole-layer paired A/B.
+    # Preserve the p25 glue/sk2 gate, then require an incremental whole-layer win.
     for m in (16,32):
         for sliding in (True,False):
             if not _okh_budget(t0,276.0):break
@@ -8530,6 +8642,13 @@ def _pdli_select(state,t0):
                 if ok:
                     state['pdli']['selected'][m,bool(sliding)] = cand
                     break
+            base=state['pdli']['selected'].get((m,bool(sliding)),0)
+            try:
+                chosen=_p31_select(data,state,base,gen,dev,t0,tag)
+                if chosen:state['pdli']['selected'][m,bool(sliding)]=chosen
+            except Exception as e:
+                # A failed medium probe must not erase already validated p25/M1/M8 choices.
+                print('PDLI_P31_ERROR',tag,repr(e)[-600:],flush=True)
             print('PDLI_SELECT',tag,'mask=',state['pdli']['selected'].get((m,bool(sliding)),0),flush=True)
             del data,cache
 

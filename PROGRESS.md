@@ -101,4 +101,7 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 | O4 | Oracle-lite #3, new strategies (user request) | says <2% is left in single-kernel tuning. 3 of 4 ideas rest on wrong premises (only 2 KV heads/GPU; EP8 gives ~8-10 tokens per expert, so bs256 is ~93% of the HBM floor; dense 2 MMA groups already tested). Kept idea: fold `_sfn` into the unpooler's last block (only ever closed by inspection) | -> pass 29 | oracle (Argon) | $104 |
 | 29 | `_sfn` folded into the unpooler tail (`decoder_p28_sfnfold.py`, `17ef7061`, 2.0834x) | bit-exact (rel 0), but no whole-layer gain; not selected | closed | hard-fixer | $107 |
 | S3 | Scored run of pass 27 (`decoder_p25_sk2pdl.py`, `35724766`) | valid 2.0877x (noise; board best stays 2.0970) | not published | - | $108 |
-| 30 | Extend PDL twins to the 16/32-token qkv, attention, o and unpooler kernels, gated by robust whole-layer A/B (`decoder_p31_pdl16.py`) | building | - | hard-fixer | $108 |
+| 30 | PDL twins for the 16/32-token qkv, attention, o and unpooler (`decoder_p31_pdl16.py`, `2014d84e`, 2.0787x) | all **slower**: whole layer M16 1.03-1.06; o 1.10-1.16, unpooler 1.12, qkv+attn 1.01-1.08. The weight prologue before the wait contends with the running producer at 16/32 | closed | hard-fixer | $110 |
+
+| 31 | Early-trigger private norm at 16/32 tokens (`decoder_p32_norm16.py`, `ba1e91bb`, 2.0840x) | norms bit-equal; attention-boundary early norm + sk2 PDL selected at M16 sliding and M32 sliding (0.989/0.988); FFN-boundary early norm no gain | kept (lineage head); scored run `69d26d1c` | hard-fixer | $112 |
+| S4 | Scored run of pass 31 (`decoder_p32_norm16.py`, `69d26d1c`) | valid 2.0883x (noise band 2.07-2.10; board best stays 2.0970) | not published | - | $113 |
