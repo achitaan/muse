@@ -129,4 +129,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | M4 | MAIN wide jobs g=2 (cap 128) (`moe_b4.py`; diag `8f3b54a3`, check `d9a36269` 2.199x) | much slower: R128/R256 1.32x, no-dup cases 1.05x (18 KiB stages, 2 ring slots) | closed | hard-fixer | $118 |
 
 | M5 | Hint only: sibling-job weights with EVICT_NORMAL (`moe_b5.py`, `c384c9f1` 2.3372x) / EVICT_LAST (`moe_b6.py`, `2518c47e` 2.3390x) | no gain at bs128/256 (sibling units run ~40 us apart) | closed | direct | $118 |
-| M6 | Interleave sibling jobs' units + EVICT_NORMAL hint (`moediag6.py`, `moe_b7.py`) | building | - | hard-fixer | $118 |
+| M6 | Interleave sibling jobs' units + EVICT_NORMAL (`moediag6.py` `b9ccafb6`, `moe_b7.py` check `23e9c699` 2.318x) | interleave slower (1.00-1.03x, not bit-equal); hint alone bit-equal 0.98 at R128, 0.994 at R256. L2 re-reads don't recover the duplicate cost: per-stage CTA throughput limits MAIN | closed | hard-fixer | $120 |
+
+| O3 | Oracle consult (3rd oracle call this task): ranked plan to bring the MoE kernel toward its stream floor, from the D-MoE diagnostics | running | - | oracle | $120 |
