@@ -138,4 +138,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | D-RING | Pure TMA-ring streaming ceilings (`ringdiag.py`, `8790011b`) | every ring shape 3.91-3.97 TB/s with the evict_first hint, 4.12-4.14 without; ldg.nc.v4 4.06-4.12. Ring geometry is not the limit | diagnostic | fixer | $124 |
 
 | M9 | No evict_first hint on MoE weight copies (`moe_b10.py` `e5f90e85` 2.2999x; diag `e9935c6c`) | slower in the real kernel: R256 1.03, R128 1.006, R32 0.985 (the hint protects inter/ybuf/x reuse) | closed | direct | $125 |
-| M10 | MAIN without the x gather pass: x producer copies token rows straight from hidden_states (`moe_b11.py`, `moediag9.py`) | building | - | hard-fixer | $125 |
+| M10 | MAIN without the x gather pass (`moe_b11.py` `d620c2fc` 2.1271x; diag `d823d36c`) | far slower: 1.17x at R32, 1.55-1.62x at R128/R256 (16-B cp.async cells, spills) | closed | hard-fixer | $127 |
+
+| 33 | Decode: MoE HINT + ERL ported into the lineage (`decoder_p34_moehe.py`, check `a7efb0cd` 2.0880x, scored `a40cbaf0` 2.0867x) | bit-identical MoE; within noise; lineage head now p34 | kept (no publish) | direct | $127 |
