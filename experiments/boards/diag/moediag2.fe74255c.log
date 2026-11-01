@@ -1,0 +1,70 @@
+MD_INFO v=2 device='NVIDIA H200' reps=24 flush_MiB=256 raw_events=1 seed_source=f0f01b3229f94cbb parent=331148716e8d
+MD_NOTE NOX=zero_x_init_per_launch NOMMA=payload_checksums_and_single_x_smem_scan NOB=zero_y_finalizer STREAM=unique_weight_bytes MB=1e6 TL=no_new_CTA_barriers_firstslot_probe Wready_obs=full_TMA_consumer_observation_not_first_HBM_byte units=MAIN_256rows_WS_16rows Aearly_is_not_idle_B_may_overlap
+MD_CASE bs=1 build=TINY routes=2 jobs=2 touched=2 A_job_MB=37.749 B_job_MB=18.874
+MD_CASE bs=8 build=TINY2 routes=12 jobs=6 touched=6 A_job_MB=113.246 B_job_MB=56.623
+MD_CASE bs=16 build=MID routes=22 jobs=13 touched=13 A_job_MB=245.367 B_job_MB=122.683
+MD_CASE bs=32 build=MAIN routes=60 jobs=16 touched=16 A_job_MB=301.990 B_job_MB=150.995
+MD_CASE bs=128 build=MAIN routes=217 jobs=24 touched=23 A_job_MB=452.985 B_job_MB=226.492
+MD_CASE bs=256 build=MAIN routes=449 jobs=28 touched=25 A_job_MB=528.482 B_job_MB=264.241
+MD_JOBS bs=256 source=routing_exact_order units_per_job=32A/16B e:tokens:nt=1:64:8,1:11:2,2:51:7,3:64:8,3:64:8,3:16:2,9:20:3,11:10:2,12:9:2,17:12:2,21:15:2,22:42:6,26:10:2,0:8:1,4:2:1,6:2:1,7:1:1,8:6:1,10:2:1,13:6:1,14:2:1,15:6:1,16:1:1,19:6:1,23:3:1,28:8:1,29:1:1,31:7:1
+MD_SETUP seconds=0.7
+MD_BUILD build=MID variants=BASE,NOB seconds=35.0
+MD_RES build=MID var=BASE regs=148/148 smem=0/0+214784 local_B=0/0 th=288
+MD bs=16 var=BASE med_us=109.680 min_us=108.192 touched=13 MB=368.050176 TBps=3.356
+MD bs=16 var=STREAM med_us=98.976 min_us=97.984 touched=13 MB=368.050176 TBps=3.719
+MD_RES build=MID var=NOB regs=143/143 smem=0/0+214784 local_B=0/0 th=288
+MD bs=16 var=NOB med_us=77.856 min_us=75.840 touched=13 MB=368.050176 TBps=4.727
+MD_BUILD build=TINY variants=BASE,NOB,NOX,NOMMA,TL seconds=63.5
+MD_RES build=TINY var=BASE regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=BASE med_us=30.896 min_us=30.560 touched=2 MB=56.623104 TBps=1.833
+MD bs=1 var=STREAM med_us=25.760 min_us=24.960 touched=2 MB=56.623104 TBps=2.198
+MD_RES build=TINY var=NOB regs=128/128 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=NOB med_us=23.664 min_us=23.232 touched=2 MB=56.623104 TBps=2.393
+MD_RES build=TINY var=NOX regs=72/72 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=NOX med_us=30.064 min_us=29.632 touched=2 MB=56.623104 TBps=1.883
+MD_RES build=TINY var=NOMMA regs=103/103 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=NOMMA med_us=29.424 min_us=28.896 touched=2 MB=56.623104 TBps=1.924
+MD_RES build=TINY var=TL regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=1 var=TL med_us=31.312 min_us=30.592 touched=2 MB=56.623104 TBps=1.808
+MD_TL bs=1 us=min/med/max entry=0.00/0.26/0.35 Wready_obs=3.04/3.68/4.99 Adone=16.38/18.10/18.62 Bfirst=13.66/15.60/17.57 Bdone=22.85/24.06/24.45 exit=25.47/25.60/26.18 Au=7/8/8 Bu=3/4/4 Ast=7/8/8 Bst=3/4/4 jnt=2 At256x8=NA Atail=0.51 Aearly1us=26 BoverA=132 idleAB=0 noA=0 TL_BASE=1.013 err=0 last_cold=1
+MD_BUILD build=TINY2 variants=BASE,NOB,NOX,NOMMA,TL seconds=73.4
+MD_RES build=TINY2 var=BASE regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=BASE med_us=59.168 min_us=57.792 touched=6 MB=169.869312 TBps=2.871
+MD bs=8 var=STREAM med_us=54.640 min_us=53.440 touched=6 MB=169.869312 TBps=3.109
+MD_RES build=TINY2 var=NOB regs=128/128 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=NOB med_us=42.608 min_us=41.984 touched=6 MB=169.869312 TBps=3.987
+MD_RES build=TINY2 var=NOX regs=72/72 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=NOX med_us=57.776 min_us=56.544 touched=6 MB=169.869312 TBps=2.940
+MD_RES build=TINY2 var=NOMMA regs=103/103 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=NOMMA med_us=58.048 min_us=56.832 touched=6 MB=169.869312 TBps=2.926
+MD_RES build=TINY2 var=TL regs=144/144 smem=0/0+214784 local_B=0/0 th=288
+MD bs=8 var=TL med_us=59.472 min_us=58.208 touched=6 MB=169.869312 TBps=2.856
+MD_TL bs=8 us=min/med/max entry=0.00/0.10/0.32 Wready_obs=3.17/3.71/5.82 Adone=32.74/35.15/36.77 Bfirst=30.82/33.58/36.22 Bdone=49.15/50.70/52.42 exit=53.70/53.92/54.43 Au=23/23/24 Bu=11/12/12 Ast=23/23/24 Bst=11/12/12 jnt=6 At256x8=NA Atail=1.54 Aearly1us=124 BoverA=132 idleAB=0 noA=0 TL_BASE=1.005 err=0 last_cold=1
+MD_BUILD build=MAIN variants=BASE,NOB,NOX,NOMMA,TL seconds=105.1
+MD_RES build=MAIN var=BASE regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=BASE med_us=139.040 min_us=136.704 touched=16 MB=452.984832 TBps=3.258
+MD bs=32 var=STREAM med_us=119.440 min_us=118.176 touched=16 MB=452.984832 TBps=3.793
+MD bs=128 var=BASE med_us=197.104 min_us=195.264 touched=23 MB=651.165696 TBps=3.304
+MD bs=128 var=STREAM med_us=161.792 min_us=160.128 touched=23 MB=651.165696 TBps=4.025
+MD bs=256 var=BASE med_us=238.368 min_us=236.160 touched=25 MB=707.788800 TBps=2.969
+MD bs=256 var=STREAM med_us=178.304 min_us=175.968 touched=25 MB=707.788800 TBps=3.970
+MD_RES build=MAIN var=NOB regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=NOB med_us=99.344 min_us=97.248 touched=16 MB=452.984832 TBps=4.560
+MD bs=128 var=NOB med_us=143.040 min_us=140.032 touched=23 MB=651.165696 TBps=4.552
+MD bs=256 var=NOB med_us=172.480 min_us=169.760 touched=25 MB=707.788800 TBps=4.104
+MD_RES build=MAIN var=NOX regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=NOX med_us=138.096 min_us=135.872 touched=16 MB=452.984832 TBps=3.280
+MD bs=128 var=NOX med_us=195.456 min_us=193.152 touched=23 MB=651.165696 TBps=3.332
+MD bs=256 var=NOX med_us=234.384 min_us=232.608 touched=25 MB=707.788800 TBps=3.020
+MD_RES build=MAIN var=NOMMA regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD bs=32 var=NOMMA med_us=132.192 min_us=130.752 touched=16 MB=452.984832 TBps=3.427
+MD bs=128 var=NOMMA med_us=188.848 min_us=186.944 touched=23 MB=651.165696 TBps=3.448
+MD bs=256 var=NOMMA med_us=226.256 min_us=221.568 touched=25 MB=707.788800 TBps=3.128
+MD_RES build=MAIN var=TL regs=96/96 smem=0/0+231168 local_B=16/16 th=576
+MD bs=32 var=TL med_us=140.144 min_us=137.920 touched=16 MB=452.984832 TBps=3.232
+MD_TL bs=32 us=min/med/max entry=0.00/0.19/0.32 Wready_obs=5.34/7.38/10.21 Adone=79.68/87.87/91.36 Bfirst=77.60/86.96/90.75 Bdone=122.05/125.55/129.34 exit=130.56/130.78/133.66 Au=4/5/5 Bu=2/3/3 Ast=52/63/63 Bst=29/31/32 jnt=17 At256x8=544 Atail=3.58 Aearly1us=126 BoverA=132 idleAB=0 noA=0 TL_BASE=1.008 err=0 last_cold=1
+MD bs=128 var=TL med_us=199.776 min_us=198.112 touched=23 MB=651.165696 TBps=3.259
+MD_TL bs=128 us=min/med/max entry=0.00/0.14/0.26 Wready_obs=6.88/9.54/11.87 Adone=115.49/126.75/135.52 Bfirst=115.49/126.24/134.11 Bdone=172.58/182.37/189.44 exit=190.98/193.06/194.40 Au=4/7/7 Bu=2/4/4 Ast=54/101/102 Bst=28/48/49 jnt=38 At256x8=1216 Atail=8.70 Aearly1us=131 BoverA=132 idleAB=0 noA=0 TL_BASE=1.014 err=0 last_cold=1
+MD bs=256 var=TL med_us=241.904 min_us=239.648 touched=25 MB=707.788800 TBps=2.926
+MD_TL bs=256 us=min/med/max entry=0.00/0.19/0.32 Wready_obs=8.96/12.46/15.01 Adone=140.90/153.33/161.09 Bfirst=140.77/152.66/160.19 Bdone=212.26/222.93/229.31 exit=232.16/235.78/237.34 Au=5/8/10 Bu=3/5/5 Ast=70/109/131 Bst=35/59/62 jnt=69 At256x8=2208 Atail=7.68 Aearly1us=126 BoverA=132 idleAB=0 noA=0 TL_BASE=1.015 err=0 last_cold=1
+MD_DONE seconds=105.5

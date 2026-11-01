@@ -120,4 +120,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | D-MoE | MoE ablation diagnostic (`moediag.py`, prefill check `e488500f`) | cold-L2 us BASE/stream floor: bs1 30.9/25.0, bs8 58.8/53.9, bs16 108.8/98.6, bs32 139.2/119.4, bs128 196.0/160.6, bs256 238.3/177.4. Dequant off and finalizer off change nothing. Phase B off: 23.3/42.7/77.2/99.0/140.8/172.1, so MAIN phase A streams only ~3.0 TB/s vs 4.0 floor. Closing half of the gap to the floor ~ +9% MoE board | diagnostic | hard-fixer | $110 |
 
-| D-MoE2 | Second diagnostic: x-load off, MMA off, per-CTA timeline (MAIN, TINY) | building | - | hard-fixer | $110 |
+| D-MoE2 | x-load off / MMA off / per-CTA timeline (`fe74255c`) | x off -1..-2%, MMA off -2..-5%: neither limits. Steady state ~3.75 TB/s. Losses: slow start (weights first consumed 7.4/9.5/12.5 us after entry at bs32/128/256), B last-wave quantization (bs256 448 B units over 132 CTAs, B-done spread 17 us) and 3-7 us after the last B unit | diagnostic | hard-fixer | $111 |
+
+| D-MoE3 | EARLYW (first weight stages before setup/sync) and BTAIL (finer B units in the last wave), measured in the diag harness with bit-equality vs BASE | building | - | hard-fixer | $111 |
