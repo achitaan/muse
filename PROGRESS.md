@@ -153,4 +153,5 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | -- | User decision (Nov 1): fresh large-batch MoE on branch `argon/moe-fresh-large-20261101` (`.slim/worktrees/moe-large`) | - | - | - | $136 |
 | L1 | MAIN register re-split (640 threads, consumers 112 / producer 32; zero spills; full stage capture) (`moe_l1.py` check `22bb61fd` 2.2811x; diag `79036669`) | slower: R32 1.03, R128 1.047, R256 1.063 vs BASE | closed | hard-fixer | $150 |
 | L2 | MAIN native wide jobs (shipped as N80; N96 serialized wgmma) (`moe_l2.py` check `70a3b3f6` 2.2457x; diag `8d55ab94`) | narrow outputs bit-equal but slower everywhere: R32 1.03, R128 1.09, R256 1.12 (spills) | closed; large-batch branch closed | hard-fixer | $160 |
-
+| S6 | Scored runs: MoE `moe_b13.py` `346a4b14` 2.3449x; Decode `decoder_p35_finreg.py` `412977a6` 2.0865x | neither beats the published bests | not published | direct | $168 |
+| -- | Researcher pivot query failed: ChatGPT subscription-sharing usage limit (GPT-based subagents unavailable until reset) | - | - | - | $168 |
