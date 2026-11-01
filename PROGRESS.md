@@ -141,3 +141,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | M10 | MAIN without the x gather pass (`moe_b11.py` `d620c2fc` 2.1271x; diag `d823d36c`) | far slower: 1.17x at R32, 1.55-1.62x at R128/R256 (16-B cp.async cells, spills) | closed | hard-fixer | $127 |
 
 | 33 | Decode: MoE HINT + ERL ported into the lineage (`decoder_p34_moehe.py`, check `a7efb0cd` 2.0880x, scored `a40cbaf0` 2.0867x) | bit-identical MoE; within noise; lineage head now p34 | kept (no publish) | direct | $127 |
+| S5 | MoE board scored run of `moe_b8.py` (HINT + ERL) `d11ae396` | 2.3696x (best stays 2.3797) | not published | direct | $116 |
+| -- | User decision (Nov 1): continue small items until $300 | - | - | - | $116 |
+| M11 | Skinny builds: expert-major strided unit assignment to shrink the A->B bubble (`moe_b12.py`, `moediag10.py`) | building | - | hard-fixer | $116 |
