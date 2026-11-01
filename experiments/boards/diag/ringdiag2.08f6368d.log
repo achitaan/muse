@@ -1,0 +1,22 @@
+RD_INFO NVIDIA H200 sms=132 torch 2.14.1+cu130 cuda 13.0; TBps=1e12 B/s of bytes moved, median us over 25 reps, L2 flushed (256MB write) before each
+RD_BUILD 22s
+RD_FLOOR 3x36 ring, 1 stage/CTA (4.9 MB): med_us=8.8 min_us=8.6
+RD cfg=3x36s12 hint=0 cw=8 order=contig med_us=24.6 min_us=24.3 TBps=2.370 TBps_best=2.407 MB=58
+RD cfg=3x36s12 hint=1 cw=8 order=contig med_us=22.5 min_us=22.1 TBps=2.596 TBps_best=2.637 MB=58
+RD cfg=3x36s12 hint=0 cw=16 order=contig med_us=24.7 min_us=24.5 TBps=2.361 TBps_best=2.385 MB=58
+RD cfg=6x36s12 hint=0 cw=8 order=contig med_us=24.6 min_us=24.3 TBps=2.370 TBps_best=2.401 MB=58
+RD cfg=ldg2x512u8 hint=- cw=- order=contig med_us=25.7 min_us=24.8 TBps=2.275 TBps_best=2.355 MB=58
+RD cfg=ldg1x1024u8 hint=- cw=- order=contig med_us=25.5 min_us=24.7 TBps=2.292 TBps_best=2.361 MB=58
+RD cfg=3x36s36 hint=0 cw=8 order=contig med_us=53.2 min_us=52.8 TBps=3.294 TBps_best=3.318 MB=175
+RD cfg=3x36s36 hint=1 cw=8 order=contig med_us=52.0 min_us=51.4 TBps=3.367 TBps_best=3.411 MB=175
+RD cfg=3x36s36 hint=0 cw=16 order=contig med_us=53.3 min_us=52.5 TBps=3.284 TBps_best=3.336 MB=175
+RD cfg=6x36s36 hint=0 cw=8 order=contig med_us=53.5 min_us=52.9 TBps=3.274 TBps_best=3.310 MB=175
+RD cfg=ldg2x512u8 hint=- cw=- order=contig med_us=54.4 min_us=53.7 TBps=3.222 TBps_best=3.264 MB=175
+RD cfg=ldg1x1024u8 hint=- cw=- order=contig med_us=54.9 min_us=53.7 TBps=3.188 TBps_best=3.262 MB=175
+RD cfg=3x36s78 hint=0 cw=8 order=contig med_us=97.6 min_us=96.3 TBps=3.889 TBps_best=3.941 MB=380
+RD cfg=3x36s78 hint=1 cw=8 order=contig med_us=100.5 min_us=99.1 TBps=3.777 TBps_best=3.831 MB=380
+RD cfg=3x36s78 hint=0 cw=16 order=contig med_us=97.8 min_us=96.1 TBps=3.881 TBps_best=3.950 MB=380
+RD cfg=6x36s78 hint=0 cw=8 order=contig med_us=97.8 min_us=96.4 TBps=3.881 TBps_best=3.937 MB=380
+RD cfg=ldg2x512u8 hint=- cw=- order=contig med_us=98.7 min_us=97.3 TBps=3.845 TBps_best=3.902 MB=380
+RD cfg=ldg1x1024u8 hint=- cw=- order=contig med_us=98.8 min_us=96.4 TBps=3.843 TBps_best=3.935 MB=380
+RD_DONE prepare 22s

@@ -146,3 +146,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | M11 | Skinny expert-major strided units (`moe_b12.py` `69df1e95` 2.2650x; diag `10af3ab8`) | slower: R1 1.01, R8 1.015, R16 1.033 | closed | hard-fixer | $117 |
 
 | M12 | MAIN finalizer pass 2 from registers (FINREG) on HINT+ERL (`moe_b13.py` `7e4461e4` 2.3327x; diag `c63e59ab`) | bit-identical; vs BASE R32 0.994, R128 0.979, R256 0.985 (adds ~0.5-1%) | kept (MoE lineage head) | direct | $117 |
+| 34 | Decode: MoE FINREG ported (`decoder_p35_finreg.py`; `0724cbc7` build fail from a missing brace, fixed; check `cba4891a` 2.0562x) | passes, noise band | kept (lineage head) | direct+fixer | $118 |
+| D-RING2 | Stream floors at the MoE skinny volumes (`ringdiag2.py`, `08f6368d`) | 58 MB 22.5-24.6 us vs TINY bs1 30.9 (+26-37%); 175 MB 52-53.5 vs TINY2 58.8 (+11%); 380 MB 97.6-100.5 vs MID 108.8 (+11%) | diagnostic | direct | $118 |
+| -- | User decision (Nov 1): new branch `argon/moe-fresh-small-20261101` (`.slim/worktrees/moe-fresh`) for a fresh small-batch MoE kernel (FS, M<=8) | - | - | - | $118 |
