@@ -1,0 +1,24 @@
+MD_INFO v=4 device='NVIDIA H200' reps=40 flush_MiB=256 cap=64 build=MAIN/BASE parent=331148716e8d
+MD_NOTE job cap FT_T=64 tokens (SK_T=8 skinny); NODUP/DUP3 keep touched set + routes; pass2 runs the cases in reverse order; STREAM=unique expert bytes once per bs
+MD_CASE case=R128 routes=217 jobs=24 touched=23 nt_sum=38 max_cnt=68 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:11,14:23,15:8,16:13,17:12,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:11,31:68
+MD_CASE case=R128_NODUP routes=217 jobs=23 touched=23 nt_sum=37 max_cnt=64 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:13,14:23,15:8,16:13,17:13,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:12,31:64
+MD_CASE case=R256 routes=449 jobs=28 touched=25 nt_sum=69 max_cnt=144 cnt=0:8,1:75,2:51,3:144,4:2,6:2,7:1,8:6,9:20,10:2,11:10,12:9,13:6,14:2,15:6,16:1,17:12,19:6,21:15,22:42,23:3,26:10,28:8,29:1,31:7
+MD_JOBS bs=256 e:tokens:nt=1:64:8,1:11:2,2:51:7,3:64:8,3:64:8,3:16:2,9:20:3,11:10:2,12:9:2,17:12:2,21:15:2,22:42:6,26:10:2,0:8:1,4:2:1,6:2:1,7:1:1,8:6:1,10:2:1,13:6:1,14:2:1,15:6:1,16:1:1,19:6:1,23:3:1,28:8:1,29:1:1,31:7:1
+MD_CASE case=R256_NODUP routes=449 jobs=25 touched=25 nt_sum=68 max_cnt=64 cnt=0:8,1:64,2:51,3:64,4:2,6:2,7:1,8:6,9:28,10:2,11:28,12:28,13:6,14:2,15:6,16:1,17:28,19:6,21:28,22:42,23:3,26:27,28:8,29:1,31:7
+MD_CASE case=R256_DUP3 routes=449 jobs=28 touched=25 nt_sum=69 max_cnt=128 cnt=0:8,1:75,2:65,3:128,4:2,6:2,7:1,8:6,9:20,10:2,11:11,12:10,13:6,14:2,15:6,16:1,17:12,19:6,21:15,22:42,23:3,26:10,28:8,29:1,31:7
+MD_SETUP seconds=0.7
+MD_BUILD build=MAIN TUs=1 seconds=34.5
+MD_RES build=MAIN var=BASE regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD case=R128 jobs=24 touched=23 routes=217 A_job_MB=452.985 uniq_MB=651.166 med_us=196.832 min_us=194.336 job_MB=679.477 TBps=3.308 pass=1
+MD case=STREAM128 jobs=0 touched=23 routes=0 A_job_MB=0.000 uniq_MB=651.166 med_us=160.784 min_us=159.456 job_MB=0.000 TBps=4.050 pass=1
+MD case=R128_NODUP jobs=23 touched=23 routes=217 A_job_MB=434.110 uniq_MB=651.166 med_us=189.264 min_us=187.264 job_MB=651.166 TBps=3.441 pass=1
+MD case=R256 jobs=28 touched=25 routes=449 A_job_MB=528.482 uniq_MB=707.789 med_us=238.976 min_us=236.352 job_MB=792.723 TBps=2.962 pass=1
+MD case=STREAM256 jobs=0 touched=25 routes=0 A_job_MB=0.000 uniq_MB=707.789 med_us=177.696 min_us=175.456 job_MB=0.000 TBps=3.983 pass=1
+MD case=R256_NODUP jobs=25 touched=25 routes=449 A_job_MB=471.859 uniq_MB=707.789 med_us=220.736 min_us=218.784 job_MB=707.789 TBps=3.206 pass=1
+MD case=R256_DUP3 jobs=28 touched=25 routes=449 A_job_MB=528.482 uniq_MB=707.789 med_us=240.384 min_us=238.080 job_MB=792.723 TBps=2.944 pass=1
+MD case=R256_DUP3 jobs=28 touched=25 routes=449 A_job_MB=528.482 uniq_MB=707.789 med_us=239.632 min_us=238.144 job_MB=792.723 TBps=2.954 pass=2
+MD case=R256_NODUP jobs=25 touched=25 routes=449 A_job_MB=471.859 uniq_MB=707.789 med_us=220.640 min_us=218.816 job_MB=707.789 TBps=3.208 pass=2
+MD case=R256 jobs=28 touched=25 routes=449 A_job_MB=528.482 uniq_MB=707.789 med_us=238.816 min_us=237.184 job_MB=792.723 TBps=2.964 pass=2
+MD case=R128_NODUP jobs=23 touched=23 routes=217 A_job_MB=434.110 uniq_MB=651.166 med_us=189.408 min_us=187.136 job_MB=651.166 TBps=3.438 pass=2
+MD case=R128 jobs=24 touched=23 routes=217 A_job_MB=452.985 uniq_MB=651.166 med_us=196.432 min_us=194.464 job_MB=679.477 TBps=3.315 pass=2
+MD_DONE seconds=34.8
