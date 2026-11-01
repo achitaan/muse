@@ -56,6 +56,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | MAIN XDIRECT on HINT+ERL: skip global phase-A x gather; warp cp.async 16B cells directly from routed hidden rows into unchanged WGMMA layout; zero padding; early weight handoff; B unchanged | closed | far slower on GPU: diag XDIRECT/BASE R32 1.166, R128 1.55, R256 1.62 (both orders); MoE check 2.1271x (bs128 227, bs256 293 us); spills 240/600 B | `d823d36c, d620c2fc` | experiments/boards/moe/moe_b11.py, diag/moediag9.py (decode-next) | Nov 01 |
 | Decode: port MoE HINT (sibling-job weights EVICT_NORMAL) + ERL (MAIN slot release at lg=2) into the Decode lineage (bit-identical MoE outputs) | kept | check 2.0880x (noise band; d32 full 288.1 vs 305.4 us, others +-1%); scored 2.0867x (board best stays 2.0970); kept as lineage head on diag evidence (MAIN -0.5..-1.7%) | `a7efb0cd, a40cbaf0` | experiments/top50/decoder_p34_moehe.py (decode-next) | Nov 01 |
 | Skinny builds (TINY/TINY2/MID): expert-major strided unit assignment (CTA c takes A units c, c+G, ...; same for B) so every CTA finishes expert 1's A units before expert 2's, letting B(e1) run while A(e2) drains, shrinking the A->B dependency bubble (bs1 A done 18.0 / B done 24.0 us) | in progress | decode-next moe_b12 / moediag10 | - | - | Nov 01 |
+| MoE board scored run of moe_b8 (HINT + ERL, bit-identical MAIN tweaks) | closed | scored 2.3696x (CI 2.334-2.405); board best stays 2.3797 | `d11ae396` | experiments/boards/moe/moe_b8.py (decode-next) | Nov 01 |
 
 ## Pooler + router
 
