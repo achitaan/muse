@@ -155,3 +155,5 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | L2 | MAIN native wide jobs (shipped as N80; N96 serialized wgmma) (`moe_l2.py` check `70a3b3f6` 2.2457x; diag `8d55ab94`) | narrow outputs bit-equal but slower everywhere: R32 1.03, R128 1.09, R256 1.12 (spills) | closed; large-batch branch closed | hard-fixer | $160 |
 | S6 | Scored runs: MoE `moe_b13.py` `346a4b14` 2.3449x; Decode `decoder_p35_finreg.py` `412977a6` 2.0865x | neither beats the published bests | not published | direct | $168 |
 | -- | Researcher pivot query failed: ChatGPT subscription-sharing usage limit (GPT-based subagents unavailable until reset) | - | - | - | $168 |
+| BLOCK | Judge API: every authenticated request (submit, status, problems with token, whoami) returns HTTP 530 since ~20:30 UTC Nov 1 (retried 40 min); public endpoints work and the queue shows 72 running jobs. icdiag.py (attention cold-icache diagnostic) ready but not run | waiting on user (token / okc login) | - | - | $169 |
+| -- | #50 thresholds at 21:15 UTC Nov 1: Decode 2.2935, MoE 2.4584, Attention 2.7208, Dense 1.5873 | - | - | - | - |
