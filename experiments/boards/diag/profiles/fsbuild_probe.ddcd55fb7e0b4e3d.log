@@ -1,0 +1,7 @@
+FSB_EXEC_OK
+FSB_ERR RuntimeError
+FSB_E NS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -lineinfo -c /tmp/muse_prefill_layer-u385ypom/sandbox/cache/torch_extensions/okc_moe_fs1_c5c18d42e975/cuda.cu -o cuda.cuda.o 
+FSB_E /opt/sglang/lib/python3.12/site-packages/torch/include/ATen/ATen.h:5:2: error: #error C++20 or later compatible compiler is required to use ATen.
+FSB_E     5 | #error C++20 or later compatible compiler is required to use ATen.
+FSB_E /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/all.h:5:2: error: #error C++20 or later compatible compiler is required to use PyTorch.
+FSB_E     5 | #error C++20 or later compatible compiler is required to use PyTorch.

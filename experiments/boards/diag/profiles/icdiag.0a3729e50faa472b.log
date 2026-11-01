@@ -1,0 +1,11 @@
+IC_INFO NVIDIA H200 torch 2.14.1+cu130 reps=40 us=med/min
+IC_BUILD 38s
+IC case=d1 cold=8.80/8.58 warmi=8.64/8.58 warm=9.02/8.51 d_ic=0.16 d_data=-0.38 d_ic_min=0.00 gen=0s
+IC case=d16 cold=12.58/12.22 warmi=12.16/11.94 warm=11.68/11.52 d_ic=0.42 d_data=0.48 d_ic_min=0.29 gen=0s
+IC case=d32 cold=15.58/15.17 warmi=15.63/15.20 warm=12.77/12.61 d_ic=-0.05 d_data=2.86 d_ic_min=-0.03 gen=0s
+IC case=v1 cold=11.10/10.82 warmi=11.04/10.85 warm=10.66/10.50 d_ic=0.06 d_data=0.38 d_ic_min=-0.03 gen=0s
+IC case=v16 cold=15.62/15.30 warmi=15.58/15.23 warm=15.04/14.75 d_ic=0.03 d_data=0.54 d_ic_min=0.06 gen=0s
+IC case=v32 cold=19.10/18.72 warmi=19.36/18.98 warm=18.42/18.21 d_ic=-0.26 d_data=0.94 d_ic_min=-0.26 gen=0s
+IC case=fd1 cold=16.74/16.35 warmi=16.30/15.90 warm=14.02/13.79 d_ic=0.43 d_data=2.29 d_ic_min=0.45 gen=0s
+IC case=fv1 cold=18.80/18.43 warmi=18.48/18.14 warm=17.54/17.28 d_ic=0.32 d_data=0.94 d_ic_min=0.29 gen=0s
+IC_DONE prepare 39s
