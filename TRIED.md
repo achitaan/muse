@@ -175,4 +175,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| moediag v3 EARLYW pre-gather TMA and BTAIL trailing-partial-first with unchanged stream-K partitions | in progress; offline diagnostic only, no GPU check; source .slim/worktrees/decode-next/experiments/boards/diag/moediag.py; baseline job fe74255c | decode-next | - | - | Oct 31 |
+| moediag v3 EARLYW pre-gather TMA and BTAIL trailing-partial-first with unchanged stream-K partitions | diagnostic ready, GPU pending: 16/16 offline CUDA builds pass; MAIN 96 regs 56/124 spill bytes, TINY 146 regs no spills; BASE SASS unchanged; 26-measurement control-flow tests pass; 9203-byte conservative log; artifact 3abb4c43b614, 98158 B | decode-next | `baseline fe74255c; v3 none` | .slim/worktrees/decode-next/experiments/boards/diag/moediag.py | Oct 31 |
