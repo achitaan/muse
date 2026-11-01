@@ -1,0 +1,43 @@
+MD_INFO v=L1 device='NVIDIA H200' reps=40 flush_MiB=256 BASE=b6390e9993ca L1=560812458313
+MD_NOTE pass1=cases_forward_BASE_L1 pass2=cases_reverse_L1_BASE; same_units_K_MMA_order; L1=640threads_112consumer_32producer_stagecapture; eq=bytes rel=elementwise_floor_1e-12; zero_disabled
+MD_CASE case=R32 routes=60 touched=16 jobs=16 job_MB=452.985 cnt=1:1,2:5,3:1,4:3,5:1,8:2,11:3,13:5,15:3,16:16,17:2,19:3,21:4,22:2,25:8,27:1
+MD_CASE case=R128 routes=217 touched=23 jobs=24 job_MB=679.477 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:11,14:23,15:8,16:13,17:12,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:11,31:68
+MD_CASE case=R128_NODUP routes=217 touched=23 jobs=23 job_MB=651.166 cnt=2:5,3:2,4:8,5:1,6:1,8:3,9:14,10:2,11:8,13:13,14:23,15:8,16:13,17:13,19:4,20:7,21:1,24:4,26:7,27:2,28:2,29:12,31:64
+MD_CASE case=R256 routes=449 touched=25 jobs=28 job_MB=792.723 cnt=0:8,1:75,2:51,3:144,4:2,6:2,7:1,8:6,9:20,10:2,11:10,12:9,13:6,14:2,15:6,16:1,17:12,19:6,21:15,22:42,23:3,26:10,28:8,29:1,31:7
+MD_CASE case=R256_DUP3 routes=449 touched=25 jobs=28 job_MB=792.723 cnt=0:8,1:75,2:65,3:128,4:2,6:2,7:1,8:6,9:20,10:2,11:11,12:10,13:6,14:2,15:6,16:1,17:12,19:6,21:15,22:42,23:3,26:10,28:8,29:1,31:7
+MD_CASE case=R256_NODUP routes=449 touched=25 jobs=25 job_MB=707.789 cnt=0:8,1:64,2:51,3:64,4:2,6:2,7:1,8:6,9:28,10:2,11:28,12:28,13:6,14:2,15:6,16:1,17:28,19:6,21:28,22:42,23:3,26:27,28:8,29:1,31:7
+MD_SETUP seconds=0.7
+MD_BUILD build=MAIN TUs=2 seconds=47.0
+MD_RES var=BASE regs=96/96 smem=0/0+231168 local_B=0/0 th=576
+MD_RES var=L1 regs=96/96 smem=0/0+231168 local_B=0/0 th=640
+MD case=R32 var=BASE pass=1 med_us=136.544 min_us=135.328 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=L1 pass=1 med_us=141.008 min_us=138.848 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=BASE pass=1 med_us=191.888 min_us=189.824 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=L1 pass=1 med_us=201.104 min_us=198.976 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=BASE pass=1 med_us=189.328 min_us=186.528 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=L1 pass=1 med_us=195.600 min_us=192.416 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=BASE pass=1 med_us=234.368 min_us=232.160 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=L1 pass=1 med_us=249.600 min_us=247.200 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_DUP3 var=BASE pass=1 med_us=235.888 min_us=233.248 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_DUP3 var=L1 pass=1 med_us=251.168 min_us=247.040 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=BASE pass=1 med_us=218.432 min_us=216.128 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=L1 pass=1 med_us=230.304 min_us=228.096 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=L1 pass=2 med_us=230.080 min_us=227.840 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_NODUP var=BASE pass=2 med_us=218.016 min_us=216.224 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_DUP3 var=L1 pass=2 med_us=249.424 min_us=246.784 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256_DUP3 var=BASE pass=2 med_us=235.312 min_us=232.736 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=L1 pass=2 med_us=247.904 min_us=245.120 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R256 var=BASE pass=2 med_us=233.632 min_us=231.648 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=L1 pass=2 med_us=195.056 min_us=193.024 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128_NODUP var=BASE pass=2 med_us=189.040 min_us=186.720 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=L1 pass=2 med_us=200.864 min_us=197.888 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R128 var=BASE pass=2 med_us=191.968 min_us=189.312 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=L1 pass=2 med_us=140.352 min_us=137.984 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R32 var=BASE pass=2 med_us=136.720 min_us=135.104 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD_SUM case=R32 L1_BASE=1.0327/1.0266
+MD_SUM case=R128 L1_BASE=1.0480/1.0463
+MD_SUM case=R128_NODUP L1_BASE=1.0331/1.0318
+MD_SUM case=R256 L1_BASE=1.0650/1.0611
+MD_SUM case=R256_DUP3 L1_BASE=1.0648/1.0600
+MD_SUM case=R256_NODUP L1_BASE=1.0544/1.0553
+MD_DONE seconds=47.6
