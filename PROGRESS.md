@@ -143,4 +143,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | 33 | Decode: MoE HINT + ERL ported into the lineage (`decoder_p34_moehe.py`, check `a7efb0cd` 2.0880x, scored `a40cbaf0` 2.0867x) | bit-identical MoE; within noise; lineage head now p34 | kept (no publish) | direct | $127 |
 | S5 | MoE board scored run of `moe_b8.py` (HINT + ERL) `d11ae396` | 2.3696x (best stays 2.3797) | not published | direct | $116 |
 | -- | User decision (Nov 1): continue small items until $300 | - | - | - | $116 |
-| M11 | Skinny builds: expert-major strided unit assignment to shrink the A->B bubble (`moe_b12.py`, `moediag10.py`) | building | - | hard-fixer | $116 |
+| M11 | Skinny expert-major strided units (`moe_b12.py` `69df1e95` 2.2650x; diag `10af3ab8`) | slower: R1 1.01, R8 1.015, R16 1.033 | closed | hard-fixer | $117 |
+
+| M12 | MAIN finalizer pass 2 from registers (FINREG) on HINT+ERL (`moe_b13.py` `7e4461e4` 2.3327x; diag `c63e59ab`) | bit-identical; vs BASE R32 0.994, R128 0.979, R256 0.985 (adds ~0.5-1%) | kept (MoE lineage head) | direct | $117 |
