@@ -150,4 +150,5 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | D-RING2 | Stream floors at the MoE skinny volumes (`ringdiag2.py`, `08f6368d`) | 58 MB 22.5-24.6 us vs TINY bs1 30.9 (+26-37%); 175 MB 52-53.5 vs TINY2 58.8 (+11%); 380 MB 97.6-100.5 vs MID 108.8 (+11%) | diagnostic | direct | $118 |
 | -- | User decision (Nov 1): new branch `argon/moe-fresh-small-20261101` (`.slim/worktrees/moe-fresh`) for a fresh small-batch MoE kernel (FS, M<=8) | - | - | - | $118 |
 | FS1 | Fresh small-batch MoE kernel (branch `argon/moe-fresh-small-20261101`; diag `71a878e1`, MoE check `70fa067e` 1.8673x, ablation diag `5a727d5c`) | correct but slower (R1 1.31x, R8 2.17x). Even with phase B removed it is slower than BASE at R1 (31.6 vs 30.9 us); per-task B accumulation into smem and a slow ramp dominate; the A->B grid wait was not the main cost | closed | hard-fixer | $124 |
-
+| -- | User decision (Nov 1): fresh large-batch MoE on branch `argon/moe-fresh-large-20261101` (`.slim/worktrees/moe-large`) | - | - | - | $136 |
+| L1 | MAIN register re-split: 640 threads, consumer WGs 112 regs / producer WG 32 (setmaxnreg); remove stage-loop spills and capture whole packed stages (`moe_l1.py`, `moediag_l1.py`) | building | - | hard-fixer | $136 |
