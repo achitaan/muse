@@ -132,6 +132,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | M8 qkv->attention / attention->o PDL with tolerant probe (attention output nondeterministic at M8; cache bytes strict) | kept | 2.0942x (CI 2.063-2.126); M8 sliding mask 18 (layer -2.3/-3.5 us), M8 full mask 19 (qa+o+glue, layer -4.7/-5.0 us vs ~-2.5 before) | `c5f34d4f` | experiments/top50/decoder_p9_tolattn.py (decode-next) | Oct 31 |
 | Selection stability: tolerant attention probes at all M + whole-layer tol 5e-3 | kept | 2.1043x (CI 2.073-2.136), best check so far; selected M1 30/31, M8 18/19, PDLS M1 sliding 62; M16/M32 not selected this run | `f9845bc9` | experiments/top50/decoder_p10_tol5.py (decode-next) | Oct 31 |
 | MoE (TINY/TINY2) issues L2 bulk prefetch of the sliced-unpooler c12 weights (6.3 MB) during its barrier wait/finalize so the PDL unpooler streams from L2 (M1/M8); differs from closed prefetch during attention/norm | closed | probes OK but no whole-layer gain at any of 4 shapes; nothing selected; check 2.0667x | `2cbdfa2a` | experiments/top50/decoder_p23_upf.py (decode-next) | Oct 31 |
+| Extend PDLI twins (PDL launch + weight prologue before griddepcontrol.wait + early trigger) to the 16/32-token kernels: qkv16/32 (m32x_q / r3_qkv16), attention (pdl=True), o16 (m16trace) / o32, unpooler16 (dd_cap2_b_cpssm) / 32 (m32w); gated by robust whole-layer A/B at M16/M32 | in progress | decode-next pass 30, decoder_p31_pdl16.py | - | - | Oct 31 |
 
 ## Open ideas
 
