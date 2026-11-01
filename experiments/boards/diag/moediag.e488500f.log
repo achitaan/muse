@@ -1,0 +1,59 @@
+MD_INFO device='NVIDIA H200' reps=24 flush_MiB=256 raw_events=1 seed_source=f0f01b3229f94cbb parent=331148716e8d
+MD_NOTE NODQ=wrong_math NOB=zero_y_finalizer NOFIN=barrier_reset_kept STREAM=contiguous_unique_weight_bytes EMPTY_MAIN=trivial_same_grid_block TBps=effective_not_physical MB=1e6
+MD_CASE bs=1 build=TINY load=decode_1 weight=60 dist=normal seed=2826763372427500438 routes=2 jobs=2 touched=2
+MD_CASE bs=8 build=TINY2 load=verify_1 weight=60 dist=normal seed=2827019192515550467 routes=12 jobs=6 touched=6
+MD_CASE bs=16 build=MID load=decode_16 weight=60 dist=normal seed=2826848645790183780 routes=22 jobs=13 touched=13
+MD_CASE bs=32 build=MAIN load=decode_32 weight=60 dist=normal seed=2826933919152867123 routes=60 jobs=16 touched=16
+MD_CASE bs=128 build=MAIN load=verify_16 weight=60 dist=normal seed=2827104465878233812 routes=217 jobs=24 touched=23
+MD_CASE bs=256 build=MAIN load=verify_32 weight=60 dist=normal seed=2827189739240917158 routes=449 jobs=28 touched=25
+MD_SETUP seconds=0.7
+MD_RES build=MID var=BASE regs=148/148 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=52.1
+MD bs=16 var=BASE med_us=108.816 min_us=107.072 touched=13 MB=368.050176 TBps=3.382
+MD bs=16 var=STREAM med_us=98.608 min_us=97.472 touched=13 MB=368.050176 TBps=3.732
+MD bs=16 var=EMPTY med_us=9.088 min_us=8.864 touched=0 MB=0.000000 TBps=0.000
+MD_RES build=TINY var=BASE regs=144/144 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=52.2
+MD bs=1 var=BASE med_us=30.928 min_us=30.464 touched=2 MB=56.623104 TBps=1.831
+MD bs=1 var=STREAM med_us=24.992 min_us=24.512 touched=2 MB=56.623104 TBps=2.266
+MD bs=1 var=EMPTY med_us=8.416 min_us=8.352 touched=0 MB=0.000000 TBps=0.000
+MD_RES build=TINY2 var=BASE regs=144/144 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=52.2
+MD bs=8 var=BASE med_us=58.832 min_us=57.312 touched=6 MB=169.869312 TBps=2.887
+MD bs=8 var=STREAM med_us=53.936 min_us=53.024 touched=6 MB=169.869312 TBps=3.149
+MD bs=8 var=EMPTY med_us=8.704 min_us=8.384 touched=0 MB=0.000000 TBps=0.000
+MD_RES build=MAIN var=BASE regs=96/96 static_smem=0/0 dynamic_smem=231168 local_B=0/0 threads=576 compile_s=66.4
+MD bs=32 var=BASE med_us=139.152 min_us=135.808 touched=16 MB=452.984832 TBps=3.255
+MD bs=32 var=STREAM med_us=119.424 min_us=117.984 touched=16 MB=452.984832 TBps=3.793
+MD bs=32 var=EMPTY med_us=4.320 min_us=4.288 touched=0 MB=0.000000 TBps=0.000
+MD bs=128 var=BASE med_us=195.984 min_us=193.536 touched=23 MB=651.165696 TBps=3.323
+MD bs=128 var=STREAM med_us=160.624 min_us=159.424 touched=23 MB=651.165696 TBps=4.054
+MD bs=128 var=EMPTY med_us=4.320 min_us=4.288 touched=0 MB=0.000000 TBps=0.000
+MD bs=256 var=BASE med_us=238.256 min_us=236.544 touched=25 MB=707.788800 TBps=2.971
+MD bs=256 var=STREAM med_us=177.392 min_us=175.872 touched=25 MB=707.788800 TBps=3.990
+MD bs=256 var=EMPTY med_us=4.336 min_us=4.288 touched=0 MB=0.000000 TBps=0.000
+MD_RES build=TINY2 var=NODQ regs=132/132 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.2
+MD bs=8 var=NODQ med_us=58.768 min_us=57.760 touched=6 MB=169.869312 TBps=2.891
+MD_RES build=MID var=NODQ regs=136/136 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.3
+MD bs=16 var=NODQ med_us=108.864 min_us=106.720 touched=13 MB=368.050176 TBps=3.381
+MD_RES build=TINY var=NODQ regs=132/132 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.2
+MD bs=1 var=NODQ med_us=29.488 min_us=29.120 touched=2 MB=56.623104 TBps=1.920
+MD_RES build=MAIN var=NODQ regs=96/96 static_smem=0/0 dynamic_smem=231168 local_B=8/8 threads=576 compile_s=63.5
+MD bs=32 var=NODQ med_us=136.384 min_us=134.656 touched=16 MB=452.984832 TBps=3.321
+MD bs=128 var=NODQ med_us=193.872 min_us=191.520 touched=23 MB=651.165696 TBps=3.359
+MD bs=256 var=NODQ med_us=232.256 min_us=227.264 touched=25 MB=707.788800 TBps=3.047
+MD_RES build=TINY var=NOB regs=128/128 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.1
+MD bs=1 var=NOB med_us=23.296 min_us=22.592 touched=2 MB=56.623104 TBps=2.431
+MD_RES build=TINY2 var=NOB regs=128/128 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.1
+MD bs=8 var=NOB med_us=42.704 min_us=41.600 touched=6 MB=169.869312 TBps=3.978
+MD_RES build=MID var=NOB regs=143/143 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.1
+MD bs=16 var=NOB med_us=77.216 min_us=75.296 touched=13 MB=368.050176 TBps=4.767
+MD_RES build=MAIN var=NOB regs=96/96 static_smem=0/0 dynamic_smem=231168 local_B=0/0 threads=576 compile_s=65.2
+MD bs=32 var=NOB med_us=99.040 min_us=97.120 touched=16 MB=452.984832 TBps=4.574
+MD bs=128 var=NOB med_us=140.800 min_us=139.456 touched=23 MB=651.165696 TBps=4.625
+MD bs=256 var=NOB med_us=172.112 min_us=169.696 touched=25 MB=707.788800 TBps=4.112
+MD_RES build=TINY var=NOFIN regs=144/144 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.0
+MD bs=1 var=NOFIN med_us=30.176 min_us=29.952 touched=2 MB=56.623104 TBps=1.876
+MD_RES build=MID var=NOFIN regs=148/148 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.3
+MD bs=16 var=NOFIN med_us=108.368 min_us=107.008 touched=13 MB=368.050176 TBps=3.396
+MD_RES build=TINY2 var=NOFIN regs=144/144 static_smem=0/0 dynamic_smem=214784 local_B=0/0 threads=288 compile_s=51.4
+MD bs=8 var=NOFIN med_us=57.792 min_us=56.608 touched=6 MB=169.869312 TBps=2.939
+MD_ERR build=MAIN var=NOFIN budget_not_ready
+MD_DONE seconds=240.0

@@ -107,3 +107,17 @@ Note (05:15 EDT): Decode checks are down to 3 of 20 today (8 of 10 scored runs l
 | S4 | Scored run of pass 31 (`decoder_p32_norm16.py`, `69d26d1c`) | valid 2.0883x (noise band 2.07-2.10; board best stays 2.0970) | not published | - | $113 |
 | 32 | Glue PDL and early-trigger norm at 128/256 tokens; attention-only PDL at 16/32 (`decoder_p33_big.py`, `d2d2daa4`, 2.0667x) | no gain: every candidate at 128/256 0.994-1.004; attention-only PDL not selected | closed | fixer | $108 |
 
+### Leaderboard snapshot 2026-11-01 02:10 UTC (top-50 thresholds)
+| Board | Ours | Rank | #50 | Gap to #50 |
+|---|---:|---:|---:|---:|
+| Decode | 2.0970 | 320 | 2.2676 | +8.1% |
+| MoE | 2.3797 | 156 | 2.4533 | +3.1% |
+| Dense | 1.5278 | 286 | 1.5791 | +3.4% |
+| Attention | 2.5690 | 268 | 2.7075 | +5.4% |
+| Prefill (not in overall) | 1.6635 | 279 | 1.8575 | +11.7% |
+
+MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets MoE achieved bandwidth (3.1-3.6 TB/s effective; bs1 2.2x and bs256 2.0x SOL).
+
+| D-MoE | MoE ablation diagnostic (`moediag.py`, prefill check `e488500f`) | cold-L2 us BASE/stream floor: bs1 30.9/25.0, bs8 58.8/53.9, bs16 108.8/98.6, bs32 139.2/119.4, bs128 196.0/160.6, bs256 238.3/177.4. Dequant off and finalizer off change nothing. Phase B off: 23.3/42.7/77.2/99.0/140.8/172.1, so MAIN phase A streams only ~3.0 TB/s vs 4.0 floor. Closing half of the gap to the floor ~ +9% MoE board | diagnostic | hard-fixer | $110 |
+
+| D-MoE2 | Second diagnostic: x-load off, MMA off, per-CTA timeline (MAIN, TINY) | building | - | hard-fixer | $110 |
