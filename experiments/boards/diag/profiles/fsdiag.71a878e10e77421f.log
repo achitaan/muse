@@ -1,0 +1,46 @@
+FS_INFO device='NVIDIA H200' reps=40 flush_MiB=256 BASE=b6390e9993ca FS=e7a7bc0c0114
+FS_BUILD diagnostic_TUs=3 seconds=40.34
+FS_RES build=BASE_TINY regs_local_smem=[144, 0, 214784]
+FS_RES build=BASE_TINY2 regs_local_smem=[144, 0, 214784]
+FS_RES build=FS regs_low_high_local_low_high_smem=[148, 168, 0, 88, 218752]
+FS_PROBE M=1 draw=0 ref=BASE {'max_abs': 0.001953125, 'max_rel': 0.011695906519889832, 'rel_L2': 0.00017342301725875586, 'row_L2': 0.00017342301725875586, 'ok': True}
+FS_PROBE M=1 draw=1 ref=BASE {'max_abs': 3.0517578125e-05, 'max_rel': 0.005847953259944916, 'rel_L2': 3.117483629466733e-06, 'row_L2': 3.117483629466733e-06, 'ok': True}
+FS_FORMULA M=1 marlin=0 {'max_abs': 0.00390625, 'max_rel': 46.87401580810547, 'rel_L2': 0.005517296027392149, 'row_L2': 0.005517296027392149, 'ok': True}
+FS_FORMULA M=1 marlin=1 {'max_abs': 0.0, 'max_rel': 0.0, 'rel_L2': 0.0, 'row_L2': 0.0, 'ok': True}
+FS_PROBE M=2 draw=0 ref=BASE {'max_abs': 0.0, 'max_rel': 0.0, 'rel_L2': 0.0, 'row_L2': 0.0, 'ok': True}
+FS_PROBE M=2 draw=1 ref=BASE {'max_abs': 3.0517578125e-05, 'max_rel': 0.007633587811142206, 'rel_L2': 1.6307185433106497e-06, 'row_L2': 1.8158641523768893e-06, 'ok': True}
+FS_PROBE M=4 draw=0 ref=BASE {'max_abs': 0.0009765625, 'max_rel': 0.023952096700668335, 'rel_L2': 3.7317280657589436e-05, 'row_L2': 8.918844832805917e-05, 'ok': True}
+FS_PROBE M=4 draw=1 ref=BASE {'max_abs': 0.0, 'max_rel': 0.0, 'rel_L2': 0.0, 'row_L2': 0.0, 'ok': True}
+FS_PROBE M=8 draw=0 ref=BASE {'max_abs': 0.00048828125, 'max_rel': 0.01595744676887989, 'rel_L2': 1.687789335846901e-05, 'row_L2': 2.915186996688135e-05, 'ok': True}
+FS_PROBE M=8 draw=1 ref=BASE {'max_abs': 1.52587890625e-05, 'max_rel': 0.0066225165501236916, 'rel_L2': 6.447412488341797e-07, 'row_L2': 1.856478206718748e-06, 'ok': True}
+FS_FORMULA M=8 marlin=0 {'max_abs': 0.00390625, 'max_rel': 517.6064453125, 'rel_L2': 0.005471538286656141, 'row_L2': 0.005602685734629631, 'ok': True}
+FS_FORMULA M=8 marlin=1 {'max_abs': 0.0009765625, 'max_rel': 2.5928144454956055, 'rel_L2': 6.817213579779491e-05, 'row_L2': 0.00019463796343188733, 'ok': True}
+FS_DUPLICATE M=8 routes=9 {'max_abs': 0.001953125, 'max_rel': 2.7018632888793945, 'rel_L2': 0.00017702819604892284, 'row_L2': 0.0005470200558193028, 'ok': True}
+FS_REPLAY zero_and_reuse=1
+FS_CASE case=R1 seed=2826763372427500438 cnt=21:1,24:1
+FS_CASE case=R8 seed=2827019192515550467 cnt=9:1,10:2,13:1,21:1,25:2,28:5
+FS_CASE case=S2 seed=20261102 cnt=7:2
+FS_CASE case=S4 seed=20261104 cnt=7:4
+FS_TIME case=R1 pass=1 var=BASE med_us=30.944 min_us=30.368 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R1 pass=1 var=FS med_us=40.656 min_us=39.904 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R8 pass=1 var=BASE med_us=59.616 min_us=58.272 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R8 pass=1 var=FS med_us=129.392 min_us=128.448 max_abs=0.00195312 max_rel=0.00746269 rel_L2=6.95113e-05 row_L2=0.000140044 ok=1
+FS_TIME case=S2 pass=1 var=BASE med_us=22.096 min_us=21.760 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=S2 pass=1 var=FS med_us=29.472 min_us=28.832 max_abs=3.8147e-06 max_rel=0.00689655 rel_L2=1.26302e-07 row_L2=1.82953e-07 ok=1
+FS_TIME case=S4 pass=1 var=BASE med_us=22.912 min_us=22.464 max_abs=0.000488281 max_rel=0.00406504 rel_L2=2.72957e-05 row_L2=5.83461e-05 ok=1
+FS_TIME case=S4 pass=1 var=FS med_us=32.064 min_us=31.552 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=ZERO8 pass=1 var=FS med_us=9.984 min_us=9.728 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=ZERO8 pass=2 var=FS med_us=9.984 min_us=9.760 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=S4 pass=2 var=FS med_us=31.952 min_us=31.360 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=S4 pass=2 var=BASE med_us=22.832 min_us=22.496 max_abs=0.000488281 max_rel=0.00571429 rel_L2=3.8602e-05 row_L2=5.83461e-05 ok=1
+FS_TIME case=S2 pass=2 var=FS med_us=29.408 min_us=28.832 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=S2 pass=2 var=BASE med_us=22.160 min_us=21.728 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R8 pass=2 var=FS med_us=129.616 min_us=128.672 max_abs=0.00195312 max_rel=0.00746269 rel_L2=6.95113e-05 row_L2=0.000140044 ok=1
+FS_TIME case=R8 pass=2 var=BASE med_us=59.296 min_us=57.920 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R1 pass=2 var=FS med_us=40.464 min_us=39.808 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_TIME case=R1 pass=2 var=BASE med_us=30.944 min_us=30.560 max_abs=0 max_rel=0 rel_L2=0 row_L2=0 ok=1
+FS_SUM case=R1 FS_BASE=1.3139/1.3077
+FS_SUM case=R8 FS_BASE=2.1704/2.1859
+FS_SUM case=S2 FS_BASE=1.3338/1.3271
+FS_SUM case=S4 FS_BASE=1.3994/1.3994
+FS_DONE seconds=41.09

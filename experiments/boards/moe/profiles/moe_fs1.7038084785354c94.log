@@ -1,0 +1,18 @@
+MOE_CANDIDATE M=16 MID sum3=332.26 err=0.00e+00 incumbent=332.26
+MOE_CANDIDATE M=16 MAIN sum3=347.81 err=6.03e-04 incumbent=332.26
+MOE_CANDIDATE M=16 FALLBACK sum3=373.76 err=2.13e-04 incumbent=332.26
+MOE_KEEP M=16
+MOE_CANDIDATE M=32 MID sum3=408.48 err=5.24e-04 incumbent=412.45
+MOE_CANDIDATE M=32 MAIN sum3=412.45 err=0.00e+00 incumbent=412.45
+MOE_CANDIDATE M=32 FALLBACK sum3=451.46 err=4.63e-04 incumbent=412.45
+MOE_KEEP M=32
+MOE_CANDIDATE M=128 MAIN sum3=539.71 err=0.00e+00 incumbent=539.71
+MOE_CANDIDATE M=128 FALLBACK sum3=747.23 err=4.18e-04 incumbent=539.71
+MOE_KEEP M=128
+MOE_CANDIDATE M=256 MAIN sum3=661.73 err=0.00e+00 incumbent=661.73
+MOE_CANDIDATE M=256 FALLBACK sum3=915.14 err=3.74e-04 incumbent=661.73
+MOE_KEEP M=256
+MOE_SELECTOR selected=[] s=45.2
+FS_FALLBACK RuntimeError: include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-lvbkiv69/sandbox/cache/torch_extensions/okc_moe_fs1_c5c18d42e975/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+

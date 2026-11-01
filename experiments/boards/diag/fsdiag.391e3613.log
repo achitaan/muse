@@ -1,0 +1,4 @@
+FS_INFO device='NVIDIA H200' reps=40 flush_MiB=256 BASE=b6390e9993ca FS=e7a7bc0c0114
+FS_ERR run_all RuntimeError: tem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_prefill_layer-wctoozrx/sandbox/cache/torch_extensions/moe_fsdiag_8b6adb27020e9b14/binding.cpp -o binding.o 
+ninja: build stopped: subcommand failed.
+
