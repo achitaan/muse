@@ -96,6 +96,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Early stock-norm PDL trigger extended to M8 (bit 32 at M1/M8, on p3) | kept | 2.0891x (CI 2.058-2.120); selected M1 sliding mask 63 (layer -1.4/-1.4 us) and M8 full mask 52 (-2.1/-2.1 us); unit M8 norm->R2f -1.2/-1.4 us | `d543da40` | experiments/top50/decoder_p4_norm8.py (decode-next) | Oct 31 |
 | R2f consumer-side attention-boundary norm at M1 (R2n: every R2f CTA recomputes post-norm/residual/pre-norm; removes the stock norm kernel) | kept | bit-identical (rel 0, same ids); whole-layer M1 full 0.974/0.979 selected (mask 159); M1 sliding 0.989/0.997 not selected; scored 2.0718x (noise) | `9b254bbb` | experiments/top50/decoder_p19_r2norm.py (decode-next) | Oct 31 |
 | Fold _sfn (post-unpooler norm + residual + next pre-attn norm) into the sliced-unpooler GEMV via last-CTA arrival counter at M1/M8 (decode); measured version of the inspection-closed producer-last-CTA idea | closed | bit-exact (SF_UNIT rel 0 at M1/M8) but not selected at any shape (no whole-layer gain); check 2.0834x | `17ef7061` | experiments/top50/decoder_p28_sfnfold.py (decode-next) | Oct 31 |
+| Early-trigger private stock norm (PDLS) extended to 16/32 tokens for the attention boundary (no-router variant, feeding the now-PDL sk2) and the FFN boundary | in progress | decode-next pass 31, decoder_p32_norm16.py | - | - | Oct 31 |
 
 ## Attention
 
