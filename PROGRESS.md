@@ -162,4 +162,8 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | OL | Oracle-lite pivot consult | ranked: (1) TINY L2H=1 + MID 16-token skinny jobs, (2) Decode PDL trigger after wait for o1/o8/pdln/_pn, (3) MAIN N80 with GS=1 spill-free, (4) attention q8 fpart | diagnostic | oracle-lite | $172 |
 
 | P4 | Attention q8 full fpart (`attn_b4.py`, `b77b4383` 2.5321x) | slower: v16 full 104.8 vs 100.2, v32 full 190.4 vs 184.0 | closed | direct | $173 |
-| P1a | TINY L2H=1 (`moe_b14.py` check `cfe51d11` 2.3352x; diag `c7ad89af`) | bit-identical; diag R1 -8% (31.1 -> 28.6 us) with our write-flush; judge bs1 25.27 (no visible gain). Rerunning with a judge-like read flush (`moediag13.py`) | in progress | direct | $173 |
+| P1a | TINY L2H=1 (`moe_b14.py` `cfe51d11` 2.3352x; diags `c7ad89af` write-flush R1 0.92, `c36900df` read-flush R1 0.99) | gain was an artifact of our write-flush harness | closed | direct | $175 |
+
+| LESSON | Our diag harnesses and the Decode in-prepare gate flushed L2 by writing; the judge reads. Write-flush inflates small-batch MoE times (bs1 31.1 vs 26.0 us) and L2-hint effects. Use read-flush from now on | - | diagnostic | direct | $175 |
+| 35 | Decode gate with read-flush (`decoder_p37_rflush.py`, `3056edef` 2.0816x) | selections shifted slightly; per-shape mixed; no net gain | closed | direct | $176 |
+| 36 | Decode PDL trigger after wait for o1/o8, pdln, _pn (`decoder_p36_trig.py`) | building | - | fixer | $176 |
