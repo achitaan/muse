@@ -173,3 +173,4 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | -- | Judge queue backlog 1009 jobs, 40 kernel GPUs (Nov 2 ~03 UTC); `c69bfd07` (moediag14) and `43fe9b3d` (attn_b5 read-flush autotune) queued; no new submissions until they land | - | - | - | $193 |
 | P1b | MID non-WS SK_T=16 build config (`moediag14.py`, `c69bfd07`) | does not compile; worth <= 0.3% by the routing diagnostic, so closed without fixing | closed | direct | $193 |
 | A5 | Attention launch-plan autotune with read flush (`attn_b5.py`, `43fe9b3d` 2.5526x) | all 12 shapes keep the planner plan (ratio 1.000) | closed | direct | $193 |
+| END | User decision (Nov 2): stop and summarize. Final bests: Decode 2.1056 (`9dabcd9a`), MoE 2.3797, Attention 2.5690, Dense 1.5278; overall rank 362/1834. See FINAL_SUMMARY.md | - | stopped | - | $195 |
