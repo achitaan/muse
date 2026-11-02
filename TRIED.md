@@ -258,6 +258,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Decode v3 extension from Dense bbde8419: gated qkv16 t16s5curP-k7, pool32 t32s6curP-k4, qkv256 n256s5m1hzm-k7; preserve existing WSI/qkv32/pool128-256/un256 gates | closed: scored 2.2347, adopted 0/12. qkv16 projection check passed but layer/KV equivalence failed; qkv256 equivalence passed but no speed gain; qkv32/pool32 lines lost to 16KB tail. Experimental RQ arms removed in v4 without speculative patch | a621157 -> 3f9b338 | `1ca0668a` | kb/exp/decode_v3.py (a621157) | Nov 02 |
 | Extend keell's gle deferred-norm path to T=8 (16-row gle_o/gle_pr), removing the separate b1 boundary launch at verify-1; gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
 | Decode: retarget attention-time L2 prefetch to o-projection's first weight stages on sliding layers; fuse pre-expert route/norm step into MoE prologue if a separate launch exists; gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| Decode v4: only the T=8 MoE ring-issuer warp (t2_wsi) at v1s/v1f, numeric-tolerance gate | closed | check 7fd03cfa 2.2607 (default path); v1s 1.004/1.005 slower and moe_out error 1.47x tolerance; v1f 0.998 (base itself not repeatable there); adopted 0/2. WSI8 doesn't help inside decode | `7fd03cfa` | kb/exp/decode_v3.py (3f9b338) | Nov 02 |
 
 ## Prefill
 
