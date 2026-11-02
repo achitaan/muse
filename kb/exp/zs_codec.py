@@ -136,6 +136,10 @@ def self_test() -> None:
     for shape in ((1, 1, 4, 32, 8), (2, 3, 4, 32, 8), (3, 5, 4, 32, 8)):
         values = rng.integers(0, 65536, size=shape, dtype=np.uint16)
         assert np.array_equal(unpack_fragments(pack_fragments(values)), values)
+    # Reference: original integers across the 2048-unit packing batch boundary;
+    # the second batch must continue, rather than restart, its escape offsets.
+    boundary = rng.integers(0, 65536, size=(1, 2049, 4, 32, 8), dtype=np.uint16)
+    assert np.array_equal(unpack_fragments(pack_fragments(boundary)), boundary)
     print("ZS codec CPU self-tests passed: exhaustive BF16 bits, zero escapes, boundaries, seeded random")
 
 
