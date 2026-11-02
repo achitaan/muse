@@ -2064,8 +2064,17 @@ __device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
       uint64_t* bar = S.bars + BW_F + ws;
       const unsigned char* src = base + ((size_t)(((S.jE[j] << ubl) + ub) * 16 + st)) * (size_t)WGS_STG;
       asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(WGS_STG) : "memory");
+#if OKC_L2H
+      {  // achitaan HINT: an expert split into several jobs streams its weights once per job: normal L2 policy for those
+        const int ejj = S.jE[j], njj = S.njF + S.njS;
+        const uint64_t pol = ((j > 0 && S.jE[j - 1] == ejj) || (j + 1 < njj && S.jE[j + 1] == ejj)) ? 0x1000000000000000ull : 0x12F0000000000000ull;
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.L2::cache_hint [%0], [%1], %2, [%3], %4;\n"
+                     ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)), "l"(pol) : "memory");
+      }
+#else
       asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
                    ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)) L2H_ARG : "memory");
+#endif
       if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
     }
   }
@@ -2346,8 +2355,12 @@ __device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char*
 #endif
       if (lg < 3) {
         cwn = *reinterpret_cast<const uint4*>(pc + (((lg + 1) * 4 + wp) * 32 + lane) * 16);
-      } else if (lane == 0) {
-        mbar_arrive1(S.bars + BW_E + ws);  // every code and scale of this stage is in registers: weights slot free
+      }
+      if (lg == 2) {  // achitaan ERL: the stage's last codes/scales are in registers: free the weights slot 4 k16 steps early
+        uint32_t erl_u = cwn.x ^ cwn.y ^ cwn.z ^ cwn.w;
+        asm volatile("" : "+r"(erl_u));
+        __syncwarp();
+        if (lane == 0) mbar_arrive1(S.bars + BW_E + ws);
       }
 #pragma unroll
       for (int h = 0; h < 4 / GS; ++h) {
@@ -2838,6 +2851,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
 #pragma unroll
       for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];
       float ps[8];
+      float4 ya_[8], yb_[8];  // achitaan FINREG: pass 1 rows kept for pass 2
 #pragma unroll
       for (int sl = 0; sl < 8; ++sl) {
         ps[sl] = 0.f;
@@ -2851,6 +2865,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
           const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
           const float4 a = __ldcg(src), b = __ldcg(src + 1);
 #endif
+          ya_[sl] = a; yb_[sl] = b;
           ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
         }
       }
@@ -2878,15 +2893,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
       for (int sl = 0; sl < 8; ++sl)
         if (qv[sl] >= 0) {
           const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);
-#if OKC_YBF
-          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
-          const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));
-          const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
-          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
-#else
-          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
-          const float4 a = __ldcg(src), b = __ldcg(src + 1);
-#endif
+          const float4 a = ya_[sl], b = yb_[sl];
           acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;
           acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;
         }
@@ -4949,8 +4956,17 @@ __device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
       uint64_t* bar = S.bars + BW_F + ws;
       const unsigned char* src = base + ((size_t)(((S.jE[j] << ubl) + ub) * 16 + st)) * (size_t)WGS_STG;
       asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(WGS_STG) : "memory");
+#if OKC_L2H
+      {  // achitaan HINT: an expert split into several jobs streams its weights once per job: normal L2 policy for those
+        const int ejj = S.jE[j], njj = S.njF + S.njS;
+        const uint64_t pol = ((j > 0 && S.jE[j - 1] == ejj) || (j + 1 < njj && S.jE[j + 1] == ejj)) ? 0x1000000000000000ull : 0x12F0000000000000ull;
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.L2::cache_hint [%0], [%1], %2, [%3], %4;\n"
+                     ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)), "l"(pol) : "memory");
+      }
+#else
       asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
                    ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)) L2H_ARG : "memory");
+#endif
       if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
     }
   }
@@ -5208,8 +5224,12 @@ __device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char*
 #endif
       if (lg < 3) {
         cwn = *reinterpret_cast<const uint4*>(pc + (((lg + 1) * 4 + wp) * 32 + lane) * 16);
-      } else if (lane == 0) {
-        mbar_arrive1(S.bars + BW_E + ws);  // every code and scale of this stage is in registers: weights slot free
+      }
+      if (lg == 2) {  // achitaan ERL: the stage's last codes/scales are in registers: free the weights slot 4 k16 steps early
+        uint32_t erl_u = cwn.x ^ cwn.y ^ cwn.z ^ cwn.w;
+        asm volatile("" : "+r"(erl_u));
+        __syncwarp();
+        if (lane == 0) mbar_arrive1(S.bars + BW_E + ws);
       }
 #pragma unroll
       for (int h = 0; h < 4 / GS; ++h) {
@@ -5667,12 +5687,14 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
 #pragma unroll
       for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];
       float ps[8];
+      float4 ya_[8], yb_[8];  // achitaan FINREG: pass 1 rows kept for pass 2
 #pragma unroll
       for (int sl = 0; sl < 8; ++sl) {
         ps[sl] = 0.f;
         if (qv[sl] >= 0) {
           const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
           const float4 a = __ldcg(src), b = __ldcg(src + 1);
+          ya_[sl] = a; yb_[sl] = b;
           ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
         }
       }
@@ -5700,8 +5722,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
       for (int sl = 0; sl < 8; ++sl)
         if (qv[sl] >= 0) {
           const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);
-          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
-          const float4 a = __ldcg(src), b = __ldcg(src + 1);
+          const float4 a = ya_[sl], b = yb_[sl];
           acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;
           acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;
         }
