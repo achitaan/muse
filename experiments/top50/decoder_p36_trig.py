@@ -7719,7 +7719,7 @@ def _r2_gate(state):
   evs = []
   for _ in range(25):
    for lab, gr in graphs.items():
-    flush.zero_()
+    flush.sum()
     a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     a.record(); gr.replay(); b.record()
     evs.append((lab, a, b))
@@ -7789,7 +7789,7 @@ def _okh_time(fns, dev, reps=25):
  evs = []
  for _ in range(reps):
   for lab, gr in graphs.items():
-   flush.zero_()
+   flush.sum()
    a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
    a.record(); gr.replay(); b.record()
    evs.append((lab, a, b))

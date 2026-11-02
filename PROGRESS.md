@@ -166,4 +166,5 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | LESSON | Our diag harnesses and the Decode in-prepare gate flushed L2 by writing; the judge reads. Write-flush inflates small-batch MoE times (bs1 31.1 vs 26.0 us) and L2-hint effects. Use read-flush from now on | - | diagnostic | direct | $175 |
 | 35 | Decode gate with read-flush (`decoder_p37_rflush.py`, `3056edef` 2.0816x) | selections shifted slightly; per-shape mixed; no net gain | closed | direct | $176 |
-| 36 | Decode PDL trigger after wait for o1/o8, pdln, _pn (`decoder_p36_trig.py`) | building | - | fixer | $176 |
+| 36 | Decode trigger-after-wait variants + read-flush gate (`decoder_p36_trig.py`, check `22240ad3` 2.1178x, **scored `9dabcd9a` 2.1056x**) | no after-wait variant passed the gate; base selections under the judge-like read flush. **New Decode board best 2.1056 (was 2.0970)**, published to main `4f64eb4` | kept (lineage head) | fixer+direct | $180 |
+
