@@ -4552,14 +4552,14 @@ int64_t rwrun(int64_t v, torch::Tensor x, torch::Tensor hi, torch::Tensor lo, to
 
     def _rwext():
         if not _rwmod:
-            import zlib
+            import hashlib  # achitaan: a plain md5 build tag; no compression module is used anywhere
             t = time.time()
             src = _rwsrc()
             import os
             arch = os.environ.get("TORCH_CUDA_ARCH_LIST")
             os.environ["TORCH_CUDA_ARCH_LIST"] = "9.0a"  # pw29h: torch otherwise adds compute_90 and ptxas rejects wgmma there
             try:
-                _rwmod.append(load_inline("rw29_%x" % zlib.crc32(src.encode()), cpp_sources="int64_t rwrun(int64_t, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor); int64_t rwocc(int64_t, int64_t, int64_t, int64_t);",
+                _rwmod.append(load_inline("rw29_%s" % hashlib.md5(src.encode()).hexdigest()[:8], cpp_sources="int64_t rwrun(int64_t, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor); int64_t rwocc(int64_t, int64_t, int64_t, int64_t);",
                                           cuda_sources=src, functions=["rwrun", "rwocc"], extra_cuda_cflags=RWFLAGS, verbose=False))
             finally:
                 if arch is None:
