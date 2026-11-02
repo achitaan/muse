@@ -159,4 +159,7 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 
 | -- | Judge API 530 on authenticated requests (~20:30-22:40 UTC Nov 1) was a transient server-side error; working again at 22:41 | - | - | - | - |
 | A-IC | Attention cold-instruction-fetch diagnostic (`icdiag.py`, `0a3729e5`) | not a cost: cold minus warm-instructions <= 0.43 us on every shape (d1 0.16, v32 -0.26); data coldness dominates | closed | fixer | $171 |
-| -- | Oracle-lite (Gemini) pivot consult across boards (GPT agents rate-limited) | running | - | oracle-lite | $171 |
+| OL | Oracle-lite pivot consult | ranked: (1) TINY L2H=1 + MID 16-token skinny jobs, (2) Decode PDL trigger after wait for o1/o8/pdln/_pn, (3) MAIN N80 with GS=1 spill-free, (4) attention q8 fpart | diagnostic | oracle-lite | $172 |
+
+| P4 | Attention q8 full fpart (`attn_b4.py`, `b77b4383` 2.5321x) | slower: v16 full 104.8 vs 100.2, v32 full 190.4 vs 184.0 | closed | direct | $173 |
+| P1a | TINY L2H=1 (`moe_b14.py` check `cfe51d11` 2.3352x; diag `c7ad89af`) | bit-identical; diag R1 -8% (31.1 -> 28.6 us) with our write-flush; judge bs1 25.27 (no visible gain). Rerunning with a judge-like read flush (`moediag13.py`) | in progress | direct | $173 |

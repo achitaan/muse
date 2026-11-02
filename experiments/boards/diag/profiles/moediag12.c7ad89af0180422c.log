@@ -1,0 +1,41 @@
+MD_INFO v=12 STRIDE_IS_TINY_L2H1 device='NVIDIA H200' reps=40 flush_MiB=256 BASE=84a64d5870df STRIDE=1e2c882d83dc
+MD_NOTE skinny A_then_B strided; per-job A credits; Bfirst=phase_attempt_before_readiness_wait; TL=separate_TUs; pass2=reverse_cases_and_variants
+MD_CASE case=R1 build=TINY jobs=2 routes=2 cnt=21:1,24:1
+MD_CASE case=R8 build=TINY2 jobs=6 routes=12 cnt=9:1,10:2,13:1,21:1,25:2,28:5
+MD_CASE case=R16 build=MID jobs=13 routes=22 cnt=0:1,3:1,5:2,7:2,11:2,15:1,16:1,18:2,19:2,23:2,27:2,28:1,30:3
+MD_SETUP seconds=0.6
+MD_BUILD kinds=3 TUs=12 seconds=130.7
+MD_RES build=TINY var=BASE regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY var=STRIDE regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY var=BASE_TL regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY var=STRIDE_TL regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY2 var=BASE regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY2 var=STRIDE regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY2 var=BASE_TL regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=TINY2 var=STRIDE_TL regs=144/144 smem=0/0+214784 local_B=0/0
+MD_RES build=MID var=BASE regs=148/148 smem=0/0+214784 local_B=0/0
+MD_RES build=MID var=STRIDE regs=148/148 smem=0/0+214784 local_B=0/0
+MD_RES build=MID var=BASE_TL regs=148/148 smem=0/0+214784 local_B=0/0
+MD_RES build=MID var=STRIDE_TL regs=148/148 smem=0/0+214784 local_B=0/0
+MD case=R1 build=TINY var=BASE pass=1 med_us=31.104 min_us=30.624 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R1 build=TINY var=STRIDE pass=1 med_us=28.576 min_us=28.288 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R8 build=TINY2 var=BASE pass=1 med_us=58.944 min_us=57.696 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R8 build=TINY2 var=STRIDE pass=1 med_us=58.672 min_us=57.888 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R16 build=MID var=BASE pass=1 med_us=109.264 min_us=107.712 eq=0 finite=1 max_abs=1.19e-07 max_rel=0.00562 rel_L2=3.18e-09
+MD case=R16 build=MID var=STRIDE pass=1 med_us=109.312 min_us=107.232 eq=0 finite=1 max_abs=0.000977 max_rel=0.00493 rel_L2=2.61e-05
+MD case=R16 build=MID var=STRIDE pass=2 med_us=109.232 min_us=107.648 eq=0 finite=1 max_abs=0.000488 max_rel=0.0069 rel_L2=1.72e-05
+MD case=R16 build=MID var=BASE pass=2 med_us=109.360 min_us=107.040 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R8 build=TINY2 var=STRIDE pass=2 med_us=58.720 min_us=57.280 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R8 build=TINY2 var=BASE pass=2 med_us=59.008 min_us=57.984 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R1 build=TINY var=STRIDE pass=2 med_us=28.736 min_us=28.160 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD case=R1 build=TINY var=BASE pass=2 med_us=31.088 min_us=30.656 eq=1 finite=1 max_abs=0 max_rel=0 rel_L2=0
+MD_SUM case=R1 STRIDE_BASE=0.9187/0.9243
+TL case=R1 build=TINY var=BASE us=min/med/max_from_first_entry entry=0.000/0.096/0.288 Wready=2.976/4.384/5.600 Adone=18.208/18.352/18.752 Bfirst=15.040/16.320/16.864 Bdone=22.912/24.064/24.352 exit=25.792/25.840/26.144 eq=1 rel_L2=0
+TL case=R1 build=TINY var=STRIDE us=min/med/max_from_first_entry entry=0.000/0.064/0.128 Wready=3.072/3.744/4.736 Adone=15.936/16.000/16.288 Bfirst=13.440/14.624/14.816 Bdone=20.480/21.600/21.856 exit=22.912/23.024/23.648 eq=1 rel_L2=0
+MD_SUM case=R8 STRIDE_BASE=0.9954/0.9951
+TL case=R8 build=TINY2 var=BASE us=min/med/max_from_first_entry entry=0.000/0.128/0.256 Wready=3.136/3.808/5.216 Adone=34.624/35.328/36.608 Bfirst=31.808/33.360/36.064 Bdone=48.800/50.352/52.672 exit=53.984/54.048/54.592 eq=0 rel_L2=4.24e-09
+TL case=R8 build=TINY2 var=STRIDE us=min/med/max_from_first_entry entry=0.000/0.160/0.320 Wready=3.104/4.064/4.928 Adone=34.336/34.816/35.872 Bfirst=31.200/32.832/35.360 Bdone=49.472/51.968/53.120 exit=54.464/54.624/55.136 eq=1 rel_L2=0
+MD_SUM case=R16 STRIDE_BASE=1.0004/0.9988
+TL case=R16 build=MID var=BASE us=min/med/max_from_first_entry entry=0.000/0.064/0.192 Wready=3.424/4.352/6.112 Adone=64.672/66.864/68.256 Bfirst=61.984/65.456/67.712 Bdone=97.568/98.880/101.440 exit=102.496/102.656/103.328 eq=1 rel_L2=0
+TL case=R16 build=MID var=STRIDE us=min/med/max_from_first_entry entry=0.000/0.064/0.224 Wready=3.616/4.272/5.568 Adone=66.336/67.328/69.568 Bfirst=63.328/65.824/68.992 Bdone=97.568/99.264/101.984 exit=103.328/103.456/104.032 eq=0 rel_L2=3.18e-09
+MD_DONE seconds=131.1
