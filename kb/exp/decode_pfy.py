@@ -19297,6 +19297,7 @@ def kernel_fn(data, state):
     arm = state.get("ch_pick", {}).get(key, "base")
     if arm not in _ch_arms(data["config"]["tokens"]) or not _ch_compatible(data):
         arm = "base"
+    base_state = state
     if arm != "base" and "pfy_scratch" in state:
         # achitaan: default/small kernels do not reset F's private parity words.
         # Never interleave their launches onto a claimed-finalizer workspace.
@@ -19312,7 +19313,7 @@ def kernel_fn(data, state):
         state["_ch_failed"] = True
         print(f"PFY_ERR class={_ch_label(key)} reason=launch_{type(ex).__name__} fallback=base", flush=True)
         _CH_TLS.arm = "base"
-        return _CH_PARENT_KERNEL(data, state)
+        return _CH_PARENT_KERNEL(data, base_state)
     finally:
         _CH_TLS.arm, _CH_TLS.observe = saved
 
