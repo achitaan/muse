@@ -238,7 +238,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | 32-batch A/B on keell decode base: bf16 route overrides (qkv/o/unpooler torch, qkv Lt at M256) and MoE FINREG-vs-B4FIN at M32, timed in prepare with 512 MiB read flush, 36 interleaved rounds | closed | aa9b9c16 (H200, full-layer graph, read flush): decode32 sliding default 172.7 us; o_torch +1.9%, qkv_torch +2.4%, un_torch +4.3%, all3 +8.4%, moe_finreg +0.5% (slower); decode32 full: all arms +0.2..+5.4% slower; verify32 arms within -0.6..+1.1% but default not repeatable there (do not trust). keell's defaults are at the optimum for these knobs | `aa9b9c16` | kb/exp/decode_ab32.py (argon/keell-base-20261102, d3cfce8) | Nov 02 |
-| Port keell0renz's newer standalone attention kernels into decode_v1: v298bulk for 10 classes, exact-exp WST for v16f and VP2 for v1s, PDL adapted; per-shape full-layer read-flush ABBA admission | in progress | argon/keell-base-20261102; AST/control tests passed; 24 replays per arm, 3 fresh draws; rel-L2<1e-3, exact cache bytes/expert sets, ratio and paired<=0.99; GPU check pending | - | kb/exp/decode_attnport.py | Nov 02 |
+| Port keell0renz's newer standalone attention kernels into decode_v1: v298bulk for 10 classes, exact-exp WST for v16f and VP2 for v1s, PDL adapted; per-shape full-layer read-flush ABBA admission | in progress | argon/keell-base-20261102; ff74217 request rejected HTTP422 >1MB, no GPU job. Fixed via lossless CUDA-source storage; decoded base AST exactly identical. AST/control tests passed; GPU check pending | - | kb/exp/decode_attnport.py | Nov 02 |
 
 ## Prefill
 
