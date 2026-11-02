@@ -11647,4 +11647,3 @@ def prepare(weights):
         print(f"CH_ERR gate_aborted {type(ex).__name__}: {str(ex)[-400:]} fallback=base_all", flush=True)
     print(f"CH_INFO total_prepare_s={_ch_time.monotonic() - start:.1f} adopted={len(st['ch_pick'])}/8", flush=True)
     return st
-
