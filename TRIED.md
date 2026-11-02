@@ -270,7 +270,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell small-batch MoE (bs1/8/16): issuer-warp WSI on TINY/MID + hoisted slot read/release before job transition, SC6 skinny scales, ws_helper normw/gs prefetch + red.release doneA; gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| keell small-batch MoE (bs1/8/16): W/SC6/H/SH/WSH gated; W differs from closed EARLYW/WSER by dedicated issuer warp and slot read/release before job wait/x loads/MMAs; MID preserves rotated helper + DF (H doneA inactive) | in progress; CPU AST/source generation/SC6 inverse/exact gate tests passed; pending ONE H200 check | argon/keell-base-20261102 | - | kb/exp/moe_small.py | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
