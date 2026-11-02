@@ -281,3 +281,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| ZipServ-style fixed 3-bit exponent bitplanes (+ popcount-addressed BF16 escapes) for m<=32 GEMV cells; gated by measured top-7 exponent coverage on the real weights | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
