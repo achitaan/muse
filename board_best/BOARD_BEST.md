@@ -1,5 +1,7 @@
 # Board bests and source provenance
 
+Prefill refreshed 2026-11-02 from scored run `a0c18fe3` (1.9257x): keell0renz's public Apache-2.0 prefill file with our prepare-time A/B diagnostic; the scored path is their default (license/notice in `keell0renz_LICENSE` / `keell0renz_NOTICE`).
+
 Decode refreshed 2026-11-02 from scored run `2ecb3de5` (2.2341x): keell0renz's public Apache-2.0 decode file plus our changes (license and notice copied as `keell0renz_LICENSE` / `keell0renz_NOTICE`).
 
 Decode refreshed 2026-11-01 from scored run `9dabcd9a` (2.1056x).
@@ -18,6 +20,7 @@ unchanged (the `best/` baselines are untouched).
 | Decode | 2.2341x | (pending refresh) | `2ecb3de53d7f44e9` | `decoder_kb1_scored_2.2341.py`: keell0renz's decode file (github.com/keell0renz/muse-open-kernel-challenge, Apache-2.0) plus achitaan changes: J==0 stream-K hang guard, MoE ERL + HINT + FINREG. Same-judge check `2a45f597` 2.2589x vs their unchanged file `cde2084a` 2.2588x (tie). Branch `argon/keell-base-20261102`, `kb/v1/decode_v1.py`. | `65b108fdf1744b4d9e949b66401809928947b9fdf5ec30028579b63ca0763982` |
 | Decode | 2.1056x | (pending refresh; was 368 / 1175 at 2.0970; top 50 at 2.2980) | `9dabcd9a13554bad` | `decoder_p36_scored_2.1056.py`: the 2.0970 lineage plus sk2 PDL at 16/32 tokens, early-trigger norm at 16/32, MoE HINT+ERL+FINREG (bit-identical MAIN tweaks), and in-prepare A/B gates that flush L2 by reading (judge-like) instead of writing; the trigger-after-wait variants it carries were rejected by the gate. Check `22240ad3` 2.1178x; scored CI [2.0740, 2.1372]. Branch `argon/decode-next-20261030`, `experiments/top50/decoder_p36_trig.py`. | `449ef16c1e3af46254d6297497d658d6dd7f931d597aef4dd2ed2f62bc854f44` |
 | Dense | 1.5278x | 158 / 1411 | `6131bc96427e4486` | `best/verified.py` | `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b` |
+| Prefill | 1.9257x | (pending refresh) | `a0c18fe320e9404a` | `prefill_kbab_scored_1.9257.py`: keell0renz's prefill file (Apache-2.0, unchanged kernels) plus achitaan's prepare-time A/B diagnostic (7 variants, none adopted; production path = their default). Scored CI [1.8968, 1.9547]; same-judge check of their unchanged file `9d666aa1` 1.9070x, so this is a tie with their file, not a speedup. Branch `argon/keell-base-20261102`, `kb/exp/prefill_ab.py` (1367fc3). | `1c60aa5a2840586b61cb20ba56e597b832801a05c0522d14905bf86af0a4550b` |
 | Prefill | 1.6635x | 179 / 652 | (earlier scored run) | `best/prefill_verified.py` | `93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7` |
 
 MoE/Attention provenance: those rows run kernels already measured as equivalent to the incumbents
