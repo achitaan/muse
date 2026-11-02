@@ -75,6 +75,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Hybrid MoE: keell0renz v1 for bs 1/16/128/256, alygg77 for bs 8/32 (per-bs faster in same-judge checks) | closed | check a7bf3314 2.3644 vs keell unchanged 2.3874 (be6c1d68): per-shape wins from single checks were noise | `a7bf3314` | kb/v1/moe_hybrid.py (argon/keell-base-20261102) | Nov 02 |
 | Scored MoE: kb v0 (keell0renz MoE + J==0 stream-K hang guard) | closed | scored 2.3644 CI [2.3290, 2.3999] (ffbfe3d1), below our board best 2.3797 (ac80911e) so the board row is unchanged; check had been 2.3923 (4d02cbc9): same code, noise | `ffbfe3d1` | kb/v0/moe_v0.py (argon/keell-base-20261102) | Nov 02 |
 | Diagnostic on keell MoE: phase timeline + achieved TB/s vs bare stream floor per bs (is phase-A read efficiency a real gap on their kernel?) | diagnostic | f125e6ab: BASE/STREAM us bs1 25.6/18.9, bs8 52.9/44.0, bs16 98.3/87.5, bs32 126.9/103.6 (1.22x), bs128 182.8/147.3 (1.24x), bs256 227.3/159.5 (1.42x). Phase A unique TB/s vs stream: bs32 3.91/4.14, bs128 3.64/4.24, bs256 3.18/4.22 (job bytes 770 vs unique 688 MB at bs256: duplicate 64-token jobs re-stream weights); phase B 3.28/3.83, 3.09/4.06, 2.81/4.05; A->B handoff med ~-0.6 us max 4-9 us; tail 3.3-5.6 us. Real gap at bs128/256, mostly phase B rate and duplicate-job bytes | `f125e6ab` | kb/exp/moe_diag.py (argon/keell-base-20261102, ec01303) | Nov 02 |
+| keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | closed | 523d3227 (3 draws x 24 ABBA quads, read flush, 50-replay stability): all arms slower or equal: PB B-only +0.5..+0.9%, PAB both phases +3.9..+5.2%, snapping SB1/SB2/SAB +0.4..+1.1%, combos +0.6..+1.8%; runtime-off control +0.6..+0.9% (codegen); correctness exact/1e-4. The atomic fixup and split units are not where keell's MoE loses time vs the stream floor; adopted 0 | `523d3227` | kb/exp/moe_pp.py (argon/keell-base-20261102, 1024668) | Nov 02 |
 
 ## Pooler + router
 
@@ -264,7 +265,6 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | submitted ONE check; pending GPU result. 14 readable experimental TUs, exact PAB-binary disabled control; 3 draws x24 ABBA quads and 50 correctness replays per draw, gate <=0.985. Local AST + generated-C++ range/owner tests pass (64,560 cases; 79,589,376 stages); commit 1024668af739690b928f0a874fcb0a64919e0226 | argon/keell-base-20261102 | `523d32277d9a4081` | kb/exp/moe_pp.py | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
