@@ -1,0 +1,49 @@
+diff --git a/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py b/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
+index b2092f6..a47b8d8 100644
+--- a/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
++++ b/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
+@@ -68,13 +68,16 @@ def fused_post_expert_norm_weighted_sum(
+     weight_first: bool = True,
+     apply_norm: bool = True,
+     slot_expert_ids: Optional[torch.Tensor] = None,
++    min_tokens_for_fused: Optional[int] = None,
+ ) -> torch.Tensor:
+     x = expert_output.contiguous()
+     tokens, topk, hidden = x.shape
+     out = torch.empty((tokens, hidden), dtype=x.dtype, device=x.device)
+     if tokens == 0:
+         return out
+-    if tokens < _MIN_TOKENS_FOR_FUSED:
++    if min_tokens_for_fused is None or not x.is_cuda:
++        min_tokens_for_fused = _MIN_TOKENS_FOR_FUSED
++    if tokens < min_tokens_for_fused:
+         y = x
+         if slot_expert_ids is not None:
+             y = torch.where(
+diff --git a/python/sglang/srt/layers/muse_spark_fp4_moe.py b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+index 97b1474..c3282a6 100644
+--- a/python/sglang/srt/layers/muse_spark_fp4_moe.py
++++ b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+@@ -50,6 +50,14 @@ _NVFP4_PER_TOKEN_SCALE_INV = 1.0 / (448.0 * 6.0)
+ 
+ _MARLIN_SHAPE_ALIGNMENT = 64
+ _MARLIN_BLOCK_SIZE_M_CANDIDATES = (8, 16, 32, 48, 64)
++# Smallest token count at which the Marlin path combines expert outputs with the
++# fused Triton post-expert norm + weighted sum instead of the multi-op PyTorch
++# fallback (stock: 32). Same math: per-slot FP32 RMSNorm (weight first), invalid
++# (non-local, id < 0) slots skipped, FP32 weighted sum, BF16 output.
++# SGLANG_MUSE_MARLIN_POSTNORM_MIN_TOKENS=32 restores stock for A/B runs.
++_MARLIN_POSTNORM_MIN_TOKENS = int(
++    __import__("os").environ.get("SGLANG_MUSE_MARLIN_POSTNORM_MIN_TOKENS", "1")
++)
+ 
+ 
+ def _resolve_moe_runner_backend():
+@@ -607,6 +615,7 @@ class MuseSpark1xFp4Experts(nn.Module):
+                 eps=self._post_expert_norm_eps,
+                 weight_first=self._post_expert_norm_weight_first,
+                 slot_expert_ids=local_topk_ids,
++                min_tokens_for_fused=_MARLIN_POSTNORM_MIN_TOKENS,
+             )
+         return finalize_identity_with_post_expert_norm(
+             expert_outputs=expert_outputs,
