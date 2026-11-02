@@ -244,4 +244,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Prefill A/B harness on keell0renz prefill (GEMM plans, attention path, MoE knobs, overlap) timed in prepare with read flush | in progress | being built (hard-fixer) | - | kb/exp/prefill_ab.py (argon/keell-base-20261102) | Nov 02 |
-| PFAB cold-L2 full-layer graph A/B: qkv/o/pooler/unpooler alternate Lt plans, router serial, own attention and FA3; eight scored cases; default production retained | in progress | argon/keell-base-20261102 | - | kb/exp/prefill_ab.py | Nov 02 |
+| PFAB cold-L2 full-layer graph A/B: qkv/o/pooler/unpooler alternate Lt plans, router serial, own attention and FA3; eight scored cases; default production retained | in progress (check queued; not awaited) | 1367fc3; 16 fresh rounds/case; full tensor/cache restore; capped 3x default-spread control; AST and pure-logic tests pass | `9f60173506c7418e` | kb/exp/prefill_ab.py (argon/keell-base-20261102) | Nov 02 |
