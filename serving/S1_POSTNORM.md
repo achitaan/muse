@@ -25,9 +25,10 @@ both finite, all-remote exactly 0, worst rel-L2 vs FP64 1.7e-3 for both, max |st
 This does NOT execute Triton or a GPU (local GPU is a GTX 1660, no torch/triton installed).
 
 ## Where it applies
-Marlin decode/verify steps with < 32 tokens per forward: DFlash verifies 8+1 tokens per request, so C=1
-(~9 tokens) and C=4 (~36: only partly) hit it; C=16/32 do not. The single C=16 check rung cannot show a
-gain; only the scored run's C=1/C=4 rungs can.
+Marlin decode/verify steps with < 32 tokens per forward: DFlash verifies 8 draft tokens per request
+(the kernel board's q_len 8), so C=1 (~8 tokens) always hits it, C=4 (~32) only when fewer than 4 requests are
+in the batch, and C=16/32 do not. The single C=16 check rung cannot show a gain; only the scored run's C=1
+(and partly C=4) rungs can. Expected effect is therefore small on the overall serving score.
 
 ## A/B protocol (needs 8xH200 in the pinned image; we have none)
 1. Op level (any Hopper GPU): stock vs fused at T = 1,4,8,9,16,31,32,33 with real shapes (H=4096, topk=8),
