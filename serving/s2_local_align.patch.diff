@@ -1,0 +1,29 @@
+diff --git a/python/sglang/srt/layers/muse_spark_fp4_moe.py b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+index 97b1474..31dc97b 100644
+--- a/python/sglang/srt/layers/muse_spark_fp4_moe.py
++++ b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+@@ -50,6 +50,11 @@ _NVFP4_PER_TOKEN_SCALE_INV = 1.0 / (448.0 * 6.0)
+ 
+ _MARLIN_SHAPE_ALIGNMENT = 64
+ _MARLIN_BLOCK_SIZE_M_CANDIDATES = (8, 16, 32, 48, 64)
++# Size moe_align_block_size for the rank-local expert ids only (stock: the global
++# 256). SGLANG_MUSE_MARLIN_ALIGN_LOCAL_IDS=0 restores stock for A/B runs.
++_MARLIN_ALIGN_LOCAL_IDS = (
++    __import__("os").environ.get("SGLANG_MUSE_MARLIN_ALIGN_LOCAL_IDS", "1") != "0"
++)
+ 
+ 
+ def _resolve_moe_runner_backend():
+@@ -487,9 +492,11 @@ class MuseSpark1xFp4Experts(nn.Module):
+                 moe_align_single_token(local_topk_ids, block_size_m)
+             )
+         else:
++            # expert_map has already sent every id to -1 or 0..num_local_experts-1,
++            # so the sort only needs the local buckets plus its -1 sentinel bucket.
+             align_num_experts = (
+                 self.global_num_experts
+-                if expert_map is not None
++                if expert_map is not None and not _MARLIN_ALIGN_LOCAL_IDS
+                 else self.num_local_experts
+             )
+             sorted_token_ids, expert_ids, num_tokens_post_padded = moe_align_block_size(

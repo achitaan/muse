@@ -105,8 +105,18 @@ def main():
         d = ((a.float() - b.float()).abs().max()).item()
         worst['stock_vs_fused_maxabs'] = max(worst.get('stock_vs_fused_maxabs', 0.0), d)
         n += 1
+    # other helper forms (shared helper, default path unchanged): no norm weight, and norm disabled
+    m = 0
+    for T, pattern in itertools.product((1, 8, 31, 33), ('all_local', 'mixed', 'all_remote')):
+        x, s, ids = make(T, pattern, g)
+        for wv, an in ((None, True), (w, False), (None, False)):
+            a = stock_fallback(x, s, wv, ids, True, an); b = triton_emulation(x, s, wv, ids, True, an)
+            assert torch.isfinite(a.float()).all() and torch.isfinite(b.float()).all(), (T, pattern, an)
+            assert torch.equal(a, b) or (a.float() - b.float()).abs().max().item() < 2e-2, (T, pattern, an)
+            m += 1
     print(f'PASS {n} cases; worst rel-L2 vs FP64: stock {worst["stock"]:.2e}, fused-emulation {worst["fused"]:.2e}; '
-          f'max |stock - fused| {worst["stock_vs_fused_maxabs"]:.3g} (BF16 rounding/reduction order)')
+          f'max |stock - fused| {worst["stock_vs_fused_maxabs"]:.3g} (BF16 rounding/reduction order); '
+          f'plus {m} no-weight / norm-disabled cases')
 
 
 if __name__ == '__main__':
