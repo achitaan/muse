@@ -1,4 +1,4 @@
-"""achitaan: experimental fixed-position BF16 codec, NOT an OKC submission.
+"""achitaan: fixed-position BF16 codec helpers, NOT a standalone OKC submission.
 
 Independent implementation of the ZipServ-style idea described in
 HPMLL/ZipServ_ASPLOS26 (Apache-2.0), arxiv.org/html/2603.17435.
@@ -22,9 +22,9 @@ the measured size includes that padding. The refined council gate is <=11.4
 effective bpw, requiring >=97.6953125% coverage in the infinite-matrix limit.
 Start on pooler m=1/8 only; other layers remain disabled until pooler wins.
 
-This CPU packer/reference decoder is the initial implementation while the
-real-weight statistics CHECK runs. GPU integration must remain gated on that
-check, then real-weight bitwise roundtrip and both ABBA passes <=0.988.
+The CPU packer/reference decoder is embedded readably in bf16_zs.py. Admission
+requires measured real-weight bytes, bitwise roundtrip, a raw-math twin, and
+both ABBA passes <=0.988. Pooler passed the size gate in 5a96d3df44c54131.
 """
 
 import numpy as np
@@ -32,7 +32,7 @@ import numpy as np
 MAX_EFFECTIVE_BPW = 11.4
 
 
-def pack_fragments(bits: np.ndarray) -> dict:
+def pack_fragments(bits: np.ndarray, *, permuted: bool = False) -> dict:
     """Pack uint16 [T, KC, 4, 32, 8] bits; reject any non-fragment shape.
 
     Integer input intentionally preserves every BF16 encoding, including both
@@ -60,7 +60,12 @@ def pack_fragments(bits: np.ndarray) -> dict:
     offsets = np.empty(units + 1, dtype=np.uint32)
     offsets[0] = 0
     escapes = []
-    shifts = np.arange(32, dtype=np.uint32)
+    positions = np.arange(32, dtype=np.uint32)
+    # achitaan: four values occupy bits s,s+4,s+8,s+12, so the GPU gets
+    # four PRMT selectors with shift/mask/merge, not a bit-spreading chain.
+    # This is a fixed format permutation, not additional per-weight metadata.
+    shifts = (positions // 16) * 16 + (positions % 16) // 4 + (positions % 4) * 4 if permuted else positions
+    physical_order = np.argsort(shifts)
     for start in range(0, units, 2048):
         b = raw[start:start + 2048]
         n = len(b)
@@ -76,7 +81,9 @@ def pack_fragments(bits: np.ndarray) -> dict:
         mask = codes == 0
         counts = mask.sum(axis=(1, 2), dtype=np.uint64)
         offsets[start + 1:start + n + 1] = offsets[start] + np.cumsum(counts, dtype=np.uint64)
-        escapes.append(groups[mask])
+        # Escape order must follow physical mask bits for a single popcount
+        # prefix, not the logical MMA value positions when planes are permuted.
+        escapes.append(groups[..., physical_order][mask[..., physical_order]])
     escaped = np.concatenate(escapes)
     # achitaan: concrete final escape/index allocation, not a payload estimate.
     # Offsets are uint32 aligned; scalar uint16 escape loads need only 2-byte
@@ -86,7 +93,7 @@ def pack_fragments(bits: np.ndarray) -> dict:
     storage = np.zeros((used_bytes + 15) // 16 * 16, dtype=np.uint8)
     storage[:index_bytes] = offsets.view(np.uint8)
     storage[index_bytes:used_bytes] = escaped.view(np.uint8)
-    result = dict(shape=bits.shape, table=table, sign_mantissa=sm,
+    result = dict(shape=bits.shape, bit_positions=tuple(int(p) for p in shifts), table=table, sign_mantissa=sm,
                   planes=plane, storage=storage,
                   offsets=storage[:index_bytes].view(np.uint32),
                   escapes=storage[index_bytes:used_bytes].view(np.uint16))
@@ -128,15 +135,18 @@ def unpack_fragments(pack: dict) -> np.ndarray:
     shape = tuple(pack["shape"])
     units = shape[0] * shape[1]
     out = np.empty((units, 4, 32, 8), dtype=np.uint16)
+    positions = np.array(pack.get("bit_positions", tuple(range(32))), dtype=np.uint32)
+    physical_order = np.argsort(positions)
     for start in range(0, units, 2048):
         p = pack["planes"][start:start + 2048]
         n = len(p)
         c = np.zeros((n, 32, 32), dtype=np.uint8)
         # Deliberately separate from the encoder's plane-reduction operation.
         for position in range(32):
-            c[:, :, position] = (((p[:, 0] >> position) & 1)
-                                 | (((p[:, 1] >> position) & 1) << 1)
-                                 | (((p[:, 2] >> position) & 1) << 2))
+            at = int(positions[position])
+            c[:, :, position] = (((p[:, 0] >> at) & 1)
+                                 | (((p[:, 1] >> at) & 1) << 1)
+                                 | (((p[:, 2] >> at) & 1) << 2))
         ms = pack["sign_mantissa"][start:start + n].reshape(n, 2, 32, 2, 8)
         ms = ms.transpose(0, 1, 3, 2, 4).reshape(n, 4, 32, 8)
         ms = ms.transpose(0, 2, 1, 3).reshape(n, 32, 32).astype(np.uint16)
@@ -144,9 +154,10 @@ def unpack_fragments(pack: dict) -> np.ndarray:
         mask = c == 0
         # Prefix within a unit includes preceding lanes then preceding values;
         # this is exactly the mathematical rank from warp-scan + popcount.
-        rank = np.cumsum(mask.reshape(n, 1024), axis=1, dtype=np.uint32) - 1
+        rank = np.cumsum(mask[..., physical_order].reshape(n, 1024), axis=1, dtype=np.uint32) - 1
         addresses = pack["offsets"][start:start + n, None] + rank
-        decoded[mask] = pack["escapes"][addresses.reshape(n, 32, 32)[mask]]
+        logical_addresses = addresses.reshape(n, 32, 32)[..., positions]
+        decoded[mask] = pack["escapes"][logical_addresses[mask]]
         out[start:start + n] = decoded.reshape(n, 32, 4, 8).transpose(0, 2, 1, 3)
     return out.reshape(shape)
 
@@ -180,7 +191,12 @@ def self_test() -> None:
     # Reference: original integers across the 2048-unit packing batch boundary;
     # the second batch must continue, rather than restart, its escape offsets.
     boundary = rng.integers(0, 65536, size=(1, 2049, 4, 32, 8), dtype=np.uint16)
-    assert np.array_equal(unpack_fragments(pack_fragments(boundary)), boundary)
+    natural = pack_fragments(boundary)
+    permuted = pack_fragments(boundary, permuted=True)
+    assert np.array_equal(unpack_fragments(natural), boundary)
+    assert np.array_equal(unpack_fragments(permuted), boundary)
+    # A bit permutation changes neither frequency nor storage, including tail padding.
+    assert natural["bytes"] == permuted["bytes"]
     print("ZS codec CPU self-tests passed: exhaustive BF16 bits, zero escapes, boundaries, seeded random")
 
 

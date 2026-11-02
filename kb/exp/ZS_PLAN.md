@@ -10,10 +10,14 @@
   tuner's later output displaced every early `ZS` line. No measured coverage
   or packed-size decision is available from this result. Do not infer one from
   the unrelated legacy `STATS_E` lines that survived.
-- Fixed retry source (not yet resubmitted): run diagnostics after parent
+- Fixed retry source: run diagnostics after parent
   prepare, compact floats, keep the complete ZS block below 14500 characters,
   and actually pack/bitwise-roundtrip pooler to report all buffer bytes.
-  One additional diagnostic CHECK needs caller approval before continuing.
+  Retry submitted by caller: `5a96d3df44c54131`.
+- Retry result: actual pooler **47766296 bytes / 11.3883724 bpw**, top-seven
+  coverage **0.9776800**, full bit-exact roundtrip. Components: byte plane
+  33554432 B, exponent planes 12582912 B, escapes 1497868 B, offsets 131076 B,
+  table 8 B, zero tail padding. This qualifies for the refined <=11.4 gate.
 - Initial requested gate was <=11.16 bits/weight (7% below 12). Council
   refinement supersedes it: top-seven coverage >=95% **and actual packed
   buffers <=11.4 bits/weight**, including offsets, padding and escape payloads.
@@ -36,8 +40,11 @@
 Vjeux uses `cgemv`/`sk2`; chenwainuo has register-direct `gv` and `rq`.
 The existing DT arm interface already builds independent `gv` instances and
 can compare them with the actual selected default, regardless of its family.
-Use **FMT=6 in the existing gv kernel**, not a separate GEMV implementation.
-Keep the original default dispatch, and all its existing gated DT choices.
+The implemented scope is **FMT=6 in gv_predxor for m8**, with precisely its
+`MT1/ST1/WR2/WK16/KU8/S1/RT1/XS0/V3` geometry, plus **FMT=6 in cgemv for m1**,
+with the incumbent `ROWS2/NTH512/K8192` geometry. FMT=0 twins use the same
+templates and raw BF16 weights. No separate GEMV algorithm is introduced.
+Keep the original default dispatch and all its existing gated DT choices.
 
 ## Fixed layout, initial implementation
 
@@ -46,10 +53,15 @@ Keep the original default dispatch, and all its existing gated DT choices.
 - Unit: existing `[4 K16 steps, 32 lanes, 8 values]` BF16 fragments.
 - Group: all 32 values belonging to one lane of that unit.
 - Byte plane: 7 mantissa bits plus sign, in the existing two uint4 load layout.
-- Three uint32 bitplanes per group; bits at fixed value positions.
+- Three uint32 bitplanes per group; bits at fixed value positions. The GPU
+  variant permutes logical position `v` to `(v//16)*16+(v%16)//4+(v%4)*4`:
+  each four values now sit at bit positions s,s+4,s+8,s+12. Shift/mask/merge
+  directly produces four nibble selectors for a register PRMT lookup, without
+  a bit-spreading chain. This bijection costs no additional bytes.
 - Matrix table: eight exponent bytes; codes 1..7 selected by frequency, zero
   reserved for a full-BF16 escape. No float conversion of weight bits.
-- Escapes: full uint16 words in unit/lane/position order.
+- Escapes: full uint16 words in unit/lane/**physical bit** order, making each
+  escaped value's address exactly group-base + popcount(mask-prefix).
 - Index: one uint32 base per 1024-weight unit and one terminal sentinel.
   Each lane gets its group base via a warp prefix sum of escape-mask popcounts;
   an escape's within-group rank is one popcount of its mask prefix.
@@ -102,3 +114,27 @@ These are codec/layout checks, not GPU performance or real-weight validation.
 Source concept: HPMLL/ZipServ_ASPLOS26, Apache-2.0;
 arxiv.org/html/2603.17435. The initial codec is independently written; no
 external source or compressed source code is embedded.
+
+## Implemented submission and verification
+
+- `build_bf16_zs.py` materializes readable `bf16_zs.py` from unchanged v2 logic
+  (two source-export keys only), `zs_codec.py`, and `zs_pooler.py`.
+- One isolated extension contains only the pooler m1/m8 format variants and
+  raw twins. Cgemv's obsolete additive correction warp contributes zero in
+  both twins; each escape is repaired in-register before the unchanged FMAs.
+- Cgemv grouping pairs the 16 values of a thread from row0 with its 16 from
+  row1. GV grouping is its existing 32-value lane fragment. Each layout has
+  identical encoded byte counts, despite different ordering.
+- Actual buffers are packed and independently decoded in prepare; >11.4 bpw
+  is rejected before any candidate launch. Only m1 and m8 can be installed.
+- Every cell compares to the complete v2 incumbent, not an older inner route.
+  Raw twin outputs must be bitwise equal on normal/outlier/one-hot inputs;
+  FP64/default checks and 40-block cold-L2 ABBA run twice, with new inputs and
+  graphs in confirmation. Both median and paired ratios must be <=0.988.
+- Compact `ZS` packing/timing lines and the final adoption summary print LAST.
+- `py -3.12 kb/exp/test_zs_pooler.py`: exhaustive BF16 CPU roundtrip, emulated
+  PRMT/LOP3/warp-scan/popcount decode, and both full 4096x8192 loader layouts
+  pass. Source checks prove unchanged FMA/reduction text and inherited v2 AST
+  (except the two export-only dictionary entries).
+- No local GPU or nvcc; CUDA compilation/correctness/performance await the
+  single authorized Dense CHECK. No unmeasured speedup is claimed.
