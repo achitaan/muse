@@ -1,5 +1,7 @@
 # Board bests and source provenance
 
+Decode refreshed 2026-11-02 from scored run `2ecb3de5` (2.2341x): keell0renz's public Apache-2.0 decode file plus our changes (license and notice copied as `keell0renz_LICENSE` / `keell0renz_NOTICE`).
+
 Decode refreshed 2026-11-01 from scored run `9dabcd9a` (2.1056x).
 
 Decode refreshed 2026-10-31 09:04 UTC from scored run `e1af1dd0` (rank 272 / 1093). Earlier Decode sources remain here.
@@ -13,6 +15,7 @@ unchanged (the `best/` baselines are untouched).
 |---|---:|---:|---|---|---|
 | MoE | 2.3797x | 59 / 1131 (was 90) | `ac80911ea3d34dac` | `moe_m3_scored_2.3797.py` (M3 selector; selects nothing -> same kernels as `best/moe_verified.py`) | `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795` |
 | Attention | 2.5690x | 144 / 1087 (was 149) | `c8f7560097d348c5` | `attention_a3_scored_2.5690.py` (A3: decode 16 sliding n_splits 8) | `ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1` |
+| Decode | 2.2341x | (pending refresh) | `2ecb3de53d7f44e9` | `decoder_kb1_scored_2.2341.py`: keell0renz's decode file (github.com/keell0renz/muse-open-kernel-challenge, Apache-2.0) plus achitaan changes: J==0 stream-K hang guard, MoE ERL + HINT + FINREG. Same-judge check `2a45f597` 2.2589x vs their unchanged file `cde2084a` 2.2588x (tie). Branch `argon/keell-base-20261102`, `kb/v1/decode_v1.py`. | `65b108fdf1744b4d9e949b66401809928947b9fdf5ec30028579b63ca0763982` |
 | Decode | 2.1056x | (pending refresh; was 368 / 1175 at 2.0970; top 50 at 2.2980) | `9dabcd9a13554bad` | `decoder_p36_scored_2.1056.py`: the 2.0970 lineage plus sk2 PDL at 16/32 tokens, early-trigger norm at 16/32, MoE HINT+ERL+FINREG (bit-identical MAIN tweaks), and in-prepare A/B gates that flush L2 by reading (judge-like) instead of writing; the trigger-after-wait variants it carries were rejected by the gate. Check `22240ad3` 2.1178x; scored CI [2.0740, 2.1372]. Branch `argon/decode-next-20261030`, `experiments/top50/decoder_p36_trig.py`. | `449ef16c1e3af46254d6297497d658d6dd7f931d597aef4dd2ed2f62bc854f44` |
 | Dense | 1.5278x | 158 / 1411 | `6131bc96427e4486` | `best/verified.py` | `edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b` |
 | Prefill | 1.6635x | 179 / 652 | (earlier scored run) | `best/prefill_verified.py` | `93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7` |
