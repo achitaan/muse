@@ -272,7 +272,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell MAIN MoE: dependency-aware B task order (consume jobs in A-completion order; FlashInfer group_hint idea) + measured doneAs wait cycles; gated | diagnostic check queued; READY full-A and FRONT stage0-A completion orders, separate WAIT instrumentation; 3 draws x24 ABBA; base-spread/zero-local gate; CPU scheduler 598 cases passed; commit fdc1fa7 | argon/keell-base-20261102 | `aee108c458134893` | kb/exp/moe_order.py | Nov 02 |
+| keell MAIN MoE: dependency-aware B task order (consume jobs in A-completion order; FlashInfer group_hint idea) + measured doneAs wait cycles; gated | closed tested orders: check PASS, prepare84.8s, all BASE; READY ratios bs32/128/256=1.19886/1.16949/1.15098; FRONT=1.12778/1.11626/1.11074; both local40B and relerr up to1.44e-4 vs BASE repeat0. WAIT bs256 draw1/2 doneAs med4548/4198 max25232/37419 cycles; ordered worst waits larger. Early bs32/128 BASE wait lines lost to API log-tail truncation. CPU scheduler598 cases pass; commit fdc1fa7 | argon/keell-base-20261102 | `aee108c458134893` | kb/exp/moe_order.py; kb/exp/profiles/moe_order.aee108c458134893.log | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
