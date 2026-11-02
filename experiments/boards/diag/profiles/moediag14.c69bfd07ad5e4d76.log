@@ -1,0 +1,8 @@
+MD_INFO v=14 MID16(STRIDE slot = MID non-WS SK_T=16, splits only >16) READ_FLUSH(judge-like: amax over 256MiB, no dirty lines) STRIDE_IS_TINY_L2H1 device='NVIDIA H200' reps=40 flush_MiB=256 BASE=84a64d5870df STRIDE=34c8d4c65917
+MD_NOTE skinny A_then_B strided; per-job A credits; Bfirst=phase_attempt_before_readiness_wait; TL=separate_TUs; pass2=reverse_cases_and_variants
+MD_CASE case=R16 build=MID jobs=13 routes=22 cnt=0:1,3:1,5:2,7:2,11:2,15:1,16:1,18:2,19:2,23:2,27:2,28:1,30:3
+MD_CASE case=R16_SK11 build=MID jobs=4 routes=32 cnt=2:16,18:16
+MD_CASE case=R16_SK12 build=MID jobs=7 routes=35 cnt=2:1,7:15,10:9,23:10
+MD_SETUP seconds=0.7
+MD_ERR build RuntimeError: 'prefill_layer-rh42p3y1/sandbox/cache/torch_extensions/moediag_v10_mid_a161c6d34be1b510/stride.cu".\nninja: build stopped: subcommand failed.\n'
+MD_DONE seconds=17.0
