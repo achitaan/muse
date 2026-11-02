@@ -5886,8 +5886,17 @@ template <int L, bool F> struct Cfg {
   static constexpr int STAGES = 3;
 };
 constexpr int TILE = 64;
-constexpr int ROWB = 64;  // one FP8 head; 64B swizzle, not the base's 128B head
+constexpr int ROWB = 64;  // one FP8 head; 64B swizzle, not the base's 128B pair
 constexpr int STAGE_BYTES = TILE * ROWB;
+// achitaan repair: dimension/vector strides do NOT shrink with the CTA's head
+// count. The old text rewrite matched "L * 4" inside "tidL * 4", producing an
+// 8-byte-spaced cp.async16; it also halved partL's q-store and RoPE strides.
+constexpr int AH_COPY_BYTES = 16;
+constexpr int AH_FREQ_FLOATS = AH_COPY_BYTES / sizeof(float);
+constexpr int AH_QUERY_BYTES = 16;
+constexpr int AH_ROPE_PAIRS = 4;  // 8 dimensions / 2 dimensions per RoPE pair
+static_assert(AH_FREQ_FLOATS == 4 && AH_QUERY_BYTES == 16 && AH_ROPE_PAIRS == 4,
+              "attention dimension strides are independent of heads per CTA");
 struct Params {
   const __nv_bfloat16* qkv;
   const int* seq_lens;
@@ -6256,12 +6265,43 @@ template <int L, bool F> struct Smem {
   __device__ __forceinline__ __nv_bfloat16* qst() {
     return reinterpret_cast<__nv_bfloat16*>(kvq);
   }
-  __nv_bfloat16 kvst[L * 2 * 64];
-  uint8_t kn[L * ROWB], vn[L * ROWB];
-  float cs[L * 32], sn[L * 32], ifreq[32], scl[4];
+  // Explicit member alignment makes the copy contract independent of padding
+  // introduced by another member or by a later head-count specialization.
+  alignas(16) __nv_bfloat16 kvst[L * 2 * 64];
+  alignas(16) uint8_t kn[L * ROWB], vn[L * ROWB];
+  alignas(16) float cs[L * 32], sn[L * 32], ifreq[32], scl[4];
   long long cloc[L];
   int flag, sense;
 };
+// achitaan: compile-time proof for every class of shared-memory vector offset.
+// Global addresses have the same affine strides, checked on the CPU at launch.
+template <int L> __host__ __device__ constexpr bool ah_layout_aligned() {
+  using S = Smem<L, false>;
+  // Member bases have explicit alignas(16/1024) above; scalar members have
+  // their natural 4/8-byte alignment. These declarations work in NVCC/NVRTC.
+  if (alignof(S) < 1024 || sizeof(S) % 1024 || STAGE_BYTES % 512 || ROWB % AH_COPY_BYTES)
+    return false;
+  for (int lane = 0; lane < 8; ++lane) {
+    if ((lane * AH_FREQ_FLOATS * sizeof(float)) % 16 ||
+        (lane * AH_QUERY_BYTES) % 16 || (lane * 8) % 8) return false;
+    if (lane * AH_FREQ_FLOATS + 4 > 32 || lane * AH_QUERY_BYTES + 16 > 128 ||
+        lane * AH_ROPE_PAIRS + 4 > 32) return false;
+  }
+  if (8 * AH_FREQ_FLOATS != 32 || 8 * AH_QUERY_BYTES != 128 || 8 * AH_ROPE_PAIRS != 32)
+    return false;  // no overlapping or missing dimensions
+  for (int r = 0; r < 64; ++r) {
+    for (int ch = 0; ch < 4; ++ch) {
+      const int sw = r * ROWB + ((ch ^ ((r >> 1) & 3)) << 4);
+      if (sw % 16 || (sw + 8) % 8 || sw + 16 > STAGE_BYTES) return false;
+    }
+    // BF16 input rows and FP16 query staging are 128 bytes, not 64 bytes.
+    if ((r * 128) % 16 || (r * 64) % 16 || (r * 72 * sizeof(float)) % 16) return false;
+  }
+  // SW64 descriptors and double-buffered V^T images start at swizzle boundaries.
+  return 4096 % 512 == 0 && 4608 % 512 == 0 && 32 % 16 == 0;
+}
+static_assert(ah_layout_aligned<1>() && ah_layout_aligned<8>(),
+              "attn_1h shared-memory copy, vector, or swizzle alignment failed");
 template <int L, bool PW>
 __device__ __forceinline__ void sum_copies(const Params& p, const int bp, const int j, const int hh, const int part,
                                            const bool act, float (&y)[8], float& lsum) {
@@ -6539,7 +6579,7 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     });
   }
   // small per-call constants: staged with the same group instead of cold loads in the middle of the prologue
-  if (tidL < 8) cp_async16(smem_u32(&S.ifreq[tidL * 2]), p.inv_freq + tidL * 2, 16);
+  if (tidL < 8) cp_async16(smem_u32(&S.ifreq[tidL * AH_FREQ_FLOATS]), p.inv_freq + tidL * AH_FREQ_FLOATS, 16);
   else if (tidL == 8) cp_async4(smem_u32(&S.scl[0]), p.k_scale);
   else if (tidL == 9) cp_async4(smem_u32(&S.scl[1]), p.v_scale);
   else if (!FLAT && M_COOP && tidL == 10)   // the coop barrier's flag / epoch, early
@@ -6709,7 +6749,7 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     if (p.rope) {
 #pragma unroll
       for (int e = 0; e < 4; ++e) {
-        const int i = partL * 2 + e;
+        const int i = partL * AH_ROPE_PAIRS + e;
         const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
         const float a0 = x[2 * e], a1 = x[2 * e + 1];
         x[2 * e] = a0 * c - a1 * sn;
@@ -6735,10 +6775,10 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);
     if constexpr (L == 1) { const uint32_t t1 = qwp[1]; qwp[1] = qwp[2]; qwp[2] = t1; }   // (scout: quad order 0,2,1,3)
     if constexpr (WS) {   // in place over the raw row (same thread, same 16 bytes)
-      *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * 8) = qw;
+      *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * AH_QUERY_BYTES) = qw;
     } else {
       uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;
-      *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * 8) = qw;
+      *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * AH_QUERY_BYTES) = qw;
     }
   }
   if constexpr (QDIR) fence_proxy_async();   // the e4m3 q tile (st.shared) is read by the wgmma after the loop's first barrier
@@ -6771,7 +6811,7 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
         if (p.rope && live) {
 #pragma unroll
           for (int e = 0; e < 4; ++e) {
-            const int i = partL * 2 + e;
+            const int i = partL * AH_ROPE_PAIRS + e;
             const float c = S.cs[jj * 32 + i], sn = S.sn[jj * 32 + i];
             const float a0 = x[2 * e], a1 = x[2 * e + 1];
             x[2 * e] = a0 * c - a1 * sn;
@@ -7747,6 +7787,14 @@ _AT_BUILD_THREADS = []
 _AH_WS = {}
 
 
+class _AHLaunchRejected(ValueError):
+    """CPU preflight failed; no experimental CUDA kernel was launched."""
+
+
+class _AHProbeFault(RuntimeError):
+    """A synchronized device probe failed; do not try another route on this context."""
+
+
 def _ah_build():
     try:
         flags = ['-O3', '-gencode=arch=compute_90a,code=sm_90a', '--expt-relaxed-constexpr']
@@ -7779,6 +7827,56 @@ def _ah_workspace(device):
     return _AH_WS[key]
 
 
+def _ah_assert_launch(data, inv_freq, out, ws, n_splits, coop):
+    """achitaan: CPU metadata only. Reject unsafe bases/affine offsets BEFORE launch.
+
+    64-byte odd-head offsets are valid: cp.async and uint4 need 16, not 128.
+    Shared-memory offsets are checked by ah_layout_aligned's static_asserts;
+    pointer checks alone cannot validate generated device arithmetic or recover
+    a CUDA context after a fault. No device values are read by this guard.
+    """
+    cfg, qkv = data['config'], data['qkv']
+    B, L = cfg['batch'], cfg['q_len']
+    if (B not in (1, 16, 32) or L not in (1, 8) or cfg['num_q_heads'] != 16
+            or cfg['num_kv_heads'] != 2 or cfg['head_dim'] != 64
+            or cfg['page_size'] != 1 or cfg['window'] != 2048
+            or not 1 <= n_splits <= 33 or coop not in (0, 1)
+            or tuple(qkv.shape) != (B, L, 2304)
+            or tuple(out.shape) != (B, L, 1024)
+            or data['page_table'].ndim != 2 or data['page_table'].shape[0] != B):
+        raise _AHLaunchRejected('attn_1h shape/plan preflight failed')
+    rows = B * 2 * L * 8
+    specs = (
+        ('qkv', qkv, 16, torch.bfloat16, B * L * 2304),
+        ('seq_lens', data['seq_lens'], 4, torch.int32, B),
+        ('cache_loc', data['cache_loc'], 8, torch.int64, B * L),
+        ('k_cache', data['k_cache'], 16, torch.float8_e4m3fn, 128),
+        ('v_cache', data['v_cache'], 16, torch.float8_e4m3fn, 128),
+        ('page_table', data['page_table'], 4, torch.int32, B * L),
+        ('k_scale', data['k_scale'], 4, torch.float32, 1),
+        ('v_scale', data['v_scale'], 4, torch.float32, 1),
+        ('inv_freq', inv_freq, 16, torch.float32, 32),
+        ('out', out, 16, torch.bfloat16, B * L * 1024),
+        ('ws_acc', ws[0], 16, torch.float32, rows * 72),
+        ('ws_l', ws[1], 4, torch.float32, rows),
+        ('ws_cnt', ws[2], 4, torch.int32, 24576 + B * 2),
+    )
+    for name, tensor, alignment, dtype, minimum in specs:
+        if (not tensor.is_cuda or tensor.device != qkv.device or tensor.dtype != dtype
+                or not tensor.is_contiguous() or tensor.numel() < minimum
+                or tensor.data_ptr() % alignment):
+            raise _AHLaunchRejected('attn_1h unsafe pointer/layout: ' + name)
+    # Scalar coefficients of ALL global address classes. Each variable index
+    # multiplies an aligned stride, so arbitrary valid indices preserve alignment.
+    strides = ((qkv.stride(0) * 2, 16), (qkv.stride(1) * 2, 16),
+               (64 * 2, 16), (8 * 2, 16), (4 * 4, 16),  # Q/gate and RoPE copies
+               (2 * 64, 16), (64, 16), (16, 16), (8, 8),  # cache row/head/chunk/write
+               (data['page_table'].stride(0) * 4, 4), (4, 4), (8, 8),
+               (64 * 4, 16), (72 * 4, 16), (8 * 4, 16), (4 * 4, 16))
+    if any(offset % alignment for offset, alignment in strides):
+        raise _AHLaunchRejected('attn_1h affine-offset alignment preflight failed')
+
+
 def _ah_launch(data, n_splits, coop):
     cfg, qkv = data['config'], data['qkv']
     B, L = cfg['batch'], cfg['q_len']
@@ -7786,10 +7884,12 @@ def _ah_launch(data, n_splits, coop):
     device = qkv.device
     out = torch.empty((B, L, hq * 64), device=device, dtype=torch.bfloat16)
     acc, sums, counts = _ah_workspace(device)
+    inv_freq = _inv_freq(cfg['rope_theta'], device)
+    _ah_assert_launch(data, inv_freq, out, (acc, sums, counts), n_splits, coop)
     _AT_MODULES['1h'].run_1h(
         qkv, data['seq_lens'], data['cache_loc'], data['k_cache'], data['v_cache'],
         data['page_table'], data['k_scale'], data['v_scale'],
-        _inv_freq(cfg['rope_theta'], device), out, acc, sums, counts,
+        inv_freq, out, acc, sums, counts,
         B, L, hq, hkv, cfg['page_size'], cfg['window'], int(bool(cfg['rope_theta'])),
         n_splits, 0, 1, cfg['sm_scale'] * cfg['qk_scale_factor'] * LOG2E,
         None, 0, 1, coop << COOP_BIT)
@@ -7983,6 +8083,28 @@ def _at_apply(data, choice):
     raise ValueError(route)
 
 
+def _ah_probe(data, choice, deadline):
+    """One uncaptured, synchronized launch before any new arm is timed.
+
+    CPU rejections are safe to skip. Device exceptions are NOT recoverable by
+    selecting base: stop tuning immediately and report the failing arm.
+    """
+    _at_check(deadline)
+    try:
+        output = _at_apply(data, choice)  # includes all-pointer CPU preflight
+        torch.cuda.synchronize(data['qkv'].device)
+    except _AHLaunchRejected as exc:
+        print('AT probe %s refused-before-launch %s' % (choice[0], exc), flush=True)
+        return None
+    except Exception as exc:
+        print('AT probe %s device-failed %s: %s' %
+              (choice[0], type(exc).__name__, str(exc)[:160].replace('\n', ' ')), flush=True)
+        raise _AHProbeFault('unsafe CUDA context after probe ' + choice[0]) from exc
+    _at_check(deadline)
+    print('AT probe %s synchronized-ok' % choice[0], flush=True)
+    return output
+
+
 def _at_capture(data, choice, deadline):
     # Populate lazy constants/scratch/launch attributes outside the graph.
     for _ in range(3):
@@ -8072,6 +8194,15 @@ def _at_shape(B, L, window, device, flush, sink, deadline):
     winning_search = None
     for choice in choices[1:]:
         _at_check(deadline)
+        _at_reset_cache(data, cache_bytes)
+        probe_output = _ah_probe(data, choice, deadline)
+        if probe_output is None:
+            continue
+        if not equiv(probe_output, 'probe-' + choice[0]):
+            print('AT %s %s probe-numerical-reject e0 a0' % (label, choice[0]), flush=True)
+            del probe_output
+            continue
+        del probe_output
         _at_reset_cache(data, cache_bytes)
         graph, output = _at_capture(data, choice, deadline)
         # Warm-up must not hide missing cache writes; test poisoned slots.
