@@ -237,6 +237,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 |---|---|---|---|---|---|
 | Hybrid bf16_proj: per (layer, m) cell dispatch to the faster of keell0renz and alygg77 public Apache-2.0 files (alygg77 for qkv_gate@1/16, pooler@8, router@8, unpooler@8; per-module TORCH_EXTENSIONS_DIR) | closed | check 241400bc 1.5681 vs keell unchanged 1.5598 (70d8df28): within noise, estimate 1.629 did not hold; unchanged third-party code, not submitted | `241400bc` | kb/v1/bf16_hybrid.py (argon/keell-base-20261102) | Nov 02 |
 | Prepare-time per-(layer,m) route tuner on keell bf16_proj, read-flush ABBA + confirm pass | closed | scored 88a9aad0 1.5669 CI [1.5434, 1.5904] (our Dense best, was 1.5273 after withdrawal); tuner adopted 0/30: every alternative route 0.987-2.44x of keell's pick (best o@16 vjx 0.987, above the 0.985 bar); keell's per-cell picks are optimal. Published main | `88a9aad0` | kb/exp/bf16_tune.py (argon/keell-base-20261102, e8e9e8f) | Nov 02 |
+| keell bf16: chenwainuo rq at m=256 (pooler/unpooler/qkv) and o@128; Codec E ~11.1-bit weights + CURP at small m; router 12-bit; gated in prepare | in progress | check 630d4cb2 1.5918 (keell check 1.5598); adopted 1/17 after confirm: qkv_gate@32 rq t32s5 CURP 0.963/0.973 (confirm 0.966/0.973); qkv@16 CURP passed main only; Codec E 3.1x slower; m=256 rq lost. ~+0.1% board from one cell. Scored bbde8419 submitted | `630d4cb2, bbde8419` | kb/exp/bf16_v2.py (argon/keell-base-20261102, 8ad864f) | Nov 02 |
 
 ## Decode layer
 
@@ -270,4 +271,3 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell bf16: chenwainuo rq at m=256 (pooler/unpooler/qkv) and o@128; Codec E ~11.1-bit weights + CURP at small m; router 12-bit; gated in prepare | kept qkv_gate:32 CURP ST5 KS7 only (1/17): median/paired .963/.973 main, .966/.973 confirm; score 1.591792 CI [1.567915,1.615669], all checks pass, prepare 96.64s. Closed other arms: rq256 pooler/unpooler lose >=7.7/10.5%; qkv256 paired .989 misses gate; o128 >=11% slower; E exact 11.03-11.18 bit/w but 44-210% slower; gb1/8 and router12 lose. qkv16 CURP confirmation paired .994 rejected. Diagnostic: old rq x neq was 1e-3 overstrict gate, observed base L2 .00287-.00419 and FP64 .00245-.00386; not layout. Aggregate uplift versus prior checks remains cross-run/noise-sensitive. | 8ad864f / argon/keell-base-20261102 | `630d4cb2b26e48f2` | kb/exp/bf16_v2.py | Nov 02 |
