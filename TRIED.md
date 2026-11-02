@@ -264,3 +264,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+
+## Dense projections (``bf16_proj``)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| keell bf16: chenwainuo rq at m=256 (pooler/unpooler/qkv) and o@128; Codec E ~11.1-bit weights + CURP at small m; router 12-bit; gated in prepare | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
