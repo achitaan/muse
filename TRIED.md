@@ -234,7 +234,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Hybrid bf16_proj: per (layer, m) cell dispatch to the faster of keell0renz and alygg77 public Apache-2.0 files (alygg77 for qkv_gate@1/16, pooler@8, router@8, unpooler@8; per-module TORCH_EXTENSIONS_DIR) | closed | check 241400bc 1.5681 vs keell unchanged 1.5598 (70d8df28): within noise, estimate 1.629 did not hold; unchanged third-party code, not submitted | `241400bc` | kb/v1/bf16_hybrid.py (argon/keell-base-20261102) | Nov 02 |
-| Prepare-time per-(layer,m) route tuner on keell bf16_proj, read-flush ABBA + confirm pass | submitted scored, result pending | job 88a9aad054b0495a, e8e9e8f, kb/exp/bf16_tune.py | - | - | Nov 02 |
+| Prepare-time per-(layer,m) route tuner on keell bf16_proj, read-flush ABBA + confirm pass | closed | scored 88a9aad0 1.5669 CI [1.5434, 1.5904] (our Dense best, was 1.5273 after withdrawal); tuner adopted 0/30: every alternative route 0.987-2.44x of keell's pick (best o@16 vjx 0.987, above the 0.985 bar); keell's per-cell picks are optimal. Published main | `88a9aad0` | kb/exp/bf16_tune.py (argon/keell-base-20261102, e8e9e8f) | Nov 02 |
 
 ## Decode layer
 
