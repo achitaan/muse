@@ -234,7 +234,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Hybrid bf16_proj: per (layer, m) cell dispatch to the faster of keell0renz and alygg77 public Apache-2.0 files (alygg77 for qkv_gate@1/16, pooler@8, router@8, unpooler@8; per-module TORCH_EXTENSIONS_DIR) | closed | check 241400bc 1.5681 vs keell unchanged 1.5598 (70d8df28): within noise, estimate 1.629 did not hold; unchanged third-party code, not submitted | `241400bc` | kb/v1/bf16_hybrid.py (argon/keell-base-20261102) | Nov 02 |
-| Prepare-time per-(layer,m) route tuner on keell bf16_proj, read-flush ABBA + confirm pass | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| Prepare-time per-(layer,m) route tuner on keell bf16_proj, read-flush ABBA + confirm pass | submitted scored, result pending | job 88a9aad054b0495a, e8e9e8f, kb/exp/bf16_tune.py | - | - | Nov 02 |
 
 ## Decode layer
 
