@@ -6899,10 +6899,13 @@ _MS_SEEDS = {32: 2826933919152867123, 128: 2827104465878233812,
 _MS_GRID, _MS_MAX_JOBS = 264, 88
 _MS_SB, _MS_FIXW = 4608, 8192
 _MS_REL = 1e-4  # FP32 GEMM2, not the much looser end-to-end BF16 tolerance
+# achitaan: allocation capacity != pointer ABI. Python WGS_XROWS (4160) is a
+# conservative reserve; CUDA's xB starts after EMAX+8*JMAX = 3776 xA rows.
+_MS_OLD_XROWS = EMAX + 8 * JMAX
 
 
 def _ms_replace(src, old, new, count=1):
-    assert src.count(old) == count, (old[:120], src.count(old), count)
+    assert src.count(old) == count, f'MS replace anchor={old[:120]!r} actual={src.count(old)} expected={count}'
     return src.replace(old, new)
 
 
@@ -7379,7 +7382,7 @@ def _ms_perm128():
     p = torch.arange(128)
     s, c = p >> 4, p & 15
     k = 16 * (2 * ((c >> 1) & 3) + (s & 1)) + 4 * (s >> 1) + (c & 1) + 2 * (c >> 3)
-    assert sorted(k.tolist()) == list(range(128))
+    assert sorted(k.tolist()) == list(range(128)), f'MS K128 permutation={k.tolist()}'
     return k
 
 
@@ -7403,12 +7406,13 @@ def _ms_pack_weights(weights, lo, count):
         sf = sf.view(64, 4, 2, 8, 32, 4, 2).permute(0, 4, 1, 3, 5, 6, 2).contiguous()
         result.append(torch.cat((cb, sf.view(64, 32, 512)), -1).reshape(-1))
     packed = torch.cat(result)
-    assert packed.numel() == count * 64 * 32 * _MS_SB
+    assert packed.numel() == count * 64 * 32 * _MS_SB, f'MS packed bytes={packed.numel()} experts={count} expected={count*64*32*_MS_SB}'
     return packed
 
 
 def _ms_jobs(counts, limit):
     """Exactly keell's order: fat experts first, then <=8-token experts."""
+    assert limit in (64, 128) and all(n >= 0 for n in counts), f'MS jobs limit={limit} counts={counts}'
     fat, skinny, start = [], [], 0
     for e, n in enumerate(counts):
         target = fat if n > 8 else skinny
@@ -7419,7 +7423,7 @@ def _ms_jobs(counts, limit):
     for e, start, n in fat + skinny:
         jobs.append((e, start, n, row))
         row += (n+7) & ~7
-    assert len(jobs) <= _MS_MAX_JOBS
+    assert len(jobs) <= _MS_MAX_JOBS, f'MS jobs={len(jobs)} max={_MS_MAX_JOBS} limit={limit} counts={counts}'
     return jobs, row
 
 
@@ -7448,13 +7452,13 @@ def _ms_plan(jobs):
         k = 0 if rem < 70 else min(31, (rem-70)//costs[j])
         ranges.append(j*2048 + unit*32+k)
     ranges.append(len(jobs)*2048)
-    assert ranges[0] == 0 and ranges == sorted(ranges)
-    assert sum(b-a for a, b in zip(ranges, ranges[1:])) == len(jobs)*2048
+    assert ranges[0] == 0 and ranges == sorted(ranges), f'MS nonmonotone ranges={ranges} jobs={jobs}'
+    assert sum(b-a for a, b in zip(ranges, ranges[1:])) == len(jobs)*2048, f'MS coverage first/last={ranges[0]}/{ranges[-1]} expected={len(jobs)*2048}'
     # A CTA can own at most ONE trailing split unit (and its slot). Multiple
     # contributors to very short ranges share that unique stage-zero owner.
     splits = {x//32 for x in ranges[1:-1] if x % 32}
     slots = [bisect.bisect_right(ranges, u*32)-1 for u in splits]
-    assert len(slots) == len(set(slots)) and all(0 <= s < _MS_GRID for s in slots)
+    assert len(slots) == len(set(slots)) and all(0 <= s < _MS_GRID for s in slots), f'MS split slot collision slots={slots} grid={_MS_GRID} splits={sorted(splits)}'
     flat = [len(jobs), _MS_GRID, sum(j[2] for j in jobs), len(splits)]
     flat += [v for j in jobs for v in j]
     flat += ranges
@@ -7473,7 +7477,7 @@ def _ms_old_plan(jobs, grid):
     prefix = [0]
     for cost in costs:
         prefix.append(prefix[-1]+16*(16*cost+70))
-    assert prefix[-1]*grid < 2**32  # original CUDA unsigned arithmetic exact
+    assert prefix[-1]*grid < 2**32, f'MS old uint32 overflow total={prefix[-1]} grid={grid} product={prefix[-1]*grid}'
     ranges = []
     for c in range(grid):
         if not jobs:
@@ -7485,7 +7489,7 @@ def _ms_old_plan(jobs, grid):
         k = 0 if rem < 70 else min(15, (rem-70)//costs[j])
         ranges.append(j*256+unit*16+k)
     ranges.append(len(jobs)*256)
-    assert ranges == sorted(ranges)
+    assert ranges == sorted(ranges), f'MS old nonmonotone ranges={ranges} jobs={jobs}'
     return ([len(jobs), grid, sum(j[2] for j in jobs), prefix[-1]]
             + [v for j in jobs for v in j] + ranges + prefix)
 
@@ -7498,11 +7502,16 @@ def _ms_activations(scratch, jobs64, jobs_new, routes):
     Zero pads are explicitly materialized for all native N shapes.
     """
     dev = scratch[2].device
-    xb = scratch[2][(EMAX+WGS_XROWS)*HIDDEN:]
+    offset = (EMAX+_MS_OLD_XROWS)*HIDDEN
+    required = (EMAX+2*_MS_OLD_XROWS)*HIDDEN
+    assert scratch[2].numel() >= required, f'MS scratch BF16 elements={scratch[2].numel()} required={required} xB_offset={offset}'
+    assert sum(j[2] for j in jobs64) == routes, f'MS source jobs route sum={sum(j[2] for j in jobs64)} expected={routes} jobs={jobs64}'
+    xb = scratch[2][offset:offset+_MS_OLD_XROWS*HIDDEN]
     natural = torch.empty((routes, HIDDEN), dtype=torch.bfloat16, device=dev)
     inverse = torch.argsort(_kperm_src()).to(dev)
     for _, start, n, row in jobs64:
         npad = (n+7) & ~7
+        assert 0 <= start < start+n <= routes and 0 < n <= 64 and row+npad <= _MS_OLD_XROWS, f'MS xB job={(start,n,row)} routes={routes} padded={npad} capacity={_MS_OLD_XROWS}'
         x = xb[row*4096:(row+npad)*4096].view(16, npad//8, 32, 8, 8)
         x = x.permute(1, 3, 0, 2, 4).contiguous().view(npad, 16, 256)
         natural[start:start+n] = x[:n].index_select(2, inverse).reshape(n, 4096)
@@ -7510,11 +7519,12 @@ def _ms_activations(scratch, jobs64, jobs_new, routes):
     parts = []
     for _, start, n, _ in jobs_new:
         npad = (n+7) & ~7
+        assert 0 <= start < start+n <= routes and 0 < n <= 128, f'MS P2 activation job={(start,n)} routes={routes} padded={npad}'
         x = torch.zeros((npad, 4096), dtype=torch.bfloat16, device=dev)
         x[:n] = natural[start:start+n]
         x = x.view(npad, 32, 128).index_select(2, p)
         parts.append(x.view(npad//8, 8, 32, 16, 8).permute(2, 0, 3, 1, 4).contiguous().reshape(-1))
-    return torch.cat(parts), natural
+    return (torch.cat(parts) if parts else natural.reshape(-1)), natural
 
 
 def _ms_capture(fn, flush, flush_out):
@@ -7552,9 +7562,8 @@ def _ms_abba(a, b, flush, flush_out, deadline, checks):
             ts[arm].append(value); quad[arm].append(value)
             # Check EVERY timed replay after its end event. This does not enter
             # the event interval; the next arm gets another full read flush.
-            rel, _ = _ms_error(*checks[arm])
-            if rel > _MS_REL:
-                raise RuntimeError(f'MS ABBA replay {rep}/{arm} GEMM2 rel={rel}')
+            if checks[arm] is not None:
+                checks[arm]()
         pairs.append(st.mean(quad[1])/st.mean(quad[0]))
     return st.median(ts[0]), st.median(ts[1]), st.median(pairs)
 
@@ -7569,6 +7578,173 @@ def _ms_error(out, reference):
     return float(d.norm()/b.norm().clamp_min(1e-30)), float(d.abs().max())
 
 
+def _ms_log_error(where, exc):
+    """Keep every traceback frame, compact enough for the judge's log tail."""
+    import traceback
+    trace = ' | '.join(line.strip() for line in traceback.format_exc().splitlines() if line.strip())
+    print(f'MS_ERR where={where} type={type(exc).__name__} message={str(exc)!r} traceback={trace!r}', flush=True)
+
+
+def _ms_attempt(where, fn, errors):
+    # Host/setup/numerical failures are isolated. A poisoned CUDA context is
+    # not recoverable in-process; subsequent attempts will log their own error.
+    try:
+        return fn()
+    except Exception as exc:
+        errors.append(where)
+        _ms_log_error(where, exc)
+        return None
+
+
+def _ms_verify(out, raw_ref, ybase, norm, where):
+    # Expected values come from independent incumbent MAIN. If its extracted
+    # B arm fails, validate new arms against MAIN's BF16 post-norm-weight ybuf.
+    # BF16 midpoint changes need a looser tolerance than raw FP32 accumulation.
+    reference = raw_ref if raw_ref is not None else ybase
+    actual = out if raw_ref is not None else (out * norm).to(torch.bfloat16)
+    tolerance = _MS_REL if raw_ref is not None else 3e-4
+    rel, maximum = _ms_error(actual, reference)
+    if rel > tolerance:
+        raise RuntimeError(f'MS {where} rel={rel} max_abs={maximum} tolerance={tolerance} '
+                           f'reference={"raw_B_old" if raw_ref is not None else "production_BF16"}')
+    return rel
+
+
+def _ms_draw(state, weights, base, mod, packed, flush, flush_out, deadline, bs, draw, seed):
+    """One independent draw; failed arms only invalidate dependent pairs."""
+    dev = weights['w2'].device
+    tag = f'b{bs}/d{draw}'  # compact repeated labels; seed is printed once below
+    errors = []
+    result = {'r64': None, 'r128': None, 'r128old': None, 'rate': None, 'saved': 0, 'errors': errors}
+    d = _gen_input(bs, seed, dev)
+    ids = d['topk_ids']
+    local = ids[(ids >= state['lo']) & (ids < state['lo']+state['cnt'])]-state['lo']
+    counts = torch.bincount(local.long(), minlength=state['cnt']).cpu().tolist()
+    routes, unique = sum(counts), sum(n > 0 for n in counts)
+    assert tuple(ids.shape) == (bs, TOP_K) and len(counts) == state['cnt'], f'MS routing ids={tuple(ids.shape)} bs={bs} topk={TOP_K} counts={counts} local_count={state["cnt"]}'
+    if routes == 0:
+        print(f'MS SKIP {tag} reason=no_local_routes counts={counts}', flush=True)
+        errors.append(tag+'/empty')
+        return result
+    jobs64, padded64 = _ms_jobs(counts, 64)
+    jobs128, padded128 = _ms_jobs(counts, 128)
+    result['saved'] = len(jobs64)-len(jobs128)
+    sb_old = state['w'][13].numel() // (state['cnt']*256)
+    old_bytes = len(jobs64)*256*sb_old
+    new64_bytes, new128_bytes = (len(j)*2048*_MS_SB for j in (jobs64, jobs128))
+    print(f'MS draw {tag} seed={seed} routes={routes} experts={unique} max_tokens={max(counts)} '
+          f'jobs64/128={len(jobs64)}/{len(jobs128)} padded64/128={padded64}/{padded128} '
+          f'xB_offset_rows={EMAX+_MS_OLD_XROWS} python_reserve={WGS_XROWS} '
+          f'job_MB_old/64/128={old_bytes/1e6:.3f}/{new64_bytes/1e6:.3f}/{new128_bytes/1e6:.3f} '
+          f'unique_MB_old/new={unique*256*sb_old/1e6:.3f}/{unique*2048*_MS_SB/1e6:.3f}', flush=True)
+    scratch = _make_scratch(dev)
+    out = torch.empty_like(d['hidden_states'])
+    base.okc_run(state['w'], scratch, d['hidden_states'], ids, d['topk_weights'], out,
+                 state['lo'], state['cnt'], state['grid'])
+    torch.cuda.synchronize()
+    ybase = scratch[1][EMAX:].view(torch.bfloat16)[:routes*4096].reshape(routes, 4096).clone()
+    norm = 1+weights['post_norm_w'].float()
+    arms = {}
+    golden = None
+
+    def old_arm():
+        meta = torch.tensor(_ms_old_plan(jobs64, state['grid']), dtype=torch.int32, device=dev)
+        held = scratch + [meta]
+        y = scratch[1][EMAX:EMAX+routes*4096].reshape(routes, 4096)
+        def fn():
+            mod.old_run(state['w'], held, d['hidden_states'], ids, d['topk_weights'], out,
+                        state['lo'], state['cnt'], state['grid'])
+        graph = _ms_capture(fn, flush, flush_out)
+        ref = y.clone()
+        rel = _ms_verify(ref, None, ybase, norm, tag+'/old_extraction')
+        print(f'MS check {tag} arm=old production_BF16_rel={rel:.3g}', flush=True)
+        return {'graph': graph, 'held': held, 'y': y, 'ref': ref,
+                'check': lambda: _ms_verify(y, ref, ybase, norm, tag+'/old_replay')}
+    old = _ms_attempt(tag+'/old', old_arm, errors)
+    if old is not None:
+        arms['old'] = old
+        golden = old['ref']
+
+    def new_arm(limit):
+        jobs = jobs64 if limit == 64 else jobs128
+        x, natural = _ms_activations(scratch, jobs64, jobs, routes)
+        finite, anorm = bool(torch.isfinite(natural).all()), float(natural.float().norm())
+        assert finite and anorm > 0, f'MS real A finite={finite} norm={anorm} routes={routes} jobs={len(jobs64)} padded_rows={padded64} xB_offset_rows={EMAX+_MS_OLD_XROWS} scratch_elements={scratch[2].numel()} bs={bs} draw={draw}'
+        flat, splits = _ms_plan(jobs)
+        meta = torch.tensor(flat, dtype=torch.int32, device=dev)
+        y = torch.empty((routes, 4096), dtype=torch.float32, device=dev)
+        fix = torch.zeros(_MS_GRID*_MS_FIXW, dtype=torch.float32, device=dev)
+        count = torch.zeros(_MS_GRID, dtype=torch.int32, device=dev)
+        sink = torch.empty(_MS_GRID, dtype=torch.int32, device=dev)
+        def fn(): mod.run(packed, x, state['w'][5], meta, y, fix, count, sink, False)
+        graph = _ms_capture(fn, flush, flush_out)
+        rel = _ms_verify(y, golden, ybase, norm, tag+f'/new{limit}')
+        def check():
+            return _ms_verify(y, golden, ybase, norm, tag+f'/new{limit}_replay')
+        print(f'MS check {tag} arm=new{limit} A_norm={anorm:.4g} boundary_splits={splits} '
+              f'rel={rel:.3g} reference={"raw_B_old" if golden is not None else "production_BF16"}', flush=True)
+        return {'graph': graph, 'held': (x, meta, sink), 'y': y, 'fix': fix, 'count': count, 'check': check}
+    for limit in (64, 128):
+        arm = _ms_attempt(tag+f'/new{limit}', lambda limit=limit: new_arm(limit), errors)
+        if arm is not None:
+            arms[f'new{limit}'] = arm
+
+    def stream_arm():
+        flat, _ = _ms_plan(jobs128)
+        meta = torch.tensor(flat, dtype=torch.int32, device=dev)
+        # The stream kernel reads only packed weights and metadata. These
+        # correctly-sized API buffers are private and never dereferenced by it.
+        fix = torch.empty(_MS_GRID*_MS_FIXW, dtype=torch.float32, device=dev)
+        count = torch.empty(_MS_GRID, dtype=torch.int32, device=dev)
+        y = torch.empty(1, dtype=torch.float32, device=dev)
+        sink = torch.empty(_MS_GRID, dtype=torch.int32, device=dev)
+        def fn(): mod.run(packed, scratch[2], state['w'][5], meta, y, fix, count, sink, True)
+        return {'graph': _ms_capture(fn, flush, flush_out), 'held': (meta, fix, count, y, sink), 'check': None}
+    stream = _ms_attempt(tag+'/stream', stream_arm, errors)
+    if stream is not None:
+        arms['stream'] = stream
+
+    def pair(a, b, key):
+        if a not in arms or b not in arms:
+            print(f'MS SKIP {tag} pair={b}/{a} available={list(arms)}', flush=True)
+            return
+        def measure():
+            ta, tb, ratio = _ms_abba(arms[a]['graph'], arms[b]['graph'], flush, flush_out,
+                                     deadline, (arms[a]['check'], arms[b]['check']))
+            if a == 'new64' and b == 'new128':
+                cross_rel, _ = _ms_error(arms[a]['y'], arms[b]['y'])
+                assert cross_rel <= _MS_REL, f'MS new64/new128 raw cross_rel={cross_rel} tolerance={_MS_REL} bs={bs} draw={draw}'
+            print(f'MS time {tag} pair={b}/{a} us={ta:.3f}/{tb:.3f} ratio={ratio:.4f} '
+                  f'baseline_no_local={int(state.get("_ms_baseline_clean", False))}', flush=True)
+            result[key] = ratio
+            if b == 'stream':
+                result['rate'] = new128_bytes/tb/1e6
+                print(f'MS stream {tag} us={tb:.3f} job_TBps={result["rate"]:.3f} unique_TBps={unique*2048*_MS_SB/tb/1e6:.3f}', flush=True)
+        _ms_attempt(tag+f'/pair_{b}_over_{a}', measure, errors)
+    pair('old', 'new64', 'r64')
+    pair('new64', 'new128', 'r128')
+    if 'new64' not in arms:
+        pair('old', 'new128', 'r128old')
+    # Even if both compute arms fail numerics/setup, measure the independent
+    # stream control. Self-pair is just 64 cold stream samples, not a speedup.
+    pair('new128' if 'new128' in arms else 'new64' if 'new64' in arms else 'stream', 'stream', 'stream_ratio')
+    if result['rate'] is None and 'stream' in arms:
+        pair('stream', 'stream', 'stream_ratio')
+    for name in ('new64', 'new128'):
+        if name not in arms:
+            continue
+        def clean(name=name):
+            arm = arms[name]
+            ok = bool((arm['fix'] == 0).all() & (arm['count'] == 0).all())
+            assert ok, f'MS fixup not reset arm={name} bs={bs} draw={draw} grid={_MS_GRID} floats={arm["fix"].numel()}'
+            print(f'MS fix {tag} arm={name} clean=1', flush=True)
+            return True
+        if _ms_attempt(tag+'/'+name+'_fixup', clean, errors) is None:
+            result['r128'] = None
+            result['r64' if name == 'new64' else 'r128old'] = None
+    return result
+
+
 def _ms_run(state, weights, t0):
     import queue
     import threading
@@ -7576,11 +7752,11 @@ def _ms_run(state, weights, t0):
     import statistics as st
     dev = weights['w2'].device
     deadline = t0 + _MS_DEADLINE
-    assert torch.cuda.get_device_capability(dev) == (9, 0), 'MS H200 only'
-    assert state['grid'] == 132, 'MS intended 264 CTAs = 2 per H200 SM'
-    assert state.get('sfx'), 'MS needs exact positive normal PRMT scales'
+    assert torch.cuda.get_device_capability(dev) == (9, 0), f'MS requires sm90, actual={torch.cuda.get_device_capability(dev)} device={dev}'
+    assert state['grid'] == 132, f'MS requires 132 SMs / 264 CTAs, actual_grid={state["grid"]}'
+    assert state.get('sfx'), f'MS requires exact PRMT scales, sfx={state.get("sfx")}'
     defs = tuple(_main_defines(state['sfx'])) + state.get('sfxm', state['sfx'])
-    assert '-DOKC_WGS=1' in defs
+    assert '-DOKC_WGS=1' in defs, f'MS missing WGS build defs={defs}'
     q = queue.Queue()
     def build():
         try: q.put((_ms_build(defs), None))
@@ -7610,111 +7786,43 @@ def _ms_run(state, weights, t0):
           f'obligation=raw_FP32_GEMM2_before_norm old_stage_B={sb_old} new_stage_B=4608 '
           'K_order=lossless_K128 stages_per_unit=32 rings=8W/2X plans=excluded_both '
           'bytes=requested_not_measured_DRAM default=keell_unchanged', flush=True)
-    results = []
+    # Private shallow copy: diagnostic annotations never enter returned state.
+    diagnostic_state = dict(state, _ms_baseline_clean=baseline_clean)
+    results, all_errors, complete = [], [], True
     for bs, seed0 in _MS_SEEDS.items():
         rows = []
         for draw in range(_MS_DRAWS):
-            if time.monotonic() > deadline-5:
-                raise TimeoutError('MS draw budget; incomplete cases not a gate pass')
             seed = seed0+1000003*draw
-            d = _gen_input(bs, seed, dev)
-            ids = d['topk_ids']
-            local = ids[(ids >= state['lo']) & (ids < state['lo']+state['cnt'])]-state['lo']
-            counts = torch.bincount(local.long(), minlength=state['cnt']).cpu().tolist()
-            routes, unique = sum(counts), sum(n > 0 for n in counts)
-            jobs64, _ = _ms_jobs(counts, 64)
-            jobs128, _ = _ms_jobs(counts, 128)  # >128 experts retain 128-token chunks
-            scratch = _make_scratch(dev)
-            out = torch.empty_like(d['hidden_states'])
-            # REAL SwiGLU activations from the unmodified incumbent MAIN, not
-            # Gaussian/synthetic GEMM inputs. One complete launch also supplies
-            # a golden BF16 post-norm-multiplied ybuf to validate B extraction.
-            base.okc_run(state['w'], scratch, d['hidden_states'], ids, d['topk_weights'], out,
-                         state['lo'], state['cnt'], state['grid'])
-            torch.cuda.synchronize()
-            ybase = scratch[1][EMAX:].view(torch.bfloat16)[:routes*4096].reshape(routes, 4096).clone()
-            x64, natural = _ms_activations(scratch, jobs64, jobs64, routes)
-            x128, _ = _ms_activations(scratch, jobs64, jobs128, routes)
-            assert bool(torch.isfinite(natural).all()) and float(natural.float().norm()) > 0
-            meta64, split64 = _ms_plan(jobs64)
-            meta128, split128 = _ms_plan(jobs128)
-            m64 = torch.tensor(meta64, dtype=torch.int32, device=dev)
-            m128 = torch.tensor(meta128, dtype=torch.int32, device=dev)
-            mold = torch.tensor(_ms_old_plan(jobs64, state['grid']), dtype=torch.int32, device=dev)
-            old_scratch = scratch + [mold]
-            yold = scratch[1][EMAX:EMAX+routes*4096].reshape(routes, 4096)
-            y64, y128 = torch.empty_like(yold), torch.empty_like(yold)
-            fix64 = torch.zeros(_MS_GRID*_MS_FIXW, dtype=torch.float32, device=dev)
-            fix128 = torch.zeros_like(fix64)
-            c64 = torch.zeros(_MS_GRID, dtype=torch.int32, device=dev)
-            c128 = torch.zeros_like(c64)
-            sink = torch.empty(_MS_GRID, dtype=torch.int32, device=dev)
-            def old_fn():
-                mod.old_run(state['w'], old_scratch, d['hidden_states'], ids, d['topk_weights'], out,
-                            state['lo'], state['cnt'], state['grid'])
-            def new64_fn(): mod.run(packed, x64, state['w'][5], m64, y64, fix64, c64, sink, False)
-            def new128_fn(): mod.run(packed, x128, state['w'][5], m128, y128, fix128, c128, sink, False)
-            def stream_fn(): mod.run(packed, x128, state['w'][5], m128, y128, fix128, c128, sink, True)
-            go = _ms_capture(old_fn, flush, flush_out)
-            golden = yold.clone()
-            # Source of expected values: production MAIN ybuf just above. Its
-            # BF16 rounding follows norm*gs then accumulator multiplication;
-            # separate FP32 raw-Y multiplication can differ at BF16 midpoints.
-            normalized = (golden * (1+weights['post_norm_w'].float())).to(torch.bfloat16)
-            extract_rel, _ = _ms_error(normalized, ybase)
-            if extract_rel > 1e-4:
-                raise RuntimeError(f'MS old extraction rel={extract_rel}; no valid baseline')
-            g64 = _ms_capture(new64_fn, flush, flush_out)
-            g128 = _ms_capture(new128_fn, flush, flush_out)
-            gs = _ms_capture(stream_fn, flush, flush_out)
-            e64, mx64 = _ms_error(y64, golden)
-            e128, mx128 = _ms_error(y128, golden)
-            print(f'MS check bs={bs} draw={draw} seed={seed} routes={routes} experts={unique} '
-                  f'max_tokens={max(counts)} jobs64/128={len(jobs64)}/{len(jobs128)} '
-                  f'boundary_splits64/128={split64}/{split128} A_norm={float(natural.float().norm()):.4g} '
-                  f'old_extract_rel={extract_rel:.3g} rel64/128={e64:.3g}/{e128:.3g} '
-                  f'abs64/128={mx64:.3g}/{mx128:.3g}', flush=True)
-            if e64 > _MS_REL or e128 > _MS_REL:
-                raise RuntimeError('MS GEMM2 mismatch: timings are not a valid decision')
-            a, b, r64 = _ms_abba(go, g64, flush, flush_out, deadline,
-                                ((yold, golden), (y64, golden)))
-            b2, c, r128 = _ms_abba(g64, g128, flush, flush_out, deadline,
-                                 ((y64, golden), (y128, golden)))
-            c2, z, rz = _ms_abba(g128, gs, flush, flush_out, deadline,
-                               ((y128, golden), (y128, golden)))
-            # Validate repeatability/zero-preserving fixups after all ABBA
-            # replays. Timed reads must not mutate actual activations or weights.
-            e64 = max(e64, _ms_error(y64, golden)[0])
-            e128 = max(e128, _ms_error(y128, golden)[0])
-            eo = _ms_error(yold, golden)[0]
-            clean = bool((c64 == 0).all() & (c128 == 0).all() & (fix64 == 0).all() & (fix128 == 0).all())
-            valid = e64 <= _MS_REL and e128 <= _MS_REL and eo <= _MS_REL and clean
-            old_bytes, new64_bytes, new128_bytes = len(jobs64)*256*sb_old, len(jobs64)*2048*_MS_SB, len(jobs128)*2048*_MS_SB
-            rate = new128_bytes/z/1e6
-            print(f'MS time bs={bs} draw={draw} us_old/new64/new128/stream={a:.3f}/{b:.3f}/{c:.3f}/{z:.3f} '
-                  f'paired_new64/old={r64:.4f} new128/new64={r128:.4f} stream/new128={rz:.4f} '
-                  f'pair2_new64={b2:.3f} pair3_new128={c2:.3f} stream_TBps={rate:.3f} '
-                  f'job_MB_old/64/128={old_bytes/1e6:.3f}/{new64_bytes/1e6:.3f}/{new128_bytes/1e6:.3f} '
-                  f'unique_MB_old/new={unique*256*sb_old/1e6:.3f}/{unique*2048*_MS_SB/1e6:.3f} '
-                  f'repeat_rel_old/64/128={eo:.3g}/{e64:.3g}/{e128:.3g} fix_clean={int(clean)} valid={int(valid)}', flush=True)
-            if not valid:
-                raise RuntimeError('MS repeated GEMM2/fixup mismatch')
-            rows.append((r64, r128, rate, len(jobs64)-len(jobs128)))
-            # Graphs own references; release them before their scratch/input.
-            del go, g64, g128, gs, old_scratch, scratch, fix64, fix128, x64, x128
-        r64, r128, rate = (st.median(r[k] for r in rows) for k in range(3))
-        saved = sum(r[3] for r in rows)
-        gate_stream = rate >= 3.6  # within 10% of the prior ~4 TB/s ceiling
-        # Do not call an extraction-induced spill slowdown a successful pivot.
-        # Still report all raw ratios if the judge compiler spills either arm.
-        gate64 = geometry and baseline_clean and r64 <= .90 if bs in (128, 256) else None
-        gate128 = geometry and r128 < .99 if saved else None
-        print(f'MS gate bs={bs} draws={len(rows)} new64/old={r64:.4f} new128/new64={r128:.4f} '
-              f'stream_TBps={rate:.3f} stream_ge3.6={int(gate_stream)} '
+            def run_draw():
+                if time.monotonic() > deadline-5:
+                    raise TimeoutError(f'MS draw budget bs={bs} draw={draw} elapsed={time.monotonic()-t0:.1f} limit={_MS_DEADLINE}')
+                return _ms_draw(diagnostic_state, weights, base, mod, packed, flush, flush_out,
+                                deadline, bs, draw, seed)
+            row = _ms_attempt(f'bs={bs}/draw={draw}/seed={seed}/setup', run_draw, all_errors)
+            if row is not None:
+                rows.append(row)
+                all_errors.extend(row['errors'])
+        def metric(key):
+            values = [r[key] for r in rows if r[key] is not None]
+            return (st.median(values) if values else float('nan')), len(values)
+        r64, n64 = metric('r64')
+        r128, n128 = metric('r128')
+        rate, ns = metric('rate')
+        r128old, n128old = metric('r128old')
+        saved = sum(r['saved'] for r in rows)
+        enough = n64 == n128 == ns == _MS_DRAWS
+        complete = complete and enough
+        gate_stream = ns == _MS_DRAWS and rate >= 3.6
+        gate64 = (n64 == _MS_DRAWS and geometry and baseline_clean and r64 <= .90) if bs in (128, 256) else None
+        gate128 = (n128 == _MS_DRAWS and geometry and r128 < .99) if saved else None
+        print(f'MS gate bs={bs} draws64/128/stream={n64}/{n128}/{ns} new64/old={r64:.4f} '
+              f'new128/new64={r128:.4f} new128/old_fallback={r128old:.4f}/{n128old} '
+              f'stream_TBps={rate:.3f} stream_ge3.6={int(gate_stream)} baseline_no_local={int(baseline_clean)} '
               f'new64_le0.90={gate64} new128_additional={gate128} jobs_saved={saved}', flush=True)
-        results.append(f'{bs}:{r64:.4f},{r128:.4f},{rate:.3f}')
-    return (f'complete=1 geometry={int(geometry)} baseline_no_local={int(baseline_clean)} '
-            'bs:new64/old,new128/new64,TBps=' + ';'.join(results))
+        results.append(f'{bs}:{r64:.4f},{r128:.4f},{rate:.3f}[{n64}/{n128}/{ns}]')
+    return (f'complete={int(complete and not all_errors)} errors={len(all_errors)} geometry={int(geometry)} '
+            f'new_regs/local/smem/occ={attrs[:4]} old={old_attrs[:4]} '
+            f'baseline_no_local={int(baseline_clean)} bs:new64/old,new128/new64,TBps=' + ';'.join(results))
 
 
 _ms_parent_prepare = prepare
@@ -7729,7 +7837,7 @@ def prepare(weights):
     try:
         summary = _ms_run(state, weights, t0)
     except Exception as exc:
-        print(f'MS_ERR {type(exc).__name__} {str(exc)[-1800:]!r}', flush=True)
+        _ms_log_error('prepare', exc)
     # LAST experiment line is always a compact final summary (also on failure).
     print(f'MS SUMMARY {summary} seconds={time.monotonic()-t0:.1f} default=keell_unchanged', flush=True)
     return state
