@@ -167,4 +167,6 @@ MoE is closest to top 50 and is ~35-50% of Decode time, so the next loop targets
 | LESSON | Our diag harnesses and the Decode in-prepare gate flushed L2 by writing; the judge reads. Write-flush inflates small-batch MoE times (bs1 31.1 vs 26.0 us) and L2-hint effects. Use read-flush from now on | - | diagnostic | direct | $175 |
 | 35 | Decode gate with read-flush (`decoder_p37_rflush.py`, `3056edef` 2.0816x) | selections shifted slightly; per-shape mixed; no net gain | closed | direct | $176 |
 | 36 | Decode trigger-after-wait variants + read-flush gate (`decoder_p36_trig.py`, check `22240ad3` 2.1178x, **scored `9dabcd9a` 2.1056x**) | no after-wait variant passed the gate; base selections under the judge-like read flush. **New Decode board best 2.1056 (was 2.0970)**, published to main `4f64eb4` | kept (lineage head) | fixer+direct | $180 |
-
+| D-ROUTE | Judge Decode routing histogram (`decoder_diag_route.py`, `a589fabe`) | d16: 0-1 experts >8 tokens; d32 none (MAIN); d128 none; d256 2 duplicate jobs. MID SK_T=16 worth <= ~0.3% Decode | diagnostic | direct | $180 |
+| L3 | MAIN spill-free N80 wide jobs (oracle-lite pivot 3) | infeasible offline: zero spills only with all WGMMA serialized | closed | hard-fixer | $182 |
+| -- | Live ranks (Nov 2 ~03 UTC): overall 362/1834; Decode 362 (2.1056, #50 2.2980); MoE 202 (2.3797, #50 2.4652); Attention 306 (2.5690, #50 2.7208); Dense 333 (1.5278, #50 1.5883) | - | - | - | - |

@@ -1,0 +1,196 @@
+[0.955,0.961,0.955] medA=0.964 medB=0.955 pick=pdl
+PDLI_BITWISE PDLS_layer_M1_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME2 PDLS_layer_M1_sliding ratiosA=[0.990,0.986,0.989] ratiosB=[0.985,0.990,0.989] medA=0.989 medB=0.989 pick=pdl
+PDLS_SELECT PDLS_layer_M1_sliding 63
+PDLI_BITWISE PDLS_layer_M1_full True changing_graph_inputs=3 tol= True
+PDLI_TIME2 PDLS_layer_M1_full ratiosA=[0.997,0.996,0.988] ratiosB=[1.005,1.001,1.011] medA=0.996 medB=1.005 pick=parent
+PDLS_SELECT PDLS_layer_M1_full 0
+PDLS1_UNIT_BYTES PDLS_norm_r2f_M8 True
+PDLI_TIME2 PDLS_norm_r2f_M8 ratiosA=[0.966,0.959,0.968] ratiosB=[0.958,0.962,0.963] medA=0.966 medB=0.962 pick=pdl
+PDLI_BITWISE PDLS_layer_M8_sliding True changing_graph_inputs=3 tol= True
+PDLI_TIME2 PDLS_layer_M8_sliding ratiosA=[0.996,0.993,0.994] ratiosB=[0.985,0.984,0.987] medA=0.994 medB=0.985 pick=parent
+PDLS_SELECT PDLS_layer_M8_sliding 0
+PDLI_BITWISE PDLS_layer_M8_full True changing_graph_inputs=3 tol= True
+PDLI_TIME2 PDLS_layer_M8_full ratiosA=[1.000,0.998,0.997] ratiosB=[0.989,0.992,0.992] medA=0.998 medB=0.992 pick=parent
+PDLS_SELECT PDLS_layer_M8_full 0
+PDLS_DONE 111.19006476800132 {(1, True): 63}
+PD_PREP called_at= 7.9 done_at= 119.1 total_prepare_s= 111.2
+PD_BUILD okc_r2_v18s_2f13c536f582 Thread-1 (_r2_build) 7.8 18.8 11.0 True
+PD_BUILD okc_r2norm_ec2a91e0dd55 Thread-13 (_rn_build) 7.8 19.3 11.5 True
+PD_BUILD okc_pdli_pack_785ba7a5b64d Thread-8 (_pdli_build) 7.8 23.7 15.9 True
+PD_BUILD okc_r2_smallm2_4acea7645727 Thread-1 (_r2_build) 18.8 28.9 10.1 True
+PD_BUILD okc_pdls_pn16_f24c9d33e6be Thread-11 (_pdls_build) 7.8 29.7 21.9 True
+PD_BUILD okc_pdli_after_db854750eaa2 Thread-10 (_pdli_after_build) 23.7 35.1 11.4 True
+PD_BUILD okc_router_fp32_d5a88ed70badd431_90a Thread-7 (run) 7.8 36.9 29.1 True
+PD_BUILD router_637fbfae191c ThreadPoolExecutor-2_3 29.8 37.8 8.0 True
+PD_BUILD okc_fpr_f68f77c0d29cc56b_90a Thread-6 (run) 7.8 39.8 32.0 True
+PD_BUILD m32_gemv ThreadPoolExecutor-2_1 29.8 40.7 10.9 True
+PD_BUILD small_m_gemv ThreadPoolExecutor-2_0 29.8 43.4 13.7 True
+PD_BUILD qkv_small_final ThreadPoolExecutor-2_3 37.8 44.8 7.1 True
+PD_BUILD okc_pdla_pn16_2ec6cc79d9f6 Thread-12 (_pdla_build) 29.8 49.0 19.2 True
+PD_BUILD qkv_c6ead552567b7204 ThreadPoolExecutor-2_3 44.9 49.9 5.1 True
+PD_BUILD olayer_ebbd263d25e1 ThreadPoolExecutor-2_0 43.8 50.5 6.8 True
+PD_BUILD cps_sm_6648ec7281fa ThreadPoolExecutor-2_1 45.7 51.9 6.1 True
+PD_BUILD cps_m32_3ad31eb3e055 ThreadPoolExecutor-2_1 52.0 57.5 5.5 True
+PD_BUILD smallm2_final_v3 ThreadPoolExecutor-2_0 53.8 59.3 5.5 True
+PD_BUILD wide2_final_v1 ThreadPoolExecutor-2_2 29.8 60.9 31.1 True
+PD_BUILD wp_bde7122f9b4f ThreadPoolExecutor-2_1 57.5 63.4 5.9 True
+PD_BUILD m32x_pooler_a7eb399d2fd7 ThreadPoolExecutor-2_2 60.9 65.9 5.0 True
+PD_BUILD smtrace_final_3c2c50fe46c8 ThreadPoolExecutor-2_1 63.5 68.7 5.2 True
+PD_BUILD okc_moe_w4a16_v216x_finreg1_okc_nw8_okc_ Thread-4 (run) 7.8 69.7 61.9 True
+PD_BUILD okc_moe_w4a16_v216x_finreg1_okc_nw8_okc_ Thread-3 (run) 7.8 70.2 62.4 True
+PD_BUILD okc_moe_w4a16_v216x_finreg1_okc_nw8_okc_ Thread-5 (run) 7.8 71.9 64.1 True
+PD_BUILD muse_cublaslt_v1 ThreadPoolExecutor-2_3 49.9 76.4 26.5 True
+PD_BUILD okc_attn_v298f8pv_90a Thread-9 (_pdli_build_attention) 7.8 77.4 69.6 True
+PD_BUILD okc_moe_w4a16_v216x_finreg1_okc_nw16_okc Thread-2 (run) 7.8 81.7 73.9 True
+PD_BUILD_SMALL count= 20 sum_s= 73.5 total_builds= 48
+PD_STAGE PREPARE_called 7.9
+PD_STAGE PDLS_start 7.9
+PD_STAGE PDLI_start 7.9
+PD_STAGE PDLI_parent_done 101.0
+PD_STAGE PDLI_threads_joined 101.0
+PD_STAGE PDLI_select_start 101.0
+PD_STAGE PDLI_select_done 116.8
+PD_STAGE PDLS_parent_done 116.8
+PD_STAGE PDLS_done 119.1
+RN_RESOURCE r1_regs_local= 64000 r2n_regs_local_shared_blocks= (56000, 20736, 1) dynamic= 16384
+RN_DIFF 63 0 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+RN_DIFF 63 1 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+RN_DIFF 63 2 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+PDLI_BITWISE RN_layer_True True changing_graph_inputs=3 tol= True
+PDLI_TIME2 RN_layer_True ratiosA=[1.001,1.009,1.010] ratiosB=[1.006,1.001,1.008] medA=1.009 medB=1.006 pick=parent
+RN_SELECT (1, True) base= 63 mask= 0
+RN_DIFF 31 0 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+RN_DIFF 31 1 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+RN_DIFF 31 2 pool_weight_stream_rel= 0,0,0 ids= True ok= True
+PDLI_BITWISE RN_layer_False True changing_graph_inputs=3 tol= True
+PDLI_TIME2 RN_layer_False ratiosA=[1.002,0.995,0.995] ratiosB=[1.000,1.010,0.997] medA=0.995 medB=1.000 pick=parent
+RN_SELECT (1, False) base= 31 mask= 0
+RN_DONE 111.97 {}
+TRG_READY {'o': True, 'pdla': True, 'pn': True}
+PDLI_BITWISE TRG_layer_1_S_18 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_1_S_18 ratiosA=[1.001,1.007,1.009] ratiosB=[1.011,1.008,1.020] medA=1.007 medB=1.011 pick=parent
+PDLI_BITWISE TRG_layer_1_S_19 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_1_S_19 ratiosA=[0.987,0.988,0.990] ratiosB=[1.001,0.996,0.992] medA=0.988 medB=0.996 pick=parent
+PDLI_DIFF TRG_layer_1_S_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (1, 8192), 908), (1, 'torch.float32', (1, 8192), 3963)]
+PDLI_TOL TRG_layer_1_S_20 2 rel_l2=0.00370565 mismatches= 894 accepted= True
+PDLI_TOL TRG_layer_1_S_20 2 rel_l2=0.00353857 mismatches= 1565 accepted= True
+PDLI_BITWISE TRG_layer_1_S_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_1_S_20 ratiosA=[0.977,0.992,0.978] ratiosB=[0.992,0.989,0.997] medA=0.978 medB=0.992 pick=parent
+TRG_KEY (1, True) base= 63 mask= 63 tried(bit,ok)= [(18, 0), (19, 0), (20, 0)]
+PDLI_BITWISE TRG_layer_1_F_18 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_1_F_18 ratiosA=[0.992,0.996,0.988] ratiosB=[1.011,1.007,1.006] medA=0.992 medB=1.007 pick=parent
+PDLI_DIFF TRG_layer_1_F_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (1, 8192), 1), (1, 'torch.float32', (1, 8192), 4)]
+PDLI_TOL TRG_layer_1_F_20 2 rel_l2=2.14599e-05 mismatches= 1 accepted= True
+PDLI_TOL TRG_layer_1_F_20 2 rel_l2=2.68088e-06 mismatches= 2 accepted= True
+PDLI_BITWISE TRG_layer_1_F_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_1_F_20 ratiosA=[0.998,1.002,0.996] ratiosB=[1.009,1.013,1.007] medA=0.998 medB=1.009 pick=parent
+TRG_KEY (1, False) base= 31 mask= 31 tried(bit,ok)= [(18, 0), (20, 0)]
+PDLI_DIFF TRG_layer_8_S_18 seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 36), (1, 'torch.float32', (8, 8192), 102)]
+PDLI_TOL TRG_layer_8_S_18 1 rel_l2=0.000173092 mismatches= 36 accepted= True
+PDLI_TOL TRG_layer_8_S_18 1 rel_l2=0.000112786 mismatches= 43 accepted= True
+PDLI_DIFF TRG_layer_8_S_18 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 1999), (1, 'torch.float32', (8, 8192), 8377)]
+PDLI_TOL TRG_layer_8_S_18 2 rel_l2=0.00166809 mismatches= 1957 accepted= True
+PDLI_TOL TRG_layer_8_S_18 2 rel_l2=0.00159087 mismatches= 3340 accepted= True
+PDLI_BITWISE TRG_layer_8_S_18 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_8_S_18 ratiosA=[1.000,0.999,1.002] ratiosB=[0.998,0.990,0.989] medA=1.000 medB=0.990 pick=parent
+PDLI_DIFF TRG_layer_8_S_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 10), (1, 'torch.float32', (8, 8192), 62)]
+PDLI_TOL TRG_layer_8_S_20 2 rel_l2=4.29734e-05 mismatches= 10 accepted= True
+PDLI_TOL TRG_layer_8_S_20 2 rel_l2=2.6565e-05 mismatches= 27 accepted= True
+PDLI_BITWISE TRG_layer_8_S_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_8_S_20 ratiosA=[0.999,0.998,0.999] ratiosB=[0.989,0.991,0.985] medA=0.999 medB=0.989 pick=parent
+TRG_KEY (8, True) base= 18 mask= 18 tried(bit,ok)= [(18, 0), (20, 0)]
+PDLI_DIFF TRG_layer_8_F_18 seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 2), (1, 'torch.float32', (8, 8192), 8)]
+PDLI_TOL TRG_layer_8_F_18 1 rel_l2=3.12956e-05 mismatches= 2 accepted= True
+PDLI_TOL TRG_layer_8_F_18 1 rel_l2=6.06126e-06 mismatches= 4 accepted= True
+PDLI_BITWISE TRG_layer_8_F_18 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_8_F_18 ratiosA=[1.001,1.001,0.995] ratiosB=[0.987,0.987,0.993] medA=1.001 medB=0.987 pick=parent
+PDLI_DIFF TRG_layer_8_F_20 seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 897), (1, 'torch.float32', (8, 8192), 4123)]
+PDLI_TOL TRG_layer_8_F_20 0 rel_l2=0.0013409 mismatches= 875 accepted= True
+PDLI_TOL TRG_layer_8_F_20 0 rel_l2=0.00124767 mismatches= 1618 accepted= True
+PDLI_DIFF TRG_layer_8_F_20 seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 16), (1, 'torch.float32', (8, 8192), 205)]
+PDLI_TOL TRG_layer_8_F_20 1 rel_l2=4.80077e-05 mismatches= 16 accepted= True
+PDLI_TOL TRG_layer_8_F_20 1 rel_l2=3.10884e-05 mismatches= 97 accepted= True
+PDLI_DIFF TRG_layer_8_F_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (8, 8192), 3), (1, 'torch.float32', (8, 8192), 15)]
+PDLI_TOL TRG_layer_8_F_20 2 rel_l2=3.81157e-05 mismatches= 3 accepted= True
+PDLI_TOL TRG_layer_8_F_20 2 rel_l2=2.49965e-05 mismatches= 6 accepted= True
+PDLI_BITWISE TRG_layer_8_F_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_8_F_20 ratiosA=[1.001,0.996,1.000] ratiosB=[0.996,0.991,0.996] medA=1.000 medB=0.996 pick=parent
+TRG_KEY (8, False) base= 19 mask= 19 tried(bit,ok)= [(18, 0), (20, 0)]
+PDLI_DIFF TRG_layer_16_S_20 seed= 0 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 2), (1, 'torch.float32', (16, 8192), 16)]
+PDLI_TOL TRG_layer_16_S_20 0 rel_l2=5.69857e-06 mismatches= 2 accepted= True
+PDLI_TOL TRG_layer_16_S_20 0 rel_l2=7.14876e-06 mismatches= 7 accepted= True
+PDLI_DIFF TRG_layer_16_S_20 seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 132), (1, 'torch.float32', (16, 8192), 1046)]
+PDLI_TOL TRG_layer_16_S_20 1 rel_l2=0.000137886 mismatches= 129 accepted= True
+PDLI_TOL TRG_layer_16_S_20 1 rel_l2=8.8856e-05 mismatches= 465 accepted= True
+PDLI_DIFF TRG_layer_16_S_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 4060), (1, 'torch.float32', (16, 8192), 16012)]
+PDLI_TOL TRG_layer_16_S_20 2 rel_l2=0.00101281 mismatches= 3972 accepted= True
+PDLI_TOL TRG_layer_16_S_20 2 rel_l2=0.00092111 mismatches= 6021 accepted= True
+PDLI_BITWISE TRG_layer_16_S_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_16_S_20 ratiosA=[0.999,0.999,0.997] ratiosB=[1.000,0.997,1.001] medA=0.999 medB=1.000 pick=parent
+TRG_KEY (16, True) base= 528 mask= 528 tried(bit,ok)= [(20, 0)]
+PDLI_DIFF TRG_layer_16_F_20 seed= 1 byte_mismatches= [(1, 'torch.float32', (16, 8192), 1)]
+PDLI_TOL TRG_layer_16_F_20 1 rel_l2=3.39453e-10 mismatches= 1 accepted= True
+PDLI_DIFF TRG_layer_16_F_20 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (16, 8192), 4194), (1, 'torch.float32', (16, 8192), 16799)]
+PDLI_TOL TRG_layer_16_F_20 2 rel_l2=0.00102199 mismatches= 4109 accepted= True
+PDLI_TOL TRG_layer_16_F_20 2 rel_l2=0.000931035 mismatches= 6350 accepted= True
+PDLI_BITWISE TRG_layer_16_F_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_16_F_20 ratiosA=[0.996,1.002,1.000] ratiosB=[1.000,1.001,1.000] medA=1.000 medB=1.000 pick=parent
+TRG_KEY (16, False) base= 528 mask= 528 tried(bit,ok)= [(20, 0)]
+PDLI_DIFF TRG_layer_32_S_19 seed= 1 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 3586), (1, 'torch.float32', (32, 8192), 14232)]
+PDLI_TOL TRG_layer_32_S_19 1 rel_l2=0.000658344 mismatches= 3518 accepted= True
+PDLI_TOL TRG_layer_32_S_19 1 rel_l2=0.000578578 mismatches= 5340 accepted= True
+PDLI_DIFF TRG_layer_32_S_19 seed= 2 byte_mismatches= [(0, 'torch.bfloat16', (32, 8192), 3784), (1, 'torch.float32', (32, 8192), 15066)]
+PDLI_TOL TRG_layer_32_S_19 2 rel_l2=0.000644862 mismatches= 3712 accepted= True
+PDLI_TOL TRG_layer_32_S_19 2 rel_l2=0.000582713 mismatches= 5667 accepted= True
+PDLI_BITWISE TRG_layer_32_S_19 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_32_S_19 ratiosA=[0.998,0.999,1.000] ratiosB=[0.999,1.001,1.005] medA=0.999 medB=1.001 pick=parent
+PDLI_DIFF TRG_layer_32_S_20 seed= 0 byte_mismatches= [(1, 'torch.float32', (32, 8192), 4)]
+PDLI_TOL TRG_layer_32_S_20 0 rel_l2=6.63703e-08 mismatches= 3 accepted= True
+PDLI_BITWISE TRG_layer_32_S_20 True changing_graph_inputs=3 tol= True
+PDLI_TIME2 TRG_layer_32_S_20 ratiosA=[0.999,1.000,0.997] ratiosB=[0.999,1.002,1.003] medA=0.999 medB=1.002 pick=parent
+TRG_KEY (32, True) base= 33296 mask= 33296 tried(bit,ok)= [(19, 0), (20, 0)]
+TRG_DONE rev= p36_trig elapsed_s=117.4 {}
+RT T=1 b=1 q=1 sl=1 routes=3 touched=3 jobs8=3 jobs64=3 over8=0 top=[1, 1, 1]
+RT T=1 b=1 q=1 sl=0 routes=2 touched=2 jobs8=2 jobs64=2 over8=0 top=[1, 1]
+RT T=8 b=8 q=1 sl=1 routes=16 touched=6 jobs8=6 jobs64=6 over8=0 top=[6, 4, 2, 2, 1, 1]
+RT T=9 b=9 q=1 sl=1 routes=18 touched=7 jobs8=7 jobs64=7 over8=0 top=[6, 5, 2, 2, 1, 1, 1]
+RT T=24 b=3 q=8 sl=0 routes=32 touched=11 jobs8=11 jobs64=11 over8=0 top=[7, 7, 4, 3, 3, 2, 2, 1]
+RT T=40 b=5 q=8 sl=1 routes=59 touched=13 jobs8=16 jobs64=13 over8=2 top=[18, 9, 8, 7, 4, 3, 3, 2]
+RT T=33 b=33 q=1 sl=0 routes=56 touched=7 jobs8=12 jobs64=7 over8=4 top=[18, 11, 11, 11, 2, 2, 1]
+RT T=16 b=2 q=8 sl=1 routes=26 touched=11 jobs8=11 jobs64=11 over8=0 top=[7, 6, 3, 2, 2, 1, 1, 1]
+RT T=8 b=1 q=8 sl=0 routes=14 touched=6 jobs8=6 jobs64=6 over8=0 top=[4, 3, 2, 2, 2, 1]
+RT T=32 b=4 q=8 sl=1 routes=53 touched=12 jobs8=14 jobs64=12 over8=2 top=[13, 11, 6, 6, 4, 3, 3, 2]
+RT T=16 b=16 q=1 sl=0 routes=27 touched=8 jobs8=9 jobs64=8 over8=1 top=[11, 5, 3, 3, 2, 1, 1, 1]
+RT T=16 b=16 q=1 sl=1 routes=32 touched=7 jobs8=7 jobs64=7 over8=0 top=[8, 6, 5, 5, 4, 3, 1]
+RT T=32 b=32 q=1 sl=1 routes=58 touched=9 jobs8=12 jobs64=9 over8=2 top=[22, 9, 8, 7, 6, 3, 1, 1]
+RT T=32 b=32 q=1 sl=0 routes=55 touched=7 jobs8=10 jobs64=7 over8=3 top=[15, 12, 10, 8, 5, 4, 1]
+RT T=8 b=1 q=8 sl=1 routes=12 touched=7 jobs8=7 jobs64=7 over8=0 top=[4, 2, 2, 1, 1, 1, 1]
+RT T=128 b=16 q=8 sl=1 routes=189 touched=15 jobs8=33 jobs64=15 over8=7 top=[44, 36, 31, 18, 17, 12, 9, 6]
+RT T=128 b=16 q=8 sl=0 routes=201 touched=19 jobs8=36 jobs64=19 over8=6 top=[40, 34, 32, 28, 19, 14, 8, 8]
+RT T=256 b=32 q=8 sl=1 routes=387 touched=20 jobs8=59 jobs64=22 over8=7 top=[99, 69, 63, 40, 38, 23, 20, 6]
+RT T=256 b=32 q=8 sl=0 routes=406 touched=23 jobs8=64 jobs64=25 over8=10 top=[103, 73, 49, 27, 22, 22, 21, 19]
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 03:17:28 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
