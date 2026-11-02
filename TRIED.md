@@ -238,3 +238,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | 32-batch A/B on keell decode base: bf16 route overrides (qkv/o/unpooler torch, qkv Lt at M256) and MoE FINREG-vs-B4FIN at M32, timed in prepare with 512 MiB read flush, 36 interleaved rounds | in progress | check aa9b9c16 queued | `aa9b9c16` | kb/exp/decode_ab32.py (argon/keell-base-20261102, d3cfce8) | Nov 02 |
+
+## Prefill
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| Prefill A/B harness on keell0renz prefill (GEMM plans, attention path, MoE knobs, overlap) timed in prepare with read flush | in progress | being built (hard-fixer) | - | kb/exp/prefill_ab.py (argon/keell-base-20261102) | Nov 02 |
