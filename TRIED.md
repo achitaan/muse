@@ -284,4 +284,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| ZipServ-style fixed 3-bit exponent bitplanes (+ popcount-addressed BF16 escapes) for m<=32 GEMV cells; gated by measured top-7 exponent coverage on the real weights | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| ZipServ-style fixed 3-bit exponent bitplanes (+ popcount-addressed BF16 escapes) for m<=32 GEMV cells; gated by measured top-7 exponent coverage on the real weights | in progress: statistics CHECK submitted; CPU codec exhaustive 65536-pattern roundtrip passes; realizable unit-index model needs >=99.1953125% coverage for <=11.16 bpw; GPU implementation awaits real-weight numbers | argon/keell-base-20261102 | `459b74a599b148d4` | kb/exp/bf16_stats.py; kb/exp/zs_codec.py; kb/exp/ZS_PLAN.md | Nov 02 |
