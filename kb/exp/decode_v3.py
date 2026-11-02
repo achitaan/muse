@@ -16984,39 +16984,7 @@ def prepare(weights):
 def _make_chen():
     # (embedded: chenwainuo muse_bf16_proj)
     # Based on github.com/chenwainuo/okc muse_bf16_proj/submission.py @ 3d418e1 (Apache-2.0). Copied for the OKC starting point.
-    """Stream-K skinny GEMM: out[m, n] = x @ W[:n].T for m <= 32 (and the router at any m).
-W is repacked into mma.sync A-fragment order (2 KB contiguous per warp per 64-wide K chunk); every warp streams an
-equal contiguous range of (tile, chunk) units; tiles split across warps meet through fp32 atomics and the last
-arriver writes the output. The FP32 router runs as a BF16 hi + lo pair with FP32 accumulation.
-v13/v14: up to 32 tokens, the BF16 projections and the router (12-bit hi + lo) run a register-direct GEMV on losslessly 12-bit-packed weights (see GVCU),
-launch geometry picked per shape in prepare() by timing against the v12 path.
-pw11 ("gvx"): r6-c12 unchanged (every r6 path is still baked and kept as the per-shape baseline "r6"), plus gv geometries
-with 64-144 rows per CTA (x fetched once per 128 rows instead of once per 16) and a cross-CTA K split of 2/4/8, reduced
-either through cluster DSMEM (path suffix a, r6's own S > 1 epilogue) or through an fp32 workspace + last-arriving CTA
-(suffix b, V bit 2, no cluster); suffix -s = x in a shared-memory slab instead of through L1; the router gets the
-12-bit codec on both hi and lo. Each new path is validated (one-hot x8 exact, random rows) and timed against the r6
-choice in a second bake (BAKE / PICK lines); kernel_fn takes the pw11 pick when it exists, else r6's dispatch.
-pw12: the same gv kernel with W streamed through a private per-warp cp.async.bulk smem ring (V bit 3, paths gb-*);
-decode, mma, escapes, reduction and epilogue unchanged. PROBE gvbulk lines compare it with r6 on pooler m=1.
-pw18 (= pw17 with codec E v3): r6 unchanged (its 12-bit paths, bake and dispatch are SASS-identical) plus codec E paths
-(gv FMT 4, "ge-*"). The code length is fixed by a code's first 3 bits (LOP3 + PRMT on an 8-byte table), so the per-lane
-bit-position chain has no memory access. The exponent pair value comes from a 256-entry smem LUT (single or lane-replicated)
-off the chain. There are 1, 2 or 4 independent substreams per lane, and refill words come through a conflict-free
-[substream][slot][lane] 4 B cp.async ring and are prefetched. 11.07 / 11.17 / 11.32 bits/weight (K 1 / 2 / 4) against 12
-(proj_rsi/tools/CODEC_E_LAYOUT.md v3). Each pack is proven bit-exact by the reference unpacker before any E kernel runs. Each
-path is validated like every second-bake path and timed against r6's pick (BAKE / PICK). PROBE ecod lines time the best E path
-against r6 on pooler m=1 and m=16, alternated.
-pw29: pw23 plus wgmma router paths at m = 128 / 256 (rwk, its own sm_90a extension), baked against pw23's rs / rp / rv
-paths and r6's cuBLASLt path.
-pw31 (scored merge): pw27h (P1: flag-zeroed split-K router m = 8/16/32 and unpooler m <= 8 on r6's gv, rr6 at router
-m = 1) + pw29h (wgmma split-K router m = 128 / 256 with self-zeroing); the two regions are disjoint (3-way merge on pw23).
-pw34 = pw33 + rs128 (audits/m128-plan.md): pw23 unchanged plus a swap-AB register-A split-K wgmma kernel for m exactly 128 / 256 on the
-pooler, qkv_gate, unpooler and o layers: 128 W rows x all tokens per CTA, two math warpgroups decode the lossless 12-bit
-pack (pw10 _pack_nat + _c12, re-blocked to 12 KB per 128-row k64 stage) into wgmma A registers, x is the smem B operand
-(2D TMA, SW128), one full barrier per ring slot shared by a W bulk lane and an x TMA lane, K split over KS CTAs on a
-one-wave grid, partials summed by cp.reduce.async.bulk.tensor bf16 add into out, which the kernel zeroes itself (each
-CTA its slice, release counter, polled off the critical path; no memset node, no cluster). Built in a background thread
-during r6's phase; BAKE / PICK lines time it against r6's own path per (layer, m); any failure leaves r6's choices."""
+    """achitaan: retained chenwainuo lossless RQ pack/build/bake helpers (Apache-2.0)."""
     from typing import TypedDict
     import math
     import statistics
@@ -17024,91 +16992,7 @@ during r6's phase; BAKE / PICK lines time it against r6's own path per (layer, m
     import torch
     _T0 = time.time()
     from torch.utils.cpp_extension import load_inline
-    GXP = []
-    GX11 = False  # pw17: pw11's wide-row gx paths never won (checks 824f32ce, f1e6a186, f03e2e77); not built
-    for _ms, _xs in (((1, 8), 0), ((16, 32), 2)):
-        for _wr in (9, 8):  # 144 rows: 16 x 8 = 128 CTAs; 128 rows: 2304 = 18 x 128 -> 144 CTAs
-            for _ab, _v in (("a", 1), ("b", 5)):
-                if _ab == "a":  # pw12 trim: q144a (cluster 8 declined on the judge, 120 < 128) and q128a dropped
-                    continue
-                _ms2 = tuple(m_ for m_ in _ms if not (_wr == 8 and m_ == 32))  # pw12 trim: q128b m=32 (L1-x, MT 4)
-                if _ms2:
-                    GXP.append(("gx-q%d%s" % (16 * _wr, _ab), "qkv_gate", _ms2, (1, _wr, 1, 16, 8, 1, _xs), _v))
-    for _ab, _v in (("a", 1), ("b", 5)):
-        if _ab == "b":  # pw12 trim: gx-q144a-s dropped (cluster 8 declined)
-            GXP.append(("gx-q144%s-s" % _ab, "qkv_gate", (32,), (1, 9, 1, 16, 8, 1, 1), _v))
-        GXP.append(("gx-p128%s" % _ab, "pooler", (16,), (1, 8, 2, 16, 4, 1, 2), _v))  # pw12 trim: m=32 L1-x (8 B spill) dropped
-        GXP.append(("gx-p128%s-s" % _ab, "pooler", (32,), (1, 8, 2, 16, 4, 1, 1), _v))
-        GXP.append(("gx-u128%s" % _ab, "unpooler", (16,), (1, 8, 2, 16, 2, 1, 2), _v))  # pw12 trim: m=32 L1-x dropped
-        GXP.append(("gx-u128%s-s" % _ab, "unpooler", (32,), (1, 8, 2, 16, 2, 1, 1), _v))
-    GXP.append(("gx-o64-s", "o", (16, 32), (1, 4, 4, 4, 1, 1, 1), 1))
-    GXP.append(("gx-r12g8", "router", (1, 8, 16, 32), (3, 1, 8, 2, 8, 1, 0), 5))  # pw12 trim: r12c8 / r12c16 dropped
-    if not GX11:
-        GXP = []
-    def _bv(v, ns, cu=1, fence=False):
-        return v | 8 | ({2: 0, 4: 1, 8: 2, 16: 3}[ns] << 4) | ({1: 0, 2: 1, 4: 2}[cu] << 6) | (0 if fence else 256)
-    GB = True
-    for _nm, _ly, _ms, _g, _v, _vars in (
-            ("q", "qkv_gate", (1, 8), (1, 1, 8, 16, 1, 1, 0), 1, ((4, 1), (8, 1))),
-            ("q144b", "qkv_gate", (1, 8), (1, 9, 1, 16, 8, 1, 0), 5, ((8, 1),)),
-            ("q", "qkv_gate", (16,), (1, 1, 4, 8, 4, 1, 2, 1), 1, ((4, 1), (8, 1))),
-            ("q144b", "qkv_gate", (16, 32), (1, 9, 1, 16, 8, 1, 2), 5, ((8, 1),)),
-            ("q", "qkv_gate", (32,), (1, 1, 4, 16, 2, 1, 2, 1), 1, ((4, 1), (8, 1))),
-            ("o", "o", (1, 8), (1, 1, 8, 2, 1, 1, 0), 0, ((4, 1),)),
-            ("o", "o", (16,), (1, 1, 8, 2, 1, 1, 0), 1, ((4, 1),)),
-            ("o64-s", "o", (16, 32), (1, 4, 4, 4, 1, 1, 1), 1, ((4, 1),)),
-            ("p", "pooler", (1, 8), (1, 2, 16, 8, 1, 1, 0), 3, ((4, 1),)),
-            ("p16w", "pooler", (1, 8, 16), (1, 2, 8, 16, 1, 1, 0), 1, ((4, 1), (8, 1), (4, 2))),
-            ("p", "pooler", (32,), (1, 1, 8, 16, 1, 1, 2), 1, ((4, 1), (8, 1))),
-            ("p128b", "pooler", (16, 32), (1, 8, 2, 16, 4, 1, 2), 5, ((4, 1),)),
-            ("u", "unpooler", (1, 8), (1, 1, 16, 4, 1, 1, 0), 1, ((4, 1),)),
-            ("u", "unpooler", (16,), (1, 1, 4, 16, 1, 1, 2), 1, ((4, 1), (8, 1))),
-            ("u", "unpooler", (32,), (1, 1, 4, 16, 1, 1, 2), 0, ((4, 1), (8, 1))),
-            ("u128b", "unpooler", (16, 32), (1, 8, 2, 16, 2, 1, 2), 5, ((4, 1),)),
-            ("r", "router", (1, 8, 16), (2, 1, 8, 2, 8, 1, 0), 0, ((4, 1),)),
-            ("r", "router", (32,), (2, 1, 4, 2, 16, 1, 0), 0, ((4, 1),)),
-            ("r12g8", "router", (1, 8, 16, 32), (3, 1, 8, 2, 8, 1, 0), 5, ((4, 1),))):
-        for _ns, _cu in _vars if GB else ():
-            if True:  # pw21: no bulk-ring paths (gb-q-n4 never won)
-                continue
-            GXP.append(("gb-%s-n%d%s" % (_nm, _ns, "c%d" % _cu if _cu > 1 else ""), _ly, _ms, _g, _bv(_v, _ns, _cu)))
-    GE = False  # pw21: codec E closed (pw17-pw20); r6 + router m=128/256 paths only
-    _ER, _EK2, _EK4 = 1 << 20, 1 << 22, 2 << 22
-    _GEG = {("qkv_gate", 1): (4, 1, 8, 16, 1, 1, 0), ("qkv_gate", 8): (4, 1, 8, 16, 1, 1, 0), ("qkv_gate", 16): (4, 1, 8, 16, 1, 1, 0),
-            ("pooler", 1): (4, 2, 8, 16, 1, 1, 0), ("pooler", 8): (4, 2, 8, 16, 1, 1, 0), ("pooler", 16): (4, 2, 8, 16, 1, 1, 0),
-            ("unpooler", 1): (4, 1, 4, 16, 1, 1, 0), ("unpooler", 8): (4, 1, 4, 16, 1, 1, 0), ("unpooler", 16): (4, 1, 4, 16, 1, 1, 2)}
-    _GEV = (("", 0), ("r", _ER), ("r-k2", _ER | _EK2), ("r-k4", _ER | _EK4))
-    _GEN = {"qkv_gate": "q", "pooler": "p512", "unpooler": "u"}
-    GEP = [("ge-%s%s" % (_GEN[ly] if not (ly == "unpooler" and m <= 8) else "u16", sfx), ly, (m,), g, 1 | b | (2 << 12 if ly == "qkv_gate" else 0))
-           for (ly, m), g in _GEG.items() for sfx, b in _GEV if not (ly != "unpooler" and m == 16 and b & (3 << 22))] if GE else []
-    _EL = 1 << 24
-    GEPL = [("ge-l%s" % nm, ly, (m,), g, 1 | 2 | ((1024 // nt) << 12) | _EL)
-            for nm, ly, g, nt in (("p1k", "pooler", (4, 2, 16, 8, 1, 1, 0, 1), 1024), ("p16", "pooler", (4, 1, 16, 8, 1, 1, 0, 1), 512),
-                                  ("q16", "qkv_gate", (4, 1, 16, 8, 1, 1, 0, 1), 512), ("q8", "qkv_gate", (4, 1, 8, 16, 1, 1, 0, 1), 256),
-                                  ("u8", "unpooler", (4, 1, 8, 8, 1, 1, 0, 1), 256))
-            for m in (1, 8)] if GE else []
-    GEP += GEPL
-    GXP += GEP
-    _ZF, _PZ, _XZ = 1 << 27, 1 << 28, 1 << 29
-    GRD = []
-    for _nm, _g, _ms, _vs in (("rk-s8", (2, 1, 8, 2, 8, 1, 0, 2), (8, 16, 32), "z"),           # 16 x 8 = 128 CTAs x 256 thr
-                              ("rk-s16w8", (2, 1, 8, 1, 16, 1, 0, 1), (8, 16, 32), "z"),      # 256 CTAs x 256 thr, one chunk per warp
-                              ("rk-s16w8", (2, 1, 8, 1, 16, 1, 0, 1), (8, 16), "x"),          # critic (pw27h): the x variant at m=32 is 272 CTAs > 264 resident slots
-                              ("rk-s32", (2, 1, 4, 1, 32, 1, 0, 1), (8, 16), "x"),          # 512 CTAs x 128 thr
-                              ("rk-s16w16", (2, 1, 16, 1, 8, 1, 0, 1), (8,), "z")):
-        for _c in _vs:
-            GRD.append((_nm + _c, "router", _ms, _g, {"z": _ZF, "x": _XZ, "p": _PZ}[_c]))  # P1 self-zeroing variants
-    for _nm, _ly, _g, _vs in (("uk-s4", "unpooler", (1, 1, 8, 2, 4, 1, 0, 2), "zx"),    # n=1024: 64 x 4 = 256 CTAs x 256 thr
-                              ("uk-s4w4", "unpooler", (1, 1, 4, 4, 4, 1, 0, 4), "x")):    # 256 CTAs x 128 thr
-        for _c in _vs:
-            GRD.append((_nm + _c, _ly, (1, 8), _g, 1 | {"z": _ZF, "x": _XZ}[_c]))
-    GXP += GRD
-    GXP += [("q144k16", "qkv_gate", (1, 8), (1, 1, 16, 8, 1, 1, 2), 1 | 2 << 12)]
-    for _nm, _ly, _m, _g, _v in (("p", "pooler", 16, (1, 2, 8, 16, 1, 1, 0), 1), ("p", "pooler", 32, (1, 1, 8, 16, 1, 1, 2), 1),
-                                 ("u", "unpooler", 16, (1, 1, 4, 16, 1, 1, 2), 1), ("u", "unpooler", 32, (1, 1, 4, 16, 1, 1, 2), 0),
-                                 ("q", "qkv_gate", 16, (1, 1, 4, 8, 4, 1, 2, 1), 1), ("q", "qkv_gate", 32, (1, 1, 4, 16, 2, 1, 2, 1), 1)):
-        for _sfx, _b in ():  # pw17: pw16's x-policy paths all lost (GCX); not built
-            GXP.append(("gc-%s%s" % (_nm, _sfx), _ly, (_m,), _g, _v | _b))
+    # achitaan: removed unused GX/Codec-E/GV probe tables; Decode uses only RQ.
     _OS = ((0, 4, 8, 12, 16, 20, 24, 28), (0, 8, 16, 24, 4, 12, 20, 28))
     _SS = ((3, 11, 19, 27, 7, 15, 23, 31), (7, 15, 23, 31, 11, 19, 27, 3))
     def _c12(fr, dv=1):
@@ -19042,6 +18926,7 @@ _CH_SHAPES = tuple((B, L, s) for B, L in ((1, 8), (32, 1), (16, 1), (32, 8), (16
                    for s in (True, False))
 _CH_BLOCKS = 12  # 24 timings of EACH arm per draw, three fresh draws
 _CH_GAIN = 0.988
+_CH_SCREEN = 0.997  # achitaan: component screening only; NEVER the adoption bar
 _CH_RQ_VARIANTS = (
     ("t32s5curP", 32, 5, 1, 0, 0, 0, (1 << 25) | (1 << 23) | (1 << 20) | 3),
     _CHEN["RQV"][_CHEN["RQI"]["d2s5hzwP"]],
@@ -19084,11 +18969,12 @@ class _CHMoeObserver:
         _ch_mark("moe_input", x)
         _ch_mark("local_ids", ids)
         _ch_mark("route_weights", tw)
+        _ch_mark("moe_out", out)
         return self.ext.okc_run(w, scratch, x, ids, tw, out, lo, nloc, grid)
 
 
 def _moe(M=None, state=None):
-    if getattr(_CH_TLS, "arm", "base") == "A":
+    if "A" in _ch_parts(getattr(_CH_TLS, "arm", "base")):
         ext = state.get("ch_moe", {}).get(M) if state is not None else None
         if ext is None:
             raise RuntimeError("CH WSI build unavailable (no timed-path JIT)")
@@ -19107,7 +18993,7 @@ def _decode_attention7(data, state, qkv):
 
 def dense(x, w, T, state=None, name=None):
     arm = getattr(_CH_TLS, "arm", "base")
-    if "Cun" in arm.split("+") and name == "un":
+    if "Cun" in _ch_parts(arm) and name == "un":
         out = _ch_rq_call(state, "Cun", x, T)
         result = (out.view(1, T, out.shape[1]), 1)
     else:
@@ -19119,7 +19005,7 @@ def dense(x, w, T, state=None, name=None):
 
 def _pool_router_fp32(h, hr, T, state, ppick):
     _ch_mark("preffn", h)
-    if "Cpool" not in getattr(_CH_TLS, "arm", "base").split("+"):
+    if "Cpool" not in _ch_parts(getattr(_CH_TLS, "arm", "base")):
         return _CH_OLD_POOL(h, hr, T, state, ppick)
     if T not in (32, 128, 256):
         raise RuntimeError("CH pool expansion outside its admitted shape")
@@ -19141,6 +19027,7 @@ def _pool_router_fp32(h, hr, T, state, ppick):
         # route kernel adds BOTH projections in FP32. Never drop the low half.
         halves = torch.mm(h, state["pr"][D_EXPERT:D_EXPERT + 2 * N_EXPERTS].t(), out_dtype=torch.float32)
         logits = halves[:, :N_EXPERTS] + halves[:, N_EXPERTS:]
+    _ch_mark("check_router", (h, logits, state["router_fp32"], 5e-5))
     return (pooled, logits), -1
 
 
@@ -19153,11 +19040,12 @@ def _ch_rq_call(state, arm, x, T):
     if rc != 0:
         raise RuntimeError(f"CH rq launch status={rc}")
     _ch_mark("used_" + arm, True)
+    _ch_mark("check_" + arm, (x, out, p["raw"], p["tol"]))
     return out
 
 
 def _ch_launch(data, state, arm):
-    if arm == "B":
+    if "B" in _ch_parts(arm):
         # achitaan: qkv@16/32 can be bfp/cuBLAS/Triton; qkv@256 can already
         # use rq (usually the EH twin). Gate against the ACTUAL prepared base.
         # Route attention INPUT, not dense(o)/gate output, at the exact m only.
@@ -19246,7 +19134,8 @@ def _ch_plans(st, weights, jobs, deadline):
                 if _CH_RQ_VARIANTS[i][7] & (1 << 20) and esc2 is None:
                     raise RuntimeError(f"cursor escape overflow {mx}")
                 p = dict(i=i, lay=lay, tab=tab, esc=esc, esc2=esc2, KS=ks, n=n, mod=mod,
-                         cnt=torch.zeros(8 * lay.shape[0], dtype=torch.int32, device=w.device))
+                         cnt=torch.zeros(8 * lay.shape[0], dtype=torch.int32, device=w.device),
+                         raw=w, tol=_CHEN["RQTOL"][ks])
                 fn = lambda x, out, p=p: _CHEN["_rqcall"](st["ch_chen_st"], p, x, out)
                 # achitaan: same exhaustive one-hot/FP64 normal+outlier math
                 # validation as the base rq bake, before full-layer equivalence.
@@ -19261,13 +19150,22 @@ def _ch_plans(st, weights, jobs, deadline):
             torch.cuda.synchronize()  # do not hide a poisoned CUDA context
 
 
-def _ch_names(st, key):
+def _ch_parts(name):
+    return frozenset() if name == "base" else frozenset(name.split("+"))
+
+
+def _ch_names(st, key, available=True):
     T = key[0] * key[1]
-    names = ["A"] if T in st.get("ch_moe", {}) else []
-    names += [a for a in ("B", "Cpool", "Cun") if (a, T) in st.get("ch_rq", {})]
-    # achitaan: keep new Dense routes as individually measured arms rather
-    # than a combinatorial sweep. Retain the original pool+un256 combination.
-    return names + (["Cpool+Cun"] if "Cpool" in names and "Cun" in names else [])
+    names = list({1: ("A",), 8: ("A",), 16: ("A", "B"), 32: ("B", "Cpool"),
+                  128: ("Cpool",), 256: ("B", "Cpool", "Cun")}.get(T, ()))
+    if available:
+        names = [a for a in names if (a == "A" and T in st.get("ch_moe", {}))
+                 or (a != "A" and (a, T) in st.get("ch_rq", {}))]
+    # achitaan: at most four predetermined dense bundles, then ONE WSI + best
+    # dense candidate. With today's build coverage WSI can compose only at T=16.
+    dense = [a for a in names if a != "A"]
+    dense += [a for a in ("B+Cpool", "B+Cun", "Cpool+Cun", "B+Cpool+Cun") if _ch_parts(a) <= set(names)]
+    return (["A"] if "A" in names else []) + dense + (["A+" + a for a in dense] if "A" in names else [])
 
 
 def prepare(weights):
@@ -19287,6 +19185,9 @@ def prepare(weights):
               f"qkv32_base={st.get('mm_pick', {}).get((32, 'qkv'))}", flush=True)
         if st.get("bfp") is None or elapsed > 235.0 or not jobs:
             print("CH_ERR no_gate_budget_or_backend fallback=base_all", flush=True)
+            for key in _CH_SHAPES:
+                for name in _ch_names(st, key, False):
+                    _ch_skip(key, name, "prepare_budget_or_backend_not_started")
         else:
             # achitaan: copy ONLY completed jobs by the absolute deadline. Late
             # worker completion can never mutate this state or its admitted picks.
@@ -19483,8 +19384,9 @@ def _ch_id_error(a, b):
 
 
 def _ch_calibrate(base, data, before, carry, flush, sink, label, draw):
-    # achitaan: reference = two UNMODIFIED decode_v1 graph executions on SAME
-    # inputs/cache bytes. Not a mathematical golden; official conformance is
+    # achitaan: two executions on SAME inputs/cache bytes: decode_v1 for the
+    # layer comparison, or the dense-only twin to isolate WSI in a bundle.
+    # Not a mathematical golden; official conformance is
     # still required. The default's nondeterministic atomic reductions/router
     # near-ties must not be mistaken for a scheduling regression.
     refs = []
@@ -19501,11 +19403,11 @@ def _ch_calibrate(base, data, before, carry, flush, sink, label, draw):
         else:
             second_slots = _ch_cache(data)
         refs.append((vals, ids))
-    if refs[0][0].keys() != refs[1][0].keys() or not {"qkv", "attn", "moe_input", "local_ids", "route_weights"} <= refs[0][0].keys():
+    if refs[0][0].keys() != refs[1][0].keys() or not {"qkv", "attn", "moe_input", "moe_out", "local_ids", "route_weights"} <= refs[0][0].keys():
         raise RuntimeError("CH incomplete native pre-MoE observations")
     first, second = refs[0][0], refs[1][0]
     spread = {k: _ch_error(second[k], v) for k, v in first.items()}
-    exact = {k for k, v in first.items() if k not in ("hidden", "update") and _ch_bits(second[k], v)}
+    exact = {k for k, v in first.items() if _ch_bits(second[k], v)}
     idspread = _ch_id_error(refs[1][1], refs[0][1])
     cache_repeat = all(torch.equal(data[k].view(torch.uint8), v) for k, v in zip(("k_cache", "v_cache"), cache))
     # achitaan: if a split-K qkv near a FP8 rounding boundary makes the default's
@@ -19520,54 +19422,101 @@ def _ch_calibrate(base, data, before, carry, flush, sink, label, draw):
     finite = all(e < float("inf") for es in spread.values() for e in es) and idspread < float("inf")
     finite &= all(e < float("inf") for es in kv_spread for e in es)
     report = ";".join(f"{k}:{e[0]:.2e}/{e[1]:.2e}" for k, e in sorted(spread.items()))
-    print(f"CH_INFO class={label} draw={draw} compare=two_base_runs+full_KV_bytes+preMoE+hidden+carry_removed_update+ID_sets "
+    print(f"CH_INFO class={label} draw={draw} reference={base['name']} compare=two_runs+full_KV_bytes+preMoE+hidden+carry_removed_update+ID_sets "
           f"exact_pre={','.join(sorted(exact))} base_KV_exact={int(cache_repeat)} base_ids={idspread:.3e} "
           f"base_spread_rel/row={report} KV_new_spread={kv_spread} untouched_KV_exact={int(untouched_ok)} "
-          "tolerance=max(1e-3/5e-3,3xspread)", flush=True)
+          "final_tolerance=max(1e-3/5e-3,3xspread) dense_stage_tolerance=max(8e-3/4e-2,3xspread)", flush=True)
     return dict(values=first, ids=refs[0][1], cache=cache, spread=spread, exact=exact,
                 idspread=idspread, valid=finite and untouched_ok, cache_slots=cache_slots,
                 kv_spread=kv_spread, kv_exact=kv_exact)
 
 
-def _ch_equivalence(arm, data, ref, carry):
+def _ch_affected(parts, keys):
+    # achitaan: legal GEMM order changes relax only their downstream values.
+    if "B" in parts:
+        return set(keys)
+    changed = {"hidden", "update"} if "Cun" in parts else set()
+    if "Cpool" in parts:
+        changed |= {"moe_input", "local_ids", "route_weights", "moe_out", "hidden", "update"}
+    return changed
+
+
+def _ch_projection_check(arm):
+    # achitaan: independent public x@W.T equation in FP32, TF32 disabled.
+    # Executed outside timed graphs twice/draw on each candidate's ACTUAL input.
+    # Base _rqval additionally checks exhaustive one-hot + FP64 random/outliers.
+    obs = arm["state"]["_ch_observe"]
+    parts = _ch_parts(arm["name"]) - {"A"}
+    required = {"check_" + p for p in parts} | ({"check_router"} if "Cpool" in parts else set())
+    if not required <= obs.keys():
+        return False, float("inf")
+    valid, worst = True, 0.0
+    old = torch.backends.cuda.matmul.allow_tf32
+    try:
+        torch.backends.cuda.matmul.allow_tf32 = False
+        for name in sorted(required):
+            x, out, w, tol = obs[name]
+            want = torch.mm(x.float(), w.float().t())
+            errors = _ch_error(out.float(), want)
+            valid &= all(e <= f and e < float("inf") for e, f in zip(errors, (tol, 5 * tol)))
+            worst = max(worst, *(e / f for e, f in zip(errors, (tol, 5 * tol))))
+    finally:
+        torch.backends.cuda.matmul.allow_tf32 = old
+    return bool(valid), worst
+
+
+def _ch_equivalence(arm, data, ref, carry, schedule_only=False):
     obs, out = arm["state"]["_ch_observe"], arm["output"]
     valid = ref["valid"] and len(out) == 3 and not arm["state"].get("_ch_failed", False)
     vals = _ch_values(arm, carry)
     if vals.keys() != ref["values"].keys():
         return False, False, False, float("inf"), float("inf")
+    # WSI alone, or WSI vs its matched dense-only twin: exact on EVERY
+    # repeatable reference value, including expert output and final outputs.
+    parts = frozenset() if schedule_only else _ch_parts(arm["name"])
+    changed = _ch_affected(parts, vals)
     exact_ok, worst = True, 0.0
     for k, value in vals.items():
         error = _ch_error(value, ref["values"][k])
-        if k in ref["exact"]:
+        if k in ref["exact"] and k not in changed:
             equal = _ch_bits(value, ref["values"][k])
             exact_ok &= equal
             valid &= equal
-        for e, floor, spread in zip(error, (1e-3, 5e-3), ref["spread"][k]):
+        if k == "local_ids" and k in changed:
+            # IDs are discrete, not a relative-L2 quantity. Validate the exact
+            # final-ID -> local-ID mapping, then use the calibrated set gate.
+            local = (out[2] - data["local_start"]) % N_EXPERTS
+            expected = torch.where(local < LOCAL_EXPERTS, local, -1)
+            valid &= torch.equal(value, expected)
+            continue
+        # achitaan: BF16 stages downstream of legal GEMM changes use Dense
+        # v2's 8e-3/5x-row budget (below the task's 1e-2). Do not silently apply
+        # a tighter default-roundoff budget to an independently valid GEMM.
+        # FINAL hidden/update retain the layer's original default-spread gate.
+        floors = (8e-3, 4e-2) if k in changed and k not in ("hidden", "update") else (1e-3, 5e-3)
+        for e, floor, spread in zip(error, floors, ref["spread"][k]):
             limit = max(floor, 3.0 * spread)
             valid &= e <= limit and e < float("inf")
             worst = max(worst, e / limit)
     ids = _ch_id_error(out[2], ref["ids"])
     valid &= ids <= 3.0 * ref["idspread"] and ids < float("inf")
-    # achitaan: deterministic K/V are always bit-exact. Nondeterministic new
-    # slots get the same calibrated numerical test, not a global byte-error
-    # allowance that could conceal a write to an unrelated page.
+    # Only QKV GEMM changes may numerically change repeatable NEW KV slots.
+    # Untouched cache bytes are ALWAYS exact, including numerical bundles.
     slots = _ch_cache(data)
     cache = True
     for got, expected, exact, spread in zip(slots, ref["cache_slots"], ref["kv_exact"], ref["kv_spread"]):
-        if exact:
+        if exact and "B" not in parts:
             cache &= torch.equal(got, expected)
         else:
             errors = _ch_error(got.view(torch.float8_e4m3fn), expected.view(torch.float8_e4m3fn))
+            floors = (8e-3, 4e-2) if "B" in parts else (1e-3, 5e-3)
             cache &= all(e <= max(f, 3.0 * s) and e < float("inf")
-                         for e, f, s in zip(errors, (1e-3, 5e-3), spread))
-    if all(ref["kv_exact"]):
+                         for e, f, s in zip(errors, floors, spread))
+    _ch_reset_cache(data, ref["cache_slots"])
+    try:
         cache &= all(torch.equal(data[k].view(torch.uint8), v) for k, v in zip(("k_cache", "v_cache"), ref["cache"]))
-    else:
-        _ch_reset_cache(data, ref["cache_slots"])
-        try:
-            cache &= all(torch.equal(data[k].view(torch.uint8), v) for k, v in zip(("k_cache", "v_cache"), ref["cache"]))
-        finally:
-            _ch_reset_cache(data, slots)
+    finally:
+        _ch_reset_cache(data, slots)
     valid &= cache
     if arm["name"] != "base":
         valid &= all(obs.get("used_" + part, False) for part in arm["name"].split("+"))
@@ -19599,64 +19548,72 @@ def _ch_capture(data, st, key, name, flush, sink):
     if name != "base" and not all(ss["_ch_observe"].get("used_" + part) for part in name.split("+")):
         raise RuntimeError(f"CH requested arm was not reached: {name}")
     return dict(name=name, state=ss, graph=graph, output=output, old_times=[], times=[], pairs=[],
-                valid=True, exact=True, cache=True, worst=0.0, iderror=0.0, draws=0, done=0)
+                valid=True, exact=True, cache=True, worst=0.0, iderror=0.0, draws=0, done=0,
+                draw_reps=[], fp32_checks=0, fp32_worst=0.0, reason="budget", wsi_exact=True)
 
 
-def _ch_shape(st, key, flush, sink, deadline):
-    B, L, sliding = key
-    T = B * L
-    label = f"{'d' if L == 1 else 'v'}{B}{'s' if sliding else 'f'}"
-    names = _ch_names(st, key)
-    if not names:
-        print(f"CH class={label} arm=unavailable old_us=nan new_us=nan ratio=nan paired=nan equiv=0 adopted=0", flush=True)
-        return None
-    print(f"CH_INFO class={label} arms=base,{','.join(names)}", flush=True)
-    data, refresh = _ch_inputs(st, B, L, sliding, 20261102 + B + T + 1000 * int(sliding))
-    refresh()
-    if not st["att_ok"] or not _supported7(data["config"]) or not _att_fits7(data, data["config"]):
-        raise RuntimeError("CH native baseline attention unavailable")
-    base = _ch_capture(data, st, key, "base", flush, sink)
-    arms = []
-    for name in names:
-        if _ch_time.monotonic() > deadline - 8.0:
-            break
-        # achitaan: a Python/capture failure rules out this arm, not siblings.
-        try:
-            arms.append(_ch_capture(data, st, key, name, flush, sink))
-        except Exception as ex:
-            print(f"CH class={label} arm={name} old_us=nan new_us=nan ratio=nan paired=nan equiv=0 adopted=0 error={type(ex).__name__}", flush=True)
-            torch.cuda.synchronize()
-    g1, g2 = st["gate1"].float() / 0.3, st["gate2"].float() / 0.3
-    alpha = (torch.sigmoid(-g1) * (1 + torch.sigmoid(g1))).clamp_min(1e-3).sqrt()
-    alpha *= (torch.sigmoid(-g2) * (1 + torch.sigmoid(g2))).clamp_min(1e-3).sqrt()
+def _ch_pass(arm, bar):
+    return (arm["valid"] and arm["done"] == 72 and arm["draws"] == 3
+            and (not (_ch_parts(arm["name"]) - {"A"}) or arm["fp32_checks"] == 6)
+            and arm["ratio"] <= bar and arm["paired"] <= bar
+            and abs(arm["ratio"] - arm["paired"]) <= 0.01)
+
+
+def _ch_skip(label, name, reason):
+    print(f"CH class={label} arm={name} old_us=nan new_us=nan ratio=nan paired=nan "
+          f"equiv=0 adopted=0 reps=0 draws=0 reason={reason}", flush=True)
+
+
+def _ch_block_reason(components, trials):
+    rows = [trials.get(p) for p in components]
+    if any(r is None for r in rows):
+        return "component_not_measured"
+    if any(not r["valid"] for r in rows):
+        return "component_equivalence"
+    if any(r["done"] != 72 or r["draws"] != 3 for r in rows):
+        return "component_budget"
+    return "component_timing_screen"
+
+
+def _ch_score(arm):
+    arm["draws"] = sum(n == 24 for n in arm["draw_reps"])
+    arm["old_us"] = _ch_stats.median(arm["old_times"]) if arm["old_times"] else float("nan")
+    arm["new_us"] = _ch_stats.median(arm["times"]) if arm["times"] else float("nan")
+    arm["ratio"] = arm["new_us"] / max(arm["old_us"], 1e-30)
+    arm["paired"] = _ch_stats.median(arm["pairs"]) if arm["pairs"] else float("nan")
+    arm["screen"] = _ch_pass(arm, _CH_SCREEN)
+    arm["eligible"] = _ch_pass(arm, _CH_GAIN)
+
+
+def _ch_measure(arms, base, data, refresh, alpha, flush, sink, deadline, label, twin=None):
+    # achitaan: singles screen first; bundles then get their OWN complete fresh
+    # 3-draw full-layer trial, never a product/sum of component speedups.
     start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     for draw in range(3):
-        if not arms or _ch_time.monotonic() > deadline - 5.0:
+        if not any(a["valid"] for a in arms) or _ch_time.monotonic() > deadline - 5:
             break
         refresh()
         before = _ch_cache(data)
-        torch.sum(flush, dim=0, out=sink)  # achitaan: route-locality probe replay
+        torch.sum(flush, dim=0, out=sink)
         base["graph"].replay()
         ids = base["output"][2]
         busiest = int(torch.bincount((ids.long() // LOCAL_EXPERTS).flatten(), minlength=8).argmax())
         data["local_start"].fill_(busiest * LOCAL_EXPERTS)
         carry = data["stream"] * alpha
         ref = _ch_calibrate(base, data, before, carry, flush, sink, label, draw)
-        for arm in arms:
-            arm["draws"] += 1
+        sched = _ch_calibrate(twin, data, before, carry, flush, sink, label + "_WSI_twin", draw) if twin else None
+        for a in arms:
+            a["draw_reps"].append(0)
         for block in range(_CH_BLOCKS):
-            if _ch_time.monotonic() > deadline - 3.0:
-                break
-            # Rotate candidate order as well as ABBA/BAAB to avoid always timing
-            # C last. Every candidate has its OWN contemporaneous base timings.
             ordered = arms if (block + draw) % 2 == 0 else list(reversed(arms))
             for arm in ordered:
+                if not arm["valid"] or _ch_time.monotonic() > deadline - 3:
+                    continue
                 bt = [[], []]
-                order = (0, 1, 1, 0) if block % 2 == 0 else (1, 0, 0, 1)
-                for i in order:
+                for i in ((0, 1, 1, 0) if block % 2 == 0 else (1, 0, 0, 1)):
                     run = base if i == 0 else arm
                     _ch_reset_cache(data, before)
-                    torch.sum(flush, dim=0, out=sink)  # 512 MiB READ, before EVERY replay
+                    torch.sum(flush, dim=0, out=sink)  # 512 MiB READ before EVERY replay
                     start.record()
                     run["graph"].replay()
                     end.record()
@@ -19665,38 +19622,121 @@ def _ch_shape(st, key, flush, sink, deadline):
                     bt[i].append(us)
                     (arm["old_times"] if i == 0 else arm["times"]).append(us)
                     ok, exact, cache, worst, iderr = _ch_equivalence(run, data, ref, carry)
-                    arm["valid"] &= ok  # default repeats must also stay within its measured spread
+                    arm["valid"] &= ok and us > 0
+                    if not ok:
+                        arm["reason"] = "equivalence" if i else "base_equivalence"
+                    if us <= 0:
+                        arm["reason"] = "timing_nonpositive"
                     arm["exact"] &= exact
                     arm["cache"] &= cache
                     arm["worst"] = max(arm["worst"], worst)
                     arm["iderror"] = max(arm["iderror"], iderr)
-                arm["pairs"].append(sum(bt[1]) / sum(bt[0]))
+                    if i and sched is not None:
+                        eq = _ch_equivalence(run, data, sched, carry, schedule_only=True)
+                        arm["wsi_exact"] &= eq[0]
+                        arm["valid"] &= eq[0]
+                        if not eq[0]:
+                            arm["reason"] = "equivalence_WSI_twin"
+                    # Two ACTUAL-input FP32 reference checks per completed draw.
+                    # They are outside event intervals and followed by a flush.
+                    if (i and len(bt[1]) == 1 and block in (0, _CH_BLOCKS - 1)
+                            and _ch_parts(arm["name"]) - {"A"}):
+                        ok, worst = _ch_projection_check(arm)
+                        arm["fp32_checks"] += 1
+                        arm["fp32_worst"] = max(arm["fp32_worst"], worst)
+                        arm["valid"] &= ok
+                        if not ok:
+                            arm["reason"] = "equivalence_projection_FP32"
+                arm["pairs"].append(sum(bt[1]) / max(sum(bt[0]), 1e-30))
                 arm["done"] += 2
-        del ref
+                arm["draw_reps"][-1] += 2
+        del ref, sched
     torch.cuda.synchronize()
     _check_guards()
-    admitted = []
     for arm in arms:
-        arm["old_us"] = _ch_stats.median(arm["old_times"]) if arm["done"] else float("nan")
-        arm["new_us"] = _ch_stats.median(arm["times"]) if arm["done"] else float("nan")
-        arm["ratio"] = arm["new_us"] / arm["old_us"]
-        arm["paired"] = _ch_stats.median(arm["pairs"]) if arm["pairs"] else float("nan")
-        arm["eligible"] = (arm["valid"] and arm["done"] == 72 and arm["draws"] == 3
-                           and arm["ratio"] <= _CH_GAIN and arm["paired"] <= _CH_GAIN
-                           and abs(arm["ratio"] - arm["paired"]) <= 0.01)
-        if arm["eligible"]:
-            admitted.append(arm)
-    best = min(admitted, key=lambda a: max(a["ratio"], a["paired"])) if admitted else None
-    for arm in arms:
-        print(f"CH class={label} arm={arm['name']} old_us={arm['old_us']:.3f} new_us={arm['new_us']:.3f} "
-              f"ratio={arm['ratio']:.5f} paired={arm['paired']:.5f} equiv={int(arm['valid'])} "
-              f"adopted={int(arm is best)} eligible={int(arm['eligible'])} exact_pre={int(arm['exact'])} "
-              f"KV_untouched+det_exact={int(arm['cache'])} max_error/tol={arm['worst']:.3f} id_error={arm['iderror']:.3e} "
-              f"reps={arm['done']} draws={arm['draws']}", flush=True)
+        _ch_score(arm)
+
+
+def _ch_shape(st, key, flush, sink, deadline):
+    B, L, sliding = key
+    label = f"{'d' if L == 1 else 'v'}{B}{'s' if sliding else 'f'}"
+    expected, names = _ch_names(st, key, False), _ch_names(st, key)
+    skipped = {n: "unavailable_build_or_plan" for n in expected if n not in names}
+    trials = {}
+    if not names:
+        for n in expected:
+            _ch_skip(label, n, skipped[n])
+        return None
+    print(f"CH_INFO class={label} planned={','.join(names)} screen={_CH_SCREEN} adoption={_CH_GAIN}", flush=True)
+    data, refresh = _ch_inputs(st, B, L, sliding, 20261102 + B + B * L + 1000 * int(sliding))
+    refresh()
+    if not st["att_ok"] or not _supported7(data["config"]) or not _att_fits7(data, data["config"]):
+        raise RuntimeError("CH native baseline attention unavailable")
+    base = _ch_capture(data, st, key, "base", flush, sink)
+    g1, g2 = st["gate1"].float() / 0.3, st["gate2"].float() / 0.3
+    alpha = (torch.sigmoid(-g1) * (1 + torch.sigmoid(g1))).clamp_min(1e-3).sqrt()
+    alpha *= (torch.sigmoid(-g2) * (1 + torch.sigmoid(g2))).clamp_min(1e-3).sqrt()
+
+    def phase(wanted, twin=None):
+        arms = []
+        for name in wanted:
+            if _ch_time.monotonic() > deadline - 8:
+                skipped[name] = "budget"
+                continue
+            try:
+                arm = _ch_capture(data, st, key, name, flush, sink)
+                trials[name] = arm
+                arms.append(arm)
+            except Exception as ex:
+                skipped[name] = "capture_error_" + type(ex).__name__
+                torch.cuda.synchronize()
+        if arms:
+            try:
+                _ch_measure(arms, base, data, refresh, alpha, flush, sink, deadline, label, twin)
+            except Exception as ex:
+                for a in arms:
+                    a["valid"], a["reason"] = False, "runtime_error_" + type(ex).__name__
+                    _ch_score(a)  # preserve actual partial coverage in the CH line
+                torch.cuda.synchronize()  # device faults are NOT recoverable
+
+    phase([n for n in names if "+" not in n])
+    bundles = []
     for name in names:
-        if any(a["name"] == name for a in arms):
+        if "+" not in name or "A" in _ch_parts(name):
             continue
-        print(f"CH class={label} arm={name} old_us=nan new_us=nan ratio=nan paired=nan equiv=0 adopted=0 budget=1", flush=True)
+        if all(trials.get(p, {}).get("screen", False) for p in _ch_parts(name)):
+            bundles.append(name)
+        else:
+            skipped[name] = _ch_block_reason(_ch_parts(name), trials)
+    phase(bundles)
+    dense = [a for n, a in trials.items() if "A" not in _ch_parts(n) and a["screen"]]
+    dense_best = min(dense, key=lambda a: max(a["ratio"], a["paired"])) if dense else None
+    wsi_name = "A+" + dense_best["name"] if dense_best is not None else None
+    for name in names:
+        if "+" in name and "A" in _ch_parts(name):
+            if name == wsi_name and trials.get("A", {}).get("screen", False):
+                phase([name], twin=dense_best)
+            else:
+                failed = [p for p in _ch_parts(name) if not trials.get(p, {}).get("screen", False)]
+                skipped[name] = _ch_block_reason(failed, trials) if failed else "not_best_dense"
+    admitted = [a for a in trials.values() if a["eligible"]]
+    best = min(admitted, key=lambda a: max(a["ratio"], a["paired"])) if admitted else None
+    for name in expected:
+        if name not in trials:
+            _ch_skip(label, name, skipped.get(name, "budget"))
+            continue
+        a = trials[name]
+        reason = ("adopted" if a is best else a["reason"] if not a["valid"]
+                  else "budget" if a["done"] != 72 or a["draws"] != 3
+                  else "not_best" if a["eligible"] else "timing_final_screen_pass" if a["screen"] else "timing_screen")
+        kind = "mixed" if "A" in _ch_parts(name) and "+" in name else "scheduling" if name == "A" else "numerical"
+        print(f"CH class={label} arm={name} kind={kind} old_us={a['old_us']:.3f} new_us={a['new_us']:.3f} "
+              f"ratio={a['ratio']:.5f} paired={a['paired']:.5f} equiv={int(a['valid'] and a['done'] > 0)} "
+              f"adopted={int(a is best)} eligible={int(a['eligible'])} screen={int(a['screen'])} reason={reason} "
+              f"exact_repeatable={int(a['exact'])} WSI_twin_exact={int(a['wsi_exact'])} KV_exact_untouched={int(a['cache'])} "
+              f"max_error/tol={a['worst']:.3f} id_error={a['iderror']:.3e} FP32_error/tol={a['fp32_worst']:.3f} "
+              f"FP32_checks={a['fp32_checks']} reps={a['done']} timed_reps={len(a['times'])} "
+              f"draws={a['draws']} draw_reps={a['draw_reps']}", flush=True)
     return best["name"] if best is not None else None
 
 
@@ -19712,6 +19752,8 @@ def _ch_run(st, prepare_start):
         for key in _CH_SHAPES:
             if _ch_time.monotonic() > deadline - 10.0:
                 print(f"CH_ERR class={key} budget_exhausted fallback=base", flush=True)
+                for name in _ch_names(st, key, False):
+                    _ch_skip(key, name, "budget_not_started")
                 continue
             try:
                 pick = _ch_shape(st, key, flush, sink, deadline)
@@ -19719,7 +19761,8 @@ def _ch_run(st, prepare_start):
                     picks[key] = pick
             except Exception as ex:
                 print(f"CH_ERR class={key} {type(ex).__name__}: {str(ex)[-400:]} fallback=base", flush=True)
-                print(f"CH class={key} arm=all old_us=nan new_us=nan ratio=nan paired=nan equiv=0 adopted=0", flush=True)
+                for name in _ch_names(st, key, False):
+                    _ch_skip(key, name, "class_setup_error_" + type(ex).__name__)
                 # Device faults cannot be repaired by a Python fallback. Fail
                 # loudly on a poisoned context, rather than admit other shapes.
                 torch.cuda.synchronize()
