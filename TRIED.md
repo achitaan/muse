@@ -270,7 +270,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell small-batch MoE (bs1/8/16): W/SC6/H/SH/WSH gated; W differs from closed EARLYW/WSER by dedicated issuer warp and slot read/release before job wait/x loads/MMAs; MID preserves rotated helper + DF (H doneA inactive) | in progress; CPU AST/source generation/SC6 inverse/exact gate tests passed; pending ONE H200 check | argon/keell-base-20261102 | - | kb/exp/moe_small.py | Nov 02 |
+| keell small-batch MoE (bs1/8/16): W/SC6/H/SH/WSH gated; W differs from closed EARLYW/WSER by dedicated issuer warp and slot read/release before job wait/x loads/MMAs; MID preserves rotated helper + DF (H doneA inactive) | in progress; ONE check queued (first attempt), no submit; 15 TUs / SC6 exact inverse / strict gate CPU tests passed; GPU results pending | 1e80653 (argon/keell-base-20261102) | `9061a2644fe64342` | kb/exp/moe_small.py | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
