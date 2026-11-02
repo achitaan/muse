@@ -12413,10 +12413,13 @@ def _simple_start():
     def worker():
         try:
             job["mod"] = load_inline("achitaan_simple_" + tag, cpp_sources=_SIMPLE_DECL, cuda_sources=src,
-                                     functions=["simple_run"], extra_cuda_cflags=["-O3", "-std=c++17", "-gencode=arch=compute_90a,code=sm_90a"],
+                                     # achitaan: match the judge's Torch/keell C++20 build, including the NVCC host pass.
+                                     # A device-only C++17 NVRTC check does not compile the Torch headers below the kernel.
+                                     functions=["simple_run"], extra_cflags=["-std=c++20"],
+                                     extra_cuda_cflags=["-O3", "-std=c++20", "-gencode=arch=compute_90a,code=sm_90a"],
                                      verbose=False)
         except Exception as error:
-            job["error"] = str(error).replace("\n", " ")[-400:]
+            job["error"] = str(error)  # retain compiler diagnostics until the final tail-only print
     job["thread"] = threading.Thread(target=worker, daemon=True)
     job["thread"].start()
     return job
@@ -12691,7 +12694,8 @@ def prepare(weights):
             _dt_torch.cuda.synchronize()
             del flush, sink
         except Exception as error:
-            _simple_say("S stop %s %.180s" % (type(error).__name__, str(error).replace("\n", " ")))
+            # achitaan: never take the HEAD of an already-truncated build tail (it hid the actual compiler error).
+            _simple_say("S stop %s %s" % (type(error).__name__, str(error).replace("\n", " ")[-1500:]))
             # Only fully confirmed cells survive an ordinary preparation-budget expiry.
             if not isinstance(error, _DTBudget):
                 state["simple"].clear()
