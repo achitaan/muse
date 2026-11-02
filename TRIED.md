@@ -272,6 +272,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| keell MAIN MoE: dependency-aware B task order (consume jobs in A-completion order; FlashInfer group_hint idea) + measured doneAs wait cycles; gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
