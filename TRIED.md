@@ -264,7 +264,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | submitted ONE check; pending GPU result. 14 readable experimental TUs, exact PAB-binary disabled control; 3 draws x24 ABBA quads and 50 correctness replays per draw, gate <=0.985. Local AST + generated-C++ range/owner tests pass (64,560 cases; 79,589,376 stages); commit 1024668af739690b928f0a874fcb0a64919e0226 | argon/keell-base-20261102 | `523d32277d9a4081` | kb/exp/moe_pp.py | Nov 02 |
 
 ## Dense projections (``bf16_proj``)
 
