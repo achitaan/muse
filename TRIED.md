@@ -219,3 +219,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+
+## Dense projections (`bf16_proj`)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| Hybrid bf16_proj: per (layer, m) cell dispatch to the faster of keell0renz and alygg77 public Apache-2.0 files (alygg77 for qkv_gate@1/16, pooler@8, router@8, unpooler@8; per-module TORCH_EXTENSIONS_DIR) | in progress | same-judge estimate keell 1.607 -> best-of-both 1.629 geomean (70d8df28 / c3673f3d); check 241400bc queued | `241400bc` | kb/v1/bf16_hybrid.py (argon/keell-base-20261102) | Nov 02 |
