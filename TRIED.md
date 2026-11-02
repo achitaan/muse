@@ -270,4 +270,4 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| keell bf16: chenwainuo rq at m=256 (pooler/unpooler/qkv) and o@128; Codec E ~11.1-bit weights + CURP at small m; router 12-bit; gated in prepare | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
+| keell bf16: chenwainuo rq at m=256 (pooler/unpooler/qkv) and o@128; Codec E ~11.1-bit weights + CURP at small m; router 12-bit; gated in prepare | in progress: one check queued 630d4cb2b26e48f2; 12 rq and 33 GV/twin templates; corrected 1e-3 overstrict BF16 gate and torch.sum flush; AST+structural tests pass; commit 8ad864f | argon/keell-base-20261102 | - | - | Nov 02 |
