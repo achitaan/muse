@@ -257,3 +257,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Diagnostic: per-kernel GPU timeline (torch.profiler/CUPTI, cold-L2 graph replays) of keell0renz decode layer, 12 shapes, to pick a structural target | check submitted, awaiting PROF lines | job 979a2ab5f2604fe6; kb/exp/decode_prof.py | - | - | Nov 02 |
+
+## MoE kernel (``moe_fused``)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| keell MoE: private stream-K partials (no FP32 atomic fixup / clearing) + bounded cut snapping to unit boundaries; per-bs gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
