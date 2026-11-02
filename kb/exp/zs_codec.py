@@ -16,9 +16,11 @@ lane-group bases are a warp prefix sum of popcount(~(p0|p1|p2)). An individual
 escape is base + popcount(mask & ((1<<position)-1)). Non-escape positions
 are fixed, so there is no variable-length serial decode or shared-memory LUT.
 
-Exact storage: 11 + 16*escape_fraction + 32/1024 + (64+32)/weight_count bpw
-(the last 32 bits are the offset sentinel). Required <=11.16, so even with
-infinite matrices this needs coverage >=99.1953125%, stronger than 95%.
+Storage before alignment: 11 + 16*escape_fraction + 32/1024 + 96/count bpw.
+Offsets and escapes share one actual byte array, tail-padded to 16 bytes;
+the measured size includes that padding. The refined council gate is <=11.4
+effective bpw, requiring >=97.6953125% coverage in the infinite-matrix limit.
+Start on pooler m=1/8 only; other layers remain disabled until pooler wins.
 
 This CPU packer/reference decoder is the initial implementation while the
 real-weight statistics CHECK runs. GPU integration must remain gated on that
@@ -26,6 +28,8 @@ check, then real-weight bitwise roundtrip and both ABBA passes <=0.988.
 """
 
 import numpy as np
+
+MAX_EFFECTIVE_BPW = 11.4
 
 
 def pack_fragments(bits: np.ndarray) -> dict:
@@ -74,16 +78,49 @@ def pack_fragments(bits: np.ndarray) -> dict:
         offsets[start + 1:start + n + 1] = offsets[start] + np.cumsum(counts, dtype=np.uint64)
         escapes.append(groups[mask])
     escaped = np.concatenate(escapes)
+    # achitaan: concrete final escape/index allocation, not a payload estimate.
+    # Offsets are uint32 aligned; scalar uint16 escape loads need only 2-byte
+    # alignment. Tail padding permits a uint4-backed tensor in the existing ABI.
+    index_bytes, escape_bytes = offsets.nbytes, escaped.nbytes
+    used_bytes = index_bytes + escape_bytes
+    storage = np.zeros((used_bytes + 15) // 16 * 16, dtype=np.uint8)
+    storage[:index_bytes] = offsets.view(np.uint8)
+    storage[index_bytes:used_bytes] = escaped.view(np.uint8)
     result = dict(shape=bits.shape, table=table, sign_mantissa=sm,
-                  planes=plane, offsets=offsets, escapes=escaped)
+                  planes=plane, storage=storage,
+                  offsets=storage[:index_bytes].view(np.uint32),
+                  escapes=storage[index_bytes:used_bytes].view(np.uint16))
     # Source of expected values: the original integer BF16 bit patterns, NOT
     # output produced by a floating-point conversion or by another codec.
     if not np.array_equal(unpack_fragments(result), bits):
         raise AssertionError("ZS BF16 bit-exact roundtrip failed")
-    result["bpw"] = sum(result[k].nbytes * 8 for k in
-                        ("table", "sign_mantissa", "planes", "offsets", "escapes")) / bits.size
+    result["bytes"] = dict(table=table.nbytes, sign_mantissa=sm.nbytes,
+                           planes=plane.nbytes, offsets=index_bytes,
+                           escapes=escape_bytes, padding=storage.nbytes - used_bytes)
+    # Views into storage are counted only once; raw bits/reference output are
+    # prepare scratch, not retained encoded weight buffers.
+    result["effective_bytes"] = sum(result[k].nbytes for k in
+                                    ("table", "sign_mantissa", "planes", "storage"))
+    assert result["effective_bytes"] == sum(result["bytes"].values())
+    result["bpw"] = 8 * result["effective_bytes"] / bits.size
     result["top7"] = 1.0 - escaped.size / bits.size
     return result
+
+
+def print_packed_statistics(pack: dict, layer: str) -> bool:
+    """Emit effective bytes from the actual packed arrays; return the size gate.
+
+    GPU prepare must call this on real-weight packs before launching a candidate.
+    Passing this size gate is not a claim that the kernel is correct or faster.
+    """
+    import json
+    passed = pack["top7"] >= 0.95 and pack["bpw"] <= MAX_EFFECTIVE_BPW
+    print("ZS " + json.dumps(dict(layer=layer, layout="actual_N16_K64_unit_index",
+                                  bytes=pack["bytes"], effective_bytes=pack["effective_bytes"],
+                                  effective_bpw=pack["bpw"], top7=pack["top7"],
+                                  max_effective_bpw=MAX_EFFECTIVE_BPW, size_gate=passed,
+                                  bit_exact_roundtrip=True), sort_keys=True), flush=True)
+    return passed
 
 
 def unpack_fragments(pack: dict) -> np.ndarray:
@@ -124,7 +161,11 @@ def self_test() -> None:
     constant = np.full((1, 2, 4, 32, 8), 0x3f80, dtype=np.uint16)
     pk = pack_fragments(constant)
     assert pk["escapes"].size == 0
-    assert pk["bpw"] == 11 + 32 / 1024 + 96 / constant.size
+    # Two units: 12 offset bytes pad to 16, plus the eight-byte exponent table.
+    assert pk["bpw"] == 11 + 8 * (16 + 8) / constant.size
+    assert pk["bytes"]["padding"] == 4
+    assert pk["effective_bytes"] == sum(pk["bytes"].values())
+    assert pk["storage"].nbytes % 16 == 0
     # Check escapes in first/last bit, adjacent positions, lane/unit boundaries,
     # negative zero, smallest subnormal, infinity and NaN payload preservation.
     mixed = constant.copy()
