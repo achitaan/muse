@@ -1,0 +1,12 @@
+AT_b1_L1_win n=32 nc=1 coop=0 best=32/1/0 ratio=1.000 tested=4 rej=2 t=0.3s
+AT_b1_L1_full n=252 nc=8 coop=1 best=252/8/1 ratio=1.000 tested=6 rej=4 t=0.2s
+AT_b16_L1_win n=8 nc=1 coop=0 best=8/1/0 ratio=1.000 tested=6 rej=3 t=0.4s
+AT_b16_L1_full n=264 nc=1 coop=0 flat best=264/1/0 ratio=1.000 tested=5 rej=4 t=0.1s
+AT_b32_L1_win n=8 nc=1 coop=0 best=8/1/0 ratio=1.000 tested=6 rej=3 t=0.4s
+AT_b32_L1_full n=264 nc=1 coop=0 flat best=264/1/0 ratio=1.000 tested=5 rej=4 t=0.4s
+AT_b1_L8_win n=33 nc=1 coop=1 best=33/1/1 ratio=1.000 tested=4 rej=2 t=0.2s
+AT_b1_L8_full n=252 nc=8 coop=1 best=252/8/1 ratio=1.000 tested=6 rej=4 t=0.2s
+AT_b16_L8_win n=8 nc=1 coop=1 best=8/1/1 ratio=1.000 tested=6 rej=4 t=0.6s
+AT_b16_L8_full n=264 nc=1 coop=1 flat best=264/1/1 ratio=1.000 tested=6 rej=4 t=0.3s
+AT_b32_L8_win n=4 nc=1 coop=1 best=4/1/1 ratio=1.000 tested=6 rej=4 t=0.2s
+AT_b32_L8_full n=264 nc=1 coop=1 flat best=264/1/1 ratio=1.000 tested=6 rej=4 t=0.3s
