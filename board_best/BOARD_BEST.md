@@ -1,5 +1,7 @@
 # Board bests and source provenance
 
+Attention refreshed 2026-11-03 from scored run `baedd9d7` (2.6461x): keell0renz's attention file plus achitaan's import-time self-tuner; in this run the tuner adopted 0/12 shapes, so the scored path is their default (a tie with their file, not a speedup).
+
 Decode refreshed 2026-11-03 from scored run `f79f3879` (2.2452x): kb v1 plus a gated chain-scheduling experiment (boundary preload, rq PDL, PDL at T=256); the gate adopted 0/8 classes, so the scored path equals kb v1 and the change from 2.2442x is noise.
 
 Decode refreshed 2026-11-02 from scored run `26331ae5` (2.2442x): kb v1 plus a gated port of keell0renz's newer attention kernels; the gate adopted 0/12 shapes, so the scored path equals kb v1 (2.2341x row below) and the gain over it is noise.
@@ -20,6 +22,7 @@ unchanged (the `best/` baselines are untouched).
 | Board | Best | Rank | Scored job | Source in this folder | SHA-256 |
 |---|---:|---:|---|---|---|
 | MoE | 2.3797x | 59 / 1131 (was 90) | `ac80911ea3d34dac` | `moe_m3_scored_2.3797.py` (M3 selector; selects nothing -> same kernels as `best/moe_verified.py`) | `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795` |
+| Attention | 2.6461x | (pending refresh) | `baedd9d76cfe43f3` | `attention_kbtune_scored_2.6461.py`: keell0renz's attention file (Apache-2.0, kernels unchanged) plus achitaan's import-time per-shape plan tuner (137 candidates, read-flush ABBA, confirm pass); this run adopted 0/12 (check `129ffe91` had adopted d16S PDL and v16S nc=2 at ~2%, which did not reproduce). Scored CI [2.6064, 2.7014]; keell's unchanged check `6ae275da` 2.6421x. Branch `argon/keell-base-20261102`, `kb/exp/attn_tune.py` (c9413d3). | `46bef77f73453f2328b793b5bffaa9360a84280789e7b477b1723bc2ce7a4515` |
 | Attention | 2.5690x | 144 / 1087 (was 149) | `c8f7560097d348c5` | `attention_a3_scored_2.5690.py` (A3: decode 16 sliding n_splits 8) | `ada6df950cdb54aae711929b6e45f0b5cb1b365acd0bcaaac831394fc916d1e1` |
 | Decode | 2.2452x | (pending refresh) | `f79f387976824c34` | `decoder_kbchain_scored_2.2452.py`: kb v1 plus achitaan's per-class gated chain arms (A: boundary operands loaded before griddepcontrol.wait + early trigger; B: PDL on rq; C: PDL at T=256); gate adopted 0/8 (best v16f A+B 0.992, d32s A 0.994 not equivalent), so production = kb v1. Scored CI [2.2116, 2.2789]; keell's unchanged check `cde2084a` 2.2588x. Branch `argon/keell-base-20261102`, `kb/exp/decode_chain.py` (d493ab5). | `b2ae009e8321d4c0acc77694f9de0439221e0c80f3d9111e4cc20a75ee5a3b82` |
 | Decode | 2.2442x | (pending refresh) | `26331ae5768b4471` | `decoder_kbatp_scored_2.2442.py`: kb v1 (keell0renz decode + J0 guard + ERL/HINT/FINREG) plus achitaan's gated port of keell0renz's standalone v298bulk / wst / vp2 attention; full-layer read-flush ABBA gate adopted 0/12 shapes (ratios 0.985-1.041, verify-16/32 not equivalent), so production = kb v1. Scored CI [2.2106, 2.2779]; keell's unchanged check `cde2084a` 2.2588x. Branch `argon/keell-base-20261102`, `kb/exp/decode_attnport.py` (8ebcc1e). | `f63506c2dfa0400dc5167609909ff627329c67006503ac8fb4145162cd9cc569` |
