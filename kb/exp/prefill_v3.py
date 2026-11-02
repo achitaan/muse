@@ -2816,12 +2816,15 @@ def _selftest_boundary(st):
 def _build(fast_scales=True):
     cap = torch.cuda.get_device_capability()
     arch = f"{cap[0]}{cap[1]}" + ("a" if cap[0] == 9 else "")
-    src = ("" if fast_scales else "#define MOE_FAST_SCALE 0\n") + _CUDA_SRC + GLUE
-    name = "okc_prefill_moe_" + hashlib.sha1((src + CPP + arch).encode()).hexdigest()[:16]
-    return load_inline(name, cpp_sources=CPP, cuda_sources=src,
+    # achitaan: expose attributes of the ACTUAL fallback executable, not a
+    # separately compiled approximation. Kernel bodies and launch glue are unchanged.
+    src = ("" if fast_scales else "#define MOE_FAST_SCALE 0\n") + _CUDA_SRC + GLUE + _PFV_ATTR_CUDA
+    cpp = CPP + _PFV_ATTR_DECL
+    name = "okc_prefill_moe_" + hashlib.sha1((src + cpp + arch).encode()).hexdigest()[:16]
+    return load_inline(name, cpp_sources=cpp, cuda_sources=src,
                        functions=["qk_prep", "moe_route", "moe_plan", "moe_gather", "moe_gather_plan", "moe_combine",
                                   "moe_gemm", "moe_init", "moe_gemm_p", "moe_fused", "boundary", "boundary_rc",
-                                  "kv_gather", "attn_prep", "attn_fwd", "attn_init", "attn_set_prof"],
+                                  "kv_gather", "attn_prep", "attn_fwd", "attn_init", "attn_set_prof", "pfv_attributes"],
                        extra_cuda_cflags=["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}", "-std=c++20",
                                           "--use_fast_math"])
 
@@ -7155,6 +7158,43 @@ _PFV_GATE = 0.988
 _PFV_SETTINGS = (('S1', 'phase', 0), ('S2a_g4', 'order', 1), ('S2b_nmajor', 'order', 2),
                  ('S1+S2a_g4', 'phase', 1), ('S1+S2b_nmajor', 'phase', 2))
 
+# achitaan: one identical host-only query in the base and both candidate modules.
+# localSizeBytes includes stack frames; it is NOT a count of register spills.
+# d665d5fb had 8B in both candidates. Compare with the measured base, never assume
+# that a nonzero local allocation means the optimization introduced spilling.
+_PFV_ATTR_DECL = "\n#include <vector>\nstd::vector<int64_t> pfv_attributes();\n"
+_PFV_ATTR_CUDA = r'''
+#include <vector>
+#include <stdexcept>
+template<int FINE> static void pfv_attributes_one(std::vector<int64_t>& out) {
+  cudaFuncAttributes attr{};
+  cudaError_t err = cudaFuncGetAttributes(&attr, okc_moe::moe_fused_persistent<FINE>);
+  if (err != cudaSuccess) throw std::runtime_error(cudaGetErrorString(err));
+  out.push_back(FINE);
+  out.push_back(attr.numRegs);
+  out.push_back(static_cast<int64_t>(attr.localSizeBytes));
+  out.push_back(static_cast<int64_t>(attr.sharedSizeBytes));
+}
+std::vector<int64_t> pfv_attributes() {
+  std::vector<int64_t> out;
+  pfv_attributes_one<0>(out); pfv_attributes_one<1>(out);
+  return out;
+}
+'''
+
+
+def _pfv_attribute_rows(attrs):
+    # achitaan: validate the query before comparing matching FINE instantiations.
+    if len(attrs) != 8:
+        raise ValueError("expected attributes for two fused kernel instantiations")
+    rows = {}
+    for at in range(0, 8, 4):
+        fine, regs, local, shared = attrs[at:at+4]
+        if fine not in (0, 1) or fine in rows or not 0 < regs <= 255 or local < 0 or shared < 0:
+            raise ValueError(f"invalid fused kernel attributes: {attrs}")
+        rows[fine] = (regs, local, shared)
+    return rows
+
 
 def _pfv_replace(src, old, new):
     # achitaan: fail closed if the upstream source drifts from an audited anchor.
@@ -7247,36 +7287,21 @@ def _pfv_moe_sources(fast_scales, phase):
     src = ("" if fast_scales else "#define MOE_FAST_SCALE 0\n") + src
     cpp = (CPP[:CPP.index("void moe_route(")]
            + CPP[CPP.index("void moe_init("):CPP.index("void attn_prep(")]
-           + "\nstd::vector<int64_t> pfv_attributes();\n")
+           + _PFV_ATTR_DECL)
     glue = (GLUE[:GLUE.index("void k_moe_route(")]
             + GLUE[GLUE.index("static Args make_args("):GLUE.index("void k_moe_gemm(")]
             + GLUE[GLUE.index("void k_moe_fused("):GLUE.index("void k_moe_init(")])
     # cudaFuncGetAttributes describes the actual executable, including both
     # inlined phase instantiations in S1. There are no out-of-line device calls.
     glue += r'''
-#include <vector>
 #include <stdexcept>
 template<int FINE> static void pfv_init_one(int smem) {
   cudaError_t err = cudaFuncSetAttribute(moe_fused_persistent<FINE>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
   if (err != cudaSuccess) throw std::runtime_error(cudaGetErrorString(err));
 }
 void k_moe_init(int smem) { pfv_init_one<0>(smem); pfv_init_one<1>(smem); }
-template<int FINE> static void pfv_attributes_one(std::vector<int64_t>& out) {
-  cudaFuncAttributes attr{};
-  cudaError_t err = cudaFuncGetAttributes(&attr, moe_fused_persistent<FINE>);
-  if (err != cudaSuccess) throw std::runtime_error(cudaGetErrorString(err));
-  out.push_back(FINE);
-  out.push_back(attr.numRegs);
-  out.push_back(static_cast<int64_t>(attr.localSizeBytes));
-  out.push_back(static_cast<int64_t>(attr.sharedSizeBytes));
-}
-std::vector<int64_t> pfv_attributes() {
-  std::vector<int64_t> out;
-  pfv_attributes_one<0>(out); pfv_attributes_one<1>(out);
-  return out;
-}
 '''
-    return cpp, src + glue
+    return cpp, src + glue + _PFV_ATTR_CUDA
 
 
 def _pfv_build(box, name, fast_scales, dev):
@@ -7490,30 +7515,48 @@ def _pfv_shape(st, case, candidates, flush, sink, deadline):
     return ((_pfv_key(data), winner) if winner else None), lines
 
 
-def _pfv_run(st, box, threads, prepare_start):
+def _pfv_run(st, box, threads, prepare_start, summaries):
     import time
     deadline = prepare_start + 280.0  # achitaan: margin below the public 300s
     for thread in threads:
         thread.join(timeout=max(0.0, prepare_start + 125.0 - time.monotonic()))
-    summaries, available = [], {}
+    available = {}
 
     def report(line):
         summaries.append(line)
         print(line, flush=True)
+
+    # achitaan: print/preserve actual fallback attributes even if a later arm
+    # fails. Missing or invalid baseline diagnostics reject all candidate builds.
+    base_attrs = {}
+    try:
+        base_attrs = _pfv_attribute_rows(list(st["mod"].pfv_attributes()))
+        for fine, (regs, local, shared) in sorted(base_attrs.items()):
+            report(f"PF2_ATTR base fine={fine} phases=runtime numRegs={regs} "
+                   f"localSizeBytes={local} sharedSizeBytes={shared}")
+    except Exception as exc:
+        report(f"PF2_ERR base_attributes {type(exc).__name__}: {str(exc)[-200:]}; all_arms=default")
 
     for name in ("order", "phase"):
         mod, attrs, note = box.get(name, (None, [], f"PF2_ERR build={name} incomplete; default"))
         report(note)
         if mod is None:
             continue
-        safe = len(attrs) == 8 and attrs[0] == 0 and attrs[4] == 1
-        for at in range(0, len(attrs), 4):
-            fine, regs, local, shared = attrs[at:at+4]
+        try:
+            candidate_attrs = _pfv_attribute_rows(attrs)
+        except ValueError as exc:
+            report(f"PF2_DROP {name} invalid_attributes: {str(exc)[-200:]}; all_dependent_arms=default")
+            continue
+        safe = bool(base_attrs)
+        for fine, (regs, local, shared) in sorted(candidate_attrs.items()):
+            base_regs, base_local, _ = base_attrs.get(fine, (-1, -1, -1))
+            within_base = regs <= base_regs and local <= base_local
             report(f"PF2_ATTR {name} fine={fine} phases={'GATED_true_false_inline' if name == 'phase' else 'runtime'} "
-                   f"numRegs={regs} localSizeBytes={local} sharedSizeBytes={shared}")
-            safe &= 0 < regs <= 255 and local == 0
+                   f"numRegs={regs} localSizeBytes={local} sharedSizeBytes={shared} "
+                   f"base_numRegs={base_regs} base_localSizeBytes={base_local} resource_gate={int(within_base)}")
+            safe &= within_base
         if not safe:
-            report(f"PF2_DROP {name} local_memory_or_invalid_attributes; all_dependent_arms=default")
+            report(f"PF2_DROP {name} resource_increase_or_missing_base_attributes; all_dependent_arms=default")
             continue
         try:
             mod.moe_init(st["smem"])
@@ -7537,7 +7580,7 @@ def _pfv_run(st, box, threads, prepare_start):
             candidates[name] = options
     report(f"PF2_INFO prepare_s={time.monotonic()-prepare_start:.1f} candidates={','.join(candidates) or 'none'} "
            "flush_bytes=536870912 schedule=ABBA rounds=16 gate=median_and_paired_le_0.988 "
-           "tolerance=default_spread fixed_routing=exact localSizeBytes=0 cached_outputs=0")
+           "tolerance=default_spread fixed_routing=exact resources=localSizeBytes_and_numRegs_le_base cached_outputs=0")
     picks = {}
     for index, case in enumerate(_PFAB_CASES):
         now = time.monotonic()
@@ -7579,7 +7622,7 @@ def prepare(weights):
     try:
         if threads:
             with torch.no_grad(), torch.random.fork_rng(devices=[dev]):
-                st["_pfv_routes"], summaries = _pfv_run(st, box, threads, start)
+                st["_pfv_routes"], summaries = _pfv_run(st, box, threads, start, summaries)
         else:
             summaries.append("PF2_INFO non_Hopper all_cases=default")
     except Exception as exc:
