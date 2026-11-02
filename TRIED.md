@@ -237,7 +237,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| 32-batch A/B on keell decode base: bf16 route overrides (qkv/o/unpooler torch, qkv Lt at M256) and MoE FINREG-vs-B4FIN at M32, timed in prepare with 512 MiB read flush, 36 interleaved rounds | in progress | check aa9b9c16 queued | `aa9b9c16` | kb/exp/decode_ab32.py (argon/keell-base-20261102, d3cfce8) | Nov 02 |
+| 32-batch A/B on keell decode base: bf16 route overrides (qkv/o/unpooler torch, qkv Lt at M256) and MoE FINREG-vs-B4FIN at M32, timed in prepare with 512 MiB read flush, 36 interleaved rounds | closed | aa9b9c16 (H200, full-layer graph, read flush): decode32 sliding default 172.7 us; o_torch +1.9%, qkv_torch +2.4%, un_torch +4.3%, all3 +8.4%, moe_finreg +0.5% (slower); decode32 full: all arms +0.2..+5.4% slower; verify32 arms within -0.6..+1.1% but default not repeatable there (do not trust). keell's defaults are at the optimum for these knobs | `aa9b9c16` | kb/exp/decode_ab32.py (argon/keell-base-20261102, d3cfce8) | Nov 02 |
 
 ## Prefill
 
