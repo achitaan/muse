@@ -303,3 +303,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+
+## Dense projections (bf16_proj)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| ZS2: leaner sub-12-bit lossless packing (exponent-only escapes, static escape bases, out-of-loop escape fix-up) after decode-cost attribution of ZS; gated | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
