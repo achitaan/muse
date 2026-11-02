@@ -19137,7 +19137,10 @@ def _pool_router_fp32(h, hr, T, state, ppick):
     elif ppick == "bfp" and state.get("bfp") is not None:
         logits = _bfp_gemm(state, "router", h, T, N_EXPERTS, HIDDEN)
     else:
-        logits = torch.mm(h, state["pr"][D_EXPERT:D_EXPERT + N_EXPERTS].t(), out_dtype=torch.float32)
+        # achitaan: decode_v1 packs [pool, router_hi, router_lo] and its
+        # route kernel adds BOTH projections in FP32. Never drop the low half.
+        halves = torch.mm(h, state["pr"][D_EXPERT:D_EXPERT + 2 * N_EXPERTS].t(), out_dtype=torch.float32)
+        logits = halves[:, :N_EXPERTS] + halves[:, N_EXPERTS:]
     return (pooled, logits), -1
 
 
