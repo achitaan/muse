@@ -19019,9 +19019,10 @@ def _ch_error(a, b):
 # achitaan: independent arms. Base tables, precision, PDL policy and dispatch
 # remain the fallback. Only a completed full-layer CH trial admits a class.
 # A: WSI on Decode's helper-zero tiny2 source, plus clean tiny/DF-mid ports.
-# B: Dense bf16_v2's t32s5curP-k7, ordinary (non-PDL) rq launch. Attention's
-# existing PDL wait still orders its QKV input; the full chain decides the gain.
-# C: pool128, pool256, un256 plans. Contrary to the original premise, the
+# B: Dense bf16_v2's qkv t16s5curP-k7 / t32s5curP-k7 / n256s5m1hzm-k7,
+# confirmed in bbde8419. Ordinary (non-PDL) rq launches: attention's existing
+# PDL wait still orders QKV; Dense's gains are NOT assumed to hold in Decode.
+# C: pool32 (bbde8419 t32s6curP-k4), pool128, pool256, un256 plans. The
 # baseline RQLAYERS excludes pooler and un256's RQBAKE list is empty. These are
 # explicit additional plans, NOT pretend reuse of nonexistent bake winners.
 import hashlib as _ch_hashlib
@@ -19036,8 +19037,8 @@ _CH_OLD_DENSE = dense
 _CH_OLD_POOL = _pool_router_fp32
 _CH_OLD_ATTENTION = _decode_attention7
 _CH_TLS = threading.local()
-# achitaan: requested priorities first; optional tiny/DF-mid classes last.
-_CH_SHAPES = tuple((B, L, s) for B, L in ((1, 8), (32, 1), (16, 8), (32, 8), (1, 1), (16, 1))
+# achitaan: WSI8 and Dense-confirmed routes first; optional tiny class last.
+_CH_SHAPES = tuple((B, L, s) for B, L in ((1, 8), (32, 1), (16, 1), (32, 8), (16, 8), (1, 1))
                    for s in (True, False))
 _CH_BLOCKS = 12  # 24 timings of EACH arm per draw, three fresh draws
 _CH_GAIN = 0.988
@@ -19045,6 +19046,10 @@ _CH_RQ_VARIANTS = (
     ("t32s5curP", 32, 5, 1, 0, 0, 0, (1 << 25) | (1 << 23) | (1 << 20) | 3),
     _CHEN["RQV"][_CHEN["RQI"]["d2s5hzwP"]],
     _CHEN["RQV"][_CHEN["RQI"]["n256s5m1hzmEH"]],
+    # achitaan: additional independently confirmed Dense bbde8419 instances.
+    ("t16s5curP", 16, 5, 1, 0, 0, 0, (1 << 25) | (1 << 23) | (1 << 20) | 3),
+    ("t32s6curP", 32, 6, 1, 0, 0, 0, (1 << 25) | (1 << 23) | (1 << 20) | 3),
+    _CHEN["RQV"][_CHEN["RQI"]["n256s5m1hzm"]],
 )
 
 
@@ -19116,14 +19121,20 @@ def _pool_router_fp32(h, hr, T, state, ppick):
     _ch_mark("preffn", h)
     if "Cpool" not in getattr(_CH_TLS, "arm", "base").split("+"):
         return _CH_OLD_POOL(h, hr, T, state, ppick)
-    if T not in (128, 256):
+    if T not in (32, 128, 256):
         raise RuntimeError("CH pool expansion outside its admitted shape")
     pooled = _ch_rq_call(state, "Cpool", h, T)
     # achitaan: preserve the baseline's router backend when it is already
     # separate. Otherwise split its concatenated FP32 pr GEMM: same BF16 router
     # weights and FP32 accumulator/output, never substitute the FP32-weight
     # small-token router. Expert inputs/top-k are checked before admission.
-    if ppick == "bfp" and state.get("bfp") is not None:
+    if ppick == "bfpf" and T == 32 and state.get("bfp") is not None:
+        # achitaan: sk2f's router is the same BF16-hi/lo, FP32-output sk2
+        # kernel (bfp_fused_pooler_router contract). Do not round its weights
+        # to a single BF16 matrix when splitting the fused pool/router launch.
+        _bfp_pdl(T, "router")
+        logits = bfp__run_sk2(h, "router", T, N_EXPERTS, HIDDEN, state["bfp"])
+    elif ppick == "bfp" and state.get("bfp") is not None:
         logits = _bfp_gemm(state, "router", h, T, N_EXPERTS, HIDDEN)
     else:
         logits = torch.mm(h, state["pr"][D_EXPERT:D_EXPERT + N_EXPERTS].t(), out_dtype=torch.float32)
@@ -19144,12 +19155,16 @@ def _ch_rq_call(state, arm, x, T):
 
 def _ch_launch(data, state, arm):
     if arm == "B":
-        # achitaan: base qkv@32 can be bfp, cuBLAS or Triton depending on the
-        # prepare pick. Route its attention INPUT here, not dense(o)/gate output.
+        # achitaan: qkv@16/32 can be bfp/cuBLAS/Triton; qkv@256 can already
+        # use rq (usually the EH twin). Gate against the ACTUAL prepared base.
+        # Route attention INPUT, not dense(o)/gate output, at the exact m only.
+        T = data["config"]["tokens"]
+        if T not in (16, 32, 256):
+            raise RuntimeError("CH qkv expansion outside its admitted shape")
         _glue_bind_context(data["attn_input"])
-        qkv = _ch_rq_call(state, "B", data["attn_input"], 32)
+        qkv = _ch_rq_call(state, "B", data["attn_input"], T)
         o_in = _decode_attention7(data, state, qkv)
-        return _after_attention(data, state, o_in, None, 32)
+        return _after_attention(data, state, o_in, None, T)
     return _CH_PARENT_KERNEL(data, state)
 
 
@@ -19203,8 +19218,10 @@ def _ch_plans(st, weights, jobs, deadline):
     if mod is None:
         return
     gen = torch.Generator(device=st["qkv"].device).manual_seed(20261103)
-    for layer, specs in (("qkv_gate", (("B", 32, 0),)),
-                         ("pooler", (("Cpool", 128, 1), ("Cpool", 256, 2))),
+    # achitaan: same-m only, with the Dense-confirmed split counts from RQKS.
+    # Share exact weight/escape packs, not mutable counters, across a layer's m.
+    for layer, specs in (("qkv_gate", (("B", 32, 0), ("B", 16, 3), ("B", 256, 5))),
+                         ("pooler", (("Cpool", 32, 4), ("Cpool", 128, 1), ("Cpool", 256, 2))),
                          ("unpooler", (("Cun", 256, 2),))):
         if _ch_time.monotonic() > deadline - 5:
             break
@@ -19243,12 +19260,11 @@ def _ch_plans(st, weights, jobs, deadline):
 
 def _ch_names(st, key):
     T = key[0] * key[1]
-    if T in (1, 8, 16):
-        return ["A"] if T in st.get("ch_moe", {}) else []
-    if T == 32:
-        return ["B"] if ("B", T) in st.get("ch_rq", {}) else []
-    names = [a for a in ("Cpool", "Cun") if (a, T) in st.get("ch_rq", {})]
-    return names + (["Cpool+Cun"] if len(names) == 2 else [])
+    names = ["A"] if T in st.get("ch_moe", {}) else []
+    names += [a for a in ("B", "Cpool", "Cun") if (a, T) in st.get("ch_rq", {})]
+    # achitaan: keep new Dense routes as individually measured arms rather
+    # than a combinatorial sweep. Retain the original pool+un256 combination.
+    return names + (["Cpool+Cun"] if "Cpool" in names and "Cun" in names else [])
 
 
 def prepare(weights):
