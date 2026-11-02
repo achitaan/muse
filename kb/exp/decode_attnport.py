@@ -119,3599 +119,677 @@ FORCE_GLUEV2 = None  # None: tuner's choice; True/False: force the parallel boun
 # QK-norm, RoPE, FP8 cache write, split-KV FP8 attention, merge,
 # per-head RMSNorm * sigmoid(gate).
 # ---------------------------------------------------------------------------
-ATT7_CUDA_SRC = r"""
-#include <torch/extension.h>
-#include <ATen/cuda/CUDAContext.h>
-#include <type_traits>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <cuda_fp8.h>
-#include <cuda.h>
-#include <stdint.h>
-
-namespace {
-
-#define OKC_NP 128      // producer threads (q_len 1 flat; 128 since v111: f16 -0.7%, f32 -0.4% vs 256)
-#define OKC_WS 1        // producer warpgroup for the flat (B > 1, full layer) kernel; 0 = v10's flat kernel
-#define OKC_WS8 1       // producer warps for the q_len 8 flat kernel too
-#define OKC_NP8 128     // q_len 8: 4 producer warps (its consumers need the registers)
-#define OKC_WSMINB 2
-#define OKC_SETMAXNREG 1
-#define OKC_PREGS 0
-#define OKC_TMAPG 1     // producer mode: page indices by TMA (one copy per tile) instead of per-thread loads
-#define OKC_XHALFPV 0   // (probe) q_len 1: half the PV work, to see whether the q1 flat loop is consumer-bound
-#define OKC_XNOWAIT 0   // (probe) per-request loop: no wait for the tile's copies (garbage), the compute-bound tile time
-#define OKC_MRGDBG 0    // (debug builds) phase marks around the merge's fence (columns precl1 / cl2)
-#define OKC_MERGE2 1    // last-CTA merges: one acq_rel atomic after the CTA barrier instead of per-thread fences
-#define OKC_MERGE3 1    // cooperative merges: one acq_rel barrier arrive after the CTA barrier instead of per-thread fences
-#define OKC_IDXFIRST 1  // per-request kernels: K/V issued once the page indices land (not after the q rows too)
-#define OKC_MAGICDIV 1  // per-request chunk: host magic multiplier instead of fdiv_i
-#define OKC_SC1 1       // coop finalize: sum_copies without the copy loop when nc == 1
-#define OKC_QP16 1      // q_len 8 QDIRECT q pass: four threads per row (16 dims each)
-#define OKC_ONENEW 1    // ONE builds: the straight-line prologue copies also for the tile holding new rows
-#define OKC_SC8 1       // coop finalize: the eight workspace copies' loads in one round trip
-#define OKC_PINDIV 1    // coop finalize: the slice divisions pinned above the barrier wait
-#define OKC_ONEPRED 1   // ONE builds: predicated (branch-free) straight-line prologue copies
-#define OKC_LATETID 1   // per-request prologue: tid re-read (volatile) after the page-index copies, so the q-pass math stays late
-#define OKC_PGCONT 0    // (racecheck control) page-index TMA barriers once per launch, slots continued across segments
-#define OKC_TMAPG8 0    // ... for the q_len 8 flat kernel too (measured ~+0.7%)
-#define OKC_ST8F 4      // pipeline stages of the q_len 8 flat kernel
-#define OKC_COOP 1      // cooperative finalize for single-request grids (0: always the last-CTA finalize)
-#define OKC_PVW 0       // q_len 8 on sm_90: PV as an asynchronous wgmma from a double-buffered f16 V tile
-#define OKC_WGDEC 1     // q_len 8 producer mode: the two consumer warpgroups sync separately (one per head)
-#define OKC_SEGDBG 0
-#define DBGSTRIDE (OKC_SEGDBG ? 64 : 16)
-#define OKC_PV8 1       // q_len 8 on sm_90: PV as an FP8 wgmma (P in e4m3, as SGLang's FA3 FP8 path does: pod/p16probe*.py)
-#define OKC_PROF 0      // per-warp phase profile of the main loops (diagnostic builds)
-#define OKC_PROFPV8 0   // profile builds: keep the FP8 PV path
-#define PV8ON (OKC_PV8 && (!OKC_PROF || OKC_PROFPV8) && !OKC_PVW)
-#define OKC_PV8FLAT 1   // FP8 PV in the flat (B > 1 full) kernel too (needs OKC_QSS: 104-register consumers)
-#define OKC_QSS 1       // with FP8 PV: q in shared memory (QK^T as an SS wgmma), 8 fewer live registers
-#define OKC_PV8SYNC 0   // wait for each PV wgmma inside its tile (fewer live registers)
-#define OKC_Q8RAW 1     // q_len 8 sm_90: FP8 query from the unit-RMS query (scores scaled after QK^T)
-#define OKC_FLATCOOP1C 0  // compile the grid-wide flat finalize for q_len 1 too
-#define OKC_RAWTHR 0    // q8 lazy max: compare raw scores with (offset + 8) / ssc (measured slower: +10 static fp32 instr)
-#define OKC_PCHK 1      // q8: the lazy-max offset test on the packed e4m3 P (no per-tile row-max scan)
-#define OKC_TURN 0      // q8 flat: the heads' warpgroups alternate in the exponential phase (1: every tile, measured
-                        // +1.3%; 2: offset once, on the first tile)
-#define OKC_CLSM 0      // (experiment) minimum dynamic shared memory of cluster launches (forces one CTA per SM)
-#define OKC_PDLKV 0     // PDL launches: K/V issued before griddepcontrol.wait, q / new k,v as direct loads after it
-                        // (decode_layer: build with 1; standalone it costs ~0.3% from code layout)
-#define OKC_RARE 1      // q8 flat: common tiles (no mask, no new rows) found once; one compare per tile
-#define OKC_PCHKTEST 0  // test hook for OKC_PCHK (offset moves on most tiles)
-#define OKC_UNEV 0      // per-request coop grids with more splits than SMs: uneven tiles by dispatch wave (w0; no gain
-                        // on b1 q8 full: whole-tile granularity, 5 tiles per split, cannot shorten the slow wave)
-#define OKC_W0L1 0      // per-SM uneven shares for the non-cooperative (q_len 1) flat grids too (measured +3..5 us: the
-                        // generation-tagged registration costs more than the q_len 1 balance gains)
-#define OKC_SEGK8 600   // flat q_len 8: virtual keys per request boundary in the partition (b16 107.4 -> 103, b32 187.4 -> 184)
-#define OKC_SEGK1 400   // flat q_len 1: the same (b16 90.4 -> 88.7)
-#define OKC_W0SPREAD 0  // W0 registration barrier over 8 arrival counters (measured slower: 8 sequential polls)
-#define OKC_W0EARLY 1   // the W0 registration atomics issued before the prefix sums (warp 1), the wait after them
-#define OKC_W0FORCEBAD 0  // test only: force the W0 registration's fallback (every CTA takes the even split)
-#define OKC_W0BID 1     // rank the two CTAs of an SM by blockIdx (the lower one gets the warp schedulers' priority:
-                        // it finishes first on every SM) instead of by arrival
-#define OKC_DBGON 0     // phase timestamps (diagnostic builds): compiled out, the checks cost cold instructions
-#define OKC_BALPART 0   // flat: balanced integer shares (one 32-bit division) instead of c*T/G
-#define OKC_CONT 0      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
-#define OKC_DYN 0       // flat producer mode: dynamic chunks claimed from a global counter (needs OKC_CONT)
-#define OKC_FINWARM 0   // dry call of the last-CTA finalize during the prologue (instruction cache warm-up)
-#define OKC_PVW1 1      // flat q_len 8: wait for the previous PV wgmma before the V transpose (frees its registers)
-#define OKC_NOXCH1 0    // q_len 1, workspace merge: no smem exchange of the two key halves (both reduce; measured slower)
-#define OKC_PVSPLIT 1   // q8 PV: each half issued as soon as its P is packed; 1: waited at the tile end (no ptxas C7515
-                        // wgmma serialization: nothing in flight across the loop edge), 2: at the next tile's top
-#define OKC_QKZ 0       // q8 QK^T: first wgmma with write-only accumulators (not needed for C7515; QKZ=0 vf32 -0.4%)
-#define OKC_INV2 1      // per-tile invariants: hk / wsub / hi_all as lane-0 broadcasts, vld_off1 as vld_off0 ^ 32
-#define OKC_OZF 1       // q8: fence the O / row-sum zero init before the tile loop (scout: the C7515 trigger)
-#define OKC_XP_ARRALL 1 // every consumer thread arrives on the stage-empty barriers (compute-sanitizer racecheck clean; the one-lane
-                        // arrive after bar.sync / __syncwarp was flagged on every ring reuse; vf32 -0.8%)
-#define OKC_XP_NOMASK 0 // timing/compile experiment only (wrong results): no per-element masks
-#define OKC_IRANGE 0    // q8 loop: interior-tile test as one unsigned compare on the tile index (range found once; neutral)
-#define OKC_PATCHNI 1   // q8 flat loop: the rare new-row patch as a noinline call (no hoisted bounds math per tile; -1.5%)
-#define OKC_PARITY 1    // per-request coop barrier: per-launch alternating counters (no departure counter)
-#define OKC_SENSE2 0    // per-request coop barrier: sense-reversing with the flag read in the prologue (slower: the flag store delays the waiters)
-#define OKC_UNRN 1      // q_len 8 loop unroll in the plain split-KV per-request kernel (b32 q8 sliding -0.5 us)
-#define OKC_ADDRN 1     // OKC_ADDR in the per-request kernels too (few tiles per CTA: the hoisting does not pay)
-#define OKC_OFF32 1     // 32-bit index math for qkv / workspace / caches (host-checked sizes)
-#define OKC_UNR8 2      // q_len 8 flat loop unroll (2: the V^T buffer / stage parity become constants per copy; -4.5%)
-#define OKC_RED4 1      // q_len 8 workspace merge with 16-byte atomics (lane-pair swaps)
-#define OKC_SWAPHALF 0
-#define OKC_LATESYNC 1  // with OKC_PK2 (flat): the V^T proxy fence and warpgroup barrier move from after the transpose to
-                        // just before the PV issue (each warp runs its exponentials without waiting for the others' V^T)
-#define OKC_LATESYNCN 1 // OKC_LATESYNC for the per-request q8 kernels (split PV): the V^T proxy fence and warpgroup barrier
-                        // just before the first PV half instead of right after the transpose
-#define OKC_QKFIRST 1   // per-request kernels (one tile stream): the tile's QK^T wgmma issued right after the stage barrier,
-                        // before this thread's K/V copies for tile i + STAGES - 1 (they refill tile i-1's stage, which no
-                        // wgmma of tile i reads), so the tensor core starts while the copy instructions issue
-#define OKC_FPART 1     // q_len 1 flat grids (<= 32 requests: ballots): warp 0 computes this CTA's key range and segment list
-                        // right after its prefix sums (no all-thread binary search, no serial scan by thread 0, one barrier
-                        // less: v288 vf16 spent 1.18 us between the prefix sums and the segment list)
-#define OKC_EARLYBAR 1  // flat producer mode: the first segment's stage barriers set up at kernel start (in the shadow of the
-                        // seq_lens load) instead of after the partition (one init + CTA barrier off the critical path)
-#define OKC_PTPF 1      // (with OKC_FPART) warp 0 prefetches the first segment's first STAGES tiles of page indices into L2
-                        // as soon as the segment list is known (the producers' index loads then hit L2)
-#define OKC_FPRO 0      // (debug) flat prologue stamps in dbg slots 40-44 (needs OKC_SEGDBG=1: stride 64)
-#define FPRO_STAMP(k) do { if (OKC_FPRO && p.dbg) { long long* _dp = p.dbg + (blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + (k); if (*_dp == 0) *_dp = gtime(); } } while (0)
-#define OKC_COOPGUARD 1 // host: a cooperative (grid-barrier) launch only when the instance actually launched (ONE / SPEC
-                        // builds have their own register counts) holds the whole grid, else plain split-KV; device: the
-                        // grid barriers trap after 1 s instead of spinning forever (never a hang on any data or node)
-__device__ __noinline__ void spin_fail() { __trap(); }   // (out of line: keeps the trap off the polling loop's code)
-#define SPIN_T0 unsigned _spin_n = 0   /* (an iteration count: a %globaltimer read per poll slowed the coop barriers ~1%) */
-#define SPIN_CHECK do { if (OKC_COOPGUARD && ++_spin_n > (1u << 24)) spin_fail(); } while (0)   /* (>= 2^24 global polls: seconds) */
-#define OKC_ST1F 3      // q_len 1 flat kernel: pipeline stages (3 measured best: b16 full 93 -> 91.5 us vs 6)
-#define OKC_STN 3       // per-request kernels: pipeline stages
-#define OKC_UWARP 1
-#define OKC_INEW 0      // q_len 8 flat loop: the new-row patch test as one compare (first such tile found per segment; measured slower)
-#define OKC_ADDR 1      // q_len 8 loop: loop-carried stage / phase / descriptors / V^T buffer (fewer address ops per tile;
-                        // slower before OKC_UWARP/UARGS (vector registers), -1% since (uniform registers))
-#define OKC_STSM 0      // q_len 8 FP8 PV: V^T stores via stmatrix (2 per thread per tile instead of 8; measured ~1.5% slower)
-#define OKC_STSMPR 1    // ... in the per-request kernels (where it wins)
-#define OKC_TCHUNK 1    // per-request splits: whole 64-key tiles per CTA
-#define OKC_EXPPOLY 0   // q_len 8 FP8 PV: how many of every 4 exponentials run on the FMA pipe (0..4; measured slower: issue-bound)
-#define OKC_EXH8 0      // q_len 8 FP8 PV: exponentials as packed f16 pairs (experiment)
-#define OKC_NOSYNC0 1   // flat q_len 8 FP8 PV: no warpgroup barrier at the start of each tile
-#define OKC_LAZYMAX 1   // q_len 8 sm_90: no per-tile row-max shuffles (only for the rare offset move)
-#define OKC_SENSE 0     // coop finalizes: sense-reversing barriers (no departure counter round trip at the end)
-#define OKC_WSPLIT 500  // flat: per mille of the keys for the first half of the grid (500 = even)
-#define OKC_F2 0        // q_len 8 flat: one CTA per SM, two streams claiming tiles per KV head (measured slower: one producer warpgroup per SM limits)
-#define OKC_S2 0        // q_len 8 per-request kernels: two tile streams per CTA, one CTA per SM (measured slower)
-#define OKC_PTR 0       // flat q_len 8: the producer warps build V^T (measured much slower: the producers stall on their copies)
-#define OKC_PTRD 2      // OKC_PTR: tile y is transposed after the copies of tile y + OKC_PTRD are issued
-#define OKC_XP_NOTR 0      // timing experiments only (wrong results): skip the V transpose
-#define OKC_XP_NOFENCE 0   // timing experiments only: skip the proxy fence after the transpose
-#define OKC_XP_NOEXP 0     // timing experiments only: P = scores (no exponentials)
-#define OKC_CLDBG 0
-#define OKC_SPINDBG 0
-template <int L, bool F>
-struct Cfg {
-  // q_len 8 per-request kernels on sm_90 with FP8 PV: two tile streams per CTA (warps 8..15 take the odd tiles), one
-  // CTA per SM -- half the tile latency chain for the latency-bound per-request grids
-  static constexpr bool S2 = (L == 8) && !F && OKC_S2 && OKC_SM90 && PV8ON;
-  // q_len 8 flat kernel on sm_90: one CTA per SM with two consumer streams; each KV head's two warpgroups claim
-  // tiles from a shared counter, so the faster one takes more (two CTAs per SM do not progress equally)
-  static constexpr bool F2 = (L == 8) && F && OKC_F2 && OKC_SM90 && PV8ON && OKC_PV8FLAT && OKC_QSS && !OKC_CONT && !OKC_PTR;
-  static constexpr int NT = (L == 1) ? 128 : ((S2 || F2) ? 512 : 256);   // consumer threads per CTA
-  // flat kernel on sm_90: one extra producer warp issues every K/V copy (warp specialization), so the
-  // consumers never stall in cp.async issue; the stages are handed over with mbarriers
-  static constexpr bool WS = F && OKC_SM90 && OKC_WS && (L == 1 || OKC_WS8);
-  static constexpr int NP = WS ? ((L == 1) ? OKC_NP : OKC_NP8) : 0;   // producer threads
-  static constexpr int NTX = NT + NP;                     // threads per CTA
-  static constexpr int MINB = WS ? (F2 ? 1 : OKC_WSMINB) : (S2 ? 1 : 2);   // CTAs per SM the registers must allow
-  // setmaxnreg split of the CTA's registers (launch: 65536 / (MINB * NTX), rounded down to 8)
-  static constexpr int BASEREGS = (65536 / (MINB * NTX)) / 8 * 8 > 255 ? 248 : (65536 / (MINB * NTX)) / 8 * 8;
-  static constexpr int PREGS = OKC_PREGS > 0 ? OKC_PREGS : ((L == 1 && NP <= 128) ? 56 : 32);
-  static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
-                                   ? 248 : ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8;
-  // cp.async pipeline depth (64-key tiles): deep for the long flat runs, shallow (smaller shared memory,
-  // more CTAs per SM, all clusters resident) for the per-request grids of sliding windows / one request
-  static constexpr int STAGES = F ? ((L == 1) ? OKC_ST1F : (F2 ? 8 : OKC_ST8F)) : (S2 ? 6 : OKC_STN);
-  // producer passes: NP/8 rows each must tile the 64-row tile exactly (else rows go missing and the consumers wait
-  // forever on the stage barrier)
-  static_assert(!WS || (NP % 8 == 0 && NP >= 8 && 64 % (NP >= 8 ? NP / 8 : 1) == 0),
-                "producer threads must cover a tile in whole passes");
-};
-constexpr int TILE = 64;
-constexpr int STAGES = 4;
-constexpr int ROWB = 128;                    // bytes per tile row: 2 KV heads x 64
-constexpr int STAGE_BYTES = TILE * ROWB;     // 8 KB per stage for K (same for V)
-constexpr int IDX_SLOTS = 2 * STAGES;
-constexpr int MAXB = 512;               // flat partition: requests per call
-constexpr int MAXSEG = 64;              // flat partition: segments per CTA
-
-struct Params {
-  const __nv_bfloat16* qkv;
-  const int* seq_lens;
-  const int64_t* cache_loc;
-  uint8_t* k_cache;
-  uint8_t* v_cache;
-  const int* page_table;
-  const float* k_scale;
-  const float* v_scale;
-  const float* inv_freq;
-  __nv_bfloat16* out;
-  float* ws_acc;
-  float* ws_l;
-  int* ws_cnt;
-  int B, Hq, Hkv, P, max_pages, window, rope, n_splits, flat, nc;
-  long long* dbg;      // optional per-CTA phase timestamps (globaltimer), null in normal runs
-  int cs, ncl;          // cluster mode: cs CTAs per cluster (DSMEM reduction), ncl clusters per request
-  float* scratch;       // sm_80 emulation of DSMEM (local testing only)
-  int* bar;             // sm_80 emulation of the cluster barrier
-  int ld_qkv, row_bytes;
-  float scale_log2;   // sm_scale * qk_scale_factor * log2(e)
-  int tma;              // sm_90: K/V rows by TMA (one 128-byte swizzled row per copy) instead of cp.async
-  int coop;             // per-request grids that are all resident: every CTA finalizes a slice of the rows
-  int lp;               // log2(page size)
-  int lrb;              // log2(row bytes of a cache row: Hkv * 64)
-  int off32;            // OKC_OFF32: both caches below 4 GB (32-bit cache offsets); else the 64-bit path
-  int w0;               // flat grids, 2 CTAs per SM: key share of the first CTA on each SM (1024 = even)
-  int resident;         // the host checked: the grid is exactly 2 CTAs per SM and all of them are resident
-  unsigned ns_magic;    // OKC_MAGICDIV: ceil(2^32 / n_splits) (0: n_splits == 1)
-  int unev;             // OKC_UNEV: per-request coop grid of one request with more splits than SMs: the SM count
-  int pdlf;             // launched with programmatic dependent launch (OKC_PDLKV prologue order)
-  CUtensorMap tk, tv;   // [rows, row_bytes] views of the K / V caches, 128x1-byte boxes, 128B swizzle
-  CUtensorMap tpt;      // producer mode: the page table as one int32 vector, 64-entry boxes (zero past the end)
-  const uint8_t* pf;    // L2 prefetch source (the pooler's weight stream), null = off
-  unsigned pf_chunk;    // bytes per CTA
-};
-
-__device__ __forceinline__ uint32_t smem_u32(const void* p) {
-  return (uint32_t)__cvta_generic_to_shared(p);
-}
-__device__ __forceinline__ void cp_async16(uint32_t dst, const void* src, int src_bytes) {
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n" ::"r"(dst), "l"(src), "r"(src_bytes));
-}
-__device__ __forceinline__ void cp_async16_pred(uint32_t dst, const void* src, int src_bytes, bool pred) {
-  // predicated copy (no branch): pred = 0 issues nothing, src_bytes = 0 zero-fills
-  asm volatile("{\n .reg .pred q;\n setp.ne.b32 q, %3, 0;\n @q cp.async.cg.shared.global [%0], [%1], 16, %2;\n}\n"
-               ::"r"(dst), "l"(src), "r"(src_bytes), "r"((int)pred));
-}
-__device__ __forceinline__ void cp_async4(uint32_t dst, const void* src) {
-  asm volatile("cp.async.ca.shared.global [%0], [%1], 4;\n" ::"r"(dst), "l"(src));
-}
-__device__ __forceinline__ void cp_commit() { asm volatile("cp.async.commit_group;\n" ::); }
-template <int N>
-__device__ __forceinline__ void cp_wait() { asm volatile("cp.async.wait_group %0;\n" ::"n"(N)); }
-
-#define OKC_TMA 0
-// ---- sm_90 TMA row loads tracked by one mbarrier per pipeline stage ----
-__device__ __forceinline__ void mbar_fence_init() {
-  asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
-}
-__device__ __forceinline__ void mbar_expect_tx(uint64_t* bar, int bytes) {
-  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(bytes) : "memory");
-}
-__device__ __forceinline__ void mbar_init_n(uint64_t* bar, int count) {
-  asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(count) : "memory");
-}
-__device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
-  asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];\n" ::"r"(smem_u32(bar)) : "memory");
-}
-// unbounded wait for a phase (producer / consumer hand-off)
-__device__ __forceinline__ void mbar_wait_full(uint64_t* bar, int parity) {
-  asm volatile("{\n.reg .pred q;\nWAIT_%=:\nmbarrier.try_wait.parity.shared::cta.b64 q, [%0], %1;\n@!q bra WAIT_%=;\n}\n"
-               ::"r"(smem_u32(bar)), "r"(parity) : "memory");
-}
-// the mbarrier receives one arrival when all of this thread's earlier cp.async copies have landed
-__device__ __forceinline__ void cp_async_mbar_arrive(uint64_t* bar) {
-  asm volatile("cp.async.mbarrier.arrive.noinc.shared::cta.b64 [%0];\n" ::"r"(smem_u32(bar)) : "memory");
-}
-// plain bulk copy global -> shared (16-byte aligned, multiple of 16 bytes), completion on an mbarrier
-__device__ __forceinline__ void bulk_load(void* dst, const void* src, int bytes, uint64_t* bar) {
-  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\n"
-               ::"r"(smem_u32(dst)), "l"(src), "r"(bytes), "r"(smem_u32(bar)) : "memory");
-}
-// 16 zero bytes into shared memory through the same cp.async path (no global read)
-__device__ __forceinline__ void cp_async16_zero(uint32_t dst, const void* any_src) {
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16, 0;\n" ::"r"(dst), "l"(any_src));
-}
-// barrier over the NT consumer threads only (named barrier 1); __syncthreads when there is no producer
-// barrier over one warpgroup (named barriers 3 and 4)
-__device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
-__device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
-__device__ __forceinline__ void wgsync(int wg) {
-  asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-}
-template <bool WS, int NT>
-__device__ __forceinline__ void csync() {
-  if constexpr (WS) asm volatile("bar.sync 1, %0;\n" ::"n"(NT) : "memory");
-  else __syncthreads();
-}
-
-__device__ __forceinline__ float ex2(float x) {
-  float y;
-  asm("ex2.approx.ftz.f32 %0, %1;" : "=f"(y) : "f"(x));
-  return y;
-}
-__device__ __forceinline__ uint32_t prmt(uint32_t a, uint32_t b, uint32_t sel) {
-  uint32_t d;
-  asm("prmt.b32 %0, %1, %2, %3;" : "=r"(d) : "r"(a), "r"(b), "r"(sel));
-  return d;
-}
-// two e4m3 (HIGH 16 bits of x) -> f16x2: ptxas folds the half select into F2FP's operand (.H1), no SHF
-__device__ __forceinline__ uint32_t cvt2h(uint32_t x) {
-  uint32_t d;
-  asm("{\n\t.reg .b16 t;\n\tmov.b32 {_, t}, %1;\n\tcvt.rn.f16x2.e4m3x2 %0, t;\n\t}" : "=r"(d) : "r"(x));
-  return d;
-}
-// two e4m3 (low 16 bits of x) -> f16x2 (low byte -> low half)
-__device__ __forceinline__ uint32_t cvt2(uint32_t x) {
-  uint32_t d;
-  asm("{\n\t.reg .b16 t;\n\tmov.b32 {t, _}, %1;\n\tcvt.rn.f16x2.e4m3x2 %0, t;\n\t}" : "=r"(d) : "r"(x));
-  return d;
-}
-__device__ __forceinline__ uint32_t pack_h2(float lo, float hi) {
-  __half2 h = __floats2half2_rn(lo, hi);
-  return *reinterpret_cast<uint32_t*>(&h);
-}
-// 2^lo, 2^hi as a packed f16 pair: the inputs rounded to f16 (|x| <= 8 here: error <= 2^-8), one MUFU op
-__device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
-  return pack_h2(ex2(lo), ex2(hi));
-}
-__device__ __forceinline__ float pr8(float x) {
-  return x;
-}
-__device__ __forceinline__ uint8_t to_e4m3(float x) {
-  return (uint8_t)__nv_cvt_float_to_fp8(x, __NV_SATFINITE, __NV_E4M3);
-}
-
-__device__ __forceinline__ void mma_f16(float* c, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
-                                        uint32_t b0, uint32_t b1) {
-  asm volatile(
-      "mma.sync.aligned.m16n8k16.row.col.f32.f16.f16.f32 {%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, "
-      "{%0,%1,%2,%3};\n"
-      : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
-      : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(b0), "r"(b1));
-}
+# achitaan ATP: source-storage only, to satisfy the API's 1,000,000-byte cap.
+# Decodes UTF-8 CUDA text for load_inline, never a binary, data or Python payload.
+import base64 as _atp_codec_base64
+import zlib as _atp_codec_zlib
 
 
-__device__ __forceinline__ uint4 lds128(const uint8_t* p) { return *reinterpret_cast<const uint4*>(p); }
-__device__ __forceinline__ uint2 lds64(const uint8_t* p) { return *reinterpret_cast<const uint2*>(p); }
+def _atp_source(blob):
+    return _atp_codec_zlib.decompress(_atp_codec_base64.b85decode(blob)).decode("utf-8")
 
-// V B-fragments for 16 keys starting at kb (rows kb+2tig, +1, +8, +9), head hk, dims 8g..8g+7.
-__device__ __forceinline__ void load_v_frags(const uint8_t* V, int kb, int hk, int g, int tig, uint32_t* b0,
-                                             uint32_t* b1) {
-  const int ch = hk * 4 + (g >> 1), off = (g & 1) * 8;
-  const int k0 = kb + 2 * tig;
-  const uint2 v0 = lds64(V + k0 * ROWB + ((ch ^ (k0 & 7)) << 4) + off);
-  const uint2 v1 = lds64(V + (k0 + 1) * ROWB + ((ch ^ ((k0 + 1) & 7)) << 4) + off);
-  const uint2 v2 = lds64(V + (k0 + 8) * ROWB + ((ch ^ ((k0 + 8) & 7)) << 4) + off);
-  const uint2 v3 = lds64(V + (k0 + 9) * ROWB + ((ch ^ ((k0 + 9) & 7)) << 4) + off);
-  uint32_t x;
-  x = prmt(v0.x, v1.x, 0x5140); b0[0] = cvt2(x); b0[1] = cvt2h(x);
-  x = prmt(v0.x, v1.x, 0x7362); b0[2] = cvt2(x); b0[3] = cvt2h(x);
-  x = prmt(v0.y, v1.y, 0x5140); b0[4] = cvt2(x); b0[5] = cvt2h(x);
-  x = prmt(v0.y, v1.y, 0x7362); b0[6] = cvt2(x); b0[7] = cvt2h(x);
-  x = prmt(v2.x, v3.x, 0x5140); b1[0] = cvt2(x); b1[1] = cvt2h(x);
-  x = prmt(v2.x, v3.x, 0x7362); b1[2] = cvt2(x); b1[3] = cvt2h(x);
-  x = prmt(v2.y, v3.y, 0x5140); b1[4] = cvt2(x); b1[5] = cvt2h(x);
-  x = prmt(v2.y, v3.y, 0x7362); b1[6] = cvt2(x); b1[7] = cvt2h(x);
-}
 
-__device__ __forceinline__ void gpu_fence() {
-  __threadfence();
-}
-__device__ __forceinline__ void red_f32(float* a, float x) {
-  asm volatile("red.global.add.f32 [%0], %1;" ::"l"(a), "f"(x) : "memory");
-}
-__device__ __forceinline__ void red_v4(float* a, float x, float y, float z, float w) {
-  asm volatile("red.global.add.v4.f32 [%0], {%1, %2, %3, %4};" ::"l"(a), "f"(x), "f"(y), "f"(z), "f"(w) : "memory");
-}
-
-__device__ __forceinline__ long long gtime() {
-  long long t;
-  asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
-  return t;
-}
-#define DBG(k)                                                                                      \
-  if (OKC_DBGON && p.dbg && threadIdx.x == 0)                                                       \
-    p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + (k)] = gtime();
-
-__device__ __forceinline__ void ldsm_x4_t(uint32_t addr, uint32_t& r0, uint32_t& r1, uint32_t& r2, uint32_t& r3) {
-  asm volatile("ldmatrix.sync.aligned.m8n8.x4.trans.shared.b16 {%0,%1,%2,%3}, [%4];\n"
-               : "=r"(r0), "=r"(r1), "=r"(r2), "=r"(r3) : "r"(addr));
-}
-// four 8x8 b16 matrices from registers to shared memory (each lane gives one row address: lanes 8m..8m+7 the
-// rows of matrix m; thread t holds row t/4, bytes 4(t%4)..4(t%4)+3 of each matrix)
-__device__ __forceinline__ void stsm_x4(uint32_t addr, uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3) {
-  asm volatile("stmatrix.sync.aligned.m8n8.x4.shared.b16 [%0], {%1,%2,%3,%4};\n" ::"r"(addr), "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-               : "memory");
-}
-
-// ---- per-warp phase profile of the main loops (diagnostic builds only: -DOKC_PROF=1) ----
-#define PROF_INIT
-#define PROF_MARK(k)
-#define PROF_TILE
-#define PROF_DUMP
-
-// ---- sm_90 warpgroup MMA helpers ----
-__device__ __forceinline__ void fence_proxy_async() {
-  asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-}
-__device__ __forceinline__ void wgmma_fence() {
-  asm volatile("wgmma.fence.sync.aligned;\n" ::: "memory");
-}
-__device__ __forceinline__ void wgmma_commit() {
-  asm volatile("wgmma.commit_group.sync.aligned;\n" ::: "memory");
-}
-template <int N>
-__device__ __forceinline__ void wgmma_wait() {
-  asm volatile("wgmma.wait_group.sync.aligned %0;\n" ::"n"(N) : "memory");
-}
-__device__ __forceinline__ void reg_fence(float& r) { asm volatile("" : "+f"(r)::"memory"); }
-// K-major, 128-byte swizzled shared-memory matrix descriptor (8-row groups 1024 bytes apart)
-__device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
-  return (uint64_t)((addr & 0x3FFFF) >> 4) | ((uint64_t)1 << 16) | ((uint64_t)(1024 >> 4) << 32) | ((uint64_t)1 << 62);
-}
-// D[64x64] (+)= A[64x32] (e4m3, registers) * B[64x32]^T (e4m3, shared memory descriptor)
-__device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
-                                                     uint64_t desc, int scale_d) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %37, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, "
-      "{%32, %33, %34, %35}, %36, p, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
-      : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc), "r"(scale_d));
-}
-// D[64x64] (+)= A[64x32] (e4m3, shared memory descriptor) * B[64x32]^T (e4m3, shared memory descriptor)
-__device__ __forceinline__ void wgmma_m64n64k32_e4m3_ss(float* d, uint64_t da, uint64_t db, int scale_d) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, "
-      "%32, %33, p, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
-      : "l"(da), "l"(db), "r"(scale_d));
-}
-// the same with scale-d = 0 and write-only accumulators: the previous tile's (masked) scores do not feed this
-// wgmma, so ptxas sees no non-wgmma definition of its accumulators inside the pipeline (warning C7515, which
-// serializes every wgmma of the function)
-__device__ __forceinline__ void wgmma_m64n64k32_e4m3_ss_z(float* d, uint64_t da, uint64_t db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, "
-      "%32, %33, p, 1, 1;\n}\n"
-      : "=f"(d[0]), "=f"(d[1]), "=f"(d[2]), "=f"(d[3]), "=f"(d[4]), "=f"(d[5]), "=f"(d[6]), "=f"(d[7]),
-        "=f"(d[8]), "=f"(d[9]), "=f"(d[10]), "=f"(d[11]), "=f"(d[12]), "=f"(d[13]), "=f"(d[14]), "=f"(d[15]),
-        "=f"(d[16]), "=f"(d[17]), "=f"(d[18]), "=f"(d[19]), "=f"(d[20]), "=f"(d[21]), "=f"(d[22]), "=f"(d[23]),
-        "=f"(d[24]), "=f"(d[25]), "=f"(d[26]), "=f"(d[27]), "=f"(d[28]), "=f"(d[29]), "=f"(d[30]), "=f"(d[31])
-      : "l"(da), "l"(db), "r"(0));
-}
-// K-major operand with 64-byte rows, 64B swizzle (8-row atoms of 512 bytes)
-__device__ __forceinline__ uint64_t desc_sw64(uint32_t addr) {
-  return (uint64_t)((addr & 0x3FFFF) >> 4) | ((uint64_t)1 << 16) | ((uint64_t)(512 >> 4) << 32) | ((uint64_t)2 << 62);
-}
-// D[64x72] += A[64x32] (e4m3, registers) * B[72x32]^T (e4m3, K-major shared memory): d = 32 + 4 accumulators
-__device__ __forceinline__ void wgmma_m64n72k32_e4m3(float* d, float* e, const uint32_t* a, uint64_t desc) {
-  asm volatile(
-      "{\n"
-      "wgmma.mma_async.sync.aligned.m64n72k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31, %32, %33, %34, %35}, "
-      "{%36, %37, %38, %39}, %40, 1, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31]),
-        "+f"(e[0]), "+f"(e[1]), "+f"(e[2]), "+f"(e[3])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(desc));
-}
-// floor(x / d) for 0 <= x < 2^24 and 1 <= d < 2^24 through the float reciprocal (one correction step):
-// ~8 instructions instead of the ~20 of an integer division, which matters in once-per-launch (cold) code
-__device__ __forceinline__ int fdiv_i(int x, int d) {
-  // approximate reciprocal (MUFU.RCP, no IEEE slow-path call: the correction below absorbs its error)
-  const float rd = __fdividef(1.f, __int2float_rn(d));
-  int q = __float2int_rz(__int2float_rn(x) * rd);
-  const int r = x - q * d;
-  q += (r >= d) - (r < 0);
-  return q;
-}
-// sigmoid for the output gate: 0.5 + 0.5 tanh(x / 2) with the hardware tanh (3 instructions; abs error ~2^-12,
-// below the BF16 output's rounding) or exp + fast reciprocal
-__device__ __forceinline__ float sigm(float x) {
-  return __fdividef(1.f, 1.f + __expf(-x));
-}
-// Programmatic dependent launch (sm_90): wait for the preceding grid (the one writing qkv) before the first qkv read;
-// let the next grid start its own prologue once the main loop is done. Both are no-ops for a plain launch.
-__device__ __forceinline__ void pdl_wait() {
-  asm volatile("griddepcontrol.wait;" ::: "memory");
-}
-__device__ __forceinline__ void pdl_launch_dependents() {
-  // (OKC_PDLLATE: no early trigger at the end of the tile loop -- the dependent kernel launches when this grid
-  // exits; for decode_layer's chain A/B, no effect on standalone launches)
-  asm volatile("griddepcontrol.launch_dependents;" ::: "memory");
-}
-// OKC_OFF32: 32-bit offsets for qkv, the workspace and the caches (the host checks the sizes): no 64-bit multiplies
-// in the once-per-launch address math
-typedef int ix_t;
-__device__ __forceinline__ const uint8_t* cache_row(const uint8_t* base, const Params& p, int64_t row, int col_bytes) {
-  if (p.off32) return base + (((uint32_t)row << p.lrb) + (uint32_t)col_bytes);
-  return base + row * p.row_bytes + col_bytes;
-}
-// `for (e = tid; e < N; e += NTH)` with a compile-time trip count: fully unrolled, the tail predicated (the
-// once-executed prologue loops otherwise keep 3-4 branches each; a taken branch costs 60-100 cycles cold)
-template <int N, int NTH, class F>
-__device__ __forceinline__ void tfor(int tid, F&& f) {
-#pragma unroll
-  for (int e0 = 0; e0 < N; e0 += NTH) {
-    const int e = e0 + tid;
-    if ((N % NTH) == 0 || e < N) f(e);
-  }
-}
-// four floats -> four e4m3 bytes (x0 in the low byte), saturating
-__device__ __forceinline__ uint32_t e4m3x4f(float x0, float x1, float x2, float x3) {
-  uint16_t lo, hi;
-  asm("cvt.rn.satfinite.e4m3x2.f32 %0, %2, %1;" : "=h"(lo) : "f"(x0), "f"(x1));
-  asm("cvt.rn.satfinite.e4m3x2.f32 %0, %2, %1;" : "=h"(hi) : "f"(x2), "f"(x3));
-  return (uint32_t)lo | ((uint32_t)hi << 16);
-}
-// four f16 (two f16x2 words, low first) -> four e4m3 bytes (low byte first)
-__device__ __forceinline__ uint32_t pack_e4m3x4(uint32_t h01, uint32_t h23) {
-  __half2_raw a, b;
-  a.x = (unsigned short)(h01 & 0xffffu); a.y = (unsigned short)(h01 >> 16);
-  b.x = (unsigned short)(h23 & 0xffffu); b.y = (unsigned short)(h23 >> 16);
-  const uint32_t lo = __nv_cvt_halfraw2_to_fp8x2(a, __NV_SATFINITE, __NV_E4M3);
-  const uint32_t hi = __nv_cvt_halfraw2_to_fp8x2(b, __NV_SATFINITE, __NV_E4M3);
-  return (lo & 0xffffu) | (hi << 16);
-}
-
-__device__ __forceinline__ void red_v2(float* a, float x, float y) {
-  asm volatile("red.global.add.v2.f32 [%0], {%1, %2};" ::"l"(a), "f"(x), "f"(y) : "memory");
-}
-
-__device__ __forceinline__ float quad_max(float v) {
-  v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, 1));
-  v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, 2));
-  return v;
-}
-__device__ __forceinline__ float quad_sum(float v) {
-  v += __shfl_xor_sync(0xffffffffu, v, 1);
-  v += __shfl_xor_sync(0xffffffffu, v, 2);
-  return v;
-}
-__device__ __forceinline__ float oct_sum(float v) {
-  v += __shfl_xor_sync(0xffffffffu, v, 1);
-  v += __shfl_xor_sync(0xffffffffu, v, 2);
-  v += __shfl_xor_sync(0xffffffffu, v, 4);
-  return v;
-}
-
-// ---- thread-block clusters (sm_90: DSMEM; elsewhere emulated through global memory for testing) ----
-__device__ __forceinline__ int cl_rank(const Params& p) {
-  uint32_t r;
-  asm volatile("mov.u32 %0, %%cluster_ctarank;" : "=r"(r));
-  return (int)r;
-}
-__device__ __forceinline__ void cl_sync(const Params& p, int phase) {
-  asm volatile("barrier.cluster.arrive.release.aligned;\nbarrier.cluster.wait.acquire.aligned;\n" ::: "memory");
-}
-__device__ __forceinline__ void cl_done(const Params& p) {
-}
-// float4 at byte offset `off` of peer `rank`'s partial buffer (`local` = this CTA's copy)
-__device__ __forceinline__ float4 cl_ld4(const Params& p, const float* local, int rank, int off_floats, int region_floats) {
-  uint32_t a = smem_u32(local + off_floats), r;
-  asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(r) : "r"(a), "r"(rank));
-  float4 v;
-  asm volatile("ld.shared::cluster.v4.f32 {%0,%1,%2,%3}, [%4];" : "=f"(v.x), "=f"(v.y), "=f"(v.z), "=f"(v.w) : "r"(r));
-  return v;
-}
-__device__ __forceinline__ float cl_ld1(const Params& p, const float* local, int rank, int off_floats, int region_floats) {
-  uint32_t a = smem_u32(local + off_floats), r;
-  asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(r) : "r"(a), "r"(rank));
-  float v;
-  asm volatile("ld.shared::cluster.f32 %0, [%1];" : "=f"(v) : "r"(r));
-  return v;
-}
-
-template <int L, bool F>
-struct Smem {
-  uint8_t k[Cfg<L, F>::STAGES * STAGE_BYTES];
-  uint8_t v[Cfg<L, F>::STAGES * STAGE_BYTES];
-  uint64_t mbar[8];   // TMA mode: one per stage (64 bytes keeps the members after it 16-byte aligned)
-  uint64_t pbar[4];   // producer mode: page-index slots landed (TMA)
-  int pgc;            // OKC_PGCONT: page-index fills issued in this CTA's earlier segments
-  int dbgn;           // debug builds: progress-mark count
-  int vidx;           // flat weighted partition: this CTA's slot (2 * SM + arrival rank), -1 = uniform
-  alignas(128) int pidx[4][80];   // producer mode: page indices of upcoming tiles (16-byte aligned window)
-  uint64_t full[8];   // producer mode: stage landed (32 producer lanes arrive as their copies complete)
-  uint64_t empty[8];  // producer mode: stage consumed (one arrival per consumer warp)
-  uint64_t vtf[2];    // OKC_PTR: V^T slot written by the producers (one arrival per producer thread)
-  uint64_t vte[2];    // OKC_PTR: V^T slot read by both heads' PV wgmmas (one arrival per consumer warp)
-  uint64_t qdone;     // OKC_PTR: consumers have read the q staging (S.kvq) and staged S.kn / S.vn
-  int claim[2];       // Cfg::F2: next unclaimed tile per KV head
-  int nxt[4][2];      // Cfg::F2: each warpgroup's next claimed tile (double buffered)
-  int idx[2 * Cfg<L, F>::STAGES * TILE];
-  // raw q rows of the block (bf16, prologue only) | L==8: the current tile's K and V in f16 (2 x 2 x 64 x 64)
-  // L == 8: q staging (producer mode) before the loop, then the per-tile f16 V copy -- or, FP8 PV, per tile
-  // (double buffer) and KV head, V^T as 72 rows (64 dims + 8 rows of ones for the row sums) x 64 keys (permuted to
-  // the P register order), K-major with 64B swizzle: 4 x 4608 bytes
-  alignas(1024) uint8_t kvq[(L == 1) ? L * 16 * 64 * 2 : (OKC_PVW ? 32768 : (PV8ON ? ((Cfg<L, F>::S2 || Cfg<L, F>::F2) ? 36864 : 18432) : 16384))];
-  // L == 8 with FP8 PV and OKC_QSS: the block's e4m3 queries per KV head (64 rows x 64 dims, K-major, 64B swizzle)
-  alignas(1024) uint8_t q8s[(L == 8 && PV8ON && OKC_QSS && (!F || OKC_PV8FLAT)) ? 8192 : 16];
-  __device__ __forceinline__ __nv_bfloat16* qst() { return reinterpret_cast<__nv_bfloat16*>(kvq); }
-  __nv_bfloat16 kvst[L * 4 * 64];   // raw k (2 heads) then v (2 heads) rows per token
-  __nv_bfloat16 gst[L * 4 * 64];    // cluster mode: gate rows of this CTA's output slice (<= L*16/4 rows)
-  uint8_t kn[L * ROWB];        // new keys of the block, [j][2 heads x 64] e4m3
-  uint8_t vn[L * ROWB];
-  float cs[L * 32];
-  float sn[L * 32];
-  float ifreq[32];          // RoPE inverse frequencies (staged with cp.async)
-  float scl[4];             // k_scale, v_scale
-  long long cloc[L];        // cache rows of the block's tokens
-  int flag;
-  int sense;          // OKC_SENSE2: the cooperative barrier's flag, read early (prologue) with the constants
-  int cum[F ? MAXB + 1 : 1];
-  int seg[F ? MAXSEG : 1][3];
-  int nseg;
-  int fcs, fce;             // OKC_FPART: this CTA's key range (warp 0 -> everyone)
-  // flat dynamic chunks (OKC_DYN): the producer's segment list of its current chunk, and a queue that hands the
-  // segments (request, first key, end key, copy; request -1 = done) to the consumers
-  int pseg[F ? MAXSEG : 1][3];
-  int pnseg, pchunk;
-  int dq[F ? 16 : 1][4];
-  uint64_t dqf[F ? 16 : 1];
-  uint64_t dqe[F ? 16 : 1];
-};
-
-// Cluster mode, several clusters per request (Params::ncl > 1): add this CTA's reduced slice into the global
-// workspace; the last cluster to arrive sums the copies back into RB/RL and finalizes. Out of line: no scored shape
-// uses it, and keeping it out of the one-cluster epilogue keeps that code contiguous (cold instruction fetch).
-template <int L, typename SM>
-__device__ __noinline__ bool cluster_multi(const Params& p, SM& S, const int CS, const int rank, const int RPC,
-                                           const int row0, const int bp, float* RB, float* RL) {
-  constexpr int NT = Cfg<L, false>::NT;
-  const int tid = threadIdx.x;
-  bool fin = true;
-    const int clu = fdiv_i(blockIdx.x, CS);
-    const int copy = clu - fdiv_i(clu, p.nc) * p.nc;
-    for (int e = tid; e < RPC * 16; e += NT) {
-      const int row = row0 + (e >> 4);
-      float* acc = p.ws_acc + ((ix_t)(bp * p.nc + copy) * L * 16 + row) * 64 + (e & 15) * 4;
-      const float4 a = *reinterpret_cast<const float4*>(&RB[e * 4]);
-      red_v4(acc, a.x, a.y, a.z, a.w);
-    }
-    for (int e = tid; e < RPC; e += NT) red_f32(p.ws_l + (bp * p.nc + copy) * L * 16 + row0 + e, RL[e]);
-    __threadfence();
-    __syncthreads();
-    if (tid == 0) {
-      // every cluster of the request arrives (empty ones with zero partials)
-      const int old = atomicAdd(p.ws_cnt + bp * CS + rank, 1);
-      S.flag = (old == p.ncl - 1);
-    }
-    __syncthreads();
-    fin = S.flag;
-    if (fin) {
-      __threadfence();
-      for (int e = tid; e < RPC * 16; e += NT) {
-        const int row = row0 + (e >> 4);
-        constexpr int NCM = 4;
-        float4 v[NCM];
-#pragma unroll
-        for (int c = 0; c < NCM; ++c)
-          if (c < p.nc) v[c] = __ldcg(reinterpret_cast<const float4*>(p.ws_acc + ((ix_t)(bp * p.nc + c) * L * 16 + row) * 64 + (e & 15) * 4));
-        float4 a = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-        for (int c = 0; c < NCM; ++c) {
-          if (c < p.nc) {
-            a.x += v[c].x; a.y += v[c].y; a.z += v[c].z; a.w += v[c].w;
-            *reinterpret_cast<float4*>(p.ws_acc + ((ix_t)(bp * p.nc + c) * L * 16 + row) * 64 + (e & 15) * 4) = make_float4(0.f, 0.f, 0.f, 0.f);
-          }
-        }
-        *reinterpret_cast<float4*>(&RB[e * 4]) = a;
-      }
-      for (int e = tid; e < RPC; e += NT) {
-        float a = 0.f;
-        for (int c = 0; c < p.nc; ++c) {
-          float* lw = p.ws_l + (bp * p.nc + c) * L * 16 + row0 + e;
-          a += __ldcg(lw);
-          *lw = 0.f;
-        }
-        RL[e] = a;
-      }
-      if (tid == 0) p.ws_cnt[bp * CS + rank] = 0;
-      __syncthreads();
-    }
-  return fin;
-}
-
-// Cluster mode epilogue. Every CTA of the cluster has written its rescaled partial (PB: [L*16][64] o * 2^m,
-// PL: [L*16] l * 2^m) into its own shared memory. CTA `rank` sums rows [rank*RPC, (rank+1)*RPC) over the
-// cluster through DSMEM, then either finalizes them (one cluster per request) or accumulates them into the
-// global workspace, where the last cluster to arrive for this slice finalizes.
-template <int L, typename SM>
-__device__ __forceinline__ void cluster_finish(const Params& p, SM& S, const int b, const int pair,
-                                               const int n_keys, const int chunk) {
-  constexpr int NT = Cfg<L, false>::NT;
-  constexpr int STAGES = Cfg<L, false>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  const int tid = threadIdx.x;
-  const int CS = p.cs, rank = cl_rank(p);
-  const int RPC = fdiv_i(L * 16, CS);
-  const int pairs = p.Hkv >> 1;
-  const int bp = b * pairs + pair;
-  // S.k and S.v are adjacent: PB [L*16*64] | PL [L*16, padded to 1024] | RB [RPC*64] | RL [RPC]
-  float* PB = reinterpret_cast<float*>(S.k);
-  float* PL = PB + L * 16 * 64;
-  float* RB = PL + 1024;
-  float* RL = RB + RPC * 64;
-  constexpr int REGION = L * 16 * 64 + 1024;   // emulation: per-CTA scratch floats (PB, then PL at +L*16*64)
-  if (OKC_CLDBG) DBG(7);
-  cl_sync(p, 1);
-  DBG(4);
-  long long dbgc0 = 0;
-  if (OKC_CLDBG) asm volatile("mov.u64 %0, %%clock64;" : "=l"(dbgc0));
-  const int row0 = rank * RPC;
-  if constexpr (L == 1) {   // compact reduction (this code runs once per launch from a cold instruction cache, so it is kept short):
-      // (row, slot) items -- 16 float4 slots of o and one for l -- times the CS peers; CS consecutive lanes load
-      // one item from every peer and sum it with shuffles. Two items per thread per pass keep loads in flight.
-    const int TOT0 = RPC * 17 * CS;
-    const int lcs = 31 - __clz(CS);
-#pragma unroll 1
-    for (int rep2 = (OKC_CLDBG == 2 ? 0 : 1); rep2 < 2; ++rep2) {
-    int TOT = TOT0;
-    if (rep2 == 0) asm volatile("mov.u32 %0, 0;" : "=r"(TOT));   // dry pass: same code, no work
-    if (OKC_CLDBG == 2 && rep2 == 1) asm volatile("mov.u64 %0, %%clock64;" : "=l"(dbgc0));
-    for (int k0 = 0; k0 < (rep2 == 0 ? 2 * NT : TOT); k0 += 2 * NT) {   // warp-uniform trip count
-      float4 v[2];
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        const int k = k0 + u * NT + tid;
-        const int item = k >> lcs, q = k & (CS - 1);
-        const int rl = item / 17, slot = item - rl * 17;
-        v[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (k < TOT) {
-          if (slot < 16) v[u] = cl_ld4(p, PB, q, (row0 + rl) * 64 + slot * 4, REGION);
-          else v[u].x = cl_ld1(p, PL, q, row0 + rl, REGION);
-        }
-      }
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        for (int off = 1; off < CS; off <<= 1) {
-          v[u].x += __shfl_xor_sync(0xffffffffu, v[u].x, off);
-          v[u].y += __shfl_xor_sync(0xffffffffu, v[u].y, off);
-          v[u].z += __shfl_xor_sync(0xffffffffu, v[u].z, off);
-          v[u].w += __shfl_xor_sync(0xffffffffu, v[u].w, off);
-        }
-        const int k = k0 + u * NT + tid;
-        const int item = k >> lcs, q = k & (CS - 1);
-        const int rl = item / 17, slot = item - rl * 17;
-        if (k < TOT && q == 0) {
-          if (slot < 16) *reinterpret_cast<float4*>(&RB[(rl * 16 + slot) * 4]) = v[u];
-          else RL[rl] = v[u].x;
-        }
-      }
-    }
-    }
-  } else
-  {
-  constexpr int CSMAX = 16;
-  // compact: peers in groups of 4 (one loop body, warm after its first pass: this code runs once per launch)
-  for (int e = tid; e < RPC * 16; e += NT) {
-    const int off = (row0 + (e >> 4)) * 64 + (e & 15) * 4;
-    const bool lrow = (e & 15) == 0;
-    float4 a = make_float4(0.f, 0.f, 0.f, 0.f);
-    float la = 0.f;
-#pragma unroll 1
-    for (int q0 = 0; q0 < CS; q0 += 4) {
-      float4 v[4];
-      float lv[4];
-#pragma unroll
-      for (int u = 0; u < 4; ++u) {
-        v[u] = cl_ld4(p, PB, q0 + u, off, REGION);
-        lv[u] = lrow ? cl_ld1(p, PL, q0 + u, row0 + (e >> 4), REGION) : 0.f;
-      }
-#pragma unroll
-      for (int u = 0; u < 4; ++u) { a.x += v[u].x; a.y += v[u].y; a.z += v[u].z; a.w += v[u].w; la += lv[u]; }
-    }
-    *reinterpret_cast<float4*>(&RB[e * 4]) = a;
-    if (lrow) RL[e >> 4] = la;
-  }
-  if (false)
-  for (int e = tid; e < RPC * 16; e += NT) {
-    const int off = (row0 + (e >> 4)) * 64 + (e & 15) * 4;
-    const bool lrow = (e & 15) == 0;   // the row's first thread also sums the row's l (same DSMEM round)
-    float4 v[CSMAX];
-    float lv[CSMAX];
-#pragma unroll
-    for (int q = 0; q < CSMAX; ++q) {   // all peers' loads in flight at once
-      if (q < CS) {
-        v[q] = cl_ld4(p, PB, q, off, REGION);
-        lv[q] = lrow ? cl_ld1(p, PL, q, row0 + (e >> 4), REGION) : 0.f;
-      }
-    }
-    float4 a = make_float4(0.f, 0.f, 0.f, 0.f);
-    float la = 0.f;
-#pragma unroll
-    for (int q = 0; q < CSMAX; ++q)
-      if (q < CS) { a.x += v[q].x; a.y += v[q].y; a.z += v[q].z; a.w += v[q].w; la += lv[q]; }
-    *reinterpret_cast<float4*>(&RB[e * 4]) = a;
-    if (lrow) RL[e >> 4] = la;
-  }
-  }
-  if (OKC_CLDBG) {
-    long long c1;
-    asm volatile("mov.u64 %0, %%clock64;" : "=l"(c1));
-    if (p.dbg && threadIdx.x == 0) p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + 11] = c1 - dbgc0;
-  }
-  if (OKC_CLDBG) DBG(8);
-  DBG(14);
-  cl_sync(p, 2);   // peers are done reading this CTA's partial
-  cl_done(p);
-  DBG(6);
-
-  bool fin = true;
-  if (OKC_CLDBG) DBG(9);
-  if (p.ncl > 1) {
-    fin = cluster_multi<L>(p, S, CS, rank, RPC, row0, bp, RB, RL);
-  }
-  if (fin) {
-    // rmsnorm * sigmoid(gate) for the slice: 16 threads per row, 4 dims each
-    if (OKC_CLDBG) DBG(10);
-    long long dbgc2 = 0;
-    if (OKC_CLDBG) asm volatile("mov.u64 %0, %%clock64;" : "=l"(dbgc2));
-    const float vscale = S.scl[1];
-    for (int eb = tid - (tid & 31); eb < RPC * 16; eb += NT) {   // warp-uniform trip count (shuffles below)
-      const int e = eb + (tid & 31);
-      const bool act = e < RPC * 16;
-      const int rl = act ? (e >> 4) : 0, c4 = e & 15;
-      const int row = row0 + rl;
-      const int j = row >> 4, hh = row & 15;
-      const float lsum = act ? RL[rl] : 0.f;
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      const float4 a = act ? *reinterpret_cast<const float4*>(&RB[e * 4]) : make_float4(0.f, 0.f, 0.f, 0.f);
-      float y[4] = {pr8(a.x * inv), pr8(a.y * inv), pr8(a.z * inv), pr8(a.w * inv)};
-      float ss = y[0] * y[0] + y[1] * y[1] + y[2] * y[2] + y[3] * y[3];
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 8);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const uint2 graw = *reinterpret_cast<const uint2*>(&S.gst[rl * 64 + c4 * 4]);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint2 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int k = 0; k < 2; ++k) {
-        const float2 gt = __bfloat1622float2(g2[k]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * k] * rn * s0, y[2 * k + 1] * rn * s1);
-        ow[k] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (act) *reinterpret_cast<uint2*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + c4 * 4) = ov;
-    }
-    if (OKC_CLDBG) {
-      long long c3;
-      asm volatile("mov.u64 %0, %%clock64;" : "=l"(c3));
-      if (p.dbg && threadIdx.x == 0) p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + 15] = c3 - dbgc2;
-    }
-    DBG(5);
-  }
-}
-
-// Gate rows of this CTA's cluster slice -> S.gst (cp.async, in the caller's commit group)
-template <int L, typename SM>
-__device__ __forceinline__ void cluster_stage_gate(const Params& p, SM& S, const int b, const int pair) {
-  constexpr int NT = Cfg<L, false>::NT;
-  constexpr int STAGES = Cfg<L, false>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  const int RPC = fdiv_i(L * 16, p.cs), row0 = cl_rank(p) * RPC;
-  for (int e = threadIdx.x; e < RPC * 8; e += NT) {
-    const int rl = e >> 3, ch = e & 7;
-    const int row = row0 + rl, j = row >> 4, hh = row & 15;
-    cp_async16(smem_u32(&S.gst[rl * 64 + ch * 8]),
-               p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + ch * 8, 16);
-  }
-}
-
-// One (request b, KV pair) segment [start, end) of the request's key positions.
-// Sum the nc workspace copies of one (row, 8-dim part) of request-pair bp, token j, head hh, and zero them. Copies in
-// groups of 4 (loads of a group in flight together): one compact loop body, since this runs once per launch from a
-// cold instruction cache (an 8-way unrolled version cost ~2x the instructions).
-template <int L>
-__device__ __forceinline__ void sum_copies(const Params& p, const int bp, const int j, const int hh, const int part,
-                                           const bool act, float (&y)[8], float& lsum) {
-  if (OKC_SC1 && p.nc == 1) {   // one copy (the common case): no copy loop, no per-copy branches (scout's census)
-    if (act) {
-      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;
-      const float4 xa = __ldcg(reinterpret_cast<const float4*>(acc));
-      const float4 xb = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-      const float lc = __ldcg(p.ws_l + (bp * L + j) * 16 + hh);
-      y[0] += xa.x; y[1] += xa.y; y[2] += xa.z; y[3] += xa.w;
-      y[4] += xb.x; y[5] += xb.y; y[6] += xb.z; y[7] += xb.w;
-      lsum += lc;
-      *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-      *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-      if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;
-    }
-    return;
-  }
-  if (OKC_SC8 && p.nc == 8) {   // eight copies (the one-request q_len 8 plan): every copy's loads in one round trip
-    if (act) {                   // (the rolled 4-copy loop below took two dependent L2 round trips)
-      float4 xa[8], xb[8];
-      float lc[8];
-#pragma unroll
-      for (int c = 0; c < 8; ++c) {
-        const float* acc = p.ws_acc + ((ix_t)((bp * 8 + c) * L + j) * 16 + hh) * 64 + part * 8;
-        xa[c] = __ldcg(reinterpret_cast<const float4*>(acc));
-        xb[c] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-        lc[c] = __ldcg(p.ws_l + ((bp * 8 + c) * L + j) * 16 + hh);
-      }
-#pragma unroll
-      for (int c = 0; c < 8; ++c) {
-        y[0] += xa[c].x; y[1] += xa[c].y; y[2] += xa[c].z; y[3] += xa[c].w;
-        y[4] += xb[c].x; y[5] += xb[c].y; y[6] += xb[c].z; y[7] += xb[c].w;
-        lsum += lc[c];
-        float* acc = p.ws_acc + ((ix_t)((bp * 8 + c) * L + j) * 16 + hh) * 64 + part * 8;
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) p.ws_l[((bp * 8 + c) * L + j) * 16 + hh] = 0.f;
-      }
-    }
-    return;
-  }
-#pragma unroll 1
-  for (int c0 = 0; c0 < p.nc; c0 += 4) {
-    float4 xa[4], xb[4];
-    float lc[4];
-#pragma unroll
-    for (int u = 0; u < 4; ++u) {
-      const int c = c0 + u;
-      xa[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-      xb[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-      lc[u] = 0.f;
-      if (act && c < p.nc) {
-        const float* acc = p.ws_acc + ((ix_t)((bp * p.nc + c) * L + j) * 16 + hh) * 64 + part * 8;
-        xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));
-        xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-        lc[u] = __ldcg(p.ws_l + ((bp * p.nc + c) * L + j) * 16 + hh);
-      }
-    }
-#pragma unroll
-    for (int u = 0; u < 4; ++u) {
-      const int c = c0 + u;
-      if (act && c < p.nc) {
-        y[0] += xa[u].x; y[1] += xa[u].y; y[2] += xa[u].z; y[3] += xa[u].w;
-        y[4] += xb[u].x; y[5] += xb[u].y; y[6] += xb[u].z; y[7] += xb[u].w;
-        lsum += lc[u];
-        float* acc = p.ws_acc + ((ix_t)((bp * p.nc + c) * L + j) * 16 + hh) * 64 + part * 8;
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) p.ws_l[((bp * p.nc + c) * L + j) * 16 + hh] = 0.f;
-      }
-    }
-  }
-}
-
-// Last-CTA finalize of a request with one workspace copy: sum, normalize, rmsnorm * sigmoid(gate), store,
-// reset the workspace. Not inlined, so a dry call early in the kernel (dry = 1: same instructions, stores off)
-// pulls its code into the SM's instruction cache: this runs once per launch and is otherwise fetched cold.
-template <int L, int NT>
-__device__ __forceinline__ void fin_nc1(const Params& p, const int b, const int pair, const int bp, const float vscale,
-                                     const int dry) {
-  const int tid = threadIdx.x;
-  // loads of a group of passes first (one L2 round trip per group), then math and stores; groups of 2 passes in a
-  // rolled loop (this runs once per launch from a cold instruction cache: q_len 8 has 4 passes)
-  constexpr int PASSES = L * 16 / (NT / 8);
-  constexpr int GP = PASSES >= 2 ? 2 : 1;
-  const int part = tid & 7;
-#pragma unroll 1
-  for (int p0 = 0; p0 < PASSES; p0 += GP) {
-    float4 xa[GP], xb[GP];
-    float lc[GP];
-    uint4 graw[GP];
-#pragma unroll
-    for (int u = 0; u < GP; ++u) {
-      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);
-      const int j = rr >> 4, hh = rr & 15;
-      const float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;
-      xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));
-      xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-      lc[u] = __ldcg(p.ws_l + (bp * L + j) * 16 + hh);
-      graw[u] = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);
-    }
-#pragma unroll
-    for (int u = 0; u < GP; ++u) {
-      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);
-      const int j = rr >> 4, hh = rr & 15;
-      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * 64 + part * 8;
-      if (!dry) {
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) p.ws_l[(bp * L + j) * 16 + hh] = 0.f;
-      }
-      const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;
-      float y[8] = {pr8(xa[u].x * inv), pr8(xa[u].y * inv), pr8(xa[u].z * inv), pr8(xa[u].w * inv),
-                    pr8(xb[u].x * inv), pr8(xb[u].y * inv), pr8(xb[u].z * inv), pr8(xb[u].w * inv)};
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) ss += y[e] * y[e];
-      ss = oct_sum(ss);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw[u]);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (!dry) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-  }
-}
-
-// OKC_PATCHNI: the q_len 8 flat loop's rare new-row patch as a call, so ptxas cannot hoist its bounds math into the
-// common path of every tile
-template <int L, int NT, bool PTR, class SM>
-__device__ __noinline__ bool ws_patch_ni(SM* Sp, int i, int st, int start, int seq, int end, int tid) {
-  SM& S = *Sp;
-  const int t0 = start + i * TILE;
-  const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-  if (lo < hi) {
-    for (int e = tid; e < (hi - lo) * 8; e += NT) {
-      const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-      const int sw = ((c ^ (r & 7)) << 4);
-      *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-      if constexpr (!PTR)
-        *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-    }
-    if (L == 8) fence_proxy_async();
-  }
-  return lo < hi;
-}
-
-template <int L, bool FLAT, int ROLE, int MODE = 0>
-__device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const int b_, const int pair_, const bool first,
-                                        const int start_, const int end_, const int seq_, const int n_keys_,
-                                        const int copy_, const int chunk_, const int tb_ = 0, const int seq_real_ = 0,
-                                        const bool skip_init_ = false) {
-  // (returns false only in the OKC_SPEC builds, when the speculated length missed: nothing global was written yet and
-  // the caller re-runs the segment with the real length)
-  // per-segment values as lane-0 broadcasts (OKC_UARGS): provably warp-uniform, so ptxas keeps the address math
-  // derived from them in uniform registers (they come from shared memory or per-CTA math, uniform but unproven)
-#define UNI(x) __shfl_sync(0xffffffffu, (x), 0)
-  const int b = UNI(b_), pair = UNI(pair_), start = UNI(start_), end = UNI(end_), seq = UNI(seq_);
-  const int n_keys = UNI(n_keys_), copy = UNI(copy_), chunk = UNI(chunk_), tb = UNI(tb_);
-#undef UNI
-  // tb: tiles this CTA's pipeline has already run (flat producer mode: the stage ring and its mbarrier phases
-  // continue across segments, so the producer runs ahead into the next segment instead of draining)
-  // MODE: the per-request (non-flat) kernel is built once per launch mode, so each build carries only its own
-  // epilogue (once-per-launch code runs from a cold instruction cache): 1 plain split-KV, 2 clusters,
-  // 3 cooperative; 0 = decided at run time (flat kernels)
-  // OKC_ONE: MODE | 4 = a build for grids whose every split holds at most one tile (the host checks): the tile loop,
-  // the in-loop copies and the first-tile tests fold at compile time (scout's once-path census, s1 / vs1)
-  constexpr bool ONE = !FLAT && (MODE & 4) != 0;
-  const bool M_CL = !FLAT && ((MODE & 3) == 0 ? p.cs > 1 : (MODE & 3) == 2);
-  const bool M_COOP = (MODE & 3) == 0 ? p.coop != 0 : (MODE & 3) == 3;
-  constexpr int NT = Cfg<L, FLAT>::NT;
-  constexpr int STAGES = Cfg<L, FLAT>::STAGES;
-  constexpr bool CONT = FLAT && Cfg<L, FLAT>::WS && OKC_CONT;
-  // flat q_len 8 with FP8 PV: the producer warps (idle most of the time) build each tile's V^T for the PV wgmma
-  constexpr bool PTR = (L == 8) && FLAT && Cfg<L, FLAT>::WS && OKC_PTR && PV8ON && OKC_PV8FLAT && OKC_QSS && !OKC_CONT;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  constexpr bool WS = Cfg<L, FLAT>::WS;
-  // (OKC_UWARP: the warp index as a lane-0 broadcast, so ptxas can prove it warp-uniform and keep the addresses
-  // derived from it (KV head, descriptors, buffers) in uniform registers; CUTLASS's canonical_warp_idx_sync idiom)
-  const int tid = threadIdx.x, lane = tid & 31, warp = OKC_UWARP ? __shfl_sync(0xffffffffu, tid >> 5, 0) : tid >> 5;
-  const int g = lane >> 2, tig = lane & 3;
-  const int split = first ? 0 : 1;
-  const int pairs = p.Hkv >> 1;
-  const int bp = b * pairs + pair;
-  const int ntiles = ONE ? 1 : (end - start + TILE - 1) / TILE;   // (ONE: a CTA without keys returned earlier)
-
-  if constexpr (WS) {
-    constexpr int NP = Cfg<L, FLAT>::NP;
-    constexpr int PR = NP / 8;            // rows per producer pass
-    constexpr int PK = TILE / PR;         // passes per tile
-    if (!CONT && !skip_init_) {   // (OKC_EARLYBAR: the first segment's barriers were set up at kernel start)
-      if (ROLE == 2 && tid == 0) {   // fresh phases for this segment (the previous one ended with every stage consumed)
-        for (int st = 0; st < STAGES; ++st) {
-          mbar_init_n(&S.full[st], NP);
-          mbar_init_n(&S.empty[st], Cfg<L, FLAT>::F2 ? 8 : (OKC_XP_ARRALL ? NT : NT / 32));   // F2: one warpgroup per head takes each tile
-        }
-        if constexpr (PTR) {
-          for (int k = 0; k < 2; ++k) {
-            mbar_init_n(&S.vtf[k], NP);
-            mbar_init_n(&S.vte[k], NT / 32);
-          }
-          mbar_init_n(&S.qdone, NT / 32);
-        }
-        mbar_fence_init();
-      }
-      __syncthreads();
-    }
-    if constexpr (ROLE == 1) {
-      // ---- producer threads: 16-byte chunk (q & 7) of rows (q >> 3) + PR*k; the cache rows of every tile,
-      // zeros past the range; the block's own new keys are patched in by the consumers
-      const int q = tid - NT;
-      if (q == 0) FPRO_STAMP(42);
-      const int ch = q & 7, r0 = q >> 3;
-      const int* ptr = p.page_table + (ix_t)b * p.max_pages;
-      const int cache_end = min(end, seq);
-      int pg[PK];
-      static_assert(PR % 8 == 0, "PFAST: the swizzle chunk is the same for all of a thread's rows");
-      const bool pfast = OKC_OFF32 && p.off32 && p.lp == 0;
-      const uint32_t pcol = (uint32_t)(pair * 128 + ch * 16);
-      const uint32_t pso = r0 * ROWB + ((ch ^ (r0 & 7)) << 4);
-      // OKC_TMAPG: page indices by TMA (q_len 1 flat only: f16 -2.4%, f32 -1.7%; the q_len 8 flat kernel lost ~0.7%)
-      constexpr bool TMAPG_ON = OKC_TMAPG && (L == 1 || OKC_TMAPG8);
-      // page indices by TMA: one 64-entry box per tile, PD tiles ahead, PS slots, producer barrier per tile
-      constexpr int PS = 4, PD = 3;
-      int pgb = 0;   // OKC_PGCONT: fills issued by earlier segments (slot / phase base)
-      if constexpr (TMAPG_ON) {
-        if constexpr (OKC_PGCONT) {
-          pgb = S.pgc;
-        } else {
-          if (q == 0) {
-            for (int st = 0; st < PS; ++st) mbar_init_n(&S.pbar[st], 1);
-            mbar_fence_init();
-          }
-          asm volatile("bar.sync 2, %0;\n" ::"n"(NP) : "memory");
-        }
-      }
-      // the 16-byte aligned window holding the tile's page indices; reads stay inside the table's allocation
-      // (CUDA allocations are 256-byte aligned and sized in larger multiples than 16 bytes)
-      const long long pt_total = (long long)p.B * p.max_pages;
-      const long long pt_lim = (pt_total + 3) & ~3LL;
-      auto fetch_pages = [&](int x) {
-        if (q == 0 && x < ntiles) {
-          const int slot = (pgb + x) % PS;
-          const long long e0 = (long long)b * p.max_pages + ((start + x * TILE) >> p.lp);
-          const long long w0 = e0 & ~3LL;
-          const long long w1 = min(pt_lim, (e0 + 64 + 3) & ~3LL);
-          const int bytes = (int)(w1 - w0) * 4;
-          mbar_expect_tx(&S.pbar[slot], bytes);
-          bulk_load(&S.pidx[slot][0], p.page_table + w0, bytes, &S.pbar[slot]);
-        }
-      };
-      if constexpr (TMAPG_ON) {
-        for (int x = 0; x < PD; ++x) fetch_pages(x);
-      }
-      auto load_pages_t = [&](int x, int* dst) {
-        const int slot = (pgb + x) % PS;
-        mbar_wait_full(&S.pbar[slot], ((pgb + x) / PS) & 1);
-        const int fp = (start + x * TILE) >> p.lp;
-        const int dl = (int)(((long long)b * p.max_pages + fp) & 3);   // window offset of the first page
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int pos = start + x * TILE + r0 + PR * k;
-          dst[k] = (pos < cache_end) ? S.pidx[slot][(pos >> p.lp) - fp + dl] : 0;
-        }
-      };
-      auto load_pages = [&](int x, int* dst) {
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int pos = start + x * TILE + r0 + PR * k;
-          dst[k] = (x < ntiles && pos < cache_end) ? __ldg(ptr + (pos >> p.lp)) : 0;
-        }
-      };
-      if constexpr (!TMAPG_ON) load_pages(0, pg);
-      if (OKC_FPRO >= 2 && q == 0) {   // (debug) when the first tile's page indices have landed
-        asm volatile("" :: "r"(pg[0]), "r"(pg[PK - 1]));
-        volatile int sink = pg[0] + pg[PK - 1];
-        (void)sink;
-        FPRO_STAMP(45);
-      }
-      // OKC_PTR: tile y's V (both KV heads) -> V^T slot y & 1 (72 x 64 per head: 64 dims + 8 rows of e4m3 ones for the
-      // row sums, keys permuted to the P register order, K-major, 64B swizzle), the layout the PV wgmma reads
-      auto ptr_transpose = [&](int y) {
-        if constexpr (PTR) {
-          const int sty = (tb + y) % STAGES;
-          if (y == 0) {   // the q staging in S.kvq is read and S.kn / S.vn are staged: write the ones rows
-            mbar_wait_full(&S.qdone, 0);
-            for (int e = q; e < 4 * 32; e += NP)
-              *reinterpret_cast<uint4*>(S.kvq + (e >> 5) * 4608 + 4096 + (e & 31) * 16) =
-                  make_uint4(0x38383838u, 0x38383838u, 0x38383838u, 0x38383838u);
-          }
-          mbar_wait_full(&S.full[sty], ((tb + y) / STAGES) & 1);   // tile y landed
-          const int t0 = start + y * TILE;
-          const int nlo = max(t0, seq), nhi = min(t0 + TILE, end);
-          if (nlo < nhi) {   // the block's own new values (the consumers patch the new keys)
-            for (int e = q; e < (nhi - nlo) * 8; e += NP) {
-              const int pos = nlo + (e >> 3), c = e & 7, r = pos - t0;
-              *reinterpret_cast<uint4*>(S.v + sty * STAGE_BYTES + r * ROWB + ((c ^ (r & 7)) << 4)) =
-                  *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-            }
-            asm volatile("bar.sync 2, %0;\n" ::"n"(NP) : "memory");
-          }
-          if (y >= 2) mbar_wait_full(&S.vte[y & 1], ((y >> 1) - 1) & 1);   // PV of tile y - 2 done with the slot
-          const int pl = q & 31, pw = (q >> 5) & 3, pvq = pl & 3, pvw = pl >> 2;
-          const uint32_t s0 = (pvw >= 4) ? 0x7531u : 0x6420u, s1 = (pvw >= 4) ? 0x6420u : 0x7531u;
-          const int pr0 = (pvw >= 4) ? 1 : 0;
-          const uint32_t o0 = 128 * pvw + ((pw ^ (pvw & 3)) << 4) + 4 * pvq + 64 * pr0;
-          const uint32_t o1 = 128 * pvw + ((pw ^ (pvw & 3)) << 4) + 4 * pvq + 64 * (1 - pr0);
-          const int pkey = 16 * pw + 8 * ((pl >> 3) & 1) + (pl & 7);
-          const uint32_t vsrc = smem_u32(S.v + sty * STAGE_BYTES) + pkey * ROWB;
-          uint8_t* vt = S.kvq + (y & 1) * 2 * 4608;
-#pragma unroll
-          for (int h = 0; h < 2; ++h) {
-#pragma unroll
-            for (int u = 0; u < 2; ++u) {
-              uint32_t r0, r1, r2, r3;
-              ldsm_x4_t(vsrc + (((4 * h + 2 * u + ((pl >> 3) >> 1)) ^ (pl & 7)) << 4), r0, r1, r2, r3);
-#pragma unroll
-              for (int g2 = 0; g2 < 2; ++g2) {
-                const uint32_t R0 = g2 ? r2 : r0, R1 = g2 ? r3 : r1;
-                *reinterpret_cast<uint32_t*>(vt + h * 4608 + o0 + 1024 * (2 * u + g2)) = prmt(R0, R1, s0);
-                *reinterpret_cast<uint32_t*>(vt + h * 4608 + o1 + 1024 * (2 * u + g2)) = prmt(R0, R1, s1);
-              }
-            }
-          }
-          fence_proxy_async();   // V^T written with st.shared, read by the PV wgmma
-          mbar_arrive(&S.vtf[y & 1]);
-        }
-      };
-      PROF_INIT
-      for (int x = 0; x < ntiles; ++x) {
-        const int st = (tb + x) % STAGES;
-        int pgn[PK];
-        if constexpr (TMAPG_ON) {
-          fetch_pages(x + PD);
-          load_pages_t(x, pg);
-        } else {
-          load_pages(x + 1, pgn);   // in flight while this tile's copies issue
-        }
-        PROF_MARK(2);
-        if (tb + x >= STAGES) mbar_wait_full(&S.empty[st], (((tb + x) / STAGES) - 1) & 1);
-        PROF_MARK(0);
-        if (x == 0 && q == 0) FPRO_STAMP(46);
-        const uint32_t kb = smem_u32(S.k + st * STAGE_BYTES), vb = smem_u32(S.v + st * STAGE_BYTES);
-        // common tiles (every row cached, page size 1, caches below 4 GB): one shift-add per row, no per-row
-        // branches (the producer's instructions take issue slots from the consumers on the same SMSPs)
-        if (pfast && start + x * TILE + TILE <= cache_end) {
-#pragma unroll
-          for (int k = 0; k < PK; ++k) {
-            const uint32_t off = ((uint32_t)pg[k] << p.lrb) + pcol;
-            cp_async16(kb + pso + k * (PR * ROWB), p.k_cache + off, 16);
-            cp_async16(vb + pso + k * (PR * ROWB), p.v_cache + off, 16);
-          }
-        } else
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int r = r0 + PR * k;
-          const int pos = start + x * TILE + r;
-          const uint32_t so = r * ROWB + ((ch ^ (r & 7)) << 4);
-          if (pos < cache_end) {
-            if (p.off32) {   // caches below 4 GB: 32-bit offsets (uniform branch)
-              const uint32_t off = ((((uint32_t)pg[k] << p.lp) + (uint32_t)(pos & (p.P - 1))) << p.lrb) + (uint32_t)(pair * 128 + ch * 16);
-              cp_async16(kb + so, p.k_cache + off, 16);
-              cp_async16(vb + so, p.v_cache + off, 16);
-            } else
-            {
-              const int64_t off = (((int64_t)pg[k] << p.lp) + (pos & (p.P - 1))) * p.row_bytes + pair * 128 + ch * 16;
-              cp_async16(kb + so, p.k_cache + off, 16);
-              cp_async16(vb + so, p.v_cache + off, 16);
-            }
-          } else if (pos >= end) {
-            cp_async16_zero(kb + so, p.k_cache);
-            cp_async16_zero(vb + so, p.v_cache);
-          }
-        }
-        cp_async_mbar_arrive(&S.full[st]);
-        if (x == 0 && q == 0) FPRO_STAMP(43);
-        if constexpr (PTR) {
-          if (x >= OKC_PTRD) ptr_transpose(x - OKC_PTRD);
-        }
-        PROF_MARK(1);
-        PROF_TILE;
-        if constexpr (TMAPG_ON) {
-          asm volatile("bar.sync 2, %0;\n" ::"n"(NP) : "memory");   // slot x % PS is free for tile x + PS
-        } else {
-#pragma unroll
-          for (int k = 0; k < PK; ++k) pg[k] = pgn[k];
-        }
-      }
-      if constexpr (PTR) {
-        for (int y = max(0, ntiles - OKC_PTRD); y < ntiles; ++y) ptr_transpose(y);
-      }
-      if constexpr (TMAPG_ON && OKC_PGCONT) {   // every producer read pgb at the segment start (tile barriers since)
-        if (q == 0) S.pgc = pgb + ntiles;
-      }
-      PROF_DUMP;
-      if constexpr (!CONT) {
-        cp_wait<0>();
-        __syncthreads();   // matches the consumers' end-of-segment barrier
-      }
-      return true;
-    }
-  }
-  if constexpr (ROLE != 1) {
-
-  const int prow = tid >> 1, phalf = tid & 1;
-  const int* pt_row = p.page_table + (ix_t)b * p.max_pages;
-  const int part = tid & 7;
-
-  // ---- producer helpers ----
-  // K/V: thread -> 16-byte chunk (tid & 7) of rows (tid >> 3) + 16*k: a warp copies 4 whole 128-byte rows.
-  // New-token rows come from S.kn / S.vn; rows past the range are zeroed.
-  const int cchunk = tid & 7, crow0 = tid >> 3;
-  constexpr int RPP = NT / 8;   // rows per pass
-  auto issue_kv = [&](int x, bool with_new) {
-    const int st = x % STAGES;
-    const int* idxs = &S.idx[(x % IDX_SLOTS) * TILE];
-    bool generic = false;   // st.shared into a K stage: the wgmma (async proxy) needs a proxy fence
-    // OKC_PFASTPR: every row of the tile cached (pos < min(end, seq)), page size 1, caches below 4 GB: one shift-add
-    // per row, no per-row branches (the per-request issue runs from a cold instruction cache, mostly once)
-    if (with_new && p.off32 && p.lp == 0 && start + x * TILE + TILE <= min(end, seq)) {   // (in-loop issues only: the
-      // prologue's cold copy of the tile-0 issue stays the plain one, s1 measured +1.5% with it)
-      const uint32_t kst = smem_u32(S.k + st * STAGE_BYTES), vst = smem_u32(S.v + st * STAGE_BYTES);
-      const uint32_t col = (uint32_t)(pair * 128 + cchunk * 16);
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const uint32_t so = r * ROWB + ((cchunk ^ (r & 7)) << 4);
-        const uint32_t off = ((uint32_t)idxs[r] << p.lrb) + col;
-        cp_async16(kst + so, p.k_cache + off, 16);
-        cp_async16(vst + so, p.v_cache + off, 16);
-      }
-      return;
-    }
-#pragma unroll
-    for (int k = 0; k < TILE / RPP; ++k) {
-      const int r = crow0 + RPP * k;
-      const int pos = start + x * TILE + r;
-      const int sw = ((cchunk ^ (r & 7)) << 4);
-      uint8_t* dk = S.k + st * STAGE_BYTES + r * ROWB + sw;
-      uint8_t* dv = S.v + st * STAGE_BYTES + r * ROWB + sw;
-      if (pos < end && pos < seq) {
-        if (p.off32) {   // caches below 4 GB: 32-bit offsets (uniform branch)
-          const uint32_t off = ((((uint32_t)idxs[r] << p.lp) + (uint32_t)(pos & (p.P - 1))) << p.lrb) + (uint32_t)(pair * 128 + cchunk * 16);
-          cp_async16(smem_u32(dk), p.k_cache + off, 16);
-          cp_async16(smem_u32(dv), p.v_cache + off, 16);
-        } else
-        {
-          const int64_t row = ((int64_t)idxs[r] << p.lp) + (pos & (p.P - 1));
-          const int64_t off = row * p.row_bytes + pair * 128 + cchunk * 16;
-          cp_async16(smem_u32(dk), p.k_cache + off, 16);
-          cp_async16(smem_u32(dv), p.v_cache + off, 16);
-        }
-      } else if (pos < end) {
-        if (with_new) {
-          *reinterpret_cast<uint4*>(dk) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + cchunk * 16);
-          *reinterpret_cast<uint4*>(dv) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + cchunk * 16);
-          generic = true;
-        }
-      } else {   // past the range: masked out of S; V must be finite (P = 0 times V)
-        *reinterpret_cast<uint4*>(dk) = make_uint4(0, 0, 0, 0);
-        *reinterpret_cast<uint4*>(dv) = make_uint4(0, 0, 0, 0);
-      }
-    }
-    if (L == 8 && generic) fence_proxy_async();
-  };
-  auto issue_idx = [&](int y) {
-    if (phalf == 0 && prow < TILE && y < ntiles) {
-      const int pos = start + y * TILE + prow;
-      if (pos < end && pos < seq) cp_async4(smem_u32(&S.idx[(y % IDX_SLOTS) * TILE + prow]), pt_row + (pos >> p.lp));
-    }
-  };
-  // producer mode: wait for stage `st` (tile i) and write the block's own new keys / values into it
-  auto ws_patch = [&](int i, int st) {   // the block's own new rows (positions >= seq) into tile i's stage
-    const int t0 = start + i * TILE;
-    const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-    if (lo < hi) {   // same for every consumer thread
-      for (int e = tid; e < (hi - lo) * 8; e += NT) {
-        const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-        const int sw = ((c ^ (r & 7)) << 4);
-        *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-        if constexpr (!PTR)
-          *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-      }
-      if (L == 8) fence_proxy_async();
-    }
-    return lo < hi;
-  };
-  auto ws_acquire = [&](int i, int st) {
-    mbar_wait_full(&S.full[st], ((tb + i) / STAGES) & 1);
-    const int t0 = start + i * TILE;
-    const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-    if (lo < hi) {   // same for every consumer thread
-      for (int e = tid; e < (hi - lo) * 8; e += NT) {
-        const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-        const int sw = ((c ^ (r & 7)) << 4);
-        *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-        if constexpr (!PTR)   // (OKC_PTR: the producers patch the values before their transpose)
-          *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-      }
-      if (L == 8) fence_proxy_async();
-    }
-    return lo < hi;
-  };
-
-  // ---- 1. page indices of the first STAGES-1 tiles; raw q / k / v rows into registers ----
-  int tidL = tid, partL = part;   // (OKC_LATETID: re-read after the page-index copies are issued)
-  constexpr int QPASS = L * 16 / RPP;            // L*16 rows, RPP rows per pass
-  const bool has_new = end > seq;
-  constexpr int KPASS = (L * 4 + RPP - 1) / RPP; // L*4 rows (k, v of 2 heads), RPP rows per pass
-  constexpr bool QDIR = OKC_QDIRECT && L == 8 && !WS && !Cfg<L, FLAT>::S2 && PV8ON && OKC_QSS && OKC_SM90 && OKC_Q8RAW &&
-                        (!FLAT || OKC_PV8FLAT);
-  constexpr bool IDXF = OKC_IDXFIRST && !WS && !Cfg<L, FLAT>::S2 && !OKC_PDLKV;
-  {
-  if constexpr (!WS) {
-#pragma unroll
-    for (int y = 0; y < STAGES - 1; ++y) issue_idx(y);
-  }
-  cp_commit();
-  if (OKC_LATETID && !WS && (MODE & 8)) {   // (speculative builds only: Oct 26 01:33, vs1 -3%, vf1 -1.6%, but s32/vs32 +1.5%) a late copy of tid: the q / new-row / table math below cannot be hoisted above the page-index
-    // copies (or out of the speculative retry loop to the kernel top: scout's v200 census, segment head 21 -> 62/97)
-    asm volatile("mov.u32 %0, %%tid.x;" : "=r"(tidL));
-    partL = tidL & 7;
-  }
-
-  pdl_wait();   // qkv (q, new k / v, gate) is the preceding kernel's output; nothing above reads or writes it
-  pdl_launch_dependents();
-  if (tid == 0) FPRO_STAMP(44);
-  // raw q rows: L*16 rows x 128 B = 8 chunks of 16 B per row
-  tfor<L * 16 * 8, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-    const int rr = e >> 3, ch = e & 7;
-    const int j = rr >> 4, hh = rr & 15;
-    cp_async16(smem_u32(&S.qst()[rr * 64 + ch * 8]), p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (16 * pair + hh) * 64 + ch * 8, 16);
-  });
-  if (has_new) {
-    tfor<L * 4 * 8, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const int rr = e >> 3, ch = e & 7;
-      const int kind = rr / (2 * L), jj = (rr % (2 * L)) >> 1, hh = rr & 1;
-      const int col = (kind == 0 ? p.Hq : p.Hq + p.Hkv) * 64 + (2 * pair + hh) * 64 + ch * 8;
-      cp_async16(smem_u32(&S.kvst[rr * 64 + ch * 8]), p.qkv + (ix_t)(b * L + jj) * p.ld_qkv + col, 16);
-    });
-  }
-  if (M_CL) cluster_stage_gate<L>(p, S, b, pair);
-  // small per-call constants: staged with the same group instead of cold loads in the middle of the prologue
-  if (tidL < 8) cp_async16(smem_u32(&S.ifreq[tidL * 4]), p.inv_freq + tidL * 4, 16);
-  else if (tidL == 8) cp_async4(smem_u32(&S.scl[0]), p.k_scale);
-  else if (tidL == 9) cp_async4(smem_u32(&S.scl[1]), p.v_scale);
-  else if ((OKC_SENSE2 || OKC_PARITY) && !FLAT && M_COOP && tidL == 10)   // the coop barrier's flag / epoch, early
-    cp_async4(smem_u32(&S.sense), p.ws_cnt + 24576 + bp);
-  else if (tidL >= 16 && tidL < 16 + L) {
-    const int jj = tidL - 16;
-    asm volatile("cp.async.ca.shared.global [%0], [%1], 8;\n" ::"r"(smem_u32(&S.cloc[jj])), "l"(p.cache_loc + b * L + jj));
-  }
-  cp_commit();
-  if (split == 0 && (FLAT || !M_CL)) {  // warm L2 with the gate rows for whichever CTA finishes last
-    tfor<L * 16, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const __nv_bfloat16* gp = p.qkv + (ix_t)(b * L + (e >> 4)) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + (e & 15)) * 64;
-      asm volatile("prefetch.global.L2 [%0];" ::"l"(gp));
-    });
-  }
-
-  // ---- 2. K/V of the first STAGES-1 tiles in flight as soon as their page indices land ----
-  // OKC_IDXFIRST (per-request kernels): wait for the page-index group only (committed first, 256 B); the q / new
-  // k,v / constants group (up to 16 KB) may still be in flight while the K/V copies go out
-  cp_wait<IDXF ? 1 : 0>();
-  csync<WS, NT>();
-  if constexpr (!FLAT && (MODE & 8) != 0) {
-    // OKC_SPEC: this CTA's ranges and page indices came from the speculated length (see the kernel); the real
-    // cache_seqlens value has landed by now (it was loaded alongside the indices). On a miss, nothing global has been
-    // written: drain the copies and let the caller redo the segment with the real length (today's path)
-    if (seq_real_ != seq) {
-      cp_wait<0>();
-      __syncthreads();
-      return false;
-    }
-  }
-  DBG(1);
-  if constexpr (!WS) {
-    constexpr int PRE = Cfg<L, FLAT>::S2 ? STAGES - 2 : STAGES - 1;   // two streams: one cp.async group per tile, the loop issues pairs
-    bool one = false;
-    // OKC_ONETILE: a CTA with a single fully cached tile (page size 1, caches < 4 GB): its copies straight-line (one
-    // shift-add per row), none of the loop / per-row tests / issue_idx past the last tile, then the commits the
-    // pipeline's group count expects (scout's census: ~168 instr, 11 taken branches here on s1, cold)
-    if (ONE && !Cfg<L, FLAT>::S2 && p.off32 && p.lp == 0 && (OKC_ONENEW || start + TILE <= min(end, seq))) {
-      one = true;
-      const uint32_t kst = smem_u32(S.k), vst = smem_u32(S.v);
-      const uint32_t col = (uint32_t)(pair * 128 + cchunk * 16);
-      const int cend = min(end, seq);
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const uint32_t so = r * ROWB + ((cchunk ^ (r & 7)) << 4);
-        if constexpr (OKC_ONEPRED) {
-          // branch-free (scout's v200 census: the per-row branches cost 16 instr + 4 taken branches per warp, cold):
-          // cached rows copy, rows past the range zero-fill (masked out of S; V must be finite), the block's new
-          // rows are skipped (written by the patch pass after the new-k/v pass)
-          const int pr = start + r;
-          const bool cached = !OKC_ONENEW || pr < cend;
-          const bool doit = cached || pr >= end;
-          const uint32_t off = ((uint32_t)S.idx[r] << p.lrb) + col;   // (zero-filled index past the cached rows)
-          cp_async16_pred(kst + so, p.k_cache + off, cached ? 16 : 0, doit);
-          cp_async16_pred(vst + so, p.v_cache + off, cached ? 16 : 0, doit);
-        } else if (!OKC_ONENEW || start + r < cend) {
-          const uint32_t off = ((uint32_t)S.idx[r] << p.lrb) + col;
-          cp_async16(kst + so, p.k_cache + off, 16);
-          cp_async16(vst + so, p.v_cache + off, 16);
-        } else if (start + r >= end) {   // (OKC_ONENEW) past the range: zero (masked out of S; V must be finite)
-          cp_async16_zero(kst + so, p.k_cache);
-          cp_async16_zero(vst + so, p.v_cache);
-        }   // (the block's new rows: written by the patch pass after the new-k/v pass, as with the general issue)
-      }
-#pragma unroll
-      for (int k = 0; k < STAGES - 1; ++k) cp_commit();
-    }
-    if (!one) {
-#pragma unroll
-    for (int k = 0; k < STAGES - 1; ++k) {   // (unrolled: no loop branches; rolled: one copy of the issue code)
-      if (k < PRE && k < ntiles) issue_kv(k, false);
-      issue_idx(k + STAGES - 1);
-      if (k < PRE - 1 || k == STAGES - 2) cp_commit();
-    }
-    }
-  }
-  DBG(8);
-  }
-
-  if constexpr (IDXF) {   // the q group (all but the STAGES-1 K/V groups just committed), visible to every thread
-    cp_wait<STAGES - 1>();
-    csync<WS, NT>();
-  }
-  // ---- 3. while they load: RoPE table, queries, the block's new keys / values ----
-  if (p.rope) {
-    tfor<L * 32, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const int j = e >> 5, i = e & 31;
-      const float ang = (float)(seq + j) * S.ifreq[i];   // fp32 angle, as the reference builds it
-      float sv, cv;
-      // Cody-Waite reduction mod 2 pi with a 3-part constant (6.25 has 5 significant bits: exact products for
-      // |k| < 2^19, angles up to ~3e6), then the hardware sin / cos on [-pi, pi]: ~5e-7 absolute, against
-      // ~30 cold instructions (and a Payne-Hanek call above |x| ~ 1e5) for the accurate sincosf
-      const float kq = rintf(ang * 0.15915493667125702f);
-      float rr = fmaf(-kq, 6.25f, ang);
-      rr = fmaf(-kq, 0.03318530693650246f, rr);
-      rr = fmaf(-kq, 2.430837753308879e-10f, rr);
-      __sincosf(rr, &sv, &cv);
-      S.cs[e] = cv;
-      S.sn[e] = sv;
-    });
-  }
-  csync<WS, NT>();
-  DBG(9);
-
-  const float kscale = S.scl[0], vscale = S.scl[1];
-  const float sl2 = p.scale_log2 * kscale;
-
-  if constexpr (QDIR && OKC_QP16) {
-    // OKC_QP16 (q_len 8, QDIRECT): four threads per query row, 16 dims each (half the passes of the 8-thread
-    // layout, two shuffle levels instead of three, one 16-byte e4m3 store); same math per element
-    constexpr int RP4 = NT / 4;                    // rows per pass
-    constexpr int QP4 = L * 16 / RP4;
-    const int q4 = tidL & 3;
-#pragma unroll
-    for (int ps = 0; ps < QP4; ++ps) {
-      const int rr = ps * RP4 + (tidL >> 2);
-      const int j = rr >> 4, hh = rr & 15;
-      const uint4 qa = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + q4 * 16]);
-      const uint4 qb = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + q4 * 16 + 8]);
-      const __nv_bfloat162* ha = reinterpret_cast<const __nv_bfloat162*>(&qa);
-      const __nv_bfloat162* hb = reinterpret_cast<const __nv_bfloat162*>(&qb);
-      float x[16];
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 fa = __bfloat1622float2(ha[e]);
-        const float2 fb = __bfloat1622float2(hb[e]);
-        x[2 * e] = fa.x; x[2 * e + 1] = fa.y;
-        x[8 + 2 * e] = fb.x; x[8 + 2 * e + 1] = fb.y;
-      }
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 16; ++e) ss += x[e] * x[e];
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-      for (int e = 0; e < 16; ++e) x[e] *= r;
-      if (p.rope) {
-#pragma unroll
-        for (int e = 0; e < 8; ++e) {
-          const int i = q4 * 8 + e;
-          const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
-          const float a0 = x[2 * e], a1 = x[2 * e + 1];
-          x[2 * e] = a0 * c - a1 * sn;
-          x[2 * e + 1] = a0 * sn + a1 * c;
-        }
-      }
-      const int hk4 = hh >> 3, gg4 = hh & 7;
-      const int r4 = j * 8 + gg4, kb = q4 * 16;
-      *reinterpret_cast<uint4*>(S.q8s + hk4 * 4096 + r4 * 64 + (((kb >> 4) ^ ((r4 >> 1) & 3)) << 4)) =
-          make_uint4(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]),
-                     e4m3x4f(x[8], x[9], x[10], x[11]), e4m3x4f(x[12], x[13], x[14], x[15]));
-    }
-  } else
-#pragma unroll
-  for (int ps = 0; ps < QPASS; ++ps) {
-    const int rr = ps * RPP + (tidL >> 3);
-    const int j = rr >> 4, hh = rr & 15;
-    const uint4 qv = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + partL * 8]);
-    const __nv_bfloat162* h2 = reinterpret_cast<const __nv_bfloat162*>(&qv);
-    float x[8];
-#pragma unroll
-    for (int e = 0; e < 4; ++e) {
-      const float2 f = __bfloat1622float2(h2[e]);
-      x[2 * e] = f.x;
-      x[2 * e + 1] = f.y;
-    }
-    float ss = 0.f;
-#pragma unroll
-    for (int e = 0; e < 8; ++e) ss += x[e] * x[e];
-    ss = oct_sum(ss);
-    const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-    for (int e = 0; e < 8; ++e) x[e] *= r;
-    if (p.rope) {
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const int i = partL * 4 + e;
-        const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
-        const float a0 = x[2 * e], a1 = x[2 * e + 1];
-        x[2 * e] = a0 * c - a1 * sn;
-        x[2 * e + 1] = a0 * sn + a1 * c;
-      }
-    }
-    // f16 query pre-scaled to log2 units, staged in the (still free) last pipeline stage
-    uint4 qw;
-    uint32_t* qwp = reinterpret_cast<uint32_t*>(&qw);
-    // (q_len 8 on sm_90 rounds the query to e4m3: keep it unit-RMS like SGLang does -- pre-scaling it by the
-    // kv scale would push it into e4m3's subnormals -- and scale the scores instead)
-    const float qsc = (L == 8 && OKC_SM90 && OKC_Q8RAW) ? 1.f : sl2;
-    const int hk = hh >> 3, gg = hh & 7;
-    if constexpr (QDIR) {
-      // OKC_QDIRECT: straight to the e4m3 A tile of the SS QK^T wgmma (64-byte rows, 16-byte chunks swizzled by
-      // (row >> 1) & 3), one fp32 -> e4m3 rounding, no f16 staging / re-read (scout's census: ~90 instr / warp)
-      const int r = j * 8 + gg, kb = partL * 8;
-      *reinterpret_cast<uint2*>(S.q8s + hk * 4096 + r * 64 + (((kb >> 4) ^ ((r >> 1) & 3)) << 4) + (kb & 15)) =
-          make_uint2(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]));
-      continue;
-    }
-#pragma unroll
-    for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);
-    if constexpr (L == 1) { const uint32_t t1 = qwp[1]; qwp[1] = qwp[2]; qwp[2] = t1; }   // (scout: quad order 0,2,1,3)
-    if constexpr (WS) {   // in place over the raw row (same thread, same 16 bytes)
-      *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * 16) = qw;
-    } else {
-      uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;
-      *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * 16) = qw;
-    }
-  }
-  if constexpr (QDIR) fence_proxy_async();   // the e4m3 q tile (st.shared) is read by the wgmma after the loop's first barrier
-  DBG(10);
-
-  if (has_new) {
-#pragma unroll
-    for (int ps = 0; ps < KPASS; ++ps) {
-      const int rr = ps * RPP + (tidL >> 3);
-      const bool live = rr < L * 4;
-      const int kind = rr / (2 * L);
-      const int jj = (rr % (2 * L)) >> 1, hh = rr & 1;
-      float x[8];
-      const uint4 kvv = live ? *reinterpret_cast<const uint4*>(&S.kvst[rr * 64 + partL * 8]) : make_uint4(0, 0, 0, 0);
-      const __nv_bfloat162* h2 = reinterpret_cast<const __nv_bfloat162*>(&kvv);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 f = __bfloat1622float2(h2[e]);
-        x[2 * e] = f.x;
-        x[2 * e + 1] = f.y;
-      }
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) ss += x[e] * x[e];
-      ss = oct_sum(ss);   // every lane of the warp (rows of both kinds share warps)
-      float sc;
-      if (kind == 0) {
-        const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-        for (int e = 0; e < 8; ++e) x[e] *= r;
-        if (p.rope && live) {
-#pragma unroll
-          for (int e = 0; e < 4; ++e) {
-            const int i = partL * 4 + e;
-            const float c = S.cs[jj * 32 + i], sn = S.sn[jj * 32 + i];
-            const float a0 = x[2 * e], a1 = x[2 * e + 1];
-            x[2 * e] = a0 * c - a1 * sn;
-            x[2 * e + 1] = a0 * sn + a1 * c;
-          }
-        }
-        sc = __fdividef(1.f, kscale);   // (MUFU.RCP: no IEEE slow-path call and its branches on the once-path;
-      } else {                          //  exact for the power-of-two scales)
-        sc = __fdividef(1.f, vscale);
-      }
-      if (live) {
-        uint32_t w0 = 0, w1 = 0;
-#pragma unroll
-        for (int e = 0; e < 4; ++e) {
-          w0 |= (uint32_t)to_e4m3(x[e] * sc) << (8 * e);
-          w1 |= (uint32_t)to_e4m3(x[4 + e] * sc) << (8 * e);
-        }
-        uint8_t* dst = (kind == 0 ? S.kn : S.vn) + jj * ROWB + hh * 64 + partL * 8;
-        *reinterpret_cast<uint2*>(dst) = make_uint2(w0, w1);
-        const int pos = seq + jj;
-        if (pos >= start && pos < end) {
-          const int64_t row = S.cloc[jj];
-          uint8_t* g8 = const_cast<uint8_t*>(cache_row(kind == 0 ? p.k_cache : p.v_cache, p, row, (2 * pair + hh) * 64 + partL * 8));
-          *reinterpret_cast<uint2*>(g8) = make_uint2(w0, w1);
-        }
-      }
-    }
-  }
-  csync<WS, NT>();
-  DBG(11);
-  if (!WS && has_new) {
-    // new-token rows of the tiles already issued (their cached rows are in flight with cp.async)
-    for (int x = 0; x < (Cfg<L, FLAT>::S2 ? STAGES - 2 : STAGES - 1) && x < ntiles; ++x) {
-      const int st = x % STAGES;
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const int pos = start + x * TILE + r;
-        if (pos >= seq && pos < end) {
-          const int sw = ((cchunk ^ (r & 7)) << 4);
-          *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + cchunk * 16);
-          *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + cchunk * 16);
-        }
-      }
-    }
-    if (L == 8) fence_proxy_async();   // new keys written with st.shared, read by the QK wgmma
-  }
-
-  if constexpr (!FLAT && OKC_FINWARM) {   // warm the cold last-CTA finalize code while the first tiles load
-    if (p.cs <= 1 && !p.coop && p.nc == 1) fin_nc1<L, NT>(p, b, pair, bp, 0.f, 1);
-  }
-  DBG(2);
-  // ---- consumer state ----
-  constexpr int MT = 1;                    // m-tiles per warp
-  constexpr int NROW = (L == 1) ? 1 : 2;   // rows per thread
-  constexpr bool S2 = Cfg<L, FLAT>::S2;
-  constexpr bool F2 = Cfg<L, FLAT>::F2;
-  const int sid = (S2 || F2) ? (warp >> 3) : 0;            // two streams: warps 8..15
-  // (OKC_INV2: lane-0 broadcasts, so ptxas keeps them in uniform registers instead of re-deriving them every tile)
-  const int hk = OKC_INV2 ? __shfl_sync(0xffffffffu, (L == 1) ? (warp & 1) : ((warp & 7) >> 2), 0)
-                          : ((L == 1) ? (warp & 1) : ((warp & 7) >> 2));      // L==8: warpgroup = KV head
-  const int wsub = OKC_INV2 ? __shfl_sync(0xffffffffu, (L == 1) ? (warp >> 1) : (warp & 3), 0)
-                            : ((L == 1) ? (warp >> 1) : (warp & 3));    // L==1: key half; L==8: m-tile (tokens 2*wsub, 2*wsub+1)
-  const int wgi = (S2 || F2) ? 2 * sid + hk : hk;          // named barrier of this warpgroup
-  float o[MT][8][4];
-#pragma unroll
-  for (int mt = 0; mt < MT; ++mt)
-#pragma unroll
-    for (int t = 0; t < 8; ++t)
-#pragma unroll
-      for (int e = 0; e < 4; ++e) o[mt][t][e] = 0.f;
-  float m_r[NROW], l_r[NROW];
-#pragma unroll
-  for (int r = 0; r < NROW; ++r) { m_r[r] = -INFINITY; l_r[r] = 0.f; }
-  // tiles with no window / causal / range edge skip the per-element mask
-  const int lo_all = (L == 1 || !p.window) ? start : max(start, seq + (L - 1) - p.window + 1);
-  const int hi_all = OKC_INV2 ? __shfl_sync(0xffffffffu, min(end - 1, seq), 0) : min(end - 1, seq);
-
-  if constexpr (L == 1) {
-  // Q A-fragments (f16, pre-scaled to log2 units) for 4 k-steps of 16 dims: thread holds dims
-  // 16*tig + 4*ks + {0,1} (a0) and + {2,3} (a2); the K B-fragments use the same dims.
-  uint32_t qa[4][2];
-  {
-    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;
-    const uint4 l0 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig);
-    const uint4 l1 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig + 16);
-    // (scout: chunk words stored (0, 2, 1, 3): l0 = {ks0 a0, ks1 a0, ks0 a2, ks1 a2}, l1 the same for ks 2, 3)
-    qa[0][0] = l0.x; qa[0][1] = l0.y; qa[1][0] = l0.z; qa[1][1] = l0.w;
-    qa[2][0] = l1.x; qa[2][1] = l1.y; qa[3][0] = l1.z; qa[3][1] = l1.w;
-  }
-
-  PROF_INIT
-  for (int i = 0; i < ntiles; ++i) {
-    if constexpr (WS) {
-      if (ws_acquire(i, (tb + i) % STAGES)) csync<WS, NT>();
-      PROF_MARK(0);
-      if (i == 0) DBG(12);
-    } else {
-      cp_wait<STAGES - 2>();
-      __syncthreads();
-      PROF_MARK(0);
-      if (i == 0) DBG(12);
-      if (i + STAGES - 1 < ntiles) issue_kv(i + STAGES - 1, true);
-      issue_idx(i + 2 * STAGES - 2);
-      cp_commit();
-      PROF_MARK(1);
-    }
-
-    const uint8_t* K = S.k + ((tb + i) % STAGES) * STAGE_BYTES;
-    const uint8_t* V = S.v + ((tb + i) % STAGES) * STAGE_BYTES;
-    const int t0 = start + i * TILE;
-    const bool interior = (t0 >= lo_all) && (t0 + TILE - 1 <= hi_all);
-    // warp: kv head hk, keys [32*wsub, 32*wsub+32) of the tile
-    float s[4][4];
-    uint32_t kw[4][4];
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) {
-      const int key = 32 * wsub + 8 * nt + g;
-      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));
-      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;
-    }
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)
-      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};
-#pragma unroll
-      for (int h = 0; h < 2; ++h) {
-        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));
-        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));
-      }
-      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;
-    }
-    PROF_MARK(2);
-    if (!interior) {
-#pragma unroll
-      for (int nt = 0; nt < 4; ++nt)
-#pragma unroll
-        for (int e = 0; e < 2; ++e) {
-          const int pos = t0 + 32 * wsub + 8 * nt + 2 * tig + e;
-          if (pos >= end) s[nt][e] = -INFINITY;
-        }
-    }
-    float mx = -INFINITY;
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) mx = fmaxf(mx, fmaxf(s[nt][0], s[nt][1]));
-    mx = quad_max(mx);
-    const float m_new = fmaxf(m_r[0], mx);
-    if (m_new != -INFINITY) {
-      const float alpha = ex2(m_r[0] - m_new);
-      m_r[0] = m_new;
-      float ls = 0.f;
-#pragma unroll
-      for (int nt = 0; nt < 4; ++nt)
-#pragma unroll
-        for (int e = 0; e < 2; ++e) {
-          const float pv = ex2(s[nt][e] - m_new);
-          s[nt][e] = pv;
-          ls += pv;
-        }
-      if constexpr (ONE) {   // (scout: the only tile: o = 0 and l = 0, alpha would only multiply zeros)
-        l_r[0] = ls;
-      } else {
-        l_r[0] = l_r[0] * alpha + ls;
-#pragma unroll
-        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }
-      }
-#pragma unroll
-      for (int ks = 0; ks < (OKC_XHALFPV ? 1 : 2); ++ks) {   // (OKC_XHALFPV: timing probe only, wrong results)
-        uint32_t b0[8], b1[8];
-        load_v_frags(V, 32 * wsub + 16 * ks, hk, g, tig, b0, b1);
-        const uint32_t a0 = pack_h2(s[2 * ks][0], s[2 * ks][1]);
-        const uint32_t a2 = pack_h2(s[2 * ks + 1][0], s[2 * ks + 1][1]);
-#pragma unroll
-        for (int t = 0; t < 8; ++t) mma_f16(o[0][t], a0, 0u, a2, 0u, b0[t], b1[t]);
-      }
-    }
-    if constexpr (WS) {   // this warp is done with the stage
-      __syncwarp();
-      if (OKC_XP_ARRALL || lane == 0) mbar_arrive(&S.empty[(tb + i) % STAGES]);
-    }
-    PROF_MARK(3);
-    PROF_TILE;
-    if (i == 0) DBG(13);
-  }
-  PROF_DUMP;
-  } else {
-  // ---- L == 8 on sm_90: QK^T with FP8 wgmma straight from the FP8 K tile in shared memory (warpgroup =
-  // KV head, 64 rows = 8 tokens x 8 heads, K-major 128B-swizzled B operand), PV with f16 mma.sync from a
-  // per-tile f16 copy of V. Softmax with a lazily updated per-row offset; row sums from a ones column.
-  uint8_t* V16 = S.kvq;
-  const uint32_t v16_base = smem_u32(V16) + hk * 8192;
-  uint32_t qa8[2][4];   // e4m3 A fragments, k-steps of 32 dims
-  if constexpr (!QDIR) {
-    const uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;   // f16 staging, row = j*8 + g
-    const int r0 = 16 * wsub + g, r1 = r0 + 8;
-    // producer mode: in place in S.kvq, row j*16 + hk*8 + g
-    const uint8_t* q0 = WS ? S.kvq + ((r0 >> 3) * 16 + hk * 8 + (r0 & 7)) * 128 : qs + r0 * 128;
-    const uint8_t* q1 = WS ? S.kvq + ((r1 >> 3) * 16 + hk * 8 + (r1 & 7)) * 128 : qs + r1 * 128;
-#pragma unroll
-    for (int ks = 0; ks < 2; ++ks) {
-#pragma unroll
-      for (int hf = 0; hf < 2; ++hf) {        // dims 32*ks + 16*hf + 4*tig .. +3
-        const int dofs = (32 * ks + 16 * hf + 4 * tig) * 2;
-        const uint2 lo = *reinterpret_cast<const uint2*>(q0 + dofs);
-        const uint2 hi = *reinterpret_cast<const uint2*>(q1 + dofs);
-        qa8[ks][2 * hf] = pack_e4m3x4(lo.x, lo.y);
-        qa8[ks][2 * hf + 1] = pack_e4m3x4(hi.x, hi.y);
-      }
-    }
-    if constexpr (PV8ON && OKC_QSS && (!FLAT || OKC_PV8FLAT)) {   // the A tile for the SS QK^T wgmma
-#pragma unroll
-      for (int ks = 0; ks < 2; ++ks)
-#pragma unroll
-        for (int hf = 0; hf < 2; ++hf) {
-          const int kb = 32 * ks + 16 * hf + 4 * tig;
-          *reinterpret_cast<uint32_t*>(S.q8s + hk * 4096 + r0 * 64 + (((kb >> 4) ^ ((r0 >> 1) & 3)) << 4) + (kb & 15)) =
-              qa8[ks][2 * hf];
-          *reinterpret_cast<uint32_t*>(S.q8s + hk * 4096 + r1 * 64 + (((kb >> 4) ^ ((r1 >> 1) & 3)) << 4) + (kb & 15)) =
-              qa8[ks][2 * hf + 1];
-        }
-      fence_proxy_async();   // read by the wgmma after the loop's first barrier
-    }
-    if constexpr (PTR) {   // q staging read, S.kn / S.vn staged: the producers may write V^T into S.kvq
-      __syncwarp();
-      if (lane == 0) mbar_arrive(&S.qdone);
-    }
-  }
-  float cr[2] = {0.f, 0.f};   // per-row offsets (log2 units), rows g and g+8
-  const float ssc = OKC_Q8RAW ? sl2 : 1.f;   // raw score -> log2 units
-  // OKC_RAWTHR: the lazy-max test on raw scores against (offset + 8) / ssc (ssc > 0), updated with the offset
-  const float rssc = OKC_RAWTHR ? __fdividef(1.f, ssc) : 1.f;
-  float thr[2] = {0.f, 0.f};
-  float lacc[4] = {0.f, 0.f, 0.f, 0.f};
-  bool first = true;
-  if constexpr (OKC_OZF) {   // the zero init stays before the loop: ptxas had sunk these moves into the first QK^T
-    float* oz = &o[0][0][0];   // wgmma's pipeline stage (warning C7515: every wgmma of the kernel serialized)
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(oz[e]);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-  }
-  const uint32_t ONES = 0x3C003C00u;   // f16 {1, 1}
-  const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
-  // FP8 PV: the per-CTA kernels (the flat kernel's register budget serializes its wgmmas: measured slower)
-  constexpr bool PV8 = PV8ON && (!FLAT || OKC_PV8FLAT);
-  // transpose roles (warpgroup = head): warp wq takes keys 16wq..16wq+15, lane = (q, w) of the ldmatrix fragments
-  const int vwq = warp & 3, vq = lane & 3, vw = lane >> 2;   // (warp: uniform, OKC_UWARP)
-  const uint32_t vsel0 = (vw >= 4) ? 0x7531u : 0x6420u, vsel1 = (vw >= 4) ? 0x6420u : 0x7531u;
-  const int vr0 = (vw >= 4) ? 1 : 0;   // rows d + vr0 then d + 1 - vr0 (bank spread)
-  // hoisted addressing (registers are tight in the flat kernel): V^T row n = 16*dgrp + 2*vw + r has swizzle chunk
-  // vwq ^ (vw & 3) for every dgrp, so the 8 stores per tile are one per-thread base plus immediates; the two
-  // ldmatrix rows are key = 16*vwq + 8*(mat & 1) + (lane & 7) with chunk (4*hk + 2u + (mat >> 1)) ^ (lane & 7)
-  const uint32_t vt_off0 = 128 * vw + ((vwq ^ (vw & 3)) << 4) + 4 * vq + 64 * vr0;
-  const uint32_t vt_off1 = 128 * vw + ((vwq ^ (vw & 3)) << 4) + 4 * vq + 64 * (1 - vr0);
-  const int vkey_t = 16 * vwq + 8 * ((lane >> 3) & 1) + (lane & 7);
-  const uint32_t vld_off0 = vkey_t * ROWB + (((4 * hk + 0 + ((lane >> 3) >> 1)) ^ (lane & 7)) << 4);
-  const uint32_t vld_off1 = vkey_t * ROWB + (((4 * hk + 2 + ((lane >> 3) >> 1)) ^ (lane & 7)) << 4);
-  // OKC_STSM: the V^T stores as two stmatrix.x4 per thread (instead of eight 4-byte stores). For ldmatrix group u,
-  // matrix m = 2*g2 + ab holds, in row j, the 16 key bytes of V^T row 16(2u+g2) + 2j + (ab ^ (j >= 4)) (the same
-  // rows and the same half swap for bank spread as the per-thread stores: thread (q, w) supplies row j = w)
-  const int stj = lane & 7, stm = lane >> 3;
-  const uint32_t vst_off = 1024 * (stm >> 1) + 128 * stj + 64 * ((stm & 1) ^ (stj >> 2)) + ((vwq ^ (stj & 3)) << 4);
-  // (per-request kernels: stmatrix measured vs16 -2.5%, vs1/vs32 -1.5%, vf1 -1%; the flat kernel: +0..1.5%)
-  constexpr bool STSM_ON = OKC_STSM || (OKC_STSMPR && !FLAT);
-  // P fragments of the in-flight PV wgmma: kept live (fenced) until the next wgmma wait, so the compiler cannot
-  // hand their registers to anything the next tile writes before that
-  uint32_t pa[2][4] = {{0u, 0u, 0u, 0u}, {0u, 0u, 0u, 0u}};
-  // OKC_ADDR: per-tile addressing as loop-carried values instead of re-derived from (tb + i) every tile: stage and
-  // full-barrier phase counters, wgmma descriptors as base + stage offset (the 14-bit address field takes it without
-  // a carry: shared memory < 256 KB), the V^T buffer and its descriptor toggled, new-row tiles found once
-  constexpr bool ADDR = OKC_ADDR && !S2 && !F2 && (WS || OKC_ADDRN);   // (OKC_ADDRN: per-request kernels too)
-  constexpr bool PVSPLIT = OKC_PVSPLIT && !S2 && !F2 && PV8 && !PTR && !OKC_PROF;
-  // OKC_LATESYNCN: per-request (non-producer) q8 kernels with the split PV and the consumers' own V^T
-  constexpr bool LSYNCN = OKC_LATESYNCN && !WS && !FLAT && PV8 && !PTR && PVSPLIT && !OKC_XP_NOFENCE && !S2 && !F2;
-  constexpr bool LSYNC = OKC_LATESYNC && OKC_PK2 && (OKC_PCHK && OKC_LAZYMAX && !OKC_RAWTHR && PV8 && !OKC_EXH8 && !OKC_PROF &&
-                         !PTR && WS) && PVSPLIT && OKC_PVSPLIT == 1 && !OKC_XP_NOEXP && OKC_EXPPOLY == 0 &&
-                         !(OKC_TURN && WS && PV8 && !S2 && !F2 && !OKC_PROF) && !OKC_XP_NOFENCE;
-  int st_c = tb % STAGES;
-  uint32_t ph_c = (uint32_t)(tb / STAGES) & 1u;
-  // descriptor low words broadcast from lane 0: a shuffle result is uniform and is not rematerialized, so the
-  // bases stay in uniform registers (the high words are constants); +st*512 / +2 never carry out of the low word
-  const uint32_t qlo0 = __shfl_sync(0xffffffffu, (uint32_t)((smem_u32(S.q8s) + hk * 4096) >> 4) | 0x10000u, 0);
-  const uint32_t klo0 = __shfl_sync(0xffffffffu, (uint32_t)((smem_u32(S.k) + hk * 64) >> 4) | 0x10000u, 0);
-  const uint64_t qdesc0 = ((uint64_t)((512 >> 4) | (2u << 30)) << 32) | qlo0;
-  const uint64_t kdesc0 = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | klo0;
-  const uint32_t vsrc0 = smem_u32(S.v);
-  uint8_t* vtb_c = S.kvq + hk * 4608;
-  const uintptr_t vtb_x = (uintptr_t)(S.kvq + hk * 4608) ^ (uintptr_t)(S.kvq + (2 + hk) * 4608);
-  uint64_t vdesc_c = desc_sw64(smem_u32(S.kvq + hk * 4608));
-  const uint64_t vdesc_x = vdesc_c ^ desc_sw64(smem_u32(S.kvq + (2 + hk) * 4608));
-  const int i_new = seq > start ? (seq - start) / TILE : 0;   // first tile that can hold the block's new rows
-  // OKC_IRANGE: interior tiles (no mask) are i in [i_lo, i_lo + i_span], found once (shuffled: kept uniform)
-  uint32_t i_lo = 0, i_span = 0;
-  if constexpr (OKC_IRANGE) {
-    const int a = (lo_all - start + TILE - 1) / TILE;              // first tile with t0 >= lo_all (lo_all >= start)
-    const int z = hi_all - (TILE - 1) - start;                      // last tile with t0 + 63 <= hi_all
-    const int bz = z >= 0 ? z / TILE : -1;
-    i_lo = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)a : 0x7fffffffu, 0);
-    i_span = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)(bz - a) : 0u, 0);
-  }
-
-  // OKC_RARE (producer mode): the common tiles -- no mask, no new rows (every key before the block's first new
-  // position seq) -- are i in [r_lo, r_lo + r_span], found once; the per-tile test is then one compare, and t0, the
-  // exact mask test and the new-row patch run only on the rare tiles
-  uint32_t r_lo = 0x7fffffffu, r_span = 0u;
-  if constexpr (OKC_RARE && WS && ADDR) {
-    const int hi2 = min(end - 1, seq - 1);
-    const int a = (lo_all - start + TILE - 1) / TILE;
-    const int z = hi2 - (TILE - 1) - start;
-    const int bz = z >= 0 ? z / TILE : -1;
-    r_lo = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)a : 0x7fffffffu, 0);
-    r_span = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)(bz - a) : 0u, 0);
-  }
-  PROF_INIT
-  // OKC_TURN (flat producer mode): the two KV heads' warpgroups take turns in the exponential phase (named barriers
-  // 5 / 6), so the 4 consumer warps of an SMSP do not all queue on the MUFU unit at once (scout: the exps segment
-  // takes ~650-820 cycles for ~110 instructions; both warpgroups start each tile together on the same stage)
-  constexpr bool TURN = OKC_TURN && WS && PV8 && !S2 && !F2 && !OKC_PROF;
-  if constexpr (TURN && OKC_TURN == 1) {
-    if (hk == 1 && ntiles > 0) bar_arrive_n(5, 256);   // head 0 goes first
-  }
-  int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
-  if constexpr (F2) {
-    if (tid == 0) { S.claim[0] = 0; S.claim[1] = 0; }
-    csync<WS, NT>();   // the q staging (S.q8s) is complete for both streams; counters reset
-    if ((tid & 127) == 0) S.nxt[wgi][0] = atomicAdd(&S.claim[hk], 1);
-    wgsync(wgi);
-    i_cur = S.nxt[wgi][0];
-  }
-  const int nit = S2 ? ((ntiles + 1) >> 1) : (F2 ? 0x7fffffff : ntiles);
-  constexpr int UNR8 = WS ? OKC_UNR8 : ((MODE & 3) == 1 ? OKC_UNRN : 1);   // (pragma arguments are not macro-expanded;
-  // plain split-KV with many tiles per CTA (b32 q8 sliding: 9) gains from the unroll, 1-tile coop grids lose)
-#pragma unroll (UNR8)
-  for (int jj = 0; jj < nit; ++jj) {
-    const int i = S2 ? 2 * jj + sid : (F2 ? i_cur : jj);   // S2: tiles 2jj and 2jj + 1; F2: claimed
-    if (F2 && i >= ntiles) break;
-    if constexpr (F2) {
-      // the next claim, read after this tile's warpgroup barrier
-      if ((tid & 127) == 0) S.nxt[wgi][(cnt2 + 1) & 1] = atomicAdd(&S.claim[hk], 1);
-      const int st0 = (tb + i) % STAGES;
-      mbar_wait_full(&S.full[st0], ((tb + i) / STAGES) & 1);   // tile i landed
-      const int t0n = start + i * TILE;
-      const int nlo = max(t0n, seq), nhi = min(t0n + TILE, end);
-      if (nlo < nhi) {   // this head's half of the block's own new rows (same for the whole warpgroup)
-        for (int e = (tid & 127); e < (nhi - nlo) * 4; e += 128) {
-          const int pos = nlo + (e >> 2), c = 4 * hk + (e & 3), r = pos - t0n;
-          const int sw = ((c ^ (r & 7)) << 4);
-          *reinterpret_cast<uint4*>(S.k + st0 * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-          *reinterpret_cast<uint4*>(S.v + st0 * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-        }
-        fence_proxy_async();
-        wgsync(wgi);
-      }
-      PROF_MARK(0);
-    } else if constexpr (WS) {
-      // tile i landed (+ new rows); previous tile's PV of this warpgroup done (its V16 half is free). The two
-      // warpgroups (one per KV head) only meet when both must: tile 0 (q staging) and tiles with new rows.
-      bool patched;
-      if constexpr (ADDR) {
-        mbar_wait_full(&S.full[st_c], ph_c);
-        if constexpr (OKC_RARE) patched = ((uint32_t)i - r_lo > r_span) && (i >= i_new) && ws_patch_ni<L, NT, PTR>(&S, i, st_c, start, seq, end, tid);
-        else if constexpr (OKC_PATCHNI && WS) patched = (i >= i_new) && ws_patch_ni<L, NT, PTR>(&S, i, st_c, start, seq, end, tid);
-        else patched = (i >= i_new) && ws_patch(i, st_c);
-      } else if constexpr (OKC_INEW) {   // new rows only in tiles >= i_new (found once per segment)
-        mbar_wait_full(&S.full[(tb + i) % STAGES], ((tb + i) / STAGES) & 1);
-        patched = (i >= i_new) && ws_patch(i, (tb + i) % STAGES);
-      } else {
-        patched = ws_acquire(i, (tb + i) % STAGES);
-      }
-      if (patched || i == 0 || !OKC_WGDEC) csync<WS, NT>();
-      else if (!(PV8ON && OKC_PV8FLAT && OKC_NOSYNC0)) wgsync(hk);
-      // (FP8 PV: V^T is double-buffered and each warp's wgmma wait already covers the PV that read this tile's
-      // buffer, so the tile needs no warpgroup barrier before its transpose)
-      PROF_MARK(0);
-      if (i == 0) DBG(12);
-    } else if constexpr (S2) {
-      cp_wait<2>();          // tiles 2jj and 2jj + 1 landed (one group per tile)
-      __syncthreads();       // and both streams' previous PVs read their V^T (the stages of tiles 2jj-2, 2jj-1 are free)
-      PROF_MARK(0);
-      if (jj == 0) DBG(12);
-      if (2 * jj + 4 < ntiles) issue_kv(2 * jj + 4, true);
-      issue_idx(2 * jj + 2 * STAGES - 2);
-      cp_commit();
-      if (2 * jj + 5 < ntiles) issue_kv(2 * jj + 5, true);
-      issue_idx(2 * jj + 2 * STAGES - 1);
-      cp_commit();
-      PROF_MARK(1);
-      if (i >= ntiles) continue;   // odd tile count: the second stream sits out the last pair
-    } else {
-      if constexpr (!OKC_XNOWAIT) cp_wait<STAGES - 2>();   // (OKC_XNOWAIT: timing probe only, wrong results)
-      __syncthreads();       // tile i landed; previous tile's PV done (V16 free)
-      PROF_MARK(0);
-      if (i == 0) DBG(12);
-      if constexpr (!OKC_QKFIRST) {
-        if (i + STAGES - 1 < ntiles) issue_kv(i + STAGES - 1, true);
-        issue_idx(i + 2 * STAGES - 2);
-        cp_commit();
-      }
-      PROF_MARK(1);
-    }
-
-    const int st = ADDR ? st_c : (tb + i) % STAGES;
-    const uint32_t kaddr = smem_u32(S.k + st * STAGE_BYTES) + hk * 64;
-    if constexpr (PVSPLIT && OKC_PVSPLIT == 2) {   // the previous tile's PV ran across the stage wait
-      wgmma_wait<0>();
-      float* od = &o[0][0][0];
-#pragma unroll
-      for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-    }
-    float s[32];
-    wgmma_fence();
-    if constexpr (PV8 && OKC_QSS && ADDR) {
-      const uint32_t kl = klo0 + (uint32_t)(st * (STAGE_BYTES >> 4));
-      const uint64_t kd = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | kl;
-      const uint64_t kd2 = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | (kl + 2u);
-      const uint64_t qd2 = ((uint64_t)((512 >> 4) | (2u << 30)) << 32) | (qlo0 + 2u);
-      if constexpr (OKC_QKZ) wgmma_m64n64k32_e4m3_ss_z(s, qdesc0, kd);
-      else wgmma_m64n64k32_e4m3_ss(s, qdesc0, kd, 0);
-      wgmma_m64n64k32_e4m3_ss(s, qd2, kd2, 1);
-    } else if constexpr (PV8 && OKC_QSS) {
-      const uint32_t qaddr = smem_u32(S.q8s) + hk * 4096;
-      if constexpr (OKC_QKZ) wgmma_m64n64k32_e4m3_ss_z(s, desc_sw64(qaddr), desc_sw128(kaddr));
-      else wgmma_m64n64k32_e4m3_ss(s, desc_sw64(qaddr), desc_sw128(kaddr), 0);
-      wgmma_m64n64k32_e4m3_ss(s, desc_sw64(qaddr + 32), desc_sw128(kaddr + 32), 1);
-    } else {
-      wgmma_m64n64k32_e4m3(s, qa8[0][0], qa8[0][1], qa8[0][2], qa8[0][3], desc_sw128(kaddr), 0);
-      wgmma_m64n64k32_e4m3(s, qa8[1][0], qa8[1][1], qa8[1][2], qa8[1][3], desc_sw128(kaddr + 32), 1);
-    }
-    wgmma_commit();
-    if constexpr (OKC_QKFIRST && !WS && !Cfg<L, FLAT>::S2) {   // (OKC_QKFIRST) the copies for tile i + STAGES - 1
-      if (i + STAGES - 1 < ntiles) issue_kv(i + STAGES - 1, true);
-      issue_idx(i + 2 * STAGES - 2);
-      cp_commit();
-    }
-    if constexpr (PV8 && FLAT && OKC_PVW1) {
-      // the previous tile's PV (committed before this QK^T) is done: its P registers are free for the transpose
-      // below (the flat kernel's 104-register consumers spilled there) and o / lacc are settled
-      wgmma_wait<1>();
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-      float* od0 = &o[0][0][0];
-#pragma unroll
-      for (int e = 0; e < 32; ++e) reg_fence(od0[e]);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-    }
-    uint8_t* V16t = V16 + (OKC_PVW ? (i & 1) * 16384 : 0);   // PV reads it asynchronously: double buffer
-    const uint32_t v16b = smem_u32(V16t) + hk * 8192;
-    // this head's V^T for this tile (PV reads it asynchronously: double buffer per stream)
-    uint8_t* vtb = ADDR ? vtb_c : S.kvq + ((S2 ? 2 * sid + (jj & 1) : (F2 ? 2 * sid + (cnt2 & 1) : (i & 1))) * 2 + hk) * 4608;
-    if constexpr (PV8 && !PTR) {
-      if (F2 ? cnt2 == 0 : jj == 0) {   // rows 64..71 of this head's two V^T buffers: e4m3 ones (0x38), so the PV
-                                     // wgmma also produces the row sums (after the first barrier: the q staging shares this space)
-        const int wt = tid & 127;
-        *reinterpret_cast<uint2*>(S.kvq + ((((S2 || F2) ? 2 * sid : 0) + (wt >> 6)) * 2 + hk) * 4608 + 4096 + (wt & 63) * 8) =
-            make_uint2(0x38383838u, 0x38383838u);
-      }
-    }
-    if constexpr (PTR) {
-      // the producers build V^T
-    } else if constexpr (PV8) {   // meanwhile: this head's V tile -> V^T (FP8, 72 x 64, keys in P-register order: k = 4q + 2h + b for
-        // key = 8h + 2q + b within each 16-key block), two ldmatrix.trans (b16 pairs) + byte permutes per thread
-      const uint32_t vsrc = ADDR ? vsrc0 + st * STAGE_BYTES : smem_u32(S.v + st * STAGE_BYTES);
-#pragma unroll
-      for (int u = 0; u < (OKC_XP_NOTR ? 0 : 2); ++u) {
-        uint32_t r0, r1, r2, r3;
-        ldsm_x4_t(vsrc + (u ? (OKC_INV2 ? (vld_off0 ^ 32u) : vld_off1) : vld_off0), r0, r1, r2, r3);   // (scout: off1 == off0 ^ 32)
-        // r0/r1: dims group 2u (h = 0 / 1), r2/r3: dims group 2u+1
-        if constexpr (STSM_ON) {
-          stsm_x4(smem_u32(vtb) + vst_off + 2048 * u, prmt(r0, r1, vsel0), prmt(r0, r1, vsel1), prmt(r2, r3, vsel0),
-                  prmt(r2, r3, vsel1));
-        } else {
-#pragma unroll
-        for (int g2 = 0; g2 < 2; ++g2) {
-          const uint32_t R0 = g2 ? r2 : r0, R1 = g2 ? r3 : r1;
-          const uint32_t w0 = prmt(R0, R1, vsel0), w1 = prmt(R0, R1, vsel1);
-          *reinterpret_cast<uint32_t*>(vtb + vt_off0 + 1024 * (2 * u + g2)) = w0;   // row 16(2u+g2) + 2vw + vr0
-          *reinterpret_cast<uint32_t*>(vtb + vt_off1 + 1024 * (2 * u + g2)) = w1;   // row 16(2u+g2) + 2vw + 1 - vr0
-        }
-        }
-      }
-      if (!OKC_XP_NOFENCE && !LSYNC && !LSYNCN) fence_proxy_async();   // V^T written with st.shared, read by the PV wgmma
-    } else {   // meanwhile: this tile's V -> f16 (both heads; in producer mode each warpgroup converts its own head)
-      const uint8_t* V = S.v + st * STAGE_BYTES;
-      const bool dec = WS && OKC_WGDEC;
-      const int wt = tid & 127;
-      const int vkey = dec ? (wt >> 1) : ckey;
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        const int c = dec ? (hk * 4 + (wt & 1) * 2 + u) : (2 * cq + u);
-        const int hd = c >> 2, fc = (c & 3) * 2;
-        const int ckey = vkey;
-        const uint4 vb = lds128(V + ckey * ROWB + ((c ^ (ckey & 7)) << 4));
-        *reinterpret_cast<uint4*>(V16t + hd * 8192 + ckey * 128 + ((fc ^ (ckey & 7)) << 4)) =
-            make_uint4(cvt2(vb.x), cvt2(vb.x >> 16), cvt2(vb.y), cvt2(vb.y >> 16));
-        *reinterpret_cast<uint4*>(V16t + hd * 8192 + ckey * 128 + (((fc + 1) ^ (ckey & 7)) << 4)) =
-            make_uint4(cvt2(vb.z), cvt2(vb.z >> 16), cvt2(vb.w), cvt2(vb.w >> 16));
-      }
-      if (OKC_PVW) fence_proxy_async();   // V16 written with st.shared, read by the PV wgmma
-    }
-    if constexpr (PTR) {
-    } else if (LSYNC || LSYNCN) {   // (OKC_LATESYNC / N: fence + barrier just before the PV)
-    } else if ((WS && OKC_WGDEC) || PV8) wgsync(wgi);   // this head's V16 / V^T ready
-    else csync<WS, NT>();                          // V16 ready
-    PROF_MARK(2);
-    wgmma_wait<0>();
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(s[e]);
-    if constexpr (PV8) {
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-    }
-    if constexpr (WS) {   // K (wgmma) and V (conversion) of the stage are consumed
-      if (OKC_XP_ARRALL || lane == 0) mbar_arrive(&S.empty[st]);
-    }
-    if constexpr (PTR) {   // the previous tile's PV is done with its V^T slot
-      if (i >= 1 && lane == 0) mbar_arrive(&S.vte[(i - 1) & 1]);
-    }
-    PROF_MARK(3);
-
-    const bool common_t = OKC_RARE && WS && ADDR && ((uint32_t)i - r_lo <= r_span);
-    const int t0 = start + i * TILE;
-    const bool interior = OKC_XP_NOMASK || common_t ||
-                          (OKC_IRANGE ? ((uint32_t)i - i_lo <= i_span) : ((t0 >= lo_all) && (t0 + TILE - 1 <= hi_all)));
-    if (!interior) {
-#pragma unroll
-      for (int hf = 0; hf < 2; ++hf) {
-        const int pj = seq + 2 * wsub + hf;
-        const int vlo = p.window ? max(start, pj - p.window + 1) : start;
-        const int vhi = min(end - 1, pj);
-#pragma unroll
-        for (int nt = 0; nt < 8; ++nt)
-#pragma unroll
-          for (int e = 0; e < 2; ++e) {
-            const int pos = t0 + 8 * nt + 2 * tig + e;
-            if (pos < vlo || pos > vhi) s[4 * nt + 2 * hf + e] = -INFINITY;
-          }
-      }
-    }
-    // OKC_PCHK: after a segment's first tile the offset test runs on the packed P instead of on 32 row-max steps: an
-    // e4m3 byte above 0x78 (P > 256, i.e. a score past the offset + 8) sets bit 7 when 0x07 is added to every byte
-    // (P >= 0: no carry between bytes); the (rare) hit moves the offset and repacks that half (see the PV loop)
-    constexpr bool PCHK = OKC_PCHK && OKC_LAZYMAX && !OKC_RAWTHR && PV8 && !OKC_EXH8 && !OKC_PROF && !PTR && WS;
-    const bool chk = PCHK && !first;
-    float mlo = -INFINITY, mhi = -INFINITY;
-    if (!chk) {
-#pragma unroll
-    for (int nt = 0; nt < 8; ++nt) {
-      mlo = fmaxf(mlo, fmaxf(s[4 * nt], s[4 * nt + 1]));
-      mhi = fmaxf(mhi, fmaxf(s[4 * nt + 2], s[4 * nt + 3]));
-    }
-    }
-    // the threshold check needs no row reduction: any element past the offset + 8 shows in its own thread's
-    // partial max; only the (rare) offset move and the first tile reduce over the row's quad
-    if (!OKC_RAWTHR && !chk) {
-      mlo *= ssc;   // scores -> log2 units (ssc > 0; ssc = 1 when the query was pre-scaled)
-      mhi *= ssc;
-    }
-    float dlo, dhi;
-    if (first) {
-      if (OKC_LAZYMAX) { mlo = quad_max(mlo); mhi = quad_max(mhi); }
-      if (OKC_LAZYMAX && OKC_RAWTHR) { mlo *= ssc; mhi *= ssc; }
-      dlo = (mlo == -INFINITY) ? 0.f : mlo;
-      dhi = (mhi == -INFINITY) ? 0.f : mhi;
-      cr[0] = dlo; cr[1] = dhi;
-      if (OKC_RAWTHR) { thr[0] = (dlo + 8.f) * rssc; thr[1] = (dhi + 8.f) * rssc; }
-      first = false;
-    } else {
-      dlo = cr[0]; dhi = cr[1];
-      if (!PCHK && __any_sync(0xffffffffu, (OKC_LAZYMAX && OKC_RAWTHR) ? (mlo > thr[0] || mhi > thr[1])
-                                                                       : (mlo > cr[0] + 8.f || mhi > cr[1] + 8.f))) {
-        // rare: a score grew past 2^8 relative to the offset -> move the offset up, rescale the state
-        if (OKC_LAZYMAX) { mlo = quad_max(mlo); mhi = quad_max(mhi); }   // (warp-uniform branch: full-mask shuffles)
-        if (OKC_LAZYMAX && OKC_RAWTHR) { mlo *= ssc; mhi *= ssc; }
-        const float nlo = fmaxf(mlo, cr[0]), nhi = fmaxf(mhi, cr[1]);
-        const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-        // (the previous tile's PV wgmma completed at this tile's wgmma wait)
-#pragma unroll
-        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-        lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;   // (FP8 PV: the row sums live here too)
-        cr[0] = nlo; cr[1] = nhi;
-        dlo = nlo; dhi = nhi;
-        if (OKC_RAWTHR) { thr[0] = (nlo + 8.f) * rssc; thr[1] = (nhi + 8.f) * rssc; }
-      }
-    }
-    PROF_MARK(4);
-    if constexpr (TURN && OKC_TURN == 1) bar_sync_n(5 + hk, 256);   // my turn for the exponentials
-    if constexpr (TURN && OKC_TURN == 2) {   // (2: one offset only: head 1's first exponentials after head 0's)
-      if (hk == 1 && jj == 0) bar_sync_n(6, 256);
-    }
-    if constexpr (PV8) {   // P (e4m3, registers, k-steps of 32 permuted keys) x V^T (e4m3, K-major, 72 columns: 64 dims + 8 copies of
-        // the row sum) as an asynchronous wgmma; the next tile's wgmma wait covers it before P, o or V^T are reused
-      constexpr bool PK2 = OKC_PK2 && PCHK && PVSPLIT && OKC_PVSPLIT == 1 && !OKC_EXH8 && !OKC_XP_NOEXP && OKC_EXPPOLY == 0 &&
-                           !TURN && !PTR;
-      if constexpr (PK2) {
-        auto pack2 = [&]() {   // both halves of P from the scores (32 independent chains)
-#pragma unroll
-          for (int kk = 0; kk < 2; ++kk) {
-            const float* sv = s + 16 * kk;
-            pa[kk][0] = e4m3x4f(ex2(fmaf(sv[0], ssc, -dlo)), ex2(fmaf(sv[1], ssc, -dlo)), ex2(fmaf(sv[4], ssc, -dlo)), ex2(fmaf(sv[5], ssc, -dlo)));
-            pa[kk][1] = e4m3x4f(ex2(fmaf(sv[2], ssc, -dhi)), ex2(fmaf(sv[3], ssc, -dhi)), ex2(fmaf(sv[6], ssc, -dhi)), ex2(fmaf(sv[7], ssc, -dhi)));
-            pa[kk][2] = e4m3x4f(ex2(fmaf(sv[8], ssc, -dlo)), ex2(fmaf(sv[9], ssc, -dlo)), ex2(fmaf(sv[12], ssc, -dlo)), ex2(fmaf(sv[13], ssc, -dlo)));
-            pa[kk][3] = e4m3x4f(ex2(fmaf(sv[10], ssc, -dhi)), ex2(fmaf(sv[11], ssc, -dhi)), ex2(fmaf(sv[14], ssc, -dhi)), ex2(fmaf(sv[15], ssc, -dhi)));
-          }
-        };
-        pack2();
-        if (chk) {
-          // an e4m3 byte above 0x78 (P > 256: a score past its row's offset + 8) sets bit 7 when 0x07 is added
-          constexpr uint32_t PB = OKC_PCHKTEST ? 0x47474747u : 0x07070707u;
-          const uint32_t ov = ((pa[0][0] + PB) | (pa[0][1] + PB) | (pa[0][2] + PB) | (pa[0][3] + PB) |
-                               (pa[1][0] + PB) | (pa[1][1] + PB) | (pa[1][2] + PB) | (pa[1][3] + PB)) & 0x80808080u;
-          if (__any_sync(0xffffffffu, ov != 0u)) {
-            // rare: offsets up to the tile's row maxima, state rescaled (no PV of this tile issued yet; the previous
-            // tile's finished at its end), both halves repacked (P <= 1 afterwards: one pass)
-            float hlo = -INFINITY, hhi = -INFINITY;
-#pragma unroll
-            for (int nt = 0; nt < 8; ++nt) {
-              hlo = fmaxf(hlo, fmaxf(s[4 * nt], s[4 * nt + 1]));
-              hhi = fmaxf(hhi, fmaxf(s[4 * nt + 2], s[4 * nt + 3]));
-            }
-            hlo = quad_max(hlo) * ssc;
-            hhi = quad_max(hhi) * ssc;
-            const float nlo = fmaxf(hlo, cr[0]), nhi = fmaxf(hhi, cr[1]);
-            const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-#pragma unroll
-            for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-            lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;
-            cr[0] = nlo; cr[1] = nhi;
-            dlo = nlo; dhi = nhi;
-            pack2();
-          }
-        }
-        float* odk = &o[0][0][0];
-#pragma unroll
-        for (int e = 0; e < 32; ++e) reg_fence(odk[e]);
-#pragma unroll
-        for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-        for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-        if constexpr (LSYNC) {   // every warp's V^T for this tile written (and visible to the async proxy)
-          fence_proxy_async();
-          wgsync(wgi);
-        }
-        wgmma_fence();
-        if constexpr (ADDR) {
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[0], vdesc_c);
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[1], vdesc_c + 2);
-        } else {
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[0], desc_sw64(smem_u32(vtb)));
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[1], desc_sw64(smem_u32(vtb) + 32));
-        }
-        wgmma_commit();
-      }
-#pragma unroll
-      for (int kk = 0; kk < (PK2 ? 0 : 2); ++kk) {
-        const float* sv = s + 16 * kk;
-#define EXQ(x, q) ex2(x)
-        bool rchk = chk;   // one retry at most: after the offset move every finite P is <= 1 (NaN / garbage scores
-                           // would otherwise retrigger the check forever: the SASS oracle's value-perturbing probe hung)
-#pragma unroll 1
-        for (;;) {   // (OKC_PCHK: repeated once after a rare offset move; otherwise a single pass)
-        pa[kk][0] = e4m3x4f(EXQ(fmaf(sv[0], ssc, -dlo), 0), EXQ(fmaf(sv[1], ssc, -dlo), 1), EXQ(fmaf(sv[4], ssc, -dlo), 2), EXQ(fmaf(sv[5], ssc, -dlo), 3));
-        pa[kk][1] = e4m3x4f(EXQ(fmaf(sv[2], ssc, -dhi), 0), EXQ(fmaf(sv[3], ssc, -dhi), 1), EXQ(fmaf(sv[6], ssc, -dhi), 2), EXQ(fmaf(sv[7], ssc, -dhi), 3));
-        pa[kk][2] = e4m3x4f(EXQ(fmaf(sv[8], ssc, -dlo), 0), EXQ(fmaf(sv[9], ssc, -dlo), 1), EXQ(fmaf(sv[12], ssc, -dlo), 2), EXQ(fmaf(sv[13], ssc, -dlo), 3));
-        pa[kk][3] = e4m3x4f(EXQ(fmaf(sv[10], ssc, -dhi), 0), EXQ(fmaf(sv[11], ssc, -dhi), 1), EXQ(fmaf(sv[14], ssc, -dhi), 2), EXQ(fmaf(sv[15], ssc, -dhi), 3));
-        if constexpr (!PCHK) break;
-        else {
-          if (!rchk) break;
-          {
-            // (OKC_PCHKTEST: test hook, a hit at P > 1 instead of P > 256: exercises the offset move on most tiles)
-            constexpr uint32_t PB = OKC_PCHKTEST ? 0x47474747u : 0x07070707u;
-            const uint32_t ov = ((pa[kk][0] + PB) | (pa[kk][1] + PB) | (pa[kk][2] + PB) | (pa[kk][3] + PB)) & 0x80808080u;
-            if (!__any_sync(0xffffffffu, ov != 0u)) break;
-            {
-              // rare: a score of this half passed its row's offset + 8: offsets up to the half's row maxima,
-              // state rescaled (half 0's PV wgmma finished first), this half repacked
-              float hlo = fmaxf(fmaxf(fmaxf(sv[0], sv[1]), fmaxf(sv[4], sv[5])), fmaxf(fmaxf(sv[8], sv[9]), fmaxf(sv[12], sv[13])));
-              float hhi = fmaxf(fmaxf(fmaxf(sv[2], sv[3]), fmaxf(sv[6], sv[7])), fmaxf(fmaxf(sv[10], sv[11]), fmaxf(sv[14], sv[15])));
-              hlo = quad_max(hlo) * ssc;
-              hhi = quad_max(hhi) * ssc;
-              const float nlo = fmaxf(hlo, cr[0]), nhi = fmaxf(hhi, cr[1]);
-              const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-              if (PVSPLIT && (kk == 1 || OKC_PVSPLIT == 2)) {   // (a PV wgmma may still accumulate into o)
-                wgmma_wait<0>();
-                float* odw = &o[0][0][0];
-#pragma unroll
-                for (int e = 0; e < 32; ++e) reg_fence(odw[e]);
-#pragma unroll
-                for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-              }
-#pragma unroll
-              for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-              lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;
-              cr[0] = nlo; cr[1] = nhi;
-              dlo = nlo; dhi = nhi;
-              rchk = false;
-            }
-          }
-        }
-        }   // (pack / check loop)
-#undef EXQ
-        if constexpr (PVSPLIT) {   // each half of P goes to the tensor cores as soon as it is packed
-          float* od = &o[0][0][0];
-          if constexpr (LSYNCN) {   // every warp's V^T for this tile written (and visible to the async proxy)
-            if (kk == 0) {
-              fence_proxy_async();
-              wgsync(wgi);
-            }
-          }
-          if (kk == 0) {
-#pragma unroll
-            for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-            for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-          }
-#pragma unroll
-          for (int e = 0; e < 4; ++e) asm volatile("" : "+r"(pa[kk][e]));
-          wgmma_fence();
-          if constexpr (ADDR) wgmma_m64n72k32_e4m3(od, lacc, pa[kk], vdesc_c + 2 * kk);
-          else wgmma_m64n72k32_e4m3(od, lacc, pa[kk], desc_sw64(smem_u32(vtb) + 32 * kk));
-          wgmma_commit();
-        }
-      }
-      if constexpr (TURN && OKC_TURN == 1) {   // the other head's turn (head 1 skips its last hand-back)
-        if (!(hk == 1 && i == ntiles - 1)) bar_arrive_n(6 - hk, 256);
-      }
-      if constexpr (TURN && OKC_TURN == 2) {
-        if (hk == 0 && jj == 0) bar_arrive_n(6, 256);
-      }
-      float* od = &o[0][0][0];
-      if constexpr (PVSPLIT) {
-        if constexpr (OKC_PVSPLIT == 1) {   // done before the next tile (no wgmma in flight across the loop edge)
-          wgmma_wait<0>();
-#pragma unroll
-          for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-          for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-          for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-        }
-      } else {
-#pragma unroll
-      for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-      if constexpr (PTR) mbar_wait_full(&S.vtf[i & 1], (i >> 1) & 1);   // this tile's V^T is written
-      wgmma_fence();
-      if constexpr (ADDR) {
-        wgmma_m64n72k32_e4m3(od, lacc, pa[0], vdesc_c);
-        wgmma_m64n72k32_e4m3(od, lacc, pa[1], vdesc_c + 2);
-      } else {
-        const uint32_t vtaddr = smem_u32(vtb);
-        wgmma_m64n72k32_e4m3(od, lacc, pa[0], desc_sw64(vtaddr));
-        wgmma_m64n72k32_e4m3(od, lacc, pa[1], desc_sw64(vtaddr + 32));
-      }
-      wgmma_commit();
-      if (OKC_PV8SYNC) {
-        wgmma_wait<0>();
-#pragma unroll
-        for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-        for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-      }
-      }   // (!PVSPLIT)
-    } else {
-#pragma unroll
-    for (int ks = 0; ks < 4; ++ks) {
-      const uint32_t a0 = ex2h2(fmaf(s[8 * ks], ssc, -dlo), fmaf(s[8 * ks + 1], ssc, -dlo));
-      const uint32_t a1 = ex2h2(fmaf(s[8 * ks + 2], ssc, -dhi), fmaf(s[8 * ks + 3], ssc, -dhi));
-      const uint32_t a2 = ex2h2(fmaf(s[8 * ks + 4], ssc, -dlo), fmaf(s[8 * ks + 5], ssc, -dlo));
-      const uint32_t a3 = ex2h2(fmaf(s[8 * ks + 6], ssc, -dhi), fmaf(s[8 * ks + 7], ssc, -dhi));
-      const int mi = lane >> 3;
-      const int key = 16 * ks + (mi & 1) * 8 + (lane & 7);
-#pragma unroll
-      for (int dp = 0; dp < 4; ++dp) {
-        uint32_t b0a, b1a, b0b, b1b;
-        ldsm_x4_t(v16b + key * 128 + (((2 * dp + (mi >> 1)) ^ (key & 7)) << 4), b0a, b1a, b0b, b1b);
-        mma_f16(o[0][2 * dp], a0, a1, a2, a3, b0a, b1a);
-        mma_f16(o[0][2 * dp + 1], a0, a1, a2, a3, b0b, b1b);
-      }
-      mma_f16(lacc, a0, a1, a2, a3, ONES, ONES);
-    }
-    }
-    PROF_MARK(5);
-    PROF_TILE;
-    if (i == 0) DBG(13);
-    if constexpr (F2) {
-      i_cur = S.nxt[wgi][(cnt2 + 1) & 1];   // written before this tile's warpgroup barrier
-      ++cnt2;
-    }
-    if constexpr (ADDR) {
-      if (++st_c == STAGES) { st_c = 0; ph_c ^= 1u; }
-      vtb_c = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(vtb_c) ^ vtb_x);
-      vdesc_c ^= vdesc_x;
-    }
-  }
-  PROF_DUMP;
-  if constexpr ((OKC_PVW && !OKC_PROF) || PV8) {
-  wgmma_wait<0>();
-  if constexpr (PV8) {
-#pragma unroll
-    for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-  }
-  {
-    float* od = &o[0][0][0];
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-  }
-  }
-  m_r[0] = first ? -INFINITY : cr[0];
-  m_r[1] = first ? -INFINITY : cr[1];
-  l_r[0] = 0.25f * lacc[0];   // every lane of the quad holds the full row sum; the epilogue quad-sums
-  l_r[1] = 0.25f * lacc[2];
-  if constexpr (F2) {   // stream 1's warpgroup of each head hands its state to stream 0's (same rows)
-    csync<WS, NT>();    // every tile of the segment is consumed: the K stages are free scratch
-    float* xs = reinterpret_cast<float*>(S.k) + (hk * 128 + (tid & 127)) * 37;
-    if (sid == 1) {
-      xs[0] = m_r[0]; xs[1] = m_r[1]; xs[2] = l_r[0]; xs[3] = l_r[1];
-#pragma unroll
-      for (int t = 0; t < 8; ++t)
-#pragma unroll
-        for (int e = 0; e < 4; ++e) xs[4 + 4 * t + e] = o[0][t][e];
-    }
-    csync<WS, NT>();
-    if (sid == 0) {
-#pragma unroll
-      for (int r = 0; r < 2; ++r) {
-        const float m1 = xs[r], mm = fmaxf(m_r[r], m1);
-        const float f0 = (m_r[r] == -INFINITY) ? 0.f : ex2(m_r[r] - mm);
-        const float f1 = (m1 == -INFINITY) ? 0.f : ex2(m1 - mm);
-        m_r[r] = mm;
-        l_r[r] = l_r[r] * f0 + xs[2 + r] * f1;
-#pragma unroll
-        for (int t = 0; t < 8; ++t) {
-          o[0][t][2 * r] = o[0][t][2 * r] * f0 + xs[4 + 4 * t + 2 * r] * f1;
-          o[0][t][2 * r + 1] = o[0][t][2 * r + 1] * f0 + xs[4 + 4 * t + 2 * r + 1] * f1;
-        }
-      }
-    }
-  }
-  }
-
-  DBG(3);
-  // ---- merge: rescale to the fixed reference 2^0 and accumulate with FP32 atomics ----
-  bool do_red = true;
-  if constexpr (Cfg<L, FLAT>::F2) do_red = (warp >> 3) == 0;   // stream 1's state was merged into stream 0
-  if (L == 1 && !CONT && !(OKC_NOXCH1 && !M_CL)) {
-    // warps 2,3 (second key half) hand their state to warps 0,1 (same heads) through shared memory
-    // (OKC_NOXCH1: outside cluster mode both halves add their own rescaled state to the workspace instead)
-    cp_wait<0>();
-    csync<WS, NT>();
-    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;
-    if (wsub == 1) {
-      xs[0] = m_r[0];
-      xs[1] = l_r[0];
-#pragma unroll
-      for (int t = 0; t < 8; ++t) { xs[2 + 2 * t] = o[0][t][0]; xs[3 + 2 * t] = o[0][t][1]; }
-    }
-    csync<WS, NT>();
-    if (wsub == 0) {
-      const float m1 = xs[0], l1 = xs[1];
-      const float mm = fmaxf(m_r[0], m1);
-      const float f0 = (m_r[0] == -INFINITY) ? 0.f : ex2(m_r[0] - mm);
-      const float f1 = (m1 == -INFINITY) ? 0.f : ex2(m1 - mm);
-      m_r[0] = mm;
-      l_r[0] = l_r[0] * f0 + l1 * f1;
-#pragma unroll
-      for (int t = 0; t < 8; ++t) {
-        o[0][t][0] = o[0][t][0] * f0 + xs[2 + 2 * t] * f1;
-        o[0][t][1] = o[0][t][1] * f0 + xs[3 + 2 * t] * f1;
-      }
-    } else {
-      do_red = false;
-    }
-  }
-  if (M_CL) {
-    cp_wait<0>();
-    csync<WS, NT>();
-    float* PB = reinterpret_cast<float*>(S.k);
-    float* PL = PB + L * 16 * 64;
-    // two tile streams (Cfg::S2): stream 0 writes its rows, then stream 1 (same rows) adds its own
-#pragma unroll 1
-    for (int ph = 0; ph < (Cfg<L, FLAT>::S2 ? 2 : 1); ++ph) {
-    if (ph == 1) csync<WS, NT>();
-    const bool mine = !Cfg<L, FLAT>::S2 || (warp >> 3) == ph;
-#pragma unroll
-    for (int r = 0; r < NROW; ++r) {
-      const int mt = r >> 1, hf = r & 1;
-      const int j = (L == 1) ? 0 : 2 * (wsub + mt) + hf;
-      const int row = j * 16 + hk * 8 + g;
-      const float lsum = quad_sum(l_r[r]);
-      if (do_red && mine) {
-        const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
-        if constexpr (L == 1) {   // permuted dims: n-tile t, column c <-> dim 16*tig + 8*c + t
-#pragma unroll
-          for (int c = 0; c < 2; ++c)
-#pragma unroll
-            for (int t4 = 0; t4 < 8; t4 += 4)
-              *reinterpret_cast<float4*>(&PB[row * 64 + 16 * tig + 8 * c + t4]) =
-                  make_float4(o[mt][t4][2 * hf + c] * f, o[mt][t4 + 1][2 * hf + c] * f,
-                              o[mt][t4 + 2][2 * hf + c] * f, o[mt][t4 + 3][2 * hf + c] * f);
-        } else {                  // natural dims: n-tile t, column c <-> dim 8*t + 2*tig + c
-#pragma unroll
-          for (int t = 0; t < 8; ++t) {
-            float2* d2 = reinterpret_cast<float2*>(&PB[row * 64 + 8 * t + 2 * tig]);
-            const float2 pv = ph ? *d2 : make_float2(0.f, 0.f);
-            *d2 = make_float2(pv.x + o[mt][t][2 * hf] * f, pv.y + o[mt][t][2 * hf + 1] * f);
-          }
-        }
-        if (tig == 0) PL[row] = (ph ? PL[row] : 0.f) + lsum * f;
-      }
-    }
-    }
-    csync<WS, NT>();
-    cluster_finish<L>(p, S, b, pair, n_keys, chunk);
-    return true;
-  }
-  if (do_red) {   // (one branch, not one per row: the post-loop merge runs straight-line from a cold cache)
-#pragma unroll
-  for (int r = 0; r < NROW; ++r) {
-    const int mt = r >> 1, hf = r & 1;
-    const int j = (L == 1) ? 0 : 2 * (wsub + mt) + hf;
-    const int hh = hk * 8 + g;
-    const float lsum = quad_sum(l_r[r]);
-    const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
-    float* acc = p.ws_acc + ((ix_t)((bp * p.nc + copy) * L + j) * 16 + hh) * 64;
-    if constexpr (L == 1) {
-#pragma unroll
-      for (int c = 0; c < 2; ++c)
-#pragma unroll
-        for (int t4 = 0; t4 < 8; t4 += 4)
-          red_v4(acc + 16 * tig + 8 * c + t4, o[mt][t4][2 * hf + c] * f, o[mt][t4 + 1][2 * hf + c] * f,
-                 o[mt][t4 + 2][2 * hf + c] * f, o[mt][t4 + 3][2 * hf + c] * f);
-    } else if constexpr (OKC_RED4) {
-      // 16-byte atomics (half the L2 atomic operations of 8-byte ones): lane pairs (tig, tig ^ 1) swap halves so
-      // each lane holds 4 consecutive dims: even tig keeps t even, odd tig keeps t odd (dims 8t + 4(tig >> 1) + 0..3)
-      const bool odd = tig & 1;
-#pragma unroll
-      for (int t = 0; t < 8; t += 2) {
-        // mine: (t, 2tig..2tig+1) and (t+1, same); partner's: same t's at 2(tig^1)..
-        const float a0 = o[mt][t][2 * hf] * f, a1 = o[mt][t][2 * hf + 1] * f;
-        const float b0 = o[mt][t + 1][2 * hf] * f, b1 = o[mt][t + 1][2 * hf + 1] * f;
-        // even lane sends its t+1 pair, odd lane sends its t pair
-        const float s0 = odd ? a0 : b0, s1 = odd ? a1 : b1;
-        const float r0 = __shfl_xor_sync(0xffffffffu, s0, 1), r1 = __shfl_xor_sync(0xffffffffu, s1, 1);
-        // even lane: t (dims 2tig, 2tig+1, then the partner's); odd lane: t+1 (the partner's, then mine) -- selects,
-        // one atomic, no branch
-        red_v4(acc + 8 * (t + (odd ? 1 : 0)) + 4 * (tig >> 1), odd ? r0 : a0, odd ? r1 : a1, odd ? b0 : r0, odd ? b1 : r1);
-      }
-    } else {
-#pragma unroll
-      for (int t = 0; t < 8; ++t) red_v2(acc + 8 * t + 2 * tig, o[mt][t][2 * hf] * f, o[mt][t][2 * hf + 1] * f);
-    }
-    if (tig == 0) red_f32(p.ws_l + ((bp * p.nc + copy) * L + j) * 16 + hh, lsum * f);
-  }
-  }
-  if (OKC_MRGDBG) DBG(7);   // (debug: reds issued)
-  // OKC_MERGE2 (last-CTA finalizes): no per-thread fences; one acq_rel atomic by thread 0 after the CTA barrier
-  // releases every thread's reds (cumulativity through bar.sync, as CUTLASS's semaphore release) and acquires the
-  // others' for the last CTA's reads
-  constexpr bool MRG2 = OKC_MERGE2;   // (the cluster path returned above)
-  const bool mode1 = !((FLAT && (L == 8 || OKC_FLATCOOP1C)) && M_COOP) && !(!FLAT && M_COOP);
-  // OKC_MERGE3: the same for the cooperative grids (the barrier's arrive is an acq_rel atomic after a CTA barrier)
-  if (!((MRG2 && mode1) || (OKC_MERGE3 && !mode1))) gpu_fence();
-  csync<WS, NT>();
-  if (OKC_MRGDBG) DBG(6);   // (debug: every thread's reds performed)
-  if ((FLAT && (L == 8 || OKC_FLATCOOP1C)) && M_COOP) {
-    // flat cooperative mode: every request is finalized after all CTAs have merged all their segments
-    DBG(4);
-  } else if (!FLAT && M_COOP) {
-    // ---- all splits of this (request, kv pair) are resident: wait for every split's merge, then each
-    // CTA finalizes its own slice of the rows (instead of one CTA doing all of them)
-    // (the slice arithmetic first: it does not depend on the merge, so its divisions leave the barrier's chain)
-    const int split_idx = (int)blockIdx.x;
-    int nact = (OKC_UNEV && (MODE & 3) == 3 && p.unev > 0 && ((n_keys + 63) >> 6) >= 2 * p.n_splits)
-                   ? p.n_splits : fdiv_i(n_keys + chunk - 1, chunk);    // splits with keys
-    int R = fdiv_i(L * 16 + nact - 1, nact);          // rows per CTA
-    // OKC_PINDIV: keep both divisions above the barrier wait (ptxas otherwise sinks them below the spin, where
-    // they are first used: scout's v200 census found them after the poll); volatile asm keeps program order
-    if (OKC_PINDIV) asm volatile("" : "+r"(nact), "+r"(R));
-    if (tid == 0 && (OKC_SENSE || OKC_SENSE2)) {
-      // sense-reversing barrier: the last split to arrive resets the key counter and flips this request's flag;
-      // the others wait for the flip (no departure counter: no extra atomic round trip after the finalize).
-      // OKC_SENSE2: the flag was read in the prologue (it can only flip after every split has arrived)
-      int* flag = p.ws_cnt + 24576 + bp;
-      int sense;
-      if (OKC_SENSE2) sense = S.sense;
-      else asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(sense) : "l"(flag) : "memory");
-      const int mine = end - start;
-      int old;   // acq_rel: the last arrival synchronizes with every earlier one, then releases the flag
-      asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(p.ws_cnt + bp), "r"(mine) : "memory");
-      if (old + mine == n_keys) {
-        p.ws_cnt[bp] = 0;
-        asm volatile("st.release.gpu.global.s32 [%0], %1;\n" ::"l"(flag), "r"(sense ^ 1) : "memory");
-      } else {
-        int v;
-        SPIN_T0;
-        for (;;) {
-          asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(flag) : "memory");
-          if (v != sense) break;
-          SPIN_CHECK;
-          __nanosleep(64);
-        }
-      }
-    } else if (tid == 0 && OKC_PARITY) {
-      // two key counters alternating per launch (parity = this slot's epoch, read in the prologue): the last split
-      // to arrive resets the OTHER counter (unused until the next launch) and bumps the epoch, so nobody needs a
-      // departure counter (no atomic round trip at the very end of the kernel)
-      const int ep = S.sense;
-      int* c = p.ws_cnt + ((ep & 1) ? 12288 : 8192) + bp;
-      const int mine = end - start;
-      int old;
-      if constexpr (OKC_MERGE3) asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(c), "r"(mine) : "memory");
-      else old = atomicAdd(c, mine);
-      if (old + mine == n_keys) {
-        p.ws_cnt[((ep & 1) ? 8192 : 12288) + bp] = 0;
-        p.ws_cnt[24576 + bp] = ep + 1;
-      } else {
-        int v;
-        SPIN_T0;
-        for (;;) {
-          asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(c) : "memory");
-          if (v >= n_keys) break;
-          SPIN_CHECK;
-          __nanosleep(64);
-        }
-      }
-    } else if (tid == 0) {
-      atomicAdd(p.ws_cnt + bp, end - start);
-      int v;
-      SPIN_T0;
-      for (int spin = 0;; ++spin) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(p.ws_cnt + bp) : "memory");
-        if (v >= n_keys) break;
-        SPIN_CHECK;
-        if (OKC_SPINDBG && spin > (1 << 20)) {   // debug builds: report and give up instead of hanging
-          printf("coop wait stuck: block (%d,%d,%d) bp %d counter %d n_keys %d start %d end %d\n", blockIdx.x,
-                 blockIdx.y, blockIdx.z, bp, v, n_keys, start, end);
-          break;
-        }
-        __nanosleep(64);
-      }
-    }
-    csync<WS, NT>();
-    DBG(4);
-    const int r_lo = split_idx * R, r_hi = min(L * 16, r_lo + R);
-    const int part = tid & 7;
-    for (int rbase = r_lo; rbase < r_hi; rbase += NT / 8) {   // warp-uniform trip count (shuffles below)
-      const int rr = rbase + (tid >> 3);
-      const bool act = rr < r_hi;
-      const int j = act ? rr >> 4 : 0, hh = act ? rr & 15 : 0;
-      const uint4 graw = act ? *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8)
-                             : make_uint4(0, 0, 0, 0);
-      float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-      float lsum = 0.f;
-      sum_copies<L>(p, bp, j, hh, part, act, y, lsum);
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (act) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-    if (!OKC_SENSE && !OKC_SENSE2 && !OKC_PARITY) {
-      csync<WS, NT>();
-      if (tid == 0) {   // the last CTA out resets both counters (every CTA has left the wait by then)
-        const int old = atomicAdd(p.ws_cnt + 16384 + bp, 1);
-        if (old + 1 == nact) {
-          p.ws_cnt[bp] = 0;
-          p.ws_cnt[16384 + bp] = 0;
-        }
-      }
-    }
-    DBG(5);
-  } else {
-  if (tid == 0) {
-    const int mine = end - start;
-    int old;
-    if constexpr (MRG2) asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(p.ws_cnt + bp), "r"(mine) : "memory");
-    else old = atomicAdd(p.ws_cnt + bp, mine);
-    S.flag = (old + mine == n_keys);
-  }
-  csync<WS, NT>();
-  DBG(4);
-  if (S.flag) {
-  if constexpr (!MRG2) gpu_fence();
-  DBG(14);
-
-  // ---- last CTA: sum the copies, normalize, rmsnorm * sigmoid(gate), store; reset the workspace ----
-  if (p.nc == 1) {
-    fin_nc1<L, NT>(p, b, pair, bp, vscale, 0);
-  } else
-  {
-    const int part = tid & 7;
-    for (int rr = tid >> 3; rr < L * 16; rr += NT / 8) {
-      const int j = rr >> 4, hh = rr & 15;
-      float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-      float lsum = 0.f;
-      // gate row in flight with the copies (one L2 round trip per row instead of two)
-      const uint4 graw = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);
-      sum_copies<L>(p, bp, j, hh, part, true, y, lsum);
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-      ss = oct_sum(ss);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-  }
-  if (tid == 0) p.ws_cnt[bp] = 0;
-  DBG(5);
-  if (p.dbg && tid == 0) p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + 6] = 1;
-  }
-  }
-  if constexpr (CONT) csync<WS, NT>();   // consumers' shared memory is reused by the next segment
-  else __syncthreads();                   // shared memory is reused by the next segment
-  }
-  return true;
-}
-
-// Flat grids whose CTAs are all resident: once every CTA has merged all its segments (grid-wide count),
-// each CTA finalizes its own slice of all requests' rows (sum the copies, normalize, rmsnorm * gate, store,
-// zero the workspace). Runs on the NT consumer threads; the last CTA out resets the two counters.
-template <int L, bool WS, int NT>
-__device__ __forceinline__ void flat_finalize(const Params& p, const int* sense_s) {
-  const int tid = threadIdx.x;
-  pdl_wait();   // a CTA without segments has not waited yet (the gate rows are qkv)
-  const int G = gridDim.x * gridDim.y * gridDim.z;
-  const int c = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
-  int* cnt = p.ws_cnt + 30000;
-  if constexpr (!OKC_MERGE3) gpu_fence();   // (OKC_MERGE3: thread 0's acq_rel arrive releases the CTA's reds)
-  csync<WS, NT>();
-  constexpr bool PAR = OKC_PARITY;
-  if (tid == 0 && PAR) {
-    // two grid counters alternating per launch (parity = the epoch thread 0 read at kernel start): the last CTA
-    // to arrive resets the other counter and bumps the epoch; no departure counter at the end of the kernel
-    cp_wait<0>();
-    const int ep = *reinterpret_cast<const volatile int*>(sense_s);
-    int* ac = p.ws_cnt + 30020 + (ep & 1);
-    int old;
-    if constexpr (OKC_MERGE3) asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], 1;\n" : "=r"(old) : "l"(ac) : "memory");
-    else old = atomicAdd(ac, 1);
-    if (old + 1 == G) {
-      p.ws_cnt[30020 + ((ep & 1) ^ 1)] = 0;
-      p.ws_cnt[30022] = ep + 1;
-      if (OKC_W0ENABLE) {   // the per-SM rank registration (read by every CTA at kernel start, before arriving here)
-        cnt[2] = 0;
-        cnt[3] = 0;
-        for (int k = 0; k < 8; ++k) p.ws_cnt[30030 + k] = 0;
-        for (int i = 0; i < G / 2 && i < 1700; ++i) p.ws_cnt[31000 + i] = 0;
-      }
-    } else {
-      int v;
-      SPIN_T0;
-      for (;;) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(ac) : "memory");
-        if (v >= G) break;
-        SPIN_CHECK;
-        __nanosleep(64);
-      }
-    }
-  } else if (tid == 0 && OKC_SENSE) {   // sense-reversing grid barrier (flag at cnt[8]): no departure counter
-    int sense;
-    asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(sense) : "l"(cnt + 8) : "memory");
-    int old;
-    asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], 1;\n" : "=r"(old) : "l"(cnt) : "memory");
-    if (old + 1 == G) {
-      cnt[0] = 0;
-      asm volatile("st.release.gpu.global.s32 [%0], %1;\n" ::"l"(cnt + 8), "r"(sense ^ 1) : "memory");
-    } else {
-      int v;
-      SPIN_T0;
-      for (;;) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(cnt + 8) : "memory");
-        if (v != sense) break;
-        SPIN_CHECK;
-        __nanosleep(64);
-      }
-    }
-  } else if (tid == 0) {
-    atomicAdd(cnt, 1);
-    int v;
-    SPIN_T0;
-    for (;;) {
-      asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(cnt) : "memory");
-      if (v >= G) break;
-      SPIN_CHECK;
-      __nanosleep(64);
-    }
-  }
-  csync<WS, NT>();
-  const int pairs = p.Hkv >> 1;
-  const int rows = p.B * pairs * L * 16;
-  const int R = fdiv_i(rows + G - 1, G);
-  const int r_lo = c * R, r_hi = min(rows, r_lo + R);
-  const float vscale = __ldg(p.v_scale);
-  const int part = tid & 7;
-  for (int rbase = r_lo; rbase < r_hi; rbase += NT / 8) {   // warp-uniform trip count (shuffles below)
-    const int r = rbase + (tid >> 3);
-    const bool act = r < r_hi;
-    const int bp = act ? r / (L * 16) : 0, rr = act ? r % (L * 16) : 0;
-    const int j = rr >> 4, hh = rr & 15;
-    const int b = (pairs == 1) ? bp : fdiv_i(bp, pairs), pair = bp - b * pairs;
-    const uint4 graw = act ? *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8)
-                           : make_uint4(0, 0, 0, 0);
-    float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-    float lsum = 0.f;
-    sum_copies<L>(p, bp, j, hh, part, act, y, lsum);
-    const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-    float ss = 0.f;
-#pragma unroll
-    for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-    ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-    const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-    const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-    uint4 ov;
-    uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) {
-      const float2 gt = __bfloat1622float2(g2[e]);
-      const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-      __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-      ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-    }
-    if (act) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-  }
-  if (!OKC_SENSE && !PAR) {
-    csync<WS, NT>();
-    if (tid == 0) {
-      const int old = atomicAdd(cnt + 1, 1);
-      if (old + 1 == G) {
-        cnt[0] = 0;
-        cnt[1] = 0;
-        cnt[2] = 0;   // weighted partition: arrivals, placement flag, per-SM ranks
-        cnt[3] = 0;
-        for (int i = 0; i < G / 2 && i < 1700; ++i) p.ws_cnt[31000 + i] = 0;
-      }
-    }
-  }
-}
-
-template <int L, bool FLAT, int MODE = 0>
-__global__ void __launch_bounds__(Cfg<L, FLAT>::NTX, Cfg<L, FLAT>::MINB) attn_kernel(const __grid_constant__ Params p) {
-  constexpr int NT = Cfg<L, FLAT>::NT;
-  constexpr int STAGES = Cfg<L, FLAT>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  extern __shared__ __align__(1024) uint8_t smem_raw[];
-  // 1024-byte aligned base: the 128B-swizzled tiles must start on swizzle-pattern boundaries (wgmma)
-  Smem<L, FLAT>& S = *reinterpret_cast<Smem<L, FLAT>*>(smem_raw + ((1024u - (smem_u32(smem_raw) & 1023u)) & 1023u));
-  const int pair = blockIdx.z;
-  DBG(0);
-  if (p.pf_chunk && threadIdx.x == 0) {
-    const uint8_t* src = p.pf + (size_t)(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * p.pf_chunk;
-    for (unsigned o = 0; o < p.pf_chunk; o += 32768u) {
-      const unsigned n = min(32768u, p.pf_chunk - o);
-      asm volatile("cp.async.bulk.prefetch.L2.global [%0], %1;" :: "l"(src + o), "r"(n) : "memory");
-    }
-  }
-  if (!FLAT) {
-    // grid (n_splits, B): request b, split s of its window / context
-    const int split = blockIdx.x, b = blockIdx.y;
-    // OKC_SPEC (MODE | 8 builds, chosen by the host for one request with page size 1): SGLang's FA3 backend builds
-    // page_table = req_to_token[req_pool_indices, :max_seq_len_k] (sglang/srt/layers/attention/
-    // flashattention_backend.py, init_forward_metadata: decode / target-verify paths), so with one request its row
-    // is exactly seq_len + q_len entries wide. The page table's width is a shape: speculate seq = width - q_len and
-    // issue the window's page indices in the same trip as cache_seqlens; the real length is checked (segment) before
-    // the indices are used for any K/V address or any softmax work, and a miss re-runs everything with the real one
-    const int seq_ld = __ldg(p.seq_lens + b);
-    constexpr bool SPEC = (MODE & 8) != 0;
-    int seq = SPEC ? p.max_pages - L : seq_ld;
-    for (;;) {
-    const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-    const int n_keys = seq + L - lo;
-    int chunk = fdiv_i(n_keys + p.n_splits - 1, p.n_splits);
-    chunk = (chunk + 15) & ~15;
-    // plain split-KV: whole tiles per split (the per-CTA tile count is what costs); trailing splits may get no keys:
-    // they skip the workspace merge (the merge counts keys, the cooperative finalize counts the splits with keys).
-    // Not for clusters (an empty cluster CTA still runs the cluster epilogue: measured slower)
-    if ((MODE & 3) == 0 ? p.cs <= 1 : (MODE & 3) != 2) {
-      const int ntl = ((n_keys + 63) >> 6) + p.n_splits - 1;
-      // OKC_MAGICDIV: ceil(2^32 / n_splits) from the host (exact for ntl < 2^20, n_splits <= 1024): one IMAD.HI instead
-      // of the ~20-instruction fdiv_i on the once-path (scout's census)
-      if constexpr (OKC_MAGICDIV) chunk = (p.ns_magic ? (int)__umulhi((unsigned)ntl, p.ns_magic) : ntl) << 6;
-      else chunk = fdiv_i(ntl, p.n_splits) << 6;
-    }
-    int start = lo + split * chunk;
-    int end = min(seq + L, start + chunk);
-    // OKC_UNEV: splits beyond the SM count share an SM with an earlier split, which gets the warp schedulers'
-    // priority: the first-wave splits take w0/1024 of a second-wave split's tiles (only when every split still gets
-    // at least one tile, so all splits have keys and the cooperative finalize counts all of them)
-    const int unev_tiles = (n_keys + 63) >> 6;
-    const bool unev = OKC_UNEV && (MODE & 3) == 3 && p.unev > 0 && unev_tiles >= 2 * p.n_splits;
-    if (unev) {
-      const int H = p.unev;
-      const long long wn = (long long)p.w0 * min(p.n_splits, H) + 1024LL * max(0, p.n_splits - H);
-      const long long w_s = (long long)p.w0 * min(split, H) + 1024LL * max(0, split - H);
-      const long long w_e = (long long)p.w0 * min(split + 1, H) + 1024LL * max(0, split + 1 - H);
-      start = lo + (int)(unev_tiles * w_s / wn) * 64;
-      end = min(seq + L, lo + (int)(unev_tiles * w_e / wn) * 64);
-    }
-    if (start >= end) {
-      if (SPEC && seq != seq_ld) { seq = seq_ld; continue; }   // (OKC_SPEC: an empty split only on the real length)
-      if ((MODE & 3) == 0 ? p.cs > 1 : (MODE & 3) == 2) {   // still part of its cluster: contributes an empty partial, finalizes its slice
-        pdl_wait();     // (the gate rows are qkv)
-        cluster_stage_gate<L>(p, S, b, pair);
-        if (threadIdx.x == 0) cp_async4(smem_u32(&S.scl[1]), p.v_scale);
-        cp_commit();
-        float* PB = reinterpret_cast<float*>(S.k);
-        float* PL = PB + L * 16 * 64;
-        for (int e = threadIdx.x; e < L * 16 * 64; e += NT) PB[e] = 0.f;
-        for (int e = threadIdx.x; e < L * 16; e += NT) PL[e] = 0.f;
-        cp_wait<0>();
-        __syncthreads();
-        cluster_finish<L>(p, S, b, pair, n_keys, chunk);
-      }
-      return;
-    }
-    if (segment<L, FLAT, 0, MODE>(p, S, b, pair, split == 0, start, end, seq, n_keys, split - fdiv_i(split, p.nc) * p.nc,
-                                  chunk, 0, SPEC ? seq_ld : seq))
-      return;
-    seq = seq_ld;   // (OKC_SPEC miss: today's path with the real length)
-    }
-  }
-  if constexpr (FLAT && (L == 8 || OKC_FLATCOOP1C) && OKC_PARITY) {
-    if (p.coop && threadIdx.x == 0) {   // the grid barrier's epoch, long before it is needed
-      cp_async4(smem_u32(&S.sense), p.ws_cnt + 30022);
-      cp_commit();
-    }
-  }
-  // OKC_W0EARLY: the per-SM registration's atomics go out from warp 1 while warp 0 builds the prefix sums
-  const bool w0on = OKC_W0ENABLE && p.coop && p.resident && p.w0 != 1024 && gridDim.y * gridDim.z == 1 && (gridDim.x & 1) == 0;
-  // OKC_W0L1: the same uneven per-SM shares for the non-cooperative (q_len 1) flat grids. No grid barrier ends those,
-  // so the registration state is generation-tagged: a monotonic launch counter picks one of two state copies, and
-  // the launch's last registrant clears the other copy (the previous launch's) for the next launch
-  const bool w0g = OKC_W0L1 && OKC_W0ENABLE && !p.coop && p.resident && p.w0 != 1024;
-  int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
-  unsigned w0_smid = 0;
-  int w0_rank = 0;
-  if (OKC_W0EARLY && w0on && threadIdx.x == 32) {
-    asm volatile("mov.u32 %0, %%smid;" : "=r"(w0_smid));
-    const int Gx = gridDim.x;
-    w0_rank = ((int)w0_smid < Gx / 2) ? atomicAdd(p.ws_cnt + 31000 + w0_smid, 1) : 2;
-    if (w0_rank >= 2 || OKC_W0FORCEBAD) atomicExch(p.ws_cnt + 30003, 1);
-    if (OKC_W0BID && w0_rank < 2) p.ws_cnt[31200 + 2 * w0_smid + w0_rank] = (int)blockIdx.x + 1;
-    gpu_fence();
-    atomicAdd(p.ws_cnt + (OKC_W0SPREAD ? 30030 + (blockIdx.x & 7) : 30002), 1);   // (8 counters: no single hot address)
-  }
-  if (w0g && threadIdx.x == 32) {
-    unsigned smid;
-    asm volatile("mov.u32 %0, %%smid;" : "=r"(smid));
-    const int Gx = gridDim.x;
-    const unsigned og = (unsigned)atomicAdd(p.ws_cnt + 32000, 1);   // launch generation (G registrants per launch)
-    w0g_gen = (int)(og / (unsigned)Gx);
-    w0g_par = w0g_gen & 1;
-    if (og % (unsigned)Gx == (unsigned)Gx - 1) {   // the launch's last registrant: clear the copy the next launch uses
-      for (int i = 0; i < Gx / 2; ++i) p.ws_cnt[32010 + (w0g_par ^ 1) * 136 + i] = 0;
-      p.ws_cnt[32002 + (w0g_par ^ 1)] = 0;
-    }
-    w0g_rank = ((int)smid < Gx / 2) ? atomicAdd(p.ws_cnt + 32010 + w0g_par * 136 + smid, 1) : 2;
-    if (w0g_rank >= 2 || OKC_W0FORCEBAD) atomicExch(p.ws_cnt + 32002 + w0g_par, 1);
-    if (w0g_rank < 2) p.ws_cnt[32300 + 2 * smid + w0g_rank] = (int)blockIdx.x + 1;
-    __threadfence();
-    atomicAdd(p.ws_cnt + 32001, 1);   // registered (monotonic: launch g is complete at (g + 1) * G)
-    w0g_rank = (w0g_rank & 3) | ((int)smid << 2);
-  }
-  // grid (G): CTA c takes keys [c*T/G, (c+1)*T/G) of all requests' keys laid end to end (equal work)
-  // OKC_FPART: warp 0 computes the key range and the segment list right after its prefix sums (one request per lane)
-  constexpr bool fpart = OKC_FPART && L == 1 && !OKC_W0ENABLE && !OKC_W0L1 && OKC_WSPLIT == 500 && !OKC_BALPART &&
-                         !OKC_SWAPHALF && !OKC_DYN;   // (compile time: no run-time branch in the main flow)
-  if constexpr (OKC_EARLYBAR && L == 1 && Cfg<L, FLAT>::WS && !OKC_CONT && !OKC_PTR) {
-    if (threadIdx.x == 32) {   // the first segment's stage barriers (segment() skips its init for that segment)
-      for (int st = 0; st < Cfg<L, FLAT>::STAGES; ++st) {
-        mbar_init_n(&S.full[st], Cfg<L, FLAT>::NP);
-        mbar_init_n(&S.empty[st], Cfg<L, FLAT>::F2 ? 8 : (OKC_XP_ARRALL ? Cfg<L, FLAT>::NT : Cfg<L, FLAT>::NT / 32));
-      }
-      mbar_fence_init();
-    }
-  }
-  if (threadIdx.x < 32) {
-    int run = 0;
-    int incl_l = 0, n_l = 0, seq_l = 0;
-    for (int b0 = 0; b0 < p.B; b0 += 32) {
-      const int b = b0 + (int)threadIdx.x;
-      int n = 0;
-      if (b < p.B) {
-        const int seq = __ldg(p.seq_lens + b);
-        const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-        n = seq + L - lo;
-        seq_l = seq;
-      }
-      int incl = n;
-#pragma unroll
-      for (int o = 1; o < 32; o <<= 1) {
-        const int t = __shfl_up_sync(0xffffffffu, incl, o);
-        if ((int)threadIdx.x >= o) incl += t;
-      }
-      if (b < p.B) S.cum[b + 1] = run + incl;
-      run += __shfl_sync(0xffffffffu, incl, 31);
-      incl_l = incl;
-      n_l = n;
-    }
-    if (threadIdx.x == 0) S.cum[0] = 0;
-    if (fpart && p.B > 32) {   // many requests: the generic partition by lane 0 (after the whole prefix sum)
-      __syncwarp();
-      if (threadIdx.x == 0) {
-        constexpr int SEGKF = (L == 8) ? OKC_SEGK8 : OKC_SEGK1;
-        const int64_t Tg = (int64_t)S.cum[p.B] + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);
-        int csg = (int)((int64_t)blockIdx.x * Tg / gridDim.x), ceg = (int)((int64_t)(blockIdx.x + 1) * Tg / gridDim.x);
-        if (SEGKF > 0) {
-          auto vmapg = [&](int v) -> int {
-            int lo_b = 0, hi_b = p.B - 1;
-            while (lo_b < hi_b) {
-              const int mid = (lo_b + hi_b + 1) >> 1;
-              if (S.cum[mid] + mid * SEGKF <= v) lo_b = mid; else hi_b = mid - 1;
-            }
-            return min(v - lo_b * SEGKF, S.cum[lo_b + 1]);
-          };
-          csg = vmapg(csg);
-          ceg = vmapg(ceg);
-        }
-        int b = 0, n = 0;
-        while (S.cum[b + 1] <= csg) ++b;
-        for (; b < p.B && S.cum[b] < ceg && n < MAXSEG; ++b) {
-          S.seg[n][0] = b;
-          S.seg[n][1] = max(csg, S.cum[b]) - S.cum[b];
-          S.seg[n][2] = min(ceg, S.cum[b + 1]) - S.cum[b];
-          ++n;
-        }
-        S.nseg = n;
-        S.fcs = csg;
-        S.fce = ceg;
-      }
-    } else if (fpart) {   // (one iteration above: lane b holds cum[b + 1] = incl_l, cum[b] = incl_l - n_l; lanes >= B: n = 0)
-      const unsigned FULL = 0xffffffffu;
-      const int lane_f = (int)threadIdx.x;
-      constexpr int SEGKF = (L == 8) ? OKC_SEGK8 : OKC_SEGK1;
-      const int excl = incl_l - n_l;
-      const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31) + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);
-      const int cf = blockIdx.x, Gf = gridDim.x;
-      int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);
-      if (SEGKF > 0) {   // virtual -> real: the last request whose virtual start (cum[b] + b * SEGK) is <= v
-        const int vstart = excl + lane_f * SEGKF;
-        const unsigned ms = __ballot_sync(FULL, lane_f < p.B && vstart <= csf);
-        const unsigned me = __ballot_sync(FULL, lane_f < p.B && vstart <= cef);
-        const int bs = 31 - __clz(ms), be = 31 - __clz(me);   // (lane 0 always qualifies: virtual start 0)
-        const int is = __shfl_sync(FULL, incl_l, bs), ie = __shfl_sync(FULL, incl_l, be);
-        csf = min(csf - bs * SEGKF, is);
-        cef = min(cef - be * SEGKF, ie);
-      }
-      // segment list: the requests with cum[b + 1] > cs and cum[b] < ce (a contiguous run of lanes)
-      const bool in = lane_f < p.B && incl_l > csf && excl < cef;
-      const unsigned mi = __ballot_sync(FULL, in);
-      const int rank = __popc(mi & ((1u << lane_f) - 1u));
-      if (in && rank < MAXSEG) {
-        S.seg[rank][0] = lane_f;
-        S.seg[rank][1] = max(csf, excl) - excl;
-        S.seg[rank][2] = min(cef, incl_l) - excl;
-      }
-      if (lane_f == 0) {
-        S.nseg = min(__popc(mi), MAXSEG);
-        S.fcs = csf;
-        S.fce = cef;
-      }
-      if (OKC_PTPF && mi != 0u && csf < cef) {   // the first segment's first STAGES tiles of page indices toward L2
-        const int b0 = __ffs(mi) - 1;
-        const int seqb = __shfl_sync(FULL, seq_l, b0), exb = __shfl_sync(FULL, excl, b0), inb = __shfl_sync(FULL, incl_l, b0);
-        const int lob = p.window ? max(0, seqb + 1 - p.window) : 0;
-        const int s0 = max(csf, exb) - exb + lob, s1 = min(cef, inb) - exb + lob;
-        const int cend = min(min(s1, seqb), s0 + Cfg<L, FLAT>::STAGES * TILE);
-        if (cend > s0) {
-          const long long e0 = (long long)b0 * p.max_pages + (s0 >> p.lp);
-          const long long e1 = (long long)b0 * p.max_pages + ((cend - 1) >> p.lp);
-          const long long l0 = e0 >> 5, l1 = e1 >> 5;   // 128-byte lines of int32 page indices
-          if (l0 + lane_f <= l1) asm volatile("prefetch.global.L2 [%0];" ::"l"(p.page_table + ((l0 + lane_f) << 5)));
-        }
-      }
-    }
-  }
-  __syncthreads();
-  if (threadIdx.x == 0) FPRO_STAMP(40);
-  const int64_t T0 = S.cum[p.B];
-  // OKC_SEGK: every request boundary costs a CTA that crosses it a whole extra segment (q staging, pipeline refill,
-  // merge: ~7 us at q_len 8), so the shares are cut in a virtual key space with SEGK keys inserted before each
-  // request after the first, then mapped back (a CTA crossing a boundary gets SEGK fewer real keys)
-  constexpr int SEGK = (L == 8) ? OKC_SEGK8 : OKC_SEGK1;
-  const int64_t T = T0 + (SEGK > 0 ? (int64_t)(p.B - 1) * SEGK : 0);
-  const int c = blockIdx.x, G = gridDim.x;
-  // (OKC_SWAPHALF, experiment: the first-dispatched half of the grid takes the second half of the keys)
-  const int cpart = (OKC_SWAPHALF && (G & 1) == 0) ? (c + (G >> 1)) % G : c;
-  int cs, ce;
-  if constexpr (fpart) {   // (OKC_FPART: computed by warp 0)
-    cs = S.fcs;
-    ce = S.fce;
-  } else {
-    cs = (int)((int64_t)cpart * T / G);
-    ce = (int)((int64_t)(cpart + 1) * T / G);
-  }   // (a float-estimate + correction
-  // version without the 64-bit division call measured slower: q_len 1 b16 full +3 us, likely code layout)
-  if (OKC_WSPLIT != 500 && (G & 1) == 0 && gridDim.y * gridDim.z == 1) {
-    // CTAs c and c + G/2 are dispatched to the same SM, and the first one dispatched runs faster: give the first
-    // half of the grid OKC_WSPLIT per mille of the keys
-    const int64_t Th = T * OKC_WSPLIT / 1000, H = G >> 1;
-    if (c < H) { cs = (int)((int64_t)c * Th / H); ce = (int)((int64_t)(c + 1) * Th / H); }
-    else { cs = (int)(Th + (int64_t)(c - H) * (T - Th) / H); ce = (int)(Th + (int64_t)(c + 1 - H) * (T - Th) / H); }
-  }
-  int vc = c;
-  if (w0on) {
-    // The two CTAs sharing an SM do not progress equally (the first one dispatched gets more issue slots), so
-    // give the first one a larger share: slot 2 * SM + arrival rank. Every CTA waits until all have registered;
-    // any SM with more than two (another kernel holding SMs) falls back to the even split.
-    if (threadIdx.x == (OKC_W0EARLY ? 32 : 0)) {
-      unsigned smid = w0_smid;
-      int* reg = p.ws_cnt + 31000;
-      int* arrive = p.ws_cnt + 30002;
-      int* bad = p.ws_cnt + 30003;
-      int rank = w0_rank;
-      if (!OKC_W0EARLY) {
-        asm volatile("mov.u32 %0, %%smid;" : "=r"(smid));
-        rank = ((int)smid < G / 2) ? atomicAdd(reg + smid, 1) : 2;
-        if (rank >= 2 || OKC_W0FORCEBAD) atomicExch(bad, 1);   // (OKC_W0FORCEBAD: test the even-split fallback)
-        if (OKC_W0BID && rank < 2) p.ws_cnt[31200 + 2 * smid + rank] = c + 1;   // who took this SM's slot
-        gpu_fence();
-        atomicAdd(OKC_W0SPREAD ? p.ws_cnt + 30030 + (c & 7) : arrive, 1);
-      }
-      int v;
-      SPIN_T0;
-      if (OKC_W0SPREAD) {   // every CTA registered: counter k holds the CTAs c with c % 8 == k
-        for (int k = 0; k < 8; ++k) {
-          const int need = (G - k + 7) >> 3;
-          for (;;) {
-            asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(p.ws_cnt + 30030 + k) : "memory");
-            if (v >= need) break;
-            SPIN_CHECK;
-          }
-        }
-      } else {
-        for (;;) {
-          asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(arrive) : "memory");
-          if (v >= G) break;
-          SPIN_CHECK;
-        }
-      }
-      asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(bad) : "memory");
-      if (OKC_W0BID && !v) {   // rank by blockIdx order on the SM (the lower index gets the issue-slot priority)
-        int other;
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(other) : "l"(p.ws_cnt + 31200 + 2 * smid + (rank ^ 1)) : "memory");
-        rank = (other > 0 && other - 1 < c) ? 1 : 0;
-      }
-      S.vidx = v ? -1 : (int)(smid * 2 + rank);
-    }
-    __syncthreads();
-    if (S.vidx >= 0) {
-      vc = S.vidx;
-      const int64_t sp = vc >> 1, r = vc & 1;
-      cs = (int)(T * (2048 * sp + r * p.w0) / (1024LL * G));
-      ce = (int)(T * (2048 * sp + (r ? 2048 : p.w0)) / (1024LL * G));
-    }
-  }
-  if (w0g) {
-    if (threadIdx.x == 32) {
-      const unsigned smid = (unsigned)w0g_rank >> 2;
-      int rank = w0g_rank & 3;
-      int v;
-      const unsigned need = ((unsigned)w0g_gen + 1u) * (unsigned)G;
-      SPIN_T0;
-      for (;;) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(p.ws_cnt + 32001) : "memory");
-        if ((int)((unsigned)v - need) >= 0) break;
-        SPIN_CHECK;
-      }
-      asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(p.ws_cnt + 32002 + w0g_par) : "memory");
-      if (!v) {
-        int other;
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(other) : "l"(p.ws_cnt + 32300 + 2 * smid + (rank ^ 1)) : "memory");
-        rank = (other > 0 && other - 1 < c) ? 1 : 0;
-      }
-      S.vidx = v ? -1 : (int)(smid * 2 + rank);
-    }
-    __syncthreads();
-    if (S.vidx >= 0) {
-      vc = S.vidx;
-      const int64_t sp = vc >> 1, r = vc & 1;
-      cs = (int)(T * (2048 * sp + r * p.w0) / (1024LL * G));
-      ce = (int)(T * (2048 * sp + (r ? 2048 : p.w0)) / (1024LL * G));
-    }
-  }
-  if (SEGK > 0 && !fpart) {   // virtual -> real key positions
-    auto vmap = [&](int v) -> int {
-      int lo_b = 0, hi_b = p.B - 1;   // the last request whose virtual start is <= v
-      while (lo_b < hi_b) {
-        const int mid = (lo_b + hi_b + 1) >> 1;
-        if (S.cum[mid] + mid * SEGK <= v) lo_b = mid; else hi_b = mid - 1;
-      }
-      return min(v - lo_b * SEGK, S.cum[lo_b + 1]);
-    };
-    cs = vmap(cs);
-    ce = vmap(ce);
-  }
-  if (!(OKC_DYN && Cfg<L, FLAT>::WS) && cs >= ce) {
-    if constexpr (L == 8 || OKC_FLATCOOP1C) {
-      if (p.coop) {   // still part of the grid-wide finalize
-        if constexpr (Cfg<L, FLAT>::WS) {
-          if (threadIdx.x < Cfg<L, FLAT>::NT) flat_finalize<L, true, Cfg<L, FLAT>::NT>(p, &S.sense);
-        } else {
-          flat_finalize<L, false, Cfg<L, FLAT>::NTX>(p, &S.sense);
-        }
-      }
-    }
-    return;
-  }
-  if constexpr (Cfg<L, FLAT>::WS && OKC_TMAPG && OKC_PGCONT && (L == 1 || OKC_TMAPG8)) {
-    // OKC_PGCONT: the page-index TMA ring's barriers set up once per launch; slots and phases continue across this
-    // CTA's segments (no per-segment re-init of an mbarrier an earlier async copy completed)
-    if (threadIdx.x == Cfg<L, FLAT>::NT) {
-      for (int st = 0; st < 4; ++st) mbar_init_n(&S.pbar[st], 1);
-      S.pgc = 0;
-      mbar_fence_init();
-    }
-    __syncthreads();
-  }
-  if constexpr (Cfg<L, FLAT>::WS && OKC_CONT) {   // continuous pipeline: stage barriers set up once per launch
-    if (threadIdx.x == 0) {
-      for (int st = 0; st < Cfg<L, FLAT>::STAGES; ++st) {
-        mbar_init_n(&S.full[st], Cfg<L, FLAT>::NP);
-        mbar_init_n(&S.empty[st], OKC_XP_ARRALL ? Cfg<L, FLAT>::NT : Cfg<L, FLAT>::NT / 32);
-      }
-      mbar_fence_init();
-    }
-  }
-  // segment list in shared memory (keeps the per-segment loop state out of registers)
-  if (threadIdx.x == 0 && !fpart) {
-    int b = 0, n = 0;
-    while (S.cum[b + 1] <= cs) ++b;
-    for (; b < p.B && S.cum[b] < ce && n < MAXSEG; ++b) {
-      S.seg[n][0] = b;
-      S.seg[n][1] = max(cs, S.cum[b]) - S.cum[b];
-      S.seg[n][2] = min(ce, S.cum[b + 1]) - S.cum[b];
-      ++n;
-    }
-    S.nseg = n;
-  }
-  if (!fpart) __syncthreads();   // (OKC_FPART: warp 0 wrote the list before the barrier above)
-  if (threadIdx.x == 0) FPRO_STAMP(41);
-  const int nseg = S.nseg;
-  auto run_segments = [&](auto role) {
-    constexpr int R = decltype(role)::value;
-    int tb = 0;
-#pragma unroll 1
-    for (int k = 0; k < nseg; ++k) {
-      const int b = S.seg[k][0];
-      const int seq = __ldg(p.seq_lens + b);
-      const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-      const int n_keys = seq + L - lo;
-      const int s0 = S.seg[k][1] + lo, s1 = S.seg[k][2] + lo;
-      const bool lead = OKC_SEGDBG && p.dbg && threadIdx.x == 0 && k < 2;
-      const int dbase = (blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + 16 + 4 * k;
-      if (lead) { p.dbg[dbase] = gtime(); p.dbg[dbase + 2] = s1 - s0; p.dbg[dbase + 3] = b; }
-      if (s0 < s1) {
-        segment<L, FLAT, R>(p, S, b, pair, s0 == lo, s0, s1, seq, n_keys, vc - fdiv_i(vc, p.nc) * p.nc, 0,
-                            OKC_CONT ? tb : 0, 0,
-                            OKC_EARLYBAR && L == 1 && Cfg<L, FLAT>::WS && !OKC_CONT && !OKC_PTR && k == 0);
-        tb += (s1 - s0 + TILE - 1) / TILE;
-      }
-      if (lead) p.dbg[dbase + 1] = gtime();
-    }
-    if constexpr (R == 1 && OKC_CONT) cp_wait<0>();   // the producer leaves with its copies landed
-  };
-  if constexpr (Cfg<L, FLAT>::WS) {
-    // separate code for the two roles, so the producer warpgroup can hand its registers to the consumers
-    if (threadIdx.x >= Cfg<L, FLAT>::NT) {
-      if constexpr (OKC_SETMAXNREG) asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;\n" ::"n"(Cfg<L, FLAT>::PREGS));
-      run_segments(std::integral_constant<int, 1>());
-    } else {
-      if constexpr (OKC_SETMAXNREG) asm volatile("setmaxnreg.inc.sync.aligned.u32 %0;\n" ::"n"(Cfg<L, FLAT>::CREGS));
-      run_segments(std::integral_constant<int, 2>());
-      if constexpr (L == 8 || OKC_FLATCOOP1C) {
-        if (p.coop) flat_finalize<L, true, Cfg<L, FLAT>::NT>(p, &S.sense);
-      }
-    }
-  } else {
-    run_segments(std::integral_constant<int, 0>());
-    if constexpr (FLAT && (L == 8 || OKC_FLATCOOP1C)) {
-      if (p.coop) flat_finalize<L, false, Cfg<L, FLAT>::NTX>(p, &S.sense);
-    }
-  }
-}
-
-}  // namespace
-
-template <int L>
-void launch(const Params& p0, dim3 grid, cudaStream_t stream, int cs, bool clusters, bool pdl) {
-  Params p = p0;
-  p.pdlf = pdl ? 1 : 0;
-  static bool init = false;
-  const int sm_f = (int)sizeof(Smem<L, true>) + 1024, sm_n = (int)sizeof(Smem<L, false>) + 1024;
-  const int sm = p.flat ? sm_f : sm_n;
-  static int occ_c = 0, occ_f = 0, nsm = 0;
-  static int occ_c1 = 0, occ_sp = 0, occ_sp1 = 0;   // (OKC_COOPGUARD) the coop ONE / SPEC / SPEC-ONE instances
-  typedef void (*KernFn)(const Params);
-  // per-request kernels, one build per launch mode (1 plain split-KV, 2 clusters, 3 cooperative); flat kernel
-  // (slot 0, the run-time-mode build, only serves the sm_80 emulation of clusters: not built for sm_90)
-  static const KernFn kn[4] = {attn_kernel<L, false, OKC_SM90 ? 2 : 0>, attn_kernel<L, false, 1>,
-                               attn_kernel<L, false, 2>, attn_kernel<L, false, 3>};
-  static const KernFn kn1[4] = {nullptr, attn_kernel<L, false, 5>, nullptr, attn_kernel<L, false, 7>};
-  static const KernFn ksp[4] = {nullptr, attn_kernel<L, false, 9>, nullptr, attn_kernel<L, false, 11>};
-  static const KernFn ksp1[4] = {nullptr, attn_kernel<L, false, 13>, nullptr, attn_kernel<L, false, 15>};
-  if (!init) {
-    for (int m = 1; m < 4; ++m)
-      cudaFuncSetAttribute(kn[m], cudaFuncAttributeMaxDynamicSharedMemorySize, (m == 2 && OKC_CLSM > sm_n) ? OKC_CLSM : sm_n);
-    cudaFuncSetAttribute(kn1[1], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    cudaFuncSetAttribute(kn1[3], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    for (int m = 1; m < 4; m += 2) {
-      cudaFuncSetAttribute(ksp[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-      cudaFuncSetAttribute(ksp1[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    }
-    cudaFuncSetAttribute(attn_kernel<L, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm_f);
-    if (clusters) cudaFuncSetAttribute(kn[2], cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_c, kn[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_c1, kn1[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp, ksp[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp1, ksp1[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel<L, true>, Cfg<L, true>::NTX, sm_f);
-    int dev;
-    cudaGetDevice(&dev);
-    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);
-    init = true;
-  }
-  // the cooperative finalize waits for every split of a request: only when the whole grid is resident
-  Params q = p;
-  if (q.coop && (long long)grid.x * grid.y * grid.z > (long long)(p.flat ? occ_f : occ_c) * nsm) q.coop = 0;
-  q.resident = (p.flat && grid.y * grid.z == 1 && (int)grid.x == 2 * nsm && occ_f >= 2) ? 1 : 0;
-  q.unev = (OKC_UNEV && !p.flat && q.coop && p.w0 != 1024 && grid.y * grid.z == 1 && (int)grid.x > nsm &&
-            (int)grid.x <= 2 * nsm) ? nsm : 0;
-  const bool cl = cs > 1 && clusters;
-  KernFn kern = p.flat ? (KernFn)attn_kernel<L, true> : kn[cl ? 2 : (q.coop ? 3 : 1)];
-  if (!p.flat && !cl && !(OKC_UNEV && q.unev)) {
-    // every split holds at most one tile: whole tiles per split (TCHUNK) and at least as many splits as the longest
-    // request's tiles (sliding windows: window + L - 1 keys)
-    const long long kmax = p.window ? std::min<long long>((long long)p.window + L - 1, (long long)p.max_pages * p.P)
-                                    : (long long)p.max_pages * p.P;
-    if (OKC_TCHUNK && (long long)p.n_splits * 64 >= kmax) kern = kn1[q.coop ? 3 : 1];
-  }
-  // one request, page size 1: the speculative-length builds (OKC_SPEC; the kernel verifies and falls back)
-  if (!p.flat && !cl && !(OKC_UNEV && q.unev) && p.B == 1 && p.P == 1 && p.max_pages >= L && (int)grid.y == 1) {
-    const bool one = kern != kn[q.coop ? 3 : 1];
-    kern = one ? ksp1[q.coop ? 3 : 1] : ksp[q.coop ? 3 : 1];
-  }
-  if (OKC_COOPGUARD && q.coop && !p.flat && !cl) {
-    // the instance actually launched must hold the whole grid, else its grid barrier would wait forever
-    int occ_k = occ_c;
-    KernFn plain = kn[1];
-    if (kern == kn1[3]) { occ_k = occ_c1; plain = kn1[1]; }
-    if (kern == ksp[3]) { occ_k = occ_sp; plain = ksp[1]; }
-    if (kern == ksp1[3]) { occ_k = occ_sp1; plain = ksp1[1]; }
-    if ((long long)grid.x * grid.y * grid.z > (long long)occ_k * nsm) {
-      q.coop = 0;
-      kern = plain;
-    }
-  }
-  if (!p.flat && cs > 1 && !clusters) kern = kn[0];   // (sm_80 emulation of clusters: run-time mode)
-  if (cl || pdl) {
-    // cluster dims and / or programmatic stream serialization (PDL: this grid may start while the preceding
-    // kernel finishes; the kernel waits with griddepcontrol.wait before reading qkv)
-    cudaLaunchConfig_t cfg = {};
-    cfg.gridDim = grid;
-    cfg.blockDim = dim3(p.flat ? Cfg<L, true>::NTX : Cfg<L, false>::NTX, 1, 1);
-    cfg.dynamicSmemBytes = (cl && OKC_CLSM > sm) ? OKC_CLSM : sm;   // (OKC_CLSM: one cluster CTA per SM)
-    cfg.stream = stream;
-    cudaLaunchAttribute attr[2];
-    int na = 0;
-    if (cl) {
-      attr[na].id = cudaLaunchAttributeClusterDimension;
-      attr[na].val.clusterDim.x = cs;
-      attr[na].val.clusterDim.y = 1;
-      attr[na].val.clusterDim.z = 1;
-      ++na;
-    }
-    if (pdl) {
-      attr[na].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-      attr[na].val.programmaticStreamSerializationAllowed = 1;
-      ++na;
-    }
-    cfg.attrs = attr;
-    cfg.numAttrs = na;
-    cudaLaunchKernelEx(&cfg, kern, q);
-  } else {
-    kern<<<grid, p.flat ? Cfg<L, true>::NTX : Cfg<L, false>::NTX, sm, stream>>>(q);
-  }
-}
-
-typedef CUresult (*EncodeTiledFn)(CUtensorMap*, CUtensorMapDataType, cuuint32_t, void*, const cuuint64_t*,
-                                   const cuuint64_t*, const cuuint32_t*, const cuuint32_t*, CUtensorMapInterleave,
-                                   CUtensorMapSwizzle, CUtensorMapL2promotion, CUtensorMapFloatOOBfill);
-// [rows, row_bytes] byte view of a cache, boxes of one 128-byte row (one KV pair), 128-byte swizzle
-static CUtensorMap row_map(void* base, long long rows, long long row_bytes) {
-  static EncodeTiledFn encode = nullptr;
-  if (!encode) {
-    void* fn = nullptr;
-    cudaDriverEntryPointQueryResult q;
-    cudaGetDriverEntryPoint("cuTensorMapEncodeTiled", &fn, cudaEnableDefault, &q);
-    TORCH_CHECK(fn != nullptr, "cuTensorMapEncodeTiled unavailable");
-    encode = reinterpret_cast<EncodeTiledFn>(fn);
-  }
-  CUtensorMap m;
-  cuuint64_t dims[2] = {(cuuint64_t)row_bytes, (cuuint64_t)rows};
-  cuuint64_t strides[1] = {(cuuint64_t)row_bytes};
-  cuuint32_t box[2] = {128, 1};
-  cuuint32_t es[2] = {1, 1};
-  const CUresult r = encode(&m, CU_TENSOR_MAP_DATA_TYPE_UINT8, 2, base, dims, strides, box, es, CU_TENSOR_MAP_INTERLEAVE_NONE,
-                            CU_TENSOR_MAP_SWIZZLE_128B, CU_TENSOR_MAP_L2_PROMOTION_L2_256B, CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE);
-  TORCH_CHECK(r == CUDA_SUCCESS, "cuTensorMapEncodeTiled failed: ", (int)r);
-  return m;
-}
-
-void run(torch::Tensor qkv, torch::Tensor seq_lens, torch::Tensor cache_loc, torch::Tensor k_cache,
-         torch::Tensor v_cache, torch::Tensor page_table, torch::Tensor k_scale, torch::Tensor v_scale,
-         torch::Tensor inv_freq, torch::Tensor out, torch::Tensor ws_acc, torch::Tensor ws_l,
-         torch::Tensor ws_cnt, int64_t B, int64_t L, int64_t Hq, int64_t Hkv, int64_t P, int64_t window,
-         int64_t rope, int64_t n_splits, int64_t flat, int64_t nc, double scale_log2,
-         std::optional<torch::Tensor> dbg, int64_t cs, int64_t ncl, torch::Tensor scratch, torch::Tensor bar,
-         int64_t tma, int64_t pf_ptr, int64_t pf_bytes) {
-  Params p;
-  p.qkv = reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr());
-  p.seq_lens = seq_lens.data_ptr<int>();
-  p.cache_loc = cache_loc.data_ptr<int64_t>();
-  p.k_cache = reinterpret_cast<uint8_t*>(k_cache.data_ptr());
-  p.v_cache = reinterpret_cast<uint8_t*>(v_cache.data_ptr());
-  p.page_table = page_table.data_ptr<int>();
-  p.k_scale = k_scale.data_ptr<float>();
-  p.v_scale = v_scale.data_ptr<float>();
-  p.inv_freq = inv_freq.data_ptr<float>();
-  p.out = reinterpret_cast<__nv_bfloat16*>(out.data_ptr());
-  p.ws_acc = ws_acc.data_ptr<float>();
-  p.ws_l = ws_l.data_ptr<float>();
-  p.ws_cnt = ws_cnt.data_ptr<int>();
-  p.B = (int)B; p.Hq = (int)Hq; p.Hkv = (int)Hkv; p.P = (int)P;
-  TORCH_CHECK(P > 0 && (P & (P - 1)) == 0, "page size must be a power of two");
-  TORCH_CHECK(k_cache.numel() / (Hkv * 64) < (1LL << 31), "cache rows must fit in 31 bits");
-  p.lp = 0;
-  while ((1 << p.lp) < P) ++p.lp;
-  p.max_pages = (int)page_table.size(1);
-  p.window = (int)window; p.rope = (int)rope; p.n_splits = (int)n_splits; p.flat = (int)flat; p.nc = (int)nc;
-  p.ns_magic = (n_splits >= 2 && n_splits <= 1024) ? (unsigned)(((1ull << 32) + (uint64_t)n_splits - 1) / (uint64_t)n_splits) : 0u;
-  TORCH_CHECK(n_splits <= 1024 || !OKC_MAGICDIV, "OKC_MAGICDIV: n_splits <= 1024");
-  p.dbg = dbg.has_value() ? reinterpret_cast<long long*>(dbg->data_ptr<int64_t>()) : nullptr;
-  p.cs = (int)cs; p.ncl = (int)ncl;
-  p.scratch = scratch.data_ptr<float>();
-  p.bar = bar.data_ptr<int>();
-  p.ld_qkv = (int)qkv.size(-1);
-  p.row_bytes = (int)(Hkv * 64);
-  TORCH_CHECK((p.row_bytes & (p.row_bytes - 1)) == 0, "Hkv * 64 must be a power of two");
-  p.lrb = 0;
-  while ((1 << p.lrb) < p.row_bytes) ++p.lrb;
-  p.off32 = (k_cache.numel() < (1LL << 32) && v_cache.numel() < (1LL << 32)) ? 1 : 0;   // larger caches: 64-bit offsets
-  TORCH_CHECK(!OKC_OFF32 || ws_acc.numel() < (1LL << 31), "OKC_OFF32: workspace too large");
-  TORCH_CHECK(B * (Hkv / 2) <= 4096, "at most 4096 (request, kv pair) slots in the counter workspace");
-  TORCH_CHECK(!OKC_OFF32 || qkv.numel() < (1LL << 31), "OKC_OFF32: qkv too large");
-  TORCH_CHECK(!OKC_OFF32 || (out.numel() < (1LL << 31) && page_table.numel() < (1LL << 31)), "OKC_OFF32: out / page table too large");
-  p.scale_log2 = (float)scale_log2;
-  dim3 grid((unsigned)n_splits, flat ? 1u : (unsigned)B, (unsigned)(Hkv / 2));
-  p.pf = reinterpret_cast<const uint8_t*>(pf_ptr);
-  p.pf_chunk = pf_ptr ? (unsigned)((pf_bytes / ((int64_t)grid.x * grid.y * grid.z)) & ~15ll) : 0u;
-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-  static int major = -1;
-  if (major < 0) {
-    int dev;
-    cudaGetDevice(&dev);
-    cudaDeviceGetAttribute(&major, cudaDevAttrComputeCapabilityMajor, dev);
-  }
-  p.tma = (OKC_TMA && (tma & 1) && major >= 9) ? 1 : 0;
-  p.coop = OKC_COOP ? (int)((tma >> 1) & 1) : 0;
-  p.w0 = (int)((tma >> 2) & 4095);
-  if (p.w0 == 0) p.w0 = 1024;
-  if (p.tma) {
-    const long long rows = k_cache.numel() / (Hkv * 64);
-    p.tk = row_map(k_cache.data_ptr(), rows, Hkv * 64);
-    p.tv = row_map(v_cache.data_ptr(), rows, Hkv * 64);
-  } else {
-    memset(&p.tk, 0, sizeof(p.tk));
-    memset(&p.tv, 0, sizeof(p.tv));
-  }
-  memset(&p.tpt, 0, sizeof(p.tpt));
-  const bool pdl = ((tma >> 16) & 1) && major >= 9;   // programmatic dependent launch (off by default)
-  if (L == 1) launch<1>(p, grid, stream, (int)cs, major >= 9, pdl);
-  else launch<8>(p, grid, stream, (int)cs, major >= 9, pdl);
-}
-"""
+# achitaan ATP: lossless CUDA-source storage, decoded bytes=191952 sha256=575c21f8950cd19a379abd1d40f8f06c10f764b27b101c2ab417ac397ebc1b07
+ATT7_CUDA_SRC = _atp_source(
+    'c-ri}dwbhPk}v$fJ_X`^>;M)?^JbYLE$7I#?D(-PYb3><S+BzZNl0SEn*dUmB+h4l>sQs?=mtQFay)xx-?P~ri@5cry1KgVwecUr'
+    'Nq@8$MBdZ+H13~0imvC;BpFU8m9u9X>BF7lX!5AP7=({r{QPp~#dI>K7u{FpH?ycakHg_Sv2Wv}?#ZmS<-X0gdnbjrPiC$BUH48h'
+    '9}FivfQ?Bwj*?l}kG$VEHvVG}oeU?D_x|mR?*4&StG7J<@6jV~7EcF@eiVE2vp5O|iRWK*N72Nqc_*WA-r;u>>LBtiYqeV2qp^AA'
+    'YURoOl6TUm<7e}}cbRzg$6JBZ&&MNb!^`(`6~?pEc)FN*CsXtqaYvs2+<WHLsL{n}<c-3cC=R^yD4s;4j#u@zsrTyliM%SeGo7_e'
+    'Z`sZg(~-=qWw+wZr_&60S_VGUlKQ0WHM5QSw4z>rI!PAeC{Dad6b-nOI656BbGnrU$GbQC&%L^H^Jw?@-Ok_l4|iXCHRr(r-8%BB'
+    '&OLhd;I*2iJ;(8M5VgHocp7=b$za%z60djT(c7LsrBD0Q*^M{D0uM(~K(El?!httE!OgO)x;L8A(mTEV{imJ1R|g*m_S~CK-Sy~m'
+    'g&b|~EF7KieCeI5X?$KHNP0;Wc~@r<-Bth>ETZP8GjEuJtK6F|CIh#>{r4Yt-W+H9!x-b}Vi6_MO52-EX#s|Fv#6NX_h@=Hq?!At'
+    'Vca871SNjhpN?mXc_jVutMtz}a(aGu`1<AZ*W5ApJcxRWQ?Iuejs^)0;4DlcZyd(wi5JGw3^h!XI7PQ75w?ckpN<yeNkWSf^+z@D'
+    'k=Gy9-SvOBd-!^{F3U%~jKXAIesR1b4JB<4OBMDnx-sEoIG>J(eJ?zjD>&lCUKqzix-MQo9!HYzv0-}b6ZE1uoDVOf!cKMj_(QM!'
+    '#m?Wn{QIjnheyZg9>{7fqij6t{q3U<gcQkwHqI1KL}v~fk3xdBKbg+0(Oh`(^eVx&&A@l(^_v$j-+U<Ouz$9goD;@Q>GwE1CCH8!'
+    'qxo<)%FO6wFud#z-3|JpX44hG(4&XpX!slLIl|?x!n>>C{A{|IE2N_x$0$#GVd72t-u8B8fB)@($Y{;WP#N!UFW(&QzBr~y&ccKs'
+    'bTVC}gc*C7=I;6Q>0mfcyeRCSxj=Zozq`Nt(JVP#Dm-rUz!IE8r)Tr>2p`Z68%<9ak={DtD49CDiXb+k^W>Ch+Z97S1De(f(4dV7'
+    'eKB#6gGl=MUWg3=p3zTjsdzYZ3E-Q3wV2CVPez0z1c=Ka&Se76a55oG3VYK_K_!i|pcYvu5q*8hjc1@l`<GBJoKr)7FAgXDv+_wC'
+    '5gl3yI;Zu$o#Wl(H>PzP5%p&@f#HA-iZbsW|8hz+l8JMQ=GX^i+6U3K>Z9b*>hK0A12+hf=Vvsk@CMst?ozaa*Dv1hAEy*8Cg}Ii'
+    'qW(Du@SFw_*zMz_P_Rm5BLdS#;euvQy^f}G&drAt?9{LyPpSJPIvq!od6GY&TBhGhrE=TR>-pm-Ocn%n@6Sze6)rv>9k*W5$!m_h'
+    ';VfeK)4Yj(Vb3mU+iB&+`}YUdX0r*QMkyXAu{o!s$gI|BJOn#bZPU)U0-Vv8q1*aPcfbc9KFajneLbCc$+-IiHASaoNLy_}|K1RM'
+    '<LP9&AnI{C9*5pZJRN(XH<&JZG>qQj<Rk)Mz;S)x4e2rzuV3!INZA41Rfa9#y?iw_CvVDr(HhbSXd!1I0V5jS2)lr_KO?lvEX1yy'
+    'k>(~{9UULOdAaNP*7F~|t)|!ZYFk;TIHY0)R9+GHCBX0xKp~>$xKYBhqt|=k<dhEFS33=UYX<xuOmT|Mrh`YsNi)arurj;Jbbk2$'
+    'm0lCI9{~e(u+v8;Aax3r#vyeI(oG9L7>1`4Iy30JP|QHCT}-TM*fDNMQ<C#2nsJjDEX@z&HQ&>B@An0AXyU;G&;QPh^^ZU7_5(cq'
+    'PT^J#tgndLXiB3xq6uV}YUZf}XV-ySP2?mxI-&)uHp`lCO?g_kH+s=tL>zdk%Ql@?)N67U0$s<^cp4Kj{q5~9$7)sSOI}oB%4nBH'
+    'S0FFgeTG%ePV49&`!6(L4YP;ij=4?74?4GpB=Ud>=d;Q$YBw{3*5S^_{EksLh`G?lr=jyc1Pm9G;k<nK?nvGDlm0X&vXk_~5hx)O'
+    'YfRJa25SP6Q{yQx!5Pn(^Q0z0RLWNvIWLeyf3)D06-j8+$3Gn!vU<@XD)ie8;p%mp+a|Dkad_pa;ql7&)02}VntPibVbCKlN%|J4'
+    'C7MpKYI~ctDo80X{A5PL9C)EPgJUm#dTTQ(t+pbAzulB+0G{e*4uUzIsH3ZYPMu)udIw<NgjECth>75@2!a#0pW~ko_pM!eA=F$t'
+    '134nL!J=H@h(JFfs->|#x}Fj7qBANSsg3QEj1pa9+0b*z)05xumi$M(Zq_P|`yH>|*3-giSkm)48OAh8KB(Q}W$);nHFTfG62(KD'
+    'j)6BGPKM*f*c;rCJWgPC_XrUk65M&y$#Dw-hA;uVFK98&8PMaScbP?bx%c*i>XLe-OY^<MRrexlOmJ=x&D7an!G<c)mVLy0-FfK}'
+    'yL2!l$z`rsGr?@)npVJy#H2o*FkKea+d}pP^=cg;)npKkFbCSaeIlZX_h*%WD|-tcLdGYCImlr8;jV*i3JVC!$5;h|eZm+u4il0%'
+    '>4#=b1Mtcd5hOaE$i1>NwCI~d>*L*{W3@vWeb1)TbKZvr@AW1c6HAE|p&tqZGL+@#{oN0lGsXxX;9P~3VCamoA_>VJAY5l4j_+vE'
+    '78Al%JwcM*2SZ|+=S1(WLZWB>Rkef3p3>>GYE5W_y&6M}2!5NSk16pHyzx$nmtBm)csRc)d5={;fDDhM<k5bFn3bGO<9Reu{58oM'
+    '=su&zsP5G=Qzi6Q<7f0v^(~X>q-=9rTD24i@e`=HT;OJ-QhDqxL||Dp*VAai%~BV{44y^<MfK&L!Z`*uLpkLWYsBo5U`cE)z?tOu'
+    'oVP7+tE$c(9;Q(NT@K^<f(Xocbfcs(wZ^Pn2x&tPH3f|4Lmr0TgPd1=QfYc+I*F^q%=C!R)>`^btC=4_&1)76pr*v0a2!dqKUAfS'
+    'R;%(PyGBPO;Ox9q*!{8U!bS^5gw-*fe=P9RwE8p)9GV3O1s#%@s-myc(I~6js_yO_?)^h^A{b}3Q_*Q88Pdeiim9P%2-DOxvt~7='
+    'z2T$Z$VB5zm#^L*zSw<kW~q*#(GA4rSg8{-qkzID9F2N(LJ^(j(*ZPg9-c?S-U}9EPh=<fT#0nt7wx8V!&*}dEQ;`6#^&vfrv39b'
+    'gKN*{qY@xwigX&y6E!cIWJ2V6uow}*zb6n3r`VhARTw{Hc43&{l#sKCz$%lV1Hx8h&=}OBI+Gv{{r!G=Y{)qYbr_NBaWTi+*31jF'
+    'yO=AT8YIbtcNqOcRG-;~MIQimIl1RMdj~s*MyDsVT<t!5Hjhq0f`n+W^wFr7do)ii)jPB5KRkZ)IwRO=DL36L8Tm&}0v28&XtCg!'
+    '%8?mimXDS}3>koFquh2e;pIQ}Z3(ZaPkq?4-iZJ;3JJyoE#94uroD8x*{nFGlVK&_?0?)je5V08prt0>bEKt}oG|JQ7BLhyvaOVk'
+    '!nf9kKJN<xj?0T#PIj$Xhp$Wf9F;5W*vlcnX}ED~JCmqN+asAx!GuA1k}#9LgeTvB|MwR^)l%M8NL|U&8nLdD)xHU_O~mQ-iJqSt'
+    'i48lD2r~51IHdjFlnz;<T?_C58A6tw@6o~D8zVklh$zES1}nD}r6T4inSy}HJPx4878bVynhe0;t$C_8i$rVb&F0ti(TgXKYmZm$'
+    'Yk^=wJR{bS=@h0rKf_8ADxQp3kEU={NDA>3(SWtw#H^~mC(-p>Ys2SLSDp5^xBuzrC0Z=Ev=tqZ5iomlMPw){gN#y#{l%D=hWRv3'
+    'L<<X41tJp~@T@x2%71QGy-Q;Wav}U?|3lrvC?f_8Czr&EgtX(@-q|@ZqF2eHM}N+SU0`>}n%}5g^?EV!qkY2iq~u+W23_LEYIv-E'
+    'SG`||Vz|1!|9s`B8VGeoMGpwQr#>Kp&{5<47R6H<2w}B_yF5CEE@Zuhl0SH^P*D<_k-?$AA9QyP4|n$Vs8i}rsIk$tDD}8#)Dta7'
+    'Fbyh4<JtTs)w}uHQjvr-CfdrxU8GvOQ4~%({4vq9GJvxRp&Si9^-y6&&m*tf#ScDwu0pn@G2diP5hfjRv`A>@=p}94&rNv${kxr`'
+    'w}ehObcZD2oIcVLZYuilNleFiJmof%#b}PxL<xh@DB_pE#%JsXhdcYPcO6-mtv)y`a7YRQ@mU{=khGX2!&7K}HN&sKtS}84PCsUf'
+    'VM_>;XhCFZl%WVDxc{{O#-a$udL@_;qkR%N%Fx3LgANS`O=~#e1BIzG_Ws!v)NUZGq0-iBNu=YIYn8|Mvwa`FIsS)Hc;`e2g(+=*'
+    'BGR4_gRyQY_l7eJO1(KzK7BjOWbPmB)(w!C_mxDG1PW0?4=6{4L@4bNmNgt0me-s%nrAexC39@AK{V1jR3@2mPJ}w#FR+O4W?W3D'
+    '^^xgngaewHv@(godD9Xd0))J@ddX<W_6x#e$P{jeJ1<|F9$^Jgw@fd2i<O8fCnRyE@)MoDN=bnQM`zGUf_xKxWHgcQU%hJ7(;gMC'
+    'BPhxU!b+g?OAthJ{5_H*o7NTft1=S=9B4!$@(^r!^&A9K1FQn0UzZVo_~qCWB{LL6!WglHNEDIw67x+E<mWO|ShWaqn>oxq+<n<B'
+    'Sh>szu5<%i<=)LaGSYz0gnkwdiQBpgXIW|N<IVxh&>2HGEG(=ctfiVr-a>Edv^+H3Ae|uL<@Jp^0$@!{y$`e$1mRxsX2$xGaxnAh'
+    'DoXq7B5}@-1EqQ);UZ+=ok(p=1d2HaOGlO33$Yh~HJY`W!gfv)!H29?QBQhbP8tUehA*>lme60Lt<QUf26q>@+-2IrMbPAhZ%SGA'
+    'SU8tFTr<pxF%>Vd6^n4d6rEVvC>*PqC~k*U%}OmSOk1{NL2os+(yF<cX$=!~ep3g~sVOTd!<vs4Z__(E-g&)y<dtdYkoD*YrCHGy'
+    'lNZXh@0G+s{Os9~5MnaDoe>0IEA6w{H!y}jcpy!&4`ZHBOejUID!nq>oNYl&AmK_AER1FJ-!)qo<3HUdvZVDI2@7km{{?Nq<*Ih5'
+    'NCZGc{b-6{zvYAlCMl`O8xcKRHCua$uss|#0G(mfv-U6Ok$6M=NfL!IOp*`<m|JE&GNfJgUbVy=!5SD$<eO%9S#Pz7)2VIIX@Viw'
+    'Dzz4!6NCfvt0<b}v=gCn{;;R$?ow8RJl{D~q^U?cOgD^bMk7he3_|BfJ2ADC@^V9vlkU&L0r4Lq0Iiy367d=*tk!j8Y1`0jbXBab'
+    '1xLK;_<RtfEht83!>|tp5S>*S=H>X{m30L8h9on}1sZt(%V^H0SrHWETJ0%0V&P|EdxQ`hIQ91GE4klPUdyf(M7Q(F^lBoS8NDz>'
+    'Zsiab?e`o`8)pQDy^IUbtAoS$wxXXMg#xq4!v82;3N6*3cdD%C&1$*Xv?YBpmu{2zNE;T$pe;)ch;F(Bg?9)3c|h!h_q#Vd5n~~b'
+    ';K2iLR-wiNdN2Zejej0`-NDS;mM64;zE(n2uIUQ9`{i&<zaLspZmcIa^u#>)EePl`HStn&=Rt=@@sPXO_Nw%T^mqyll24Dn(EkZR'
+    '@~c740RQ^uox_)Mc7c&0sns#W`)n9fC>JPmh6oYtM1%DjGCP6;s}DUaJyKQ=61U;R@yI(m*nP2*xU*J^jwx{wA+7_+U|BwiSxy4>'
+    'dr_<^ROk$(l1JxImig=uTYE`}dAqinT1fXd9fLEq1#4bn@5=;UEQ%ih*A1k>pU{KS1ENhhx$y?!oX&}u2;m?KHo9FIM7K*4o|Z)D'
+    ';&MuTqQUM-I2`#vmo7X}XR=s=!{9-vUwk4q>qH;aGqdrb@EtOqO=s+BH?V91M+a~AyT{d34C`{26T%GES`oq#jRwQ774rmRtp0sb'
+    'gaLbE5hcK7qA$_b4Ai-n$|H&QXYD@W-6Oa27eDR3c<b(y6ya#IY;NiyJ@fq9!h8DEt2YV5Ezopq)K#N?w(Zq_sW-L0j<w#9h=?nO'
+    'U!XM#@l>h3@)};@*(yZ5opWFD8>xb-7hz98t<MgyKQy4(|Dncm3*2kBvW_wPy0@k7b(!v5S>fZ(;X%eH?G0SVs>|hvw$d`$(yuLu'
+    'Yx&z(bbW#6fT_scmPYj!#T<)a#iC%F|1I|!AqMK))T-=9v>OvTrDm+LdSnYY$~zz&3}QO@J@|JRX?*1gD%yL+6dK4qBHVg?<oTCT'
+    'pZc<Nn<WzM?<;?4e=!--XJhMeb`c%Jv7V=Ps=)ABb|wTEhV+wU#F$tSzb<1xGn+=KIt&$QSpfbMs)j-^qx*wHqj7+@)(Y9zCo&wf'
+    'Irl1OH9LOs)6e^F3w0M_=~T8zI_An?79H`~<)8k3aPWTbA6ns^1<4s9-WU{+CMi0rrYlyFu%-1suiowO7N9L%sWfva*A@m@JcBb#'
+    '+~0p{tymYQ!%!=O*-Z<AY~pwTWR%?y*Q#33u{G?bb#`yg%BV`iD{LU<9;&^S5fT6MAMbYlZq!$<e@mes#u;sokr-d-IMs3_tGO)O'
+    'cY*dOH6uB$nMqz}l&Uz36jPS}r=De$U5}5Vr+-|nT4p3*&zNK_V+dfYtO+S#62#)Dddw%Vk2bd1%9mm7>P9`DrG4#;D@KV;4kCss'
+    ';|`l#3{JoOz#c0FX4L5<DvE=UcIgZr(^kpAx_DfL^d7^qL}atUN|_1d2A1XJ4|4`CV+OL>W)%k^o*y7qX}e?4ep?Y}SZ&}i3|JGz'
+    'e~DC`8^KFUk)>|6WpX!Q;*B0*U`aAcK-cm!xLea25L#3Nd2Mz&U!%~r6xqoVO?GlVoMr7@`L<u}?!Va8)ND!HR$Go%<`%69w@>sk'
+    '-HA)vKOme}&SBVuHUZ1JGPz!!jDm2*=DYJ~JcF;X_mspiZ?EL_rqhx4>e+^99lRGOr{3=yw;`%=`*d9hmtn8C1SDRoQh^aBJQsb('
+    'bTCkkIE>!XtA*p`avGr`RvjAnq<`b}&%nTII-%~W_z-)vtPr7Qm46)TLJ4rOOq%xPw&(9b5>g(Tukf$hvijFMnk4;ZZ_my~o~u&Q'
+    'ed-6B*{Gs!x4m~2a5{1VC`to+-__Lik7KH|p^yS}N!gy2`<bG>MzeGhviQR~Hg<(zzZu^+H>lwdi_LoNczViQ6hR77Sg;gIud+}w'
+    'KzdaSBz;qRwyI0Go@y^xw)q>E*yF=aQSZP{dQEp;3%nmWsH^SyKCRCmf6&ly?{Te8_Yk_)(TAC1x=Wdqlol2)T69gD)TN9<ZxY3)'
+    'C=KF`@^DFJQ9m{J8Xez;GYABgUGk!bV*TjPD(p5cO?OhwX2JxHL`0Zp*{w%>&Ggy3bcH@15s+SG*FuHw!7W+fr+tz?9<_qy00)_&'
+    '&weBzr(jnhhix5P7tqgYr#SX-`BMI!nx+Naq)s}^c=h~}6*k6UczU3OhlCkwbP}S60Rl<neqCdRy%C%+KRWCn1C8jk+fZ6J;?%Dv'
+    '^n!4|ngbDKY5JWn+KaZg_4sjPi{urbhxQQDC5&Lkh?a8z6~%l?J80RAp6?v(a=akndr@0(0B+Im774)h$B$`d^(OCyl`k({=L6MO'
+    '8mIV-&Y&Ny>$brF;1I3;(`{@&-f>&>v{7G<MKAPBd^0T`m{(RE)71e6=@ULk$MmC3$mUG5*;*>rS^pVGe0^t%uA8lCq;6t$;fHOD'
+    'Jj6B(5EfugAFvcmRA3}3fjk3^JU<!J5A7PI-Gxii6Vql38%w}F?MDp!f?qs*kBh8AqUML9Nts4Tm>VFT?vVsz$!p8jMyX~&G4h+7'
+    'H6U%ZrCMrBA%G`Hchr`-y&ovR85)47Cdd!_2aj43<Hu(l@2<Hva}YG4d=NLA>##ouYsQK>{^E2>GC{&(ht}1n#FXQ}gpMoan(dIG'
+    '<&<=nbuplL?te$5g6N-5czmBG2IZ$h>t}SX;pbM9p7{F4k9hQmK|sJ^U1{FpbT1co%@gfUMcbz&dL=dsXzmfnzH~O+B{_bxw@VAM'
+    ')yzIHYn6L)`2HgZAZ^IbGBxSVJW3TL04)(h&21#!HFa0iTle`tj=4)7)I;v5quXqGZ=Z_}h@lPSd`pN9Z&v*N5M)|>^YZWAqrLaX'
+    'Xs=F<$$YYNA#oRTp>w>GpN1&rwSA*)%vxg3rd^Y7>}dD3K=andjL)DxZZsEs5XN9%!3cBnP|99*dnco5IInFzgn_?fo>8|CjhV)|'
+    'z18f}Bewl_N7Fu@E$DU&ch9?g-??|0-m{v9@uWKsdn4-sj|7cy982#0<&yhDn#Bo$5Dzj_nl9$Jt6scHx?#WX-WcJMM?@F>$y{A}'
+    '&r9A<7xcgL%aV6cLP$#&Lnc}%gbBysEGl`Et|*d9ybg5D?OWE5LGQGa`oYhzMo`)k>0^F6=jv)HpXscfEQG<DOk<+FOpVn5`w2Q5'
+    'bsSvKK^tPw>nABW)=&JGNAGsui65fk@TirPN?YFJDV&mi45ezvQa_Hnt*RHX7ao-7M7X74pHPAZ3ia!d?E=DvGlYqdb#i*ld_zne'
+    ')o@dbDds#HbT6<VwC}r23d~wc=o8`NX}x0_=6fCxTYh#=Le`2t^zfb^seyUK73H^;;-SGFGX=LZ7Z8OKZ;|9`_}g#rL1x9X@<nld'
+    'gVph?S8Y0-<zSFM2j^!rC2-C-LG{6@!-j0XTKITLys-itM?))U%?d~l&zvon3CD=4SL0r%_*G0ys4k4N%1f8&E^Q5hB<zFI#`NT*'
+    ';SxKgB4O{Mw#WXj%4Mh*ftzT0ub+Fq@-~u|MYop_Z_8(=I$80Y!xW{btLieE%FrtjS+>}aHoE~Z!=iyCN;tp~E`~VFp?s=U>rJDB'
+    'lb$r_J1#pPNyxr(d1|L>ykTMve`gGQ=%@bCV_sX`IEbaTQB9IACj#hL@Y4wdXhTQCkzfC%QAdcBB0K>H0_!VbeAMU>`;tR89Tn6r'
+    '4hF&qErx4VXb@&iQ)8K3^*9@hPI5gOTPU~1LV7qJGZ#m!XfzqH6<qA9ei}t)4A;|mAl%Q3pT*PUT{!dR$m?;b_WCDay+sy2dzZuL'
+    '%7kIRg~>&sUJ0A`x+dGVH@#MOp6jig?PfObcuNwSn5+<djA>&Nfq~XX>@OuCFU^iNEqCSl?A%LSlciABr<pl0XD52~_v*$of#mQ7'
+    'Vn@V3fF$H7CYkL@G8rh>BXwMCV;9*-H9P6D$A2fsMS(pa&ds&da*&EK)-HHL-8nnCcNdMiFT;fqm&O_}KM_asMLh9*{c_Ol_AlpQ'
+    'mt&!bVVzIAA~E<g@QSPYW8-jt)@7<$+cHghg9PDVR^Lh7FEQ594_S8^Oqh&4ow>ljrwMSSe_D|-RFvWL)BWn_68&4Fe`{MM?|!}W'
+    'Uz2-YyL~Ud=TmP4&wHbLKDCZtG5=Ei+;I|JWN*0BOq2=}-vwHAX{CS=h0SE@Nh*jy@<Xs?TPb&xn|>*6lAi+q%J2kBa)A2%zb0M<'
+    'x`7I}bwR*@#$Z;NL=|>hB?vW2UKRKM&xLnKxPBqfW@U|aAT8HE0ViN!+zIl{)i7U;F5!x4HJ4(_y5mFO=y1-y56cF?Z**C4s=9+a'
+    'Kt|cU|7@M!AYrcR3(ut|?|xO!ZF0}w54g*0E)B1`LHJmv|CGWU_rNJAKc!d<kHj*8B5GxyxKTK^e{SQ}37~;4+a9{`0`rU3jUQKZ'
+    'SNt9!^C%+rx}um#HLtdJPt+Fo)><p>9F~jzygR>Ugc1pe?#rfKN_zBYDiZflF|8=fYPb9Iu+k$Ty<1Y~b-!j|mZ7-RPM~&z>g;PK'
+    '0hn|rMKj<deB}%np4m~aIb_xP*9=(z=MH%tNH2l!(t&0NN7%iX^pu{{M3{v-g5NL#mR=q@?lK*`!Fn^}9S4t^qV*7O_o9gsk<QR)'
+    '<R<Ih-){fc!~lW#4Q{_8?c|_w;b7bU`R)S8h^HD_Nvn&NR}VH1Le5*FH-8)v94=M<03F%O9(0B;wjG<JFy<^+Mt!M_sO%v(Vtc~c'
+    '$3XW^xMYZ87OCLD)-T)ycfl+1)9Wop=W>dx)1~}O>r{OciZEjKt)!EJvG`Kk^7O$7x291fQZwA|46JVj40`W^R{L@mE@wy-GqOI='
+    '&~yqTA-w7YH2|dtGW3XOVY@BdiG94@uj5yP;d%=q;`Gh24>s#?>w*wOnJbrJuph6R41;iTx;Q;cgWOY<I$~qMhN(r2IX%%G_(F8N'
+    'f=3A_H{DzLl-t;^Y9X(po7PZpLhmut{o}mNQ5+7Cz|;7QlC;@T@q79$?H0?P4eZ^c$Yrh{kb>0P#BDh78Z0$8ZwDxLH}CTa_(Tsb'
+    'vG_a5Gdw2d@P0LOa193vUnVY&cwg4)UP#1x15i<r-*O07r<fIYesx-eF3!ZEU{AYkc$@rDW@n^qrn1MDl*MxmhLZ;)!x)}erW*g_'
+    'QLt=awNi%lJkAWs6P1vIYd#Nk)qq4h7+u$W`E@PBl8c*;0Ls5dFI2)Ayj&_L^WQ3nF;(kx52M&Vx#!CfM?bCu9*vTDZ*E~`%<i7W'
+    '<9WK*!&3UBXZ=p1k&G~<3TBXKfkiPHn$XGn4K+k;ZyqB32sI(pM37pw2R+ay^wm_-A^AVOdHoX~F3|DNIYV%wBk82JbzN_(c<~eC'
+    'e9jIm)Fu-1Fu{CPe|7LZyjP=`Gh<eMLZ%Gb`bR&#S_?S+%X$4Qh0gU-7!U*WUvpuB;FCP>;Cej0WVrlJeBS(v+E)KHr$#IBq{5S^'
+    'V4BwgI{D~J9&FdQ00~OVVi?IYKDOx=egj6q+H?QwQ>UY&`)#Mb7E+U>*FDplYcwsXopm;pX>_}QL)|;`w$TWlC3U{ljVC_dr#G#R'
+    'AI1>}R1<qU?;^hbsqX6GGylPvKCSA%;M4jqXF~~d&Um`ERaC}of&31NjVCn4bN`R)KVbH6c{rikUKGc~+CPO)eYqt*Ti&~$U;RwT'
+    'ycPtAa;%uYnwAC==+J0Nz2FDEbDJb2jm_egOTAR9*K4d&i-tI#c7XzgZTRY?fGuZ)HnK?2*qzK;{xxA$cmG58Xy^FVoBcP(yXtzk'
+    '`L1y*?G<Tf9CiurzA`2CEm{{=?TeayQMWG|rFC2;_`j5<+HLo01!tma^BxV5PoRq8w=3h?)}(b_+p5IVt4e=5!fAk=B>%%+qn$+L'
+    'm#FXk25q_D?>9^LAD8ZLmF_>`%U0?B5A;K`uJ@exEuNNk-X@(V{ZG};pwsfZX8o>PzZ;)}^fQq7s-o>-P5-Ft9}P|Z^*aOrS*_d9'
+    'rRfokC;q_C>ZHNSEZw8&%T3y*v)fn}yjVv^Tg|WSr*8TIIr!i`FQ3GrvU@{Rr;W~T*X)?iUKexkyyy9B$~*6E*5||1lDA1Xx7niq'
+    '{XlSH*XXnJlB6(homMKX)6FN9TM-;`R2LTL@HELz=Yud!=RNt0*75gL{_q$KeFMs_jpq)sKQst#4D4PX6!+}hd+0S0C3osQd&b$T'
+    '5IVJu>j&@wQEo!%XXo%jCqQkoYXc3i<Jc$a-X&g;rTai{(fi^~flhqt^cT;kdk?%PBx^l=O58g=fL0{ePR(ftA8pErGOd{>YqVJ}'
+    'XtTAn&DL6NHVWGOVQHH`ENe48-*I(~fJpFzm(>c9*vlIJtzJK_HLHZwy(&=zdV?8*Yq?R=H_mWpc@s|>TXp%Oo^7JBs)-wJ;>I0C'
+    'Guy=DHJeCBv6XG&$?_)ZJduVAi&_>IwN<cin$V-DWnocU1&caQq~XG%mW4%a6)c=4(ot+>o5;XojnnjWwh&FYulXyHgw(xt6svJG'
+    '=+Y^s59Cm@EZ0SHW2#rEgo6Q}enxf3lG;cK8!Q*yRmY2=TsHF~(LZkVkKgo<t2G9B*|f&_dnzZ<|C(P4MlFAD)ZgFK->ckgR!zq^'
+    '{OG7-9%g!X-pT8%iF04TK@Y;59doMWIU3{KVan$igq7wRLD>J2|Ncwlc0Wzcrz5-ZLl8~^xFz2D>wEE}*-zg-DEzY(0Dk+nA_70|'
+    'UN^h8fIb++>FNByi>uC6&AF;OSB)Yh9StN(GQ(@OCaubKv%--yT9F6oF2iGfy5B6;hKd*$Go#19YUWqn{Aw7z08PrM{J4fg>$=6k'
+    'y*#+S4#-G-!E@SBNg#vlINqtz=fn1=LRj1Uj2NgfF;L^pCmcQS=#e;4k<hGSMaLZ-CpuSA?d(4Ls992q*rq?f-wY}h`McRL(S_2$'
+    '?OMTP&TG1CMV$q8*3((eC9A1pUW-@LTE~<M@luvRf>PZZuZOVcvF6od&Ckc0pQj-dth+;+v^n-KB#~DkS>=~H$NM%hU2LB<$>Hf{'
+    '7gC^m=iScXTiS8%O?cY6cV7Pd?qDNhH%^tm@80bY2R@ns=hiX`i#?d*(nOuU!Ys^hDSf$Rzxg_YFek%t4q>-TeqND|ZS43fy`|m)'
+    'OS-e21=i^G&OQV(4DCj+WDuzrfir}xOTpc_gi{4><^hPn=Jo3Lv@jh9)Qzn=Cxm-j9*4ie8!PX(DcDd}v`x{bG+5vBTkO`aqSx3%'
+    'P{>mVkLz3Yd$5^tbKT?$Qnf>i@_HD&9{5ZZNQ|gnH(t?y0Yo>FCH^28!@N|3fKl7Z+!Yr_d7Yj&>P26H8<hj#<)^LY^%gO<{${Z4'
+    '?cl0GoU$*qEz;xwbh<uQ4-rf&kKI!t1zE5rE{(UElda}CK_k^oJ@f|uTJ=y)d^QWD{IA$ec(6iS<Qm}Nm}C1$&A?|qQ8qXIiEIwc'
+    'Sy3S8$k1S5EfYY&|G3H{&t+oie~;;ZaIK=g?ziZFKj0mH5pUM;Y7Ot!@N(_3rHs1IE?G5vSi_e!d|Jn+b?yY8*70c_pVrY)ot?Pw'
+    'MIB$%@kIk)G-|GztHDFW#|?bkcnpPfgT5xXP~$b%w?OUKfu;T$Sn98VrT!W~{bhbPt>2HW-&@x2C!ej@7Im*>J^#V((;0w0f|@;q'
+    'nmvY^J&4-lg5GNOaB5HN3wt0ndn9#xBy|TC_DJfDg8u6Ei0U?6>h?(L_DJgXNb2@T8umyUwYw@GNqE7o(&i_%t=1zvODW5L10Cun'
+    'Nrn^&g$V77-Zvx`&HqP<MM^9Fmp1(Wh&Eu~hnfKNmTZ6HNW%dE{Io32%bf7DIMH|8P4KP~Z2Cyl3?FHgMM7l)IFXvC!(>BeujD{>'
+    'v12C@`$uyT5Xo%GV#-j*AHlloq!?Efow$GPzKUph&WFZ1xK$d>4GyxFbm=C*K24s9$dkoH!mhrSI(2_rgFgK)N&452q-~2NZCfO1'
+    '+agKZ7D?K+NYb`NlC~|9v|T`wwk?vhZIPsHn<Q=9Bx&0wN!vC_+O|p3b`eS1wn@^qO_H{4lC*7;q-~odZQCSi+a^idMI>q4CP~{i'
+    'N!qqa(zZ>Kwr!HMZIh&Jn<Q<oOOmRF7%Ab<_^vQbLd+TDM2RcfYMSsMEf6A2G^?|as6*Th?;;CsHUH(JAO^Nv608?Uf=`GA+q_i{'
+    'd{TG$FAYD34?{iyk2CgedQFFz-hu8tsTW9x>Q_{<taM@nbx0t1&y_@Qed@-;_@7DL@K1qAW=m{aN@Bg=z{d^vE!=Nbh5r37SN1=e'
+    'E6em3S*sRVs}@<S7UkVc)K~nomj0}#KLyBI;xpET(R3R7*T{V-89%CUvby%3O7c>W+8XW*^c~yHT8w>h)E~}bjwe?I<73nU1e-<#'
+    'X%@86&!4SKcJVa!8ZG@<uc{JQx~h{d;iOZakHa}zI=Jj}KPp>gEKoh2MvuI*tLPSlK`GJA9=O*c9;ShN;#fKyL*Z)A32tVU!xsna'
+    'Dfwo1cb7BMmD#HtSs>afPl%bdgiVLNWE%HW>V9~y1#U(JFCK`u9cD_btzWC0z-<fu4C34sPyB(H7BSF^)HknA*WLIxKlAc6NPj#C'
+    'Twjsc!+MtK`-kGCc!A@?kCAMICSS(Sr(V@IVO}WYNQS3lR^sd80*m=<G51ahLTwK<F*f<%c{n*^6r$tHRQRBCW^jf0X*@-$T6_6B'
+    'fR6I%`?LN_nP@G0oipI@_48M?E!Exk$~Ta>_y9?Zqw5*<i<D#5D&6j#hq)BG)@4_K{-O4}2qru6%hzV79ITFrW=lzsFLc$9I8TnG'
+    'k5m<SSa`zSi}TAMUkCvuJYaL{Y;dM|t2z_6B3V4yx%Fyd#b4_xMaFytzy1MrSMi=BsGn=kOv^AUsW2&yaghn!?m#sgjFwv#3QB}_'
+    'zQT-xK4d&y1L4FsJ5-0Aqi_W$Bt`hqjjpU@<^MFry-Yo(a+z<W>!#AMnYyVe9D+cGxk!J}H9@(<(6XzQB8N3+0o-}?oQXnoasnS~'
+    'CU~ZBsct#A4OqDe7eUTV(x8$ts5A_^?u#mVXzHez6h^85jGGZbrMKrgFbqtU!9j&Fp)5U$22NDjD3|2wM93&RvoXJ!MYMgG+6=F|'
+    '^UkVu&bZ!5f*Ru0vp#vfFfrVtq{MjuflsrJF><>|P~^ytDu+YFtinky0=>i06uW?>f$tCwh_#+oMsW}RU+I&yJ&Pc!7Vy<W`p9H3'
+    'pnK+hwMzfQV)zje-T83P@gkzF`}nho1av<I{}c)t>bi(!I6p}GT9w%x(S|pw)(*nT7>~o@$PO&`m9?IiCAyCK3*0rNKy1fc3g&8<'
+    'L{dw<QEsX@^hi=;b&w}2JSVi5+p6a2R<&HKR=xgBABi9NXw4cTb&SbRC1i>uG<bEpX>v~Yd~v6wNxgdTz&pW;{l^Rrp`n^DLOuXK'
+    'ycfZRvD(330by0ckQdrM;s9+tW{~qUpn<>d-Iw<{<<=j6$YKzi<43%>Un~a;@p<P!0bH{9AWQ6DSM@H?!2`&*7!qP|<*fDG&*9tO'
+    'JkbYG)%Z}=%&)rn)ktFtYFl0LS3et?00R{?KqFvvSfm06(rB2v6%liG51#BgB&MppscOPkd{ujJnpf@Bb$boR1uET5qp1;S`TA_A'
+    '#9-UGh5h{zz9BIhM8J?82EgX?FeqFV6UZU&tRDs;OOXopXI0x~c~);YArV~^MkkrI$KZl574ovHj2&F=IPj?j7XDA@zePaXs&cdJ'
+    'HMsX~F{pY=+Nw94wt7q2qSw;4Tp61n$E>0X6u>lS5_J_Ta9#Jq)zJdE_Gr;ow%5C@J&hJLuyk%f3<n+7^Fyq!@Ize3>#&~pI$Y&#'
+    'co*+N8O6mS9CXLwwc6{KGN?-e;R)S6@h<_L<m_bBy`D-yq%R<0u#`M{u6F00zNtGq@N%t)6&`A`7-xsNxxK~^JL|q$zx%+Z{rP{_'
+    'xYl~LnVW*~kP`Q}GP^mZ`PqDxmyENmNtP_Be;_H;*z6&4v<e4ShEWzABq>{PtAiD@Kcg;+N&6W_DHEL*FY#;D6#l*%c(+fo1vQt('
+    'D#k8hM}n7lt=uUifn*T_Cthz$;$JzGUq_^?kba#ZBz2a`zQ}nL!v4i#7)O82lZyrpnW+e%T455-n~*j5^ifp~{z-rT$<?MJ5=8z9'
+    '82<D7MDjh->gp;Y|KzlL{{(ZGmOtZUbhqw_CPp?IH1iO3vMh230%Z)Mq;tNhpg#2^IwdJw-O8X!h+OYF7+<mkZdwf>v2X!0g|jf1'
+    'PGI4Lz}hI434g^v1<lk<FFOT(xw-b019_1Pu89V|tXyk@!)4_r{rOw^^GXjV{t61pYf}6F|C+41B${PJS_5klRzUdHq5wxI+WmW)'
+    'snk3F^y1|7DZTjWS-Y*W)IPKm$bPo+ntGROzs+JLa$kIEeO3wUkS{4M1D__J^|!QtVOsHuhS>w<*98f^On#8S?q-H=nx8v`3G0xo'
+    't}F%Rr2L!YQSp2lj?Ni4JM9<ca6EX8^!82@oJCBRwH!`t!lRS7=v1_-?LqH!(sA47N_ENsxor~om&ajz?j#nx91gBK1qmM|0Ukuu'
+    'Gy$$P5KI$gi5?<R;igGD!#IeFNQC~X77~yU@C*~56M{1=s8a&wr&e_ZKurZeqS1>P3EyeWm24&#l{(g0FbL%-US!%Aq|mDb`@DWG'
+    'KK8nvcH-15(TQOqrz0-wEj=ykNagz&h_+n=OVXOEOdxRBcACAMpM0u+?qn;XaET}Y9}3BNq-tT><yLZiWb#gDdWlx{BE>jwB*!S{'
+    'g8m*=U)i>o++{i!IHEhb0xxN<Zq7d>aSJq^3x*t4+&`+EUtR=KXcW*Kcywoi(tnl9iO&9t>KA$<DtrIQX}kTZ-WE0NV#2RPQbNQo'
+    '+M`;ST+e}#rU|<RQ`wijmA_A<NvA=7FkK*5rLYY`J0xSt^(X9-B9aDA{?95WI%L)h6UqSy2z%=HPGGpSRK}wl$YFci+p0ECe-X#g'
+    'WUl>o-ZG#*fNrpmUiYrOI_K}^e*)=F3Ust>Fgu9rsJNk<DoKq@om^guyixnA#07EHa08dhE+vykT<L%v*vLvM;FlQF2$P=FW%8iY'
+    '945T!wG23>lPIn81dSd_vj#FL4o3E=!!aw=xOlVjggQveJW8h1)TXX{5sddi+XHx-Th*4F5;oDQ)|)|klwDqYva;as(J~Sgkgb>g'
+    'L1ht9cz^gv4;%F-TU=^D3Y{Q-zKsT4l*GCr^+_6AEo!Un)mlyHL+Qs>qty%ojVQ8mb|D>xr>dFKPEiM^1(Yurizpsu>r_z}3|s~w'
+    ';9W|6`7N*nOW|<QN)#Mgxl%5wc8mYrD_ulH6?X|R!B*{uI#27fq!nMvu4R*`Cz5DUu_Cz;cK7vXK8Oaw6f&vHX$6z{r#%ke#<J-H'
+    '0vqrg+l7f-An1N+-C%ezVo%SbNv_$`e5?7q;isW;eKBd-<TO=QI>|SUip+ZtYg><GjRKpIns6TokT#?ay-cDj*$6i6AfE15B4}0y'
+    '|IdsOHmhZ~XBfwR!gm{W>s~U+-y0$~{HI1rb!9Mz(}P{4jwhmyD(gshJm~`ieMP<*cXgVrz)CbeQVf>UoJuiX(pl=A=+8b)^wXXL'
+    '3zJCOg$61nVc|5(L`=@9w$pO`x=xNY<EnS{wkb-g3)d=17Uhenk&+x*V%PFDp|;GbELemov({gXKcSii7c$u7k~6i>=}=DfLlh>!'
+    'qfZU<l!j>reS$poC;g}}4>cEIZWmYV_El--@-y+HB<dPi#f}CylW>eWAV_SSs94p1><4aDH?V+qnPuhOsShLmxFpHBL4g*LWL`%u'
+    '$0RL#WGX87Dl2wL*;8q>CAJFk4;(QalQ^51OK=kbVkn)0ADY!(4aFJ2NQac9Zq_XH1%FZ7lDC_#kTJM8u^(riMeZ}?eFpnrZT%8W'
+    'm0%qf*8`vvg5}V58x;ePPNEHSoxOZqR)EX*fkbd>D9(+}swnow)i%VAs&WRSp&9|btQcCZX>L`{>xIN)aBGLpA06)Tf|(5X74N-W'
+    'Di}4`;S0>MT{AXjEfOU5o6AB&umUFmE9b(LK%#Xj>v7O?;bOE524X|d!2-^Qrwh0rvuB9ydEjxD?x2zvJ7L5`W;+r=o-Hkj%(AK0'
+    'm9e2TFZv(7d*B_FEbG(@=SnmH>Gk2ki#r8ISuIVks&-4gnen?je4hT?vvQ8O#myAEa1xG^h**aGW7lzHJ{+*3%EXbg*#Z!tMa7eN'
+    'p^D#H`AkL&D6PfICXE&^5fFmhyWsV<`IEB#gf3_=Rfv+ap;gLs*hWFyu1cU|j>(u;wPi2^CHe-if|)lGXG>kPSDO<0eJ*`2l}FfA'
+    '3_Et<_hxDsZ0JSJh=-a>V{33A%o;cRz^gsRb+hA)LF)^tgJqd=<P~JjI(+^Kl`xv0%?MTQ1sYZf<|q7fgMWU*KUeCtFROuM!AED6'
+    ';JJ>t&igG>1lWk;9PWLJ^r&*#EaYY;;h#3cG8%CL0=+o!tYDvey_I!Q3`M|%yr2#)gkfRW`2bXD`D0aiGP~5+>)Y(}JM8Za1~SP$'
+    'J=pYkmM@MlCEkBE1K^_y&Ry8p`15Us#fUJn<^Z>Fda@6sg>=GnH=S!CtiA%F*GB2wPJi)Eia6=VTF3f{p3wP{Gr(sC*cU5&AExsc'
+    '?>gS*X5S8T$As}r_Uz@S{%5uojt2cx|2A~LZNsg#+kzlBHSD!<cpiy*wCPvj*5&*YeBHdQ)yU5LcZY_<P)rL5a1hyKgRs85!R2q}'
+    '@;6*wnaeA;ns}aKd}H9P1F3X4UpDf;Rt(W1XV{mzr7ySbfkN~bwjN7Mqw1_&FFrT&3#PU4SDM!6>0cr7vmp?QwUE(!bmai&Avf#{'
+    'E`<`4&mthW6jD>HPcFUs%yTmorGOHBN!98^ezbwoW*QB@RPlCAeWFYmr?W6Inm{n%al}H>z}T_;gXeAU6XeOypCAEFp{Mv|%+8w!'
+    'd-{<#lG}kWgW6Nk2|cKA|6(W;Mv{fBPq^_AJdwvHh|OAntH2~Y-mt`AZ9-)utI{b&LwG$|g_pRFkN734&n#Y<9ZF5ygMM2x#OO<z'
+    'XAMIPcjQQ`vWnSa(Jc)V#a^cz@LibBLd&G^o$%60&emW&d-eqqZr(WpKmB~tg-W30q^=`@=PP*2e1*ZxySh?e_WflQ{ch!1ZC0H3'
+    'K7?Ih7jvItKc8j1rg0P-Mpj6IVPajNCfp>-Y{4PNeNNkW+v|bA@Qa)LSLxo4D(5We991r*hS=a&!Y_CL9z2(g^blL@587CANsKYc'
+    'agrhx`ZGK`q*rOE>P?claP>JY33q_%hQ$<`2s8~Lu<GnlN89*f)7C^<&kxZUy|l^Q+Yj*JAwCoiM!w2ajof|x=KVgsXKOiCONuAd'
+    ')#ciz?w+b>r@ixt{HSeCqoC7ZQ$Z=PGGTEE@_-X>J(1N?o(MC|_2H55OR4H-&^zr{HI>aYwJIMNR7U4CU6Tup8w#>6_&7<n1?3*{'
+    '371Q`t+l|v>pIe7qBiri03cjGhlvQdC@(1P-ZQo_u}7||(47-_S%bx4wIoUpp}LvPl^0n%<;Q*Yr-hM*h&GWaWcR@;DUM3)kWij8'
+    '%7U7L%8l5q8dVXcK=Bc~KO`Oe!rb7OI+Q{X^a?U?raf{IF6v1JF7g07Pq1lbF~)Eu@c3+Tax#Jf;rME*1~)VIC$UMv2bG;%rLqmo'
+    '6(d+2D;bgV`28^!Lh;#8_>9eprK3J}bfZQhK)2f;{pRzociBa+=1N>~G~-g`25YdIC|FzNBCZ{I;i*>#TY}%3Gf{&=%~Kj$Dnm$v'
+    '%o8kk+o`7Zd-^)im8J)PWQY`BQU-xFMw2O@VWxx3NFO}#beFZS$9M}O=gNEc9NxR>bWkywOC;0R7&E`Hxvg#*^oLThtW3U^bM!_='
+    'f~hZ)U(7HTGKz(U{i0Z+!b!l1K^HPO%ahoBkujFu1+5?97`fo92OeRGB{OE^H57Z}FCTe`8Dv|ix>Lqe;9~mW<)_8xyYS^$&U2a|'
+    ';F*(9xGxDjRqZM_A|i*NrWYmN`<Qz?GBN^xMT~n%k!^?3<^29=j6GPD2Mn6q<K|3j1s{Jg-0xplHuIJw$*pzx$5U)&`SnyNsWoIZ'
+    '+FL#S__dPB2J3u&v)<=7OFsW?z0ZGJ^7++zpI>D^|MKsS?H2Ze3SDG$MFn_#i^S<m7h4LA10#R}Ksh`n!7LtqR!@ap%%ZCM?-%}#'
+    'e&iY77f0`Q{tk@X(na0n6mQG1h+|1*D5I0KDMAScC-tTSLK`A_W8*%QDBFb)^3`X5uyJRFlBG10Ow$={(h9|<e9C&@k!YgKJKIJ~'
+    'y^AI$mF`DIykC9XUZ}(6qN=w21s@{K6m85A(fsV_dcBd{TATbdbL6L(jPiEk%~wG7M(P`e*N<6}sXooDfN92S+e(EmUorGl9kp=P'
+    'Q43ccwQ$u@ASWHH30?6FI?iUetKtW{c*Ke*C_{LX43khoag^>9GT^@#KBv`$>FM`+Un=gChC5B|VDiF9m8DlDyb-$^Y&b~CgyOS<'
+    '`RUDq^-U39;XR{0y^a;WFkBNVv@xamKFbF~SOU?olupuyi`W;1{J~P3zF3aa>!Y(}zxbv!V;#U1fg{~47w%@ca5u|^yIC&W&2nKj'
+    '%QxR9U-A;FtfA$|P?NUq#K-q*fn~K>kw^Mpk_);f+2SE}u|Ux&o+)JamXYFX&8&o9*Fun-xX`N%q)v9oVc3=tT<J9Bdv^JsnT8RN'
+    'RBY@l7|#zu#{`~gle=0H`PMNQKizwVfgY9EE-cn4)_00I7e-uIZx8nZhc2czCAb%jlL;iFhdM&vhc8fIyxLgt2(Ktp5{`AA5b>2m'
+    '9GnpIvY^bTR#kZ5sz>Un68f(yNa}%O3|1cItZQa_8k~1(pR=alo}2{8Sb#qdNJd8i`ks3(^vuDqQj{bbt@H|#bs%p|<e*ZN*sywY'
+    'USjNkl4jdIn>GqLV!ZgHA%~!XC9ltg?D??itTtT7qx=iM%42S@<ei<V%Y18!P(rDq$D!C>hZfr}4<`sd<4>O99s0z|lW?h=sPH^k'
+    '+K7;H>F+M4Z)$K&*;j@ANzsSjQGY393Pht1N}gQbWUhb9Twkf{FK(j=lt4EqYVlD1Y|@{aT-D^NE?0HAYRFZ?@SD`aZ6aHe*p}!u'
+    'Kd9gJgXUd7Xaz+m5rdS)$wfRr@u?xA^T?F(h}bGx5m4}`{P-mEr4(m5g*)W-t%ZUf997`=$l@FGYW=3`3n8yNo|5&4-f6u^#a;L='
+    '^?|XN24#5DOZ!@~RLS03Rpe}X8QdmDoGTTW)?%FJl~0n+#XFs|)!d9!a=O(0)B30L&p9buVJL(k&T4Wx=P0M7X5F~4zH*`9#dW*N'
+    'o4Jn+GB@mAehySdWhd&R<f(gD;q<;O`cJPuv4wJVQMfq8Tif<Y<RMt{B^QsX!2646u(EKoeRk9P73>2&{ON*mg)=y?O#${5x;Q%v'
+    'TqFX6rPujO(HW)}#$uuxdc1dIqZ+A4!v7UUN($aI6eCr)=Zw?+u}OUZ^XBU%KE&FpDJIPFGmrPC=W9pXl1_<$1W1w*g;U#$f+P4w'
+    'mQHr@?Si-Y8f)jjn{BetqzGeVP|_Bn)Eb%EiCjt8vTRyhM{9*Z%-jdF9gULI8w1DjBy0A_up6b@*^9J5a$3DPPs7hJJUh#o`fpZ2'
+    'nxo>KJ*$icUG<nZxzsshD{CsrFWd0kV@c;m(3t)n*<iJY8R5#?4+=@N=kX`btHh4NLB=CZc|6ai3CFG_6*PE6yb&j6>RTyylqal&'
+    'nJBATt4u66iyPdoYO~BE2fNRn<le8kwB4CFz_PC!+z~3?3u$yXVTS};gD7G?5~s<1OX8nTPb0WO1QNWc4T_e&F&Rq6DBAQZEQ;)K'
+    'QD{^o;yt0sU4?138V`Q@`~uPp{aL?O6+Y9<UwPNt+sOfOnOy<wvOrty{%SGD_61;S(*|1RySv<Kc3)?k@E_a+pIV>Q<paeG|8B{M'
+    'M=xqpl8I2nvF^%(%x)wl6DTLcG>Ie;6F-tTDU{`o;xgYc$$R{SL>M4tKbj;9<p^mG)8Fsn+iJEP>&vZO1R&|UgE_wbI$Yn$k2(#4'
+    ';#PWhYlZ6z7D_h#w4sb+S8jg#d*SJ~X)2(k!qfBBO-J$ceDzyLSbMp;O22N(y`FsiSYPqiTl$K>exk3;*DO{+Pt@0URw#*h=4)F6'
+    'ANsen#5Ee%ZjKokV1nhIHu_Wy+RwK4oA4Xrk(O2E9KC4S+oEN*1qTUh5~_3Ml{L-2=#Gd?wve@MLi<E{5Yxu^K1tP`Qsrua#AhVx'
+    'XEsK`)`shYXl|K&HOpr2>12e{={c8{PBX{t)vYd!8?xCNOcSnqh~afD4}HG1T4b=i7+X0PMklGj(tRzf(@NbL*WBSA#(o#~U1w)|'
+    'nDSk}c6PJ}2-z*9Tluyrt!o@v3Eh+;D6id=C@8<(lrAXG-IO$Be0Nj&VA^_Y-EgRcY3qq~!)hy~7W5$F>-;Z4gKtKRzBxHsN|0`u'
+    '>}S_8_sbFzRbX^XQAe2^`&Hv$+;@$RDFJ8-0cg4wp8hh!<2q(X%k2_k0-Fr=bg0L>IE>K9?(#Z~dy#>kqNpI^MGo+HAycm7^<5~{'
+    ';xAFE#b2gWixre=<*c$;_%FbSTNcQobc-ydTVyHSB1`EO%P8F<OX(I_O1H>Ty2Ua|x41K<`$|muA4}|3&37ri)57o`4UQdbwR5`2'
+    'kebzEze~<jYzwwGZAfB}N#ZeoR9a?;BH402jUx^Vh@(VhFgA@<y!|Oq7c$;}T~kALT7)i1g+43ol1kF+<0%PH%A?ViCskJoyFH=5'
+    '*@E-k%$2{432r@l_kEI=VcRR@Ur6CYJB=#GjuMv$ak#*lU-V12i?amt?xbH^Da+<O_X`DG+i<p~M4L84FwIt@FZ7;A4(hC$0g2AS'
+    '1o67!4Z*HV4qwcG6lI`t*+!~hm3IXT*0D4hb=?{*d#F;F2t&@CxPP0DVu^yHZDa-nwlq~IK~8yhuyb_8%0A_qPBOv%G5y;L@`}FK'
+    '2k?QH51xsSFDIbL#sy&4dSW<y(pkw_%oJxa17{&E^92#Y*9Up#;`M=W7xXv7UYI*jo;TU*BKOujVO}3BJz`=ck@shO$gt{N!ADz1'
+    'p<E1>SSVvhgBUNfPku8^#b4nK{wim%lrLDVjNqkOe7?m-CQ*O?BCV;0qKPN__eGj-i!L~1zcaM(e=JjQyGkatyA>Gv8E;ov`td@>'
+    ')UU1YEn|IG45edXS3G6Gz26G%X={A(X~ysM3i{|3^wBHmqi6R~Wbt3-NR~0fRK@thN`xp-cJ&*Ccs}Gmmcf17B(qJDZ)R8j>o#yK'
+    'r)~Cb{_D)(7QmVcV0SlzNB{k1@TkBH9<4NkM_+9Q7YbDTY4e-d!3}}WSi+5c44Jidj$iz=|3;GYXx@qQ_<#>X;ux+W5?yg|wHb%z'
+    '5oZ-L=Wdm5?1vMScRZUSnGaa;9{5737U4wKD$@s-(jh)jbh@1DZ3%a+(t{oxAL`Nrx29_$`p6^gPKN%`yNBM9N<utT<zeUgFI)d4'
+    'ZPJDOh$e%QW{d@C+3Ji%KAL3$PZ<rlGRvknRQdSaS2!&@5`)jH$l!Aklq9qIcsQY3^cg-8`=fR!q)(oD$hZIdiVPpfqF(lp<-f=f'
+    '?69R%&?9P8`{kkta9>-5OI#`l@04je`GYxO-)O(@{eqG~^g+Ny>r(fk<>-r8*G&SCn|c+7W|c4uPp^VC7$DBp2nL6T2`Hv5^!eno'
+    'jTcsc<#&WL!HN?;?cnm84fS%pp{5Qgd&(ff*+RM~M|C4McHek|swjVj8LLw0?(G~4_8z_mUg6if_b+!rjaLe({I#-*7x-O_qcJBL'
+    'q~@PxT`;;?xz*fIuCyd9u5Ws^P!Ai+X`FV6b4}oNt|eZ*`!$_G)zQsGx;uB~y)M9*9RSJABYCj#6}IK%d^qc(0tcFqKnPR#NLD?O'
+    '+nl#kt4P?QcCh<GW#=vFLPn97%%Z+ZHcyoNlt}D&NCNNxHfEBjQItw0H?Yz^+(dH->1p0eaquCuE3*L34J(fclavngR(+`CZ!lWx'
+    '*Dk}+0$Ff5k#SV6dcAlW4zOWVLb#uI4qqPyoLBfV?9tS0pIz%%Ns}!*<%d*;V&q;Jh(bVRanMPF)7qG9?1R;C9Lbw*S@LOYBG1us'
+    '$u!VgAn7Z{7fphV|KLKzk@xfd8`NA={*-xNN-iT&4cv?Xw6^%J*9A|CQ(CThv#{b!R0p^xSRY94I=Kb35BT)Z?-1H$qRj>M)pNBE'
+    'f|5?Rg`14wxCO-4_ZZ2ctkFXxBnNLtCwFv$8ww|SZIw6K_NCYLmZ4|~N6;VLKw;zg%sph%7&8uWD&rVf$a*%yg|SM7DCGeX9YQym'
+    '4<`#+@_sx`OrF4m(ZbFlDEgt0eQ1o*k5lVvJhVy<4&rc#vd{`!K^EI49j(cuhsx6!f1ve{G+*qpc}@+bvhqzOxi9ZT+Bh+%N|ntj'
+    'IZ#wtF`c>2&z99nL;O}MwrH=^RQ0xGHX6>$Z$Fes*4NnpOVUll&NJEZz@QAG{ty`?Aa>B|aP28sBAH>L0K%ol_6a6@VEp01Pd!xg'
+    '0uusXM3hXM5-}2{jmJS8ACVxmK8F7fl!B7aI8%8{rGGTl*-9z78BWTq^HW{`x`Y{@9Fiy)<uQ=Jcf`|BWwg{(v}26Gl?yboiwsKz'
+    'kGxA_*d2`?(_NY<P47D#Xq;)5=llSMz3)`SgGHp@bzkf`Z|m0^fevtoOCN$jkgV5vSP$}zy?+mdVqqfy14fW*r_ovI*T^UHdTx#C'
+    ')grG(9w4&G)7yHo?pGg=bdFxU*0HjFYSF>UE9@rxWC~BzcsQV?6I{^+`^HEY&4|W(NhP92VrL!QqBDl)hf6FTfT_7C8r^Lp#~0a*'
+    '!z#aUCIRtx_C)XG{F#pLV;=M$k2+Ru!=FFy93BX$IIpUt@MjS#dv?0w7N4CF=ghF<U34Z*`_R;s)j2WgL*Hc4MuFIPI71!ilFGB4'
+    '1cm2m$9wVf@!rnS(f2%x>10UkLKj2m4hPqKBznWaa5@fF+ZjqcJ)<#4No1b?wr8NidZ{G`t<okw#%b%d&82%Ro^ll3gyo((zA-l*'
+    'SUXC1IVNV?%DADjczmPGKh`-d$LKZ_pdW=^;G{1bIT8XP$JrC@VtG<|EHP;gIfE9q7*qp%<O`P=4RmFPU?Z1j=Hrp$A)FGBgFFE_'
+    '=oGwofGtLEKZ303dQzFB)@GZ-;!@PcTO>Te<Q`Fb9lH%>2(og%D+LLYBJ9JIO*W2WymxkY4)^}?eCM!jRZ>+)|M!VbvrLB;vUkBG'
+    'xtMw8+!Kh~@t}~IOllM>g{3NLK^y5z@hMimFU4s1s`TsS5IJaZ3PxNSg2|yeE}cpaK|Z%dG8e5`f~*IMpm>{`$=pqi0G>&JF@f(j'
+    'm#IkRpG&ktP7aC8ds1bBUv$^}6%1M}oq7K62i={+!=1f7y2&Y9ScBiFn^ZHXXTWx1UCw|Pj(IRtmP}F_UXYN&MNEk2Zo0m;!e|O6'
+    'hguisc@Px57s-2SQpK4LbDweTiK4I4Z}<z5;qjfHQ~52;;g^MqM#GwuJ(UZOWeRa5ZBubZ*n0nhbu{d9&czTeMB_tr<>2t)c_%Fm'
+    'YXU%0{aY#R436lCmQBQp&uPCqPAYUH_cKZ3p&?{_o0OYT1x4(n+OD*HVWK+aXiWpMWyifbIDFrw4e;*3Z`KRUMI6y^q4ZZ({*7to'
+    'UL;C9XZ=<M<zTw=5Je=kLX`=1WgK32@h~aqh0D~690q+IYX+gxF+=8}Jf9BUrn>(*Dn)le&*HgHWb;04tZmjB+&g%+b9Af(At{ca'
+    '7Hy~`Y`8gak>=4z?C!G2-%Fardqt6`GcJj}ot6m}CtEIsD?djwD?>-F%Hxb=4K6jQYjv_r3O!Z5rNb&L?OOKh1lmnn0HfmaNu*>|'
+    'VYNtCsDzB;cRL5KGZlIWWl(s@7cR0UEG49<HWvvg*DKBYB@eSI*D6o$ck<e5UE7(15UTW!6WyEgW88a}v(lNtFjFtt*mS`OzTdKk'
+    'UNBxEgj>xrod7XP++3SOtmGZMR5EiY9M-{+q*N=VyVwZ7_Q{t!IKe<RxxMWa#|8I#UYf1Kt_9^3fTFQxt3IjRI*;Ty<5I^#p$1h$'
+    '%O=0>8)>&LiI%|~RZz7mC6|(bC!6S}C;`y2bMe5Oi5VKr^|knTs}-FAMWi`P^>c*@E6mNJ7H(Bl7Q8pP=hGqMmIy7*A7td);#yNI'
+    'I7@zlNQ*o+j&(c<<0qN|#a}`~ys8V`<9CTnO#7TW(Msv};^&t;))OJk^~ae3ut(1DH=)*}Fh(JDRRWxKJS1Dtrjv@;&el&OC1>;Q'
+    'd^!)AdYHSxtnz#nRdqfe4ae*&pc~r6IrYH%v$3~lf-o2Jsd!*XYxMr72cH=yt}_^^a0om3ny^IpY!{;}USHBv`M}XlG<6?nm3uWE'
+    'F4v{D=9xJ=nDS``{#qG=0-Q-8z`?4PIRr4OW+q<vW=)+#0=p6k4lp3Gq0d0Bpf8q8xNzOJ)bjMNka6Rx>Lji=`-FCN)TcGMPWKc+'
+    'i*{97AYK30Ta3=T@Dt-#QK*Vv{e&{RnIo6eT%duH=QLZic{*!TB10jrg+O5C4_<;kTn9GZ_}4jZj8O|?mp8g|8@EcrJPcgUdu{w-'
+    'IHEdf7rc2Ej(++XNkT_hx#Fa1ClDu>qgBx-gOOQee<iw}%mP*|sk1{-Bvsf{>1A{>veW3+#OW5he(<({U(cE&vy+0Ut;$R)!p?0R'
+    'qcxC7b2h0xO_?%Of^x8qU(j0))g@-s;6M^ytiZAiA}mLPe+L+(q>Z_|JVfAxcIt!cRYph+kl+?DWDKY2Zc9Pq(;l9kI&orBDd_OM'
+    'xJBBj{M32GMI?jNKBW?A<xe}Q-Y4}GH;T_=9KT#rlz8syXH~P5`ETe;KHJ{@`Xkw`LpFHuS5V5BFVgpYIOzs>F}-ICA&+zP!!AL{'
+    'Js~9RgXeRZL#0(qxQe~0gm{CU?)gttF+D9cx4oi@bzFJPE?c)@t6Vt!SV@F0t8!go(Yhst*-9#%`3*Elwu)8Q4tsYHI(6qH112-*'
+    '{?iR|vz#l;N%po~m#f>)K?83<I#boDeV*UAnB<mpB({Z%Izo1moNN=Ps3WsIQY@^^X3j{L5)xr5&mKDDT8aDB3?J#ZVq7TiCa!6w'
+    'JunV}j1hRHd&K31amtY7bf_M<={2iAZ0W3ZjheXj1>Sand6^vuxk0~r-Dt`GEok8DT&&i8IPg#^rW-!J^uj$-3#Se+wM@Jfvio?c'
+    ')69+KG*gg&zQB8CvdVqN#-9m$OHA02CPksF`a;>MeMeuRyqv_CC@PNNRz&b8?2<Fd_~aa9rJDRfFu9v^&id{wH>><viky0ivFw}q'
+    'yc8kZUl+RE_JnlcI0_078R|bK!;Hx{tiumP+ioE-Q9`glg34t&*f^b>@q7R=FFw~tN-YIj#*96uF4X3JfJ7X#ODMkREp>GzSFlaw'
+    'H-OQyu(P9&x1Vw3;g7V5pFD2V7C6zbx0?0pLODQYUgAgm62D%&$7XS^`I^fr<OVdw7f=vA<T(J9XtKXZBVZ~OHi4A!I~O9RJVa-!'
+    '+O2(UyFLUOYJ7?GGeaVeZ7D!7yW(T^AsQbk<tUb(5qQL#VZ{(Hlell!WnZ$>&>D9t`@n8c70!I<UCvoOq7H!@8N@@jCE^@dTCB*T'
+    'K4-#lo@pid*$Osw{Z!koKQQs6M1}~TW7?2$BTIxvgJj&jZg%HBg9dBnV@1wXAi_eHQA3*dTfl2NvI$Qq(@oG>H4kehr;?!%f7M)0'
+    '>-ov#*6|Q1d<wfqj7T1IepoZN8n{*KY}`%=Eid0ooM&h0DL$>LN*BO24GJ0@ya;FUc<vu^r?hpmY{uQYs;%2qE!WkTrIgwJUF4f6'
+    'v=ZE{_9K(h4fBdPSd~oa?~DQ8;WMOujyB;4ZC<4mAg26P_s#yB<BjDi0FjWC8lX^qpBoPJx`+c6<?6)N?60Ga@LZh(WVx3Pz-@hl'
+    'f9*(9g}PBo_CjkoRZb@w@@d+it26e7fjLr1R?3rx6~G0yDhA@aox`_&JriXjFu_rvnY;WUY8euJ-#{^C2h-!Upu=jW!)v3qD>D9U'
+    '<rE`k3!nE~LR{o*OmyY4S46Kfuce)&{^=rR`(hr0$i;H@pd?Z&w5M1PzNylQ(y8?Nxk|m1oDEOrWt3nwSy)wCANp<gmL~Yg6vwp#'
+    'UfHlJtEtMeXqQKeX`N0|Gt$w!qXUa)<@g~s6%m{Z^bY*z>9(y(_<fD@=QfQ;{)Cr2-Kn{WWbyOQI09ysQQYHWvp*fVG|Eajb`D&F'
+    ')oIg1Q5~OEB{*T>S6Mmlie+<CvRCKWPOG8Il?`34Z0Jj7$9_Y_P%P%OA|22=+M`uWBwOkV40T0zI)gG<{gS)5lIf6bjcE;|?0#sI'
+    'bX@KY=SsIocy9b_8S{gUl?S!Pm?bzfW4_I@UebskU{nW8g=As|x7IatF2lTJx(=G<5lz0kyyZJnWFq}<spQCIqYZ4-jRMHz;Q>W3'
+    'k)W<v1jI!t3yA;AaM;Mg#2_ObO9gnCcGHF5Lcti95(4=kKe$^fVCp8i874+M<J{?#YXqHj)o9Y#vu&+>d>OdfIeJ)5pLJHA{ka3$'
+    ')x@mB?|h}~F0_J`qStIYfgbN9j#M2*a5Kz39p#y$uRE1wXKXW5cm8>~!FDC|O%FFpD@9zjQpVdbr^hx6dXrtDo1$RA0!SOzRBc?h'
+    't0<=)@LUh=v<JU7J5EE+2cKbS{NOnIW3W+VdS^pDLkOEe4L>tZMv|95zdKlBG{`yu&?W)n__X@WcS15<KPZ{jnB9jGm#6t2+r2zJ'
+    'F<~WYCYf=m@Tjylxm7YD>sR%i@~d(kJ0%gS@*xGAeHM;RjBBdv<_V{wu6(erU(xa;5gP@*U1!l~hSkDddH(hh`%?2-m!D;QzEoqD'
+    '*O!U3htRO~@Ene#>|3kkf+pPfX~;zNr6qh;k-qk$tFmM#<+jqW8B4w1QEs1(e;DiBK~JMW#hG(ohn%Q^64$I!-|BG|RE|7=Z>l5@'
+    '=wv-j#le(K6U-BL&o5oGoy35WG}@g+SNZI?EdE_*<UVVChl6XdSVYcYUG(v$arX`szom!>_jDRfqIlTX5nP(QX+c;*Q$p{pSR|CI'
+    'H=9~~K14hgtOIWnMTn%3OOd%ZY+Dl?$PNy58pN0lwrNm>$S0a>a~#%!+oYC^(4u=SkX^C@ixoQ~^2zOyEG72-AKh@oMw-Y}uh%jc'
+    'wp(Nucf!U1sbfocaEWp$bIfT3ZH~-gu^BNuh?%kgTdr!!YaZSRfs!yBwh<*YZybfm0_(h4t319hT9Dy9DE65<XXIN$Zq2^8QgF?5'
+    'a*J1=>_^4&uAR<a`EJwBT$0ybOE7(vP#SyKkz#I_Nn~Wp<&xXvN$lKDu`5wJ0;SE$CiAs;S(}TsK3UGjy2sKwxmDJI@>(#yi<FoT'
+    '@?H&nqq!cOi{^Tbkm>xlm;CMJ9llK^QMlq7w+FT}xh`PeR2aQo5OtC58;PRM-YgWQ3{4oEuc7uR{P6NtHAhAmEmT*q5UQ%D85y()'
+    'C|OW+Hdc$YXmhoknnLOSDv&k`rPQZcA=N(JT={9a4VT9KS2H6lL8TRaUjF422TS@)Ii!?HFM#0hCLYM*D^VFJIj7?ljw*C6A9cJB'
+    '-gp5Qc=!`d;N0PZTdb<G)F0MK`5^GM9Vkkk`v0J_u`aAufB&U0(*sDDg2(ct4;`1mrCn9zcf%MbqKaaWSdvkv2wmP3xWX<wBW}_&'
+    '0<Ek=e)Ya-I>jKEX}&39npM;A-BL1C)=SNj-&BlbCXO5eB_Es;P4&-Y{!b<44g>ZAO1*swLscGWmk(yjhjR^QoiWA&vq=`S(t|`K'
+    'E>k7~x*3Lz#G~`TzE5Pd8!J3vhK?u9S0|9krjSvhhz>2$3DiZtRw89l?xwX9&HU9=Gj~ch^KX}KW_7}uf3uV`ZuY5L($2WKveVQv'
+    'Hf`c8d>4yh94*;38!O$(Qg5<h&YSFix61z$Tg3|H6;E2r25P(EDVp7j2=Ywai5WB+)&B=JoTVnLRb0Pm$5~(YP`TzQ^)rg_UC`b-'
+    '$GIm*6`xCKavY^(R1x}ng3l$^Q{n=DJJu@g?HunOzj@i_+(7Jj%eBjS-Dp&0NnW56dBn<SJ;>+Z{Ts60+Ua*$;&o%o_a4#{47$W}'
+    'ZdL(k#X+8h39F9SKIA>aqU3doZ&jCEhpVZCXBBDBy>pjMb)uh_2x6S4SX{YRj3Es!{M*YnhbpiTKX+en_<G9seJ5EczRRTIsOR!g'
+    's00+8=;_@LRdc&_xbu-NmZqBWB}s`2VpLfzf`YUZ#GAcRBgM}*heyY^4Un^89K76n`vL9!p3|>?CwT@|DLQUM(Q#wq+W~)NB{7_?'
+    'vXEdq5Q8Z-=KR1e#H+B-8n8~5(y~;4Iv3XPGE#}Ml=|;|f9}<{ylSo8Xh73e^U96;^y8$4=+dqGCC>enH0qBo=^s(+1)Pp!9;NER'
+    ';Xvg~B=phg5g$o(o+LdKy@Se&*o!1JBBJklNZa9VnGNH7B86}WU`pJvvwC4BL?2>RtwuTgtH{^+bk_ECGMvkLwVLL^QPvZV(XZEF'
+    'LfEQ5`r%2itY9=vS}GmVBrDgd&S88Hc7;97qiYJmR72I4`vO8W8;tn4H>Mq=C-yH&!h?ell{_h3tOB2j&h{gYgp`?pxn9g?3nDx^'
+    'X_<gb;voq%%;P7*y`wwHq|`O#dXf}f(lidX#Z}Hp7!{a6Vpq3Qa^qdIp5eKNUCR<JlUaKDT&u+C>p5ZdQ$@bG_}u>SGlo#f@IsM='
+    'jC5SVS*whcSzPf;3Jz&)y7JyJNsNMxg2c+VSM<9jk@AxAeHRI>)~7hm74TcTV&9r|`OLB?f~}b&1Iy;W43ujF(|+-M$kG4w{v+|M'
+    '+#{I$3LyJ*@4mhlD6^pj@Pc##qLh~=b;75gE@*G5#NC;s-Srg^HLVw~=lLb-G2UT0v+GG?wRBxyoU-J|h7}Z)>r9KB_aw`m-ebua'
+    '84b9k9eyxGLfWKl6`^B!)`R)hMGZ~jHnz%`YF~J7JRBg2l%kH>fRpa{J>+Q)mO*ED5=R%G_%$vy46qC*mtEYZx$6f807khd4AQpU'
+    'w5$0*4fE<}rEugd+Qkk0u&RODXQg;7Xh3SI?d~7#*3B8ebNJ@?ADsBgBq&ok#w3f4<Ta=UsS1O$j44w(5!;hdc<LcT-L!vJl3E-N'
+    'vB(UO4wZ;UNaA0A0)edFeEb9vOTAgabf2-~y&lR_NmIU;H_Gy^;&;kMt?M35x(;onA1cdgMJ2QRbRQwdpY9{9qow^$=)AJWjiSAu'
+    'e*N_`jG^~N_xxE!9NXwNhMw+(Rm_J<5~Y-FzUH;Q<2}I?N~+I~Q5eIZ^{FYi3r6VbY)Ji*bm^&LEW-p;Yea&EOAApd_FqT{oz&P5'
+    'z0(;xG!)VYUBUkADh~Kk?LLsF#RZm$2Vmc6wW1XQ9~QO4D@m($n(77v!)a)ds9u4G#41V1a+VGgFPRc#!bHiDjx>e9HOukBVUK;='
+    '*sXIXS{liW5TvT6AQPl7cm(E8(%~W{gZDh>*bJofcwV~n9;Gx=wc;<B+asvHeI5{ZiDXhkqNTm4zzsZNXedtdbP8r_BX!1M#$N^b'
+    'D8HOOcGc65M}lq|*=^1~n<ud)c@p(5R**tU+P0k{l=b(L(9wZ%Kh#bo#W`#JB#JE7R>27wXAPgsdzZvK`XUka0Oui<z(WKbOo;dP'
+    'IX9k^iUi}0V0e>9Lk%XVc<%`tI8SaVn<W=b_M&K_yH$}6ZAm7oh^a|hIZ{QBO#0lx^w!+DL?x$#@P?zI^$ul9V^Rx$x9!?Gi@d4|'
+    'b4wXrf_SAko>8a@UMpJZWx3)G4tMh@BoQrR<TwP<*g~BgH&;_aRT|bfQ8kGb5%<#6VUjL~qmeC74bGvL`q)f4RiHJKG-D~$dUk3&'
+    '`kBxg(q4d~@kTqwNLJD!KbWW5b6+Y*@p?M6m1`a8UURPfh)Tuq6#d~zJTm?=lDhPfWymq+tx>3A;Z?OHT^Ja{&@L*lfT%>f-)m|>'
+    'G9C^BPSlaB4BYnqtZlW#>xNjE8pjSy(nH}4x$uboC73^PRw>FMCE+sJf0;v$uhw9H_ahEMCy8OsDJR8YSxws(c&nRCp-;@WaDd72'
+    '>4h1;{ztjV<TEtU644HR=~|yn_(_?4Z~X%0ft4ZI_Wj~g-*g%=mT^302FqqD->bs0w%e=Pk;=hvc2g?!CxkCy8JVm+|5gjIN@t*r'
+    'b8?(!(^PU&fb-#O1~)k!w5H<IMAr<ho~6=+TIc-HCEpH~gwI-riGlzOrd?{f+oC~BcME;|l+kU;cY`TsBvqfw2jT+X*;qfuMhvnA'
+    'PEm@BG+<^=MQ|==9jtW<3f(2T#J3Grc~Yqsegv|#VI9YumiS&sV=H{DZfnf)!}zY4E@^-l1>k%I1dClr)^#lV3fD4cj_IUKT!f{m'
+    'm&pe?X9_I$IvZ+ZMSw+qg3Fdv;w$oVb7qv5<hJ&&Qp(+Ro0h=Xr;-=^EW(i-zQLLmqb*|YDyh$dtW0QocYH^O+HLypRZZ)~lkcQt'
+    'gDcQ=JpF_@Da%h)98{4>-p*&sArOarsGnPoAlhddCJre%VSGJ|3LXZ+bc9aMAKhwMk|myl7f6}Fr6967&sHkKxknX*lT6ANB>+Kl'
+    ')Ki&ijBE!vM^%*k71(RUEHDehWC&F}iA^fSX==gMEOa_U!%G*)LSHOVvr$RKtQ(dq+TP*xU|011C69zd6adJbMj7W5ZFOU(#dtc4'
+    'a*EJK{a>yH{Z%VLAD6tL(t$Q=Mdiwfa)2W8MF7!6tAMpKZTMN8CMPpu5<@WGB_&~dknCgFJhc&KICpEXT@q!#v=VK;m=12rA49nD'
+    '(1D;l$H&tFN`?+Khu<i3D1{c3J%6iGf6VgQV-y0L3{QrA-0uycXpF8=8d)sMTu2~JyZht(59AK`rS?NfMxJ;gZU5PbwgQVaKMUi*'
+    '74s0o3CrjV<WJ?<kO<rGGcn$eqw*6k>?PCDVh#YDhG3A=uKsLPb3XCJz(aNny@T*(5|w`nC(*f7#TBE+AJ>0)e|oj(abT1TVZXnK'
+    'p;JOU&ontHSg~_t8i{F@Pkb!iL$6w?J^rEgxcNh4YwJm^{`g6?o)(x>Md`rHoQ%U0zkGgC@&M2i21zPUx^Gk~)kdS%dfcdPQL~S$'
+    '_2w3R5XZ~juUDFlYOC?&$>Rq7Z9VxRD%Yy+7bM8aocx%imj}R&2mO@IKdST-skoM6%uywo$i3t;tFJED&7eO&1f4VhNCAwst?ZmE'
+    'THKPVv1@KgzA&c@-KfqwGk&i-nw~-tCJlA+w2f`U+KzjGlunNF1h;hl+g8a_=3^2{Po@i#@0s~((3l&E%b-s<a~P-G_Sq9qPDxIv'
+    't`3J**&=<Y?8`a7N+O$|Ely5Qk%MUDD6zHf_=a#8CykCb;+$k$$v5bTuAc3j7*jNgpyDV{92_1rbtF%-Q)IF(2<^!`3p8C<fo9h3'
+    'b<s>sk&V^WZ)b_By$ivgTE_7^OO_ThouND<Cb6j%+RwcD*Vnz3x{DX#8h$1PhPjI-!{BpJ*l6!BHHy4ApKqx-c^2NK=Hx|qTXVfT'
+    'HP_1!tm{t%if>nm@+2&-M0pl2twc#5^_G0pb3eM)<t3rSs$6&U4XG{3H*f5>TS~7kU-aY)bJKj)OTYT^S1X&=ww%(Y*HYT_+AVFm'
+    'xvfibTu<YIvK-*RQ+{#H59-B5QrD}IdiVLs%(hc`-Q~k>%jZx~47NC(1DGn_Tv)d#FSE-u`+UOCx%MlweQ<E3!zY=@!85UMFKZ%%'
+    'd!)uNI<jl&C1Z;HorQ=YGPn1M{iP2cQjZ0%X++~!6S%$cyZz-M)amrk&Owxk6pEew^i*9ITH0eg{8hn<UM)$27e$-asWy4hLYxRX'
+    'eW+6?#!X|8@{tyRjabl|`Se6`zgc<3-0XLjYd_At>*k4n&1?Zt9sak@|2AN)O<!p8&By%j7XSO?^OC~G)>kcl^9N~M^-*&hu1R;b'
+    'hWwF!YL7oVF7r$Bkt{p<c8-qR!>{=0JFt(wMsQb`6Z?d^{JIlLe2pHa=hKqo<W3clFEm@J50lpC)r`Z6lf*p|mYfJqL1X(oAmYAJ'
+    'xa&?db^o%lCS||9Vs(zJ7uT!)HiUT9a57YQ4H|rxGhNePjXF)21pj3M{B`7aE#kW->9wPaAbAr9Cz1i7ewl?3P6^Cn$zn3(@`>Va'
+    'qb!%c*pQ+755yK_N;;<DDr)1ZaG<nG_{G)iwld)tSAj9rX~BjqPvh<nRpR-%JTxnLc-T<X5V>nh@v`BZ2VFjVcjS$R=aF~xdJmH9'
+    'V9M$fGfB<{JXh*L-P`%4C$ihsbV1VgY>^-$TU?*f2Lf^yy~#8lha+x{3nK6rY_IK;h+~AIAh#bbl73opZmF9tr_!X2(uSOvC7NgF'
+    '?$MYz8S|2(QwzxQFK!!4rFI8pDQ!p0ok{{cI`aPZ7K!>K>A+Sq&H7Msvq>a6KQwIUR$U2Lf6@a}#6s5fl%Gk5yqvTcoGSphs8cmR'
+    'GOprzLnT2>EJ*A$GYbksol~Yj@dV~HSj`pG9j?G)3YPK&d6ocg(L2h0rI0<S|7G^TW`4Qu={h0f1tgHRr079rVgI~)R`;*dlJ<nM'
+    'C6}=9y`Tu)_H^;7tYKsh!iHXmq^ZB^MqS;g<Ho$!F-m=2@;2>oC>4;6+^d%ArCO;G6m-nK2PV1UY!vnhgD;hmAD+6vLZ1~6qR}Xc'
+    '79v}#<o2Z7acT_K*u*)u4WY{<V>I#W7hFYy(CJ5xVs9f3p0UJImb(!qx3jJnTt6g5^We6z6=t^)BC$MCry&g&$`iumCkadzb!B7`'
+    'GLhO>pjd{VAUjs2DR|h2q#9^dm+jNLw*KX9o(a7Z8|v6gNAQnl_VXz#i<)aW^cJXc?&9EUbB}qQ%=sl)ULM$w>u|mq&s~f0_1d>Y'
+    '8-EL)n1&mCLxsvZjPNp6csVot4OAViH8dSAQ*0;S;sT=TXyvp@zOLH9)gORkiBuVvnzw;F+`eN?)9&C)p!k=xAa`QGT_zl?4A6GH'
+    'OrR@qVr`~;Ib*(zGhd<``Fich+WL_@Xh@1P2r>`Z?Vb#Vm%~AHf@Li!<AKID|J~28ey$w8IAHVMo88@A<jlKLMXuRIq{^r-wfc4P'
+    '2^N<8NBt=?nek<vUPUpoud$&31GBt93WtB0x~ylTA2lxJ@{4mKFd}4J-l}>hL@q)#YVHr)^J_ls;?(oi9w(LuoSlyh@UGJW^}pmp'
+    '#?n<Ef7!@ocOOWKX*<}1V`bZ%KP_NS^VFs5>?}v{Z;Rsvx#q$|+cqnD#egiVCZ&=+i0$^*%$Aqjn&MDmQamj2lW{Y@q>lB4S?*6;'
+    'u+`zabm%P>55<F*8p%Y&Xpfn8>MT<7W+kzAEeVP-Pz%<`bOOkowr&I5mz<Qn!k$<&uC%_2N6f@GJ(3VXE3clFU<{@Fz<%B6f{ng7'
+    'rrTa}97>yddcy{;J!ylDWqHv3_1$#?w{Tu2clwIddH?Nxk?W>Fw(**fehsW%GY{6kMQr_@bNl=^g})b$>&wb~IIDyf<2kcViGjbp'
+    'H6;cLT#HN$1J^8jv;T4D@SPDiIb=uNuMulTlP;^^oNxqRad=i)@fB$mGl?y*6qx-4e$O>_q^2vl<gm~5q_3oEYO_1(*RU@^LuMvi'
+    'j(*JGQ*ojVXxdw<t^?`V1Ic8hK&|0OdlI?!@^{B5ce2ddJ}%41wU2J@^L<)Pqu{FPk}&mb9!}#`kO?h6sux5G6ojC^%D?xj?xssk'
+    '5WP#nHAlO>s$(cVbKH{Mv@OMN?a4U-2h4qYtxBc#cq8?Ue6#<d-exAgTqVwl)(=<?^(ac6U55#4AXzmz2GP|y;?krEmYYNzl?PEw'
+    'Opp|E9b5IZgN>ZVPj}Ci`q(I%H;7tbm$`Cfm^Kk6b@e0=9|Q=08_O9we6em*K_^YRu)W=CTgBbCbu~L@Hdo1__qFp8EnC|Rsd3v('
+    'iszDVMrI*%s6mf><H04Sqvj-dkARzV1P#?6ViG0wceCa$*VXATi+SKZfRL<CY|}p-2lFQ37+O<R(wWcqVUhxJL(6~DPw$RDe`<aH'
+    ')GV?$nWJ;8iXM+q^!VK|4$bjASgBc2U(B_PSN!^FUV8dzJpcTO{+}fvma6r@$KCi7NCU}GBmHyL3}R^=+8Dfx4q{MTv=gKC@|*ov'
+    'DCP2x4mTL<9<|4%kSQklB>$)yrHCF_B;g2(WeyXF2B+fIZ$cH6GZN>G+i)`kbs;rv+r_?#N=wUFVqq!ToJEL#mlVhB?+KSw_VnwJ'
+    '`vR9*oefp<>ud`ZUxH?JwxTL4d9wElT*-`vR^aqEZ>M~MRglu&CkPx}W&{#1!lrj#rp9JEuK}FMOonOHrB3*kG+*0#I3J!O%H!cV'
+    'RF%J1OSLbaA66yd8r`Uu8n{tcfqHMf=hk=@Nt6b6qg7;wHsaq!Nc#Z#;|<R-Lc1DQVyb^M#j;qL-%?7__Sa}*Z4KS1x(3g~D%w+{'
+    'mu-L)5KMxC=4xNx9B1pcY-UP%E<DxMH0EO9Q)C*3{;ysFhBSh<OyT$Qr0RuL=n!h^FJ0Hwb^S{TLo@3DB%sBtqXF)Z)}e~Z&Cpg>'
+    ';cfK)wfE&+Z6n*h|MMx7zN^y`7-AVhXcNdH2^m%h;R2oRbMn$&9%SRjQ!Lv+x;dZy?WrcIWSfLO=f1aY4~Zp}s!BEN+T(BYjaY8n'
+    '(2dxX_^NKG5~7@jn-x_mmU=3xR4nyuni5~t4OQYwyN27To-|SEGEwO|qDt2SM9kU~EFFZwD+{}&KtqoyVFnm|k9=2@z6dMqisp`F'
+    'K;^`gF&*T5%`1!JHt*D)dSpB7`@H?#5+#bh^LYMu#mCHY>9^1(T+e=AHVK-#+%A5nA%nyGxX<6B^!`T;8+@ntm%@%CW|a18cQ~fR'
+    'U}cmV`LH0t*ucl};O+^jH+vP2`6}9-31jEtQgZWt+EiSI{8&SHVoUb7{W_2kZhdwQ?ZM@hx;^jYAIQ-^n5d(CF!71+oCuNV4RLUs'
+    '3Xwn@I$rYyGI?+s0G$foVX`Eh(~#|_Y*!`Fj1C!5v4EXWR8<O}F__4%za(!)xf9Es8-1rDcfRU7n{wxB8N+D7P`D&@IvCYk7!r<#'
+    'NgyG>v=8)=xW3OaP6sC{MIY!^%iLVsq1(fZQa^z?LMlx1oAbvl3Kqpr7pYLZNglNox?iug5#9ttPwJ$QzW7XLXmb@?SEQ_Vp7R|n'
+    ')0|Bzp_&7FHR78WnY)%`uiGE~4eiq-Zy)$cPS2d0H3suR$-ZIa(Kel$wFXaOd9taWR5a_EniVI^uc|+vG>`Osif}CUTJo;UyXd<s'
+    'bG=PjDMpmayTJ{Uk@ymQsTe{YfW+m`GpZch9j$-umc0Akq#D}5a<{|&bxD4yxh(0qQ}a#5ao^UEOYdKM9M<{*1}K$+Y=IT&qWH;N'
+    '<bl<7uQy*%?~TamJ-Mz(MQ{Yr%X<0A?LEHj+J$>d+9v<TwZR=3&EzBW{ANGH>>zd`nK_v&$xv$F^CvI*aD12}wrr5<u~MWO3<;{6'
+    '@G{u)!$ZujT2!t-?M=EP_<_-*md&ZB2D+DK?OL8P{9{$BU!#{64QO71hL0H{Bg}+lb&spt)i-1N=Iyc(rs4u|i3(}bN&WWb;ON!K'
+    'N2O|uNJpN!5xr8TiZJJ>ZW@h;4IbH2a5WynopF-F&{-p<*@#A&oQxZ><)<L|MG^R_-burcC5LVhg3o1IB4(yjLec^6m$8oGgdAjQ'
+    'RqjXWCys|w+gM%2pXXFi@l;?=4fhUJ^bJ$0PA!?k5{XNgMH|H>{2NAV!lPwna?5D1{eDYY=Yu{qnY7{Br&96#ST1z9c$(&u+QI4R'
+    '!O;<FC&<-+nf^?sInKhGV}?IR{xeHC%w!V1<)n&Dt$KE{eOdcVDWb*wQ8{#0#l;Xm_tnXcI1y>*M2+@?&)x|z`XG=DNt_vuRe7Rz'
+    'l+0JGdn}=ykN7WaQWSXC@RP7vOToMKe*F)aao|&*uWJv+=fQB4jDgYs6M^}Mv1{m>2p!`*b)2SXMddnT{UDZ5vDF_pg0o?J0>_Ao'
+    'JMGoKc7ZZYM=b&@QpgybP=xYg1?jY}Ga$hVptM5M{y?ccSe}7KB>lJ1A(=Ge@pi3IPZJyM<RdzPDdk7}Gbzd~Ey@l`*;^_MSA0OV'
+    '5~gJ9dtjG~awlUUvHeVaT9~_OT8vw=xPq3%Wc<e}`MG5y4$3M;yAU8OAFG6@J6h7p<O9%-g7AZelUw;?l>*u>E^}>}Pby~>OJN9Y'
+    'v1LI5;zZR1kKhT*HA?M7I-GHtue~zsm)O%lT-ZSDZ6H<+%!L)O&y$KiI~GY6Z4oWnTDE9M#zh3inqo^qa%F<My$U5!3y56g#zwHV'
+    '=`qc=hHY9Zn}$&1obsEZHN!Obz7wFr5bpD|XK1|tf(ruMiTsri==;J-;(R5zi|~LV8KbQ|Y1w@@><u@7JB2@Q3SUvaK=x}FU3?Ax'
+    'yjkKT@nJywA)OtR1o8G(jysOK_gz>KwR9F9ss&5OE0>TCVa{?`Y`>O(0<SZ7xzL-td>40a&-8y^zv9Av#oyPjjLVvKg)Fq8e}iXl'
+    '!Q!NJsDkON{rlMu+e!{8Q6^b1e*`V$+$<kqX;LT#k;MfZQ85Gb1=*{}b%_?g!7&T;e;Or=&Sz+y)+uIx&~}lMQu?4|(plTd#`=@P'
+    'o55gzM$!LOjPOw7T)*PT5!4l#iVct?ymtOZk{kdVakGwW1;WE252fEu6>LNhayRkxLx_6pL5P3s!(fy&2cr2)E}iN2*z}v5CzF)x'
+    'wU?q_8-Ix&!pTK`4D~}eZ=3TJS_0X}tIEK<c~Hsz>7u<5HW9)PNv=hc?}1ioRm}4ju%J`4iNFJ3lKR7$%I9O8GmropEyZdu{E8Vp'
+    'hiv44|76l=Lm>E~6Zu4p=m1yuizkoc$139{?;g?K3hH{AjJxC`(u$Ui*Vt6D`Z(#-Xy1mzuj~?i$A}M80ZoZ`Ro~_rN)XF2^FjG~'
+    '^F_Ig|4%LU?9aFq#J6tBR#p^CepZl*nqPGO)=ha8Aw~x<E@^i-AY(ftO1R-fy!w&nC&5(=wCGzS0IH1p)b7<M2K`+*S_F-0tCLL3'
+    '7^mdyO4E>5P2Np(icQ8*-opeAOX#*fREv`%;QCYPL=a>NA^2?<2oy6S_KFCuz7W`5${PN7`|8Wa2L8DgKQ4*9MsW96TG8KY_3M*y'
+    '_uBB|&S1~3aB!6uLn)ZyB~`?iSLza{Lb(RB!9iS8O7ua${CaSD5_zPFG$9LN2sQ2R;c@c}R>G6VoADGqXs)-nDk$_~u{c+Z9#S!S'
+    '!8Lf##@Tvf<&&cvh0s2X#Rx?QFJh1t@J86E!wybIV+pZ?7j%MzRtxALVt4{utetMq1#&{Nq{J^;iw5QfPZgx?0}>-vTOAnAwV<*('
+    'yCNqyL<SPUke4PmiDUmeeE}ZFR^lIgpFDyHL51zEsfH`1&Y*NpQX`wqNnjiGrm#r+{iM|e>YTDY9JU3wrWb<t>EwL|{l$&|p<fN5'
+    '1iR_1$>B#{I_&Yu`JT5{FVK)ynPL$vPW%LM7y1RyDwx#ZgdicSf;wRumoRh(!0;o;oRQ43O~1zF-J&YvZ>uttg^=-~n8AqDCQ1~P'
+    'QNiM&+5($VetdkL>$TJeOP#ji3VT4KSf*>MZqHy^4xs)<;suRV?$(HcQ$9a?&omR)wyZz|)gl)+UP&9*Tb3^#9u(R$Eup<4p`QG9'
+    'v=O|56|R>dlecMUMWtZJn|=70%4!GuTyL;52&VL6v6_L+U~X{Xa&AsklgQqSx5LVGty96tsr-Q-4K@6Zv28>jA}03efUshrast1l'
+    '{SpYmD7~tWXe(MILZOLS8;-w8yR8V#O{b$#4-tH+zereJ$F6kphas;|FebWh(brAiB&W2_aZQ#hv~=+uX5!am>0_;GVbfz;qQ7I&'
+    'Kg7k(-Wzz=+8i?JK7jG6o@#U6%~F_v^~%QMA1QkcXQ^3_`I?g0{J5K?kkw$V4CfSPvhjFq!b+>b8M&v|9UhXQx;Q!2*#%TrPs~}S'
+    'F$f3i;+~GWHaw$|D;P~U`Yj|rr4_-E1q4)J8?PtAQ=x~1rnb#tf7C?)ZBCsdXM-%0?%49f#I)*z8%FHbH4=T63^AI4tWRup*{IIi'
+    'GUQ<Y#Iw)*e_IN&cW$jcdGPWjaPV4JXq{99Gd>)xH%W?WnKY9*S5ZWPN9~~2-5QrsNr{1bg4;v{>viQ*IJ&?ihR~nk>q|0rtt4%Z'
+    'yCc{PL>=fDT9bN2f}m{|Z&B)F=`yg%Nv|cGOqW9n7$_cEtq1rOH`R=K_9?;Ezk4oVySVEc({>wrrs9xHUtn%JogTVqtK3NJ&DX{_'
+    'af(mMFGCz$S%dTw7oDV@dPRSQzn&@X4GSDcc4{)ZQw=<O2>LSga))OpM{m!iMRk>H6q!i80`b>m!8-l$%32kekLv6n$1gI?hlAl@'
+    'T}i-E@MTAL$QT7Ep#*FgMFo|6clr}$82w06Os3;U)Ry#Hw{55IQoin)zT4j@riSAWuMUr29J-&qThL~vNu{Vdc~{X`;3qHMyi@m&'
+    '4*vO%_Xoe}=0pOu`h|B7e|xjz4D7u8X8Kdm=Hh;lJ&AkD1z&&V;cq9Z5d1v(aP$v_VLqoV`l9n+PLH`oyXVdl(Or)`L%S>K^)Lhq'
+    'g{X!VJ!8|P3wmr}mP1J=E9O*IoVCd?!5BLRYCm?SEp(oh5fxt{{IP8i%~Hyroi=TXDG%TwoH1IGRg{>ULxMsHY;XL|@I+iLfbdIC'
+    'kge7EE6|XcPF5es75J953J`-C5q6+1c7ikY9r?reOK(^X_U3q(oAC-QWcV*TX=JP9BGJJ81%gamhJU6ibUF(>|84DE>ejZmmT8M3'
+    '=)T}gmNnKi<xdYo94l1;uv5q(Y?hf*K<BZ)Xh=M@U3zOHmPJ<=d#bz4RVQ4}m}<+x?Q8qSY|^MTl@&`5_I7#4t!*?JldRCFU90s?'
+    'x1uojB5_Qf0%3(pMXH$U27UJozneNjKhmr1EoWvjP535)tHAE5%6^|$S++YF5vD8NC+Io8FP?|bD5D3)OW`G|^T?af2+Jm<h`1Hx'
+    'eTerCe6ZM7a+=eF<JX5(<G#qJESx;#{T^}PAa2}G-CA!5jC_rf&US0*s6O~yvd&}ZA(M)h@NKfyBb!Rm>*Te;HE_(XPq)WC%Oi`S'
+    'GfgOt`0H-M2+74s*6Cc-k~KhldRk7Jx<VDin$4bv%0KbWUk^glm~>#bFeF;1=+KP<m%nK|Kr`($u%WNm4Gd=eYNmNz@FHaV3du`@'
+    'UasSM(S)YX>K9W;IR)z}xKni@+*}Xp6g{OYQ~8wmm_9uOS;V%pMpd1h1S8C8jjgW-vdRea$K*n1c9sN0qrX*4n5R*vJ5qVmIgSvK'
+    'nDlxb(|R5AdL8H2>#mUpY1bgf#Tg|Bf{)%GL2V^wt;!{HqH&lz_MG2RyqDrs8DxGu9k4r+#MF;j0R^9KZ-}vM2z!3UdTUJmdxJ(;'
+    'vlPg<=J&}(w_>u8=x7iNjs4DB%DX2j{ta>0bv?e%bv?e%b?wFx$Py=>E+p~Tx6V<+BAzF}higS}O5#$0IhAxOLYP!oY#`Itdm^8O'
+    'P9T`j>c<G#5or;3%Y<=qj3V$s@Wp5E&rX8YkXSODOb{cciCTXM20<pJ0E5VwU>gTJ=trs&O^HIAM7w`&KQ6EDRLVi~rpfZxIQUl_'
+    'mmLW5T?Q_(K9m;`!AkS)8g>$BW~@3x${La}J%SaD?p|<L<~hGt)Z4ly6ZRyKLzkM>=XeJ)js?b0SQ~_oDchP770Exp9CQ#yj%bkr'
+    'Q=)^rIUV!q)<j2wJ$*XAs#G)Kd<bLKt9Sd7Sc<941rU#ZeQ<*UH7cAbDNgRIFq+VOf=N*OCxIzIo$SB}ZL8~8u5Z053hZnN$||c^'
+    ';BHEEu$N5OJ%Hv};$wHUDglLqWTLwivY{ugJc*=hXB&g-$)~GMSKO=XlVQKxJZQBzvm*BK;_|aW{=MqZo`o0mQN=^+ROA|~$PJbf'
+    '-Vjhh7|M)doSg~wd{trVh0p@HC4nyaeBZwupYA9R9I}t#HAa$361&Za7mt2=j8;&sQxH>JecYL{o(t(e?#zC@IUcS<Gn8vigtAc&'
+    '6T*==zy3~q&1fl@SZlO;g^kS$Dgx487t!*nm<p84y~aU~ZGSM9e6CRld1u^hp?(RI-McozAjHp#><}q}uY%PAe?P?$MPngmc+H+L'
+    'T{YC`SnvnxFEP4RjWN$y6*FSWh@9ajps%SwX<Y9WdMn<g{UO^yuOi;vT_n^h7O4U2?$QT2XSRf1%cRSrIwi_qc`e`>57qr-ZAQm+'
+    'VTm;y()M0sFN}DZ1?_5(Ny^H4UTSx6q&}$7tfBG_>%+f4!CO$DiC%I<d%cOtEmE==<{F-q2Zf<b&Mu;}7`@}+4HaBEAh#&wC$Ji3'
+    '4@%_nZ@XLIt5314>(Po-^QV-x^CGe<h7Pq<hWFFKh2(7l0!(6NDe^n8TQkMh?GU@Vj$c6%7T#PV6Vv?2hXFB)oT?Oq<542i78uGw'
+    'ih<??C`ZT@FbunMVL-kU0i^slLx6k>`bYV1hW{u+{_y)J>4&-F!n~Oeg)|wk3PL@z`zQ$4^a_O~1|K%-4yT%moP5j&>$B^2h$?OL'
+    ')TMRbO&Kb8BRJPKT`T%e7^hII!is;4B%~opFhMIOvceM>b8Rs(1zsf7$2JF4+hOn0?G0&**eeoGlGd&_0K*n0=2D|t6UY%N9p~l^'
+    'L`fx5ExK9JaE}t(zb_0she{H`?=tuiTwkR%db>90GUQ1qI5|H>tiw{!Es;{R6qrzZqDUBQ(6YManQzW~eg5Lj@mr-0wmSKD^<i-n'
+    'q0|>;0#rQu5z5Z?r@^^lSSVa9T_s|xCO}j%Y8qTz!sthfra2!TFy{!;l`Z#~`8eFdpd3@-q7ZB!bewwoufGBgRUp^~9K&B<zdU?V'
+    '7`1JZ0lI#*;`pO3k3XO-1686zhAu86D;rg)oR`RL5raCWjb5_OhA(thfq5Z035mc@sb$dAuwG3Bv1Ri$5F1kO5l3V3GNwJQSWAjT'
+    'BL+#*N(loa%kd}`3#E)z9!$}9gsr;^^{kT5J6sW&BXFo~jw#f{7YU-9>^CZiem6B@J+`RwlcCxtA5%4YXbi?#33Yf48>3Zs)+;6Y'
+    'D<;;Ri1&h#LDsn_!d`R9TfXRe^RzIsUKd$DyxwW|@!WPF-?82JZejgu<yhRjhO6c|!zgKySU{?*O6F@Q)RI{Q@dCXCrdIM}#J%!?'
+    'CS(Fr$e?!o;n#z==TQNmf*mKvC6|wrD_(~VAK_&km{C9`VVU(+4B(Lc-2Z+@N$2gO{2pK)mIQk6u8G^_ARjbJAer!=vDvd)BravG'
+    'Z|I$nN&M`At+R}6yWS{@BBOA{aX0o%Cy>wp#rrfhF?&SJR}`m;!GpQ{>&nTvm2om&9)HQ_6x=Fw3ckBr@SUNN>uEoj4SRJQoA8Gp'
+    'U<!X&8~*@@@h6tBK7S&S%1J<Dpe!~kpOq$vqAjU6k$<vwG663x3!AggA{GQ1Y1eGsFRhT!7H!Dp>B*BOw$g90lNMH1xqEFPd<gn*'
+    '7WME;zS4z;;qVKOi&bl$@BHs~|BPf-`rBKB?X61~L5x+ZrD^SJn3lvWU4rj&S*e1T+*fQw^0_Y{G7<g}&*MMb#ZkB@zU0Y9)&byq'
+    '2E>?xsi8>UL0A+bS<%uXwM1P@4q>Jyf_?B*r|!pocp_f|G(q(preXSLY<^bEPs~Sk=PytV#HNARG!UBxVt)g<Z?Z^@du;ipn+{gn'
+    'TPllH>4x3wlb9`_qpny{gg3BH+y68k(`_+*wI!aDkH5w_eXHj%40S$bW61@H1w(5h72jSZ(c>g={q&I+(rQ30msmnhf*wDf(2uyh'
+    'wXVZIv@cwcjyOL(nxGQak_>}K6o^FarO9N{(;8FjkmkhBfBWHQaRBA}WdX|f$OD)qV#lE)ulA9GkwaM=XnpCj2Q%vPHg~qrrmA>s'
+    '<dP^CElRk^I9~uy4GX7tQx)M@WLO`AH;cC$nW*+jF04JLcSa$PSCa_LxU84#1?x*l0EyghpG_KuO=V}MsuilOO(Tr?iL&8C+X!Vn'
+    'B6EUz$RkIA+^(O{9PZ}<$5vYOgPLF~Bx*dWffh~ww4!Uaw>CDO#9DtT!-eK+<D84>uMrM_pa{b9_2!PTL!W${3%hCy`4T$XLy%lH'
+    'nM-<ag?JE}uu><Uw3;zZl238U9ZpB}W)gYA$gd_k-Yl*>Sq2Q>OkC(iZN(LgkFO|RX4^AAD7<s@E*5$iY*U#2PBtLdLXF44<bToO'
+    'z+5a7>3x3cA;BtGmNKP_^KUV0q}M_}sSgO9y6SEl-Ye_-tR;DMvQrA4RDx?*HiA#r9Rw$a-co|5DuK3d;ZRl(XscmmOXuWj6tc8~'
+    '&njQ20II5?Cenh%+w0`{gVv#lBLY>p$p#$+LD&FdgMvRXXcV0STeLr&BpFy~ANfefO>57Ri=qeByy|!@`UJ>D6m`lJb*k}s(4F@j'
+    '8!c;mo~bvV#kh>P74Sdsw&P6;Yp0d=YuCWZhx8FBy&#>npkhNEvh+Kg1ydv@D!$12jj_LO8(R4x?jRhHv=`{AB76GA<wxVV%Fqt1'
+    'mIF~DB$PQgQDdyV@@Tx7DX|t87zreF#5K*O6Z%%;ISJGiCtF3*z{)9aVc5(Rfol7cP<;@EDn_20vA#*4tV?>xSFTuWBi3p5cM-%v'
+    'NBlqFZ-F@IRD1?VJ@Kb_@^^3|#~2uny+4ihtxdcY?-svKc~GeDr}U;749bj>dlE-W0~E|i_o4y-*K`;Yl12<7>|k`#9`wKjZn~jd'
+    '6xcT#m%pXKcus@y+y*5;aHTklj%_9I1vDI~C<Xp?JTKJ%lE`JU45;9yl}uV44;dCt`Xf?c473hOrA=OCy98WgyPg>%0`EBvuAXqn'
+    'GaA`1bS}y{=%`sj=gE@RN}B8yBhmmFQSwd%{u9^@)FhwlCLyv<w2KbLj^Ba2R&u1&3PU#yXrxg-n`3o+6Pcui)%-%2zI-7UsP1V>'
+    'D0`d2ESl^9<Uyjb;@@ZVDftb%70fJP)Q@QS&LE?b^FXr*4RxNWo;dO~>@qXNrg8?04#T#;@**~6D<oviS!3f`z%=PM&DXYd=f?gm'
+    'Pw%P6*yS||i2R0rf3<q{HP`Pe`**hAw;6CXkZ$G@0obK?Cj#@?JHx$&OpkyyRpiLlGw7(QN5OHG`-uFJ*!ljL;{G-M)F&UKZ0%uY'
+    'Pe<4iv5B^Sg-5!Ak7oKu=E@bV#_~8C7Rv`%i+Mi}mYUO?e>+-6YQ$L|PyFxFbr*sFz5^nKU(1RL(xWJ#42=mPah_ux@z?qu7{GM$'
+    'd7cW$0`4hL^*CsS<o1Fg=e^-1Yy2Z$+v4ubCdsF;D;cGNcpe&I7J-|C3n=#A?;}s{B_98ir+dl)<-4K3H4pLr;Ord^yzbOrf6bAU'
+    't$-KuTy^@`l|FXGNd`Somq!?nz71=55kQyaJokrA3umE!UbKD3;*1;%bq0)QcAgBVCzBi_sM^5<nVPgWqK<AD{jmg^r-PHbvj8V|'
+    'd8FI|9OXsW$p$_7DUA&*7=lv9&qE~TE&F|f?kd7n_9w}bXa$U^t&0C^UHSg#Sel8-N+rSG6w)%D4s<d|M59Yu!HFG<4v#h~$afP6'
+    '6+uHn3j@_EDU3)ouQ!IX1Rbt-fR4bIRUU7bg6>ALfjuF#s}Y4rnf3{;ir}>{-24f9y_K)aPmstk>N=)jrywD0LZ`bpq4*NYb;$vu'
+    'jbw6_pvxR3cjkDX5W{dH*c}tWeX?3cYCBHwb5r)RA-}yaP1KP|5&Bkam=z0-Vat2L{Y5Zafyz08)1+Kbs+|Wkjk`9aHf=M#N=iYW'
+    'c1vd25JhNSTrSGD?A<bY^>bSSl#Kyb3Vxf{E@AHKWo(14bD!kJi*EKsT=eeC+2iwe#ZrBt(kG>O$L2-Syfhw9C>jF$#epigL~jC>'
+    '-p8}>0;uDP)LKevVr`N*SfQUj5G0J%fzIv<Dz#ZvQV}jJ9TaA5GU|t&l6-gtyAYwsR~#wStP(XpW~^8D5N}PmFadmX@ZvPa+pb{F'
+    '#k_+^i8>`1vU+Nz_ld0ekjiuR_!drV>!NEG4t<rYakkbwWoe>?VQ|)aL)d{l>E`AIGL*OeO4J_W(NI;Y@3*?ED`-)ZA+_uPvp+*%'
+    'In0gJ8>;2kqMn4*A%9u*xdGw<Qq&66zl#^-@!vAfRmV+F5&n)|30ve<zJtk@R|!pTmmbFa@S>Z2sPPyD{H|RGPTFgE<*%i_?aJp+'
+    '-|SvJP(-3ugO%?KN1rp`&v+>J)z`r3gu}Hj9}q34`d|D{Rkg$8Oao#X<MHNEitJODAQQ()RUagsadO3*y7K!DY&PV_XBc{BZ*tfx'
+    'v^}j`Q_K#V&~8wy^(1k;roMe?TWD+R3i^PPEms+vg`!9$aM}W1|L(ou!Z;4HRGNlbM|D_Kn1(y21W~yRhLQxJDTxd)#-bF|sS>##'
+    ')BTICRR@khf!x4WAr)fQ3J5yViqO%{u+jZs?+^3H`_`=r--4a3Z*7`eW@yPIYE?<sapu~pjIOPkT*qL?3PxZ@Xr)%5GcE}l*d%CR'
+    'NRT22^qh%-^K>4G8q6b6gJKeO>lMwmypnZ6Bqj=fNR%+ll5A;CtY!a(Vr8`>fE6p7F4>0Vi&3dkShs9?Ji4nK%^7P}*ls}hWsdj!'
+    'NpH<e)Tp+qT3@m)A2H9RLU-#V2$5MX83%|g*18zCT4ZsHf@?O$@k@eRPi8qri3c`(dy8!^$j^ws$*^s2Mr*;L?gAr+Z4)@}x?L9$'
+    '%k@kbkMyoqDV>ypVK8KOYE(*$lWFQkpjo`~yNY6!8TdyXQp<qxIK1*VBl85o1GQR^&-OcaLGSGIrapy}1cd|a{ilbYLp_JAmaq3_'
+    '>_2{DVljn5Lo{=cYm*TOtH^maFEC_t8M*UPWx&4F@Y<Jt(Ni2qQq0q$ak4KjU2$_%|8#jNF}RE`-VTv&!vO%S_l$F7q|H*W4&)>P'
+    '(r!PD=RMq-_wcd%F!FXPF6vapybZ@nrs~ak54Yz%eBwUzcdAm<shxS>`}5pktjvA7xy)E?7IiBw&->&!p8Irb?$gI}#>+CT*<nDi'
+    'S3);DEOZ1K9j!56VNi8-1t{dO=(M!PAZs?I4X#b6C(kX>{rvFkoI=F6p76hnUR!>`|4!$aV23kuxgDugm}^io`PGh8F3ilGO7704'
+    'zO#tC#uwsTGjXn&IM+;Unn5LN`Ff|!|4y@cy^5p;_|ON4P7-BFk><%2Li%*1_-{Ex#sqP2-R;*)l7U=U?-qd$S;3U-ABld9t>6Z8'
+    'qu4BDwpFRU-5qq(3+5wnnIx3E#iq}!-@(>SIMF&C^T40CQsxg}iKVV+!_4nRR;hB4RjL$H^QDz3>YodXUB9@CQbku_vGo^sQ?BH<'
+    'wCRzSZZ0^sS}P0Oc1<x<V|t1ei6$3CqRE9%H2GffWSRN;HwqQ^AXvCVvruGMEH-$_xX+Wqa$vn&%7OI`F07YxTv+cZkmbI;d2<Q3'
+    '(J-s|Mac%h@t%3#RAoR8QH40`rrkzQYcYsV56JXv6REk;@!t4&d+IzfHj4wpZO{BC744Z1(^aBnSqkVxD=A34OotY}8k<*<T=`tE'
+    '?%Wj*CLem1Mc>l5g1R`gV9qe-!{Qbs*s&!5lt~;PLRT7CAPM|eD`{hnio@UjJG?FhUm_xk*JdG+cs6G90{p20GY5D`PhiQSZDEMW'
+    '1IAU?R(bQf#xod>^%G>i=!6ZA>&L;Ppi>_=&}Pjt(aHjEVb11={`yzll-uuiI?^cX_)+kjDgWTJgR?UbK<iE70|-2M9VF+;blfm8'
+    'oEOtUCkKENyEI^T*LAC4;~B6G38hP+5PD@wBS<%E1a_?+1Ir2x_p%IyPXfdF@JnDNO4VXNk2BBX%=4|x^GfFV<IMBT$O+ufOJerR'
+    't|XT4+-Bx^wsYH==h@CZ$vpRUu2R&wodqNJ^MaAf$YuH7WkfT7_cn{VmyygoGaD}$y^MV3>EPpe<Ch5%#&zu=DrvW!KQmImgE0wh'
+    'nW90S^$%?ss>+7si{TI`XPpeLKt52Si)}-)7V(nnWZdkgu0@u}%5XqbhvV|2Jo|S~!rUBjPIjy<M9DtM-m2tpEg@^kI4>b?<t8D>'
+    '2@g5Dh>q?+Yc^7&q~(>NeNr2~<4SG$*0N$8wNtkB`&ukxvth~VkCMkS)!H%_ivaeYicTUqjI?kg#1Cm)r0?oyJN)ct=LO#Lw6&wW'
+    '6eXRo<d96A^7f`v=QiJb;_F1Ly6yHmmX61decf16_F7u{x=;D*ehfrr4_GST@KV(5I^U8NhHuX3x>;tJA}$3g(F=f4oA#$YT$hyB'
+    'YnV4y7DVD_W*-Hbt0e`RI}0{fb0v~*6>!|QZ|7J4pAvNMSJYir*j+~44HN@xS>Am*5uXgK%)Lm`fa7I0m3@Z(YdQe#8;|RP16h{0'
+    '5fagzUjgQwFyN?Cr6q%Oh~cf0&?g-Z(Sn2K7$B=TdRhoB;cUIEw0itEimSZWd4HGl>aPXTY@tM3JVm(%m(l%v2fD`h?%dnExg>5a'
+    'R8$}%l6>|Fx;e4mFZdTo#g<TfdFe{*By>9UX0Q$BRy0q%=9)d<l9jE!kv>b{0~<3b$#Xg`7LCy%+l+(svOD778bTt%{6gyu*m|xH'
+    '#{=6~Os+<PO1n-8yd0q6ZMdl|;CJqKB@6Y#4VQCPYSW&-sRiVsh-%FN0kjRddUVNM+zLoAxtGumzz2GF5J*ZW3sVQ_X^^x!NwhNO'
+    'G{4jS`IhZ{PkP7u*F4^?EEB2t|0RZyH*g^jZ8)2>KT(uDq8WB|I_202Zc)K^jM^uM+{zrvIbU76nC$s=rHkJyQk3S@q`B;iS=1XO'
+    'u)BBcv7yskUv%fbXKTo4P;Xb}QFs%VwIeF_mAjIJ`ymM5cGjD{%8cU!MNd~2?O=Zb_AN=kUIcVhFS8tWq3rsfb||lUMzQ5QBNL<J'
+    'ldxM*dF-!TSsN|IRQ7qsi=(K4N?`+A3%=m-a$m4n*ueIJFL*NV3vizL-E5l3OqzSi<f<wR`x-)JCzGpmJ{@h1ctOD5vLIR`FVaAx'
+    'TrUNU82>0Y@K?i&Hh_pLYe6O;6M3-KNV;jVk!E5uOP)3?`anc9-VTY$;2L2R>t*;qhW{(@|E8&8{)@6o^Dk#wRXa{q!K5hr8s@v^'
+    'KRqD_#@F$&Jf%A(HY|tKxEU=1t@q?N$bihNgySM@*?>w5;Oy7du%=>nME9t|&abU;vbjAC@cXAqKL-noGR^(IhY98MaH?Eh-XPx{'
+    '3hMVhqC{O3@DHaRtRPDBr6)^g(^84GuFY5I%q%Z|d4G~m{h_gl-1K@Xq7}c^qXAkr9Q6K}7W|AqSMG`d`Tb|sx21*0|NAx3wXo0Z'
+    'Gvfk-!TVzo6|hu1rxeF2^i*BtjmqOTY-G_2?b@0LqI?qeipovSDa^q&z|kpJR(23dM%~`9Gv$)&=u$1s#JOe|V$!oGm0FuXXJcn)'
+    'VP0fX%%Bj6G9Qb8tOB15)k~=T=3E8@8ef!l#e5?PJ}R`A1N1oe3di=cjq{xXDb^5aX>*L=*7o|jPJP>uAMUG6gA9it)ZFAxz{6(q'
+    'i6LSs=a#X+-mX)gFJ1(@cpa<jn6Jq|*E7#I)pfiO%q*{j{1$fW8vU9$UHC+WOe%$B^4X??Uf^%*!^?{UWyjq9Sh?qp3+(YhAGssw'
+    '+89o$e%}OLz`)S0xFG0)GLTELf>0$?tV@A)sJp15m@10rRT5__Q0>B9i#bp?<;QA3urN6Hm=S_*#Jk@Vuwlu?TCI$M2lgDw4b!SU'
+    '+vcGImgBrjyh64@zB#8-T_7$}FWqV?34h?hzp2t)ufsn<KN)wDstGk3N_^mTf?=nK29Lf4mEX%0J7}3OD5(C`$!0~;%%oJ`iuh}^'
+    'hP5$a<0AlMo}#(nlt|z73lx?l8Rhp(vMP)4F<rxeLF#;qttpDgaa-Y$@z8(q;h2#zLq^8`?Zq2@@V@rqNPCM)#)~wllr}NEmN34N'
+    'bwqV{WT)!Zbd}4OOR<nu0>ME@O`yu13pda7ifxYOK2#Al95!_lG<#FRDkI1o+cC7>QjKERr?zJ59#BG>;rNmu=adCoDElaDNAePu'
+    'I}vD}8xa6DabMvvNPvn42r#5*`?(a_+>I@|d}lfghoWq63T3x<k0SHFXLuysE<<qDhm^CTt4lml<It1eCeqO<>5|s6OIrPewY-S1'
+    'mNSI)JISi%pbSyfjF9{gIt1T3hn6l!Ni8GZo@3E-sJ2X<OWrJF-=1Un)30v&U%mAPtSY)=$F!>Sd9VhEMyM=fciK|q^D%czxy6q#'
+    'd>(<8jtHRC0)j{F-_?-WG07c4B$Qx%tD5qW7?z~UjUp{^+E7I~ZQc(Fiw5EH`=04}99<|03w`~vu)+jJ$r<L>)<ze05<q;BsDO8r'
+    'Ea-qf`v2|aA&XHk${Yuyi}`|s#rYhce)u)R{8)+)T%BW55|kKM1e0RLc?}2xiO69RDJMrneG^ELJ_EhB^Dm+Rum`WxTq-PBgo*R*'
+    '*B&s`%1Z)%hRnk_3Po9{aBksn6)|+}rTDToRAIQhxU!95%!O{ku8BlP{$V&@H5f>u+LDC&1<l~;`aV8{?_Onik)2gk0#BB(Hi$6a'
+    'RE%pgTFxPUOK8m&6C3z@Z7<l$`d6&_cO$}mJv@2-31<v9o$^kV&LavNc7N-07S+qb_Tq}d;io<jBPjYwgQGNw2$cf$h&Z;~;{|~='
+    '*2|Uob#LY#dz_TL-mQcBWIC?*7SHR>DzTq3xy>b}bpcZ?G_bN7P<{aaELHNev}19?(3v@57?ogzese&Po&~EdBv@wFDj{r)67G)7'
+    '`>WI&yWnWHaSiRsaI2A)Nq~np`G=Z8Ul^;vc~d*WaGV_Bmr}Gd^;%t5siSxbBguezeW<*1_!?m~YwZ2@^k_dEl>#WzC=q;ZDHzl+'
+    'q!*_BVmeSq6wCx#nH4Xu&PFCl#_NfUr-UO=qMV{CYaDc(bp@kgI$0-EDRJ%$=mY0d9nGohJv;^|N)?0e5jCaWyhuD0U@2<9B(48O'
+    'N^ik1;_;ZJ?n~45d!^mNNg#ea0a{^NG6LldyVsO#qcMVRjy48(vpF2yAm@GrzyFBzF?A6YW}wjr!2-r_c_Mxn0uC#!HropMi@fyN'
+    '(7}5kzxP0K3$x^%9=_aiaI)j=bq+HXNt(S?amO4f@j4j7PO4L4YgEbY@Cyik4jdpUBME()NJxo>=69T{^r}8m!enYCcO-owy~cV='
+    '&fT3fr-V+zM?f+|gdV8rGQq(A3Ee13N-T31uS1IM-$7!$MMR9v*K4qDH#Va@Tr0k_N43yKyo(?)!Ie?TV6Grbgz1<{K?N$^*uX#6'
+    'VumUVCu^8y9(Z5OlUW~62Fds*_&nl<5pfK*UIjb-dmL?S_%TMxBx?AmKG_$GXue<P)v#)_m!s6!i2aW}wX&vmz!RA!O7ROHEW{kg'
+    'Is4G$C(Cv$rH;WX&+v<@&`}t-*xZZpUhMy<aoMD{zaEY~4&!N=qX)+E!jf^xN!@6FCLAQP+A6ftd8S3wVPH6!VVG_8`BfT{(0MGc'
+    'Ff+Z5Nnd+ObCQ<qR`CGi?S}`NoNX&!iiBh+#Q6$&uwugIk3?T*_C!erbBqIw7CyPe@@VYi%SKtiw&gM=pzWwYlD)GWPCc(!J-4{1'
+    'Qo%xBz}MWa<arouro9Pl6COo9I*67zfl8XUaZEhQtK$9X>zB`8vk~)&hKX+_jcEt<n7GU-K08{`ScC5mPhTHa&|D4t2WBh>?x)`C'
+    'ekI}w6APquoiWwe%`@HQsc(J(2B)VeFu~+fp|TZghSeF<CdN6yLaJlPh!{}>tBt!BivF}a>rQU8rV!rWz->@MhuIguoF5&WouQ&L'
+    '>DNaWLqaa0IwMiSQm#=lHgS{W5Sad?F=@#84?6Y}XO&D>a&RXwhzjq72WQuUL{jR=QGIeDydOrdBL+gW;!5trR)X94K^UrBJj^ES'
+    'C<l4G{o=!illVnMn4s@#confe_JMjy?(Sx$Y*P|0+WEIJbv&JfvqUn;Q=erDkerh%A)zb`vQwyH<g7`HR+Lj@NP~g`HhvYEWkb^y'
+    '>M=ioFX@b?wyTwg)%Gpd?d)>(EfM%SMC9THOc2O-99pf<rYuDEcwzTdqvPbu6l0;fsoo7L9eusm!x6$@7<`G9?08f3-)suxXi5Am'
+    'Mpv>xo3rz3x<obytSTM#Nc|*XK%sP}6kN{efQkgM2leBac#{x*a1C(p>Ghw)0wAOuc^cJ@v&l7XV%qCAwMCP2yF2iqyqjA?49>(('
+    'a!E<Cqjm>ZQXh9G7yV=ci;9fNm@*39Oj4437*$7Ml}abmA$6qHMSpbU<6ut<=$l!+gu)YLQ%~a8V&W{yUObpYl!@eR>v}_c4+zDf'
+    '-b7MQi|&`>!;iFL-hX&`$e{4Ba%c^YHl~AQhFFXYJ<ReRIuk)5N+N@Zr4=UAHJ&Cfs@^lJ031(k_^w*lR7dh7gW!rNsUoxZ4YD6$'
+    'S^WX0sD<TPj?`&DA4QemuS|+wnn4sWVb&aI*|*0p-+rtThsx#@Gv<usVvRYktZ+2B2HI;PWz+6}09TW~<n^MdA9aBNzCt843+MBO'
+    'P2c2FfB;j~fO3{##BZfs4w}gzonm&iDO-^G*5NUN^BO)%d1jEC2J_XU@vt+l_c?vdisMyCUsveTLE}{7-={Xv@<hzXH0@Z?+2Qfo'
+    'p&}-9QHdO}1enG&S*Lhr3>$WHAJG{@bBTs1A-b?%F;owqqv?#2<|09XFK_qIHJvuQ>~(}j>D4>CZoVKs%glb~bZXrZd0@l7s$=+c'
+    'qN=9jJGq{W>x#sWd7Q`ahMl{KNkOz>8Z%#Al}73vvMSOM-yNvzMeMl|BET3ND1@#`{o&dzas=d3ojw}C6xQ`B*DMlwlYvgQ9zVh5'
+    '-5Bkff;`??CsLUhen`$(PBEgn?o#NrHiSjkfMaT-(;GJGy^VCU68s1p<)<Ix&%6I;K<i}>)(F*xu+~5Heh9Ir^qY;AKX_dRNm<Vb'
+    '*A5gmJ_TV?jyO4at;Iq^QwP#7sBT1>i45={CiQU-Hzd$uq3D{GQu8A%x!;Quzah=pUtDjsoUbkgKUVB7hrX)swx*^r!rcRpSu*g9'
+    '1<nkrr`BXF_C#l9%cQEpPmK||_!wcv?Rz@ekdMsH)u$iPO!#BWJ+A86;m+}D_?-dCb3M#?Sra<B>BAY&klMM`DFZTKQTp#$RkMXF'
+    'N{u9i5z8XX1rk$7U%WYd@y@<ms}1UdVcG*i8E$VC2G&>%iB0>6h8~=fV$IG~b~UtV7VP96{562DN2CT=mc9BE)-A@-jgfcXlVoqb'
+    'Ari7=G(@eZk90&?dTF)kBb*=3-yEK5(iu(%c&31C2h(6;Qn)iL4>YFzQ7V3B)C*uV2E)d%bt8z=b<<*wfD&2tkWL1n=6yM6DV~W_'
+    'T1Gjdkc{$_iAZ15rF&tRi2ndc$d$^@4y+8!t`a%4@GiurFas`g?a}?yismBvK&uW3#GVZ7L8}#lY)3DA6A`h8jgrw+dGvVLG6Y7y'
+    'WeypFe;{w<|A7>uxqv+Eo1yvJ>4W(^Gjq<_P_oxzWG_ZNc$uNodKhFLX{JyKgBK2t=Y5Q%dy4r-b<vpmMpUyR$a+41jYO0_W<LmH'
+    '^r^3uP3Subww&rQC4`#cm~$9(kjza-Hq6FFeSpa`SL`%*FjDRC2NYVF1xzQ?=4F*rF9zX{trGnQ-5v!$wloogpCWkt*pl2R@B^pn'
+    '#}<rKDKG+)N7t_(-dF{{mT0<X#v&#;K@h&rUTv8HGzPtbWw_8pXGChppP)uj;zkr)4Nl>}sp*^}EHjn3;978+s{tv$PJbp2wZ@dz'
+    's1tjMZ|}<0Q>tEFt?fZ4gGYgZ33dR)>DZw82toxN&Z1NPxEQ11PHN@NM-CpIylyPhj>oDmUjGa%^b8AOB6-xime?w%?*r+4jQ8^q'
+    'Hd_HmSy#Gj-b27Dy1EZL?8_x)q!WW$!`5DoHhQg^JRWVlQMqT}=jAL?ChL$aSE%5yjBW6f<_7b!t}H;Mw=#*rXUczW!sg)S(+*Pn'
+    'Kb2j3{vWsQ%VMsC2kJiDs4---n2T{={81uJ?TEGn3|=X?VZE)_AFVq;^E*|&PqxfwuscxJ@3xY5I3u@4d7UlXZlBUr_2|ygnt#G*'
+    'khAq@yc5#TRqRcKi70SM%PsuN1di~d`8JBwwoxqkLglV6Y<Wj>jOWNW{W1np2^Fovs)8YXgo%^MH6TvbAGb4a0x_D^8uWg=U0LN!'
+    'parWvQ+7Xmh?_)L$opnEv#%*fW<V}a^KxiD9L~NaZrAJUR0%p0vLxxAR>V!CQ*ogSayG8C+v$g$3FQtX1DCpSW4+~$0_H!(#^^e&'
+    '==-(t0G1VQbXrF+HLGOll6%Tb!uM^X*6@ng<=mX3562a6)<4wo%t>B2+89nJ1!Rh86Ox^18G3})zggDA^T4Q&R3sCtDNJBfM!@nO'
+    'bU~K)GFl*I!9W*jB^;3^Pm5<ED-Ey=>RozCn?)Al8aSijz?XzO%a~hC6K92IHZRWbOw6m3LoI3896q>M+P9vW+B0Q*sSA(?cx<cH'
+    '|6B>Yoa$m($&r*?ISCCO(SKB%;+2&$9JeJmoo$FN%`ZDCbD?Lo8Kw$Hk?V=nsM-*8JSG|Y4h2kZaehB##ZXJMiU*{artpwNQ}MV@'
+    '>PBG3`YB#fy7o?g*lmTK`XoWJGZ~JPU0&K5H-3quAQxJ+l-jQJ?e3s9XvXL!i=Q^K9Jh#Dm6Nn=Egc=pw=5?(mPZs4%)A%#mULmW'
+    'fnIJ*_%PwYg!}qi8I(te<2m8<5eA)uG>c|h*gfs2Vrx0XIn9<yCRf9#m`nW6^M}hbW$3N<{~K2Zhf#AvUUX^tzpT;!vPK!!=s&>`'
+    '-R2HvA2(pmb0+JpMhAH%`z5&bDKvTtbS52lTQ9r)4V3lGlN;*^!XFro1%=8&OK0b&Z(kk~J_MpSWSnU1FuV`P=aDZ47$~Yl`J!8i'
+    '6UY{j0grUjk~f+Z(&7}bB1d|S1R8d1Nc~xs(ZG18in0HWC-Uve3RLn6y&TvR<mzIWChWR^CRsG$8xH~kNp_h=%e8?5rp2)#2(h~L'
+    'D+<j+elseqD4)p%js@H#nKxnJ*u`Ke_5cqs;R>j+ugN$Q-WP2Ir&a<~IE2*{i33TxTgW;SK;P9+bI%(qlcYbQIL@a?SdL1pZox%>'
+    '*RT*)YPD7}gU_nfaBmOCP1sxLq7BzGU}VU<q^5=<WI}RMAJ_Zo!(dc0Ou;H!cWR>Awh|e4$qAJDu6-FstsVtg>2=7?I(V4l_vk6Y'
+    '=|fKoEX%n#*gHcp0=xp?xQ(1PUqg%bwz4;p`u%m+c?C@v-?uGk+mkhfGHqDw?PeMN$%n^2unibCD{94%8V9MdWCJtKPRgcaSx=QW'
+    'Sc{xFJPdL+AJ)OCf-ELcZg(Z`MF3AM*B)G7H~@FDpoz`OIM&f$^@&)TM9*Gz7WT?K>ltI?*^UPp^Vn|S^CM6Oubi!`DDclUeHHPA'
+    '+OY$te?L?kK?`Q+te;yE6%1ok7N3PO+<n-(;sQag-dt8>t2d3voDr8_8zx1cjQT6JVGB*!j$G`Nt>i6O$|&(``SAGQ`O%@93_cmJ'
+    'pS=&p^}(g&uw&nO^fRl|`C<-&%wj7k6dPJwxOCCo$I>LAWi2DYQ#UjB3>KC^VJY_aGIG9c6UX7Q=;bcI+=Z840~=dm#KxyV`~>I*'
+    'RMxdCi-DM6PI#v>Z`A8TgOzLPyBF(Jy}8IF^?E65)Izh$9J@bhsSKD(#=nWEmvRdu&jnl@IJ7&T*-<!0H&#5pJNM>|!xUl1Gi(k$'
+    'xbI!x#OzP`CJT2p4p7-ybKl|PqP}^to6G-zC0#s0OL({3*V<NJW%(KmCMD<Ska2NFB{wGbH6n#RQ{FwE9|i9i+!ky0Y_%3fK<%+g'
+    'g~Bb|=foD`<L4sbr6dNDYRf5Td7{!gYe0O-3H5cRMKQ`YbH-SXzjsWrwy4dz6_T2Jtq#b8vl`vWeNa|U_wTdUS|2&bSerN1I+j{f'
+    'Nn>OTvd}59R!3~DC6%Lk_@ndC7o|Bz!)P@~p|iXqB%~Aip#79lT}DqM{u`P65lnJJEe*TA|K}{l^X<gnp@j9TV86*id=Hw)CG?Q@'
+    'tcARzW%!PE;X7J|zg6*h&uULs>3JV2&t(*z-=OaN7G>w(s_ML>qSF{){{!}4rRU7pek~n9A&yesyRO(AE0$Q>09(v?`gl*i7kloB'
+    ')Fx+Pf<~gGMPJ%Q*|4e{)M1B>di7>Pc!wwjlx%r2T~6w|H^GgD{&uB6VTXZMtg@p>A9x)Vcg(FRMIG=Mq<E<{(DIemY8eop<MZE2'
+    'fqU!y+vDdE%*q4}t0)_XiVmQRRHKXfU;-_$#xEFI%01Fcuoe+Ilx=G_SB&9Yb4B@fzWCdhztzr;KAhtlxVucb<Qnx&L_bllOp42T'
+    'uiF{GC&%RqEO-HaWpr_%V4prq$RR$K7<_yIb<n`@u-+-I>^xsjuex8qBK8_*O6X6~o0}XBhl4;Ku8&~Eum?2I^)Xo;3D6Y}>oaIm'
+    'f8N93%)9TMLZ~s4j*_kfJ2?d&#blpQj|q*pT-lsP)~`HsY-=*VDzik{GE0owHICat+k{cfdOQvkgl>?IS%Wpgkl--weoctve77CL'
+    'bjFfbrh}AcXUN-Y2s_Fu2-k3aZdRUb?@V)W<LcFcu;^T@WW5hVJB<7?Y;&|hNnbV^)86IA2$2yd&5MnribzIAltn?7L?IlQwO}Zc'
+    '?7%0%+GG`H+|s6!E+SO%b*12WRMjDyjgkZ$QT!wa(+yg1+>+G>cFM#TKj^5jOT-_Wx!ASi=gv+JUr6ZSU%`$z^I{m^Fh!7OHqKmN'
+    '_B)&u&cw+*Bb)n(5^BOi02*Em&R!qY2c4hN;MKuqfVoH#(#c|#s!e>MHmNsAB7&-FlOg;E1wY}%2<Ti5zOUOv<4Lt&zpkZlyO#iM'
+    '`V1?s(}VgSrQ^w?Ui~H+r;l(G4v?ZhvI1d&B&gdp>BYwA21zI8U>H)e?OH#X)LZpQy&ANVCSox@3Sf(OlF9lk8F$+^6cLRQLptP7'
+    'wZC0p*HoL`6zCD0)4iKOx(lm;|AuZ5Z9oIlMsQB31TbVY0zc7hs2by!(Lgo=DwK|rCZldbRWL?eVqL1M4_c<tbjs0<ydr)|xoR0c'
+    '6`I1(7Zm4_GRh7PDbyt<B-r@904_V+4@wz@N%X|}5{Zh`ih<NEpw)$Jc(^p`gPY*pqmPI-H%@>nm0RhsJ%MQ?(^iQ?+F?hgXr5Rn'
+    'NFY+qPA*U<r@c6+PcYuurHy0TvLtC4Y!uoXHot338??OlbZji}I1lu(D^+4N3zotdS6px-LO5OrE~+XmdX*@qTcj3%1D^NgGt5(n'
+    'au`;PY|OfT<`r_qmwivlA3=GL@^uH9SncIPZmoD+(pFdjywZZa81fJ3$zwb({-va6+>5<BEE0Na{oThZnp6=6j1E1t;V>x)m69D5'
+    '=w#qvO#&t*xuBr)6dMf?+Np=rDBZ$jc(9#Nm5P0?I#INkyeQ)e#V}E!4x;8}(tsWEvv2^)7^zBe$gUf0ED@m4=JAl}m!KV_m@6y*'
+    'CTnt|0TA%(ICmc{OB)+OL3)Fvoz&AQnz7T~@QU#SByQgczAn>ZYD)UysvVmBzyY+emcgV)$v!<H+S$q8b>mv!AH071f?}YXNw*hP'
+    'e&4JBEz_%kQMNP{4~bCGU|^F^gUaufa!D7b9wYlyC3^Sv{lUwPH*b~GlxbM(X8)>`*YVkS+9Z<;uTo{UMl1X}0ZW7`N}2<tqvA*|'
+    '`IyM8U-<a6)~|QEO&C>*h_BTUSmUA_Y91kiZ=pRPC2^<0Ey@D1?Zj$j_mjM*N6Wl$Yly^zb#tWP<4v&|SnLW(uY;EG8nTZihD1fj'
+    'N6x8>G5b}uUK`2Hki*3TkUMyD5m$?#7I25wGp<*OnWfh-G`-urz#W!~FYI^}q(Ht~(;j+q=uJNE4$%ZFfzKGZzJ7&R1k(DXehDv^'
+    'AK|Q%S3|&f$X21BQXvW<MMPf_0D~0^&D#chq8dfLQGzC1TtxUT9itW&1ffmPN*Ao<xtlwO&tUcq0vy!1cY8s8_vAE}1c<N~+zB|r'
+    'Y9j}iU?g8G<=feB=ybrRu5O|?1X@XdTp^np>gx#3i!wBVi^()p3f_=z2d3!=b*6I4IHciCRM<o<Eo?*9lec=F;Q2Kt^J``ie@^Xu'
+    'NSYR$?M53uv}RzHz6FH(fsI}l_%>j11&LKbPT|7s?~{AAo0f$51dND-7Rc6v+yUh#AvQv|1!By*gK4s>(<&)WyBg?ohrgXRl#ok{'
+    '6SD|p(b2M>Jy|3LpMp@wElHXk5gX(%t5WaA-NqE*gLQ96Gg1dy==wX6uak*3b^LV<N{ZJHM^=kKP*UEA8WzmKP-d)Xc~P`E;v}3_'
+    'CdP+n8)>u0$(LP&iZna&q++}yR`YUr%{djO?c+qsO#78UOf?bI#_B-J({{Ov>^hD-b>#h5SheZ;=;bEpP8gxa3zL2Hayy7+2c_H~'
+    'g9I+rT;(FH?qLBFa!I_i6^kh}NRDhFSLiMu3BcGQNL|ejQ%{837iof+{3!B#kGrYejZ88O9I3-r{e}cDIHFzg#oow%kIcnTPksmk'
+    'R^L$AtY39wBsJU1!5|k9trpK0PT7mt0Xk)G!G0sdb}8$>WE^vIdrp0|@I1ek4-Za{{!w+Db}WA#LT6-5%+8P;8i{iyz9vR)rzcEK'
+    'SyT#wypXiJ*Ma2Ou@3sH@^Byry>c7klU)tmXhZpn@)ev~519GIYp=7Q&NC4jH5Yj_?TJvSKlLcK;LPyw0hUR=nOM72<J}B~gLRwt'
+    '30csGO557mbpr$#*JFhs9w(@zDRHyuP?nzM0L7^zV0t^rKmbM8fev>Nwg{x~;b1r!4uGu|Up?g>H|jPoQ{vn>MndXQF0HJB(6L+i'
+    '>Q9n`R<(|DEAW3~*G+G9BeLW;nRSQLRKFaV!7z9i+1c#q$vleHzOX0u!7?)|-kDfkjU2|{%q-Cr9Do6lA-sU`QrdZ~O1vu9(mr{y'
+    'mQ5|HlCq5gCkq|hrbU?Fq?=j<bTyCt;cR0nZWllPh|TS4w+m@M$~h&zzP9~b`KjqyNc@lL{8KFb2>FC({unG}o{$$x?2S{g@?=QO'
+    '#0U$;`nCM(!|98|=Lat%srB%>c@buOUpHN^L4NW1+m}2}T<cTpnq@1gP-l?iR$s8D%6`t{qZyaMOh{J&#DnzV?Bw+D;3bTR^3bz2'
+    '+L%lbMgTvc5|vDf)^JDrzLK{XI+gWM#-1n*SY&B@arw?$26~mzoZoR}EWa!=+VLSp*J&BrzaU@=%GP%atuPcN2wz+KKDC^GBUy@S'
+    'KQSi`jXts(eXWx1nN6tP(74@X6zrh0i1iu{pmV*R$(&t8nyO5jl$-udmhhlTGhLZu;-ejuv+GsLF|8f-9lvwtoOp9PXYI3JDp#^E'
+    'Sw(O4$T+)s$*n9sQgy4o6z%KIH*IYB0%^qE;=0bvwytdIZLRloXYr=4)p-9b-q_fy*jlta`3WlSLVfI2^;+gccl}W>AzW@a-8t*!'
+    'YVbPB&4B(*Lf2o;lspyh4&i#(uJbyol5(+0sutE~2A`U%=Z{{Og0Q(3NBA?!N0d;(UcJlUCX*rk6~bfSE>Uf2f!@9X4)MII*dzQF'
+    '67Li?AN04AXibYs@7L?%zToWUgl~rupT$pc6s0nG@V*`xR9K^AZ;S7m?g`R5D=Am*sLq|^Iz9X2a#@#nesCm}6|?v3q44X$$(w_t'
+    'SNhGD|2S4;8pnc?TXg#g5$f?2(_Qpc_5x)l>DMWmls)3|dPzFbpC6pMU*;OIe?8M3&}qnsdp|$5S$E$dV5k;DOUe{+0<@0CuS~UQ'
+    '6-J~&XDJ=+TEarr^}A6HlSsg!Q$&aMn%@zt$cc8R%;jV?8=we)$u2*olh0WXg5wiAVW0aBsTX`Ny~1=thzUmH``bzF;Pmw1=m>6R'
+    'y$GO8?$#r3if(F~$OH8t^w?hQ(SK^4z~uZm9R!Ybs5@x(YCYx)2kHk2gr=MxUxIpv@rA$9Q2m^Kt=Xr1)@89#R{E(-V3dY=wNDM~'
+    'eS@pchk_bg)*Rc|_nWQopMlp_B?2>z4E&t~vXIe)r-Mb2uR{uCBzr%ml!d>aItk{SxH5w;KOK2o=&;R_W$71{T4v1g&>KeFL71_L'
+    '4~9bz{n<uy+W*v0IUI4(tkJ9LExMz-Rn(_V%jroiGrJaEZ#mUUUfk#Y*p5+Hj%hN9KhJ}Go67XjEUQi#mQsnE13^&xN1@@LatV}!'
+    '&>*X_ebAf`(Tc5H!ow$n_EF$f;@WA+E$Hy|yH`3V%MS81?0WY49g+z3JNB&O?XB7*IPVDKfL9TZ2z>Zw++SSxK50&Mkr0Pvoey~~'
+    'P_>|y#PphWG}o$Mv>20BZ1$1iu|Yg&CZ1PZ2N`NI^P;;tb%!$md{bZnX8rmIoA~tbGwqdG6s+%4Z`~wIyuoV?CRrC<`X%4&W<FxY'
+    'N=SvDQps$>CKq_5#oGQFZUCy6K1n&?JAEMV4V(&i>oXyEwDfSpmWIAd7g3yH^PKb)OXhld>s(26Fe?0KM2Bh(Re4GFg!D3YlSSRy'
+    '7d*!_sv-P#3i4#iv!oOGaNiUu#{<Ik4wP|qs0Dm9HUj5tBa5~e2z|jVEAK#g>I2*vz|Z#wzrokxA)T2a)XjB14J5&0W7qeHb0h<W'
+    'hxSXl0a!fxxA!%2qr@SGev}-_SM=)I+Q2tXXB&f*hSPcq3`G;IQqU#$CThQ-!QCPRN1|<RDyr^8iK7JiEopKZlJUkN*i3CpfsC=b'
+    '0p9~8cb8ryJKysvPif?LEqnFL5n2T-%AN<T!@6p1MG-uQ{P$5oD=_uC*~@;(ikDEfZ9-`uQTRP2Jvf_`(dS!erxi@y&bXnyZs%1J'
+    'iqy9AbhC+x($CSc{dJpYtEWuZY-^e-CG8W)CZ)VuX5H}w1t_4JsHV4~jkRAJ0Sl;dYzz!#v8)A($V4bKA`$a2B{OBgq-j}G%Roje'
+    'dxq&1)lb>69i+hF#GVv+U(*MvpQuSYDy}cNdwogU%PTgpYn#Xv)@se(*RYR{ag8K%GttU1;T`I|t2)TAD6w|i-2}J|cUa3l(5`M8'
+    'xXhEgG8@=*H<@3?u?5oFA|eLA*6~~PInhn+f{8AeP{G71nB;^F3Mw^{bXD~4%vZ57$f7&@&<~QpEz%CW72AqCQ&fi|-#BbD0rKS0'
+    'B1GBj)X9$Dr>}%-T5(u+CQGSV6y1VF(H(fUuqZuhwb5|Y4B=hOA`wqf)4@H#V<4VJ&Zg^<%3Bmad}`ST79TF8?U9VbRMW1vfOT%Q'
+    'OZ0WvBL3|!Zyi`|wH~r>*j&A$&>8MjA6HnF{(4w=@;SaktnE9*+P+3vDRA<N6TFf~;uL@59Mas))d=vlIMTCA1FRay^>Z>r7uVpZ'
+    ';@ircysO<#@rzt8%aJ7;-YrHl9_+Akgwx?KgM%$ax`W32omwuCO&dkRX=A>0YJEc4T{;b32lzfzFF`=oQgNUAYHS)G6Y?{OxkKn9'
+    'jFP-hr-J9w+oQt_hffvl!&@#Rmvya4%C2WkqfGX0<D`mC_+{k1M;pD7%e!W)iWgVK-C7rReqoh8>|H|5KbEBE&<bA3DG*mAb0H$h'
+    'u=_d&Iyp-<g8<$uo8uCWqh6fFxzOJD5~O^@f#tg@q<pktIhf-&Sv8V#-{UBX=D{)I{~l)vzc~Bq<n%)gCi?wJxK(yzFqqpa6I8yE'
+    'MlB059xK`GOcF_Q!ydH)hC?d7=6IN<<dOq-SqkSoDCz(TzmTG^JHYs*?kJ)3swk)TdSV|Ym)dIZuP4EjvLLdRd58VmNh{1|Y4qS}'
+    'PVp0<DRo+-4w;>F=~%<gvv#@*WO9s=RpLz`X_-jn&L3sxWf^16C(guIAB`yP27$i$L+KkS8Iu_Za&Dy7+Q}8-_a)q!G+OcT&P%e+'
+    'nK^>D&dZ9~UBv5ZR<{T<sN}*9$&`n-ni`4GC>eMA1XX3cGFx33;|Y3j29y(2d~C^zz@`J%-lKP>Q^FY$?vrTb!>oEdd~F;SaF9aE'
+    '8T*>^6-L32(EDo8R0i%Q`u!w%%%Y3{W?3M_^gysHY>g0y&6IWmoRwmUOyoMr;GRm+tSBHcim3Qir!Q5J69-1@bITHeF0K6V>g>_A'
+    '4lA?UN2dnNOgJ7V<h{&OMF1fnM=BI59N_J(^#-Q=lFU*;6Ad*PU+}7IsW@oF+X1S|gSAcAY(N^jmq`zIbqghp8>lq0y#?6z@j%-?'
+    '>?xY>iDHEi5e{0D8BByQcvPXCY%QtD&^V-=y)S8N5VI2~LtBN(1-@Nphe1N~*F{x}xg~0S4BCqNKzkB<g|2v{QH<$7hwrl9#rQn5'
+    'IHTL_YfG<0=O(a6Z*bjt*9gw|1-$<T#1Q}D&<jHqyEQ0BPNh&_EwEoi|5S`<JBMHA7g4^I+#AZPHUE}2N1&*P)T6np-2{dMYf{ez'
+    '$&Dr#=`)c>@(FJZ2@#Dlhhel0Sp|FIVB?)qqNROu`J%ufOlHI3O*#zCnP<+52@4j^jWM4NReFg7G2g=nsw7XydT#`W8f6Ln4^zov'
+    'gFA(sy^Rf4d%~k4TKTtA&)~2d&=-gG0ecMzS`(^q@Z-<kqq7jyney2oi<;c4$S-iCNKx*1<~$2FE0VKS@n4Py200<rj4y`Zca4)w'
+    'YA^DZaf%2?Sq}KE;*@ICTlpfJwn9V%FY$G;rK<<lhZKX{EbA{qnpB@}LEg0hzuxCPpgOj!_W*pn?MLI5g!2%&1~sYc?E8r`j`JPm'
+    '(v)Zqq6O|l;%A_I3}}0*=<o|zM8n}F=Xg4M{}U&A(oN-jiCnjXj1Q4Jsq9YFR9-~9I_!A&+a(Z<%(rqY`rtLVW@d9$wHx21C_e=e'
+    '5RV5|O28?<gInTqDg3g$fI^nZBq2ipV&!0P*^`JNq^-i<EJF96{YJy86{Z%l6X8I&J*kC?k_+AD1%+%brN1v%5-*m;36owgnJeiw'
+    'v*hljldzc!F`%6N`Cz7(Ep1ic4;9nQc`sEI1RMx-h!InTVq$V_f}H5+TBlP;#Wh8aErw2w-Frd)qN;ogE>BjN_We#Qw0F7`iRD90'
+    '!ix9;gbP&qL@JMXmNJ}e%s3hB3`(q1%m*<XDO=MjLe-oo7O%HIo8zdmeMj9zJP1GW8x2y#bAnRHjFku?YSuK~c@D>p%v@M0Z(*YG'
+    '6fqpfq-VG)Bl8pL_@CG2{IPkc?91U8zL{=RxsrlfZe3T)Mcy`k&8Qsw#;4G@#O((a@8N7b!MxeQvS0*4Gu;+C6f7Q3iBUBEjQ?hI'
+    'yR7rv9GE-ds&!Y<`pR^bm(@b(yL%--#lDDzbm_q?$|S@4cTkPI)8qeAjsH1RL+gI<sB+aC8H*t)!$!lD{A5_D)t(u19W&;-WMs18'
+    '%(F$hcE|bd8+UcwnB%f>H;)ZBKFsH(QRJi{?isW?a7@EyYAbyBRuVZdRiQY2`g}4YwyfalZ6?;qV5zf;<FD-CPmV7sh_F;z5C)Q0'
+    'L6r8m+EDztF8-Ne>|8I!toLK&;<4j1P5_cENbz<$cFSS~vs`SDuMuRf)Kleeg>`x|8<}W2Pd);V?<@}g`TK*D*E;a+weqA5#p_lk'
+    'iAwE6ma@bYmk6_ZCs}9q5ef&WJNYR!j<lGHXFB3U0VZT&m(?Pq92;E_pt=g?4eF$!CMnU<y8UFQ5*Q3A$V+ME$Jl``t&jSEoKq=w'
+    '%L?VEI6IC)P!8y=sEBvTFM~hl`uJ`shu(}!?g%c~BiG2GaJSR69hm00(t1yd<tLaEQT(YhPvGdH`CHj7s#%|B|5U9k_A>mR<NEx~'
+    'F3xxKaL)K7pcTi>yAfU{i6G?LE47D_a~$S}I&WC8N~4fQ1=cU;q+BWXg)8)fv)teoxWLWzfGhBR^Lf6_cYO0Xy)E{6)BbL^D|tUR'
+    'eL%@Lc`~JB>?abzaWx)JSQksvDAqN+)<gu|+@hr{lX1piB|YS>;v?c;#?wJfQ!?gb`2Mh$IG9J;<c7$}t)$tT+>DZtidCz#dT*K-'
+    '2l`2a7lP~X9mFd|S|{p~t9WvK=6ROLbtLbuvV;fx_xist1>BT#L(sjBKa+cbcpvE76~66BirY&_S1blh$;fPS3VAjqsX_DoXbFh)'
+    'J*ORtF{Eq@ZaPY8>^0JO&U8dg<EH9h;0>;O>psdv_$<XCPs`b7o4l(X|CtmcEK(;TAcr_`n#UR_;}Fr<<21(^lz~~(Kn%>98GHet'
+    'X>%b4bj;5)T=G@MU|#sfcLo*lWYc~(XAm^M29qqK2?L1kCv3rfM8CaWP&8fcz{mE4xj_ilA%Cj7ZH{&afx^nuF&?(2O+3Go`YaI-'
+    'IYK7koP9lDx(I{dc6Vi2j+xFopsgIAj-0mylA{p`Nm8o)8+7wXVmsp@a1>48#4eE4BRD^G;3=b$PKxE_H1_B5WBK^8vqNA)e>*-!'
+    'SGY{Zgaq;N2GINl5Yr6;o)lbCvEZnT34<Rp<8T7iof(<frr=>ZX;rI;anc#rdm6+Q@nnJRgNZ3ftnh6e?+)(P@fY9N@rvpA-DNme'
+    'iu*1JDwm^y+gSQL%H})n3JKzuNxw^a)3C$0w4ny|enQSZIUM5s6~Y*1{yUom3`kz9+ux*f1D)$z^|J|Vmp*EO=toJrl+eMZp!no+'
+    ')avo4DUe}2oaxjZZNM}1%!R*fbr-U$-KO%5CCpR$YM0qb`^EtuaY~2nP~q<4jPEO0suGqQ6qKZTb<u1C#6}QU$1`rON_AO%BpqY3'
+    'S!*(Pj6d7LDAVg@U)k6cCRLjL9b3@WA(Pz?C$E1wIDHvuB(>nf@gWd=f~w)a*6~i4Rw4V{A=}nU+Kd|=uD(mggI9ydnbt_$mrztt'
+    'Dk-+e!?dA)00FVs`M&x{gu^%kEeSi<n(s{;>kUo_8akbU3qOhsJY@!bRPnm&R5dkNV%V%S8PAkcRKK=U4w60sr=o)n2r#O>DmhBv'
+    'dmJMRMSmuzBpGl1UjF*va`0)35+zu0*w%I;g82St^bjNef&Eh8FBtDHge3C6SShS>bN_a?u-CD4djMkUXfiIU<1y5}pvaRs&7`B{'
+    'n)!KgGjTk(oh82~-dv)k$NP$*2p=Gw(CL+x_|fNh)4o!f=(t8CVy|FXpCyxniD0IMutfTwOZu69@V<Wi@&;&Uw|Pbq_j?k!&nWd{'
+    '*e7&0%_be4y+`+7AQH+^k!~^FP})v^<MF5XuB|Uq>E?G-S}>4(WJGOqo40LPQ~mE~ySUo;yXw6y9<IzXqf_MW4Ye)%iXv4};fkyH'
+    'KIM2gI2n$~)%gY2fVCg=&~n}~$~}DVL$f&@0pY)aUL7=%?mkD6E<H)c@29;<7nox>6w={1d`M?c2`S;G(RT3xDCq+->*=m_$E856'
+    'xcjd?1@;El)ZbNmTw?O{_tf9c5iwa^(iB~pmfBX@ua<%r#b#e8lb4jwHGBy7t^V-c*Y@gq2rNiRJ;dA8u@lv?7wAn?3QRS^YH?Ox'
+    't#vF!aAjXWBoQ`ZEaA)wM^Oz7s;r4JCzn#n63j?mhBHJJ&qz`9FB<gA3U0u6b;eiiH@oo_Xs%T%)Jz-mV^wCmQ09jri2|uwxU(+?'
+    'Q;aZ)=~eO0wVTigamYqWNA?&r7I{51;8JV*d+cAQ+1W1}0!<s**t8E!OJ6K}vpiPaqCV_P^A1~L7kH{WiQU4&(lJXJMM0*5J&IN}'
+    'p<7r=o!to~C(=V33R~%0*3bY@nPyM8DK(eRfI+Mx4w62#%@{m@()gD%Mm%!1Ey!MK>;wm|_lFi9aUt0G`HMHd9KVYgsa~NNWBO<U'
+    'vuB{)Iy0TPiW1`xEz8+}C8xb^i(&0iiwKOUs2W*U7;Crvd}z%jBIY~FNs=b}-N92`Xg_o@cb&RRE+DT7^Fe*qNwfr9Cgv5JSBDGa'
+    '#-o<mh88q2Wg3Ddj~^DPMS`b*JLjJ*ieh08mFzSVf~zQ55`fmMOY#B%h13w8yH;l3fO0x?6SnLb2jb{%OHAQus0{|=VEr~D1YdgO'
+    'ZonJIVc*(P_?de=A`fs#d?OO55yQgI_yEcj!@UH@UcqpxY0`qCOHbUdx6?dRvIiC!F|8Z>n6s#dHYH4qgZnE(w@VVL4-@ZzR$dLK'
+    'P!>-FJP>e`ngpjn6wwSoB$&ThC<;rGG&E{7@N;-X_Jox{U9(dKu%YHf<e7IZ3>Ez@F$&pt(~<Qqlqh^R_P!iDZ)cmn^C`uZ3td*M'
+    'w0ksJ3xrzsB%Co5Y^e7G!*=QoiB=U+EX)<DHHa1p<!Teb#`)_nqsU?VuB1?Cb^E;c9${h-3R|f6`y~6Zb_k{UF0u>)DtPkpsLCGM'
+    'w1hC31iQbmJyCE(n+Z}_)tKychB8i4hX61iLON%xu$7Dm2YcAtp!FygHq`GT$<`Rw$QK>adVet-w7Z=e!Wy9U>`&#V((Y`CsYK$w'
+    '%zZMO@B>th8HOXr&Kdi!!%bSL(XhUj$P@jf|NLgci1$pb9H}xVQ#!gLxXHO4?8Fy%0G_>%bW1WPdonq@nX%B^BeJVwkWLIAI;gui'
+    'M24OOTzF9byg|N5p6W!5d5NKM7-+SdeQ{RrZ8UWuWUT@fQC3{)hQ!hZg}&N_*475~Ebx-Gu9x_d6KjRD9`wv!-`?Jg=D#C?-MoI{'
+    ')M1q=rP-T|&C(f6`v>wsy<&R(j<(3*b@&j9mT1S6f-g}nG7ld-efpG1{GAswiW$6|_V@Qgsh+aki6ZjFFTi4h@DYTohXb_coWo9U'
+    'p-%F}FB4c0!}0t2XcdGZbM>-5sh`8^D8Q&RiY3x$LODKV`2l()t}X);?s?0(MTr`{x2$fx#Q+R4b1l`R_2wC8mvd@6s=&(V4{;4R'
+    '_g`Ts<A)E=G0GQ46L$C~Nku%os$t-D`Z=KZ>sdFsVv&pTKcU9`ngg<t4(Kp#c#Xky-hE_X{*rknS?^XvUuX4#T0^Hi8g)vgSF%`H'
+    '?vZoNedEm}^*Qq$By@#Kl~sFM5a0)D8*+o~fm=`nU5uR=9|DEHIT^wn{r40kf>T~zUtB>sQ!@OaIXzb&XZ7ocQt+@nU`hFKfJ&E_'
+    'NxKg9!Tm2nq|ZN`zIemV&S9GvI<1^6s5O`l>a%*chxIAfU;X*HBn8ee?L!mV^~#<QBG+aC)7i^TEq{jQcBE$lQAnNJ>20P4*tQ`0'
+    'rtC}Ouf%!<_X935X%p5EETru7M0F|F4{1wjB7hFVJQCr<KCb)P`Qh=|htt~ogOl3JgY$#h`9Dq$YrnibK8N}%C0Tj+u_e`ETIs-z'
+    'rrG!5rNh&s!-J29wc`)Rhx2!-`|8=RZ~ytvqr)0zip*AfRH>buet7@k{OyNhyr?|h&Xsv}^x@#V2HUpw>g~}HHBYl>ubnZu`~C9r'
+    'pmz4lix-DyXT|HMUB|zw0W43FHaMMza=YC{`bq{K;Ml^+aNNA8R=FPJae!(&x0J_B_CBYL18ye!;IhUP#f+c(d?wE`w+%)^zCy|W'
+    'oUMm%7q!zJ%xdj1x^uYqhto;+)>T@oH=CZjy~5hriNB;h+n<}CN9O07FV=4yTXk__ezKHqHKZPlhj@soE0gm_-NCcgdJg?>4X224'
+    'LE{2b)2UdslD1$t!V{z3d+L15e$Z-kOij(yuC<q25X~`$4`*+KK<D{}NxyC?8?|dh_pED+>?<QL+jlWN`f};0SAlW3oNZv<Myy_}'
+    '=$5P3o?gSc5ZbOK7s_ZuuViG~)NiLK_Er~{^<9+PdWVuWOQC$PX3M-iD|*|>lxZ&f-zED7g*g6YiqX*Nf-_xkHou_SQUoi<KZ}Z@'
+    '%c$oYvoi<9@?Xi@5u>T-M^O{FKe<qEPLU>QXZeSJoSrKS|8sOSd-FwIzWGAev=I5m<!qPrJA8eTrO_uUTm*j6AL|sz!?|pJFbXSD'
+    'k~A=senb(CoKxe69L-m&2srhm7gERyc88O9KMlh8=m_y^He*aO%j=3#E>ZpMF8TUy#z6zf#t-tbJ*^@TC)_Z`DhSyJsysmtT)g1Y'
+    'MtvopY^^!`k}y^S&8kKz#aB31NW;`!{Jm=@CzJa+ZJLrF<UanU@=aZ`$*t++e|siHE{B<;S8z6MA*!5pWLk(=WxXB^TZQlpHQ!?A'
+    'Q>3xZJt42pX?B*f4Wh>5ft|PzCdW<6n0-S{4tj9zAu-;#sHZjZn+>u1xoxC*XV^kee0|?Tttj82;ejbZn2cjH<#Fwqf$a&=Wa5rA'
+    'lYbTMtOliJfIt0vs@JN0F&hWzGcA{OwO%xjs6)2&!p;tFXqSE%IG4`;QZ>xoUeL91qi73^8xgsiTLKB~hH*oPTD!ej!5(KfrnMI<'
+    'q!FIYD`0FqDt`vyY0w*KRUykjV=1Rkv`2#$)`wTGHVINe2&AVKA_=-|)yk<l84kI{JiU329=|w@1oQxlbF2LGHq@gmC3qQxS_2OS'
+    'NhXv489~igSOdDnd^_$(;Obc73vfNn>APDe9W35TNiT1xn72%(WjxCsSvi`s-N0?5I4)crv{NE;56fsjI6Fb9X6Zz25>L^>qMrj#'
+    'X%Q|pFNzgt7xPDklVFxhzfx1FPWgU@GAe!yX`hCzDN;#Ck~z57GgQ&z;YV7hY89VUtDR)>Vmcltg9!>UT#_k<<>=P0|1m_`vK}iL'
+    'pYJ?1VLabw+@|Ur^Y#lysCrQ!)f-)yk(>8iMAdam!w0;qGR0!_7#{O@i-4IBwUK%Wr_j%i4R@sU^2*qvGS-IlHi2w$9r}f<vH>cR'
+    'GDuZ$`#sjkb6ku9JLC<W%!;1Ei>_(O)xQu|Sj=7U2tqBmSd=y=&(xMgmy>^QX1zCC?mb7Z*iZUE{lbUX1<KGT?w5G2{A8^%vrL&;'
+    'q$kcQHJW6KjV4i)v1g-4DF)=L$=QxPGrX(v=vp?5Rx(Nk<P0Ewk0DTS#I$I!PDq(Vj>PQ8rJly*e#`n(<rFK2bjfP5L`D?sD-Dvo'
+    'ymPmgZ&&^=51|O%'
+)
 ATT7_CPP_SRC = r"""
 void run(torch::Tensor qkv, torch::Tensor seq_lens, torch::Tensor cache_loc, torch::Tensor k_cache,
          torch::Tensor v_cache, torch::Tensor page_table, torch::Tensor k_scale, torch::Tensor v_scale,
@@ -3877,2996 +955,501 @@ def _cluster_bufs7(n_ctas, L, device):
 
 
 # Routed-experts kernel for T > 32: copied from our muse_moe_w4a16 entry (same author), own extension.
-MOE_CUDA_SRC = r"""
-// muse_moe_w4a16 v2: one persistent kernel: routing prologue, GEMM1+SwiGLU, GEMM2+norm stats, final norm/sum.
-#include <cuda_bf16.h>
-#include <type_traits>
-#include <cuda_runtime.h>
-#include <stdint.h>
-#define OKC_DEBUG 0
-#define OKC_USE_TMA 1
-#define OKC_RLOAD 1  // routing: all topk_ids loads issued before the smem stores
-#define OKC_F1EARLY 1  // tiny builds: FAST1 warp issues its topk loads before lane 0's barrier inits
-#define OKC_WGSFINSS 1
-#ifndef OKC_MFIN
-#define OKC_MFIN 1   // WGS: per-expert completion counters instead of the grid barrier before the final pass
-#endif
-#ifndef OKC_B4L
-#define OKC_B4L 0    // WGS: sum-of-squares partials from the phase-B epilogue, single-read final pass
-#endif
-#ifndef OKC_MFP
-#define OKC_MFP 15
-#endif
-#ifndef OKC_MFS
-#define OKC_MFS 0    // nanosleep ns in the final-pass readiness poll (0: none)
-#endif
-#ifndef OKC_MFQ
-#define OKC_MFQ 47   // 1 doneAs parity, 2 xready parity, 4 no grid barrier, 8 launch parity / zeroing, 32 volatile S.gen loads
-#endif
-#if !OKC_WGS
-#undef OKC_MFIN
-#define OKC_MFIN 0
-#undef OKC_B4L
-#define OKC_B4L 0
-#endif
-#ifndef OKC_B4FIN
-#define OKC_B4FIN 0  // bet4_claude: column-parallel final pass, fixed-order ss partials (own build at 16 < M <= 32)
-#endif
-#ifndef B4_EARLY_Y
-#define B4_EARLY_Y 1
-#endif  // WGS: the final pass forms each route's sum of squares (the phase-B epilogue only writes y)
-#ifndef OKC_FINCOL
-#define OKC_FINCOL 1
-#endif
-#define OKC_WGMIN 9
-#define OKC_XPRE 1
-#define FAST1_ARCH 1
-#ifndef OKC_FAST1
-#define OKC_FAST1 3
-#endif
-#define FAST1_ON (OKC_FAST1 > 0 && OKC_TINY && FAST1_ARCH && OKC_USE_TMA)
-#ifndef OKC_CPFF
-#define OKC_CPFF 1
-#endif
-#ifndef OKC_FCOSTBB
-#define OKC_FCOSTBB OKC_FCOSTB
-#endif
-#define OKC_FCOSTSB OKC_FCOST
-#define OKC_DYN 1
-#ifndef OKC_DYNK
-#define OKC_DYNK 4
-#endif
-#define OKC_TDYN 0
-#define SKDYN (OKC_DYN && (!OKC_TINY || OKC_TDYN) && FAST1_ARCH && OKC_USE_TMA && OKC_SKT == 8 && !OKC_XPF && !OKC_NOLOAD)
-#define OKC_FT_T 64
-#ifndef OKC_SPLIT
-#define OKC_SPLIT 0  // skinny-only build with experts of > SK_T tokens split into <= SK_T-token jobs (MID, Oct 26)
-#endif
-#ifndef OKC_TINY
-#define OKC_TINY 0
-#endif
-#ifndef OKC_NW
-#define OKC_NW 8
-#endif
-#ifndef OKC_EARLYN
-#define OKC_EARLYN 1
-#endif
-#define OKC_BIGM 64
-#define OKC_XPF 0
-#ifndef OKC_CPF
-#define OKC_CPF 1
-#endif
-#define OKC_FATSTATIC 1
-#define OKC_FCOST 40
-#ifndef OKC_FCOSTB
-#define OKC_FCOSTB 40
-#endif
-#ifndef OKC_WS
-#define OKC_WS 0  // tiny build: one extra helper warp issues the ring's TMA copies and runs every skinny epilogue
-#endif
-#define OKC_WGSX 0  // dev: 1 = WGS without the wgmma, 2 = WGS phases skipped
-#ifndef OKC_WGS
-#define OKC_WGS 0  // tiny build on RS-wgmma: 4 consumer warpgroups split K of 64-row units, plus a TMA producer warp
-#endif
-#define SILU_DIV(a, b) __fdividef((a), (b))
-#ifndef OKC_UWARP
-#define OKC_UWARP 1  // warp index through a shuffle, so ptxas can keep warp-derived values in uniform registers
-#endif
-#if OKC_UWARP
-#define WARP_IDX(t) __shfl_sync(0xffffffffu, (t) >> 5, 0)
-#else
-#define WARP_IDX(t) ((t) >> 5)
-#endif
-#ifndef OKC_PRMTSC
-#define OKC_PRMTSC 0
-#endif
-#ifndef OKC_FINPF
-#define OKC_FINPF 0   // skinny builds: final item's topk_w / pos before the barrier, ss + ybuf loads batched (Oct 26, bf16)
-#endif
-#define OKC_WSNR 4  // partial-sum buffers between the compute warps and the helper warp
-#define OKC_NOLOAD 0
-
-namespace okc {
-
-#ifndef OKC_L2H
-#define OKC_L2H 1
-#endif
-#if OKC_L2H
-// L2 policies (CUTLASS CacheHintSm90): weights stream through once (evict first); inter and ybuf are re-read later in
-// the same call (evict last). Hints only: the math and the memory traffic's results are unchanged.
-#define L2H_SUFFIX ".L2::cache_hint"
-#define L2H_OPERAND ", %4"
-#define L2H_ARG , "l"(0x12F0000000000000ull)
-__device__ __forceinline__ void st_keep_bf16(__nv_bfloat16* a, __nv_bfloat16 v) {
-  asm volatile("st.global.L2::cache_hint.b16 [%0], %1, %2;\n" ::"l"(a), "h"(*reinterpret_cast<unsigned short*>(&v)), "l"(0x14F0000000000000ull) : "memory");
-}
-__device__ __forceinline__ void st_keep_f32(float* a, float v) {
-  asm volatile("st.global.L2::cache_hint.b32 [%0], %1, %2;\n" ::"l"(a), "f"(v), "l"(0x14F0000000000000ull) : "memory");
-}
-#else
-#define L2H_SUFFIX ""
-#define L2H_OPERAND ""
-#define L2H_ARG
-__device__ __forceinline__ void st_keep_bf16(__nv_bfloat16* a, __nv_bfloat16 v) { *a = v; }
-__device__ __forceinline__ void st_keep_f32(float* a, float v) { *a = v; }
-#endif
-
-constexpr int HD = 4096, ID = 4096;
-constexpr int NW = OKC_NW, NT = NW * 32;
-constexpr int NTL = NT + (OKC_WGS ? 64 : OKC_WS ? 32 : 0);  // + helper warp (WS) | weights and x producer warps (WGS)  // launched: NT compute threads (+ helper warp | WGS producer warp + epilogue warpgroup)
-constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
-#if OKC_WS || OKC_WGS
-// CTA barrier over the NT compute threads only (the helper warp syncs with them through mbarriers and barrier 2)
-#define CTA_SYNC() asm volatile("bar.sync 1, %0;\n" ::"n"(NT) : "memory")
-#define WS_JOIN() asm volatile("bar.sync 2, %0;\n" ::"n"(NTL) : "memory")
-#else
-#define CTA_SYNC() __syncthreads()
-#endif
-constexpr int NCH = 64 / NW;     // 64-K chunks per warp in a skinny unit (4096 / NW K per warp)
-#define OKC_SKT 8
-constexpr int SK_T = OKC_SKT;   // max tokens of a skinny job (8: 1 n-tile; 16: 2 n-tiles via smem x)
-constexpr int RED_W = OKC_SKT > 8 ? 8 : 4;
-static_assert(!OKC_WS || OKC_SKT == 8, "OKC_WS assumes single-tile skinny jobs");
-constexpr int FT_T = OKC_FT_T;   // max tokens of a fat job (longer jobs are split into chunks)
-constexpr int RB_A = 2 * ID / 16, RB_B = HD / 16;   // 16-row blocks
-constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
-constexpr int RB_A_LOG = 9, RB_B_LOG = 8;
-static_assert((1 << RB_B_LOG) == RB_B, "RB_B must be 256");
-constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
-// dynamic tail: the last pool units of a phase's skinny work are claimed at run time (OKC_DYNK per CTA)
-__device__ __forceinline__ int dyn_pool(int nS, int G) { const int d = G * OKC_DYNK; return SKDYN ? (d < nS ? d : nS) : 0; }
-static_assert((1 << RB_A_LOG) == RB_A, "RB_A must be 512");
-static_assert(OKC_NSF <= 7 && OKC_NS <= 5, "barrier slots");   // 256-row blocks (fat units)
-constexpr int MMAX = 384, EMAX = MMAX * 8, JMAX = 32 + EMAX / FT_T + 8;
-constexpr int XP_SK = HD + 8;   // skinny x row pitch (bf16)
-constexpr int KS = 256;         // fat: K per x stage (4 chunks)
-constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
-constexpr int NST = 3;          // fat x stages
-constexpr float TWO62 = 4.611686018427388e18f;
-
-struct Params {
-  const uint4* wA; const uint4* sA; const float* gsA;
-  const uint4* wB; const uint4* sB; const float* gsB;
-  const uint32_t* lut; const __nv_bfloat16* normw;  // post_norm_w as given (bf16); 1 + w is formed in FP32 here
-  const unsigned char* wAf; const unsigned char* wBf;  // fat-order weight copies (36 KB per k-stage)
-  const unsigned char* wAu; const unsigned char* wBu;  // unit-contiguous copies (36 KB per 16-row block)
-  const unsigned char* wAn; const unsigned char* wBn;  // natural-k fat copies (wgmma path)
-  const unsigned char* wAs; const unsigned char* wBs;  // WGS copies: [256-row unit][stage][warpgroup][9 KB]
-  __nv_bfloat16* xA; __nv_bfloat16* xB;  // WGS: per job, per stage x / inter in wgmma B layout [stage][n8][k8][8][8]
-  int* xready;                           // WGS: per job, rows of xA written
-  int* doneAs;                           // WGS: per (job, phase-B stage), phase-A warpgroup epilogues done (8 = ready)
-  int* mfl;                              // MFIN flag region (cE / exit counter / xready / doneAs, two parities)
-  uint32_t zero;  // always 0 (opaque to the compiler)
-  const __nv_bfloat16* x; const int* topk_ids; const float* topk_w;
-  int M, lo, nloc;
-  int* ctr;        // [8]: 0 ctrA, 1 ctrB, 2 barrier, 3 exit
-  int* doneA;      // [JMAX]
-  __nv_bfloat16* inter;  // [EMAX, ID]
-  float* ybuf;     // [EMAX, HD]
-  float* ss;       // [EMAX] copy 0 of the per-token sums of squares (copy 1: ss1); a launch uses copy gen & 1
-  float* ss1;      // [EMAX]
-  __nv_bfloat16* out;
-  unsigned long long* dbg;
-  float* sspart;  // bet4_claude B4FIN: per-(route, 16-column tile) sum-of-squares partials (WGS only)
-};
-
-struct Smem {
-  uint32_t lut[256];
-#if !OKC_WGS
-  float red[NRB][NW][32][RED_W];  // per-unit cross-warp partial sums
-#else
-  float red[1][1][1][RED_W];      // (the skinny paths that use it are not run in WGS builds)
-#endif
-#if OKC_WS
-  uint64_t wse[8], wsrf[8], wsre[8];  // WS: ring slot released by all compute warps / partials ready / buffer free
-  int wsr[4];                          // WS: this CTA's phase A and phase B unit ranges
-#endif
-#if OKC_WGS
-  uint64_t bars[24];  // WGS: 0..3 weights full, 4..7 weights empty, 8..15 x full, 16..23 x empty
-  int wglast[4];      // WGS: this warpgroup completed a split unit
-  int wcp[JMAX + 1];  // WGS: phase-A cost prefix per job
-  int wcpB[JMAX + 1]; // WGS: phase-B cost prefix per job
-  int jrow[JMAX + 1]; // WGS: first padded row of each job in xA / xB (rows padded to 8 per job)
-  uint32_t wtot;      // WGS: phase-A total cost
-  uint32_t wtotB;     // WGS: phase-B total cost
-#else
-  uint64_t bars[12];  // 0..4 skinny ring (NS <= 5), 5..11 fat ring (NSF <= 7)
-#endif
-#if OKC_WGS
-  int wgr[4];         // WGS: this CTA's phase A and phase B unit ranges
-#endif
-  int seq, fseq, preissued, preissuedB;
-  int fcnt[32];     // OKC_SPLIT: FAST1 per-expert entry counts (the preissue's job -> expert map)
-  void* xbuf_ptr;
-  int cnt[64], off[64];
-  int wc[NW][32];
-  int jE[JMAX], jS[JMAX], jC[JMAX], forder[JMAX];
-  int njF, njS, unit;
-  int gen;          // the grid barrier's generation at launch start (+1 per launch): picks this launch's ss copy
-  float* ssp;       // this launch's ss copy
-  int uslot[8];    // unit id per skinny ring slot (-1: none; BFLAG | v: phase-B unit prefetched in phase A)
-  int dync[JMAX];  // phase A: pool units this CTA processed, per job (credited to doneA at the end of phase A)
-  int unit_next, unit_next2;
-  signed char eid[EMAX];
-  short ent[EMAX];   // sorted entries (token*8+slot) by expert
-  short pos[EMAX];   // entry -> pair position, -1 if not local
-};
-
-// floor(a * c / G) without an integer divide (per-launch code runs from a cold instruction cache, where the divide
-// subroutines cost ~1 us): a * c < 2^24, rG ~ 1 / G, then an exact +-1 fix-up
-__device__ __forceinline__ int muldiv_g(int a, int c, int G, float rG) {
-  const int p = a * c;
-  int q = __float2int_rz((float)p * rG);
-  if (q * G > p) --q;
-  else if ((q + 1) * G <= p) ++q;
-  return q;
-}
-__device__ __forceinline__ uint32_t bmul2(uint32_t a, uint32_t b) {
-  __nv_bfloat162 r = __hmul2(*reinterpret_cast<__nv_bfloat162*>(&a), *reinterpret_cast<__nv_bfloat162*>(&b));
-  return *reinterpret_cast<uint32_t*>(&r);
-}
-// a x (b.lo, b.lo) and a x (b.hi, b.hi): the broadcast folds into the HMUL2 operand (.H0_H0 / .H1_H1)
-__device__ __forceinline__ uint32_t bmul2l(uint32_t a, uint32_t b) {
-  __nv_bfloat162 r = __hmul2(*reinterpret_cast<__nv_bfloat162*>(&a), __low2bfloat162(*reinterpret_cast<__nv_bfloat162*>(&b)));
-  return *reinterpret_cast<uint32_t*>(&r);
-}
-__device__ __forceinline__ uint32_t bmul2h(uint32_t a, uint32_t b) {
-  __nv_bfloat162 r = __hmul2(*reinterpret_cast<__nv_bfloat162*>(&a), __high2bfloat162(*reinterpret_cast<__nv_bfloat162*>(&b)));
-  return *reinterpret_cast<uint32_t*>(&r);
-}
-
-__device__ __forceinline__ void mma_bf16(float* c, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t b0,
-                                         uint32_t b1) {
-  asm volatile(
-      "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 {%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, {%0,%1,%2,%3};\n"
-      : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
-      : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(b0), "r"(b1));
-}
-__device__ __forceinline__ void cp_async16(void* smem, const void* gmem, bool valid) {
-  uint32_t s = (uint32_t)__cvta_generic_to_shared(smem);
-  int sz = valid ? 16 : 0;
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n" ::"r"(s), "l"(gmem), "r"(sz));
-}
-__device__ __forceinline__ void cp_commit() { asm volatile("cp.async.commit_group;\n" ::); }
-template <int N>
-__device__ __forceinline__ void cp_wait() { asm volatile("cp.async.wait_group %0;\n" ::"n"(N)); }
-__device__ __forceinline__ unsigned long long gtimer() {
-  unsigned long long t;
-  asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
-  return t;
-}
-#define DBG(k) do { if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (k)] = gtimer(); } while (0)
-extern __shared__ __align__(16) unsigned char smem_raw[];
-__device__ __forceinline__ float* ss_cur();  // this launch's ss copy (defined after Smem users)
-__device__ __forceinline__ int ld_acquire(const int* p) {
-  int v;
-  asm volatile("ld.acquire.gpu.global.b32 %0, [%1];\n" : "=r"(v) : "l"(p));
-  return v;
-}
-
-// Dequantize one 32-bit word (8 E2M1 codes) into the 4 bf16x2 A-fragment registers (values e2m1 * 2^-126).
-// Prepacked bit layout (see _pack_codes): r0 = q & M, r1 = rotr(q,6) & M, r2 = rotr(q,10) & M,
-// r3 = (rotl(q,4) & 0x81808180) | (rotr(q,4) & 0x00400040), M = 0x81C081C0.
-__device__ __forceinline__ void dq4(uint32_t q, uint32_t& r0, uint32_t& r1, uint32_t& r2, uint32_t& r3) {
-  constexpr uint32_t M = 0x81C081C0u;
-  r0 = q & M;
-  r1 = __funnelshift_r(q, q, 6) & M;
-  r2 = __funnelshift_r(q, q, 10) & M;
-  // DQ7 bit layout (template DQ7 = True): 7 ALU + 2 IMAD.SHL per 8 weights. Register sources partition the word:
-  // r0 bits as stored, r1 = word << 4, r2 = rotl 10, r3 = word << 6 (6 bits) | rotl 14 (the two e1 bits)
-  r1 = (q * 16u) & M;
-  r2 = __funnelshift_l(q, q, 10) & M;
-  r3 = ((q * 64u) & 0x80C080C0u) | (__funnelshift_l(q, q, 14) & 0x01000100u);
-  return;
-  // bits kept by 0x81808180 never wrap, so the left rotate is a plain shift: as a multiply it runs on the FMA pipe
-  // (IMAD.SHL) instead of the ALU pipe the rest of the decode saturates
-  r3 = ((q * 16u) & 0x81808180u) | (__funnelshift_r(q, q, 4) & 0x00400040u);
-}
-
-
-// ---------------------------------------------------------------- routing prologue (every CTA, identical result)
-__device__ void early_issue(const Params& p, Smem& S);
-__device__ void route(const Params& p, Smem& S) {
-  const int tid = threadIdx.x, lane = tid & 31, warp = WARP_IDX(tid);
-  const int E = p.M * 8;
-  const int CH = ((E + NW * 32 - 1) / (NW * 32)) * 32;
-  const int i0 = warp * CH, i1 = min(E, i0 + CH);
-  if (tid < NW * 32) S.wc[tid >> 5][tid & 31] = 0;
-#if OKC_RLOAD && OKC_WGS  // (the small builds lose 1-2% with it: their E is at most 256)
-  {  // 16 B loads (E = 8 M; the launcher checks the alignment): one or two per thread, all issued before the stores
-    constexpr int LPT = (EMAX / 4 + NT - 1) / NT;
-    int4 ev[LPT];
-    const int E4 = E >> 2;
-#pragma unroll
-    for (int k = 0; k < LPT; ++k) {
-      const int i4 = tid + k * NT;
-      ev[k] = i4 < E4 ? __ldg(reinterpret_cast<const int4*>(p.topk_ids) + i4) : make_int4(0, 0, 0, 0);
-    }
-#pragma unroll
-    for (int k = 0; k < LPT; ++k) {
-      const int i4 = tid + k * NT;
-      if (i4 < E4) {
-        const int v[4] = {ev[k].x - p.lo, ev[k].y - p.lo, ev[k].z - p.lo, ev[k].w - p.lo};
-        char4 c;
-        c.x = (signed char)((v[0] >= 0 && v[0] < p.nloc) ? v[0] : -1);
-        c.y = (signed char)((v[1] >= 0 && v[1] < p.nloc) ? v[1] : -1);
-        c.z = (signed char)((v[2] >= 0 && v[2] < p.nloc) ? v[2] : -1);
-        c.w = (signed char)((v[3] >= 0 && v[3] < p.nloc) ? v[3] : -1);
-        *reinterpret_cast<char4*>(&S.eid[i4 * 4]) = c;
-      }
-    }
-  }
-#else
-#pragma unroll 8
-  for (int i = tid; i < E; i += NT) {
-    int e = __ldg(p.topk_ids + i) - p.lo;
-    S.eid[i] = (signed char)((e >= 0 && e < p.nloc) ? e : -1);
-  }
-#endif
-  CTA_SYNC();
-  for (int base = i0; base < i1; base += 32) {
-    const int i = base + lane;
-    const int e = (i < i1) ? (int)S.eid[i] : -1;
-    const unsigned peers = __match_any_sync(0xffffffffu, e);
-    if (e >= 0 && lane == __ffs(peers) - 1) S.wc[warp][e] += __popc(peers);
-  }
-  CTA_SYNC();
-  if (warp == 0) {
-    int c[NW];
-    int tot = 0;
-#pragma unroll
-    for (int w = 0; w < NW; ++w) { c[w] = (lane < p.nloc) ? S.wc[w][lane] : 0; tot += c[w]; }
-    int incl = tot;
-#pragma unroll
-    for (int d = 1; d < 32; d <<= 1) { int v = __shfl_up_sync(0xffffffffu, incl, d); if (lane >= d) incl += v; }
-    int off = incl - tot;
-    S.cnt[lane] = tot;
-    S.off[lane] = off;
-    int o2 = off;
-#pragma unroll
-    for (int w = 0; w < NW; ++w) { S.wc[w][lane] = o2; o2 += c[w]; }
-    // jobs: fat (cnt > SK_T, chunks of FT_T) first, then skinny (0 < cnt <= SK_T); expert order within each
-#if OKC_SPLIT
-    static_assert(OKC_TINY, "OKC_SPLIT: skinny-only (tiny-style) build");
-    const int nfj = 0;
-    const int nsj = (tot + SK_T - 1) / SK_T;   // ceil(tot / 8) jobs of <= 8 tokens; a split expert re-streams its weights
-#else
-    const int nfj = tot > SK_T ? (tot + FT_T - 1) / FT_T : 0;
-    const int nsj = (tot > 0 && tot <= SK_T) ? 1 : 0;
-#endif
-    int fi = nfj, si = nsj;
-#pragma unroll
-    for (int d = 1; d < 32; d <<= 1) {
-      int v1 = __shfl_up_sync(0xffffffffu, fi, d), v2 = __shfl_up_sync(0xffffffffu, si, d);
-      if (lane >= d) { fi += v1; si += v2; }
-    }
-    const int nfTot = __shfl_sync(0xffffffffu, fi, 31), nsTot = __shfl_sync(0xffffffffu, si, 31);
-    int fj = fi - nfj, sj = nfTot + si - nsj;
-    for (int q = 0; q < nfj; ++q) {
-      S.jE[fj + q] = lane; S.jS[fj + q] = off + q * FT_T; S.jC[fj + q] = min(FT_T, tot - q * FT_T);
-    }
-#if OKC_SPLIT
-    for (int q = 0; q < nsj; ++q) { S.jE[sj + q] = lane; S.jS[sj + q] = off + q * SK_T; S.jC[sj + q] = min(SK_T, tot - q * SK_T); }
-#else
-    if (nsj) { S.jE[sj] = lane; S.jS[sj] = off; S.jC[sj] = tot; }
-#endif
-    if (lane == 0) { S.njF = nfTot; S.njS = nsTot; }
-    __syncwarp();
-#if !OKC_WGS  // (the WGS build has no fat queue)
-    // fat queue order: largest n-tile count first (LPT), stable by job index
-    int pos = 0;
-    for (int key = FT_T / 8; key >= 1; --key) {
-      for (int f0 = 0; f0 < nfTot; f0 += 32) {
-        const int f = f0 + lane;
-        const bool m = f < nfTot && ((S.jC[f] + 7) >> 3) == key;
-        const unsigned bal = __ballot_sync(0xffffffffu, m);
-        if (m) S.forder[pos + __popc(bal & ((1u << lane) - 1u))] = f;
-        pos += __popc(bal);
-      }
-    }
-#endif
-  }
-  CTA_SYNC();
-  early_issue(p, S);
-  for (int base = i0; base < i1; base += 32) {
-    const int i = base + lane;
-    const int e = (i < i1) ? (int)S.eid[i] : -1;
-    const unsigned peers = __match_any_sync(0xffffffffu, e);
-    if (e >= 0) {
-      const int q = S.wc[warp][e] + __popc(peers & ((1u << lane) - 1u));
-      S.ent[q] = (short)i;
-      S.pos[i] = (short)q;
-    } else if (i < i1) {
-      S.pos[i] = -1;
-    }
-    __syncwarp();
-    if (e >= 0 && lane == __ffs(peers) - 1) S.wc[warp][e] += __popc(peers);
-    __syncwarp();
-  }
-  CTA_SYNC();
-}
-
-
-
-// ---------------------------------------------------------------- epilogues (one 16-row block, tokens 2t,2t+1 of n-tile)
-// r[0..1] rows g (gate / out row n0), r[2..3] rows g+8 (up / out row n1), tokens tk0 = 2t, 2t+1 relative to tile
-__device__ __forceinline__ float probe_q(float v) {
-  return v;
-}
-__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {
-#pragma unroll
-  for (int h = 0; h < 2; ++h) {
-    int tk = tok0 + h;
-    if (tk < ntok) {
-      float gt = r[h] * gsc, up = r[2 + h] * gsc;
-      float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;
-      st_keep_bf16(p.inter + ((size_t)(pstart + tk) * ID + col), __float2bfloat16(probe_q(v)));
-    }
-  }
-}
-// returns per-token partial sum of squares (2 values) for this lane's two tokens
-__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,
-                                      float* sq) {
-  const float w0 = 1.f + __bfloat162float(p.normw[n0]), w1 = 1.f + __bfloat162float(p.normw[n0 + 8]);
-#pragma unroll
-  for (int h = 0; h < 2; ++h) {
-    int tk = tok0 + h;
-    float v0 = r[h] * gsc * w0, v1 = r[2 + h] * gsc * w1;
-    sq[h] = v0 * v0 + v1 * v1;
-    if (tk < ntok) {
-      st_keep_f32(p.ybuf + ((size_t)(pstart + tk) * HD + n0), v0);
-      st_keep_f32(p.ybuf + ((size_t)(pstart + tk) * HD + n0 + 8), v1);
-    }
-  }
-}
-__device__ __forceinline__ void ss_reduce_add(const Params& p, int pstart, int ntok, int tok0, float* sq, int g) {
-#pragma unroll
-  for (int h = 0; h < 2; ++h) {
-    sq[h] += __shfl_xor_sync(0xffffffffu, sq[h], 4);
-    sq[h] += __shfl_xor_sync(0xffffffffu, sq[h], 8);
-    sq[h] += __shfl_xor_sync(0xffffffffu, sq[h], 16);
-  }
-  if (g == 0) {
-#pragma unroll
-    for (int h = 0; h < 2; ++h)
-      if (tok0 + h < ntok) atomicAdd(&ss_cur()[pstart + tok0 + h], sq[h]);
-  }
-}
-
-// ---------------------------------------------------------------- the persistent kernel
-
-
-// ---------------------------------------------------------------- skinny path: shared-memory weight ring
-// A unit = (job <= 16 tokens, 16-row block) x full K = 32 KB codes + 4 KB scales, contiguous in global memory.
-// Units of the CTA's range stream through OKC_NS smem slots (TMA bulk copies on sm_90, cp.async elsewhere).
-// All 8 warps work on the same unit, each on its own 512-K range, with x for that K range held in registers.
-#ifndef OKC_SC6S
-#define OKC_SC6S 0   // skinny units carry 6-bit scales (3072 B instead of 4096 B)
-#endif
-#ifndef OKC_SC6W
-#define OKC_SC6W 0   // WGS stages carry 6-bit scales (768 B instead of 1024 B per warpgroup piece)
-#endif
-constexpr int UNIT_CODES = 32768, UNIT_SC = OKC_SC6S ? 3072 : 4096, UNIT_BYTES = UNIT_CODES + UNIT_SC;
-
-
-__device__ __forceinline__ uint32_t smem_u32(const void* p) { return (uint32_t)__cvta_generic_to_shared(p); }
-#if OKC_PRMTSC
-// e4m3 scale byte b of `word` -> bf16x2(scale * 2^64) in both halves with one PRMT and one IMAD: (byte << 4) puts the
-// e4m3 exponent and mantissa into the bf16 fields, + 184 << 7 rebiases the exponent. Exact for positive normal bytes
-// 0x08..0x7E only; prepare() checks every scale byte and uses the LUT build otherwise.
-#define SCD(word, b) (__byte_perm((word), 0u, 0x4040u | ((b) * 0x0101u)) * 16u + 0x5C005C00u)
-// same, with the multiplier opaque to ptxas (k16 = 16 + p.zero): an IMAD on the FMA pipe instead of a LEA on the
-// ALU pipe, which the FP4 decode saturates
-#define SCDK(word, b, k16) (__byte_perm((word), 0u, 0x4040u | ((b) * 0x0101u)) * (k16) + 0x5C005C00u)
-#if OKC_SC6S
-// SC6: the scale bytes come as 4 v (v = byte - 0x40, 6 bits): * 4 + 0x6000 per half == (0x40 + v) * 16 + 0x5C00
-#undef SCDK
-#define SCDK(word, b, k4) (__byte_perm((word), 0u, 0x4040u | ((b) * 0x0101u)) * (k4) + 0x60006000u)
-#endif
-#endif
-#define SCK ((OKC_SC6S ? 4u : 16u))
-// a lane's 16 scale bytes of a skinny unit as 4 words (the layout of the old uint4): SC6 rebuilds them from 3 words
-__device__ __forceinline__ uint4 sc_load(const unsigned char* slot, int warp, int lane) {
-#if OKC_SC6S
-  const unsigned char* b = slot + UNIT_CODES + warp * 128 + lane * 4;
-  const uint32_t w0 = *reinterpret_cast<const uint32_t*>(b), w1 = *reinterpret_cast<const uint32_t*>(b + 1024),
-                 w2 = *reinterpret_cast<const uint32_t*>(b + 2048);
-  uint4 r;
-  r.x = w0 & 0xFCFCFCFCu; r.y = w1 & 0xFCFCFCFCu; r.z = w2 & 0xFCFCFCFCu;
-  r.w = ((w0 << 2) & 0x0C0C0C0Cu) | ((w1 << 4) & 0x30303030u) | ((w2 << 6) & 0xC0C0C0C0u);
-  return r;
-#else
-  return *reinterpret_cast<const uint4*>(slot + UNIT_CODES + warp * 512 + lane * 16);
-#endif
-}
-__device__ __forceinline__ void mbar_init(uint64_t* bar, int count) {
-  asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(count));
-}
-__device__ __forceinline__ void mbar_arrive1(uint64_t* bar) {
-  asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];\n" ::"r"(smem_u32(bar)) : "memory");
-}
-__device__ __forceinline__ void mbar_wait(uint64_t* bar, uint32_t parity) {
-  asm volatile(
-      "{\n .reg .pred p;\n WAIT_%=:\n mbarrier.try_wait.parity.shared::cta.b64 p, [%0], %1;\n @!p bra WAIT_%=;\n}\n"
-      ::"r"(smem_u32(bar)), "r"(parity) : "memory");
-}
-
-template <bool PB>
-__device__ __forceinline__ void ring_issue(const Params& p, const Smem& S, int v, unsigned char* slot, uint64_t* bar) {
-  const int rbs = PB ? RB_B : RB_A;
-  const int njF = S.njF;
-  const int j = njF + v / rbs, rb = v - (v / rbs) * rbs;
-  const size_t blk = (size_t)S.jE[j] * rbs + rb;
-  const unsigned char* src = (PB ? p.wBu : p.wAu) + blk * (size_t)UNIT_BYTES;  // [32 KB codes | 4 KB scales]
-  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(UNIT_BYTES) : "memory");
-  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
-               ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(bar)) L2H_ARG : "memory");
-}
-
-template <bool PB>
-__device__ __forceinline__ void ring_issue_all(const Params& p, const Smem& S, int v, unsigned char* slot, uint64_t* bar) {
-  if (threadIdx.x == 0) ring_issue<PB>(p, S, v, slot, bar);
-}
-
-template <bool PB>
-__device__ __forceinline__ void load_x_regs(const Params& p, const Smem& S, int j, int lane, int warp,
-                                            uint4 (&x)[2 * NCH]) {
-  const int g = lane >> 2, t = lane & 3;
-  const int cnt = S.jC[j], st = S.jS[j];
-  {
-    const int r = g;
-    if (r < cnt) {
-      const __nv_bfloat16* row;
-      if (PB) row = p.inter + (size_t)(st + r) * ID;
-      else row = p.x + (size_t)(S.ent[st + r] >> 3) * HD;
-      const uint4* src = reinterpret_cast<const uint4*>(row + warp * (64 * NCH) + 16 * t);
-#pragma unroll
-      for (int c = 0; c < NCH; ++c) {
-        x[2 * c] = PB ? __ldcg(src + c * 8) : __ldg(src + c * 8);
-        x[2 * c + 1] = PB ? __ldcg(src + c * 8 + 1) : __ldg(src + c * 8 + 1);
-      }
-    } else {
-#pragma unroll
-      for (int c = 0; c < 2 * NCH; ++c) x[c] = make_uint4(0, 0, 0, 0);
-    }
-  }
-}
-
-constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
-template <bool PB>
-__device__ __forceinline__ void load_x1_smem(const Params& p, const Smem& S, int j, int lane, int warp,
-                                             __nv_bfloat16* x1s) {
-  // warp-private: rows 8..15 of the job, K range [512*warp, +512): 8 rows x 64 uint4
-  const int cnt = S.jC[j], st = S.jS[j];
-  for (int i = lane; i < 8 * 64; i += 32) {
-    const int r = i >> 6, c = i & 63;
-    uint4 v = make_uint4(0, 0, 0, 0);
-    if (8 + r < cnt) {
-      const __nv_bfloat16* row = PB ? p.inter + (size_t)(st + 8 + r) * ID : p.x + (size_t)(S.ent[st + 8 + r] >> 3) * HD;
-      const uint4* src = reinterpret_cast<const uint4*>(row + warp * 512) + c;
-      v = PB ? __ldcg(src) : __ldg(src);
-    }
-    *reinterpret_cast<uint4*>(x1s + r * X1P + c * 8) = v;
-  }
-  __syncwarp();
-}
-
-#if SKDYN
-template <bool PB>
-__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,
-                            __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) {
-  const int tid = threadIdx.x, lane = tid & 31, warp = WARP_IDX(tid);
-  const uint32_t k16 = SCK + p.zero;  // opaque 16 (4 with SC6S): the scale decode IMAD
-  (void)k16;
-  const int rbs = PB ? RB_B : RB_A;
-  const int njF = S.njF;
-  const int nU = v1 - v0;  // static units [v0, v1); the run-time pool [poolBase, nSall) follows
-  const int rsh = PB ? RB_B_LOG : RB_A_LOG;
-  const int seq0 = seq;
-  // order earlier generic-proxy accesses of this smem region (fat path) before async-proxy (TMA) writes
-  if (tid == 0) asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-  // cross-phase prefill: with no fat jobs, phase A's last ring refills already fetch this CTA's first B units
-  int preB = 0;
-  const bool cpf = OKC_CPF && !PB && cpf_ok;
-  const int v0B = cB0, nB = cBn;
-  const int pre = PB ? S.preissuedB : S.preissued;
-  // thread 0 owns the unit source: static units first, then pool units claimed with one atomic in flight
-  int snext = v0 + pre, pend = -2, jdmin = 1 << 30, jdmax = -1;
-  bool exh = poolBase >= nSall;
-  int* pctr = p.ctr + (PB ? 1 : 0);
-  auto take = [&]() -> int {
-    if (snext < v1) return snext++;
-    if (exh) return -1;
-    const int cl = pend >= 0 ? pend : atomicAdd(pctr, 1);
-    const int v = poolBase + cl;
-    if (v >= nSall) { exh = true; pend = -2; return -1; }
-    pend = atomicAdd(pctr, 1);  // the next claim; its value is first needed at the next refill
-    if (!PB) {
-      const int jj = njF + (v >> rsh);
-      S.dync[jj] += 1;
-      jdmin = min(jdmin, jj); jdmax = max(jdmax, jj);
-    }
-    return v;
-  };
-  auto refill = [&](int sl) {
-    const int v = take();
-    if (v >= 0) { ring_issue<PB>(p, S, v, ring + sl * UNIT_BYTES, bars + sl); S.uslot[sl] = v; }
-    else if (cpf && preB < nB) {
-      ring_issue<true>(p, S, v0B + preB, ring + sl * UNIT_BYTES, bars + sl);
-      S.uslot[sl] = BFLAG | (v0B + preB);
-      ++preB;
-    } else {
-      S.uslot[sl] = -1;
-    }
-  };
-  if (tid == 0)
-    for (int i = pre; i < OKC_NS; ++i) {
-      const int sl = (seq0 + i) % OKC_NS;
-      if (i < nU) { ring_issue<PB>(p, S, v0 + i, ring + sl * UNIT_BYTES, bars + sl); ++snext; }
-      else refill(sl);
-    }
-  if (nU < OKC_NS) CTA_SYNC();  // pool slots filled by the prologue: their unit ids must be visible
-  uint4 x0[2 * NCH];
-  int curj = -1;
-  bool two = false;
-  __nv_bfloat16* x1s = x1base + warp * 8 * X1P;
-  // phase B epilogue: prefetch (1 + post_norm_w) of the next unit's rows one unit ahead
-  float nwc0 = 0.f, nwc1 = 0.f;
-  const int egg = (tid & 31) >> 2;
-  if (PB && tid < 128) {
-    const int u0 = nU > 0 ? v0 : (S.uslot[seq0 % OKC_NS] & ~BFLAG);
-    const int rbq = (u0 < 0 ? 0 : u0) & (rbs - 1);
-    nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
-  }
-  int nproc = 0;
-  for (int i = 0;; ++i) {
-    int v;
-    if (i < nU) {
-      v = v0 + i;  // static units: no slot lookup
-    } else {
-      v = S.uslot[(seq0 + i) % OKC_NS];
-      if (v < 0 || (!PB && (v & BFLAG))) break;  // pool exhausted (or phase B's prefetched units follow)
-      v &= ~BFLAG;
-    }
-    const int j = njF + (v >> rsh), rb = v & (rbs - 1);
-    float nwn0 = 0.f, nwn1 = 0.f;
-    int vn = -1;
-    if (PB) vn = i + 1 < nU ? v + 1 : S.uslot[(seq0 + i + 1) % OKC_NS];
-    if (PB && tid < 128 && vn >= 0) {
-      const int rbq = (vn & ~BFLAG) & (rbs - 1);
-      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
-    }
-    if (j != curj) {
-      curj = j;
-      two = (OKC_SKT > 8) && S.jC[j] > 8;
-      if (PB) {
-        if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }
-        __syncwarp();
-      }
-      load_x_regs<PB>(p, S, j, lane, warp, x0);
-      if (two) load_x1_smem<PB>(p, S, j, lane, warp, x1s);
-    }
-    const int sl = (seq0 + i) % OKC_NS;
-    const uint32_t par = (uint32_t)(((seq0 + i) / OKC_NS) & 1);
-    mbar_wait(bars + sl, par);
-    const unsigned char* slot = ring + sl * UNIT_BYTES;
-#if OKC_NW == 16
-    // a warp covers half of an 8-warp K slice: its 4 chunks' scale bytes are 8 of the slice lane's 16
-    const uint2 sc2 = *reinterpret_cast<const uint2*>(slot + UNIT_CODES + (warp >> 1) * 512 + lane * 16 + (warp & 1) * 8);
-    const uint4 sc = make_uint4(sc2.x, sc2.y, 0u, 0u);
-#else
-    const uint4 sc = sc_load(slot, warp, lane);
-#endif
-    float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
-    const __nv_bfloat16* x1r = x1s + (lane >> 2) * X1P + 16 * (lane & 3);
-#pragma unroll
-    for (int c = 0; c < NCH; ++c) {
-      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
-#if OKC_PRMTSC
-      const uint32_t swd = c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w);
-      const uint32_t sg = SCDK(swd, (c & 1) * 2, k16), sg8 = SCDK(swd, (c & 1) * 2 + 1, k16);
-#define MULG(r) bmul2((r), sg)
-#define MULG8(r) bmul2((r), sg8)
-#else
-      const uint32_t sw = (c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w)) >> ((c & 1) * 16);
-      const uint32_t sg = S.lut[sw & 0xff], sg8 = S.lut[(sw >> 8) & 0xff];
-#define MULG(r) bmul2((r), sg)
-#define MULG8(r) bmul2((r), sg8)
-#endif
-      const uint32_t ww[4] = {w.x, w.y, w.z, w.w};
-      const uint32_t b[8] = {x0[2 * c].x, x0[2 * c].y, x0[2 * c].z, x0[2 * c].w,
-                             x0[2 * c + 1].x, x0[2 * c + 1].y, x0[2 * c + 1].z, x0[2 * c + 1].w};
-      if (!two) {
-#pragma unroll
-        for (int st = 0; st < 4; ++st) {
-          uint32_t r0, r1, r2, r3;
-          dq4(ww[st], r0, r1, r2, r3);
-          mma_bf16((st & 1) ? acc2 : acc, MULG(r0), MULG8(r1), MULG(r2), MULG8(r3), b[2 * st], b[2 * st + 1]);
-        }
-      } else {
-        const uint4 c0 = *reinterpret_cast<const uint4*>(x1r + c * 64);
-        const uint4 c1 = *reinterpret_cast<const uint4*>(x1r + c * 64 + 8);
-        const uint32_t bb[8] = {c0.x, c0.y, c0.z, c0.w, c1.x, c1.y, c1.z, c1.w};
-#pragma unroll
-        for (int st = 0; st < 4; ++st) {
-          uint32_t r0, r1, r2, r3;
-          dq4(ww[st], r0, r1, r2, r3);
-          const uint32_t a0 = MULG(r0), a1 = MULG8(r1), a2 = MULG(r2), a3 = MULG8(r3);
-          mma_bf16(acc, a0, a1, a2, a3, b[2 * st], b[2 * st + 1]);
-          mma_bf16(acc2, a0, a1, a2, a3, bb[2 * st], bb[2 * st + 1]);
-        }
-      }
-    }
-#undef MULG
-#undef MULG8
-    if (!two) { acc[0] += acc2[0]; acc[1] += acc2[1]; acc[2] += acc2[2]; acc[3] += acc2[3]; }
-    float* rd = &S.red[i & 1][warp][lane][0];
-    *reinterpret_cast<float4*>(rd) = make_float4(acc[0], acc[1], acc[2], acc[3]);
-    CTA_SYNC();  // slot sl fully consumed; partials visible
-    if (tid == 0) {
-      if (i + OKC_NS < nU) { ring_issue<PB>(p, S, v + OKC_NS, ring + sl * UNIT_BYTES, bars + sl); ++snext; }
-      else refill(sl);
-    }
-    if (tid < (two ? 128 : 64)) {
-      const int nt = tid >> 6, h = (tid >> 5) & 1, ln = tid & 31;
-      const int gg = ln >> 2, tt = ln & 3;
-      float s0 = 0.f, s1 = 0.f;
-#pragma unroll
-      for (int ww = 0; ww < NW; ++ww) {
-        const float* q = &S.red[i & 1][ww][ln][nt * 4];
-        s0 += q[h];
-        s1 += q[2 + h];
-      }
-      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
-      const int tk = nt * 8 + 2 * tt + h;
-      if (!PB) {
-        if (tk < cnt) {
-          const float gsc = p.gsA[ce] * TWO62;
-          const float gt = s0 * gsc, up = s1 * gsc;
-          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
-        }
-      } else {
-        const float gsc = p.gsB[ce] * TWO62;
-        const int n0 = rb * 16 + gg;
-        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;
-        float sq = v0f * v0f + v1f * v1f;
-        if (tk < cnt) {
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0 + 8), v1f);
-        }
-        sq += __shfl_xor_sync(0xffffffffu, sq, 4);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 8);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 16);
-        if (gg == 0 && tk < cnt) atomicAdd(&ss_cur()[st + tk], sq);
-      }
-    }
-    nwc0 = nwn0; nwc1 = nwn1;
-    ++nproc;
-  }
-  seq = seq0 + nproc;
-  if (!PB) {
-    __threadfence();
-    CTA_SYNC();
-    if (tid == 0) {
-      if (nU > 0) {
-        const int jf = njF + (v0 >> rsh), jl = njF + ((v1 - 1) >> rsh);
-        for (int jj = jf; jj <= jl; ++jj) {
-          const int a = max(v0, (jj - njF) * rbs), b = min(v1, (jj - njF + 1) * rbs);
-          atomicAdd(p.doneA + jj, b - a);
-        }
-      }
-      for (int jj = jdmin; jj <= jdmax; ++jj) {  // pool units
-        const int k = S.dync[jj];
-        if (k) { atomicAdd(p.doneA + jj, k); S.dync[jj] = 0; }
-      }
-    }
-  }
-  if (!PB && tid == 0) S.preissuedB = preB;
-  if (PB && tid == 0) S.preissuedB = 0;
-  CTA_SYNC();
-}
-#else
-template <bool PB>
-__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,
-                            __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) {
-  const int tid = threadIdx.x, lane = tid & 31, warp = WARP_IDX(tid);
-  const uint32_t k16 = SCK + p.zero;  // opaque 16 (4 with SC6S): the scale decode IMAD
-  (void)k16;
-  const int rbs = PB ? RB_B : RB_A;
-  const int njF = S.njF;
-  const int nU = v1 - v0;
-  if (nU <= 0) return;
-  const int seq0 = seq;
-  // order earlier generic-proxy accesses of this smem region (fat path) before async-proxy (TMA) writes
-  if (tid == 0) asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-  // cross-phase prefill: with no fat jobs, phase A's last ring refills already fetch this CTA's first B units
-  int preB = 0;
-  const bool cpf = OKC_CPF && !PB && cpf_ok;
-  const int v0B = cB0, nB = cBn;
-  const int pre = PB ? S.preissuedB : S.preissued;
-  for (int i = pre; i < OKC_NS; ++i) {
-    const int sl = (seq0 + i) % OKC_NS;
-    if (i < nU) ring_issue_all<PB>(p, S, v0 + i, ring + sl * UNIT_BYTES, bars + sl);
-    else if (cpf && i - nU < nB) { ring_issue_all<true>(p, S, v0B + (i - nU), ring + sl * UNIT_BYTES, bars + sl); ++preB; }
-  }
-  uint4 x0[2 * NCH];
-  int curj = -1;
-  bool two = false;
-  __nv_bfloat16* x1s = x1base + warp * 8 * X1P;
-  // phase B epilogue: prefetch (1 + post_norm_w) of the next unit's rows one unit ahead
-  float nwc0 = 0.f, nwc1 = 0.f;
-  const int egg = (tid & 31) >> 2;
-  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)); }
-  for (int i = 0; i < nU; ++i) {
-    const int v = v0 + i;
-    const int j = njF + v / rbs, rb = v - (v / rbs) * rbs;
-    float nwn0 = 0.f, nwn1 = 0.f;
-    if (PB && tid < 128 && i + 1 < nU) {
-      const int rbq = (v + 1) % rbs;
-      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
-    }
-    if (j != curj) {
-      curj = j;
-      two = (OKC_SKT > 8) && S.jC[j] > 8;
-      if (PB) {
-        if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }
-        __syncwarp();
-      }
-      load_x_regs<PB>(p, S, j, lane, warp, x0);
-      if (two) load_x1_smem<PB>(p, S, j, lane, warp, x1s);
-    }
-    const int sl = (seq0 + i) % OKC_NS;
-    const uint32_t par = (uint32_t)(((seq0 + i) / OKC_NS) & 1);
-    mbar_wait(bars + sl, par);
-    const unsigned char* slot = ring + sl * UNIT_BYTES;
-    const uint4 sc = sc_load(slot, warp, lane);
-    float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
-    float acc3[4] = {0.f, 0.f, 0.f, 0.f}, acc4[4] = {0.f, 0.f, 0.f, 0.f};
-    const __nv_bfloat16* x1r = x1s + (lane >> 2) * X1P + 16 * (lane & 3);
-#pragma unroll
-    for (int c = 0; c < NCH; ++c) {
-      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
-#if OKC_PRMTSC
-      const uint32_t swd = c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w);
-      const uint32_t sg = SCDK(swd, (c & 1) * 2, k16), sg8 = SCDK(swd, (c & 1) * 2 + 1, k16);
-#define MULG(r) bmul2((r), sg)
-#define MULG8(r) bmul2((r), sg8)
-#else
-      const uint32_t sw = (c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w)) >> ((c & 1) * 16);
-      const uint32_t sg = S.lut[sw & 0xff], sg8 = S.lut[(sw >> 8) & 0xff];
-#define MULG(r) bmul2((r), sg)
-#define MULG8(r) bmul2((r), sg8)
-#endif
-      const uint32_t ww[4] = {w.x, w.y, w.z, w.w};
-      const uint32_t b[8] = {x0[2 * c].x, x0[2 * c].y, x0[2 * c].z, x0[2 * c].w,
-                             x0[2 * c + 1].x, x0[2 * c + 1].y, x0[2 * c + 1].z, x0[2 * c + 1].w};
-      if (!two) {
-#pragma unroll
-        for (int st = 0; st < 4; ++st) {
-          uint32_t r0, r1, r2, r3;
-          dq4(ww[st], r0, r1, r2, r3);
-          mma_bf16(st == 0 ? acc : st == 1 ? acc2 : st == 2 ? acc3 : acc4, MULG(r0), MULG8(r1), MULG(r2), MULG8(r3), b[2 * st], b[2 * st + 1]);
-        }
-      } else {
-        const uint4 c0 = *reinterpret_cast<const uint4*>(x1r + c * 64);
-        const uint4 c1 = *reinterpret_cast<const uint4*>(x1r + c * 64 + 8);
-        const uint32_t bb[8] = {c0.x, c0.y, c0.z, c0.w, c1.x, c1.y, c1.z, c1.w};
-#pragma unroll
-        for (int st = 0; st < 4; ++st) {
-          uint32_t r0, r1, r2, r3;
-          dq4(ww[st], r0, r1, r2, r3);
-          const uint32_t a0 = MULG(r0), a1 = MULG8(r1), a2 = MULG(r2), a3 = MULG8(r3);
-          mma_bf16(acc, a0, a1, a2, a3, b[2 * st], b[2 * st + 1]);
-          mma_bf16(acc2, a0, a1, a2, a3, bb[2 * st], bb[2 * st + 1]);
-        }
-      }
-    }
-#undef MULG
-#undef MULG8
-    if (!two) {
-#pragma unroll
-      for (int k = 0; k < 4; ++k) acc[k] += acc2[k] + acc3[k] + acc4[k];
-    }
-    float* rd = &S.red[i & 1][warp][lane][0];
-    *reinterpret_cast<float4*>(rd) = make_float4(acc[0], acc[1], acc[2], acc[3]);
-    CTA_SYNC();  // slot sl fully consumed; partials visible
-    if (i + OKC_NS < nU) ring_issue_all<PB>(p, S, v + OKC_NS, ring + sl * UNIT_BYTES, bars + sl);
-    else if (cpf && i + OKC_NS - nU < nB) {
-      ring_issue_all<true>(p, S, v0B + (i + OKC_NS - nU), ring + sl * UNIT_BYTES, bars + sl);
-      ++preB;
-    }
-    if (tid < (two ? 128 : 64)) {
-      const int nt = tid >> 6, h = (tid >> 5) & 1, ln = tid & 31;
-      const int gg = ln >> 2, tt = ln & 3;
-      float s0 = 0.f, s1 = 0.f;
-#pragma unroll
-      for (int ww = 0; ww < NW; ++ww) {
-        const float* q = &S.red[i & 1][ww][ln][nt * 4];
-        s0 += q[h];
-        s1 += q[2 + h];
-      }
-      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
-      const int tk = nt * 8 + 2 * tt + h;
-      if (!PB) {
-        if (tk < cnt) {
-          const float gsc = p.gsA[ce] * TWO62;
-          const float gt = s0 * gsc, up = s1 * gsc;
-          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
-        }
-      } else {
-        const float gsc = p.gsB[ce] * TWO62;
-        const int n0 = rb * 16 + gg;
-        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;
-        float sq = v0f * v0f + v1f * v1f;
-        if (tk < cnt) {
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0 + 8), v1f);
-        }
-        sq += __shfl_xor_sync(0xffffffffu, sq, 4);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 8);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 16);
-        if (gg == 0 && tk < cnt) atomicAdd(&ss_cur()[st + tk], sq);
-      }
-    }
-    nwc0 = nwn0; nwc1 = nwn1;
-  }
-  seq = seq0 + nU;
-  if (!PB) {
-    __threadfence();
-    CTA_SYNC();
-    if (tid == 0) {
-      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;
-      for (int jj = jf; jj <= jl; ++jj) {
-        const int a = max(v0, (jj - njF) * rbs), b = min(v1, (jj - njF + 1) * rbs);
-        atomicAdd(p.doneA + jj, b - a);
-      }
-    }
-  }
-  if (!PB && tid == 0) S.preissuedB = preB;
-  if (PB && tid == 0) S.preissuedB = 0;
-  CTA_SYNC();
-}
-#endif
-
-// ---------------------------------------------------------------- fat unit: CTA = 256 rows (warp = 2 x 16 rows) x full K, <=64 tokens
-// ---------------------------------------------------------------- fat unit through the smem ring
-// A fat unit is 256 rows x full K for <= 64 tokens. Its weights arrive in 16 k-stages of 36 KB (16 row blocks x
-// 4 chunks + their scales, contiguous in the fat-order copy) through slots 0..2 of the ring region; the x tile
-// for the stage is staged by cp.async into two buffers that live in slots 3..4.
-constexpr int NSF = OKC_NSF;
-template <bool PB>
-__device__ __forceinline__ void fat_issue(const Params& p, int e, int ub, int ks, unsigned char* slot, uint64_t* bar, bool nat = false) {
-  const int nub = PB ? UB_B : UB_A;
-  const unsigned char* src = (nat ? (PB ? p.wBn : p.wAn) : (PB ? p.wBf : p.wAf)) + (((size_t)e * nub + ub) * 16 + ks) * (size_t)UNIT_BYTES;
-  if (threadIdx.x == 0) {
-    asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(UNIT_BYTES) : "memory");
-    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
-                 ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(bar)) L2H_ARG : "memory");
-  }
-}
-
-// ---------------------------------------------------------------- fat units: one continuous stream per CTA
-// Units come from a dynamic queue; the next unit is claimed when the current one starts, so the ring keeps
-// streaming across unit boundaries (the refills of the last k-stages already fetch the next unit's weights).
-// ---------------------------------------------------------------- wgmma (sm90a): A from registers, B (x) from smem
-__device__ __forceinline__ uint64_t wg_desc_sw128(uint32_t saddr) {  // K-major, 128 B swizzle, 8-row groups 1 KB apart
-  return (uint64_t)((saddr >> 4) & 0x3FFF) | ((uint64_t)1 << 16) | ((uint64_t)(1024 >> 4) << 32) | (1ull << 62);
-}
-__device__ __forceinline__ uint64_t wg_desc(uint32_t saddr, uint32_t lbo, uint32_t sbo) {
-  return (uint64_t)((saddr >> 4) & 0x3FFF) | ((uint64_t)((lbo >> 4) & 0x3FFF) << 16) | ((uint64_t)((sbo >> 4) & 0x3FFF) << 32);
-}
-__device__ __forceinline__ void wg_fence() { asm volatile("wgmma.fence.sync.aligned;\n" ::: "memory"); }
-__device__ __forceinline__ void wg_commit() { asm volatile("wgmma.commit_group.sync.aligned;\n" ::: "memory"); }
-template <int N>
-__device__ __forceinline__ void wg_wait() { asm volatile("wgmma.wait_group.sync.aligned %0;\n" ::"n"(N) : "memory"); }
-template <int NTT> struct WG;
-template <> struct WG<1> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n8k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3}, {%4, %5, %6, %7}, %8, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<2> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n16k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7}, {%8, %9, %10, %11}, %12, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<3> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n24k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11}, {%12, %13, %14, %15}, %16, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<4> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n32k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15}, {%16, %17, %18, %19}, %20, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3]), "+f"(acc[3][0]), "+f"(acc[3][1]), "+f"(acc[3][2]), "+f"(acc[3][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<5> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n40k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19}, {%20, %21, %22, %23}, %24, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3]), "+f"(acc[3][0]), "+f"(acc[3][1]), "+f"(acc[3][2]), "+f"(acc[3][3]), "+f"(acc[4][0]), "+f"(acc[4][1]), "+f"(acc[4][2]), "+f"(acc[4][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<6> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n48k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23}, {%24, %25, %26, %27}, %28, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3]), "+f"(acc[3][0]), "+f"(acc[3][1]), "+f"(acc[3][2]), "+f"(acc[3][3]), "+f"(acc[4][0]), "+f"(acc[4][1]), "+f"(acc[4][2]), "+f"(acc[4][3]), "+f"(acc[5][0]), "+f"(acc[5][1]), "+f"(acc[5][2]), "+f"(acc[5][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<7> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n56k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27}, {%28, %29, %30, %31}, %32, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3]), "+f"(acc[3][0]), "+f"(acc[3][1]), "+f"(acc[3][2]), "+f"(acc[3][3]), "+f"(acc[4][0]), "+f"(acc[4][1]), "+f"(acc[4][2]), "+f"(acc[4][3]), "+f"(acc[5][0]), "+f"(acc[5][1]), "+f"(acc[5][2]), "+f"(acc[5][3]), "+f"(acc[6][0]), "+f"(acc[6][1]), "+f"(acc[6][2]), "+f"(acc[6][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-template <> struct WG<8> {
-  static __device__ __forceinline__ void mma(float (&acc)[FT_T / 8][4], uint32_t& a0, uint32_t& a1, uint32_t& a2, uint32_t& a3, uint64_t desc) {
-    asm volatile(
-        "{\n .reg .pred p;\n setp.ne.b32 p, 1, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n64k16.f32.bf16.bf16 "
-        "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, {%32, %33, %34, %35}, %36, p, 1, 1, 0;\n}\n"
-        : "+f"(acc[0][0]), "+f"(acc[0][1]), "+f"(acc[0][2]), "+f"(acc[0][3]), "+f"(acc[1][0]), "+f"(acc[1][1]), "+f"(acc[1][2]), "+f"(acc[1][3]), "+f"(acc[2][0]), "+f"(acc[2][1]), "+f"(acc[2][2]), "+f"(acc[2][3]), "+f"(acc[3][0]), "+f"(acc[3][1]), "+f"(acc[3][2]), "+f"(acc[3][3]), "+f"(acc[4][0]), "+f"(acc[4][1]), "+f"(acc[4][2]), "+f"(acc[4][3]), "+f"(acc[5][0]), "+f"(acc[5][1]), "+f"(acc[5][2]), "+f"(acc[5][3]), "+f"(acc[6][0]), "+f"(acc[6][1]), "+f"(acc[6][2]), "+f"(acc[6][3]), "+f"(acc[7][0]), "+f"(acc[7][1]), "+f"(acc[7][2]), "+f"(acc[7][3])
-        , "+r"(a0), "+r"(a1), "+r"(a2), "+r"(a3)
-        : "l"(desc));
-  }
-};
-
-// one 36 KB k-stage of a fat unit with wgmma: A = dequantized weights (natural k order) from registers, B = x tile from
-// shared memory in the K-major no-swizzle core-matrix layout [n8][k8][8 rows][16 B] (LBO 128 B along K, SBO 4 KB along N)
-template <int NTT>
-__device__ __forceinline__ void fat_compute_wg(const Smem& S, const unsigned char* slot, const __nv_bfloat16* xs, int warp,
-                                               int lane, float (&acc0)[FT_T / 8][4], float (&acc1)[FT_T / 8][4], uint32_t zero) {
-  // x stage: [kb 4][64 rows][128 B], 128 B swizzle (chunk c of row n at c ^ (n & 7)); k-step st of chunk cc reads
-  // k block cc at byte offset 32 st
-  const int g = lane >> 2;
-  const uint32_t xb = smem_u32(xs);
-  uint32_t A[2][8][4];  // [chunk parity][k-step x rb][fragment]; a set stays untouched until its group retired
-  uint32_t keep = 0;    // folds every fragment after its group retired, so ptxas keeps the registers live (no reuse)
-#pragma unroll
-  for (int cc = 0; cc < 4; ++cc) {
-    const int sb = cc & 1;
-    const uint4 w0 = *reinterpret_cast<const uint4*>(slot + ((warp * 4 + cc) * 32 + lane) * 16);
-    const uint4 w1 = *reinterpret_cast<const uint4*>(slot + (((warp + 8) * 4 + cc) * 32 + lane) * 16);
-    const uint2 sc0 = *reinterpret_cast<const uint2*>(slot + UNIT_CODES + ((warp * 4 + cc) * 8 + g) * 8);
-    const uint2 sc1 = *reinterpret_cast<const uint2*>(slot + UNIT_CODES + (((warp + 8) * 4 + cc) * 8 + g) * 8);
-#pragma unroll
-    for (int st = 0; st < 4; ++st) {
-      // e4m3 -> bf16 without the LUT: bf16 bits (b << 4) hold value * 2^-120 (subnormal codes included), two exact
-      // multiplies by 2^92 give value * 2^64 like the LUT; rows g | g+8 travel as one bf16x2
-      const uint32_t K92 = 0x6D806D80u;  // bf16x2(2^92, 2^92)
-      const uint32_t p0 = bmul2(bmul2((__byte_perm(sc0.x, sc0.y, 0x0400u | st | ((st + 4) << 8)) & 0x00FF00FFu) << 4, K92), K92);
-      const uint32_t p1 = bmul2(bmul2((__byte_perm(sc1.x, sc1.y, 0x0400u | st | ((st + 4) << 8)) & 0x00FF00FFu) << 4, K92), K92);
-      const uint32_t sg0 = __byte_perm(p0, p0, 0x1010u), sg80 = __byte_perm(p0, p0, 0x3232u);
-      const uint32_t sg1 = __byte_perm(p1, p1, 0x1010u), sg81 = __byte_perm(p1, p1, 0x3232u);
-#define FMG0(r) bmul2((r), sg0)
-#define FMG80(r) bmul2((r), sg80)
-#define FMG1(r) bmul2((r), sg1)
-#define FMG81(r) bmul2((r), sg81)
-      uint32_t r0, r1, r2, r3, q0, q1, q2, q3;
-      dq4((&w0.x)[st], r0, r1, r2, r3);
-      dq4((&w1.x)[st], q0, q1, q2, q3);
-      A[sb][2 * st][0] = FMG0(r0); A[sb][2 * st][1] = FMG80(r1);
-      A[sb][2 * st][2] = FMG0(r2); A[sb][2 * st][3] = FMG80(r3);
-      A[sb][2 * st + 1][0] = FMG1(q0); A[sb][2 * st + 1][1] = FMG81(q1);
-      A[sb][2 * st + 1][2] = FMG1(q2); A[sb][2 * st + 1][3] = FMG81(q3);
-#undef FMG0
-#undef FMG80
-#undef FMG1
-#undef FMG81
-    }
-    wg_fence();
-#pragma unroll
-    for (int st = 0; st < 4; ++st) {
-      const uint64_t dk = wg_desc_sw128(xb + cc * 8192 + st * 32);
-      WG<NTT>::mma(acc0, A[sb][2 * st][0], A[sb][2 * st][1], A[sb][2 * st][2], A[sb][2 * st][3], dk);
-      WG<NTT>::mma(acc1, A[sb][2 * st + 1][0], A[sb][2 * st + 1][1], A[sb][2 * st + 1][2], A[sb][2 * st + 1][3], dk);
-    }
-    wg_commit();
-    if (cc >= 1) {
-      wg_wait<1>();  // the previous chunk's group retired: its register set may be rewritten
-#pragma unroll
-      for (int k = 0; k < 8; ++k) keep ^= A[sb ^ 1][k][0] ^ A[sb ^ 1][k][1] ^ A[sb ^ 1][k][2] ^ A[sb ^ 1][k][3];
-    }
-  }
-  wg_wait<0>();
-#pragma unroll
-  for (int k = 0; k < 8; ++k) keep ^= A[1][k][0] ^ A[1][k][1] ^ A[1][k][2] ^ A[1][k][3];
-  acc0[0][0] += __uint_as_float(keep & zero);  // adds +0.0f
-}
-
-// one 36 KB k-stage of a fat unit: 2 row blocks per warp x NTT token tiles (exact tile count, no predicated MMAs)
-template <int NTT>
-__device__ __forceinline__ void fat_compute(const Smem& S, const unsigned char* slot, const __nv_bfloat16* xs, int warp,
-                                            int lane, float (&acc0)[FT_T / 8][4], float (&acc1)[FT_T / 8][4]) {
-  const int g = lane >> 2, t = lane & 3;
-  const uint2 sc0 = *reinterpret_cast<const uint2*>(slot + UNIT_CODES + (warp * 32 + lane) * 8);
-#if OKC_NW == 8
-  const uint2 sc1 = *reinterpret_cast<const uint2*>(slot + UNIT_CODES + ((warp + 8) * 32 + lane) * 8);
-#endif
-#pragma unroll
-  for (int cc = 0; cc < 4; ++cc) {
-    const uint4 w0 = *reinterpret_cast<const uint4*>(slot + ((warp * 4 + cc) * 32 + lane) * 16);
-#if OKC_NW == 8
-    const uint4 w1 = *reinterpret_cast<const uint4*>(slot + (((warp + 8) * 4 + cc) * 32 + lane) * 16);
-#endif
-#if OKC_PRMTSC
-    const uint32_t sg0 = SCD(cc < 2 ? sc0.x : sc0.y, (cc & 1) * 2), sg80 = SCD(cc < 2 ? sc0.x : sc0.y, (cc & 1) * 2 + 1);
-#if OKC_NW == 8
-    const uint32_t sg1 = SCD(cc < 2 ? sc1.x : sc1.y, (cc & 1) * 2), sg81 = SCD(cc < 2 ? sc1.x : sc1.y, (cc & 1) * 2 + 1);
-#endif
-#else
-    const int sh = (cc & 1) * 16;
-    const uint32_t sw0 = (cc < 2 ? sc0.x : sc0.y) >> sh;
-    const uint32_t sw1 = (cc < 2 ? sc1.x : sc1.y) >> sh;
-    const uint32_t sg0 = S.lut[sw0 & 0xff], sg80 = S.lut[(sw0 >> 8) & 0xff];
-    const uint32_t sg1 = S.lut[sw1 & 0xff], sg81 = S.lut[(sw1 >> 8) & 0xff];
-#endif
-    const __nv_bfloat16* xr = xs + g * XP_FT + cc * 64 + 16 * t;
-#pragma unroll
-    for (int sp = 0; sp < 2; ++sp) {
-      uint32_t a0[2][4], a1[2][4];
-      (void)a1;
-#pragma unroll
-      for (int h = 0; h < 2; ++h) {
-        const int s2 = 2 * sp + h;
-        uint32_t r0, r1, r2, r3;
-        dq4((&w0.x)[s2], r0, r1, r2, r3);
-        a0[h][0] = bmul2(r0, sg0); a0[h][1] = bmul2(r1, sg80); a0[h][2] = bmul2(r2, sg0); a0[h][3] = bmul2(r3, sg80);
-#if OKC_NW == 8
-        dq4((&w1.x)[s2], r0, r1, r2, r3);
-        a1[h][0] = bmul2(r0, sg1); a1[h][1] = bmul2(r1, sg81); a1[h][2] = bmul2(r2, sg1); a1[h][3] = bmul2(r3, sg81);
-#endif
-      }
-#pragma unroll
-      for (int nt = 0; nt < NTT; ++nt) {
-        const uint4 bv = *reinterpret_cast<const uint4*>(xr + nt * 8 * XP_FT + 8 * sp);
-        mma_bf16(acc0[nt], a0[0][0], a0[0][1], a0[0][2], a0[0][3], bv.x, bv.y);
-#if OKC_NW == 8
-        mma_bf16(acc1[nt], a1[0][0], a1[0][1], a1[0][2], a1[0][3], bv.x, bv.y);
-#endif
-        mma_bf16(acc0[nt], a0[1][0], a0[1][1], a0[1][2], a0[1][3], bv.z, bv.w);
-#if OKC_NW == 8
-        mma_bf16(acc1[nt], a1[1][0], a1[1][1], a1[1][2], a1[1][3], bv.z, bv.w);
-#endif
-      }
-    }
-  }
-}
-
-template <bool PB, bool BIG>
-__device__ __forceinline__ void fat_stream(const Params& p, Smem& S, __nv_bfloat16* xbuf, int nF, int ubs) {
-  const int tid = threadIdx.x, lane = tid & 31, warp = WARP_IDX(tid);
-  const int g = lane >> 2, t = lane & 3;
-  int* ctr = p.ctr + (PB ? 1 : 0);
-  unsigned char* ring = reinterpret_cast<unsigned char*>(xbuf);
-  uint64_t* fb = S.bars + 5;
-  __nv_bfloat16* xs0 = reinterpret_cast<__nv_bfloat16*>(ring + NSF * UNIT_BYTES);
-  constexpr int NKS = HD / KS;  // 16
-  int u = blockIdx.x;
-  (void)ctr;
-  if (u >= nF) return;
-  constexpr int UBS = PB ? UB_B : UB_A;  // == ubs, as a constant (shift instead of a divide)
-  (void)ubs;
-  auto job_of = [&](int uu, int& j, int& ub) { const int jq = uu / UBS; ub = uu - jq * UBS; j = S.forder[jq]; };
-  auto wait_A = [&](int j) {  // phase B: inter rows of job j complete
-    if (PB) {
-      if (tid == 0) { while (ld_acquire(p.doneA + j) < UB_A) __nanosleep(64); }
-      CTA_SYNC();
-    }
-  };
-  auto is_nat = [&](int j) { return BIG && OKC_WGMIN <= 8 && ((S.jC[j] + 7) >> 3) >= OKC_WGMIN; };
-  auto stage_x = [&](int j, int ks, int xsl) {
-    const int cnt = S.jC[j], st = S.jS[j];
-    const int ntl = (cnt + 7) >> 3;
-    const int nrow = ntl * 8;
-    __nv_bfloat16* xs = xs0 + xsl * (FT_T * XP_FT);
-    const int per = nrow * (KS / 8);
-    if (is_nat(j)) {
-      // 128 B swizzled K-major layout [kb 4][64 rows][128 B]: a warp copies one 512 B row (conflict-free)
-      unsigned char* xsb = reinterpret_cast<unsigned char*>(xs);
-      for (int i = tid; i < per; i += NT) {
-        const int r = i >> 5, ch = i & 31;
-        const bool v = r < cnt;
-        const __nv_bfloat16* src;
-        if (PB) src = p.inter + (size_t)(st + (v ? r : 0)) * ID + ks * KS + ch * 8;
-        else src = p.x + (size_t)(v ? (S.ent[st + r] >> 3) : 0) * HD + ks * KS + ch * 8;
-        cp_async16(reinterpret_cast<__nv_bfloat16*>(xsb + (ch >> 3) * 8192 + r * 128 + (((ch & 7) ^ (r & 7)) << 4)), src, v);
-      }
-    } else {
-      for (int i = tid; i < per; i += NT) {
-        int r = i / (KS / 8), c = i - r * (KS / 8);
-        bool v = r < cnt;
-        const __nv_bfloat16* src;
-        if (PB) src = p.inter + (size_t)(st + (v ? r : 0)) * ID + ks * KS + c * 8;
-        else src = p.x + (size_t)(v ? (S.ent[st + r] >> 3) : 0) * HD + ks * KS + c * 8;
-        cp_async16(xs + r * XP_FT + c * 8, src, v);
-      }
-    }
-    cp_commit();
-  };
-  // BIG kernel: per-thread x staging addresses computed once per unit (a stage only adds its k offset)
-  const __nv_bfloat16* xsrc[8];
-  uint32_t xdst[8];
-  uint32_t xval = 0;
-  int xn = 0;
-  auto prep_x = [&](int j) {
-    const int cnt = S.jC[j], st = S.jS[j];
-    const int per = ((cnt + 7) >> 3) * 8 * (KS / 8);
-    xval = 0;
-    xn = per > tid ? min(8, (per - tid + NT - 1) / NT) : 0;
-#pragma unroll
-    for (int k = 0; k < 8; ++k) {
-      const int i = tid + k * NT;
-      const int r = i >> 5, c = i & 31;
-      const bool v = i < per && r < cnt;
-      if (PB) xsrc[k] = p.inter + (size_t)(st + (v ? r : 0)) * ID + c * 8;
-      else xsrc[k] = p.x + (size_t)(v ? (S.ent[st + r] >> 3) : 0) * HD + c * 8;
-      xdst[k] = r * XP_FT + c * 8;
-      if (v) xval |= 1u << k;
-    }
-  };
-  auto stage_xp = [&](int ks, int xsl) {
-    __nv_bfloat16* xs = xs0 + xsl * (FT_T * XP_FT);
-#pragma unroll
-    for (int k = 0; k < 8; ++k)
-      if (k < xn) cp_async16(xs + xdst[k], xsrc[k] + ks * KS, (xval >> k) & 1u);
-    cp_commit();
-  };
-  if (tid == 0) asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-  int f = S.fseq;  // ring position of the current unit's k-stage 0
-  int xq = 0;      // x stage parity counter
-  int j, ub;
-  job_of(u, j, ub);
-#pragma unroll
-  for (int k = 0; k < NSF; ++k) fat_issue<PB>(p, S.jE[j], ub, k, ring + ((f + k) % NSF) * UNIT_BYTES, fb + (f + k) % NSF, is_nat(j));
-  wait_A(j);
-  if (OKC_XPRE) { prep_x(j); stage_xp(0, 0); } else stage_x(j, 0, 0);
-  while (true) {
-    const int un = u + gridDim.x;
-    int jn = 0, ubn = 0;
-    if (un < nF) job_of(un, jn, ubn);
-    const int e = S.jE[j], cnt = S.jC[j], st = S.jS[j];
-    const int ntile = (cnt + 7) >> 3;
-    const int ntc = ntile;  // exact token-tile count (rows past cnt are zero-filled)
-    const bool nat = is_nat(j);
-    const int rb0 = ub * 16 + warp, rb1 = rb0 + 8;
-    float acc0[FT_T / 8][4], acc1[FT_T / 8][4];
-#pragma unroll
-    for (int i = 0; i < FT_T / 8; ++i)
-#pragma unroll
-      for (int k = 0; k < 4; ++k) { acc0[i][k] = 0.f; acc1[i][k] = 0.f; }
-    for (int ks = 0; ks < NKS; ++ks) {
-      if (OKC_XPRE) {
-        if (ks + 1 < NKS) stage_xp(ks + 1, (xq + 1) & 1);
-        else if (un < nF) { wait_A(jn); prep_x(jn); stage_xp(0, (xq + 1) & 1); }
-        else cp_commit();
-      } else {
-        if (ks + 1 < NKS) stage_x(j, ks + 1, (xq + 1) & 1);
-        else if (un < nF) { wait_A(jn); stage_x(jn, 0, (xq + 1) & 1); }
-        else cp_commit();
-      }
-      cp_wait<1>();
-      const int q = f + ks, sl = q % NSF;
-      mbar_wait(fb + sl, (uint32_t)((q / NSF) & 1));
-      if (nat) asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");  // cp.async x writes -> wgmma reads
-      CTA_SYNC();  // x stage visible to every warp
-      const unsigned char* slot = ring + sl * UNIT_BYTES;
-      const __nv_bfloat16* xs = xs0 + (xq & 1) * (FT_T * XP_FT);
-      if (nat) {
-        switch (ntc) {
-          case 1: fat_compute_wg<1>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 2: fat_compute_wg<2>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 3: fat_compute_wg<3>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 4: fat_compute_wg<4>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 5: fat_compute_wg<5>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 6: fat_compute_wg<6>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          case 7: fat_compute_wg<7>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-          default: fat_compute_wg<8>(S, slot, xs, warp, lane, acc0, acc1, p.zero); break;
-        }
-      } else {
-        switch (ntc) {
-          case 1: fat_compute<1>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 2: fat_compute<2>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 3: fat_compute<3>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 4: fat_compute<4>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 5: fat_compute<5>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 6: fat_compute<6>(S, slot, xs, warp, lane, acc0, acc1); break;
-          case 7: fat_compute<7>(S, slot, xs, warp, lane, acc0, acc1); break;
-          default: fat_compute<8>(S, slot, xs, warp, lane, acc0, acc1); break;
-        }
-      }
-      CTA_SYNC();  // slot sl and the x stage consumed
-      ++xq;
-      // refill: the stage NSF ahead, in this unit or the next one
-      const int kn = ks + NSF;
-      if (kn < NKS) fat_issue<PB>(p, e, ub, kn, ring + sl * UNIT_BYTES, fb + sl, nat);
-      else if (un < nF) fat_issue<PB>(p, S.jE[jn], ubn, kn - NKS, ring + sl * UNIT_BYTES, fb + sl, is_nat(jn));
-    }
-    // epilogue of unit u (registers -> global)
-    const float gsc = (PB ? p.gsB[e] : p.gsA[e]) * TWO62;
-    if (!PB) {
-#pragma unroll
-      for (int nt = 0; nt < FT_T / 8; ++nt)
-        if (nt < ntile) {
-          epi_A(p, st, cnt, nt * 8 + 2 * t, rb0 * 8 + g, gsc, acc0[nt]);
-#if OKC_NW == 8
-          epi_A(p, st, cnt, nt * 8 + 2 * t, rb1 * 8 + g, gsc, acc1[nt]);
-#endif
-        }
-      __threadfence();
-      CTA_SYNC();
-      if (tid == 0) atomicAdd(p.doneA + j, 1);
-    } else {
-#pragma unroll
-      for (int nt = 0; nt < FT_T / 8; ++nt)
-        if (nt < ntile) {
-          float sq0[2], sq1[2];
-          epi_B(p, st, cnt, nt * 8 + 2 * t, rb0 * 16 + g, gsc, acc0[nt], sq0);
-#if OKC_NW == 8
-          epi_B(p, st, cnt, nt * 8 + 2 * t, rb1 * 16 + g, gsc, acc1[nt], sq1);
-          sq0[0] += sq1[0]; sq0[1] += sq1[1];
-#else
-          (void)sq1;
-#endif
-          ss_reduce_add(p, st, cnt, nt * 8 + 2 * t, sq0, g);
-        }
-    }
-    f += NKS;
-    if (un >= nF) break;
-    u = un; j = jn; ub = ubn;
-  }
-  cp_wait<0>();
-  asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-  if (tid == 0) S.fseq = f;
-  CTA_SYNC();
-}
-
-template <bool PB>
-__device__ __noinline__ void fat_stream_ni(const Params& p, Smem& S, __nv_bfloat16* xbuf, int nF, int ubs) {
-  fat_stream<PB, false>(p, S, xbuf, nF, ubs);
-}
-
-
-
-// issue the phase-A skinny ring prologue as soon as the job table exists (before the positions pass)
-__device__ void early_issue(const Params& p, Smem& S) {
-#if FAST1_ON || OKC_WGS
-  return;  // the first units were issued at kernel start (FAST1), or the WGS producer warp owns the ring
-#endif
-  if (OKC_FATSTATIC && S.njF > 0) {  // fat units run first and own the ring region
-    if (threadIdx.x == 0) S.preissued = 0;
-    return;
-  }
-  const int nS = S.njS * RB_A - dyn_pool(S.njS * RB_A, gridDim.x);  // static part (the pool tail is claimed at run time)
-  const float rG = __fdividef(1.f, (float)gridDim.x);
-  const int v0 = muldiv_g(nS, blockIdx.x, gridDim.x, rG), v1 = muldiv_g(nS, blockIdx.x + 1, gridDim.x, rG);
-  unsigned char* ring = reinterpret_cast<unsigned char*>(S.xbuf_ptr);
-  // only the first unit, issued by the last warp so warp 0 (routing) is not held up; the ring prologue in
-  // skinny_ring issues the rest after routing, so every CTA's first unit is served ahead of the second ones
-  const int n = min(OKC_EARLYN, v1 - v0);
-  if (threadIdx.x == NT - 32) {
-    asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-    for (int i = 0; i < n; ++i) { ring_issue<false>(p, S, v0 + i, ring + i * UNIT_BYTES, S.bars + i); S.uslot[i] = v0 + i; }
-    S.preissued = n > 0 ? n : 0;
-  }
-}
-
-// skinny share [v0, v1) of CTA c when nF fat units go round robin first: every CTA ends at the same modeled cost
-#if OKC_WS
-// ---------------------------------------------------------------- warp-specialized skinny ring (tiny build)
-// The NW compute warps only wait for data, compute, release the slot and hand their partial sums over; the helper
-// warp (threads NT..NT+31) issues every TMA copy as soon as all compute warps released a slot and runs every unit's
-// epilogue, so no CTA-wide barrier sits in the per-unit loop.
-// the last WSBLK units keep their partial buffers until the compute warps' own epilogues: WSBLK > WSNR deadlocks the
-// partial ring (tuner, Oct 26: every WSNR=2 / WSBLK=3 config hung)
-static_assert(!OKC_WS || !OKC_WSBL || OKC_WSBLK <= OKC_WSNR, "OKC_WSBLK must not exceed OKC_WSNR");
-#define OKC_WSRF 0
-__device__ __forceinline__ void ws_issue(const Params& p, Smem& S, int q, int nA, int a0, int b0, unsigned char* ring);
-template <bool PB>
-__device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq) {
-  const int tid = threadIdx.x, lane = tid & 31, warp = WARP_IDX(tid);
-  const uint32_t k16 = SCK + p.zero;  // opaque 16 (4 with SC6S): the scale decode IMAD
-  (void)k16;
-  const int rbs = PB ? RB_B : RB_A;
-  const int njF = S.njF;
-  const int nU = v1 - v0;
-  const int seq0 = seq;
-  uint4 x0[2 * NCH];
-  int curj = -1;
-  float lgs = 0.f;                             // the last phase-B unit's epilogue constants (warp 0)
-  uint32_t lnw0 = 0u, lnw1 = 0u;                // (norm weights as raw bf16 bits)
-  for (int i = 0; i < nU; ++i) {
-    const int v = v0 + i;
-    const int j = njF + v / rbs;
-    if (PB && warp < OKC_WSBLK && i == nU - 1 - warp) {
-      const int rbl = v - (v / RB_B) * RB_B, n0l = rbl * 16 + (lane >> 2);
-      lgs = __ldg(p.gsB + S.jE[j]); lnw0 = (uint32_t)__ldg(reinterpret_cast<const unsigned short*>(p.normw) + n0l);
-      lnw1 = (uint32_t)__ldg(reinterpret_cast<const unsigned short*>(p.normw) + n0l + 8);
-    }
-    if (j != curj) {
-      curj = j;
-      if (PB) {
-        if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }
-        __syncwarp();
-      }
-      load_x_regs<PB>(p, S, j, lane, warp, x0);
-    }
-    const int q = seq0 + i;
-    const int sl = q % OKC_NS;
-    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));
-    const unsigned char* slot = ring + sl * UNIT_BYTES;
-    const uint4 sc = sc_load(slot, warp, lane);
-    float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
-    float acc3[4] = {0.f, 0.f, 0.f, 0.f}, acc4[4] = {0.f, 0.f, 0.f, 0.f};
-#pragma unroll
-    for (int c = 0; c < NCH; ++c) {
-      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
-#if OKC_PRMTSC
-      const uint32_t swd = c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w);
-      const uint32_t sg = SCDK(swd, (c & 1) * 2, k16), sg8 = SCDK(swd, (c & 1) * 2 + 1, k16);
-#else
-      const uint32_t sw = (c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w)) >> ((c & 1) * 16);
-      const uint32_t sg = S.lut[sw & 0xff], sg8 = S.lut[(sw >> 8) & 0xff];
-#endif
-      const uint32_t ww[4] = {w.x, w.y, w.z, w.w};
-      const uint32_t b[8] = {x0[2 * c].x, x0[2 * c].y, x0[2 * c].z, x0[2 * c].w,
-                             x0[2 * c + 1].x, x0[2 * c + 1].y, x0[2 * c + 1].z, x0[2 * c + 1].w};
-#pragma unroll
-      for (int st = 0; st < 4; ++st) {
-        uint32_t r0, r1, r2, r3;
-        dq4(ww[st], r0, r1, r2, r3);
-        mma_bf16(st == 0 ? acc : st == 1 ? acc2 : st == 2 ? acc3 : acc4, bmul2(r0, sg), bmul2(r1, sg8), bmul2(r2, sg), bmul2(r3, sg8), b[2 * st], b[2 * st + 1]);
-      }
-    }
-#pragma unroll
-    for (int k = 0; k < 4; ++k) acc[k] += acc2[k] + acc3[k] + acc4[k];
-    // WSB: the compute warps keep the base loop's CTA barrier per unit (slot consumed + partials visible), thread 0
-    // refills the slot and hands the partial buffer to the helper warp, which runs every epilogue off this loop
-    const int bb = q % NRB;
-    mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit
-    *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);
-    CTA_SYNC();
-    if (tid == 0) {
-      const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
-      if (q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
-      if (!(OKC_WSBL && PB && i >= nU - OKC_WSBLK)) mbar_arrive1(S.wsrf + bb);   // WSBL: the last units stay with warps 0..K-1
-    }
-  }
-  if (PB && warp < OKC_WSBLK && warp < nU) {  // the CTA's last units: epilogues here, not behind the helper's queue
-    const int ul = nU - 1 - warp;
-    const int q = seq0 + ul, bb = q % NRB;
-    const int v = v0 + ul, j = njF + v / RB_B, rb = v - (v / RB_B) * RB_B;
-    const int gg = lane >> 2, tt = lane & 3;
-    float4 sm = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-    for (int w = 0; w < NW; ++w) {
-      const float4 t = *reinterpret_cast<const float4*>(&S.red[bb][w][lane][0]);
-      sm.x += t.x; sm.y += t.y; sm.z += t.z; sm.w += t.w;
-    }
-    const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
-    const int n0 = rb * 16 + gg;
-    const float gsc = lgs * TWO62;
-    const float nw0 = 1.f + __uint_as_float(lnw0 << 16), nw1 = 1.f + __uint_as_float(lnw1 << 16);
-#pragma unroll
-    for (int h = 0; h < 2; ++h) {
-      const int tk = 2 * tt + h;
-      const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;
-      float sq = v0f * v0f + v1f * v1f;
-      if (tk < cnt) {
-        st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
-        st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0 + 8), v1f);
-      }
-      sq += __shfl_xor_sync(0xffffffffu, sq, 4);
-      sq += __shfl_xor_sync(0xffffffffu, sq, 8);
-      sq += __shfl_xor_sync(0xffffffffu, sq, 16);
-      if (gg == 0 && tk < cnt) atomicAdd(&ss_cur()[st + tk], sq);
-    }
-  }
-  seq = seq0 + nU;
-}
-
-__device__ __forceinline__ void ws_issue(const Params& p, Smem& S, int q, int nA, int a0, int b0, unsigned char* ring) {
-  const int sl = q % OKC_NS;
-  if (q < nA) ring_issue<false>(p, S, a0 + q, ring + sl * UNIT_BYTES, S.bars + sl);
-  else ring_issue<true>(p, S, b0 + (q - nA), ring + sl * UNIT_BYTES, S.bars + sl);
-}
-
-__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {
-  const int lane = threadIdx.x & 31;
-  WS_JOIN();  // routing tables and this CTA's ranges are ready
-  const int a0 = S.wsr[0], a1 = S.wsr[1], b0 = S.wsr[2], b1 = S.wsr[3];
-  const int nA = a1 - a0, N = nA + (b1 - b0);
-  const int njF = S.njF;
-  if (lane == 0)
-    for (int q = S.preissued; q < OKC_NS && q < N; ++q) ws_issue(p, S, q, nA, a0, b0, ring);
-  const int gg = lane >> 2, tt = lane & 3;
-  const int Nh = (OKC_WSB && OKC_WSBL) ? N - min(OKC_WSBLK, b1 - b0) : N;
-  for (int q = 0; q < Nh; ++q) {
-    if (!OKC_WSRF && !OKC_WSB && lane == 0 && q + OKC_NS < N) {  // unit q + NS goes into unit q's slot once every compute warp released it
-      mbar_wait(S.wse + q % OKC_NS, (uint32_t)((q / OKC_NS) & 1));
-      ws_issue(p, S, q + OKC_NS, nA, a0, b0, ring);
-    }
-    const bool PB = q >= nA;
-    const int v = PB ? b0 + (q - nA) : a0 + q;
-    const int rbs = PB ? RB_B : RB_A;
-    const int j = njF + v / rbs, rb = v - (v / rbs) * rbs;
-    const int bb = q % NRB;
-    mbar_wait(S.wsrf + bb, (uint32_t)((q / NRB) & 1));
-    float4 sm = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-    for (int w = 0; w < NW; ++w) {
-      const float4 t = *reinterpret_cast<const float4*>(&S.red[bb][w][lane][0]);
-      sm.x += t.x; sm.y += t.y; sm.z += t.z; sm.w += t.w;
-    }
-    __syncwarp();
-    if (lane == 0) mbar_arrive1(S.wsre + bb);  // buffer free again
-    // sm: (row gg, token 2tt), (row gg, token 2tt+1), (row gg+8, token 2tt), (row gg+8, token 2tt+1)
-    const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
-    if (!PB) {
-      const float gsc = p.gsA[ce] * TWO62;
-#pragma unroll
-      for (int h = 0; h < 2; ++h) {
-        const int tk = 2 * tt + h;
-        if (tk < cnt) {
-          const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) * gsc;
-          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
-        }
-      }
-      if (q == nA - 1) {  // this CTA's phase A is done: credit its units to the jobs' counters
-        __threadfence();
-        __syncwarp();
-        if (lane == 0) {
-          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;
-          for (int jj = jf; jj <= jl; ++jj) {
-            const int a = max(a0, (jj - njF) * RB_A), b = min(a1, (jj - njF + 1) * RB_A);
-            atomicAdd(p.doneA + jj, b - a);
-          }
-        }
-      }
-    } else {
-      const float gsc = p.gsB[ce] * TWO62;
-      const int n0 = rb * 16 + gg;
-      const float nw0 = 1.f + __bfloat162float(p.normw[n0]), nw1 = 1.f + __bfloat162float(p.normw[n0 + 8]);
-#pragma unroll
-      for (int h = 0; h < 2; ++h) {
-        const int tk = 2 * tt + h;
-        const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;
-        float sq = v0f * v0f + v1f * v1f;
-        if (tk < cnt) {
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
-          st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0 + 8), v1f);
-        }
-        sq += __shfl_xor_sync(0xffffffffu, sq, 4);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 8);
-        sq += __shfl_xor_sync(0xffffffffu, sq, 16);
-        if (gg == 0 && tk < cnt) atomicAdd(&ss_cur()[st + tk], sq);
-      }
-    }
-  }
-  __threadfence();
-  WS_JOIN();  // every epilogue store of this CTA is done before the grid barrier
-}
-#endif
-
-template <bool BIG, bool PB>
-__device__ __forceinline__ void skinny_split(int nS, int nF, int G, int c, int& v0, int& v1) {
-  const float rG = __fdividef(1.f, (float)G);
-  const int q = muldiv_g(nF, 1, G, rG), r = nF - q * G;
-  auto fcost = [](long long k) -> long long {
-    // phase-specific cost of one fat unit in skinny-unit equivalents (phase B's skinny units are slower, so its ratio is lower)
-    const int fc = BIG ? (PB ? OKC_FCOSTBB : OKC_FCOSTB) : (PB ? OKC_FCOSTSB : OKC_FCOST);
-    return k > 0 ? (long long)fc * k : 0;
-  };
-  const long long T = (long long)nS + (long long)r * fcost(q + 1) + (long long)(G - r) * fcost(q);  // total cost = G x level
-  long long wA = T - (long long)G * fcost(q + 1); if (wA < 0) wA = 0;
-  long long wB = T - (long long)G * fcost(q); if (wB < 0) wB = 0;
-  auto W = [&](int cc) -> long long { return cc <= r ? (long long)cc * wA : (long long)r * wA + (long long)(cc - r) * wB; };
-  const long long WG = W(G);
-  if (nF > 0 && WG > 0) {
-    // split point of CTA x: floor(nS * W(x) / WG) in float (one formula for both neighbours, so the shares tile [0, nS))
-    const float sc = __fdividef((float)nS, (float)WG);
-    auto split = [&](int x) -> int {
-      if (x >= G) return nS;
-      const int v = __float2int_rz((float)W(x) * sc);
-      return v < nS ? v : nS;
-    };
-    v0 = split(c); v1 = split(c + 1);
-  } else {
-    v0 = muldiv_g(nS, c, G, rG); v1 = muldiv_g(nS, c + 1, G, rG);
-  }
-}
-
-#if OKC_WGS
-// ---------------------------------------------------------------- WGS: RS-wgmma for every job (row split, stream-K)
-// Unit = (job, 256-row block): phase A 32 per job, phase B 16, each 16 stages of 256 K. Stage = 36 KB of weights,
-// for each warpgroup q its 64 rows: 8 KB codes [grp][warp][lane][4 words] (natural mma k order) + 1 KB scales
-// [grp][warp][g][h][j]; the stage's x slice (the job's token rows, rounded up to 8, x 256 K as wgmma B core matrices
-// [n8][32 k8][8 rows][16 B]) sits in its own ring. Warpgroup q accumulates its 64 rows over K with wgmma m64nNk16
-// (A = dequantized codes in registers, N = 8 * n-tiles) and runs its own epilogue (rows g / g + 8 are gate / up).
-// Work is split by cost-weighted stage ranges (stream-K): a unit cut between two CTAs adds its partial sums into a
-// global buffer (indexed by the CTA boundary) and the second contributor runs the epilogue.
-#define OKC_WGSNX 3                             // x ring slots
-constexpr int WGS_NS = 3;                       // weight ring slots (36 KB; freed as soon as the codes are in registers)
-constexpr int WGS_NX = OKC_WGSNX;               // x ring slots (freed when the stage's last wgmma retired)
-constexpr int WGS_NT = FT_T / 8;                // max n-tiles of a job
-constexpr int WGS_PIECE = OKC_SC6W ? 8960 : 9216;  // one warpgroup's weights in a stage (SC6: 8 KB codes + 768 B scales)
-constexpr int WGS_STG = OKC_SC6W ? 35840 : 36864;  // bytes of a stage in global memory (the smem slot keeps UNIT_BYTES)
-constexpr int WGS_XS = WGS_NT * 4096;           // an x slot: up to FT_T rows x 256 K
-constexpr int BW_F = 0, BW_E = 3, BX_F = 6, BX_E = 6 + WGS_NX;  // barrier indices
-static_assert(BX_E + WGS_NX <= 24, "WGS barriers");
-constexpr int WGS_SLOTS = 160;                  // fixup slots per phase (>= grid + 1)
-constexpr int WGS_FIXW = WGS_NT * 512;          // floats per (slot, warpgroup): [n-tile][128 threads][4]
-constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;  // + doneAs
-__device__ __forceinline__ float* wgs_fix(const Params& p, int pb) {
-  return p.ybuf + (size_t)EMAX * HD + (size_t)pb * WGS_SLOTS * 4 * WGS_FIXW;
-}
-__device__ __forceinline__ int* wgs_cnt(const Params& p, int pb) {
-  return reinterpret_cast<int*>(p.ybuf + (size_t)EMAX * HD + (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW) + pb * WGS_SLOTS * 4;
-}
-constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 384, MF_INTS = 4096;
-static_assert(JMAX <= MF_XRS && MF_DA + 2 * JMAX * 16 <= MF_INTS, "MFIN flag region");
-// phase-A hand-off flags: one set per launch parity under MFIN (the old code zeroed them after the grid barrier)
-// (volatile shared load: a plain S.gen load is loop-invariant and would stay live in a register across the stage loops)
-__device__ __forceinline__ int mf_gen(const Smem& S) {
-#if OKC_MFQ & 32
-  int v;
-  asm volatile("ld.volatile.shared.s32 %0, [%1];\n" : "=r"(v) : "r"(smem_u32(&S.gen)));
-  return v;
-#else
-  return S.gen;
-#endif
-}
-__device__ __forceinline__ int* mf_xr(const Params& p, const Smem& S) { return p.xready + ((OKC_MFIN && (OKC_MFQ & 2)) ? mf_gen(S) * MF_XRS : 0); }
-__device__ __forceinline__ int* mf_da(const Params& p, const Smem& S) { return p.doneAs + ((OKC_MFIN && (OKC_MFQ & 1)) ? mf_gen(S) * (JMAX * 16) : 0); }
-// per-stage cost by n-tiles (1..8), phase A and phase B (relative units, <= 255; fit on per-CTA phase times at
-// bs 96..256, t_fit2.py): tuner knobs OKC_WGSA / OKC_WGSB = 8 comma-separated values each
-#define OKC_WGSA 112, 135, 140, 158, 173, 185, 200, 207  // tuner combo_m798 on v182x (Oct 26: bs32 +0.45, bs128 +0.94, bs256 +0.17%)
-#define OKC_WGSB 100, 104, 115, 123, 132, 144, 156, 174
-constexpr unsigned long long wgs_pack8(const int (&c)[8]) {
-  unsigned long long r = 0;
-  for (int i = 0; i < 8; ++i) r |= (unsigned long long)(c[i] & 255) << (8 * i);
-  return r;
-}
-constexpr int WGS_CA[8] = {OKC_WGSA};
-constexpr int WGS_CB[8] = {OKC_WGSB};
-constexpr unsigned long long WGS_PA = wgs_pack8(WGS_CA), WGS_PB = wgs_pack8(WGS_CB);
-static_assert(WGS_CA[0] > 0 && WGS_CA[7] < 256 && WGS_CB[0] > 0 && WGS_CB[7] < 256, "WGS cost tables: 1..255");
-__device__ __forceinline__ int wgs_cost(int pb, int cnt) {
-  return (int)(((pb ? WGS_PB : WGS_PA) >> (8 * (((cnt + 7) >> 3) - 1))) & 255ull);
-}
-#define OKC_WGSREORD 1  // WGS: phase A starts with the trailing partial unit (see wgs_split)
-#define OKC_GATHB 8  // WGS: x rows gathered per batch (loads first, then stores); 0 = one row at a time
-#define OKC_WGSPR 1  // WGS: the x producer warp computes the stage ranges while the consumers gather
-#define OKC_WGSDFIN 2  // WGS: stream-K split units finished by a designated share (see wgs_flush): bit0 phase A, bit1 phase B
-#define OKC_WGSFCI 4  // st2 (E374): the deferred flush at commit group 4 (FCI 3..7 sweep best)
-#define OKC_WGSGS 2  // WGS: k16 steps per wgmma commit group (4 serializes the N=16..32 variants at 96 registers: C7512)
-__device__ __forceinline__ void wgs_wait(uint64_t* bar, uint32_t parity, int tag) {
-  (void)tag;
-  mbar_wait(bar, parity);
-}
-template <int NTT> struct WGSMMA;
-template <> struct WGSMMA<1> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n8k16.f32.bf16.bf16 {%0, %1, %2, %3}, {%4, %5, %6, %7}, %8, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n8k16.f32.bf16.bf16 {%0, %1, %2, %3}, {%4, %5, %6, %7}, %8, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<2> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n16k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7}, {%8, %9, %10, %11}, %12, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n16k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7}, {%8, %9, %10, %11}, %12, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<3> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n24k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11}, {%12, %13, %14, %15}, %16, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n24k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11}, {%12, %13, %14, %15}, %16, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<4> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n32k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15}, {%16, %17, %18, %19}, %20, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]), "=f"(d[3][0]), "=f"(d[3][1]), "=f"(d[3][2]), "=f"(d[3][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n32k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15}, {%16, %17, %18, %19}, %20, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]), "+f"(d[3][0]), "+f"(d[3][1]), "+f"(d[3][2]), "+f"(d[3][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<5> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n40k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19}, {%20, %21, %22, %23}, %24, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]), "=f"(d[3][0]), "=f"(d[3][1]), "=f"(d[3][2]), "=f"(d[3][3]), "=f"(d[4][0]), "=f"(d[4][1]), "=f"(d[4][2]), "=f"(d[4][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n40k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19}, {%20, %21, %22, %23}, %24, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]), "+f"(d[3][0]), "+f"(d[3][1]), "+f"(d[3][2]), "+f"(d[3][3]), "+f"(d[4][0]), "+f"(d[4][1]), "+f"(d[4][2]), "+f"(d[4][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<6> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n48k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23}, {%24, %25, %26, %27}, %28, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]), "=f"(d[3][0]), "=f"(d[3][1]), "=f"(d[3][2]), "=f"(d[3][3]), "=f"(d[4][0]), "=f"(d[4][1]), "=f"(d[4][2]), "=f"(d[4][3]), "=f"(d[5][0]), "=f"(d[5][1]), "=f"(d[5][2]), "=f"(d[5][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n48k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23}, {%24, %25, %26, %27}, %28, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]), "+f"(d[3][0]), "+f"(d[3][1]), "+f"(d[3][2]), "+f"(d[3][3]), "+f"(d[4][0]), "+f"(d[4][1]), "+f"(d[4][2]), "+f"(d[4][3]), "+f"(d[5][0]), "+f"(d[5][1]), "+f"(d[5][2]), "+f"(d[5][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<7> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n56k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27}, {%28, %29, %30, %31}, %32, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]), "=f"(d[3][0]), "=f"(d[3][1]), "=f"(d[3][2]), "=f"(d[3][3]), "=f"(d[4][0]), "=f"(d[4][1]), "=f"(d[4][2]), "=f"(d[4][3]), "=f"(d[5][0]), "=f"(d[5][1]), "=f"(d[5][2]), "=f"(d[5][3]), "=f"(d[6][0]), "=f"(d[6][1]), "=f"(d[6][2]), "=f"(d[6][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n56k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27}, {%28, %29, %30, %31}, %32, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]), "+f"(d[3][0]), "+f"(d[3][1]), "+f"(d[3][2]), "+f"(d[3][3]), "+f"(d[4][0]), "+f"(d[4][1]), "+f"(d[4][2]), "+f"(d[4][3]), "+f"(d[5][0]), "+f"(d[5][1]), "+f"(d[5][2]), "+f"(d[5][3]), "+f"(d[6][0]), "+f"(d[6][1]), "+f"(d[6][2]), "+f"(d[6][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-template <> struct WGSMMA<8> {
-  static __device__ __forceinline__ void mma0(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n64k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, {%32, %33, %34, %35}, %36, 0, 1, 1, 0;\n"
-                 : "=f"(d[0][0]), "=f"(d[0][1]), "=f"(d[0][2]), "=f"(d[0][3]), "=f"(d[1][0]), "=f"(d[1][1]), "=f"(d[1][2]), "=f"(d[1][3]), "=f"(d[2][0]), "=f"(d[2][1]), "=f"(d[2][2]), "=f"(d[2][3]), "=f"(d[3][0]), "=f"(d[3][1]), "=f"(d[3][2]), "=f"(d[3][3]), "=f"(d[4][0]), "=f"(d[4][1]), "=f"(d[4][2]), "=f"(d[4][3]), "=f"(d[5][0]), "=f"(d[5][1]), "=f"(d[5][2]), "=f"(d[5][3]), "=f"(d[6][0]), "=f"(d[6][1]), "=f"(d[6][2]), "=f"(d[6][3]), "=f"(d[7][0]), "=f"(d[7][1]), "=f"(d[7][2]), "=f"(d[7][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-  static __device__ __forceinline__ void mma(float (&d)[WGS_NT][4], uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint64_t desc) {
-    asm volatile("wgmma.mma_async.sync.aligned.m64n64k16.f32.bf16.bf16 {%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, %16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, {%32, %33, %34, %35}, %36, 1, 1, 1, 0;\n"
-                 : "+f"(d[0][0]), "+f"(d[0][1]), "+f"(d[0][2]), "+f"(d[0][3]), "+f"(d[1][0]), "+f"(d[1][1]), "+f"(d[1][2]), "+f"(d[1][3]), "+f"(d[2][0]), "+f"(d[2][1]), "+f"(d[2][2]), "+f"(d[2][3]), "+f"(d[3][0]), "+f"(d[3][1]), "+f"(d[3][2]), "+f"(d[3][3]), "+f"(d[4][0]), "+f"(d[4][1]), "+f"(d[4][2]), "+f"(d[4][3]), "+f"(d[5][0]), "+f"(d[5][1]), "+f"(d[5][2]), "+f"(d[5][3]), "+f"(d[6][0]), "+f"(d[6][1]), "+f"(d[6][2]), "+f"(d[6][3]), "+f"(d[7][0]), "+f"(d[7][1]), "+f"(d[7][2]), "+f"(d[7][3]) : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc));
-  }
-};
-// two producer warps: the weights warp streams every stage's 36 KB through the weight ring (TMA, lane 0), the x warp
-// gathers every stage's x slice into the x ring (cp.async) and, in phase B, first waits for the job's phase-A units;
-// so the weights run ahead by the whole ring even while x waits
-// Phase A runs a CTA's trailing partial unit FIRST, then the rest of its range in order: the CTA that holds a unit's
-// first stages otherwise reaches them last, finishes the unit (read back + epilogue) and pays it exposed at the phase
-// end. Returns where the first sub-range starts: [sp, g1) then [g0, sp) (sp == g0: no reordering). Phase B keeps the
-// order (its first stages wait for phase A's units in order).
-__device__ __forceinline__ int wgs_split(int pb, int g0, int g1) {
-  const int ue = ((g1 - 1) >> 4) << 4;  // first stage of the unit holding the range's last stage
-  return (OKC_WGSREORD && pb == 0 && (g1 & 15) != 0 && ue > g0) ? ue : g0;
-}
-__device__ void wgs_ranges(const Params& p, Smem& S);  // below (needs the cost tables)
-__device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
-  WS_JOIN();  // routing tables and this CTA's stage ranges are ready
-  if ((threadIdx.x & 31) != 0) return;
-  int ws = 0, n = 0;
-  uint32_t wph = 0;
-#pragma unroll 1
-  for (int pb = 0; pb < 2; ++pb) {
-    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);
-    const int ubl = pb ? 4 : 5;  // log2 of 256-row units per job
-    const unsigned char* base = pb ? p.wBs : p.wAs;
-#pragma unroll 1
-    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {
-      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)
-      const int u = gs >> 4, st = gs & 15;
-      const int j = u >> ubl, ub = u & ((1 << ubl) - 1);
-      if (n >= WGS_NS) wgs_wait(S.bars + BW_E + ws, wph ^ 1, 1000 + gs);
-      // st1 (wp2s): at M <= 64 stage n is issued only once stage n - 2 has landed (no 3-stage burst; E371 / E372)
-      if (n >= 2 && p.M <= 64) { const int pn = n - 2; wgs_wait(S.bars + BW_F + pn % WGS_NS, (uint32_t)(pn / WGS_NS) & 1u, 5000 + gs); }
-      uint64_t* bar = S.bars + BW_F + ws;
-      const unsigned char* src = base + ((size_t)(((S.jE[j] << ubl) + ub) * 16 + st)) * (size_t)WGS_STG;
-      asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(WGS_STG) : "memory");
-#if OKC_L2H
-      {  // achitaan HINT: an expert split into several jobs streams its weights once per job: normal L2 policy for those
-        const int ejj = S.jE[j], njj = S.njF + S.njS;
-        const uint64_t pol = ((j > 0 && S.jE[j - 1] == ejj) || (j + 1 < njj && S.jE[j + 1] == ejj)) ? 0x1000000000000000ull : 0x12F0000000000000ull;
-        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.L2::cache_hint [%0], [%1], %2, [%3], %4;\n"
-                     ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)), "l"(pol) : "memory");
-      }
-#else
-      asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
-                   ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)) L2H_ARG : "memory");
-#endif
-      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
-    }
-  }
-}
-// x producer: one bulk copy per stage (lane 0): the job's x slice for the stage is contiguous in xA (phase A, written
-// by every CTA's gather pass at the start) or xB (phase B, written by the phase-A epilogues), N_pad x 512 B
-constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
-__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {
-  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the
-  // stage ranges while the consumers gather phase A's x
-  asm volatile("bar.sync 7, %0;\n" ::"n"(NT + 32) : "memory");
-  wgs_ranges(p, S);  // all 32 lanes (warp-parallel)
-  __syncwarp();
-  WS_JOIN();  // routing tables and this CTA's stage ranges are ready
-  if ((threadIdx.x & 31) != 0) return;
-  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;
-  int xs = 0, n = 0;
-  uint32_t xph = 0;
-#pragma unroll 1
-  for (int pb = 0; pb < 2; ++pb) {
-    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);
-    const int ubl = pb ? 4 : 5;
-    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;
-    int curj = -1, npad = 8;
-    const __nv_bfloat16* jb = xsrc;
-#pragma unroll 1
-    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {
-      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)
-      const int u = gs >> 4, st = gs & 15;
-      const int j = u >> ubl;
-      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);
-      if (j != curj) {
-        curj = j;
-        npad = ((S.jC[j] + 7) >> 3) << 3;
-        jb = xsrc + (size_t)S.jrow[j] * HD;
-        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32); }  // every row gathered
-      }
-      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them
-      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }
-      uint64_t* bar = S.bars + BX_F + xs;
-      const uint32_t bytes = (uint32_t)npad * 512u;
-      asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(bytes) : "memory");
-      asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\n"
-                   ::"r"(smem_u32(xring + xs * WGS_XS)), "l"(jb + (size_t)st * npad * 256), "r"(bytes), "r"(smem_u32(bar)) : "memory");
-      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }
-    }
-  }
-}
-// phase A's x gather (all consumer threads of every CTA, once, at the start): this CTA's share of the jobs' padded rows
-// copied into xA's per-stage wgmma layout, then counted into xready (padding rows are counted, not written)
-__device__ void wgs_gather(const Params& p, Smem& S) {
-  const int tid = threadIdx.x, nj = S.njF + S.njS;
-  const int R = S.jrow[nj];  // R * G < 2^24: exact float muldiv, no divide routine
-  const float rG = __fdividef(1.f, (float)gridDim.x);
-  const int q0 = muldiv_g(R, blockIdx.x, gridDim.x, rG), q1 = muldiv_g(R, blockIdx.x + 1, gridDim.x, rG);
-  int j = 0;
-  // all of a batch's row loads first, then the stores: one x row at a time was one dependent HBM round trip per row
-  // (the next row's load could not move above the previous row's store: they may alias), 1.3-7 us at bs256
-  static_assert(NT * 8 == HD, "one 16 B chunk per thread per row");
-  constexpr int GB = OKC_GATHB;
-  for (int qb = q0; qb < q1; qb += GB) {
-    uint4 v[GB];
-    uint4* d[GB];
-#pragma unroll
-    for (int k = 0; k < GB; ++k) {
-      const int q = qb + k;
-      d[k] = nullptr;
-      if (q < q1) {
-        while (S.jrow[j + 1] <= q) ++j;
-        const int r = q - S.jrow[j], cnt = S.jC[j];
-        if (r < cnt) {
-          const int ntt = (cnt + 7) >> 3;
-          d[k] = reinterpret_cast<uint4*>(p.xA + (size_t)S.jrow[j] * HD) + ((((tid >> 5) * ntt + (r >> 3)) * 32 + (tid & 31)) * 8 + (r & 7));
-          {  // KPERM3: k8 group G = tid & 31 of stage tid >> 5 holds the bf16 pairs at stage offsets 2 B(G) + 64 t,
-             // B(G) = 8 ((G >> 1) & 3) + 2 (G >> 3) + (G & 1)
-            const int G = tid & 31;
-            const unsigned* xs32 = reinterpret_cast<const unsigned*>(p.x + (size_t)(S.ent[S.jS[j] + r] >> 3) * HD + (tid >> 5) * 256)
-                                   + (8 * ((G >> 1) & 3) + 2 * (G >> 3) + (G & 1));
-            v[k] = make_uint4(__ldg(xs32), __ldg(xs32 + 32), __ldg(xs32 + 64), __ldg(xs32 + 96));
-          }
-        }
-      }
-    }
-#pragma unroll
-    for (int k = 0; k < GB; ++k)
-      if (d[k]) *d[k] = v[k];
-  }
-  CTA_SYNC();
-  if (tid == 0) {  // count this CTA's rows per job (release: the CTA's stores are ordered before by the barrier)
-    int jj = 0;
-    for (int q = q0; q < q1;) {
-      while (S.jrow[jj + 1] <= q) ++jj;
-      const int e = min(q1, S.jrow[jj + 1]);
-      asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(mf_xr(p, S) + jj), "r"(e - q) : "memory");
-      q = e;
-    }
-  }
-}
-// Work left from the previous segment, done after the next segment's first wgmma group (so the stores and atomics it
-// waits for have long completed): kind 1 = release doneA for job j (phase A), kind 2 = add the stage count of a split
-// unit's share and, if that completes the unit, read the summed partials back and run its epilogue.
-struct WgsPend { int kind, u, slot, nst; };
-template <bool PB>
-#if !OKC_B4FIN
-#define OKC_YBF 1   // ybf: WGS ybuf in bf16
-#else
-#define OKC_YBF 0
-#endif
-__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {
-  const int lane = threadIdx.x & 31, g = lane >> 2, t = lane & 3;
-  const int cnt = S.jC[j], jst = S.jS[j], e = S.jE[j];
-  if (!PB) {
-    // SwiGLU straight into xB (phase B's per-stage wgmma B layout) instead of row-major inter
-    const int col = r16 * 8 + g, ntt = (cnt + 7) >> 3;
-    const float gsc = p.gsA[e] * TWO62;
-    __nv_bfloat16* xb = p.xB + (size_t)S.jrow[j] * HD + (col & 7);
-#pragma unroll
-    for (int h = 0; h < 2; ++h) {
-      const int tk = nt * 8 + 2 * t + h;
-      if (tk < cnt) {
-        const float gt = d4[h] * gsc, up = d4[2 + h] * gsc;
-        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;
-        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),
-                     __float2bfloat16(probe_q(v)));
-      }
-    }
-  } else {
-    // y rows only: the per-route sum of squares is formed by the final pass from these rows (no shuffles / atomics)
-    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;
-    const float gsc = p.gsB[e] * TWO62;
-    const float w0 = (1.f + __bfloat162float(__ldg(p.normw + n0))) * gsc, w1 = (1.f + __bfloat162float(__ldg(p.normw + n0 + 8))) * gsc;
-#pragma unroll
-    for (int h = 0; h < 2; ++h) {
-      const int tk = tok0 + h;
-      if (tk < cnt) {
-#if OKC_YBF
-        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(d4[h] * w0));
-        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(d4[2 + h] * w1));
-#else
-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), d4[h] * w0);
-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), d4[2 + h] * w1);
-#endif
-      }
-    }
-#if OKC_B4FIN
-    {  // bet4_claude: this tile's 16-column sum of squares per token, reduced over the 8 column lanes (fixed tree)
-      float q0 = 0.f, q1 = 0.f;
-      if (tok0 < cnt) { const float a = d4[0] * w0, b = d4[2] * w1; q0 = a * a + b * b; }
-      if (tok0 + 1 < cnt) { const float a = d4[1] * w0, b = d4[3] * w1; q1 = a * a + b * b; }
-#pragma unroll
-      for (int o = 4; o < 32; o <<= 1) {
-        q0 += __shfl_xor_sync(0xffffffffu, q0, o);
-        q1 += __shfl_xor_sync(0xffffffffu, q1, o);
-      }
-      if (g == 0) {
-        if (tok0 < cnt) p.sspart[(size_t)(jst + tok0) * 256 + r16] = q0;
-        if (tok0 + 1 < cnt) p.sspart[(size_t)(jst + tok0 + 1) * 256 + r16] = q1;
-      }
-    }
-#endif
-  }
-}
-template <bool PB>
-__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {
-  if (pd.kind == 0) return;
-  const int tid = threadIdx.x, warp = WARP_IDX(tid), wg = warp >> 2, wp = warp & 3, wt = tid & 127;
-  constexpr int UBL = PB ? 4 : 5;
-  const int j = pd.u >> UBL, ub = pd.u & ((1 << UBL) - 1);
-  asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-#if OKC_MFIN && (OKC_MFP & 1)
-  if (pd.kind == 4) {
-    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j]))), "r"(1) : "memory");
-    pd.kind = 0;
-    return;
-  }
-#endif
-  if (pd.kind == 1) {
-    // release (cumulative over the warpgroup's epilogue stores ordered by the barrier); pairs with the producer's
-    // acquire. Unit ub wrote inter columns ub*128 .. +127: half of phase B stage ub / 2
-    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(mf_da(p, S) + j * 16 + (ub >> 1)), "r"(1) : "memory");
-    pd.kind = 0;
-    return;
-  }
-  int* fc = wgs_cnt(p, PB) + pd.slot * 4 + wg;
-  constexpr bool DF = (OKC_WGSDFIN >> (PB ? 1 : 0)) & 1;  // designated finisher in this phase
-  if constexpr (DF) {
-  // designated finisher (kind 3): the share processed last in time by construction (phase A: the one holding the
-  // unit's last stage, run early by the reorder; phase B: the one holding stage 0, at its CTA's end). The others just
-  // count with a fire-and-forget release (no atomic round trip, no drain wait); the finisher waits for their counts
-  if (pd.kind == 2) {
-    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(fc), "r"(pd.nst) : "memory");
-    pd.kind = 0;
-    return;
-  }
-  if (wt == 0) { while (ld_acquire(fc) < 16 - pd.nst) __nanosleep(32); }
-  asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-  pd.kind = 0;
-  } else {
-  if (wt == 0) {
-    int old;
-    asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(fc), "r"(pd.nst) : "memory");
-    S.wglast[wg] = old + pd.nst == 16;
-  }
-  asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-  const bool last = S.wglast[wg];
-  pd.kind = 0;
-  if (!last) return;
-  }
-  asm volatile("fence.acq_rel.gpu;\n" ::: "memory");
-  float* fb = wgs_fix(p, PB) + (size_t)(pd.slot * 4 + wg) * WGS_FIXW + wt * 4;
-  const int ntt = (S.jC[j] + 7) >> 3, r16 = ub * 16 + wg * 4 + wp;
-  // two n-tiles' loads in flight before their zeroing stores and epilogues (the scout): one at a time, each load
-  // waits behind the previous tile's stores (they may alias), ntt serialized L2 round trips under full HBM load
-  for (int nt0 = 0; nt0 < ntt; nt0 += 2) {
-    float4 v[2];
-#pragma unroll
-    for (int k = 0; k < 2; ++k)
-      if (nt0 + k < ntt) v[k] = __ldcg(reinterpret_cast<const float4*>(fb + (nt0 + k) * 512));
-#pragma unroll
-    for (int k = 0; k < 2; ++k)
-      if (nt0 + k < ntt) {
-        *reinterpret_cast<float4*>(fb + (nt0 + k) * 512) = make_float4(0.f, 0.f, 0.f, 0.f);
-        const float d4[4] = {v[k].x, v[k].y, v[k].z, v[k].w};
-        wgs_epi_tile<PB>(p, S, j, r16, nt0 + k, d4);
-      }
-  }
-  if (wt == 0) *fc = 0;
-#if OKC_MFIN && (OKC_MFP & 2)
-  if (PB) {
-    asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j]), "r"(1) : "memory");
-  }
-#endif
-  if (!PB) {
-    asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(mf_da(p, S) + j * 16 + (ub >> 1)), "r"(1) : "memory");
-  }
-}
-// one segment (stages [s0, s1) of unit u) on NTT n-tiles: accumulate, then finish (whole unit) or hand off (split)
-template <bool PB, int NTT>
-__device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char* ring, int u, int s0, int s1, int slot,
-                                        int& seq, WgsPend& pd) {
-  const int tid = threadIdx.x, lane = tid & 31;
-  const int warp = WARP_IDX(tid);
-  const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
-  constexpr int UBL = PB ? 4 : 5;
-  const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)
-  const uint32_t xring_s = smem_u32(ring + WGS_NS * UNIT_BYTES);
-  float d[WGS_NT][4];  // written first by a scale-d = 0 wgmma (no zeroing: ptxas would serialize the wgmmas, C7513)
-  // k16 steps per commit group: the whole function shares one register budget (96 at 544 threads) and ptxas
-  // serializes every wgmma if any pipeline does not fit (C7512), so the wide-N variants commit 2 steps at a time
-  constexpr int GS = OKC_WGSGS;
-  uint32_t af[2][GS][4];
-  int prev = -1;  // x slot the last committed group may still read
-  // slot-0 descriptor and code pointer, once per segment: a stage adds its slot's offset (the address field cannot
-  // carry: shared addresses >> 4 stay below 2^14) instead of rebuilding the descriptor (~8 uniform ops per stage)
-  const uint64_t xd0 = wg_desc(xring_s, 128, 4096);
-  const unsigned char* pc0 = ring + wg * WGS_PIECE;
-  auto stage = [&](auto first) {
-    constexpr bool FIRST = decltype(first)::value;
-    const int ws = seq % WGS_NS, xs = seq % WGS_NX;
-    wgs_wait(S.bars + BW_F + ws, (uint32_t)(seq / WGS_NS) & 1u, 3000000 + seq);
-    const unsigned char* pc = pc0 + ws * UNIT_BYTES;
-    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);
-    const uint64_t xd = xd0 + (uint64_t)(uint32_t)(xs * (WGS_XS >> 4));
-    // codes and scales one 4-step group at a time (fewer live registers)
-    uint4 cwn = *reinterpret_cast<const uint4*>(pc + (wp * 32 + lane) * 16);
-    // KPERM3: K is permuted inside the stage so that step j of every load group is scale block 4 t + j for this lane:
-    // the 4 scale pairs ([j][h] bytes) come from one 8-byte load per stage and are built once per stage
-#if OKC_SC6W
-    // SC6: 768 B of scales per piece: plane W (uint32 per thread) | plane H (uint16 per thread); the 4 scale pairs of the stage
-    // (bytes of 4 v, see harness/make_sc6.py) are built here once and stay in registers for the 4 load groups
-    uint32_t sgs[4];
-    {
-      const int tt = wp * 32 + lane;
-      const uint32_t W = *reinterpret_cast<const uint32_t*>(pc + 8192 + tt * 4);
-      const uint32_t H = static_cast<uint32_t>(*reinterpret_cast<const unsigned short*>(pc + 8192 + 512 + tt * 2));
-      const uint32_t X = W & 0xFCFCFCFCu, Hm = H & 0xFCFCu;
-      const uint32_t p6 = (W & 0x00030303u) * 0x04104000u;
-      const uint32_t p7 = ((H & 0x0303u) | (W & 0x03000000u)) * 0x10400004u;
-      sgs[0] = __byte_perm(X, 0u, 0x4140u) * k16c + 0x60006000u;
-      sgs[1] = __byte_perm(X, 0u, 0x4342u) * k16c + 0x60006000u;
-      sgs[2] = __byte_perm(Hm, 0u, 0x4140u) * k16c + 0x60006000u;
-      sgs[3] = __byte_perm(p6, p7, 0x0703u) * k16c + 0x60006000u;
-    }
-#else
-    const uint2 scs = *reinterpret_cast<const uint2*>(pc + 8192 + (wp * 32 + lane) * 8);
-#endif
-#pragma unroll
-    for (int lg = 0; lg < 4; ++lg) {
-      const uint4 cwg = cwn;
-#if !OKC_SC6W
-      const uint2 scg = scs;
-#endif
-      if (lg < 3) {
-        cwn = *reinterpret_cast<const uint4*>(pc + (((lg + 1) * 4 + wp) * 32 + lane) * 16);
-      }
-      if (lg == 2) {  // achitaan ERL: the stage's last codes/scales are in registers: free the weights slot 4 k16 steps early
-        uint32_t erl_u = cwn.x ^ cwn.y ^ cwn.z ^ cwn.w;
-        asm volatile("" : "+r"(erl_u));
-        __syncwarp();
-        if (lane == 0) mbar_arrive1(S.bars + BW_E + ws);
-      }
-#pragma unroll
-      for (int h = 0; h < 4 / GS; ++h) {
-        const int ci = lg * (4 / GS) + h;  // commit group index in the stage
-#pragma unroll
-        for (int jj = 0; jj < GS; ++jj) {
-          const int js = h * GS + jj;      // k16 step within the 4-step load group
-          const uint32_t q = js == 0 ? cwg.x : js == 1 ? cwg.y : js == 2 ? cwg.z : cwg.w;
-          uint32_t r0, r1, r2, r3;
-          dq4(q, r0, r1, r2, r3);
-          // scales stored [j][h] (rows g, g+8 of step j side by side): one PRMT + one IMAD build both rows' scales in
-          // one bf16x2, and the multiplies broadcast its halves (HMUL2 .H0_H0 / .H1_H1): 2 instructions per k16 fewer
-#if OKC_SC6W
-          const uint32_t sgp = sgs[js];
-#else
-          const uint32_t sw = js < 2 ? scg.x : scg.y, sb = (uint32_t)(js & 1) * 2u;
-          const uint32_t sgp = __byte_perm(sw, 0u, 0x4040u | sb | ((sb + 1u) << 8)) * k16c + 0x5C005C00u;
-#endif
-          af[ci & 1][jj][0] = bmul2l(r0, sgp); af[ci & 1][jj][1] = bmul2h(r1, sgp);
-          af[ci & 1][jj][2] = bmul2l(r2, sgp); af[ci & 1][jj][3] = bmul2h(r3, sgp);
-        }
-        wg_fence();
-#pragma unroll
-        for (int jj = 0; jj < GS; ++jj) {
-          if (FIRST && ci == 0 && jj == 0)
-            WGSMMA<NTT>::mma0(d, af[0][0][0], af[0][0][1], af[0][0][2], af[0][0][3], xd);
-          else
-            WGSMMA<NTT>::mma(d, af[ci & 1][jj][0], af[ci & 1][jj][1], af[ci & 1][jj][2], af[ci & 1][jj][3],
-                             xd + (uint64_t)((lg * 4 + h * GS + jj) * 16));
-        }
-        wg_commit();
-        wg_wait<1>();
-        if (ci == 0) {
-          if (prev >= 0) {  // the previous stage's last group just retired: its x slot is free
-            if (lane == 0) mbar_arrive1(S.bars + BX_E + prev);
-            prev = -1;
-          }
-        }
-        // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's
-        // own red.adds / epilogue stores drain a little longer before the count / release atomics: +0.5-1%)
-        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);
-      }
-    }
-    prev = xs;
-    ++seq;
-  };
-  stage(std::true_type{});
-#pragma unroll 1
-  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});
-  wg_wait<0>();
-  if (lane == 0) mbar_arrive1(S.bars + BX_E + prev);
-  if (OKC_WGSX & 8) { if (d[0][0] == 1234.5f) S.wglast[0] = 7; return; }
-  if (slot >= 0) {  // a share of a unit split between CTAs: add it now, count it later (deferred)
-    float* fb = wgs_fix(p, PB) + (size_t)(slot * 4 + wg) * WGS_FIXW + wt * 4;
-#pragma unroll
-    for (int nt = 0; nt < NTT; ++nt)
-      asm volatile("red.global.add.v4.f32 [%0], {%1, %2, %3, %4};\n" ::"l"(fb + nt * 512), "f"(d[nt][0]), "f"(d[nt][1]),
-                   "f"(d[nt][2]), "f"(d[nt][3]) : "memory");
-    // kind 3: this share finishes the unit (designated finisher, OKC_WGSDFIN): phase A the share holding stage 15,
-    // phase B the one holding stage 0
-    pd = WgsPend{(((OKC_WGSDFIN >> (PB ? 1 : 0)) & 1) && (PB ? s0 == 0 : s1 == 16)) ? 3 : 2, u, slot, s1 - s0};
-    return;
-  }
-  const int j = u >> UBL, r16 = (u & ((1 << UBL) - 1)) * 16 + wg * 4 + wp;
-#pragma unroll
-  for (int nt = 0; nt < NTT; ++nt) wgs_epi_tile<PB>(p, S, j, r16, nt, d[nt]);
-  if (!PB) pd = WgsPend{1, u, -1, 0};  // the doneA release waits until the stores are done: deferred
-#if OKC_MFIN && (OKC_MFP & 1)
-  else pd = WgsPend{4, u, (OKC_MFP & 8) ? (int)(mf_gen(S) * 32 + S.jE[j]) : -1, 0};  // phase B: the expert counter, same deferral
-#endif
-}
-template <bool PB>
-__device__ __forceinline__ void wgs_phase(const Params& p, Smem& S, unsigned char* ring, int g0, int g1, int& seq) {
-  // (__forceinline__: outlined by NVVM when it grows, a CALL that makes ptxas serialize every wgmma, C7510)
-  constexpr int UBL = PB ? 4 : 5;
-  WgsPend pd{0, 0, 0, 0};
-#pragma unroll 1
-  for (int gs = wgs_split(PB, g0, g1), ge = g1;;) {
-    if (gs >= ge) {  // [sp, g1) done: then [g0, sp); the bounds come back from smem (no extra live state)
-      const int a0 = S.wgr[2 * PB], a1 = S.wgr[2 * PB + 1], sp = wgs_split(PB, a0, a1);
-      if (ge == a1 && sp > a0) { gs = a0; ge = sp; } else break;
-    }
-    const int u = gs >> 4, s0 = gs & 15, s1 = min(16, s0 + (ge - gs));
-    // a unit split between CTAs: its fixup slot is the CTA holding its first stage
-    const int slot = (s1 - s0 == 16) ? -1 : (s0 == 0 ? (int)blockIdx.x : wgs_cta_of(S, PB, u << 4, gridDim.x));
-    const int ntt = (S.jC[u >> UBL] + 7) >> 3;
-    switch (ntt) {
-      case 1: wgs_seg<PB, 1>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 2: wgs_seg<PB, 2>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 3: wgs_seg<PB, 3>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 4: wgs_seg<PB, 4>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 5: wgs_seg<PB, 5>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 6: wgs_seg<PB, 6>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 7: wgs_seg<PB, 7>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      default: wgs_seg<PB, 8>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-    }
-    gs += s1 - s0;
-  }
-  wgs_flush<PB>(p, S, pd);
-}
-// cost-weighted stage ranges: per-stage cost by the job's n-tiles, a prefix per job and phase (S.wcp, S.wcpB)
-// all 32-bit (tot * c < 2^32: tot <= 136 jobs x 512 stages x 255 x 132): no 64-bit divide subroutine calls, which run
-// from a cold instruction cache at the start of every launch
-#define OKC_WGSU 160   // cepi: per-unit cost, phase A (zhebrak SK_CEPI)
-#define OKC_WGSUB 140  // cepi: per-unit cost, phase B
-__device__ __forceinline__ int wgs_unitc(int pb) { return pb ? OKC_WGSUB : OKC_WGSU; }
-__device__ __forceinline__ void wgs_prefix(Smem& S, int nj) {
-  uint32_t acc = 0, accB = 0;
-  for (int j = 0; j < nj; ++j) {
-    S.wcp[j] = (int)acc; S.wcpB[j] = (int)accB;
-    acc += ((uint32_t)wgs_cost(0, S.jC[j]) * 16u + OKC_WGSU) << 5;  // cepi: 32 units x (16 stages + unit cost)
-    accB += ((uint32_t)wgs_cost(1, S.jC[j]) * 16u + OKC_WGSUB) << 4;
-  }
-  S.wcp[nj] = (int)acc; S.wcpB[nj] = (int)accB;
-  S.wtot = acc; S.wtotB = accB;
-}
-// stage at cost position x (phase pb), the stage whose cost interval holds x
-__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {  if (nj == 0) return 0;  // achitaan: no local route (all experts remote) -> empty stage ranges; S.jC[0] is unset
-  const int* pre = pb ? S.wcpB : S.wcp;
-  int lo = 0, hi = nj;  // job: last j with prefix(j) <= x
-  while (hi - lo > 1) { const int mid = (lo + hi) >> 1; if ((uint32_t)pre[mid] <= x) lo = mid; else hi = mid; }
-  const uint32_t cs = (uint32_t)wgs_cost(pb, S.jC[lo]), U = (uint32_t)wgs_unitc(pb), cu = 16u * cs + U;
-  const uint32_t r = x - (uint32_t)pre[lo], un = r / cu, rem = r - un * cu;
-  const uint32_t st = rem < U ? 0u : min(15u, (rem - U) / cs);  // cepi: the unit cost sits before its stage 0
-  return (lo << (9 - pb)) + (int)(un * 16u + st);
-}
-__device__ __forceinline__ void wgs_range(const Smem& S, int nj, int pb, int c, int G, int& g0, int& g1) {
-  const uint32_t tot = pb ? S.wtotB : S.wtot;
-  g0 = wgs_stage_at(S, nj, pb, tot * (uint32_t)c / (uint32_t)G);
-  g1 = c == G - 1 ? (nj << (9 - pb)) : wgs_stage_at(S, nj, pb, tot * (uint32_t)(c + 1) / (uint32_t)G);
-}
-// this CTA's stage ranges (stream-K over 256-row units x 16 stages), one thread: the producers stream the same
-// this CTA's stage ranges, warp-parallel (all 32 lanes of the x-producer warp; bs256-hot E457): the job-cost prefix as a
-// shuffle scan over 32-job chunks, then the four stage_at searches on lanes 0..3 (lane = 2 pb + k). The serial one-lane version
-// was the prologue's critical path (~1500 instructions before the weight stream can start)
-__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {
-  const int lane = threadIdx.x & 31;
-  const int nj = S.njF + S.njS;
-  const int G = gridDim.x, c = blockIdx.x;
-  uint32_t carryA = 0, carryB = 0;
-  for (int j0 = 0; j0 < nj; j0 += 32) {
-    const int j = j0 + lane;
-    uint32_t ia = 0, ib = 0;
-    if (j < nj) {
-      ia = ((uint32_t)wgs_cost(0, S.jC[j]) * 16u + OKC_WGSU) << 5;
-      ib = ((uint32_t)wgs_cost(1, S.jC[j]) * 16u + OKC_WGSUB) << 4;
-    }
-    uint32_t sa = ia, sb = ib;
-#pragma unroll
-    for (int d = 1; d < 32; d <<= 1) {
-      const uint32_t va = __shfl_up_sync(0xffffffffu, sa, d), vb = __shfl_up_sync(0xffffffffu, sb, d);
-      if (lane >= d) { sa += va; sb += vb; }
-    }
-    if (j < nj) { S.wcp[j] = (int)(carryA + sa - ia); S.wcpB[j] = (int)(carryB + sb - ib); }
-    carryA += __shfl_sync(0xffffffffu, sa, 31);
-    carryB += __shfl_sync(0xffffffffu, sb, 31);
-  }
-  if (lane == 0) { S.wcp[nj] = (int)carryA; S.wcpB[nj] = (int)carryB; S.wtot = carryA; S.wtotB = carryB; }
-  __syncwarp();
-  const int l4 = lane & 3, pbl = l4 >> 1, kk = l4 & 1;
-  const uint32_t tot = pbl ? carryB : carryA;
-  int res;
-  if (kk == 1 && c == G - 1) res = nj << (9 - pbl);
-  else res = wgs_stage_at(S, nj, pbl, tot * (uint32_t)(c + kk) / (uint32_t)G);
-  if (lane < 4) S.wgr[lane] = res;
-  __syncwarp();
-}
-// the CTA whose range holds stage s (the fixup slot of a split unit is the CTA holding its first stage)
-__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G) {
-  const uint32_t tot = pb ? S.wtotB : S.wtot;
-  const int j = s >> (9 - pb);
-  const uint32_t sj = (uint32_t)(s & ((1 << (9 - pb)) - 1)), cs = (uint32_t)wgs_cost(pb, S.jC[j]), U = (uint32_t)wgs_unitc(pb);
-  const uint32_t xe = (uint32_t)(pb ? S.wcpB : S.wcp)[j] + (sj >> 4) * (16u * cs + U) + U + ((sj & 15u) + 1u) * cs;  // cepi
-  // largest c with floor(tot * c / G) < xe
-  int c = (int)(((xe - 1) * (unsigned long long)G) / tot);
-  if (c > G - 1) c = G - 1;
-  while (c + 1 < G && tot * (uint32_t)(c + 1) / (uint32_t)G < xe) ++c;
-  while (c > 0 && tot * (uint32_t)c / (uint32_t)G >= xe) --c;
-  return c;
-}
-#endif
-
-template <bool PB, bool BIG>
-__device__ __forceinline__ void run_phase(const Params& p, Smem& S, __nv_bfloat16* xbuf) {
-  const int njF = S.njF, njS = S.njS;
-  const int ubs = PB ? UB_B : UB_A, rbs = PB ? RB_B : RB_A;
-  const int nS = njS * rbs, nF = njF * ubs;
-  // fat units first (round robin over CTAs), then a skinny share sized so every CTA carries the same cost
-#if OKC_TINY
-  if (nF > 0) __trap();  // tiny build (M <= 8): a job never has more than 8 tokens, so there are no fat units
-#else
-  if (nF > 0) { if (BIG) fat_stream<PB, true>(p, S, xbuf, nF, ubs); else fat_stream_ni<PB>(p, S, xbuf, nF, ubs); }
-#endif
-  const int G = gridDim.x, c = blockIdx.x;
-  int v0, v1;
-  const int nSs = nS - dyn_pool(nS, G);  // static skinny units; [nSs, nS) is the run-time pool
-  skinny_split<BIG, PB>(nSs, nF, G, c, v0, v1);
-  // cross-phase prefill: a CTA without phase-B fat units starts phase B with its skinny share, so phase A's last ring
-  // refills already fetch those units (same split function as phase B uses)
-  int cB0 = 0, cBn = 0;
-  bool cpf = false;
-  if (!PB) {
-    const int nFB = njF * UB_B;
-    if (c >= nFB) {
-      int b1;
-      skinny_split<BIG, true>(njS * RB_B - dyn_pool(njS * RB_B, G), nFB, G, c, cB0, b1);
-      cBn = b1 - cB0;
-      cpf = OKC_CPFF || njF == 0;
-    }
-  }
-#if OKC_WS
-  (void)cpf; (void)cBn;
-  skinny_ring_ws<PB>(p, S, v0, v1, reinterpret_cast<unsigned char*>(xbuf), S.bars, S.seq);
-#else
-  skinny_ring<PB>(p, S, v0, v1, reinterpret_cast<unsigned char*>(xbuf), S.bars, S.seq,
-                  reinterpret_cast<__nv_bfloat16*>(reinterpret_cast<unsigned char*>(xbuf) + OKC_NS * UNIT_BYTES), cpf, cB0, cBn, nS, nSs);
-#endif
-}
-
-// a volatile shared load at every use: hoisted, the pointer would stay live across the accumulate loops (96-register
-// cap: spills)
-__device__ __forceinline__ float* ss_cur() {
-#if OKC_WGS
-  unsigned long long v;
-  asm volatile("ld.volatile.shared.u64 %0, [%1];\n" : "=l"(v) : "r"(smem_u32(&reinterpret_cast<const Smem*>(smem_raw)->ssp)));
-  return reinterpret_cast<float*>(v);
-#else
-  return reinterpret_cast<const Smem*>(smem_raw)->ssp;  // the skinny / fat builds have registers to spare: let it hoist
-#endif
-}
-template <bool BIG>
-__global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
-  Smem& S = *reinterpret_cast<Smem*>(smem_raw);
-  __nv_bfloat16* xbuf = reinterpret_cast<__nv_bfloat16*>(smem_raw + ((sizeof(Smem) + 127) / 128) * 128);
-  const int tid = threadIdx.x;
-  DBG(0);
-  // programmatic dependent launch: everything below reads the previous kernel's outputs (routing, x) or writes
-  // scratch, so wait for it here; without the launch attribute this returns at once
-  asm volatile("griddepcontrol.wait;\n" ::: "memory");
-#if OKC_WS
-  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
-#endif
-#if OKC_WGS
-  if (tid >= NT) {
-    if (tid < NT + 32) wgs_wproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));
-    else wgs_xproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));
-    return;
-  }
-#endif
-#if FAST1_ON
-  // tiny build (M <= 8): every touched expert is one skinny job, in expert order, so this CTA's first units follow
-  // from the touched-expert mask alone; the last warp issues them before routing, off the cold-start critical path
-  if (tid >= NT - 32) {
-    const int ln = tid & 31;
-#if OKC_SPLIT
-    // per-expert entry counts -> jobs per expert (ceil(c / 8)) -> inclusive prefix over experts (lane = expert)
-    S.fcnt[ln] = 0;
-    __syncwarp();
-    for (int i0 = 0; i0 < p.M * 8; i0 += 32) {
-      const int i = i0 + ln;
-      int e = -1;
-      if (i < p.M * 8) { e = __ldg(p.topk_ids + i) - p.lo; if (e < 0 || e >= p.nloc) e = -1; }
-      const unsigned peers = __match_any_sync(0xffffffffu, e);
-      if (e >= 0 && ln == __ffs(peers) - 1) atomicAdd(&S.fcnt[e], __popc(peers));
-    }
-    __syncwarp();
-    int jincl = (S.fcnt[ln] + SK_T - 1) / SK_T;
-#pragma unroll
-    for (int d = 1; d < 32; d <<= 1) { const int v = __shfl_up_sync(0xffffffffu, jincl, d); if (ln >= d) jincl += v; }
-    const int njob = __shfl_sync(0xffffffffu, jincl, 31);
-    const int nS1 = njob * RB_A - dyn_pool(njob * RB_A, gridDim.x);
-    const float rG1 = __fdividef(1.f, (float)gridDim.x);
-    const int v01 = muldiv_g(nS1, blockIdx.x, gridDim.x, rG1), v11 = muldiv_g(nS1, blockIdx.x + 1, gridDim.x, rG1);
-    const int n1 = min(OKC_FAST1, v11 - v01);
-    int fex[OKC_FAST1 > 0 ? OKC_FAST1 : 1];
-#pragma unroll
-    for (int i = 0; i < OKC_FAST1; ++i) {
-      const int jj = (v01 + i) >> RB_A_LOG;   // (n1 is warp-uniform: every lane runs the same ballots)
-      fex[i] = i < n1 ? __ffs(__ballot_sync(0xffffffffu, jincl > jj)) - 1 : 0;
-    }
-#elif OKC_F1EARLY
-    // the topk loads go out first (E <= 64 in the tiny builds: two per lane at most) and lane 0 initializes the
-    // barriers while they are in flight (the inits used to wait behind the cold loads)
-    uint32_t m = 0;
-    const int E8 = p.M * 8;
-    const int ev0 = ln < E8 ? __ldg(p.topk_ids + ln) : 0, ev1 = ln + 32 < E8 ? __ldg(p.topk_ids + ln + 32) : 0;
-    if (ln == 0) {
-      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);
-      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);
-      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
-      asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
-    }
-    if (ln < E8) { const int e = ev0 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }
-    if (ln + 32 < E8) { const int e = ev1 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }
-    for (int i = ln + 64; i < E8; i += 32) {  // (never in the tiny builds: M <= 8)
-      const int e = __ldg(p.topk_ids + i) - p.lo;
-      if (e >= 0 && e < p.nloc) m |= 1u << e;
-    }
-    m = __reduce_or_sync(0xffffffffu, m);
-#endif
-    if (ln == 0) {
-#if OKC_SPLIT || !OKC_F1EARLY
-      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);
-      for (int k = 0; k < OKC_NS; ++k) mbar_init(S.wse + k, NW);
-      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW); mbar_init(S.wsre + k, 1); }
-      asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
-#endif
-#if OKC_SPLIT
-      const int v0 = v01, n = n1;
-#else
-      const int nS = __popc(m) * RB_A - dyn_pool(__popc(m) * RB_A, gridDim.x);  // static part (pool tail claimed at run time)
-      const float rG = __fdividef(1.f, (float)gridDim.x);
-      const int v0 = muldiv_g(nS, blockIdx.x, gridDim.x, rG), v1 = muldiv_g(nS, blockIdx.x + 1, gridDim.x, rG);
-      const int n = min(OKC_FAST1, v1 - v0);
-#endif
-      asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-#if OKC_SPLIT
-#pragma unroll
-      for (int i = 0; i < OKC_FAST1; ++i) {
-        if (i >= n) break;
-        const int v = v0 + i;
-        const int e = fex[i];
-#else
-      for (int i = 0; i < n; ++i) {
-        const int v = v0 + i;
-        const int e = (int)__fns(m, 0, (v >> RB_A_LOG) + 1);
-#endif
-        const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;
-        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;
-        asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(S.bars + i)), "r"(UNIT_BYTES) : "memory");
-        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
-                     ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(S.bars + i)) L2H_ARG : "memory");
-      }
-      S.preissued = n > 0 ? n : 0;
-    }
-  }
-#endif
-  // pull every token row of x into L2 now (one 128 B line per thread-iteration); the skinny jobs read them later
-  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)
-    asm volatile("prefetch.global.L2 [%0];\n" ::"l"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));
-  for (int i = tid; i < (OKC_PRMTSC ? 0 : 256); i += NT) {  // fp8 e4m3 code -> bf16x2(value * 2^64), computed (no global load)
-    const int sgn = i >> 7, ex = (i >> 3) & 15, mt = i & 7;
-    uint32_t b;
-    if (ex == 15 && mt == 7) {
-      b = 0xFFFFu;
-    } else {
-      float v = ex == 0 ? (float)mt * 0x1p-9f : (1.f + (float)mt * 0.125f) * __int_as_float((ex - 7 + 127) << 23);
-      v *= 0x1p64f;
-      b = __float_as_uint(sgn ? -v : v) >> 16;
-    }
-    S.lut[i] = b | (b << 16);
-  }
-  if (tid == 0) {
-#if !FAST1_ON
-#if OKC_WGS
-    // full slots (TMA tx), empty slots (one arrival per consumer warp), partials ready (every consumer thread),
-    // partial buffer free (the epilogue warpgroup)
-    for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NW : k < BX_E ? 1 : NW);
-#else
-    for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);
-#endif
-    asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
-    S.preissued = 0;
-#endif
-    S.seq = 0;
-    S.fseq = 0;
-    S.preissuedB = 0;
-    S.xbuf_ptr = xbuf;
-    // the generation can only change at this launch's grid barrier, which every CTA reaches after this point
-#if OKC_MFIN && (OKC_MFQ & 8)
-    // launch parity: the exit counter wraps at 2 G and every CTA bumps it once at its start, so it reads G * n (mod 2 G) plus
-    // the CTAs of this launch that got here first (< G): >= G exactly in odd launches
-    const int gen = atomicInc(reinterpret_cast<unsigned*>(p.mfl + MF_EXIT), 2u * gridDim.x - 1u) >= gridDim.x ? 1 : 0;
-#else
-    const int gen = *reinterpret_cast<volatile const int*>(p.ctr + 3);  // launch generation (bumped at the barrier)
-#endif
-    S.gen = gen;
-    S.ssp = (gen & 1) ? p.ss1 : p.ss;
-  }
-#if SKDYN
-  for (int i = tid; i < JMAX; i += NT) S.dync[i] = 0;
-#endif
-  route(p, S);
-#if OKC_WGS && OKC_WGSPR
-  __threadfence_block();
-  asm volatile("bar.arrive 7, %0;\n" ::"n"(NT + 32) : "memory");  // the x producer computes the stage ranges
-#endif
-  DBG(1);
-#if OKC_MFIN && OKC_WGS && (OKC_MFQ & 8)
-  {  // the other parity's counters and hand-off flags belong to the next launch (the previous launch is over): zero them
-    const int o = 1 - S.gen;
-    for (int i = blockIdx.x * NT + tid; i < 32 + MF_XRS + JMAX * 16; i += gridDim.x * NT) {
-      if (i < 32) p.mfl[MF_CE + o * 32 + i] = 0;
-      else if (i < 32 + MF_XRS) p.mfl[MF_XR + o * MF_XRS + (i - 32)] = 0;
-      else p.mfl[MF_DA + o * (JMAX * 16) + (i - 32 - MF_XRS)] = 0;
-    }
-  }
-#else
-  {  // the previous launch's ss copy and barrier counter are the next launch's: zero them now (this CTA's share)
-    float* other = (S.gen & 1) ? p.ss : p.ss1;
-    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;
-    if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;
-  }
-#endif
-#if OKC_WS
-  if (tid == 0) {  // this CTA's unit ranges for the helper warp (the same exact split run_phase uses: no fat jobs)
-    const int G = gridDim.x, c = blockIdx.x;
-    const float rG = __fdividef(1.f, (float)G);
-    const int nA = S.njS * RB_A, nB = S.njS * RB_B;
-    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);
-    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);
-  }
-  WS_JOIN();
-#endif
-#if OKC_WGS
-  if (tid < 32) {  // padded-row base of every job in xA / xB (warp scan)
-    const int nj = S.njF + S.njS;
-    int carry = 0;
-    for (int j0 = 0; j0 < nj; j0 += 32) {
-      const int j = j0 + tid;
-      const int v = j < nj ? (((S.jC[j] + 7) >> 3) << 3) : 0;
-      int incl = v;
-#pragma unroll
-      for (int d = 1; d < 32; d <<= 1) { const int t = __shfl_up_sync(0xffffffffu, incl, d); if (tid >= d) incl += t; }
-      if (j < nj) S.jrow[j] = carry + incl - v;
-      carry += __shfl_sync(0xffffffffu, incl, 31);
-    }
-    if (tid == 0) S.jrow[nj] = carry;
-  }
-  CTA_SYNC();
-  // phase A's x into xA (this CTA's share of the rows), before the producers start: its x reads do not queue behind
-  // every CTA's first weight stages
-  wgs_gather(p, S);
-  DBG(7);
-  WS_JOIN();
-  DBG(6);
-  {
-    unsigned char* ring = reinterpret_cast<unsigned char*>(xbuf);
-    int seq = 0;
-    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);
-    DBG(2);
-    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);
-    DBG(3);
-  }
-#else
-  run_phase<false, BIG>(p, S, xbuf);
-  DBG(2);
-  run_phase<true, BIG>(p, S, xbuf);
-  DBG(3);
-#endif
-#if OKC_WS
-  WS_JOIN();  // the helper's last epilogue stores are visible
-#endif
-  // programmatic dependent launch: the next kernel may start its own prologue now (its griddepcontrol.wait still
-  // waits for this whole grid to finish and its writes to be visible)
-  asm volatile("griddepcontrol.launch_dependents;\n" ::: "memory");
-  // grid barrier on this launch's counter (two, by generation: the other one was zeroed by this launch for the next);
-  // the last arriver bumps the generation, which no CTA of this launch reads again
-#if OKC_FINPF && OKC_FINCOL && !OKC_WGS
-  // the CTA's first final item: its routing (pos) and route weights are inputs, so they load before the barrier
-  constexpr int FSEGP = HD / (NT * 4);
-  const int itp = blockIdx.x;
-  const bool hasp = itp < p.M * FSEGP;
-  const int tkp = hasp ? itp / FSEGP : 0;
-  int qvp[8];
-  float wvp[8];
-#pragma unroll
-  for (int s = 0; s < 8; ++s) {
-    qvp[s] = hasp ? (int)S.pos[tkp * 8 + s] : -1;
-    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;
-  }
-#endif
-#if !(OKC_MFIN && OKC_WGS && (OKC_MFQ & 4))
-  CTA_SYNC();
-  if (tid == 0) {
-    int* bc = p.ctr + 4 + (S.gen & 1);
-    __threadfence();
-    const int old = atomicAdd(bc, 1);
-    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);
-    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);
-  }
-  CTA_SYNC();
-  DBG(4);
-  // phases A and B are over everywhere: zero the per-launch flags for the next launch (this CTA's share)
-  {
-    const int G = gridDim.x, i0 = blockIdx.x * NT + tid;
-    if (i0 < 2) p.ctr[i0] = 0;  // dynamic pool counters
-    for (int i = i0; i < JMAX; i += G * NT) p.doneA[i] = 0;
-#if OKC_WGS
-    for (int i = i0; i < JMAX; i += G * NT) p.xready[i] = 0;
-    for (int i = i0; i < JMAX * 16; i += G * NT) p.doneAs[i] = 0;
-#endif
-  }
-#endif
-  // final: out[t] = sum_s w * rsqrt(ss/HD + eps) * ybuf[pos]
-#if OKC_WGS && OKC_B4FIN
-  // bet4_claude: item = (token, 1024-column segment), thread = 2 columns: 4 x M items over all CTAs. Each route's sum
-  // of squares = fixed-order sum of its 256 epilogue partials (warp w: route w / 2, half w & 1; xor tree; 2 halves)
-  {
-    static_assert(NT == 512 && NW == 16, "B4FIN: 16 warps = 8 routes x 2 halves, 512 threads x 2 columns");
-    float* red = reinterpret_cast<float*>(xbuf);
-    const int lane = tid & 31, warp = WARP_IDX(tid);
-    constexpr int SEG = 1024, NSEG = HD / SEG;
-    for (int it = blockIdx.x; it < p.M * NSEG; it += gridDim.x) {
-      const int tk = it / NSEG, col = (it % NSEG) * SEG + tid * 2;
-#if OKC_MFIN && (OKC_MFP & 4)
-      if (tid < 8) {  // the token's local experts are complete when all their jobs' units were counted by all 4 warpgroups
-        if (S.pos[tk * 8 + tid] >= 0) {
-          const int e = S.eid[tk * 8 + tid], tot = S.cnt[e];
-          const int target = 64 * (tot > SK_T ? (tot + FT_T - 1) / FT_T : 1);
-          const int* cp = p.mfl + MF_CE + S.gen * 32 + e;
-          for (int n = 0; ld_acquire(cp) < target && n < 4000000; ++n) { if (OKC_MFS) __nanosleep(OKC_MFS); }
-        }
-      }
-      CTA_SYNC();
-#endif
-#if B4_EARLY_Y
-      float2 yv[8];  // A2: the 8 routes' y loads go out before the ss partial loads and the reduction
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl) {
-        const int q = S.pos[tk * 8 + sl];
-        yv[sl] = q >= 0 ? __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col)) : make_float2(0.f, 0.f);
-      }
-#endif
-      {
-        const int sl = warp >> 1, hh = warp & 1;
-        const int q = S.pos[tk * 8 + sl];
-        float v = 0.f;
-        if (q >= 0) {
-          const float4 a = __ldcg(reinterpret_cast<const float4*>(p.sspart + (size_t)q * 256 + hh * 128 + lane * 4));
-          v = (a.x + a.y) + (a.z + a.w);
-        }
-#pragma unroll
-        for (int o = 16; o > 0; o >>= 1) v += __shfl_xor_sync(0xffffffffu, v, o);
-        if (lane == 0) red[warp] = v;
-      }
-      CTA_SYNC();
-      float2 acc = make_float2(0.f, 0.f);
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl) {
-        const int q = S.pos[tk * 8 + sl];
-        if (q >= 0) {
-          const float r = p.topk_w[tk * 8 + sl] * rsqrtf((red[2 * sl] + red[2 * sl + 1]) * (1.f / HD) + 1e-8f);
-#if B4_EARLY_Y
-          const float2 v = yv[sl];
-#else
-          const float2 v = __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col));
-#endif
-          acc.x += r * v.x; acc.y += r * v.y;
-        }
-      }
-      *reinterpret_cast<__nv_bfloat162*>(p.out + (size_t)tk * HD + col) = __floats2bfloat162_rn(acc.x, acc.y);
-      CTA_SYNC();  // red is reused by the next item
-    }
-  }
-#elif OKC_WGS && OKC_WGSFINSS
-  // item = one token's whole row (thread = 8 columns): pass 1 sums each local route's y^2 over the row (warp
-  // shuffles, then the 16 warps' partials through smem: the ring is free now), pass 2 re-reads the rows (L2 hits)
-  {
-    static_assert(HD == NT * 8, "8 columns per thread");
-    float* red = reinterpret_cast<float*>(xbuf);
-    const int lane = tid & 31, warp = WARP_IDX(tid);
-    for (int tk = blockIdx.x; tk < p.M; tk += gridDim.x) {
-#if OKC_MFIN && (OKC_MFP & 4)
-      if (tid < 8) {  // the token's local experts are complete when all their jobs' units were counted by all 4 warpgroups
-        if (S.pos[tk * 8 + tid] >= 0) {
-          const int e = S.eid[tk * 8 + tid], tot = S.cnt[e];
-          const int target = 64 * (tot > SK_T ? (tot + FT_T - 1) / FT_T : 1);
-          const int* cp = p.mfl + MF_CE + S.gen * 32 + e;
-          for (int n = 0; ld_acquire(cp) < target && n < 4000000; ++n) { if (OKC_MFS) __nanosleep(OKC_MFS); }
-        }
-      }
-      CTA_SYNC();
-      if (tk == blockIdx.x) DBG(4);
-#endif
-      int qv[8];
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];
-      float ps[8];
-      float4 ya_[8], yb_[8];  // achitaan FINREG: pass 1 rows kept for pass 2
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl) {
-        ps[sl] = 0.f;
-        if (qv[sl] >= 0) {
-#if OKC_YBF
-          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
-          const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));
-          const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
-          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
-#else
-          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
-          const float4 a = __ldcg(src), b = __ldcg(src + 1);
-#endif
-          ya_[sl] = a; yb_[sl] = b;
-          ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
-        }
-      }
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl)
-        if (qv[sl] >= 0) {  // uniform over the CTA (one token)
-#pragma unroll
-          for (int o = 16; o > 0; o >>= 1) ps[sl] += __shfl_xor_sync(0xffffffffu, ps[sl], o);
-        }
-      if (lane == 0) {
-#pragma unroll
-        for (int sl = 0; sl < 8; ++sl) red[warp * 8 + sl] = ps[sl];
-      }
-      CTA_SYNC();
-      if (tid < 8) {
-        float tsum = 0.f;
-        for (int w = 0; w < NW; ++w) tsum += red[w * 8 + tid];
-        red[NW * 8 + tid] = tsum;
-      }
-      CTA_SYNC();
-      float acc[8];
-#pragma unroll
-      for (int i = 0; i < 8; ++i) acc[i] = 0.f;
-#pragma unroll
-      for (int sl = 0; sl < 8; ++sl)
-        if (qv[sl] >= 0) {
-          const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);
-          const float4 a = ya_[sl], b = yb_[sl];
-          acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;
-          acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;
-        }
-      uint4 o;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&o);
-#pragma unroll
-      for (int i = 0; i < 4; ++i) {
-        __nv_bfloat162 v = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);
-        ow[i] = *reinterpret_cast<uint32_t*>(&v);
-      }
-      *reinterpret_cast<uint4*>(p.out + (size_t)tk * HD + tid * 8) = o;
-      CTA_SYNC();  // red is reused by the next token
-    }
-  }
-#elif OKC_FINCOL
-  // column-parallel: item = (token, 1024-column segment); thread = 4 columns
-  constexpr int FSEG = HD / (NT * 4);  // column segments per token (thread = 4 columns)
-  int it0 = blockIdx.x;
-#if OKC_FINPF
-  if (hasp) {   // first item: weights / positions from before the barrier; all 16 loads issued before the math
-    const int col = (itp % FSEG) * (NT * 4) + tid * 4;
-    float ssv[8];
-    float4 yv[8];
-#pragma unroll
-    for (int s = 0; s < 8; ++s) {
-      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;
-      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);
-    }
-    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-    for (int s = 0; s < 8; ++s) {
-      if (qvp[s] >= 0) {
-        const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);
-        acc.x += r * yv[s].x; acc.y += r * yv[s].y; acc.z += r * yv[s].z; acc.w += r * yv[s].w;
-      }
-    }
-    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);
-    uint2 o;
-    o.x = *reinterpret_cast<uint32_t*>(&o0);
-    o.y = *reinterpret_cast<uint32_t*>(&o1);
-    *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;
-  }
-  it0 += gridDim.x;
-#endif
-  for (int it = it0; it < p.M * FSEG; it += gridDim.x) {
-    const int tk = it / FSEG, col = (it % FSEG) * (NT * 4) + tid * 4;
-    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-    for (int s = 0; s < 8; ++s) {
-      const int q = S.pos[tk * 8 + s];
-      if (q >= 0) {
-        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);
-        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));
-        acc.x += r * v.x; acc.y += r * v.y; acc.z += r * v.z; acc.w += r * v.w;
-      }
-    }
-    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);
-    uint2 o;
-    o.x = *reinterpret_cast<uint32_t*>(&o0);
-    o.y = *reinterpret_cast<uint32_t*>(&o1);
-    *reinterpret_cast<uint2*>(p.out + (size_t)tk * HD + col) = o;
-  }
-#else
-  for (int tk = blockIdx.x; tk < p.M; tk += gridDim.x) {
-    float acc[16];
-#pragma unroll
-    for (int i = 0; i < 16; ++i) acc[i] = 0.f;
-#pragma unroll
-    for (int s = 0; s < 8; ++s) {
-      const int q = S.pos[tk * 8 + s];
-      if (q >= 0) {
-        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);
-        const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD) + tid * 4;
-#pragma unroll
-        for (int i = 0; i < 4; ++i) {
-          float4 v = __ldcg(src + i);
-          acc[4 * i] += r * v.x; acc[4 * i + 1] += r * v.y; acc[4 * i + 2] += r * v.z; acc[4 * i + 3] += r * v.w;
-        }
-      }
-    }
-    uint4 o[2];
-    uint32_t* ow = reinterpret_cast<uint32_t*>(o);
-#pragma unroll
-    for (int i = 0; i < 8; ++i) {
-      __nv_bfloat162 v = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);
-      ow[i] = *reinterpret_cast<uint32_t*>(&v);
-    }
-    uint4* dst = reinterpret_cast<uint4*>(p.out + (size_t)tk * HD + tid * 16);
-    dst[0] = o[0]; dst[1] = o[1];
-  }
-#endif
-  DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered
-}
-
-}  // namespace okc
-
-#include <torch/extension.h>
-#include <ATen/cuda/CUDAContext.h>
-
-static size_t okc_smem_bytes() {
-  size_t base = ((sizeof(okc::Smem) + 127) / 128) * 128;
-#if OKC_WGS
-  return base + (size_t)okc::WGS_NS * okc::UNIT_BYTES + (size_t)okc::WGS_NX * okc::WGS_XS;
-#endif
-  size_t xa = (size_t)OKC_NS * okc::UNIT_BYTES + (OKC_SKT > 8 ? (size_t)okc::NW * 8 * okc::X1P * 2 : 0);
-  size_t xb = (size_t)okc::NSF * okc::UNIT_BYTES + 2 * (size_t)okc::FT_T * okc::XP_FT * 2;
-  return base + (xa > xb ? xa : xb);
-}
-
-static int g_okc_pdl = 0;  // launch with programmatic stream serialization (PDL); off unless okc_set_pdl(1)
-
-void okc_set_pdl(int64_t on) { g_okc_pdl = on ? 1 : 0; }
-
-std::vector<int64_t> okc_attrs() {
-  cudaFuncAttributes a0, a1;
-  cudaFuncGetAttributes(&a0, okc::moe_fused<false>);
-  cudaFuncGetAttributes(&a1, okc::moe_fused<true>);
-  return {a0.numRegs, (int64_t)a0.localSizeBytes, (int64_t)a0.sharedSizeBytes, a1.numRegs, (int64_t)a1.localSizeBytes, (int64_t)a1.sharedSizeBytes};
-}
-
-void okc_run(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, torch::Tensor x, torch::Tensor ids,
-             torch::Tensor tw, torch::Tensor out, int64_t lo, int64_t nloc, int64_t grid) {
-  okc::Params p;
-  p.wA = (const uint4*)w[0].data_ptr(); p.sA = (const uint4*)w[1].data_ptr(); p.gsA = (const float*)w[2].data_ptr();
-  p.wB = (const uint4*)w[3].data_ptr(); p.sB = (const uint4*)w[4].data_ptr(); p.gsB = (const float*)w[5].data_ptr();
-  p.lut = (const uint32_t*)w[6].data_ptr(); p.normw = (const __nv_bfloat16*)w[7].data_ptr();
-  p.wAf = (const unsigned char*)w[8].data_ptr(); p.wBf = (const unsigned char*)w[9].data_ptr();
-  p.wAu = (const unsigned char*)w[10].data_ptr(); p.wBu = (const unsigned char*)w[11].data_ptr();
-  if (w.size() > 13) { p.wAn = (const unsigned char*)w[12].data_ptr(); p.wBn = (const unsigned char*)w[13].data_ptr(); }
-  else { p.wAn = p.wAf; p.wBn = p.wBf; }  // no natural copies: the wgmma path must stay off (OKC_WGMIN 9)
-#if OKC_WGS
-  TORCH_CHECK(w.size() > 13, "OKC_WGS needs the WGS weight copies (w[12], w[13])");
-  TORCH_CHECK((size_t)scratch[1].numel() >= (size_t)okc::EMAX + (size_t)okc::EMAX * okc::HD + okc::WGS_FIXF,
-              "OKC_WGS needs the stream-K fixup area after ybuf (scratch[1])");
-  p.wAs = (const unsigned char*)w[12].data_ptr(); p.wBs = (const unsigned char*)w[13].data_ptr();
-#else
-  p.wAs = nullptr; p.wBs = nullptr;
-#endif
-  p.zero = 0;
-  p.x = (const __nv_bfloat16*)x.data_ptr(); p.topk_ids = (const int*)ids.data_ptr(); p.topk_w = (const float*)tw.data_ptr();
-  p.M = (int)x.size(0); p.lo = (int)lo; p.nloc = (int)nloc;
-#if OKC_WGS && OKC_RLOAD
-  TORCH_CHECK(((uintptr_t)ids.data_ptr() & 15) == 0 && ids.is_contiguous(), "topk_ids must be 16 B aligned and contiguous");
-#endif
-  int* ib = (int*)scratch[0].data_ptr();
-  p.ctr = ib; p.doneA = ib + 8;
-  p.ss = (float*)scratch[1].data_ptr();
-  TORCH_CHECK(scratch[0].numel() >= 8 + 1024 + okc::EMAX, "scratch[0] needs the second ss copy");
-  p.ss1 = reinterpret_cast<float*>(ib + 8 + 1024);
-#if OKC_WGS
-  p.mfl = ib + 8 + 1024 + okc::EMAX;
-#else
-  p.mfl = nullptr;
-#endif
-  p.ybuf = p.ss + okc::EMAX;
-#if OKC_WGS && OKC_B4FIN
-  // B4FIN runs only at M <= 32: ybuf rows (sorted routes) stay below M * 8 <= 256, so its last 64 rows (1024 routes x 256 partials) are free
-  TORCH_CHECK(x.size(0) <= 32 && x.size(0) * 8 <= okc::EMAX - 64, "B4FIN build is for M <= 32");
-  p.sspart = p.ybuf + (size_t)(okc::EMAX - 64) * okc::HD;
-#else
-  p.sspart = nullptr;
-#endif
-  p.inter = (__nv_bfloat16*)scratch[2].data_ptr();
-#if OKC_WGS
-  TORCH_CHECK((size_t)scratch[2].numel() >= ((size_t)okc::EMAX + 2 * (size_t)okc::WGS_XROWS) * okc::HD,
-              "OKC_WGS needs xA / xB after inter (scratch[2])");
-  p.xA = p.inter + (size_t)okc::EMAX * okc::HD;
-  p.xB = p.xA + (size_t)okc::WGS_XROWS * okc::HD;
-  p.xready = ib + 8 + 512;
-#if OKC_MFIN
-  p.xready = p.mfl + okc::MF_XR;
-#endif
-  p.doneAs = reinterpret_cast<int*>(p.ybuf + (size_t)okc::EMAX * okc::HD + (size_t)2 * okc::WGS_SLOTS * 4 * okc::WGS_FIXW) + 2 * okc::WGS_SLOTS * 4;
-#if OKC_MFIN
-  p.doneAs = p.mfl + okc::MF_DA;
-#endif
-  TORCH_CHECK((size_t)scratch[0].numel() >= (size_t)(8 + 1024 + okc::EMAX + okc::MF_INTS), "MFIN needs the flag region in scratch[0]");
-#else
-  p.xA = p.xB = nullptr;
-  p.xready = nullptr;
-  p.doneAs = nullptr;
-#endif
-  p.out = (__nv_bfloat16*)out.data_ptr();
-  p.dbg = scratch.size() > 3 ? (unsigned long long*)scratch[3].data_ptr() : nullptr;
-  static bool attr = false;
-  size_t sm = okc_smem_bytes();
-  if (!attr) {
-    cudaError_t e0 = cudaFuncSetAttribute(okc::moe_fused<false>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm);
-    cudaError_t e1 = cudaFuncSetAttribute(okc::moe_fused<true>, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)sm);
-    (void)e0; (void)e1;
-    attr = true;
-  }
-  cudaStream_t st = at::cuda::getCurrentCUDAStream();
-  // large batches run the variant with the fat path inlined (and wgmma); small ones keep it out of line, which
-  // leaves the skinny loop's code and registers as tuned
-  if (g_okc_pdl) {
-    cudaLaunchConfig_t cfg = {};
-    cfg.gridDim = dim3((unsigned)grid);
-    cfg.blockDim = dim3(okc::NTL);
-    cfg.dynamicSmemBytes = sm;
-    cfg.stream = st;
-    cudaLaunchAttribute at[1];
-    at[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-    at[0].val.programmaticStreamSerializationAllowed = 1;
-    cfg.attrs = at;
-    cfg.numAttrs = 1;
-    if (p.M >= OKC_BIGM) cudaLaunchKernelEx(&cfg, okc::moe_fused<true>, p);
-    else cudaLaunchKernelEx(&cfg, okc::moe_fused<false>, p);
-    return;
-  }
-  if (p.M >= OKC_BIGM) okc::moe_fused<true><<<(int)grid, okc::NTL, sm, st>>>(p);
-  else okc::moe_fused<false><<<(int)grid, okc::NTL, sm, st>>>(p);
-}
-
-
-"""
+# achitaan ATP: lossless CUDA-source storage, decoded bytes=153989 sha256=230f1455dfec67b6658c8c1bb1d76ac03c80fbcb828878aa0695f9ab8b8d5159
+MOE_CUDA_SRC = _atp_source(
+    'c-ri}d3)PNvM>C<KShtvV+XJ(njmRf5iRGHY|HWS5+6&x&OEvrUM`?Si2^Bt6sb5qpZ%?0RX5NLfD+{;lT4f$i$J6IuCA`?+HT#y'
+    'ug+$1*g6}9t$Dp2G}J|PQ;nifjl)Sih^JvRRj1)33Wu9&GMY^X(UBTYM#It3EG((#&tAU{*7oLu=da$&TXiiOP0mz2ZBOHp>JOs!'
+    'P$A`hJUc7j`maIM9nN~8deoiu+O1AMXq1m1TglVQaoCzp+JkBQIGcMii>8CK&@B*8dxL1oX}yq|3)L?#pR}Gn+j;+7Rh+c<d(T??'
+    'ueVj;q`rIg%l1<hC`B`&$G554!=ajv#;2`8FIK}*oBj^scoz0lC+v?Vp_(3tDn1J_PI`@<8h3+d+wWfeQ`boqUaHP)Fzm&fYIl2Y'
+    'KTz}bWGwYjwbPhe(yi#~hi$5>@&moMCzC-qQG<vwI<0(ozPJ10&E6h{Gw4V3g_B=XqLU8^=nDEmWj3*{>*0d_PE~hwHXer4!6>3f'
+    'np|3OYKhjo-BY7J5AtX-=q0_d1}_UcZpYNCFzOBZPA_)qubfWMyQ(Ow69f$FqyBn)K5NtTQ9YCCpgoLLe=<7b`p3uZI9%UR;dr1y'
+    'EvA(jhU*h_?&{WG@4n4U!CMtPD9*W;$+?&GGipbpco>Fb6=7D=QLm$2g?>;mdK!-iTD;08fq4}A#m)RrrkVdy^@q|-pn6nno9AFK'
+    'y)3D!TA=RBB%w|fJL^zV8w4S<sC%sQsQc=-a5AC^DydpkU5tk9>0lVDz4B2Q31nH_QvcBKbL+om*T7B1&QiFj#jBsKj8ibPG~iA+'
+    't+%?=|6aIBU^kqdMKq%m+H&F0T3FzYMc7*(O?m`*u>~XEXdcOqQthcCjP*#pR*$x5<hjY;skeA9w*HxPCr!f6;p{0`x{$31+RtJY'
+    'wrQe)8baET1i08525`M1SS9p1yi{{q8Om|#J99(x@Z=YF9wjO1O=g$BriuH}N&EHfyJr>>W1Q03e)r_(3@YFcZcB`QYT1UQhF{(&'
+    'FU|CrR_pFvF17#S%|G#MHKf02jOvc?$=lssr&T0aqqBSX<d?nuogKH2l4d;@%?p3ovvRrE|DSI%b3rLDvsqrMdQsK;D4m`hdoS_s'
+    'nQCd|-anFA`Th5#h=1i2nb*CS`)X^8_AkBvLl$#4d4BT?&LZC(=zeQoHR{e__TIjF;SQKn^!|!Z2T^pn&M+vuWImW4D?#}&fcG&C'
+    'ifWyXPD4U%@pw3x5`vqKu!-<xoxiA)QHKEh^^2z^^-FiEs*OV2hIw%34-->}7v6kuGQRnsHj1+G_H^-wBo%Lwofpqv^9(s#WEWj<'
+    'p)w1U#ntU@@9*tz@4tAGp%WO&RJ~FFzy<Kj8S_K?;2t+0_Vk*iM1s&>;etpYbsP?9%^Y$8=w?EAo-h%hsyiAFD778+6cI;+sxHFG'
+    'rG|h69Tnr1y<c_Pz3^g_PN6MeKn4}UbllGT=<KYG^GH51mWxsOcpUcJVLji=)}9*}jZ3}TTjxqQ=}ha6BEqG5ct?a@#|9K%0!AD4'
+    '^~q?iW}tgYYCN3LD0#?4d-i5sT`oJcy%(?Ex1PTEKOXhF<EvJy-y2*E=%eSg{gU!JzKg5gf7pKK(h8iSNjI5z%DkZYpdKC_Qy=2v'
+    'S-(F7Ju*_`>7pI0ZaX3hndk)MU#HV*a6yFPMSIBfU4${<AR&t32=w&CIg9hXz)S1J(_g(Q1`r?jhpqTB>Uxz$U;j6wk<iD-kJW>c'
+    's$f?R<FK&2XYv(p-M8;v@9#ZvhA&CQ+n3I%%qHR#CYTbulaRV{jM5Q!_JdHktvQh?<56r=kqJRVhwYlW?9BRx4sK7o$25zcU>;gc'
+    ';uQQsNZxz%j=%{$&=kTt&S<Kt4|0~Mjd>Uf^#*d6PH|o**)&MCcA1Nw7#q`6+=|*~VLWbk>0m$Ys*ksvS$S3c*(pZv&S95iq7J^Q'
+    'f><1Mv1h#}@AqGA6aD^#$cyl2!oPcGKUVxrH4g_z$AqZkDUpF^3FM6;YTpYl1~ei4!6csgO(1RRIR?U0M-&MGnNY|?0W#ZwW|>)`'
+    'F%YDJQk6P}ZK|TI&~VHIi%>sjZ8|H=)DVL+B78!)sNWxSe*n=N&xVvAErI@QM@M0=oQ$7_+1h)*yZho-b-Vnky1CiK*jmTb#%(9l'
+    'FK?f{+kW#@-7cv+b@$WuyXUH;ZVzu0zz5aciv8bgIP`C|T0M*)Y_+hzN0V+ih=x>}-Y-T(B*)Vhb|dqaUaJ*d&=UdGG-%vYgch6>'
+    'b>Y)`D%Fn95~|s|9Z$<g!%?R_%#5Mjp%MpoDu>kTfc{mR|2Mj=HaF2(pqJanx4nClkXL0q38$?t&G93`%Y&ncU^zY>O{VuAdv`B<'
+    'KN(>?KSH&sZp+Ny_M5jptvuj<t?Kc(c%1xn)A14WaMk$wx4nxSb=}2GHh3(7ha4<?{pD8o+H|5_G}V{StW}lX@V9WRO^MdR-kYkQ'
+    'pVIew<wrtbFU(^zlZVKlElm%V)EgoXk#di?nOw&GSNOP3n9?(+>`!!1(xhu*;wNx_n{*^J86U1W6omI-&sV=E=mmRx;hv_1l&DUh'
+    '%L;!P5<Nl<8pKJsC<J!)+?szE`oOM=+D^Ek<be0H1A4ckht7RZu=%E{Hsws|PDXLO&J`9Q_XNFCaZQPX5}|TW_P3KuixJU8jLixL'
+    '!bGx{IRzAs+gPY(`jn#JGhL-jo~gf@671A$Yww?Lo_Ky{$5GxgYE{@)6|=3P+uoafXV0XE_+IP3e|hm{c}3M+MXxe7Ia|-_S&PXD'
+    'Jp*2Hre>CgIG8QK)_sCTECw$J5oIq`_jnea#ww*uBTz+h_=8+i9-y2H5-Df0xm*p{pp8tE%#&=H&l&*E+6%*{5K)-4L#&DNHbAyU'
+    '>zJ6P3K|48`Yl!$gSK4HEwV88?%C7UhqM{ug*FKEHfZYV&0Dy%9CTa6`V*@pY+edlhIJ$Sr$10WqF`flGsRafX$NDVK(}#b=C%^P'
+    'Zpj$?gk5-m!x0^?6XC;f;#!=VEJAK@JFRW1ze?zX(9M0CloHag%YK%3-DJ>U>bf%=bx-3=CGVvYu1l(TFI8|&TuDK*tyjN1r#wGO'
+    'gZgbFJEdNr9z9BO_?S<;(3EoJXR~-p6q~9(XyhkvXZO`MD&;C_6+v;ccsQDF(xjO?7=}PPeEXpgkZs{*2*xqFoJ(y3Mf5I-tQ&OI'
+    'v^^LK=>v+0=(EvKxDHtiF7ZQb)^$Fbobp<9hwZ_c)K8q3!o75INgz;9Tkc9?1!JO4w9ul5muRoViO+Ge@Yp2}jrlpPsHwb3RM>Pj'
+    'iS*6HPs;15M^u=edIZMN9`HZ~XVQ|n-?ry|TjqW{nfnJp6?5;F<>P5@7Z(H%%~i&mJ-iYJa@$}+tOcN6V2l>g0y5<Rta)OyQ2YAz'
+    '_OCR?+D5&kp2;&O-NRn{Z~d`KCklVOFS}?Bz~$ES>s#8R0_ynca3u?cu8ao+6vPEGFX0w`xrdGOpdq+U<2&l|rp93lNHmUUjq6MH'
+    '9<{!U%}o`htz*pBHvMJ~<!WimX-RI=-k?Hz?0@*B0k*teZUjMNqfrSq>eYv}jg2ta=r?cC;!S2m;=gTA+GjBnfC5f4YOa1y&9|Fw'
+    'LYyRMD(8q&a;0{%rFL?qcHC06YKxMGv#H6Lq0b-}n#)Ee#&FugJF$txQy&oz9qH*J<W5sMR|C0_rA<di&hA?RiQ{k*rVSc8o7j>G'
+    '2H9^e`Lfe*nmN|j%R&^H>lClnP%n3Q*-zJb3H;@)%$Bw?(<q8yex0&R2S>BfEG}ro#>Q8)6fJEjYHEoE;RPa*P8oVkJAC6p<kR%{'
+    'in`;ab;nI}J+5oqR0n2jV`zs5JVS>E37L0z@FR`vkQ&P@_kzGIo3zt(BvUx-O8g+(Z9)58xLjIu8OaVI>Py^FnTDf{!-G@$$N#5R'
+    'DgQk!L$UT$?!R2CG$Ka&i*3HUpN5gCOe8d`R_4hV^noPsW8Sw@YB(W~W3Hd*8QRg@Yu~hc)*oKgsI<$1n*OkT#1~8>+BMy0G;85v'
+    'Ff~#=det(e`+6)THJy({dPGZ#2F-qDNs=r|dpK`j#;T&c(YSq1lspk0<{pJ;ok<E$*;Q?(=hwYNkeb03awpW3v8vZ4H5`>xM0=oV'
+    'hTok|n$|#Rb?IP3Djiw@es^#?ncN}Oc+Ae4HPga4ND5$*flG#afb#{68nWq5;$9^oe|3hR?F?}O7AC_X_Q@r6R7+4HZ<Pymq84LE'
+    'c*GflO{ydyEY~(dy&3LV`5VM{cU53F7c?`?<;O&u19O;cWzdoQhi0X7)U;~@SJljl<rItSL{jXr;Hv~2C9*mNGS^=!zy$}%Y?XiO'
+    'Q+g8ZffoO0Lm3?kKqH4uS0bsqMxfj~AolR^;LV4_gIe|Qfa&%_eO6Gvn9j?yhdjrc_p$2=4)y<&dh{GJ^QVaf;7DAtgHRzdks1J{'
+    '7mb9(BLsx8$^E9Ez2W<?r$^VQ)9B`LNYGlM-$~y*AVniPLKL{fXM%~kHw+0i5JP#%dI#<;<^6PO%?=jsSM?`hs5cMQeo#MbUX7ku'
+    'yh&#$(WOMsYD$<nS$Wp9^8|N#xhrZ}n`C^n=i-BE{m??*m2$b3TrTuy!(oZYlk&qPDLflPn7vUh2M-9XOOBvXE>~;x%3sZBjzEd0'
+    '14@On)cX{DYUKsc;F>c+|4kj;G4FUH90I$S1`Bsbv9Jk)g*gDyk~?-$x8%+hB~R!8DJsdgwX}@A9`zN+CZPb9DTB!)s9J!}TI?u~'
+    '4<Mb7Q0<1P-$Bpw>1djn7&9pP(jIaLvjujV1qF8O0%ps&OB_`7<k9NZ%{F1s^)&fUC))#B(tt@0^F<g1zZi&QiCutomiR^hD)q(T'
+    'c}ey8FD;Fz>R69E=9KAoqbblyG98KV)ad3|+A(1?om|QhY6ShdLh2sYZvC;AsuBx7#v<X;kWN3^psg{TUAj@U*{Bl|81?&jXeN+m'
+    'u$xIac_znHNuBH^PfyHKpJ`QjGbN&vT{<*Rh;zi;m{dA8Ty7$($wLF6JmI9xx<BoyIeCa!q0xA2JP$h2CwLivgX6`KG%&<+L^+2^'
+    '({8aiGrGr2yI{kFLRQo{Ci^THWAx~)2clWi)HeXXtBcL0>^^NL4LF*J0*l?%b0&v}eBQJ<eFJv5!|aB{^7cw*@6jPm=f_|wTat;2'
+    ';yVS?9%^hw;bK}!AFEgxi>_ATpeKhne}G&7(590#<4TE?9YDxrJd+UjHr6mHKF$gOy`(%bP)>P)UINi^doaP*0oJ;t)&oV`5r-O)'
+    'TJ0g9(%^-LqtV1`6Vu%#Z1mhuB*E>7X(U`ki7Zul*drQXx+6+p(KBmqwV}|{V;wS_`>a?7@d6!y;MI8Aq!zRp&pM)U$K(#-$o~xp'
+    'Hhf&?pc{`=^<ULG(dEz8{}R1Ny(*!C2we&nZ6YhyXfT9_*JtDFE?UlJLu$8m#1}1Xxo7F>>lSmPKY8w3yfQwGi6ZB|n2mK#2~<6@'
+    'SLwYq`OOo-fIp^eQ~_t~EAO0MpDUVtU#+j7BNh0SKhZZjAAHV0Xp(ZQt#J;0t#f{j%qKzY9U4^COI~SI=_eV9Ll;)ngnNI?#qx40'
+    'H#6i^kol~VujBhx{|h8w<|=^lPFOAk=7LUruTuumkH0=6dYyPYK;rShmy0=ql6DU@5egha6*JO|$j`6ezpAPc!6OQL<)169pDP3?'
+    '<)4Gr&w;=CEDpc*G`3p9(Y%@@dn-=sP3Lvx0Uv++0Us0H_w7e~tqkw%Ow^2x0IzEew_UMc0{f+Eztrq0s+4Z2RsTy%1qFgwUC(Xm'
+    'A`5lO?IE8L<+Gp>ZJZKuOcY_6FlxD9tCm?;n*Y$7`go^Ox)YS{R7-bipGx#vFWq@iy3;7#dC0FDr8__JgOv^9BHiYuy1mxF?R5_-'
+    'hY;w>b6`DJt>@aIpB9_k_SzME!$V*ms^+1lA37!vjeI33c6Z!rV-jekgp7jxrlgUvq#SWd2j}($O;yi#S<0BeGy!YB)#_eM+bt$@'
+    '2Hn<l)Qaik4SOEy^$kLge}e!Qm8qYgN{XBFoV>g{E_2t)-J`NpqUGmWSblIPI4rTGBo&#{$YU)kN4NE4#J{aP8N}Y44W=Gs0n2*B'
+    'Ia<sO>1KUg`%j6Pg8GMg#J9_jS7~kDzPc@ZmzFYON8i6jke<JVP)CrKOgz1O`R~*G5}b`L%CknD8mCE?$>&O%w*iw|G|N*5bxc|N'
+    'Kua8-?mYKSeInjyd^mwq1A)7DwJ7*SZ&6-AB*I#+<8rTa<jc<iU(3q(d&HBiDXQy`pvH`X#!u7@WPe`8zeUtuNbR>YwDE-Swr;h&'
+    'py9jss|@3<Nqc@kgy0o(m{8cQ?u=VpN?|Kc#!N?P9~Xao@iL3UNqns=YS?SFyXUjPB=oGyyRobiGF;@BW!Nk0GUcQ3%xINBjRXsY'
+    'eIc+yOEiJ*2%c!I#?D$@FdnB7Jq^!i?PxmqEo3FgT6Mic)cu^;9$bz-tG*7H-i-Z}0;scM*rKYo*ZY$;?X+l`>e(qzE8&IJvw#+_'
+    '`mgn%+VIP0>+K{Qx4Wmfb{R~~jj|Vqp=u$$B@Jz=NrjgBT;0V5<pf%ilhJhIotJ1SC9RsK1r<p|{gWE75q%iahdR<Li;ZBTf`3rM'
+    '@N^mdsZyy|@Q?7sYbuDmPb&CVzIONa&g<!6ex9CGcd75rTj0D^owu4r`m&%YsnPAujMpuh6MhSXD4s<T(YVKhK9R*VFmy#Gi8ED~'
+    'X412UT!4Z9dFZT2g3Rz?OYKi)A+5?owf*WnZN;j3@p}7ddGF^}%&%>j+orO5r-6X@s2NR}zM*7}gmqg9s5YfV8chdGU^^CLo}ON4'
+    'hPy|PR6SkfA$7JSOKZM1l-J<$SX9YUm&*cNu!n(sGt<O;LC~08H7~>bya+IH;YNL?fvG|(LjPtAO-rgU&=nAH(Z89s?eu)}&`-nh'
+    '6f9*5qAG$av6@fXW7c$K`FPl$Vu)Cc0n~A6VTj-6CO0vCZLnF>!FYIyyHn;0^>pt-ad$8drA^N)nxC~c!m1*l=sAakg!G4A$ed=('
+    '60T_&yOW}4H0^%Tq!@V1?6{ebk=V2AU-)0nJ`TE;P{@9=zfHVmkC4-VSZ=LF=^$j@$zgjkyln9elSaWJ!KDMK#F+f9+Vh*aVthlt'
+    'yg-JhoerQ-V4Zp;u{PV{FLzaq&;;M8Z&{keL~AvjTAtD8arre)ME3*h4SC)(+MHUAO|665rB&DOzOS|0>|z6;6mIq&RY8-5-EuaF'
+    'yk{kRTcgB;w?;o7nc97|SDtqdkOn>H!vix49MP3#a`z}^ep+<__xS1M{~2!G<yxQU58~2;_39l_{~Ao01076gzySHFI>S9h^+5w$'
+    '`lHsRfk=|ImOV_%2JKm`Pr@p66FTZcxjzdPlL9!Ud{OitO+*mKDr#7g63YMzj19%k5Jb4EJ@D!+v<Ez`8&Su+@0%%qv)|+rkk_m5'
+    ';(+oVHq$y}CF@lD877aG<iEx^MB7BA5Cji7C-p$_t;s1*DE&M_n@zR0b}F#t);FkYP+Fs`_mVCsw10|4p$w1E>Q7*bdq-Z5$xG_0'
+    '6Pq_K8}Xq}H4f?^A<o*TVGG|q!p8dlzBKdcn+^fcr@Nn)vrAqa)G@@5JXRtY*J+dBhC|*jGw;7;-sk%LQ!}lasKmP5Kj{RJsYIxx'
+    'M5OO|7sSS?$C`NMmq%0)WT`$)Gbe1S^}x5Qxh$$Cu&W8O)dU6A{8m&=)vl(Rt)^N~&Ah0Znq5sTTTLxjP5!=srw^9}du3d?(%Riq'
+    '^+TT;OQ!VGE%P@~S9TysZQQaTXdsZ$qz8fm{H#GG*FXcZgnXg{vQyXv==yqfrD5Hn!~D3zWYD2A;xHZVr&RipDt0#Qes*vtO?!=?'
+    'ogW_&M%9mNY$>TbYymxGm+yQYWYGj_^9EcGI)g_1WDMw-T_9m{#v#aX%*PoFI$G`MvcQ-n)N6?Cm5yFcC8m!0vBx#}g4h`2<FGh9'
+    '2oEuyR%<*OcXb|_pzO?`ZaLPddV9H82$P^mh{W{4aRnZk3m%#CF$6R+XO+E!IWH%7++I29@8JPH9Ex%tnxT#(xv4>r7a{5n0b!%*'
+    ')g8bQPV0$tkWNzkKH9>}d=xCiGtQPnvvI+Eqm`2C!GNT%yGxVa^QHMUt<i4!H0t*ON%*ubJrnqaSW8B<WhX<(Ws>PRo!L><q}+UJ'
+    '-5I26XwXz&W(MgnhOX=;%OXAMpSE-?8J%S!CZRm&i%3>W6STz1t5B0Dqm3YGcC>I$tB4UjK-4Y-w+T@phL~tNuPzBQNUbWY1&p>~'
+    'rU%2g^>}&-T?(c>Zu{9S7xhmB6f?;&l0AkXQJU7LJ)Vu;d^i|#j{9oE7X@M(`y&u1qG{YrgywpXlW<)Oj>IK_=A#m^aK2xtT^o}A'
+    'WO~DznYuUpym@8!wT&?z&7|WNPD&*hPD^fqpQvT{0l-sy@|iot9Oc+2!8IGDKfpFAsf+408Dq|9lL^+Y`iRbBS5bdrd8#(8bH|<A'
+    'eMUe_4gb)k8m?WV_?n!t<V-gpFB^4bUC-kQ&*(m{T+GRsRA&~?WjCHf!MJ~d?RcI};a>UV*#T9$rp~b^`P4w-o|OpXL63Coio!d6'
+    'eqwzFg^v#<27>h@V@l2Cc3NTI;-qiVtGK9FaY3(S&v36|r&oeE(q3tl@X6W{SY~S3YBblNL4u|QgDdS5+=3T<Hc{^AWY?@tlVA53'
+    '==Y^83W*s9jx-!_wh~p!+9di)>X_K`XvB!|d=}0^|CXg^%qfEAHmU!UBQV}#N+IeGT7|_UqM0C%a9xMKbS||5OD|j`Fb4b11ZSmm'
+    'cL-{eF~WW5M&tc4@6YvhdQL$qDbcUU>h>!PdOU7=c4!xO=irb+4vTt8GqB9y3^`17Y{>5kI1&w^9<rTmjn(3*OW6t%iUzm-*mU$e'
+    '98C+h-I+y@VqwofuV~c`%+8vjR!|fA5X^9ogkCdwGxPa&xu4d;rM9eMewKDkU@1@c*mnxJ6!?!K6N{KPpoI*9=+K8t=De98H7H`7'
+    '3tbMy3V)D(f{w+&`gE?*R4UvzL;sjBW5!;zeZMaCo3A|!7r5~HDmPxK4zq{r3|o`EWQ>}s(^7T17Jvc~q~h}h`9Y;zCXSMo-j0-a'
+    'glon7&|PI6xd>O`lY?rxTr+vrHk3CT+j(#f>PDugz!=n&;<hFsL=+dIvP?~0D_y~zT_<dvdyd_#EupyX9-gM6wVl6)W30$}Rq`BB'
+    'hfA8(IIU<+l+n;Ap&Z5ClB*{@L0595PO^oM1yLSDT?U8XvCZ5}Px-((1ztQ(!EA~f5Ol=CywW--ipjz8p}HqMnT<IC);A`x>68Gk'
+    'k$7D=qA>>LKJPf9EBoI1(Uh<IW@A&zG1ncJMYn&Awq!i`Eo@DFPv(k}rl-Exv8`c#SfxM|Z;Z--XO`^3_x+~D#<PBjEM07=Ut21|'
+    'juv)R`)crcQngquf|4Ju<^;Z0TK%2RTm7hV#p183Y+yu$=k|TC)H=t`Fw2tYTktQf0NdakM63re4_3(u`=&#``4wSOgHpu-KKeVS'
+    'nPDQ`g+P4K$TU7j{w<Wfhd*n`e-EVgRlsiBb&t#JJK+itWP38kM;8^p`6X3g=1@(L0oQBo(Bsx5gmHDN-Rs>P$P(C)#G}tdC^FY;'
+    '3Cpn<O^VnK<bsr?dGkUWpHm1HV)}@~avvo(JXf)Y`9WH|n*q)QZran)*`T{kbAQ*!;1ALj*0~RLk92Q7eVqeVTadV(7{AitZJ9l6'
+    'D$!S1*DgP_K^)X@(bTpm+HSFJ6PWd&p%G)rwO-Sj{pzLIY`)wPi9O9v9WQaWJq%;UamE~O5Gk!pBTch({=G54#qdQRoYlUwPEoWS'
+    's(50A^{MjUBd9YQo*MhNQAD3xKhicZ$}CK+u|BG(0&L@wSDRa~eXkZ;vda{VyCmxRl+3-FM=+9Ie<@umiKJ+u505td7fD}_Lso@N'
+    '^%2Uh7q2G`*J~0IGR|~FJ-OSS(2_J*8$xDKd9}*Js@k#Tr)+h<Q|Rc2YW|RI>Vs(tOrqGC7B=*-vEjB8RH}8glNk1kQV>mbH(cUN'
+    ';QgBy`>iLxJbkvuKtUCjByI1BF~rBne^NZAP3<p(bL{+cpG#R)teLXSTenuycVr!#8KG%gl?-YvhPqopXKXC2|G@E^1SRYGSxsh&'
+    '*kPhyJD8yV2i<`G2i0rQP4OfH^iLXfT(S~7N)U709$tjn%>-y?)XGY*c!7j`Q+Zq|bP#+sp0T2Om^4fCOF5y=Ol8iXHxtM0R5J!`'
+    '6W>lSNc(L~1sio#^pFPK8L%TSR$<q5l+`m<s0Iv+s`y37*15DT(T5nVRu+|wa=Eg2_>2v_n$Wu^nkw{sBjMEU$I|&g*Jh@%SMT?Y'
+    'D=>PU%m;Cpx(?cV^3=n;vEMF_s1GXMA{aaKIGIk(3ZeYUq7IQgg!^6x2P^9~fPWJ$02*jz@!(0Nf`2pSGq8(Gi8BwQp}>wo5~D`('
+    '<K>;wj4^6kQ{ytsAfbvL@mgdR8SD+wR<E9I>kN!fv=Rf9-UnT2cK2;Puft%C{iPXvNu5GX?DJ;8<Fc7KNUqR;Z>W3pD{9s0Ize}g'
+    'a2?G-od|jlG(9ihIyYBRTEk@%(lf5UQK?iI0}v4Rao~E$2<l4~BI$$iABrI^8*lydhg<iP?%>}n#eNyTa8F)R1s1BQ&j`^#ZNwK{'
+    'bWQM6&+S>UU5@Yp$TNiQX@elGrKArkm_D#=Jk1ofgRLf71?)wJ4J2w(`Z~l_r*5>MQ{WX^W#gz5S`HXkp5!v)qr2Qo?7cg*z-(Nz'
+    '=3-W@fDu$T^z{xFJa5u39L2pQf_qCxyJL8YRq_H!(b3`;a6I$s>UC5rbs-~V9@z?O!a{TEH57k#pUD4aO-jeTB=s<t4zV`1>ZWr|'
+    'EUEUWF2bf&txEJn{wG>T-aODK8{cXb`Jee#Wu-Csri(dhS?I92VqU5SZ@Xc5>|L>vM5m-H$%L}r7}xV0aCX#!+iB031m1)7n7Oc+'
+    'MbjeJV#Y;M86~x{^yX%F+Aen*^~ATBtt4$uXDaAxEorHJB}HlOC7Qel1Gl4B_D)LV`qwIP7ngSLrk>fjcdS~SnZsl!iT~y+Yy&?2'
+    '-$<2-f>dQ%{+@!OxB9S6D}85clOB^1O(&P!Qdw%u4Q*VqXJ7q){}`*zq;0CAq)(P{z|xg5-ObE{rE<<U?QeIkS2_o4u}s%Z60`!F'
+    'K-@*C7zq}vd3qN->EKrR?G7P)_Aj)_9&cRDGm*5g#Krx<;xYP2hnl*Ns!H?+R}FM5dO8WG5dEYDh5sjJ=u{Lt_%?v0Lnnulm+G5z'
+    'n#(YAJn5n!cX?c%@8FoC-|ZO=I@EeEsWl~#wfh2_-}>F=w+^q}2oM5yr>*H?*_K#g*QWi+z{gT^3b1KugTon^B%?!adPpC%oj3Jv'
+    'bCb{I+m0te#|Yz26;HLp+pb$d%km}pFEbLhtJD@7v<mq_X$uY)AsCO9Uv)#Y+QZ@3-V}VVkui1ftu`M~7g<15LakB_3V-fsK)kdT'
+    'Ey7&!N<%qGsThm0S>4h~nFHUuyYLU-0qxC`pAWML;YbT;S>3Uursnmos=1pViXdAewLQVbj(*#tH)PC8#b6<KlwLVbM3p2fp31oC'
+    'n2hGO#=zShpQRd5tWB=P&3$5w6MiBW;)y~fgifZ!!p<#1EGcuS<(jyJY&zXBZk!n9Ttj1^nS`qF8g-dpASEK1@2RO@sEuJ=xOL^i'
+    '4OYEW5La$pTaLTnCF>p<bPWZ%?h!U3uK%HC45T7zb#`JiTLb%ESYC^m-WJrvA2M=Pnc<JCk4%G|9^K-A$HUsHvt{b4`l>MFODuRx'
+    '1%-IqNPV7&b4qq=C?YYratc+I*laDY_q05W{cOPP5c?g&okKrpeEvobT4?u=+Q~V8LP0FRqMdTDkLlE+VQk7Yh))sCgt7A_a|L%m'
+    'b9hg9q&0dZzHCE^Ea2Oc7v(0~-cbV;MGpvkH`p#iD}xpZ&4C^U*oTc0gUf&rPNOCuAXw|-8bASp0F17TS<Dt#hD$b5e8MEgGW@ae'
+    'jc^E71AEU@cah(-&OY^R;d!xPFxntU;aR%JdniF2TVlNS=~h-W{)wG=iz~%zc85q}_%fh{b91T1g+80Lbnha_9nupH)Z!e{F=xKZ'
+    'j!bUdXlFnfLmS0*$NiR({B(DWY<VZrQlY&zT<(aL&S<zp<-WdcNW$32T^jCP%w?M3F@5PqU%k5A%Hg8Iw{N8MJsGaus9v@P_D|t;'
+    '^sABf(R)BdK!p5-_9H6#oBF=};G!ZzIx$0<0kxim;xOdE%w0()6hh<SkWh--yZG4d9lJx_Onh&;ouMVibqf7xlPu9Uh2jowDfMME'
+    'p}f)JQnkD6pG3<>2C*Cm#_=1Jx!BR4u^eGKTNj07#Me=2EK3?81YHWfA4c7<%*8aRZm|WL4akuAiL+*Lhr$k$hQm!+Vy$@wJ=Bu%'
+    'm-0g_4p-UJi{y?~dnit>*qw{*4M-Hw#NSJ-?NO<X9iwb!sd>>Z&|-xrI<^X}1O3SEaOeJ_f*N?QMDi558K@1jkbC9SpAapk^{U4&'
+    '`v#8R=8@cZ^PQm>Aa1%KW-B0Dj%bWm*+eKHl1H51{UIcB#%vv4Wkl?~hCaewO@zI>PE_ql?~L*%j&eDny+|~Wc#^^e0Mx)Tw2l~>'
+    '6W4p=?sUR*C4Sd5LmG&0aWHf<NEzt7qC5w84?Q2!4s`5ea#~3jA7LMvi!4rBTeH-i7RSj)S2c_=7c}j7T&xuJlRR%)(pdDel+bO~'
+    'vf5*#LtvOTd6A425+Ip|>10MHc`}1dt4sR8(ccPMPTVW;aC!ZjEGA@~682fjpc{o@FLg)EnFZ*Rp8W$1Kwh8iB)x|~=N|*NSlVjr'
+    '-st3nrR9N1HV^<sR(>WJIHA58K%l=KKTEoGvZe}8l#;Bp^i;1k!{0DZ<Y3YP61G0ug;CR6%4zcUU!w}?piY@><~?Ih_o4qP9;4#n'
+    'p|Xq<5~Vxrcv$TNA3UOsoKB<FDi%3um$p6co1K+9kW9AS4daZ;ODjuquC3v<>2eW8mDoCgpPE^$?5Zq)=A>$c<P^a-7>z*@(8NQ&'
+    'e!|JZmPdC?0o#xbbM=1t+Hld;7HDmax3*ar!<sVGc*zVJ4GlVd%>aB`D^dFaChR1le3TZqh~j%qY-)``rgj<@CyuKx2JxUX43nGx'
+    'MJ2fgNIbF4CMPZ)gof7^9ZuBW=B*;WgT4xlm6EO-LS1UCZ+z1kO~}o}9hvgrx7c!Q>>D11w?75|y$1F=8|lNMeN0D4;<+-KcUcd*'
+    '+%MrdkZ1RV3XhK1o<b97zP98vcM5D^!3MKIbtAuNXQ-bR<S`>yTJufiB_Im$F_3dewf`@}d=A@AI_K<p1*+Pp1(nR$c-;e)ww@qp'
+    'J)9*9X2xcY)y(*o^xVi2X^ikQqNm`q%CqWKswe~^5YFBV{ow4fO4Hd`iSLWdzOgtL*(`Zd5}xZs(l#88PG{pHjKCU{ddds7?4iA9'
+    'FL;W7|D8_@R$;%OX_jU2iRvQ)<kZ?nbiB23tJ+f@1p5N1@U56S%+uru)3AQhqq|#rv73cfDn&<9ayy<|b_2_i1<R2I%X)?*3m=;M'
+    'FisrcZiXivAj&VB`5BX&oy@Ei>;bkWjh3p9Yhb>JQh3jgNSV=m0Vqdb0hG<kV3;TBA6tyztWgQNJ29OWWan9-FF0tSzV5(#_CE5X'
+    'W6I#zsA!irme-hZS==M8De8kn8bGv>B#x@rsQc*=QKSN|lCReFv2`Y$l=QWdT<I(-j>#1b&v&k?t|%GAelciYeR5`)+;My2_?+@Q'
+    'tK|LUjJulvPAU*gj?WTm@e9o&(kp#jt`wfbse=QA5rXoHG3;r}an(imn^^QTpw1Af4Y@~rNmUKNmtg;!pawrU>JRXKykX8P&YkK>'
+    'WTvA^1+Np*SC`1D#V(i72s=g0h^&+EcjfbjpIr&)O1QUY)D>J^;OA1Sk<9#N&X&<CY_u&z?jbP33KfnWq98J2!L^k?<1**ZrxHF_'
+    'mw&fApCdLVOl$xwyhKRhCs$c~(e4>>g@3jA<CWL#_VDM|ESjZY;A#2?v4M!G@{9EgTphV=gQAf)2Q!7f!3%^ZH|IamB9s?|+3ANR'
+    '%$(kk^xq_X?l+gzc*K`YPhWaecL_x`xKu@-ih$v0V_6o=tz>H^3PZ2ozk2RXeC=bCo=}7DeBQ`?-|#IMD;PC!#b=G0i8?RsvQ~Ls'
+    'IuT`fSEu%%WYX^+CZp$c8b7Mr@XhD1G3sQG<aLGSdN<6mC+FCa^YU-_Gyk+?5S@b!E}<#-?jcI1FPHYqZ}!Xl8Zm>($wDH#Qc1YX'
+    'Cj6F7NW07&JD)g9<U`hGjK!q@erfTUU7FfwtL4KGF1z5U3+}llwWgH?ZoX(P<0&nto6EPeCGIY9&ClTS6Qd;Dn{>M+y~ONiOja}S'
+    'O=2}ogcrvS51iXGk30!hbLO<pP_!<F=~h-iF+hHDTi>Yr&Ek538`i^gQc+z3WCqH*6+i<0z2v{Y@!vW94LCjE^nlX?27o`)a%TqB'
+    '#$2aM+z#}sUgvf-`HaPG*V4~Rpon1xZc^bL6;4s%3v~s^aI2^m)L~b0Eqoa}S5YQKm+j|`TbUinXLN<{#P~R_95y*ANRtAcR85nr'
+    'I;oZ>)e_$l#vThN*WJA`VoE@Y7aVF+O!iEHhL#AZxI9b2dcL7nB+Zk~mUItGx?3gP7d;)>dlEjAi5P^n#ia?R+-s)MBGT)S>|Osy'
+    '=Mrcw3FdX>ZBUZ$Yu^ajKD|J~<DR*SczlEiiWoGO&}w&IjS?I3c*gq|liEbNMV7>>nX7>>Oel}m0h!91Rsl)ryf|T3<AhngS`%Py'
+    'oR?VMOXhiNbqz}Ac}RkXlj!h(s)C!MbRWcQ`3~bED=m;TF^tRdPb-PE38RJb_Dl=7-J)!%$DP?=UyJuJS&7kJ!L7AraOViAGh=5P'
+    'J_r|%;_ZWO2*o&#Xx3bo9es`~j!kMDxYnpE*_Or`yV6NVkByk}E9^^Gv2XSL)z8K3B<vJVf(7$z8QC!m(a}+}u*Qo@-<l};iwieM'
+    'GW*tqNpg_ZprQSoud(`UM%iaON`4Od%@r2+8f(b7*qE~KH@~Eg#G0~SF!eAZT)~1cHB`Jok&T-du_$(Jrg)Ti8&0RR$j(rYo2?7|'
+    'ywkGeRuwl=$rUNCmn84n8sBr8i_bVb7g;lAFZq($$gP%$GFc4l<qx21&J?*$F80!K(zmV-E9u?g$uLd#STZj+*|xCD!n7<DJLxy^'
+    '@Q9v<z_lkQMHq(zK4_U2<oX^JSw~Y^cNdhd7L`F&Bl&ECG$4x&rj`saz3)0fCF`oaly=GW9a6cZ`w+z?BS^1rjj%gAoKr^HM)K#v'
+    ')hUxdOZs@q!n8zWxFumi^M3FWh%h&&vdE4EoP|+4c|k*AR=#6*9Z(3T{9Wbd@2GNP2?9k8Iq^vRT`lH6OD$$)>Gi5N@U{fb)tLW0'
+    '*>#~N0Xsu`Z*&Q=?c_BHJSpI>${R7}OmOXYarJU>bxtyO0g*IJZvG6?WM00E=vWDKE&*;!SiDrGx{|rkN@CSw>1QfWy-EOT<f%z}'
+    '--Vvvg`R&Fq32D7cwbd|msC`{rl$ILIpB9W;CDITcRAp{Qx1qmMSYqu5&((cgH$Xi2~|m`iJY+hT~PR4Q1~|x6ka3HvEqf)b+i!B'
+    '52vYs5RXC%n5Q~D*;LkFUT~Nb5iV!DZzd#M!g?pI**thopMN<g?v(d$qTuhS?SB_deiu!C7fpT_O@0?mejCwbUK;uS>xv=^g^m{$'
+    'bGc?q9F4&7zJ1$u6Jg`G5H+qQX#C^FcFf{^75}pke&8B;6K%kI`-6tuFY8E6gx429D@aQ{%a&*nh-TM*xxZ#V61TDv77!Ao#Q$xQ'
+    'XAr0TOq|^URtPkbZk5%GG>DE8CrdEmrNNx8YiFyYzN$6gq{)*ZiU(b)6b%}Md~7f_cPsXsi;hyy)<rgk0Kk4S2r;6ol*?6fkFRA)'
+    '5Q>Ru`$Bx<BMgZ4B*J~e82N#X?-IAU;#!o*Ai{rr7!|O$+o2wsG*>H^>*b6$lQ(<2TJl6s&Cl^cLPK2UDvV_c@-yqm?`gb>TO=*O'
+    'joMQqQOSyCqglrYx!#Ms^SvYQEOy<63V*UZctzTSSH!nENpfE&_kEww5_6c~0u2qX(Qp!9nx}m8U*Py_sbeQWP5)M>Uw=}!U*FR4'
+    '*H`rWZSYMjaYA|9N4)K|3v75_CA67(%Vrm@>}0g9dY4ffeginNPtz6RVRt8f2H<}HU+F-fz?U%EV#nrj684v|2FM>qw$eJ1+AP?X'
+    'Dmx=$vfC5*+x8@MuL!O+;$ew)g7~u1Y*)ajk*2uj{^DtzADt0TM2q)hrR{G5k7I%okK83i=y%~uDpvS9$E-jfR4HYOyRCRm>|h#u'
+    'J8t)S6QjWMa{a7*GJ=nQD*R{1^TBVw4GB?gu(Nb_njNbE=)VolJN5RNxQg@%C!j_!gT|TY?(VMm5lu3&lLvVHby7Wc(k%ty1ft5{'
+    '0~}UxKU%%cdu4X0nL%0(EQg(u^%i$VPT-Uq4#xASx?GmR0eW$9&RTUP&zv+aO;SQ#%E40%GG)>AV0^_fd&6FVf`?kEA=;Q{gXz+i'
+    '<a3KbVuc3N<CD+U$E);!g>TE+$H#)!)t!pL{n2gjjf>v%{n+1s4BRm5PSuC!_91U2KMEc*aA*tZYrUtQwRJQe?{2%>^$$z{vBQJ<'
+    'p&h-x?ZmlnJ8|yYPMmvOC?>ECz%D!~lOv<h`)V9c$K@z2cWPA-Ak<pLIcM~=;#yNH30bpRK5NvYjnkk}CSJ0P+W`Kftl}T<RB-Uh'
+    'p?0VCsiZ#MsngQ~`q!X;4=Lr&MoG7=oBw3@fL3a)e_LM<9&ltAJ0Zv>RI>@SLqDkuU+DO2SA6pnBu~}kspi|Q(@DycYmUTa@KF5@'
+    '4}gcDaT9=`e_3$&2za>jBXV)p03Z@nzcq|l2|>1wAX`U}tt0s3;H>r?&H!iC`j^0&V4Vz<ePl4Z6Cihh?7;(uy~bYw_N;_zwvKAH'
+    'j%v1!>K_Nc_3!Wt_^nmHF8pdFnT6hu48C^)ln78H_z^H&t^8eJ+DfQp>!@YxsAcP@{c-!^!S{WEeNnG``+cF2dUjWQ<ZW@M%C)0R'
+    'wZ?m;{(Y~kzE`Y-dbW;wwvKwXj`|<B-x}Zd8}GM`f6so?hfsF6edO(Sr;0LFl&La{Sl#%(2mjbTXeB(z*6|=)$AfGg5B|7){P6oe'
+    '#y)<~`19;zeQ0KP@kidqcd94@SH5>@%-h$h-}m-kZ*N-(jcgr_Y#ohk9gRN@KWu!*55NzN`kxy==tDk>9X>L8xKl%!8p_o8PNvrQ'
+    'jx+wAIKxVKn62YswvLC{Iv#!tyaVAbWX+-hqea6KZ!^)fVH;`Qq!8S05gs_7A<XS>5L|238mL>$Cheg*75i|%K)}1D^<4N9%dlDZ'
+    'K*yUlYBXA4tD@1m7S^inXcAKDbTU|&NS_B0VYO5GCvjwG@)~OAP<gL*e$kTN_HYy(K}%_mk~j#Pq`dJ9L}n{#zCaUVHVs>I<NqLW'
+    'dT>Q>&|=fF__HJOC@ZLsh3qR?Y;S!FmYoEOW9yoLJ`2$`+EfRp9Yq_bQ8!bI`8>=>(3QuEQK}1IfhawKPyMd?7lDGhs~*D66yOw&'
+    'p-)VCboQ=-(m^auo{Fv&QmHV9x*hfVbYLK6c|2VnGOWPs!h(aT8s(5hoWvgGuiHRLJbWFbPr4&<6bX`~rwcXd93J$cz#T?YxFN&o'
+    'g?YJzg2i++)4rMsjM-nS1l^v5(*Xgp-5&HbMAKWm!1hOoKPz#WP5r9fhxT!<9@hAfP{^$AA=)2iCyAn$7a<zJEJm#FtipL}bZD#&'
+    'yT)*$+byv3$HaBnmMw44Ij`Kn9?=*i!jPxS_J}oOj_6p)ISm9iX+T<lQtyqLfmhth=X%A>kBZg7i=E)2rQow$S~5JRy{oKDuQp^d'
+    '0n2qjbjItzr8*|~rlcamwDLMSbnY=?DN6_q#7$ohsuktMvyP5QE<r8_QFl1&g@_dmwZsr1%+ofLNZ&EE7_0yKv8s*$!fCC9X@-N-'
+    '&~&6JN}WgQcXhP3p{A4eML0yrXB<=#%Dvc5@#T*&m#QopPd6&~H<P`tqrao&61VRc7as#e#FSDSRNB$7V=+66#qO-KsMISQ51VR$'
+    'Mhxp<i<ZxZufq{nc6ae_#;HUAQvZDUyTs6P99-RlKza~-yB@?xm;}4kF~lv1fVK!KL1iW;rpq(cs<rBDdF?^AAko11=hVJDld0WU'
+    '!0x_&Udb82R($*WMn1!an<L0&2;3U-88!j~LrW|JOX{57&*}Y~-p>=eAy^4|cjp93{*|VJI$x0FbE`}8Z6CyRVrj!XxZ2#(b5f!6'
+    '*ZmmikC>2PNd?ukf@-dUnpHt@57-<q=|$k3XL}(TlAchG;EIZ>X+_n-ifUFxY=JK(h8TeLykWlt_J_c-kw`Vsz68gn052>v%%fa2'
+    '#YKnlI<R^0BhIaO$|qPd55)I_B;DKuKM&Hblw0LeZfQ%og)HS(uSDHh+DcF=T**@5@|6k~t5mo`R;$TG8%?~_Y=kD{@fNHv%tUH!'
+    'xktfc&kF8D$LYlY%C}6u{g5G?#D~72l$dloYhNNJ%_M|lsc9IkZfLrp4NaMn`_~qaji_51(<y`azuc4{mr~88)DD}Dm53Q*<#8d<'
+    't=222Lr!0uZrD8lP|59r7$yN+TkTkE+dQuNuJ8sj^X(qdu4|QYrLVQBui+RsRn<16fQB>^HVg1tVwu5=V2sFPL@Nka$kFCYaK?qZ'
+    'qd~Wgcqy-6Z^vKCu>JeEwJ&AWJ}YeU7Zbdi-gSuT4L=*<V&m4=qkC<#H{YySI(-S7^No0!{Dk}=yp5TVyl0m}Vs7urQ?HwPH>qg%'
+    'CQQb9-PG+$O4+SiLdR;pdKxUkFH>)z>kW!~a+4CKCwgWw0Y>=PW-IWn<+7#FsZz{9vSjq^_9Z@EQZUFAv^slbL0Kg2BBtW_h^g34'
+    'Vk%iLG0W#!R~9&x1$JdY&gD$%GNu>_vNI&u!5zT^(%aVVzM*5-afgH-zlL<uS0eOFlf<OcI6d(#pBT8T0cLCm@??k>afsOtuCuZ~'
+    'mUfO!Gsnd?qH&dN8}Fe*md*MK?miqczIv6%4;sv|CW(cEKu+)|P5mjbJ_VXPG2g1zx2jvLW__xeVuf2V$4*?`-=MI+h_ET2^8HP}'
+    '<@%d`%J(;LgZi+$kSkX;(v)`u%A1G)tgLHgZX@5$#VX!sVEnJ$7o<?V!60ExitQSuau9(ZYikP1JO#;9HF*N@+qnSGPJb`2SRT9n'
+    'K-V86^#@7)K~jHET)#b?%eoyT-42p&2T8Ysq}t#3@BGHy4w7yMNw<Tf+lBSJP>_<yL~Z7*RJFb6&Wq=(5rJYTcZJ8|ETZeo`r2#o'
+    'uCZs0zrMHN705Xb0DN`)-vaN-Me*O=Yy|c+#^ionEOGlCJ|46)mIp;%P1)N?u5LHiV^6zzfw8ge=OrC_YLEPKk1G86DN(yG_k`2n'
+    'cxF83z!qR1cy^nKGh~_uV{AL)2*SHLuf<9I?|1f!?1s4^g5w#y542<ATew)8N_g?{ppUhoTG~BfYI=i<K`-=^9?Zlu0mtJ#8FgBt'
+    'z7>ymHq*|mPxLR0hi&JnCvdbdo6(S|cTL5X&GfpC5BDVPgcqXEVzh&kb3{H#8e|)>ZL7i5QMve&-BjYzMBKyn(L<`x*zn#ea<7^3'
+    '+Hk#Z&G%RP*35c^_~e8z9>gs%^>#*}%@k=<!w&**&4=f&U%Y`WKf6lxJmV*HO+934s^(+)lbrS>F-O{3*lnZ+>G)j~g-yP~2~O5U'
+    'Y&2y*ohXrXCzl5d@D^viXIz`+HWZUo@VT*IuSg#Ae)=5Bg?9xTy(RThR@yuF6Zr$XhvJF#PJHLW-;vq%65*<mq83W}Hq)4eW8B(<'
+    '+lOPx9cJo*N&CY=ce>u6gkf?G>LQ{A3ze?NL#dw)$9pe<qxkQoG2>xvi_ZIE8g9aYN#WUvxc6gzv0XYjuD3xEOvI5&_IqY&;z`%_'
+    '#exkZjs+~IL5|-U?}G5mgfVmCJm@s0r<dSyscZLA54YOgmZ@-ISB7c`+QVoneqAPq8r)H{@ocla;_g_qXy{bF7FA=F)*#5$EhJZx'
+    '6EH~C4Pi^^Gvv9D>`p|oE3zSQX_IbAU1WWrxE_sewy^1v-cMk>#NJck+Iy0NeEj!sU)yiBv`bf(`LK!2hau~-^|+-=+qbTtv>S3@'
+    '+|zIpg~Ls($-0m<S{H!53-o#uap|vb)96@?x*=mD)(-L7+F8jc8eYm(A#Pz$wItuawTz*p&K_(WI#T*YFP`SoF4{xm0*8@zWZoFr'
+    '6LgPVT>nL=U68Ej;&xy22QKK@9aGXRlzz-4;7{ybh?c}d+B&BZQM7OT8v*J!QT8f+x!~S6?^H=|D?ko>0q^I1v^gj;haofgQEyHh'
+    'x|!`{whAxY>ER8xiv!HOMeKTRzD=C^7;d<#+@^4%cKfnuzi+8v1|)V`M4@Q%VQj%v0pW1dv;1c3Y;_u`i^$Jye?8_>GLH%BAfV%6'
+    '(xjcTyF(+7Ey4j`InD-#(-#635knZqFh?*R#e*rLfM{1F#?guPHe%!m6|>9F6YUvWIY}$*h^!!-=*&dk%{pjZ=y7jWlB89IDsYD+'
+    '+beN!lz7t=$A=|$YIK@7vGhE6o;!tyb}H;=JX-eoShaJMR7#$qqe92in^^)7vcJB4_YB0apfr3;V9|qY9W=H+T_o9~QOXBYDP%ib'
+    'app1L4A^Og%e%>-_jGV3ER~);MyMEJl%g|cup)T<q|upajc8sY&X^-kEhmwsn~~D!^|i$Gw9B+K<rR?9Vk1bB)>GjT5h!4L#_)23'
+    '`Vco8VytyI!3lf*tqi^sMkHC8Y^#$F7~WapQ&BwGPdWj6T4djX8AtS$jAV!JMeL-j@qiV$!W5G56*qT}`%$_xI25!9&!o~DC*@NH'
+    '55>Bo7@OiH2ZlL~T~5&gR5#vLtfN^_IX{J4Nd`tb7w>v$I0DD(YyxW^lf6MemTZM6vlrazERT*{VFu3?y4hUXXKbo3>~&I8#QXE+'
+    'oxPP%e5njPcdP?LGLC_ZC{QBjf@@69G~5H@BLsV}gGHQ!3IXmyubfa8v>U$kB#?kh#$nw;hjoJHnK*(nI-o_4kqxTX{*P&wYrRSA'
+    'KUdA-#<41v(xS=fjm6R;q9S(OnxPbyh`r{xJ%pw*4sCHK6KrO*hq0b}B`tA=a5)W;!6>65h@+%~htafjXueLH*@~;VimP9z;##ia'
+    '+SjSLo~yY2bt-<4tN6j!sko7=xbbx=eweHH;TKoj3;XTaaGI-m;|ptE>Z|xBfWIQtuL$icg8GUez9M|D2-hnD^@_l}A|$T}!7GCA'
+    'ieS4U%&rQnD+1~j0J`KzF~0WOQBV6@l_SP@-B0|^FV36k-KmKYnEGRdP=iCQmBd<QpxrKNr>*QhaTJBQqxuw-H4_!q`OFkZWT=lE'
+    '=Mie2BU<h`KRMTN9yz?VL!2yOY9i)pA~d1a(TNorGPH8!h5!RauH)E&zvDTX5jCFJEYQI(jzw)6-1c#99J0dGd3eY^S>gFTJoH_s'
+    '=ayUQ8wiVSYC4+w4iU&1n6+?G7!8Q%xiQ!m=4eV8H}@sx0km>{N!-pGIqMZN)72^t@)ZZBVpqm%K)%pHcU~BiWB7}lTbB}QH^KPd'
+    'c(RRy`3j4P<8$bJG&6Iyv%+GC@B7SZpu)<vOR}@Vl4Pq7O!a~5rvAL5bt^HF%3+gJf+QtieVa5eRjS%TUvn!=^~EiswP)S1)y6_y'
+    '(ajiY;zv1O_nOb+>-Lv>4u`L0s1`zn=yeu}9P%VGGRjV5oW&ciq@uZ!FTXQ#AX09Qz}w`Vo?q*;IvOog0BA*nuc8Bx*7yjz2<))h'
+    'gg%jCC^BOY^3-8gmu2KD`pb~gu5asD%KB!Eb`)dIcC6yjD8euDLUcQAg98c|ghpYMBT;j?B7L34w;i#c3)YPAyqC*-b?ad>5~a!C'
+    '-QL>|TEDzezyGcUs(Xp&*i`jeLfo<|WHk>bp^T~r!#xooh`(aunoylzGKV77h9LrcwHokf9>s}A;}qJ>?ZWQ%{@(uf{);CP9uj`}'
+    'C5*Wk(iwluYC_N}ox-tBm1cdbr!fg~Zn-W0`stllsz>n2^*_F+Ln-gkCPQFJIxc&cQ467@Jv+UWUauL#LoD~lJTbCvh#uR9`C#h('
+    'nTCYHOz9;Rmk3InJZD>&zGxxzy#T>x#LC~d8p}itMsS1Kkjk`<ya*w75={!Li-gpkb8L*|x#bqbE%60vCwpb=kk)uQF)^80X5>Ow'
+    '$pBX8GWA)_a1)Q@w}N}V*_0afF^dt=cE{ncr)J}33IfTl8bs2R6~0_rFm{!(F~roBviYUlIM~6Rjmz#hoLpedj<tpeQ->kVJ_KVN'
+    'y4r#q9c2Pw{cQW)tAD;Jnb_O@5})xbB7&djBG2)kfn1lw#Wi7Ztw>If99)(O-8{%pgo&omfJ52OKw%#Y4%4W*`pj`RT7;cUbY3K~'
+    'uhdPu#)mu_b#TEEX*ldL0#bCvJ$kfjZT_PXmW$?mGU^O89@tD*O%YOwv9EY_+Gn9U8}&kHKy*j(G@%4O?0p^Q<^+}N@i^=b+C#RA'
+    'x6wNtZS>fg4Te1*t?g5fhyu|p50{N)AK+Bw)#|mU?UKnsOF$h5@5N&QCj)$Uta+Ki#6%2J#L7@j7m%zYEA5GKI6;%VYc!z61Yza!'
+    'oBcJ!eAfFwrfvWAHb<_o&!P5knCYqROb@2frZ0rNOeG@Dxn(f~yq%&ER%LxoI85ot0xHHjYNLOMo_T`}N24)&oKLp?hrOLwFZHUk'
+    'X^J~&69YqRvRSfZ_xA@r7))Q{O<mn%`hD|`n9z1lY*eTqS~a!mm77K3q@;f7PF1yGpbG`Jszl&&O<Of=_x|8W9nT0K-4cY~qBA+1'
+    'Ouc^ykl|p}k2|lDQ<gjONb4|Br6qMcO+TB_(1F>)MK`3`Hkoc)#*dQrZdX;V_dOn8LkkF%bFPV=ZTW?t82olBr6QE?Ul&7!o3`+7'
+    'YaU<IfeYOt!txZfm<b&cYb86P7r(xOW@^e$R6i^cULq<x-;l}KJ{q^r>3pHDUR``->^*7h`TD*9VPXirU?8ntyxxAA=ntNX<$*0`'
+    'ijA7$J5f`7=Y%)m6*<|}G{|n|!+W4yIa1s&9L<S?IyG00Z7(#(@F+F{qO1P1H>uFIJ4TwDTm~4;N)t+`;@hen!-%adDl^36WBUm<'
+    '+0HfN!P-2H;zLNNJx`6*{cjliJsZEB2l2?-zZ@x%j%`|pb%kX>j^c3cLpz8(R@xV`k+_JcGGv+J(D0a6ylKPB$*P#(>_;)8ENY1>'
+    '9l?4kQvr`;T&DhRwpM&RnoNl@)6w324w{w*V$`ehb!xSuyWS{p{9h~_d^V=L6<I9@Z;9B>4)b0ZraddUv!lEJz2mokkGlR1qOSin'
+    'qo)6zqMl!UA$wg!>y-@Lu8n5>#j(w83p2muT9u{mRrhl(`Fvee>m&;GYPxry5nB2_vjLlVz9V5(h)yNe4Qvh3Mc_;g`;#irGGZ~J'
+    'C=i*M2+(k=BWk&oTaIWd&a;G)<T6Llphy`)jnL`H>>k^kn<c>Mi)ag-&Ky{sj?puDx05}s_R8~^xc4>6<epceYVvMJPAhmr@GX}P'
+    'x>rO%rgOl}OXq3U5~mNCuIr+6>u|}PPByOhmj>-#DZ**A%?OGn0@wZP`Vq~%0ci<(MCJ+hkmhss&=Jm@+i||%_$luubjP_B+#8Hq'
+    '+JvdCWVkac1hbd0pG2_=Ej!@5f6%Q7IZG&-*HZ!$2GZ3&FDX_`gZrz^l<*h691ha7n?MHsO1b=UJ;+5wT~0&mG(<K3m_UZyzNO7<'
+    'rhGg>%_J-_gWL&^2U@HvphRUj++J1%lH<(UWO{Qsr8XOu3Shl}g+NA^YY>Wl(pg6BXRA8OS^;Lw05zdR#MxN}g!A;!HHyY2_;?z7'
+    'JPX9Ssp%E;P~ldy_L+gZ_zV}w#Bi4vO}t#n%O$`3CNID7%UoXO#RT*Xqmy475<4$^25aR=ne8mXSecOCuB#O0x+E+f0VDHDOEa1P'
+    'fmg546_)FnpzHZq>-jj}-Z4lpO#LP=hi}FAPNIIBOmoTfo1H1h#Jj&X0{F7{-(Md6`)kDhHXPlJ<9^>b>i5lKet&7i?@!BOd4Ia~'
+    'Z@M1LT*(zMyK>wS-Y4dKnINK#ahxyLO-UpXvD{m*!h%&96yi-?th7xnuA{|Ot90kj%$J-sS4`LnGh%KeEeVjZ%=xg_`tM&}yfF$)'
+    'S~Ml{;8^Q14Pt#nPTCR2bDe~&SbOO-(yk;ViJ0YE6bjGCmPI&p(y!twDnr_|adu+eQ*x$*q)x@Z^1{-+v2jt}IcH47L``+BsRJT_'
+    'Xd~e54N&2Eo)i)a2>k&JCREQ24%am68+H(*sglGBnFti0(Bm5#qY>mW(ZW;3<0h>6rg<wfo{Eg(&9UzI$5eSKxwWSz{$VwjOpgrO'
+    'r2&N~Vs_!2waC=bh#hYdX)mb+2FwVsah_20HbauiZ3fevemE8!gnPO<SGsUg*O8{Vg>eseEiz!N08(_jh|1!7acAFxdt{uDx7S#9'
+    'k$&YJZ<bh_bU4a)a{GG&?x$bC{W#2z|Mw;6@;9uRYur5N5hk1mytoQ43!`(@K57pl!wbh}n{4<)o4ur+%T=dSLht#+wIEGi+bGQK'
+    'B(DYjml30ux?-M26XH`89lPOSN`ihB=SEA2#N{MfrgPKf^dlW^<K={-qY0;pHohgY%tedHHZ~Jwa-B6FapTjHjZrn4S>AXu>V&Ox'
+    'Z|}vc_pPTd{*QMwEhQv(xES}n^`j{pozBL-?=RO77RqCb4>2~$HEd^csER|4ZK!-el(4C~@Jcvk<7VM{^|i{$s1yHSED~c&qEM)i'
+    'SuASE%QSM!!nmuSATL6J_qEc|$uLRv_<&{$;}rL0;OB&;EBz)O9?{bfKy-5Aw&_q1jHMPH(78v2*3p<|XF*1Fw3Z73i6q~};z{Re'
+    'IyD#SoSvW_qAi@fpO&m&#t@-+Q|-8$DtA>=%pG3E{24H;3R9=WTL%$Ga&XzdrCGt19QxmSkAF*6aCK(zDqQpB4B^*d32h*|F<bZ<'
+    'jN#|7hF{Jcx^A@!kyD1_$Xp7?Q)r%!`U!?Kcu`qOsZbO&_uIraX?aXmNo426^O7o7-z{KGwfaar9ukoy+L*3p?sNI+YF!YmL2{QB'
+    '$UfdcoAP;vbvSp_B6m4j&vUIa$&Pq-30=Wy)APi0Kp)Cwa2s&wai|ggL-4o$Sf%eD4c#I-6RbAYA9PtU4HJwxO+v2>B0T}39TlF>'
+    '1{dvN$O;wO;}ZyfQ8$xQ30xp?0&{3C#Ut^E+@22Lc}a0{mZa$eVZsl{PudEDm2jW@vbVnj8ajPr!JeCA&&lE2dbH|PEBmE$;rD?`'
+    'P7~$7bi&i=*#{a*OGNA-HhqVG2cBk6+tfN=z2|Te<EMFyoMANOU<JH7&(%T=3A}-H({|@zZ=ri>Rrfs8Sd;f5<$Q!AnoICNtXg)i'
+    'ti{x@qifi4T$y~ZJWjy(s|z+}TH#?7elDDeWj~zMq0Q`E&9^f%L^<^o&3Br`OYi}^<b(G-QBjRp0~?5kK0Qv!6A<6nmufshpS8N?'
+    'ViUV<H1Q(nMSt)XphiAC_W{h>)iJ|39f-4Go6o$?XnL$7==XF+GpKdNLRzstXe{ob4`^dYdw$-4h!1>gQ|tW<JfR;yJlBvZ{yn(M'
+    '=~ORxrtxIkxi7$yJ~z(gsO3BbaUtz8g^JtW$#14@9`rrxS%Q9bH5a(-+M~6*prtZ(Y5_E>Z3~{Ga-x^5U$uMN4B?a4^X?iH)htl!'
+    '?uvx}d7{P5%D0Is?DMaq3rqD7-@UgkcHUTAIZ0s6z$_LI37ivbDAr%HPVD=LSHz=CB~^XUSWmo%`<n?Nj_`5BJ#Ze4`xHX9h3)P!'
+    'XgD^}W2bjigL+w3du+3}r9G8Xy4D~o-Qs{e6DbKoT)fDiGqTjq&^Cz+p;8jy<lqRBL|dL%SM$-N7ayj9uQ1#s_!Zm=P-)fzWNlcx'
+    'hND9`L?sq6wJangz96hk=b)Gg&>(+^H6M!JltkMZv4_UsJBUeL$S|P}Cv&~Sak3Q0$?ED>5haV}Ef*-uPqc6G0~J}^(UjE(Ycks1'
+    '?hHE=hWpmUu!b?Un??mwh|%}vG-#knFB>7ugov?Yf#LQL4wb}tN9?Cs#HKq5;o<36F!$9FduGM)b_8PLK3F_f75*@qoU&#<Z|u$`'
+    'Bl>k&Y-pn~80b4vFM&IFx#L5%JA)8$IuGHMe$I-@aq7p)QLg6uwl>-nYesV^L3pGWE>fEXmh)r5+LKE^u{zaO0`!Mgs6(h|B4frk'
+    'Gv2bR-TQp+&9AC<of_ssZnAOz7vFMyU{VdZM5Im7TwY$L%Bn<pyl0wx+tSM#CdrCoA?#K4i(39wZKVTgUfpxT*4!E^``bH1EI_p1'
+    '2oCg6*cK><)b=pn7O}7f;KZ{hZL)%T-oAMD<eBdF-jl`$Le?8UHY$X#f2;-#t@;~<Dc<-YPE=EAK8!askIFhYWKBJ6urEf&2}L8='
+    '+kfu1TYIokN5i$oMx(B8!7it!`_c|IsbNuv(PR99IB0SoED^*kKdc1}{|W%nb9hhHD?c`x?$os-Mo**Zrp7-!&%84=8p_nV^P#mX'
+    'UWMohvst63UpcM8Pe=pXEl{GzrZr<|Gcf{lb?Lc~DF6}(VK{HYx=fdgp&MT?tFM09$M}LqrCA95{lS6;B_N0cM$Q(Gj(_H7aP$^b'
+    'yZhqT5B97*2&zrDT2KN~qoqm75JR}<Kp;_EZfeU6I0&*@5;oQ}hN&~0Eja#kXb2W?FYS}qg1Vn+47G+hz30BIG3&M+U&VcK|A|UG'
+    'id!^8c|jL@%j*a!sHvNj2iF~a_ImqQ!+o2yap#KOL)vylpV%WZdPKbMN<GTmc%z2L-bx+4YL;=r=Ldq`yO8pFx5dbWHUd39`}GBo'
+    'RHM#szrF)hB5*9f07ido@XJ%2p|uUk_TmkLFYn6CmiTY<ns$ONPxQGI77+Mv855oNk_8pfj(NTN;tefs+gM3r*CgENHY<^>Lj??3'
+    'hzbI#Lm(Z%@vuFMh+@({*g%g=6j#SM2a)2~+yN#Mti(k)NG$8Jmjg`ndB(2I!~uoUF;3<2uuWKPuY5%30MeA!MOz<47t}NyHRDK~'
+    'kBGVz)gumx$jCPd{?qPGMsaNUZa@vLp=<$ksk45Insp<_7&}>D=GVLb1JPksTTfi%4WNg;vU$<gdF7Z$FvKW6xDy<Tm7co2HMtFc'
+    'g!DuYN!ZG}JZgP&ZFq)MA6KVvrbOTM`W-`qS`>(?vx7{x@q)$3e3>SLrZt8a=5z+CKE$GWw)Vj6Xdv7aKXt40sn@<qp9EuF)u$lW'
+    'CokCpe$p|(dN^4(4nSh27!6(E1?4hs2o28xI5WJ4Hwm$<1ZjNHQsOh{!2=?a-~lA!T0!_pei-w@0uk+XV%pi|G98p9H6?61t(M1^'
+    'FcgA)nL3R|ltEKT+gj90k2_2x!#7xaJq~HpaX=)Fniw<dk|h<lRe-S8LG1zksS~^f4+yyg59#a;HYlxHso>8;xf0>FsrJsOb@uSb'
+    '4UFI-*r+aOMzy_L2XMPqDc7lNCuV=ZmGX~J+l_JN(@XI1j-TxXF=c2cs8GfLakT>k%?=O>JE$WKvk*M2TbMFYm9Q>S2+5Dz-O~*('
+    '<+r`NUH@Q12Sq9<GcmU*Mb<#tlOARI9R@AA(!SS){pwvTDLXj!z@QB5jX25UccA|#+gefFEW@WFGUUmQn`_6(RWKT+MYlP8oS6z~'
+    'jlh$??c~4h_}L>ucd&Ap-r#V;!$XJ`XcbM;PBza@l1GzSyjMg4Wm5$J=La}Du0g1LTI2FdPUn)5qB_SkK0;BLj?|yb;5PLPh}8hQ'
+    '-_5z@g{X@|T~c3WLs8brfaAMozr1@&+&Js5;%>rhZT40W3mc15VmfILhHN>mIX<nN9fmvxW-eV|f4;r{^A2s%r0RtZT-u&OJ+;SY'
+    'W~a>_vT%-ROLAy))5*p+>M@}t+~VMr#hnN2VHkB}hw=8EJqGb%<a$-m+8*|ir+HqnjuOs|6|5(wkJ(n90;yKhb_}zuS!=mqrUHZb'
+    'SeV^5vHE~qMonV9oy=H&IE#-7%XJ3RikbBi-U5SCv(4{5c|lZ`_)VxP?^*3(U7J%<zHovm<w`lyH2X}{@&D?|L)lun{7}VnXx?|i'
+    'c$z~^1jN?hPWjFV+!1TVGk@vS>eXTFFE-sWt#7sh!sCP$H66kx=07%4CU{dlc}Sdqf4#;XO%UsiI0mg&Xl^00WV_H}%61V8QhEhe'
+    'a_q!Px&Uv1e7HQU<gCk>==JMu+io}W=~3{QThfjzt{Vo;S;aH)>w5lyutS+B<B%JtFM<71wO?u_D{v;l)ED|d;Dsu~^hA3=z#m#8'
+    'pwBXHqBdw@%l%rl45b79qdtQAx<f7Bp$6~NK9wkij-oqsI^7}kcIP3b+}U7fodN&90x~Uc#RIynf7|OxXdXhu>1*J=R^8Xyp&|9!'
+    '5M=U0U>>UGp@xSc6~W+r<A`MSrT7n8iQxK`SaVlm&0UE#cO}-od?h|zwQZ_@`E3(4u3atqmtCumSgbogA{S>3uzsLIzvWg+UIVvm'
+    ';Fb;CvccbV8-C@L{gzuZc@5mMfm=3k%Ld<UTi5>b+qzo6@!|^x&Mf^$Ui&)%atFvBJYaxm{CT%}@>+GvR^75yw`}$AiYER5Ncpp('
+    'j^wrKmaV#Ft8UrqH$yx1zdYKhRlfo-=>sPVN*@`P?gS_iph)l|0IXX1&qPJZYt1cNbIaD;vbDb}8v8dv-hU!$OI~Yk*_vCn=9aB}'
+    'Gqm{NFOL@Mm2U)``hd-X=0}FjJ5{b7WvVp>*!p)=nMIY!Yuzndcgxn@vh}|!n*9?&@^{qhqTb}S?v|~)W$SL)`Zq({jlVwH-uMH7'
+    'T@w^pQ2)rVey55uRg|gnU1@dWJ1YO0s62Un;Ff*hmVMxseekzE2L9YT<NML@^^S(*^?_UVfm`;0TlT>>J60b4<&TvIjeqmz(F9a>'
+    '>wM(BbEk?jHI%9G<$taE{iyk~95u;n!!6rz%QoDyjlb(L^%vY}-;b_8$I+F%Hr%oew`{{L+xTY3-o{`4*lX1Pgqu+ljM=UDk@w=A'
+    '8p_mArpCgoTI2gs_@8hTCa(|OvJc&|58bj4|E|aAf5^`LezgAekJjY%p<DK$TlS$__Td*E%P^dnk6g{`SX7ja4XA`FW5sFXTH6@1'
+    'iXr;+cruzD9b1KTxS{>m+d4{3g<XC_$D3oG!`_(nwX+o(n{l>FmI6|h3BAt7#~iFyt6Z0KG&AT8$80E(nwuLFFjn*Cv1&IAW@rdf'
+    'CvnfTo%8&7G}Q6dsAG}VG+#*VsNk(uwr4x%w)U)5tZBdd;@#f9){RdBvyJ-Nfk`B$u54bvnb=rQj|n?c9}w%y3Oyx5H2wfEaq~gU'
+    'zA?MUqRD;6M#Uwg%P!j8qVUg-);sO)sai{{vc-mb+`fcOxC$5JQ7mEml9-Mh@ha+-)jPImfYN=az2fNJ%sT5b3^6>|R0r|6q>ch#'
+    'hJ0`YFZg3$dGQ#2evT@eh?+GCdB|{}Sk|+-qiuS1$SVG>JkiXz#+^hH)2jDB7`J6+8vXJrwi~JA9b>$4q}{$A1zCTlGk9C@yd&*{'
+    '?D1n&XHyz&yKHsO1kU3r#{#l*(_?M2U~IlQt7RqPm~`B|3kyu+5ebdnRlx%v@nkrKI`f$N3X?E;+@!~hacQE5FJ=<U!(?jf<Zw8e'
+    'D=!Meo-u<@>|y-EdglgBe2$mc8##b=%sp&3u<&H!W&O*_9QjtfOJ3|)>{KITMU}?R7>hfyjL$L^*rrxk3)ouGul8AHOmQ85tlHh|'
+    '(S!pwj5~+e0+}=p;(*Pd4V(l70e%3zqrlJl<(zSBB{m+a(@H;(DWjcR)!snZpNK%eb|JDnVh+b^(6x=r^PQN3QO~#I!trN~%@7-y'
+    '{kDkJ8E*xGJlLL<=+9A%zme~_nn8&z-cDQ=+0p+5KZyH52TSC9(I99qmByCSUMcAf8zS$v2JZi6$Vt;y($Re>tLL$Ya!M4tD%&qL'
+    'hY1!}5`JpBlDJ7`8~-&0Hzk0Te=&7csleUZQS4h0)#GWPy!p5q!~4cmy@m;8qpra>f}O7p70K}s*_EyNwyvriBZAIHxIys<H`cTf'
+    'XJ<xurKz6P9tP?@eyV=9?^Q+@W!)g`O4IomM;w`Q9Z*|1Huy56On3AQIPP63{eChtG~ct5dXSDh@h#_A`7pS<)z9Nh5SmOBrwM!<'
+    'F=W~f?mSOB8%-8&jedON(l8cJm?pb+F<}~VN&ho#nOznKtYtdm!tS&+UDy#u%N<&*7VMbeN%~HpBaS*2%v6uBi74G5lUr#>Qe#Q|'
+    's`|6;iMZaRvw1LWw<GoQi#Pk5a5;fKOs3lQj7gjr<PQ-HaJiY#SQ3y}C=>=6y~S~UPR=OztEw80h)%lH^v=i%yq$tU$bK>Pgc2Im'
+    'uj0y*qx@#wD<&Kj)y@asi7}v*TCj}{v9&{Z*Zlo=L_33HphsMJnr+R>hU2QTz~-_4n-R9zM0#~Mo1S*cT~I>-mOHcIX}XBR8SK=`'
+    ';xeRcR-HbK&c?%VN^r8+++-&s<yTco2F27m#{9^l!-QQ}y@NY7Jk^U?C}yKv$k5)_=dt5$-PeRRfp`XNN~#dBC@;--2B?gWLpyNQ'
+    'SDugC1V=x&_TKOAzW7z$E}Ra@^2^(2@3!AORkxST%r}@9Zg~6M^UPMW17ZOeuC2}atT71dqdxVUg15I+&~zL{vbB6_Xe!<yFo6;%'
+    '78^}_yU}dRro~Pe=EN`=+FuQa`I!!mW{BuRwCG~nxH2T}XFeHBr(wiK^OsH#W?_Ih+IbS!7lgErIOB_*#2sQ%hv88SSChn!p$UA`'
+    '8WWMf;J|G=MGkS^{qg}$H`p!68oR23CjmK^sVGh$@rBjr5V^odaEi<ZzwrB1NDnT)gdWr}ak6xvq4mTCM{3_IXdFiU#;eXlstmlQ'
+    '6YH86499M780O80Z<!e8tJo4-e8wW@6oWd!w@C`OH5GGiM7O;+`!v4@cb(bJ7F~|%(Nr+zx>jW#Sw|FIhhK!@FdX`~@}8CdP#QY3'
+    'atjj_U3Rzj!<CJ`$o>bH65fly9N}$!Z?&R}#0@gdhtM#ZtX}LeRlU$2s+~ZzG!xjJTWaHq>P|3f)cK!Cl^2uVzZR0-;uUK_BUl*H'
+    'yDG$iOMNd1wwe#Os?78=bqP23w#Nk`G_5Fs$tqZGlc*4(MihfTCD(=VKWO<8_QG)TztUuE_{9-i#c2(1eiOwN9do0&66T;2%W_!E'
+    'PW-k1g^bI0<KzfF*m$qg%u7UcaZBGF4QFRj%w93*Q@O0xst+E>iB@$l$KW2cp8E5OeYuI6PexNlj%U`S-)zXeb~<E>j)w!2qLE+A'
+    'Ui`}J#Ufr7<C5LU*%5wu@!6f(?2qFVxEqBe-B%{!3dyz=>9mDL<%?MR{rWW_(oQ<o2B7)9r}Q)uEIC6gq}>XJEyUU)CDwig#4I$i'
+    'wpdQAS%<JWmpz=C=Cn4x=0Le5<W-6JrjkonZ90b|yY|qRb`tQwB7@K{5rhLomjRo$;P?rNlO=JjF>GJb`KvE@C0c^Xt|=JQh$&{u'
+    '3hn7!66a5ob;Vb0GSuZ)c-KdVj|$nnw8%SQ4uRStxNZeHc?a*`ICcM3t#1;$+U^>k#Nv1t9arL(SQ8)N4IGlgVcOFHT=i!hlRIvI'
+    '-<8Bst{z5GNP8+j50+*Ycff7|LzA2sT0|3F>~NA@*&y5$;n=)C8-X17v=KI8;X1S-Y#DQUFB}tF5>g{S@4ObbwrV;VjG3FDBGM?6'
+    'vr)L1A_@1w@B`Onk8c2mvk?)u?GFAjjc+1^N@nf`BkoIe*1n_>4BFUxLAkd6P|cWuU>{bAFxI$BVponE*mXZYrM-&&!e1`YbhGG`'
+    'd#EF^>dxLy*Ct^gp6_Tcp6nmU4GqNsgb*AG#M*hl4{KXg#GJ?yj{4%@`HqetBhjZ-Pf}KlWcz$ahqBGb4uo5KG^$PwuIVAJ?UssW'
+    '!{K;3aU+qUlQyxS&n$Ds%hkmrs?kRbk!HcQ%7jBEt*eAAD7i6oTmoUTJS+|S{O9;xt`{gfAcP)D&g-KI;SGv&DXGG~<mo>k2del1'
+    '?#?0(tU=vk>IW%si6${%nGNuDxEjiGmwM!cr;vNCmv5iFdtKX9ryJU>5VpK2kBucr(zL3@SsXbS;`MQRFkyf-a+7`>5&=SdtM?o|'
+    'rgL_hi8oD+@<+Ij^StM%Ho)a%&1cV$lEN?a2)B7l;=b4&Z5HG)91n<lnwElj&*b9;u;!oOi15IHj-Q0+KZm+&#ucZ%7C1|<4y-Nz'
+    'tr>4&xsl&17<(o*&4oY^2jya@@mj56@5sXlIUtdF5w<mx(x_)ser))wMYOr;*0#1Opq?g31OJ5%PK|oq@Wq+n#SAEX#5%DAaro*R'
+    'RCalYsBxQCJYK=^d_J=n5sttl1c<(HNql@7&h8{RO)^pP&UKhPLWJp#&!CtrjycJ*PN9xJbRLwHTWkp#37?#LWaXpr%n*)5ez2>~'
+    'EYV5?UWOSt(S%%x5FmvF9EKM*v(y=TDj$Y@I{qi4Gxz9<!=p3W4JC=HlKM^MLr{PG!N_=pq|$E6Ot1vKFi}rOg~8Q0T1{pB$L)(y'
+    'ybBuAxJPu}DdHywynlI4#5ph*01%uc_j5FA&WpWHlV#oN2^fi6YFrxJ($NYN(oxh9`obrf##6C-i8(Q;aCU|e;7Jg47R77-@O;;w'
+    'x=J^Skw@`cA}I)>d9Mu66oTlm)8z=FAxEJy2|WWz1V>=psqemc<2Z}^=guzt?O}&pcKYm!P_fJ4LBwcTUo>ZnRLqs@D(>HC94&^&'
+    'tDT^Vu>C}SCeV_SldxnHl0+cXSBx%7Bwr>b=F*UunP7J(ZnV2hu)9pCJDRz@`QZ7h_mI=H`Q}lG{T(}UO_oX6(QE>Og%C+aAVDxi'
+    '8+!e$eKMK|qn?e($HEty7!x?IbOo8PEc{+JP+0czs>3;{@5_h>d_Ye?1bnRs&(Ty5i6ea30lt=n)yf6%>(vjA51pWWl!9}~q%H{='
+    'hNWF0#9lr+GY9%x*z7P!D$EQm!iGgsQTH=6m7YKLznXk%)OBV|ET+RR71IDqLj_(~aR4oL*$$+FU9Ru*qv53-c7ROqY>beYOgo=('
+    'Fq#3Q(z7(!17U#nPy`bOtH+^K2Pt)YJnQ#y-+bSoWxp^^dC*8g(QyRIN)7_90^yw;2;2EMik-J4Hl5HbIzpX<TJw`Yj~vu)^^zQ5'
+    '%})YBew}^5lW_&~8;LSu;9_{p(WUP8HvZs!N4S1c7=kVbW@d-YE56_Sw$1D4bwyoBw)C7ST3ZZyZJ4~`fm-8genCyT&zUY}M3V^#'
+    'tQS(w<CKN!gwuMfJ8aK-p}v*Exk<-I&{&sS+w3M~P94#6Kv+QL)|0R`*smM<rq_s(`U6C6nNGsccY@vXJqyR-<x3QLasUuOX+Y4~'
+    'Y;D1^6`4H=kBRZi*qc&sn_k)oZ%e<OrW2M_gL`mg?LnsYT2gyZRQuJ@CP#=b(4?P7go^o>$Zd!3M=<$oViulLXGRvRP)DvU64*uT'
+    'IXKFNLCwzjxE#lz5f8G^M|m{22!=9f915e6ugIF>t12^rOx+5D?2(cH^e4vw@5*rw6OYMP2!}PHONl+18kR5g%1o4RW#o}p-gdI6'
+    'cT0WPe)qQZ;_0to3u%|mK^gKVp$z9^^L`frT;|i{LLjI<%wK%H-+5)?Zzs|~SHMMmWf>Rc)S73Uk|>|ON3?aLe6~b_40D5^x?xEa'
+    'YS5lITB2r@i4*YFTzF)ru5QO@$3S^Dzm#npm(Th`>YaoENkbRBWg!qGp;Q!6dN#ESbUSzfQ$?D<_Kl<@DBw1eVHhSm1p*5$GXoAR'
+    'Lf!Cvo(}lMnga%1+HsEDaG-H|0pN1}O?_*X_*OTH4?o1FNiFg!OXxQO1(BV(lDJvt9-<CF5=Q{HN$l&e4=nGB@u={9RsH&lw?rD}'
+    'QG0x^^tmgdBmf47-88Xms1>kIYY9L|)Smf~yUQ4xJmpY8w#Rlj$meYraFh#HL=*{y<(*xtx?`)#87g|~JZWhQ-qYPg-=wIp$K$GL'
+    'MIYhqX?43{42^i!+D84j@aI5mk?`n)QIy;wNKssJSc>1$qP{XnmA^~O^@r`r@X`R8)`)K!D9BeQU{PUt7A_3r-ir2tUsn6bE2b1D'
+    'vv_*Tx&&irZR3I^Tt^TbLefX!G~FCT%L@T-2`xmzGeNu>+_Lyh!x6}AIaU^fi8K`FH)HjiV4uFx9HW*Z2$63Lr*?0O1lH679ig->'
+    ')|F|aP)7Y_s65wCi+OXqm|Qs$Bs2>Q+^~LS>U@hPvS<=bkRHf}?La+L9rtOaNrgrYAoyT@1X2NEk=FF|Fyd{P>HX4Kk+YR?0`HhD'
+    'r|E)u<0~3`_cIIa_Jo5%+tZ}Gl4)LFJoP&ok0DA}g2xg<DvQv3H&)qvDuJ^Kq&zw8lM*w@TR`|47Zbsv>m6%hC9Jb_FrOc^kdnjB'
+    '@&!~Hs+#s9qErdCNUlv26+s<DuZx=~k!B`xOdW3&RZEMq$2;NiK!<ruZge%1q8spX;z*1$2{6%vnsSO*VjW(q57l1?N_B$?%^poF'
+    '!a(EU5$cl1H4B^Y3PGA!U0rlo&50MdR{lnf_(nnk-oJa~EfM)h%f#CD`6@_P;frF4?|;4CqzuBnTvx8{gpu+{E{_>K=Z{}}H%81>'
+    'odfw`B0x*?@1_3zP5;h6rKRo5-bcg>Filayl`dcB>VAPqc6gy22ENB6L*+`^wrXhG^d|O8(abldiI<YR%gCz?P5X~O?MOeHfYj0='
+    '3BAXHAH=O?tG<I6s)kgA$Y3^}oB2@keY3xB(B7sMxL2!Y2t7h0V{=UuW36d~`h!3jCWjo{D95&ntN{UJR^nf&vo}+1milM%6KlJ|'
+    'IMBb4->f3=Rr=JwOS5%ez$IVF2^%SiCFf4_7qQ8i99Of<8BxpUbI^&#-f7V28v0*{iLK8lZ_t=A|4_!crlZu3+vhV@VDaig-J*aY'
+    '-4TYCNPI+Wq(h3}WjYuS*|hi)r=fcBdi$yJc3*F+@nFnXW0{_?K3t3SYBQz`1<KAT#h`kYD+B4M(byN+CWn>c?yWQBqD4cXzxA2D'
+    'sm9X<;$BMxNOOb=yNb+liQ_QUd^w`sNKbZ*r%lU@xj&19QPEN7IVP70C;9)k_pQxMWJ%iJ`4zPtF?0z_Mv{ebOW+P0uwff$UPLc+'
+    '5R5{XvJuFVP)U~DJ?wAad@}Rgs!A8=-u>{#%tT|UbZ&JndGh*XZ!v%{5dU-tR^VQvVI1i+G#KMicX^jGN*wHD_(WN{;~Sn!9Ghq`'
+    'p#pGaLiWH|vPRjw_siiRsl0SqrgX@4eG8W*Ea!XFb_tiy+krEA_X0=(=WU*Lb@KwN!amn6&Bn~E8b-hjrF0AVPb|$~UQ!}5BevG+'
+    '>r#zMl|dzlZ9z`!?pX7HPA7aJmt9nrQnRMbUTo8BqnRI5b#D>&i+-bJfW<pOX3_4LW=rL@?re6`G-*S%Tq1tfk`Ppab?g7EH9|{b'
+    '(pwB&u(3Dj_`i=p7-89=bCbHzmT=>9xYue>WtO*t`mr8^vZQiFnpTfQWN6;BUv(h?%)Hu+)2#7YAjVCz*1x~~A?62sDguvwrwibq'
+    'c}}?AAI)#3B$099W|PxIX5IBU*oSDO7s|NGJbEW}*2Y01#?uRbM9pmc<AHTQr(c7Rf!u6B0obqRgP+z8!niZ98^k*^h{pOsxMhU%'
+    '`k=~JvOX+%&9a|wtogAymR;Lnjln==21)15#G+Bb@zk^893SJ0WQpXt(5iXa(w(<oe~HkKJL|lsjPDvd+0*@^Y!a>&3H5ZtGQMWN'
+    'z)DG5_-Y|ewkbSNowo*48Fne7;eK+i!0cox!>9UkL$JRn9jiIBFrvyBau{yXG~J@*hL#u2UrY=f>__U@O@t&7<0$6osDj7Rn+qXh'
+    'zZG~9(FvV<B!e*k49ANL%(@pK!MfyBhvi4sffINSlYY`f8e!_}t=TD__hu>jm;U-xeubZ%`?Xc@LhAZ#5DCOb)h1&n8H;Flk`PNZ'
+    '8xt+M%aTRfKSZ8a@2waUf?tid4k*=d>^6lBm1}rQk=mWYWIVl0m4HV@_EIny;T~Dz`TusymO~-4>yBzap|v^7>ZLUeJ_R8WXIkrX'
+    'i64&RJ6rq$iI7ib+0GD}r(M=d>-u~L=8R5!b#?Yg{!d5$=@mVFYM(CF)SW_=5KC>M6bJbK0tbq|HfmK6khN9sb9jvOq4oY{+fw?s'
+    'C`n_|RJCCn!wObKgvJKy;GD+qNaUokS67W%qsqfzMsJUv98&E=e>7;Iw!VRbMtz3{>e&XKUVY;b4zevwNtm79M+?>aI+yEO@FR8I'
+    '<Pv|=Pq*yLdS;&#P{bo=U*4o<7+s2<f&MZ?$==@RGV6n22sDZknQl3sF-wWEFMy)-8U@j}+|fbcuk#I*KSq7EMT*L+wDu|pjj5wc'
+    'qhk&O?Vr4U-gH#W=-v5hyQ}0Bq|2vJO`_sS5`Y3R%h>REY}VG>SG0#FnT<LNna2H9^iTeKqksR<zsq&e?5v61gU2OW@jWfFF`wRR'
+    'vt-ATJf}*Pc%@naY=s{{zR^(b`K&aE<sc3_bX*Di(hzw#0*@C<*%JG(DEr{0nH`P?$x5s;=7K34g*OiMsKwt0I*L!9);Z08!jbxj'
+    'P?a|OuC}a~xLGq64s`&^#JKw>*QQ-j__%&b1%l^i91>dBrar0ZlN<Y_u224;C-}Sc-J)%qvnsS=^dCvfv(UHyOCu)fJ}eOURzn(*'
+    'ZObaxL8MGbELoXJ8s9q-hkIswm?<J*6Mt39`|9-z#3SP)i@z)_5T{L|Gurskv_Bk&-Evs`MeT4!gX*dpSS9Kq74OYxHv4QFqXYA?'
+    'JGzEG`00z^p4X%Or`68WDs7Pcr?t-08V#h*5{p{RgrmViF&CL<gbG(Cy@VP9MEX<uA?ps5FTIq7e86i&6pYsqe{YDZ=>_3|@h1*o'
+    'Wrv7GYugC?+aX=r`-N`A1znib^uORe#Bs+9jx9YZ1-Hh%N7X9+TV$vy6NroVbi`;ZAKriZ^g(Xa9!+|E6l0Ij0Em&x6sp-mA7gAH'
+    'F0{VQy5DAfO`8XPn+Mr8zj|8W4jWeDV(s_0o^Mb%k^XMqW?G}LSEve_7bwmYIu?q&W|JXd2W7km;~Tz*;?jPp`Csb(7r=e22Elw~'
+    '_Eo+k?I&EQa(-FL`Kd4GCwhxEa5V@;xp-vELmu_hdve_p31#-L5_$+B^g-=7d%@_e=hubRD#u=wMd;}7-?nlEz!VLW+z|1sOe9nl'
+    '17}mZaD(^W?QWB}aCDl9aB(`HjbSMT<F+vfHXHkLGW%RMwl8@VFO|E>Og`*e%r>=Vgk<f}2!Tv2O};%>&k#dTm*6=D`>Y<in{zu6'
+    'gL{`m>iK*m0S!>mS?it}^qpgiI^H&;z3TqGO6?z|TN{p%_XYrs5)*34IcRw%oavyzwb)LviMrm~OOr3G*KbL{;bju1^FgyoL_X<2'
+    'ZS&{X(q@ncw(h3vi`K%I2T@uBRe)m1Yw)5=2hz3ZHgEOVg#dl?-a(}xdL5A#9CuU|x=Yu6{h+ab@1o=^&`gi-w~V3LTC;dt`)8x;'
+    'f{O*iQ30QN$$Xh4V|Z`CrZE@*dT~5imUVT9h;V>vHa6R_<cywM&C<Krq&Eo<92vpZS6T}qcUX+^ytFpl$g>t*H-Mn42BSYi<lL{m'
+    '`v&es_5c^%@DGe&I-VQ6Q~MQor$v;}m8gdm6aqCgeSsfj-yU_bl~pMK$SiORDo36>60tDq>Ernbg}ynpd*xdhNQN~|JnE(bIbX~='
+    'f5!1v-=`8AMfoY68NL~bpQ(xW1w(8d(1W@cC6odYB&~ie@`5SA=wSavaYl%X+!srQ4hp&bv~4$Sw;Y!vUeQtzfD=qtjo%WeD)e@i'
+    's7r*GA&=t1K!<8L3L?p7iK3jC6Smc>lKpam{u|tX*6(qPw<E2NKjOgCOHttj8-R9R+PzA2fZdT{6TjO9m%I8NBc?+|En8cp^`wh4'
+    '{gJe>nByb6PQLuF|9SzuScJFX7KM(z8$CLC{#?|wP$s5o@^Z#5&$uMku4-u~d!mV!n-2bzgt=9o=#AG8Bj7khAQ*-f5s3bQvEs7U'
+    'YWY5F0KK87i6QcvP;*4x%CK3fXo@-HkJZJnEVAV<S<Po%(V;`hnB=i`x*@{Rt5a~0wal|(gd@BUkkq>&>g6S0lhg)nbgFSoW$->c'
+    '8C^Q9{N}(EQh&7GEa`r3d3?Y+AfT!P0%Fo5;j1{&e8r>V3b1<|W!`Wz3h?iWSTDmd8gyhsN;A;FnW1qlqGL(|l}OT#seq!!hJfms'
+    '_246#;=MZWb|x2byUgwa3x@mkP$fz^%qZWx%MjBK**Lv)Ih^-D!e__x@#%vK)SAZC-~l?U8JZ|35d@tbBrIWvM*!F~e|5B}de~I`'
+    'FEn)!Hg)h9nrehiHU2_V_rj*`{e`9u!=?`ZLR0s{rtW`VQ$+E*i_tu6>*#yhlCw(Zaqpqw1I*RGmgoN}kT>bPB5KfN5a7o(y}(w6'
+    'iB{ib0Y+3u9T0iqvFYsEczbpw;LDEA$Fh$O@#nO3%Yxrkdf>t4%)Ry*d**=lF}@>a=ipGVQ3cvieTG(usic2v2lWzziXS$(6-A~='
+    '7d-{1q4gP!0OI>`NQZB>U>ruK!(I5~4}8T`#L%DtWRPb_>@LRrk3o1e@oT>kVX3P9l(-t1B&KVaqq5~1<3Bzoy;=8j)c&RO=*g>R'
+    'rCdX&QLRzk*3juL@aCx1R~$VMcZC{fm^#;6(|(2^vlAb|3mXS9++$VYIG2omU(o63!>Mu7bxI)B0Wn@ItAGqC<V^wB*oQ)tsd`Iy'
+    'O8E3touH|oJy@))8jmSA%~f12oA_?wSr<f!&AYNjPQkQgo{32l{IgXQv+kJp*Is1jzGV74UDsi4Lx-n|7O$sIUUOXhp5y$B(l2wq'
+    '%S<`?b}C;_^~kEJSq2+TC+U#)^2!7!&?YE*hVmt_f~725Xs){>#b;UVgq@E@I^B6(5YRu?h<>0eI+rTum)OnqQxMP<Df*zX-S9D{'
+    'tC+?kLCOsBC9H8ub*?7FB1M(sh`8YSO+cGkGXEr>55e=N$=sK5?tmm2oJN^y+Wq{&I1P;^vS~lUz=55Kfid1PYqUOztC=1E;PyRa'
+    'Kv0bypjs6)!N@E=4EGiL=Ed~W9yQI(K&>U<n|2pbqwlF4!-3FT@kr=<OZYDy5P$ue_g3qNFn4x8V*YtTMiU6hzvW5^h2V|R2OEbi'
+    'dk4+!MZXpJ=K=3%MXwkRni_}f0Oy~G4$}f*saO21g2&X}qM$9-`k)|*mcWIEpC5CI_aIW?he|}Jlp0J+{xP+(I`7<6{L@)E#;#UY'
+    'vNm}YMu_-~;-3)4(JQf@gyl0HnH*6%+L`nTYe^q(vu#_REoAcNTm>eTpl)XpOW4_vvu!pepY5i8!rWa}4Nq@QUAxR(qC2@S-J0}i'
+    '(%d(}J!3f3K91cvgm`egbP9usY3|%X+!tGIwi~8G>riK7fi$oDBGGqY;(}FVDQ>CEsuFQmX$BE?1{Ph27>ULk`jaqFi=Zns#KP;U'
+    '_I6bXlHIffIIZ%L-uFr4-hGGoToIBg3=K)DU8c7JegM1KSYC=a7;riasFr%raTk+?I{S3snUr*AoU3JG!nCXV`v*pM2{=xMFw=l8'
+    '5sEP<6)r&iq(s&Q`zAH>!zyH&g8qz%exD&5h)%`-UAtGUh9);pldK7PbW-saf{qxTgz;p}F-UiYBwT~ml8KDj0#XRXE)UR;lLlCU'
+    'E${|q7s?YM<ovmS|Ih%FPgUhWK5=x(K|PNy%mA|0z~RXDH0(+*!=4K>6ENBbmLuY4-RQen6w^d6`b$iQkp&z9#+Zg(wSo?Nn{~pt'
+    'zv#*uXc+w<8%Cd@XV=}x#>X$F1>x~2b&Rm=>)y74Jrwj+7vgjNFoFj>-h$Tcy4%8Q;8U*^m@9(S$T63(Zk0W>Q=!=?74Vv|?x8(&'
+    'L4|r2oYvH~Z&3W62Nqmf8`@O9XUl)h+cf^n^NliwBGyrQYdO}@E2`Y1De|=dVB9;t4G%>LR{}tZ=pne6a`gGLd_!FB`ipG@4+(kw'
+    'rWuIxT(cxKDqge&{|eZv>}3T$F=cklyRb$)MrMuV*W$}-wC48u{JB(cOWN6ffS7sFt>L@iF7hbDS<)L%R8qoFOCBs?q}3x;T)sU$'
+    'mctSgR%W|itF#MCuIj1+?!<5<sd6RX!-Iqrk@bCsc_?D<K83Cosk0<FmZKtpLR;C_Pg}Uxg8o-Y*na`fUy=aKn1(9ZyzW5oa||$e'
+    '#oq)2<`e5PIS8f3zJLAH@uZ>#A9ZJ!$m-S?5#eGqnar#z<1VKB0S!vGeBaWRI9?^P$+1U`0-j;)@DFWFs!Yw;{n;n!LXQPn;g2mR'
+    'g7g*o;~ZybC&rD(1^B^!(2Qn#*}`0c4x@IZ!nKv@?&D;rwW28Sia(q_JKt`$m@URz%@#R4Gr$e~nc*$Y408d>(AF;*4r9?vjYZ+N'
+    '(+>6t{W&3V#yx*6&*{%ehI?r<g+gG^4EZv~XZ-yPP-4AQ19&gGb7gqtXvY#0JDc=|%0WWyT~f}GNW|yiczmN)#*_nT(}{z&W;!}l'
+    '`z4!-aBQp{>&>&5zw4%<(H!Ic=yc|@?$qRrm=CFOaRZAvd(;t9SFy5gj7~Tw)s=9I#2g+8>QHJTd4POK|B<k6-^+Sq`JIYEotC?V'
+    'f*oNuS)~ad0i$}vvSHeQodSuENxLiG84o=@Wwx*vHu((<BMMy;2X>w1MB9AbwCQLKZfO6}ZjHy(>$%RG=D5|>k&Kejd#Xi4BHmZ2'
+    'Ic?nv$4H<)d?UEHSY;m2Y`~~+97`>F5&BLtqYS5{`=vjdq-jO9HxNEXqo!n<WFj+J%oV!-)Z1E;g3;QZnHuqPZ!_@{IyiOKZ9uJj'
+    'OCeLx6G=HE0WZHuV6WiZQYJ+J?>4!?Y-m~6b-G9sjsjs?cUo0e{M2RvVFJ*fUeI@T>nOlj^p@l7)Se}rOUGvSL4N3GkI|;`J?s6G'
+    'pK{r8a!&ay`%7$}VyUqzr)F8`9f)c<3!1!24+?eq$v)*5!qI#5>g)_jv6${y$v^_1&GCHOrmr!mT!|{S%*Ru<&FjcH{A!tcJ6|?P'
+    'xc~+_Fy0==Oa{xEEdhTeR>&MsuY<p<^&&rwt?+QW^`s(AHtw>FDc9AZiNo>3f2s44|9Xq93)W%9#MQA2FdZ48r3;_{f1JP#d>|@P'
+    '4ev8im<VQJ`)rqwBo}d!$kZCb>f)acE5@0eO(@-Ilg<c^(nj`8oqAH@dKR<T2mK=v&QHE$xq|3Ak0CW0?3*u|JYs)w*s!P{7V%^B'
+    'Lws$L1l!ow+iSe^amUgcaJgA`S*jeT=~OW%^{y{QCZI~!-fml0c0(`DpF;_kT%UYhr2_WrVv7)3IPC%#f0VHI6ffplhY4jp#Ba&4'
+    '8l8?<b~<9M?{wmqZ=RRIE?rHM&IRp}K`iV?G!=rQ97ti5L-w6ScE~X*MZn_OBVyXHaD*^P(=+Bq>-WLV)#?mCia%T6(eU%*)AP7$'
+    '?wILpa!D_B#aEikUm$bQlmh|>`b&*Fl?)q!^W^7bHcm!}a9zx&3tSJHjj9Yq_GHE}(1{5l?$3~Ffo~w2#&;;;V=a5FNtiB%K&Ny*'
+    '8}=5Qd}f&HR^m8e1e@i~0d9PH4dh{)O-B3Zq6p$8puz?`oNkksZzOYE=VLOOCNpDl-HA$-e2+jAq!S$FY)AGc!$WvSX~M8D!|u0@'
+    ';g)e;&g5nLj#dh=*6==OC+#=2&aW?Tt>+?zuFfZm{zqzB-I|6HN~-6X*i25|tv@pGm9myrqbqE(vdojw$Yjv42;<sAMH{*5rk{yz'
+    'p<Y@p(wh+rIQOci$5s`n-K2nt5YO7tpd!}ZK#!VTIJ)(V6osR4fVE(w8D2eq_QrYyCNncuI%TsPMa_aWi*4I5mh0~^T@j-g@)iOI'
+    'sK9WHWI(uuR1wV*gRzSl^|5>}sV()QKc2rIjXyZ`WIm?Ir4v)7=nzU#B$T}q9r3q7GwQ!Gj8a3^jgDI$2bKgr*qFPaYZ2!wQIH(~'
+    '?9M0C&z<1_BKHs~f$9EeBDOK;VX9!GSlu_>9~1XpGL2hj?o7PpG{J>{=C43!I$bb;IW=1nXcW197I(3RoV4a5jkzUJQmB*l$zTxQ'
+    ')=5o1K=PbUrhP3~^0ln_S!TrvmQWmo?85B96X1>Xa+g1Ury|x{mg_A#RUQYcRYm1BR&}b34_ee#&dX~Iv2cUpQrkSpC(;|YYs|k-'
+    'dct0xgiN=6?0Z(_VV-B_wO!K*`JG=^gCs#TmJK<D;PQ7}+f<<-uTa4Y8?QGUe<qgFYz3q7w!=lTdT)!c!bSWt<a;x!Z9%pg>T#v5'
+    'V5@Q7zoMhcVK*_RgU{LVG0%DD`LE|KjrgWv6X9jEnW9BBt;@@p<ylYDK#bF9GEXh4FulqUR0e|?!@ekIsMC>x>oyF%H75qHh>Noq'
+    'K&#aAtoG#O_4D8TXnYV1g+IHTfafsUlqZ^UTciEl#gsM~I}OB@Uj=@raOhy4B+2edm4<VJZ6cVB0?#b4pI&m%8xuIHz-z4B9r6_g'
+    '9ud4K^EDo78v7UVh)baj=E~7!w^C1z824PrZ|1k;8Z?>?>;n}0xrm64#$fM>?N6?2QWiYL#tJq~sb|6xO6Uau6+xKQ6vIq{Eief#'
+    '(&BU3OSE28StPoG29}%(oa(=PyRm_nuWc%*O#Rt~G$0(F@t{X@*@B53sl8B&00T|lJ+5h?vNSngF@&IRfzkyFsWji#w4ULWXKtc|'
+    'Z%n!JuA+Ytjc5PUq!l)6*S4tb+IO}cP#EsyupxBj2^a#)4=CMWU18CoQ+BX0sm;dgzwmBeJ8EyTuefD_Meh{ia$ki2?U}6}Fl}Hx'
+    '{v%6-{(TU>?I2|2Ajb`dw=|MFRcn$ccw7s^dNW#f<+`p)1?)ujw}7YcmA61dk7Cq`=H1~a>W{iZ<h=l=u@I2oaNmAwPQ!v1^q7jx'
+    'i4Cu7>r1c8Y?zs-A`XNZkZgW}qD3Z|ado5FNWH|To8)L&*Ubn6JMb$;T7X`+6govm83y+na>uafSCAKBNWy(oG>~y_0N>IJ+wf>R'
+    'jMMmvgH7UVpR-~OO(_@OT?iPZDWvz8CksFCL}E7i9@@Sg#k%8bl8M9=%fd@Bmyzi}Vj*@`xDE?YtNs@==2~(&G}w`zqPHju+25W&'
+    '_lM|t{b{HD+u7N(chL`p*>t7IudklGK6&{#`e9vi-CTNI%)QB{OADQU!A$O4e=@kslh@}(b6_ZSn~rS4Dh`N;W0fVwK1&^7i$W6t'
+    '@Li*(`J9Y7qv_-#T1hIa=XJ!RMlojztpkUOk^LN!RAorh+J)gqgPfdNC$$OBt|W}r_q-Yn13MgTGS+&{;o3TKYJ&LbW56(|Zj*o7'
+    '^UQf%tyBPv3e^bARc67TOE9Vzdb&mlt-F6p<lBp-9Sv2jS_<69hN9^a62e3l=o;-uaAZaF<-Nm_@=2mkWS!OYC`uYv2ZA41IaW}O'
+    'n9=O;uK(l=i`bWpY=+1%c?lLBvWb<_%Q1^vL~iaAufJkyqzND;`08rT1#U<8GhS;w$K|6QF;e%yUtKXa?0rWI*{N-HM*lO&Mt)+c'
+    '$jhfC&2S)<+=W+j!H1ewe!4)Ul_XgTe%!Cs5mbGLu2ULVr<)2|af~rlqWea<O&ng`L7`kncOG)PhYg#tM${5q8Li+oW6aLaQRSNY'
+    'z7}`uL!V7-?~fL95m*_gqla!3Vd!f<o1`EkS+!@V)0M@=X~HQ_qxj8>lW4x8rBwfPdCEZBppj52GE%1|t%kr&g>6niO&BdlGn3l7'
+    '<U)(3II-Fn7l6_RauG|S7Ei$DwkWMdpw?h`1xMV(z;bCo3JC+LmCxww%eU_P6OX_2Zr<-?n7v!`ZxhKvLRk$uVI!s!$lLoDneVph'
+    'ss9xBWoJ5P-+21i@>La=$ykXbyVoKE8wkz#QiF>aY!FtCA5*4nM%`e-l$@)_49M(=Th`o}z(9nJa$VH&|Kn(6GZr<a(54yAZ%nB1'
+    '&;}Yu%UM^TSL@NapvBvcdyA_nU`!R-Zys4616I}#=V}o;NBX-czM3F~CUHJfS_pqC;MpR6*Y>3)0{C*G*nz6Wc|f(BU;xi0>-dOq'
+    '1Sf-m)=JV0C8SA4APj40pOLt?mcwE4ZUMTVynFVB&Rrc2U+!M1u!GmJf7SeKbW>SaH`jUI{$~x&F8Tz$_i3My$gZ-8PJ_2gVobM)'
+    'Awjy?V4F&x^sm{1DaZWAc+Lm`KXcM2j2eGi*6pDE%j4f)uD!?p^To+K@78MXlT_6gBIzF#j>!?^@0L#rvHA4ltJiGp6q?1SwZk`l'
+    'ye9XN@Q%30{!ukI_4tR_n#25KY&X=(#s!!=GxegI#6#VU8aB^bLFy!L@Y$2&;B7dmik==g*~_UBj8p)PS71T97<DgGHj)B?cjEHf'
+    '>MF;9%~T)4Bt}P#Hay^;nPtjsFoXfsILEkM@L>7Yuu?;|56Dh`_Zsj(SYCDz*EP=YQqF}&%{7>KJ}&PKn*GE;84NvplG++wE!(G8'
+    '{oQM=ZbuUj#fp}1$yR!NqLpGh^pdMd|7bT}6Nb%|b6S8;WT|b6Wt`sd66z_l)Ud1Z5#H+kn0hNDoUtEx0%0RSXptSmmY&S1)I(YO'
+    'wxxXH&SrMqxGO!TCXF9f!)wjpXE~OJDbah*KdM9AlWgKOH=TJKc6&{tZEq^rpIJkG4C1Sp(!~xNTMGgccl9B&Zl3Hp)-*nakR`Hw'
+    '?^dtA-4!<HdCSd-@eH;4qw#6@=+q{{NoN8C<P<e0>@0RJIvFie%NG$9&bg<$k)rjm=xIS~2l*n|)^G;iwmbj%>$8_}UjG*QAw2N('
+    'xYO=nkPJ8|tA~}a0nf0|(G9#hAz=&|j(Hss^pwl>S{T8jUVw1<FG!WXH4vvT6bI+xR*||!LOmdd#Q7XMEKD4Db`BYu8fC9rThv#('
+    'SYGE_EU%&ARXqv@rN|gw=V7``6S?B@F>A~Qh%l;D#1+g2mu!qJ$yjK=2Hq!fp0%T~>&a{>I^Lc3?=K(4)^W(XkE+UmHb{;rnn*hU'
+    'zm&>;@R=XfN6e%_h7)FTFyZt8Uls`oGGa)RPAy;Rvc;PqHUtkUtifd$G|})Va{1rqPu{_h$0GB|Rx7~2*;!%cc6uN*SlFEh?B^On'
+    'I7omAv`q4e(OWE{J4RP8Wt;I`ru|mxwv~fiD+e~UjC$i4YAb^(vp<~YS#2jrx_8CV`TEia1=OY;%(=af<wh``$5{wG?3?RhI_!;-'
+    'P-V5*Rn1=6;*X{o9iZpO)&lIF36zuz98U|p#Uu-apa04N!%Hp=7SuR*0cV~82Z2)J<c1%5cKD@j?rG|BXkR8R7F=m4zIcep(NK6a'
+    'tV=v!PRc;!a56>HV_~6$K-4H$8I#)5iDTxz#w40<trwN>=rffEL*dqlt8{HcWXwo;a-_SL-Qn174C20Dof-a{zC8N%IlldeyP}-f'
+    'Xpg!iBd1xu5^A9iTrlHksuIBqFzC%<r-w(P30crI03I3A8O@<fowc8wzXI0!V+6bqGiK1?J?E$SG{<~+Y3u03;CGZVN=<Gw<DmH&'
+    'g}Cg`T=uSZt(O$ae7T;!Kl<R3%q;c$dd#&{E>*zZ9x;@nxlPej`oZ<c28{MTP2hWsL=v)7fu{A}TACWM))joij3>d8b7R{E_>L83'
+    'G~gotBi=51HA<!2b(7V{DXqN|^~7i*Vl}g~j^Q@`Zk`w#=QuuiW<2!VyLx?Rtwpc=yBc}|ErIV7X61TUH=j?k$N40~hQgGRhmBJ4'
+    'Z42t!2=3i9I^hj}%9~sq0dX}hp-FL~3i}(H)6Md!f5tt@G%w2hxtZ@~U%_I5#m*i35!Q{cF|3MYA?a6d#$99^Wdp2{r}Glgu$og%'
+    'oU7O~-DjLXr=Q3uWp{69#TwW5zEHcivM)eqMv~@LC85QI$rq#Jy`Q6Gy144lwSkDS^vi4>r|DfzET2qMsKt?i{yiPc4@F8AlSMw8'
+    'Kpw;qXI1mV*Q)h~%_1)lw;Wx@_8CA8Xg1;|ot;(mf~$*0f)SaZv)hlJASWbKR_u?(m2~SRq<<K3n)wR5@S1G(AkauFZZCJM;1&U5'
+    '*)-G|8IH@6|9C0ceOK6|vm|NJ2nA8x?MO|-(M{8Y=8QHSolf9E(ZsxbD*$ih=m(x3Bo1S#6GJ?b?ievj8!dB1&2`1kbvlf;ScUl+'
+    'D~s0#I(YnF9`Zolfy-;ttz|DBBL0vwXyMAyOZmcg5Pi(<&3SnJ;DNbmP?I0{3WFk%YW|t;DCz)JV18l;ReJIdeuABdQSi}*m1<*#'
+    '#)hBGQUuH+A19i(CD=Yj_c5-^AYsNFD_D`(e3Ho&Du5r=1ALjx6#iIv7nEu^J4YJ$5SU9%ucSGUb&hk0)}cASy`KyRVV$yuMYs3G'
+    '>9<u_dEVu8%Itl3M-a@8#jp2g`L-9Gy>VW?{JH6Q1qH3$iTYE%)xunoa<QofF7azRs8vn+;Vzy26qk+;kJbu)XqrBXaac`srYvDQ'
+    'ypPPoRsn>z`RiX)-bH`f=&;LF=Xc*$SdVV5!MX5$IH?O~Y7XX)(M{;p>2YakY7Jge#3UkMPcN{bTV(fiq#V)6vP7d|r;jhZ*umaO'
+    'N8Ym28_;(u^hF%ge%>WpEGKr^2SxX6%U`H@Ciryb7=Op5Y^}$+M6F*#FOs66^Glk1jYM)jesuX7Ypw5iS7+e0nniQGzN|e=nwYn{'
+    'dmdfrL)jlIoEzL8dw2=9z$*X?^Wnj{!SLcPJ4SW)Z&*Xz-T#BXEdwO{ZHWn3(@vK=@Vlz~=a}_7*Pc>kRp?WAU5+N}6SUACeUDZ6'
+    'AWEk7=O;KRf}gi$OZ;DL_8nH5LBWg^5Hw>Ln~ONc6ab_aPxm7CjUj6Vcwzs72;<Yo>@t;9jxN+zlOrUV?(4k%awyj&1Mv#}J!iEj'
+    'V@JP_EeO=JJJB_6V?4QWPi|UkY3QBJA%HR<P((K#o@YBC=Kzt`ZLQ919P_BkG8DVPye+5U-h+q(>)3r=(L7l`06Q4kRSM00#0Ruh'
+    'WLN%^5xn%S7p2KeOeV^B9vMyxc<RK;MK!REsYyR>q5r7*%|GkHkg6I{*hh^e6a+3GYRhnZKRSMsdYvpTKQi93Tsf@S)ASS21+n`D'
+    'jiOGIP;mi{oLVP-PVC}vzLo=}MR>?TVYKgw@w9K|xk~-tvXhn!Fl*=Yhx5<EAM&RxWB6~b?%!P9hFgi3p3#}yjw)HjM3@eaRaV6s'
+    'svYjBFNVQde=*6$Gfh=1W*;@8n{J05mPvT-SVq(4grlAP`pLPaIDEW6CsPSQ76R}WZ&n(Tj6KgU$y*&~;tYO2JuA#JMQ<|OdR>_u'
+    'dTV~p#*xdV=6g5lpzi3s>u5;9?Ris`oLA<0sVi4<XP4e_h26fH0WzJ|ruH|qbW_?e)cW7h!5=)-gTJAr<=UYNm+W}FMtoDneNF$~'
+    'V4nDMjo!7)PL4srI{#Sbf(QKhfbaMXEKtLEnQv#vv+Pf9qlhYCJMS;v&b{D4u~&S=hgXhIx5Xz|zV!Tl><R0#($Vt${P~7I|G}SC'
+    '0^rZkPWQNckIVPCe2>fbxO|Vx_qcq|Pv7@-$LxuPlwkt}V9I2ZavS~z)|1#WPo;Gt%ML<|&eJx@MT&*u%hy|lV$7dg1*l@`Xv7~+'
+    'FnFl_wsyOAEXR=%Oy^KFW@xP)%u>d(M0nI&jAdDp3gE~wB##|%)$z;Aw?23AkZbKIwt>^$;o|e+PmVPH1QneR&)>V(zF%+)rbB)y'
+    'l+-rR0X@`01N2b0Lcs}cG%6=`RdRycjD2(?kLuo|KjhJY_h^}IwPAnknO5(4kF?c8?~%58-+NR*3gmvaL5en^bTnBOx(m33)3+z3'
+    'Z`c}*Txe2wy{JIDM($$?d-$Oo+0P<uyZ4zaWyjswIOOYGut{<G#zrYsZj2*Hs*`V*Lzx;D3Zh~<R<tx0ye#DNPR5XyGln#b<W^`4'
+    '&Y6O}E=_AH^KmpyoNw0vq7CQOjNLe}imSO323o!+#B?-E=W6*j*6q6%;y)EUl)P2D#ljSc#G*7+zjv?Pm7tphseO$BU>f~{-<;Jm'
+    '`qp+O8=gcPrRlZh#0?+5mjB;wqmH;iwmEwyXQybjKv{eGyJu}S8rrp$zk~JRR@SO&8&)sp{s|nc3@yy)^VZb+&KVP;@7d?G+CE3}'
+    'm*$0(#_MEnq3nTvi)T2e<C3RBR>4mBPld9A5%ZreixNy`h}@*Qn|6zMnA*mYe@IEA6PA?bN{l9OlHEcGC)JWEe6zi<(E=0~D^}@E'
+    'GdjJA4M&<+1AUFhJBQXlDj1jn&o-F>i;RG0IV0dsB;bF0dvDfQfAG1*FIx{l0ng(dhXNu~+IBbsrsw)w3?Ez6%-^704o}^6?!;aH'
+    '`?PITpie>{$?w#nhLS+-aCZbB2ywef0{@>KnD19gWb_e@?YYM{a@SG82^MX|u#}T6n7PiLNO{bBcJ^r6pXwj7XVm_5@S)(aW|gxp'
+    'iv!6ZBol?Py*mgYlhV$6@+dP$f2aKMZPJJL)_0;oI$!sWyGS7#=Nq9NiQt&fpB8_u$=BM4R_MM3MfW{r`o|N&!<<i$6d;*1j_hhU'
+    '7u%A!*|AYWy=+a$X5ykdQ!wMvV6y0q5)I)^1^}!5Dm`?sl62bbC(-0{{}zb{K>iyf(S!M9*8g~yM51JjBry9QkG&sH-X!C@{l%br'
+    '_t9^UPaaKZc2;u~xn%&Wc|Oo)hmi&t^&pnz)!#Vs<DtVDrLxWDTCmZq*PX(=awBg3xebmnMhFdmbI1pU<=&Zc`1Y>tu{%1<73WjY'
+    'dKMYDplOCC`Q=S?90B|)=t=b&TJ2r!72^#c&vMJ_sONPg)!Ju;UDZ7_4*r$RL8kRrowGMaWty2KdY5DL^E2M6NuM~cgjq9=G3{W<'
+    'rh}35pH$CH%|_<A#cMJjlS)^kN?$#GPMa4|ii`0mq20%OfDR5d8rMp<ZZQI`|B(7UY+$pnG07jnWNag1BOd3V*}P8rv^5`SrDJXh'
+    'xUFV)VOO5fh))cbYpOYETi%c7$=v-O-$ntRJPW_8F%+dum1?<495LY|7XR6;?vEE&uanEP9GMp_(L=UhwrL4ZaWKN)1W&~Kv0E!@'
+    'q_&}vTDFm|ywG;)XNz&{&n6%CW|K~JI+-0uOClTVf3>i>!SiU9eJ~uP8JzC$_xUnggNP|-4dLxDnz+wE;&R`>2FYUc{2QcX%sW7B'
+    'aEyGbRcT2ycYn~GcM&@e70`4)Eh<&Zmb&zdiP4;j)q`Tv>1jc82f0p*N;UGGo)&a^FW>2CF%R40n~cgHW}6&OW>-sBHni4Jh5H3>'
+    'baLS}9)uxLg`;c_%hOH8e=2H!v7th(n(ts^`C7IIu$#+$5J{p7$5HJ7v<2OcH#Jkwce}BCW{JO=JVCB2o=Mjd&lECU%k56rFVTrE'
+    '{L-gGM5A)9G~^<etZG*a$;xxX1T~iH@5Qs1(NCq!efZ|r*N>id9zA{X=$G)l%h3<Ujb@xA>TZH>8qFp>(`4c8%Mrg+N!&>MHqCvb'
+    'haYE!Xi_qY8Nnd9jSxVby=$L{Lpy(F{>a|BXV2c9W#Rk_Mr>31Np2$|Ze8Vem{pJ6xODKC`1BjsI^BJ(t@LL4881d7`pGq99ypF-'
+    'y3fH9>iR!r(X{wTt};Wj$c457+&oJ3q^RIBM?dDv+yQ)HFvV7~TdG{2Q-ShhKsgEoqIrVPg)j`SpZ|LDIJ;jsa}V`LJ0Kh;Lk5*>'
+    'pg4XUA`8=aKD=B^7Icr(mbEX;C!oj9R;LlM8N4QN$#oTe@D04|{vrwNc#6!vsOCvfpMg|{y_N~9;BT}ykL351r(0*x+xKBR{!4qE'
+    'd4~g1EDQo>*W)bEE4sq|Hc#li1_m;~?BtY_+pl%wl0j=Pr7Wi`Zb0VM3dZ8^Whq*;b#Ekv08dL;d1J^3e-uDphNK|@hM_u<ZJV1E'
+    '&o{dL;gcoq*(D))k_3RUX;Gto?@(c2G?w$Qp_TcCT*$?}L+g-NV%ISE-ep$GZh9FD2JRkdhmLSns4o-gq4@JdiEq+(aSO%H#Sf#L'
+    '1|bexD>-85Prt2Sv;vYQgtlacSeT8J;Y-%v4_R7X4{3Q3G0%w{EH1tN^=;dGlPzT2MD+{VmbZ!B7%bgho$v%ofsOZwmOth4tCJ!D'
+    'kH?s+A;4GOnYdTWM4N==j4K_t!dM`|%1BUF(GfLZJel24d?%V;>%L6de*Wtlyg<W$NSEf@k}gZWWWk%*5oX`y@rm~)n>I<c@WPLa'
+    '2#VMIvzKoeagbd-9hrmXf^({ngf|>Vu8$vrn^kuLFR(ok!NLSj?MoJ&o{4bFnX^MrbN9lahgf_alVhb0Al2s+<hb(}FbE{HdSg=w'
+    'n}c;Btoq5QRQylbnK`2`vB|1X$r@8g9(^*KP3UTk5-8D)fZFy1)VNTdE$7AK7v0rkiI8lw$oPU|!67(`Kv_z!jEk_}Z*9kZStR~T'
+    '-Ab~mq-xSuB^qC%^N0?N@d~}PC5M}4{qD}2O+0NjFO&JB#cY<0=TKQmDGM;c85N@*mXYodM&+eldflB3yYTOU>Vvl}TtUH?OG2eV'
+    '6oV6Cex10d^a>{M39>AIPLe4DnJqX2Ckkuey7rfJuMLKjU|Axs69?B15(zK235Sq*c|o1&R<QaJe>*&99nGW3_+og8ti%`C!GC_$'
+    'b-TFSSIYrC9SpAyV!MwyKDgw{vGu_#D0-+j&%GiVPYX>Qs}^upuH4V66{3gpR%U#5@o8C9?}=puY2n;K1tnj33MW~!wy$pTo4D?d'
+    '_NSYRpCGMEBH$`^z^pvtt>T^$r908bH5X(IrukU1uAM$Re^K%V{0rkiJXyuJsd}+qs2olGj5)j3H3xTEkSJ%(u!?$r@Zf=s2iHD0'
+    '=Tv$HUC;3`T~aR1ZQ&4hYvJpyTetoP^DTQt'
+)
 MOE_CPP_SRC = r"""
 #include <torch/extension.h>
 void okc_run(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, torch::Tensor x, torch::Tensor ids,
@@ -16354,7 +10937,9 @@ def prepare(weights):
 
 # ============================================================================
 # achitaan ATP: exact-exp standalone attention port, full-layer admission gate.
-# Everything above is the unchanged kb/v1/decode_v1.py baseline.
+# Everything above has the unchanged kb/v1/decode_v1.py semantics. The sole
+# storage edit is lossless compression of ATT7_CUDA_SRC and MOE_CUDA_SRC for
+# the 1 MB API cap. Their decoded text (and all baseline AST nodes) is identical.
 # Copied from kb/muse_attention_decode.py; retain its Apache-2.0 notices:
 # + keell0renz stack [bulk]: TMA bulk-reduction merge (cp.reduce.async.bulk) +
 #   72-float workspace rows (Madhavan113/ParadigmKernelChallenge c0f3460 dab77b3
@@ -16372,2847 +10957,503 @@ def prepare(weights):
 # BULK has native PDL; WST/VP2 waits and launch attrs are marked achitaan ATP.
 # The removed old pooler prefetch is accounted for by timing the WHOLE layer.
 # ============================================================================
-_ATP_CUDA_SRC = r"""
-#include <torch/extension.h>
-#include <ATen/cuda/CUDAContext.h>
-#include <type_traits>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <cuda_fp8.h>
-#include <cuda.h>
-#include <stdint.h>
-
-namespace {
-
-__device__ __noinline__ void spin_fail() { __trap(); }   // (out of line: keeps the trap off the polling loop's code)
-#define SPIN_T0 unsigned _spin_n = 0   /* (an iteration count: a %globaltimer read per poll slowed the coop barriers ~1%) */
-#define SPIN_CHECK do { if (++_spin_n > (1u << 24)) spin_fail(); } while (0)   /* (>= 2^24 global polls: seconds) */
-template <int L, bool F>
-struct Cfg {
-  static constexpr int NT = (L == 1) ? 128 : 256;   // consumer threads per CTA
-  // flat kernel on sm_90: one extra producer warp issues every K/V copy (warp specialization), so the
-  // consumers never stall in cp.async issue; the stages are handed over with mbarriers
-  static constexpr bool WS = F;
-  static constexpr int NP = WS ? 128 : 0;   // producer threads
-  static constexpr int NTX = NT + NP;                     // threads per CTA
-  static constexpr int MINB = 2;   // CTAs per SM the registers must allow
-  // setmaxnreg split of the CTA's registers (launch: 65536 / (MINB * NTX), rounded down to 8)
-  static constexpr int BASEREGS = (65536 / (2 * NTX)) / 8 * 8 > 255 ? 248 : (65536 / (2 * NTX)) / 8 * 8;
-  static constexpr int PREGS = (L == 1) ? 56 : 32;
-  static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
-                                   ? 248 : ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8;
-  // cp.async pipeline depth (64-key tiles): deep for the long flat runs, shallow (smaller shared memory,
-  // more CTAs per SM, all clusters resident) for the per-request grids of sliding windows / one request
-  static constexpr int STAGES = F ? ((L == 1) ? 3 : 4) : 3;
-  // producer passes: NP/8 rows each must tile the 64-row tile exactly (else rows go missing and the consumers wait
-  // forever on the stage barrier)
-  static_assert(!WS || (NP % 8 == 0 && NP >= 8 && 64 % (NP >= 8 ? NP / 8 : 1) == 0),
-                "producer threads must cover a tile in whole passes");
-};
-constexpr int TILE = 64;
-constexpr int STAGES = 4;
-constexpr int ROWB = 128;                    // bytes per tile row: 2 KV heads x 64
-constexpr int STAGE_BYTES = TILE * ROWB;     // 8 KB per stage for K (same for V)
-constexpr int IDX_SLOTS = 2 * STAGES;
-constexpr int MAXB = 512;               // flat partition: requests per call
-constexpr int MAXSEG = 64;              // flat partition: segments per CTA
-
-struct Params {
-  const __nv_bfloat16* qkv;
-  const int* seq_lens;
-  const int64_t* cache_loc;
-  uint8_t* k_cache;
-  uint8_t* v_cache;
-  const int* page_table;
-  const float* k_scale;
-  const float* v_scale;
-  const float* inv_freq;
-  __nv_bfloat16* out;
-  float* ws_acc;
-  float* ws_l;
-  int* ws_cnt;
-  int B, Hq, Hkv, P, max_pages, window, rope, n_splits, flat, nc;
-  long long* dbg;      // optional per-CTA phase timestamps (globaltimer), null in normal runs
-  int cs, ncl;          // cluster mode: cs CTAs per cluster (DSMEM reduction), ncl clusters per request
-  int ld_qkv, row_bytes;
-  float scale_log2;   // sm_scale * qk_scale_factor * log2(e)
-  int coop;             // per-request grids that are all resident: every CTA finalizes a slice of the rows
-  int lp;               // log2(page size)
-  int lrb;              // log2(row bytes of a cache row: Hkv * 64)
-  int off32;            // both caches below 4 GB (32-bit cache offsets); else the 64-bit path
-  unsigned ns_magic;    // ceil(2^32 / n_splits) (0: n_splits == 1)
-};
-
-__device__ __forceinline__ uint32_t smem_u32(const void* p) {
-  return (uint32_t)__cvta_generic_to_shared(p);
-}
-__device__ __forceinline__ void cp_async16(uint32_t dst, const void* src, int src_bytes) {
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n" ::"r"(dst), "l"(src), "r"(src_bytes));
-}
-__device__ __forceinline__ void cp_async16_pred(uint32_t dst, const void* src, int src_bytes, bool pred) {
-  // predicated copy (no branch): pred = 0 issues nothing, src_bytes = 0 zero-fills
-  asm volatile("{\n .reg .pred q;\n setp.ne.b32 q, %3, 0;\n @q cp.async.cg.shared.global [%0], [%1], 16, %2;\n}\n"
-               ::"r"(dst), "l"(src), "r"(src_bytes), "r"((int)pred));
-}
-__device__ __forceinline__ void cp_async4(uint32_t dst, const void* src) {
-  asm volatile("cp.async.ca.shared.global [%0], [%1], 4;\n" ::"r"(dst), "l"(src));
-}
-__device__ __forceinline__ void cp_commit() { asm volatile("cp.async.commit_group;\n" ::); }
-template <int N>
-__device__ __forceinline__ void cp_wait() { asm volatile("cp.async.wait_group %0;\n" ::"n"(N)); }
-
-// ---- sm_90 TMA row loads tracked by one mbarrier per pipeline stage ----
-__device__ __forceinline__ void mbar_fence_init() {
-  asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
-}
-__device__ __forceinline__ void mbar_expect_tx(uint64_t* bar, int bytes) {
-  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(bytes) : "memory");
-}
-__device__ __forceinline__ void mbar_init_n(uint64_t* bar, int count) {
-  asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(count) : "memory");
-}
-__device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
-  asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];\n" ::"r"(smem_u32(bar)) : "memory");
-}
-// unbounded wait for a phase (producer / consumer hand-off)
-__device__ __forceinline__ void mbar_wait_full(uint64_t* bar, int parity) {
-  asm volatile("{\n.reg .pred q;\nWAIT_%=:\nmbarrier.try_wait.parity.shared::cta.b64 q, [%0], %1;\n@!q bra WAIT_%=;\n}\n"
-               ::"r"(smem_u32(bar)), "r"(parity) : "memory");
-}
-// the mbarrier receives one arrival when all of this thread's earlier cp.async copies have landed
-__device__ __forceinline__ void cp_async_mbar_arrive(uint64_t* bar) {
-  asm volatile("cp.async.mbarrier.arrive.noinc.shared::cta.b64 [%0];\n" ::"r"(smem_u32(bar)) : "memory");
-}
-// plain bulk copy global -> shared (16-byte aligned, multiple of 16 bytes), completion on an mbarrier
-__device__ __forceinline__ void bulk_load(void* dst, const void* src, int bytes, uint64_t* bar) {
-  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\n"
-               ::"r"(smem_u32(dst)), "l"(src), "r"(bytes), "r"(smem_u32(bar)) : "memory");
-}
-// TMA bulk reduction: global[dst .. dst + bytes) += shared[src ..] (fp32 add), tracked by the thread's bulk async-group
-    __device__ __forceinline__ void bulk_red_add_f32(float* dst, const void* src, int bytes) {
-      asm volatile("cp.reduce.async.bulk.global.shared::cta.bulk_group.add.f32 [%0], [%1], %2;\n"
-                   ::"l"(dst), "r"(smem_u32(src)), "r"(bytes) : "memory");
-    }
-    __device__ __forceinline__ void bulk_commit() { asm volatile("cp.async.bulk.commit_group;\n" ::: "memory"); }
-    __device__ __forceinline__ void bulk_wait_all() {   // every bulk op of this thread complete (writes performed)
-      asm volatile("cp.async.bulk.wait_group 0;\n" ::: "memory");
-    }
-    __device__ __forceinline__ void fence_proxy_async_global() {   // async-proxy global writes ordered before generic ones
-      asm volatile("fence.proxy.async.global;\n" ::: "memory");
-    }
-    // 16 zero bytes into shared memory through the same cp.async path (no global read)
-    __device__ __forceinline__ void cp_async16_zero(uint32_t dst, const void* any_src) {
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16, 0;\n" ::"r"(dst), "l"(any_src));
-}
-// barrier over the NT consumer threads only (named barrier 1); __syncthreads when there is no producer
-// barrier over one warpgroup (named barriers 3 and 4)
-__device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
-__device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
-__device__ __forceinline__ void wgsync(int wg) {
-  asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
-}
-template <bool WS, int NT>
-__device__ __forceinline__ void csync() {
-  if constexpr (WS) asm volatile("bar.sync 1, %0;\n" ::"n"(NT) : "memory");
-  else __syncthreads();
-}
-
-__device__ __forceinline__ float ex2(float x) {
-  float y;
-  asm("ex2.approx.ftz.f32 %0, %1;" : "=f"(y) : "f"(x));
-  return y;
-}
-__device__ __forceinline__ uint32_t prmt(uint32_t a, uint32_t b, uint32_t sel) {
-  uint32_t d;
-  asm("prmt.b32 %0, %1, %2, %3;" : "=r"(d) : "r"(a), "r"(b), "r"(sel));
-  return d;
-}
-// two e4m3 (HIGH 16 bits of x) -> f16x2: ptxas folds the half select into F2FP's operand (.H1), no SHF
-__device__ __forceinline__ uint32_t cvt2h(uint32_t x) {
-  uint32_t d;
-  asm("{\n\t.reg .b16 t;\n\tmov.b32 {_, t}, %1;\n\tcvt.rn.f16x2.e4m3x2 %0, t;\n\t}" : "=r"(d) : "r"(x));
-  return d;
-}
-// two e4m3 (low 16 bits of x) -> f16x2 (low byte -> low half)
-__device__ __forceinline__ uint32_t cvt2(uint32_t x) {
-  uint32_t d;
-  asm("{\n\t.reg .b16 t;\n\tmov.b32 {t, _}, %1;\n\tcvt.rn.f16x2.e4m3x2 %0, t;\n\t}" : "=r"(d) : "r"(x));
-  return d;
-}
-__device__ __forceinline__ uint32_t pack_h2(float lo, float hi) {
-  __half2 h = __floats2half2_rn(lo, hi);
-  return *reinterpret_cast<uint32_t*>(&h);
-}
-// 2^lo, 2^hi as a packed f16 pair: the inputs rounded to f16 (|x| <= 8 here: error <= 2^-8), one MUFU op
-__device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
-  return pack_h2(ex2(lo), ex2(hi));
-}
-// conformance sensitivity probe only : round the attention output, which SGLang keeps in
-// BF16 before rmsnorm * gate, to e4m3 -- the precision check must reject that build
-__device__ __forceinline__ float pr8(float x) {
-  return x;
-}
-__device__ __forceinline__ uint8_t to_e4m3(float x) {
-  return (uint8_t)__nv_cvt_float_to_fp8(x, __NV_SATFINITE, __NV_E4M3);
-}
-
-__device__ __forceinline__ void mma_f16(float* c, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
-                                        uint32_t b0, uint32_t b1) {
-  asm volatile(
-      "mma.sync.aligned.m16n8k16.row.col.f32.f16.f16.f32 {%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, "
-      "{%0,%1,%2,%3};\n"
-      : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
-      : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(b0), "r"(b1));
-}
-
-
-__device__ __forceinline__ uint4 lds128(const uint8_t* p) { return *reinterpret_cast<const uint4*>(p); }
-__device__ __forceinline__ uint2 lds64(const uint8_t* p) { return *reinterpret_cast<const uint2*>(p); }
-
-// V B-fragments for 16 keys starting at kb (rows kb+2tig, +1, +8, +9), head hk, dims 8g..8g+7.
-__device__ __forceinline__ void load_v_frags(const uint8_t* V, int kb, int hk, int g, int tig, uint32_t* b0,
-                                             uint32_t* b1) {
-  const int ch = hk * 4 + (g >> 1), off = (g & 1) * 8;
-  const int k0 = kb + 2 * tig;
-  const uint2 v0 = lds64(V + k0 * ROWB + ((ch ^ (k0 & 7)) << 4) + off);
-  const uint2 v1 = lds64(V + (k0 + 1) * ROWB + ((ch ^ ((k0 + 1) & 7)) << 4) + off);
-  const uint2 v2 = lds64(V + (k0 + 8) * ROWB + ((ch ^ ((k0 + 8) & 7)) << 4) + off);
-  const uint2 v3 = lds64(V + (k0 + 9) * ROWB + ((ch ^ ((k0 + 9) & 7)) << 4) + off);
-  uint32_t x;
-  x = prmt(v0.x, v1.x, 0x5140); b0[0] = cvt2(x); b0[1] = cvt2h(x);
-  x = prmt(v0.x, v1.x, 0x7362); b0[2] = cvt2(x); b0[3] = cvt2h(x);
-  x = prmt(v0.y, v1.y, 0x5140); b0[4] = cvt2(x); b0[5] = cvt2h(x);
-  x = prmt(v0.y, v1.y, 0x7362); b0[6] = cvt2(x); b0[7] = cvt2h(x);
-  x = prmt(v2.x, v3.x, 0x5140); b1[0] = cvt2(x); b1[1] = cvt2h(x);
-  x = prmt(v2.x, v3.x, 0x7362); b1[2] = cvt2(x); b1[3] = cvt2h(x);
-  x = prmt(v2.y, v3.y, 0x5140); b1[4] = cvt2(x); b1[5] = cvt2h(x);
-  x = prmt(v2.y, v3.y, 0x7362); b1[6] = cvt2(x); b1[7] = cvt2h(x);
-}
-
-// the merge / barrier fences as fence.acq_rel.gpu (MEMBAR.ALL.GPU) instead of __threadfence's
-// fence.sc.gpu (MEMBAR.SC.GPU + ERRBAR + CCTL.IVALL): the message-passing pattern needs release / acquire only
-__device__ __forceinline__ void gpu_fence() {
-  __threadfence();
-}
-__device__ __forceinline__ void red_f32(float* a, float x) {
-  asm volatile("red.global.add.f32 [%0], %1;" ::"l"(a), "f"(x) : "memory");
-}
-__device__ __forceinline__ void red_v4(float* a, float x, float y, float z, float w) {
-  asm volatile("red.global.add.v4.f32 [%0], {%1, %2, %3, %4};" ::"l"(a), "f"(x), "f"(y), "f"(z), "f"(w) : "memory");
-}
-
-
-__device__ __forceinline__ void ldsm_x4_t(uint32_t addr, uint32_t& r0, uint32_t& r1, uint32_t& r2, uint32_t& r3) {
-  asm volatile("ldmatrix.sync.aligned.m8n8.x4.trans.shared.b16 {%0,%1,%2,%3}, [%4];\n"
-               : "=r"(r0), "=r"(r1), "=r"(r2), "=r"(r3) : "r"(addr));
-}
-// four 8x8 b16 matrices from registers to shared memory (each lane gives one row address: lanes 8m..8m+7 the
-// rows of matrix m; thread t holds row t/4, bytes 4(t%4)..4(t%4)+3 of each matrix)
-__device__ __forceinline__ void stsm_x4(uint32_t addr, uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3) {
-  asm volatile("stmatrix.sync.aligned.m8n8.x4.shared.b16 [%0], {%1,%2,%3,%4};\n" ::"r"(addr), "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-               : "memory");
-}
-
-
-// ---- per-warp phase profile of the main loops (diagnostic builds only: -DOKC_PROF=1) ----
-#define PROF_INIT
-#define PROF_MARK(k)
-#define PROF_TILE
-#define PROF_DUMP
-
-// ---- sm_90 warpgroup MMA helpers ----
-__device__ __forceinline__ void fence_proxy_async() {
-  asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
-}
-__device__ __forceinline__ void wgmma_fence() {
-  asm volatile("wgmma.fence.sync.aligned;\n" ::: "memory");
-}
-__device__ __forceinline__ void wgmma_commit() {
-  asm volatile("wgmma.commit_group.sync.aligned;\n" ::: "memory");
-}
-template <int N>
-__device__ __forceinline__ void wgmma_wait() {
-  asm volatile("wgmma.wait_group.sync.aligned %0;\n" ::"n"(N) : "memory");
-}
-__device__ __forceinline__ void reg_fence(float& r) { asm volatile("" : "+f"(r)::"memory"); }
-// K-major, 128-byte swizzled shared-memory matrix descriptor (8-row groups 1024 bytes apart)
-__device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
-  return (uint64_t)((addr & 0x3FFFF) >> 4) | ((uint64_t)1 << 16) | ((uint64_t)(1024 >> 4) << 32) | ((uint64_t)1 << 62);
-}
-// D[64x64] (+)= A[64x32] (e4m3, registers) * B[64x32]^T (e4m3, shared memory descriptor)
-__device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
-                                                     uint64_t desc, int scale_d) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %37, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, "
-      "{%32, %33, %34, %35}, %36, p, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
-      : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "l"(desc), "r"(scale_d));
-}
-// D[64x64] (+)= A[64x32] (e4m3, shared memory descriptor) * B[64x32]^T (e4m3, shared memory descriptor)
-__device__ __forceinline__ void wgmma_m64n64k32_e4m3_ss(float* d, uint64_t da, uint64_t db, int scale_d) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31}, "
-      "%32, %33, p, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
-      : "l"(da), "l"(db), "r"(scale_d));
-}
-// the same with scale-d = 0 and write-only accumulators: the previous tile's (masked) scores do not feed this
-// wgmma, so ptxas sees no non-wgmma definition of its accumulators inside the pipeline (warning C7515, which
-// serializes every wgmma of the function)
-// K-major operand with 64-byte rows, 64B swizzle (8-row atoms of 512 bytes)
-__device__ __forceinline__ uint64_t desc_sw64(uint32_t addr) {
-  return (uint64_t)((addr & 0x3FFFF) >> 4) | ((uint64_t)1 << 16) | ((uint64_t)(512 >> 4) << 32) | ((uint64_t)2 << 62);
-}
-// D[64x72] += A[64x32] (e4m3, registers) * B[72x32]^T (e4m3, K-major shared memory): d = 32 + 4 accumulators
-__device__ __forceinline__ void wgmma_m64n72k32_e4m3(float* d, float* e, const uint32_t* a, uint64_t desc) {
-  asm volatile(
-      "{\n"
-      "wgmma.mma_async.sync.aligned.m64n72k32.f32.e4m3.e4m3 "
-      "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15, "
-      "%16, %17, %18, %19, %20, %21, %22, %23, %24, %25, %26, %27, %28, %29, %30, %31, %32, %33, %34, %35}, "
-      "{%36, %37, %38, %39}, %40, 1, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31]),
-        "+f"(e[0]), "+f"(e[1]), "+f"(e[2]), "+f"(e[3])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(desc));
-}
-// floor(x / d) for 0 <= x < 2^24 and 1 <= d < 2^24 through the float reciprocal (one correction step):
-// ~8 instructions instead of the ~20 of an integer division, which matters in once-per-launch (cold) code
-__device__ __forceinline__ int fdiv_i(int x, int d) {
-  // approximate reciprocal (MUFU.RCP, no IEEE slow-path call: the correction below absorbs its error)
-  const float rd = __fdividef(1.f, __int2float_rn(d));
-  int q = __float2int_rz(__int2float_rn(x) * rd);
-  const int r = x - q * d;
-  q += (r >= d) - (r < 0);
-  return q;
-}
-// sigmoid for the output gate: 0.5 + 0.5 tanh(x / 2) with the hardware tanh (3 instructions; abs error ~2^-12,
-// below the BF16 output's rounding) or exp + fast reciprocal
-__device__ __forceinline__ float sigm(float x) {
-  return __fdividef(1.f, 1.f + __expf(-x));
-}
-// Programmatic dependent launch (sm_90): wait for the preceding grid (the one writing qkv) before the first qkv read;
-// let the next grid start its own prologue once the main loop is done. Both are no-ops for a plain launch.
-__device__ __forceinline__ void pdl_wait() {
-  asm volatile("griddepcontrol.wait;" ::: "memory");
-}
-__device__ __forceinline__ void pdl_launch_dependents() {
-  // (no early trigger at the end of the tile loop -- the dependent kernel launches when this grid
-  // exits; for decode_layer's chain A/B, no effect on standalone launches)
-  asm volatile("griddepcontrol.launch_dependents;" ::: "memory");
-}
-// 32-bit offsets for qkv, the workspace and the caches (the host checks the sizes): no 64-bit multiplies
-// in the once-per-launch address math
-typedef int ix_t;
-__device__ __forceinline__ const uint8_t* cache_row(const uint8_t* base, const Params& p, int64_t row, int col_bytes) {
-  if (p.off32) return base + (((uint32_t)row << p.lrb) + (uint32_t)col_bytes);
-  return base + row * p.row_bytes + col_bytes;
-}
-// `for (e = tid; e < N; e += NTH)` with a compile-time trip count: fully unrolled, the tail predicated (the
-// once-executed prologue loops otherwise keep 3-4 branches each; a taken branch costs 60-100 cycles cold)
-template <int N, int NTH, class F>
-__device__ __forceinline__ void tfor(int tid, F&& f) {
-#pragma unroll
-  for (int e0 = 0; e0 < N; e0 += NTH) {
-    const int e = e0 + tid;
-    if ((N % NTH) == 0 || e < N) f(e);
-  }
-}
-// four floats -> four e4m3 bytes (x0 in the low byte), saturating
-__device__ __forceinline__ uint32_t e4m3x4f(float x0, float x1, float x2, float x3) {
-  uint16_t lo, hi;
-  asm("cvt.rn.satfinite.e4m3x2.f32 %0, %2, %1;" : "=h"(lo) : "f"(x0), "f"(x1));
-  asm("cvt.rn.satfinite.e4m3x2.f32 %0, %2, %1;" : "=h"(hi) : "f"(x2), "f"(x3));
-  return (uint32_t)lo | ((uint32_t)hi << 16);
-}
-// four f16 (two f16x2 words, low first) -> four e4m3 bytes (low byte first)
-__device__ __forceinline__ uint32_t pack_e4m3x4(uint32_t h01, uint32_t h23) {
-  __half2_raw a, b;
-  a.x = (unsigned short)(h01 & 0xffffu); a.y = (unsigned short)(h01 >> 16);
-  b.x = (unsigned short)(h23 & 0xffffu); b.y = (unsigned short)(h23 >> 16);
-  const uint32_t lo = __nv_cvt_halfraw2_to_fp8x2(a, __NV_SATFINITE, __NV_E4M3);
-  const uint32_t hi = __nv_cvt_halfraw2_to_fp8x2(b, __NV_SATFINITE, __NV_E4M3);
-  return (lo & 0xffffu) | (hi << 16);
-}
-
-
-__device__ __forceinline__ float quad_max(float v) {
-  v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, 1));
-  v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, 2));
-  return v;
-}
-__device__ __forceinline__ float quad_sum(float v) {
-  v += __shfl_xor_sync(0xffffffffu, v, 1);
-  v += __shfl_xor_sync(0xffffffffu, v, 2);
-  return v;
-}
-__device__ __forceinline__ float oct_sum(float v) {
-  v += __shfl_xor_sync(0xffffffffu, v, 1);
-  v += __shfl_xor_sync(0xffffffffu, v, 2);
-  v += __shfl_xor_sync(0xffffffffu, v, 4);
-  return v;
-}
-
-// ---- thread-block clusters (sm_90: DSMEM; elsewhere emulated through global memory for testing) ----
-__device__ __forceinline__ int cl_rank(const Params& p) {
-  uint32_t r;
-  asm volatile("mov.u32 %0, %%cluster_ctarank;" : "=r"(r));
-  return (int)r;
-}
-__device__ __forceinline__ int cl_gid(const Params& p) {
-  return (blockIdx.z * gridDim.y + blockIdx.y) * (gridDim.x / p.cs) + blockIdx.x / p.cs;
-}
-__device__ __forceinline__ void cl_sync(const Params& p, int phase) {
-  asm volatile("barrier.cluster.arrive.release.aligned;\nbarrier.cluster.wait.acquire.aligned;\n" ::: "memory");
-}
-// float4 at byte offset `off` of peer `rank`'s partial buffer (`local` = this CTA's copy)
-__device__ __forceinline__ float4 cl_ld4(const Params& p, const float* local, int rank, int off_floats, int region_floats) {
-  uint32_t a = smem_u32(local + off_floats), r;
-  asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(r) : "r"(a), "r"(rank));
-  float4 v;
-  asm volatile("ld.shared::cluster.v4.f32 {%0,%1,%2,%3}, [%4];" : "=f"(v.x), "=f"(v.y), "=f"(v.z), "=f"(v.w) : "r"(r));
-  return v;
-}
-__device__ __forceinline__ float cl_ld1(const Params& p, const float* local, int rank, int off_floats, int region_floats) {
-  uint32_t a = smem_u32(local + off_floats), r;
-  asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(r) : "r"(a), "r"(rank));
-  float v;
-  asm volatile("ld.shared::cluster.f32 %0, [%1];" : "=f"(v) : "r"(r));
-  return v;
-}
-
-template <bool PW>
-    struct WSR {   // workspace row layout: PW = padded rows (the q_len 1 per-request kernels that are not one-tile-per-split builds)
-      static constexpr int STR = PW ? 72 : 64;   // row stride (floats); padded: the row sum in column 64 (else the separate ws_l vector)
-    };
-    constexpr int WSL = 64;                      // padded rows: the row sum's column
-    // the workspace row sum of row `row` (padded rows: column 64 of the row; else the separate ws_l vector)
-    #define WSL_AT(PW, row) ((PW) ? (p.ws_acc + (long long)(row) * 72 + WSL) : (p.ws_l + row))
-
-    template <int L, bool F>
-    struct Smem {
-      uint8_t k[Cfg<L, F>::STAGES * STAGE_BYTES];
-  uint8_t v[Cfg<L, F>::STAGES * STAGE_BYTES];
-  uint64_t mbar[8];   // TMA mode: one per stage (64 bytes keeps the members after it 16-byte aligned)
-  uint64_t pbar[4];   // producer mode: page-index slots landed (TMA)
-  int pgc;            // page-index fills issued in this CTA's earlier segments
-  int dbgn;           // debug builds: progress-mark count
-  int vidx;           // flat weighted partition: this CTA's slot (2 * SM + arrival rank), -1 = uniform
-  alignas(128) int pidx[4][80];   // producer mode: page indices of upcoming tiles (16-byte aligned window)
-  uint64_t full[8];   // producer mode: stage landed (32 producer lanes arrive as their copies complete)
-  uint64_t empty[8];  // producer mode: stage consumed (one arrival per consumer warp)
-  uint64_t vtf[2];    // V^T slot written by the producers (one arrival per producer thread)
-  uint64_t vte[2];    // V^T slot read by both heads' PV wgmmas (one arrival per consumer warp)
-  uint64_t qdone;     // consumers have read the q staging (S.kvq) and staged S.kn / S.vn
-  int claim[2];       // Cfg::F2: next unclaimed tile per KV head
-  int nxt[4][2];      // Cfg::F2: each warpgroup's next claimed tile (double buffered)
-  int idx[2 * Cfg<L, F>::STAGES * TILE];
-  // raw q rows of the block (bf16, prologue only) | L==8: the current tile's K and V in f16 (2 x 2 x 64 x 64)
-  // L == 8: q staging (producer mode) before the loop, then the per-tile f16 V copy -- or, FP8 PV, per tile
-  // (double buffer) and KV head, V^T as 72 rows (64 dims + 8 rows of ones for the row sums) x 64 keys (permuted to
-  // the P register order), K-major with 64B swizzle: 4 x 4608 bytes
-  alignas(1024) uint8_t kvq[(L == 1) ? L * 16 * 64 * 2 : 18432];
-  // L == 8 with FP8 PV and the block's e4m3 queries per KV head (64 rows x 64 dims, K-major, 64B swizzle)
-  alignas(1024) uint8_t q8s[(L == 8) ? 8192 : 16];
-  __device__ __forceinline__ __nv_bfloat16* qst() { return reinterpret_cast<__nv_bfloat16*>(kvq); }
-  __nv_bfloat16 kvst[L * 4 * 64];   // raw k (2 heads) then v (2 heads) rows per token
-  __nv_bfloat16 gst[L * 4 * 64];    // cluster mode: gate rows of this CTA's output slice (<= L*16/4 rows)
-  uint8_t kn[L * ROWB];        // new keys of the block, [j][2 heads x 64] e4m3
-  uint8_t vn[L * ROWB];
-  float cs[L * 32];
-  float sn[L * 32];
-  float ifreq[32];          // RoPE inverse frequencies (staged with cp.async)
-  float scl[4];             // k_scale, v_scale
-  long long cloc[L];        // cache rows of the block's tokens
-  int flag;
-  int sense;          // the cooperative barrier's flag, read early (prologue) with the constants
-  int cum[F ? MAXB + 1 : 1];
-  int seg[F ? MAXSEG : 1][3];
-  int nseg;
-  int fcs, fce;             // this CTA's key range (warp 0 -> everyone)
-  // flat dynamic chunks : the producer's segment list of its current chunk, and a queue that hands the
-  // segments (request, first key, end key, copy; request -1 = done) to the consumers
-  int pseg[F ? MAXSEG : 1][3];
-  int pnseg, pchunk;
-  int dq[F ? 16 : 1][4];
-  uint64_t dqf[F ? 16 : 1];
-  uint64_t dqe[F ? 16 : 1];
-};
-
-// Cluster mode, several clusters per request (Params::ncl > 1): add this CTA's reduced slice into the global
-// workspace; the last cluster to arrive sums the copies back into RB/RL and finalizes. Out of line: no scored shape
-// uses it, and keeping it out of the one-cluster epilogue keeps that code contiguous (cold instruction fetch).
-template <int L, typename SM>
-__device__ __noinline__ bool cluster_multi(const Params& p, SM& S, const int CS, const int rank, const int RPC,
-                                           const int row0, const int bp, float* RB, float* RL) {
-  constexpr int NT = Cfg<L, false>::NT;
-  const int tid = threadIdx.x;
-  bool fin = true;
-    const int clu = fdiv_i(blockIdx.x, CS);
-    const int copy = clu - fdiv_i(clu, p.nc) * p.nc;
-    for (int e = tid; e < RPC * 16; e += NT) {
-      const int row = row0 + (e >> 4);
-      float* acc = p.ws_acc + ((ix_t)(bp * p.nc + copy) * L * 16 + row) * WSR<false>::STR + (e & 15) * 4;
-      const float4 a = *reinterpret_cast<const float4*>(&RB[e * 4]);
-      red_v4(acc, a.x, a.y, a.z, a.w);
-    }
-    for (int e = tid; e < RPC; e += NT) red_f32(WSL_AT(false, (bp * p.nc + copy) * L * 16 + row0 + e), RL[e]);
-    __threadfence();
-    __syncthreads();
-    if (tid == 0) {
-      // every cluster of the request arrives (empty ones with zero partials)
-      const int old = atomicAdd(p.ws_cnt + bp * CS + rank, 1);
-      S.flag = (old == p.ncl - 1);
-    }
-    __syncthreads();
-    fin = S.flag;
-    if (fin) {
-      __threadfence();
-      for (int e = tid; e < RPC * 16; e += NT) {
-        const int row = row0 + (e >> 4);
-        constexpr int NCM = 4;
-        float4 v[NCM];
-#pragma unroll
-        for (int c = 0; c < NCM; ++c)
-          if (c < p.nc) v[c] = __ldcg(reinterpret_cast<const float4*>(p.ws_acc + ((ix_t)(bp * p.nc + c) * L * 16 + row) * WSR<false>::STR + (e & 15) * 4));
-        float4 a = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-        for (int c = 0; c < NCM; ++c) {
-          if (c < p.nc) {
-            a.x += v[c].x; a.y += v[c].y; a.z += v[c].z; a.w += v[c].w;
-            *reinterpret_cast<float4*>(p.ws_acc + ((ix_t)(bp * p.nc + c) * L * 16 + row) * WSR<false>::STR + (e & 15) * 4) = make_float4(0.f, 0.f, 0.f, 0.f);
-          }
-        }
-        *reinterpret_cast<float4*>(&RB[e * 4]) = a;
-      }
-      for (int e = tid; e < RPC; e += NT) {
-        float a = 0.f;
-        for (int c = 0; c < p.nc; ++c) {
-          float* lw = WSL_AT(false, (bp * p.nc + c) * L * 16 + row0 + e);
-          a += __ldcg(lw);
-          *lw = 0.f;
-        }
-        RL[e] = a;
-      }
-      if (tid == 0) p.ws_cnt[bp * CS + rank] = 0;
-      __syncthreads();
-    }
-  return fin;
-}
-
-// Cluster mode epilogue. Every CTA of the cluster has written its rescaled partial (PB: [L*16][64] o * 2^m,
-// PL: [L*16] l * 2^m) into its own shared memory. CTA `rank` sums rows [rank*RPC, (rank+1)*RPC) over the
-// cluster through DSMEM, then either finalizes them (one cluster per request) or accumulates them into the
-// global workspace, where the last cluster to arrive for this slice finalizes.
-template <int L, typename SM>
-__device__ __forceinline__ void cluster_finish(const Params& p, SM& S, const int b, const int pair,
-                                               const int n_keys, const int chunk) {
-  constexpr int NT = Cfg<L, false>::NT;
-  constexpr int STAGES = Cfg<L, false>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  const int tid = threadIdx.x;
-  const int CS = p.cs, rank = cl_rank(p);
-  const int RPC = fdiv_i(L * 16, CS);
-  const int pairs = p.Hkv >> 1;
-  const int bp = b * pairs + pair;
-  // S.k and S.v are adjacent: PB [L*16*64] | PL [L*16, padded to 1024] | RB [RPC*64] | RL [RPC]
-  float* PB = reinterpret_cast<float*>(S.k);
-  float* PL = PB + L * 16 * 64;
-  float* RB = PL + 1024;
-  float* RL = RB + RPC * 64;
-  constexpr int REGION = L * 16 * 64 + 1024;   // emulation: per-CTA scratch floats (PB, then PL at +L*16*64)
-  cl_sync(p, 1);
-  
-  const int row0 = rank * RPC;
-  if constexpr (L == 1) {   // compact reduction (this code runs once per launch from a cold instruction cache, so it is kept short):
-      // (row, slot) items -- 16 float4 slots of o and one for l -- times the CS peers; CS consecutive lanes load
-      // one item from every peer and sum it with shuffles. Two items per thread per pass keep loads in flight.
-    const int TOT0 = RPC * 17 * CS;
-    const int lcs = 31 - __clz(CS);
-#pragma unroll 1
-    int TOT = TOT0;
-       // dry pass: same code, no work
-    
-    for (int k0 = 0; k0 < TOT; k0 += 2 * NT) {   // warp-uniform trip count
-      float4 v[2];
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        const int k = k0 + u * NT + tid;
-        const int item = k >> lcs, q = k & (CS - 1);
-        const int rl = item / 17, slot = item - rl * 17;
-        v[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (k < TOT) {
-          if (slot < 16) v[u] = cl_ld4(p, PB, q, (row0 + rl) * 64 + slot * 4, REGION);
-          else v[u].x = cl_ld1(p, PL, q, row0 + rl, REGION);
-        }
-      }
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        for (int off = 1; off < CS; off <<= 1) {
-          v[u].x += __shfl_xor_sync(0xffffffffu, v[u].x, off);
-          v[u].y += __shfl_xor_sync(0xffffffffu, v[u].y, off);
-          v[u].z += __shfl_xor_sync(0xffffffffu, v[u].z, off);
-          v[u].w += __shfl_xor_sync(0xffffffffu, v[u].w, off);
-        }
-        const int k = k0 + u * NT + tid;
-        const int item = k >> lcs, q = k & (CS - 1);
-        const int rl = item / 17, slot = item - rl * 17;
-        if (k < TOT && q == 0) {
-          if (slot < 16) *reinterpret_cast<float4*>(&RB[(rl * 16 + slot) * 4]) = v[u];
-          else RL[rl] = v[u].x;
-        }
-      }
-    }
-      } else
-  {
-  // compact: peers in groups of 4 (one loop body, warm after its first pass: this code runs once per launch)
-  for (int e = tid; e < RPC * 16; e += NT) {
-    const int off = (row0 + (e >> 4)) * 64 + (e & 15) * 4;
-    const bool lrow = (e & 15) == 0;
-    float4 a = make_float4(0.f, 0.f, 0.f, 0.f);
-    float la = 0.f;
-#pragma unroll 1
-    for (int q0 = 0; q0 < CS; q0 += 4) {
-      float4 v[4];
-      float lv[4];
-#pragma unroll
-      for (int u = 0; u < 4; ++u) {
-        v[u] = cl_ld4(p, PB, q0 + u, off, REGION);
-        lv[u] = lrow ? cl_ld1(p, PL, q0 + u, row0 + (e >> 4), REGION) : 0.f;
-      }
-#pragma unroll
-      for (int u = 0; u < 4; ++u) { a.x += v[u].x; a.y += v[u].y; a.z += v[u].z; a.w += v[u].w; la += lv[u]; }
-    }
-    *reinterpret_cast<float4*>(&RB[e * 4]) = a;
-    if (lrow) RL[e >> 4] = la;
-  }
-  
-  }
-  
-  cl_sync(p, 2);   // peers are done reading this CTA's partial
-
-  bool fin = true;
-  if (p.ncl > 1) {
-    fin = cluster_multi<L>(p, S, CS, rank, RPC, row0, bp, RB, RL);
-  }
-  if (fin) {
-    // rmsnorm * sigmoid(gate) for the slice: 16 threads per row, 4 dims each
-    
-    const float vscale = S.scl[1];
-    for (int eb = tid - (tid & 31); eb < RPC * 16; eb += NT) {   // warp-uniform trip count (shuffles below)
-      const int e = eb + (tid & 31);
-      const bool act = e < RPC * 16;
-      const int rl = act ? (e >> 4) : 0, c4 = e & 15;
-      const int row = row0 + rl;
-      const int j = row >> 4, hh = row & 15;
-      const float lsum = act ? RL[rl] : 0.f;
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      const float4 a = act ? *reinterpret_cast<const float4*>(&RB[e * 4]) : make_float4(0.f, 0.f, 0.f, 0.f);
-      float y[4] = {pr8(a.x * inv), pr8(a.y * inv), pr8(a.z * inv), pr8(a.w * inv)};
-      float ss = y[0] * y[0] + y[1] * y[1] + y[2] * y[2] + y[3] * y[3];
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 8);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const uint2 graw = *reinterpret_cast<const uint2*>(&S.gst[rl * 64 + c4 * 4]);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint2 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int k = 0; k < 2; ++k) {
-        const float2 gt = __bfloat1622float2(g2[k]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * k] * rn * s0, y[2 * k + 1] * rn * s1);
-        ow[k] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (act) *reinterpret_cast<uint2*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + c4 * 4) = ov;
-    }
-    
-  }
-}
-
-// Gate rows of this CTA's cluster slice -> S.gst (cp.async, in the caller's commit group)
-template <int L, typename SM>
-__device__ __forceinline__ void cluster_stage_gate(const Params& p, SM& S, const int b, const int pair) {
-  constexpr int NT = Cfg<L, false>::NT;
-  constexpr int STAGES = Cfg<L, false>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  const int RPC = fdiv_i(L * 16, p.cs), row0 = cl_rank(p) * RPC;
-  for (int e = threadIdx.x; e < RPC * 8; e += NT) {
-    const int rl = e >> 3, ch = e & 7;
-    const int row = row0 + rl, j = row >> 4, hh = row & 15;
-    cp_async16(smem_u32(&S.gst[rl * 64 + ch * 8]),
-               p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + ch * 8, 16);
-  }
-}
-
-// One (request b, KV pair) segment [start, end) of the request's key positions.
-// Sum the nc workspace copies of one (row, 8-dim part) of request-pair bp, token j, head hh, and zero them. Copies in
-// groups of 4 (loads of a group in flight together): one compact loop body, since this runs once per launch from a
-// cold instruction cache (an 8-way unrolled version cost ~2x the instructions).
-template <int L, bool PW>
-__device__ __forceinline__ void sum_copies(const Params& p, const int bp, const int j, const int hh, const int part,
-                                           const bool act, float (&y)[8], float& lsum) {
-  if (p.nc == 1) {   // one copy (the common case): no copy loop, no per-copy branches (scout's census)
-    if (act) {
-      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-      const float4 xa = __ldcg(reinterpret_cast<const float4*>(acc));
-      const float4 xb = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-      const float lc = __ldcg(WSL_AT(PW, (bp * L + j) * 16 + hh));
-      y[0] += xa.x; y[1] += xa.y; y[2] += xa.z; y[3] += xa.w;
-      y[4] += xb.x; y[5] += xb.y; y[6] += xb.z; y[7] += xb.w;
-      lsum += lc;
-      *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-      *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-      if (part == 0) *WSL_AT(PW, (bp * L + j) * 16 + hh) = 0.f;
-    }
-    return;
-  }
-  if (p.nc == 8) {   // eight copies (the one-request q_len 8 plan): every copy's loads in one round trip
-    if (act) {                   // (the rolled 4-copy loop below took two dependent L2 round trips)
-      float4 xa[8], xb[8];
-      float lc[8];
-#pragma unroll
-      for (int c = 0; c < 8; ++c) {
-        const float* acc = p.ws_acc + ((ix_t)((bp * 8 + c) * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-        xa[c] = __ldcg(reinterpret_cast<const float4*>(acc));
-        xb[c] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-        lc[c] = __ldcg(WSL_AT(PW, ((bp * 8 + c) * L + j) * 16 + hh));
-      }
-#pragma unroll
-      for (int c = 0; c < 8; ++c) {
-        y[0] += xa[c].x; y[1] += xa[c].y; y[2] += xa[c].z; y[3] += xa[c].w;
-        y[4] += xb[c].x; y[5] += xb[c].y; y[6] += xb[c].z; y[7] += xb[c].w;
-        lsum += lc[c];
-        float* acc = p.ws_acc + ((ix_t)((bp * 8 + c) * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) *WSL_AT(PW, ((bp * 8 + c) * L + j) * 16 + hh) = 0.f;
-      }
-    }
-    return;
-  }
-#pragma unroll 1
-  for (int c0 = 0; c0 < p.nc; c0 += 4) {
-    float4 xa[4], xb[4];
-    float lc[4];
-#pragma unroll
-    for (int u = 0; u < 4; ++u) {
-      const int c = c0 + u;
-      xa[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-      xb[u] = make_float4(0.f, 0.f, 0.f, 0.f);
-      lc[u] = 0.f;
-      if (act && c < p.nc) {
-        const float* acc = p.ws_acc + ((ix_t)((bp * p.nc + c) * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-        xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));
-        xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-        lc[u] = __ldcg(WSL_AT(PW, ((bp * p.nc + c) * L + j) * 16 + hh));
-      }
-    }
-#pragma unroll
-    for (int u = 0; u < 4; ++u) {
-      const int c = c0 + u;
-      if (act && c < p.nc) {
-        y[0] += xa[u].x; y[1] += xa[u].y; y[2] += xa[u].z; y[3] += xa[u].w;
-        y[4] += xb[u].x; y[5] += xb[u].y; y[6] += xb[u].z; y[7] += xb[u].w;
-        lsum += lc[u];
-        float* acc = p.ws_acc + ((ix_t)((bp * p.nc + c) * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) *WSL_AT(PW, ((bp * p.nc + c) * L + j) * 16 + hh) = 0.f;
-      }
-    }
-  }
-}
-
-// Last-CTA finalize of a request with one workspace copy: sum, normalize, rmsnorm * sigmoid(gate), store,
-// reset the workspace. Not inlined: this runs once per launch and is otherwise fetched cold.
-template <int L, bool PW, int NT>
-__device__ __forceinline__ void fin_nc1(const Params& p, const int b, const int pair, const int bp, const float vscale,
-                                     const int dry) {
-  const int tid = threadIdx.x;
-  // loads of a group of passes first (one L2 round trip per group), then math and stores; groups of 2 passes in a
-  // rolled loop (this runs once per launch from a cold instruction cache: q_len 8 has 4 passes)
-  constexpr int PASSES = L * 16 / (NT / 8);
-  constexpr int GP = PASSES >= 2 ? 2 : 1;
-  const int part = tid & 7;
-#pragma unroll 1
-  for (int p0 = 0; p0 < PASSES; p0 += GP) {
-    float4 xa[GP], xb[GP];
-    float lc[GP];
-    uint4 graw[GP];
-#pragma unroll
-    for (int u = 0; u < GP; ++u) {
-      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);
-      const int j = rr >> 4, hh = rr & 15;
-      const float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-      xa[u] = __ldcg(reinterpret_cast<const float4*>(acc));
-      xb[u] = __ldcg(reinterpret_cast<const float4*>(acc) + 1);
-      lc[u] = __ldcg(WSL_AT(PW, (bp * L + j) * 16 + hh));
-      graw[u] = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);
-    }
-#pragma unroll
-    for (int u = 0; u < GP; ++u) {
-      const int rr = (p0 + u) * (NT / 8) + (tid >> 3);
-      const int j = rr >> 4, hh = rr & 15;
-      float* acc = p.ws_acc + ((ix_t)(bp * L + j) * 16 + hh) * WSR<PW>::STR + part * 8;
-      if (!dry) {
-        *reinterpret_cast<float4*>(acc) = make_float4(0.f, 0.f, 0.f, 0.f);
-        *(reinterpret_cast<float4*>(acc) + 1) = make_float4(0.f, 0.f, 0.f, 0.f);
-        if (part == 0) *WSL_AT(PW, (bp * L + j) * 16 + hh) = 0.f;
-      }
-      const float inv = lc[u] > 0.f ? __fdividef(vscale, lc[u]) : 0.f;
-      float y[8] = {pr8(xa[u].x * inv), pr8(xa[u].y * inv), pr8(xa[u].z * inv), pr8(xa[u].w * inv),
-                    pr8(xb[u].x * inv), pr8(xb[u].y * inv), pr8(xb[u].z * inv), pr8(xb[u].w * inv)};
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) ss += y[e] * y[e];
-      ss = oct_sum(ss);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw[u]);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (!dry) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-  }
-}
-
-// the q_len 8 flat loop's rare new-row patch as a call, so ptxas cannot hoist its bounds math into the
-// common path of every tile
-template <int L, int NT, bool PTR, class SM>
-__device__ __noinline__ bool ws_patch_ni(SM* Sp, int i, int st, int start, int seq, int end, int tid) {
-  SM& S = *Sp;
-  const int t0 = start + i * TILE;
-  const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-  if (lo < hi) {
-    for (int e = tid; e < (hi - lo) * 8; e += NT) {
-      const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-      const int sw = ((c ^ (r & 7)) << 4);
-      *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-      *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-    }
-    if (L == 8) fence_proxy_async();
-  }
-  return lo < hi;
-}
-
-template <int L, bool FLAT, int ROLE, int MODE = 0>
-__device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const int b_, const int pair_, const bool first,
-                                        const int start_, const int end_, const int seq_, const int n_keys_,
-                                        const int copy_, const int chunk_, const int tb_ = 0, const int seq_real_ = 0,
-                                        const bool skip_init_ = false) {
-  // (returns false only in the builds, when the speculated length missed: nothing global was written yet and
-  // the caller re-runs the segment with the real length)
-  // per-segment values as lane-0 broadcasts : provably warp-uniform, so ptxas keeps the address math
-  // derived from them in uniform registers (they come from shared memory or per-CTA math, uniform but unproven)
-#define UNI(x) __shfl_sync(0xffffffffu, (x), 0)
-  const int b = UNI(b_), pair = UNI(pair_), start = UNI(start_), end = UNI(end_), seq = UNI(seq_);
-  const int n_keys = UNI(n_keys_), copy = UNI(copy_), chunk = UNI(chunk_), tb = UNI(tb_);
-#undef UNI
-  // tb: tiles this CTA's pipeline has already run (flat producer mode: the stage ring and its mbarrier phases
-  // continue across segments, so the producer runs ahead into the next segment instead of draining)
-  // MODE: the per-request (non-flat) kernel is built once per launch mode, so each build carries only its own
-  // epilogue (once-per-launch code runs from a cold instruction cache): 1 plain split-KV, 2 clusters,
-  // 3 cooperative; 0 = decided at run time (flat kernels)
-  // MODE | 4 = a build for grids whose every split holds at most one tile (the host checks): the tile loop,
-  // the in-loop copies and the first-tile tests fold at compile time (scout's once-path census, s1 / vs1)
-  constexpr bool ONE = !FLAT && (MODE & 4) != 0;
-  constexpr bool PADWS = L == 1 && !FLAT && !ONE;   // padded workspace rows + bulk-reduction merge
-  const bool M_CL = !FLAT && ((MODE & 3) == 0 ? p.cs > 1 : (MODE & 3) == 2);
-  const bool M_COOP = (MODE & 3) == 0 ? p.coop != 0 : (MODE & 3) == 3;
-  constexpr int NT = Cfg<L, FLAT>::NT;
-  constexpr int STAGES = Cfg<L, FLAT>::STAGES;
-  // flat q_len 8 with FP8 PV: the producer warps (idle most of the time) build each tile's V^T for the PV wgmma
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  constexpr bool WS = Cfg<L, FLAT>::WS;
-  // (the warp index as a lane-0 broadcast, so ptxas can prove it warp-uniform and keep the addresses
-  // derived from it (KV head, descriptors, buffers) in uniform registers; CUTLASS's canonical_warp_idx_sync idiom)
-  const int tid = threadIdx.x, lane = tid & 31, warp = __shfl_sync(0xffffffffu, tid >> 5, 0);
-  const int g = lane >> 2, tig = lane & 3;
-  const int split = first ? 0 : 1;
-  const int pairs = p.Hkv >> 1;
-  const int bp = b * pairs + pair;
-  const int ntiles = ONE ? 1 : (end - start + TILE - 1) / TILE;   // (ONE: a CTA without keys returned earlier)
-
-  if constexpr (WS) {
-    constexpr int NP = Cfg<L, FLAT>::NP;
-    constexpr int PR = NP / 8;            // rows per producer pass
-    constexpr int PK = TILE / PR;         // passes per tile
-    if (!skip_init_) {   // (the first segment's barriers were set up at kernel start)
-      if (ROLE == 2 && tid == 0) {   // fresh phases for this segment (the previous one ended with every stage consumed)
-        for (int st = 0; st < STAGES; ++st) {
-          mbar_init_n(&S.full[st], NP);
-          mbar_init_n(&S.empty[st], NT);   // F2: one warpgroup per head takes each tile
-        }
-        
-        mbar_fence_init();
-      }
-      __syncthreads();
-    }
-    if constexpr (ROLE == 1) {
-      // ---- producer threads: 16-byte chunk (q & 7) of rows (q >> 3) + PR*k; the cache rows of every tile,
-      // zeros past the range; the block's own new keys are patched in by the consumers
-      const int q = tid - NT;
-      const int ch = q & 7, r0 = q >> 3;
-      const int* ptr = p.page_table + (ix_t)b * p.max_pages;
-      const int cache_end = min(end, seq);
-      int pg[PK];
-      static_assert(PR % 8 == 0, "PFAST: the swizzle chunk is the same for all of a thread's rows");
-      const bool pfast = p.off32 && p.lp == 0;
-      const uint32_t pcol = (uint32_t)(pair * 128 + ch * 16);
-      const uint32_t pso = r0 * ROWB + ((ch ^ (r0 & 7)) << 4);
-      // page indices by TMA (q_len 1 flat only: f16 -2.4%, f32 -1.7%; the q_len 8 flat kernel lost ~0.7%)
-      constexpr bool TMAPG_ON = (L == 1);
-      // page indices by TMA: one 64-entry box per tile, PD tiles ahead, PS slots, producer barrier per tile
-      constexpr int PS = 4, PD = 3;
-      int pgb = 0;   // fills issued by earlier segments (slot / phase base)
-      if constexpr (TMAPG_ON) {
-          
-          if (q == 0) {
-            for (int st = 0; st < PS; ++st) mbar_init_n(&S.pbar[st], 1);
-            mbar_fence_init();
-          }
-          asm volatile("bar.sync 2, %0;\n" ::"n"(NP) : "memory");
-        
-      }
-      // the 16-byte aligned window holding the tile's page indices; reads stay inside the table's allocation
-      // (CUDA allocations are 256-byte aligned and sized in larger multiples than 16 bytes)
-      const long long pt_total = (long long)p.B * p.max_pages;
-      const long long pt_lim = (pt_total + 3) & -4;
-      auto fetch_pages = [&](int x) {
-        if (q == 0 && x < ntiles) {
-          const int slot = (pgb + x) % PS;
-          const long long e0 = (long long)b * p.max_pages + ((start + x * TILE) >> p.lp);
-          const long long w0 = e0 & -4;
-          const long long w1 = min(pt_lim, (e0 + 64 + 3) & -4);
-          const int bytes = (int)(w1 - w0) * 4;
-          mbar_expect_tx(&S.pbar[slot], bytes);
-          bulk_load(&S.pidx[slot][0], p.page_table + w0, bytes, &S.pbar[slot]);
-        }
-      };
-      if constexpr (TMAPG_ON) {
-        for (int x = 0; x < PD; ++x) fetch_pages(x);
-      }
-      auto load_pages_t = [&](int x, int* dst) {
-        const int slot = (pgb + x) % PS;
-        mbar_wait_full(&S.pbar[slot], ((pgb + x) / PS) & 1);
-        const int fp = (start + x * TILE) >> p.lp;
-        const int dl = (int)(((long long)b * p.max_pages + fp) & 3);   // window offset of the first page
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int pos = start + x * TILE + r0 + PR * k;
-          dst[k] = (pos < cache_end) ? S.pidx[slot][(pos >> p.lp) - fp + dl] : 0;
-        }
-      };
-      auto load_pages = [&](int x, int* dst) {
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int pos = start + x * TILE + r0 + PR * k;
-          dst[k] = (x < ntiles && pos < cache_end) ? __ldg(ptr + (pos >> p.lp)) : 0;
-        }
-      };
-      if constexpr (!TMAPG_ON) load_pages(0, pg);
-      
-      // tile y's V (both KV heads) -> V^T slot y & 1 (72 x 64 per head: 64 dims + 8 rows of e4m3 ones for the
-      // row sums, keys permuted to the P register order, K-major, 64B swizzle), the layout the PV wgmma reads
-      for (int x = 0; x < ntiles; ++x) {
-        const int st = (tb + x) % STAGES;
-        int pgn[PK];
-        if constexpr (TMAPG_ON) {
-          fetch_pages(x + PD);
-          load_pages_t(x, pg);
-        } else {
-          load_pages(x + 1, pgn);   // in flight while this tile's copies issue
-        }
-        if (tb + x >= STAGES) mbar_wait_full(&S.empty[st], (((tb + x) / STAGES) - 1) & 1);
-        const uint32_t kb = smem_u32(S.k + st * STAGE_BYTES), vb = smem_u32(S.v + st * STAGE_BYTES);
-        // common tiles (every row cached, page size 1, caches below 4 GB): one shift-add per row, no per-row
-        // branches (the producer's instructions take issue slots from the consumers on the same SMSPs)
-        if (pfast && start + x * TILE + TILE <= cache_end) {
-#pragma unroll
-          for (int k = 0; k < PK; ++k) {
-            const uint32_t off = ((uint32_t)pg[k] << p.lrb) + pcol;
-            cp_async16(kb + pso + k * (PR * ROWB), p.k_cache + off, 16);
-            cp_async16(vb + pso + k * (PR * ROWB), p.v_cache + off, 16);
-          }
-        } else
-#pragma unroll
-        for (int k = 0; k < PK; ++k) {
-          const int r = r0 + PR * k;
-          const int pos = start + x * TILE + r;
-          const uint32_t so = r * ROWB + ((ch ^ (r & 7)) << 4);
-          if (pos < cache_end) {
-            if (p.off32) {   // caches below 4 GB: 32-bit offsets (uniform branch)
-              const uint32_t off = ((((uint32_t)pg[k] << p.lp) + (uint32_t)(pos & (p.P - 1))) << p.lrb) + (uint32_t)(pair * 128 + ch * 16);
-              cp_async16(kb + so, p.k_cache + off, 16);
-              cp_async16(vb + so, p.v_cache + off, 16);
-            } else
-            {
-              const int64_t off = (((int64_t)pg[k] << p.lp) + (pos & (p.P - 1))) * p.row_bytes + pair * 128 + ch * 16;
-              cp_async16(kb + so, p.k_cache + off, 16);
-              cp_async16(vb + so, p.v_cache + off, 16);
-            }
-          } else if (pos >= end) {
-            cp_async16_zero(kb + so, p.k_cache);
-            cp_async16_zero(vb + so, p.v_cache);
-          }
-        }
-        cp_async_mbar_arrive(&S.full[st]);
-        
-        PROF_TILE;
-        if constexpr (TMAPG_ON) {
-          asm volatile("bar.sync 2, %0;\n" ::"n"(NP) : "memory");   // slot x % PS is free for tile x + PS
-        } else {
-#pragma unroll
-          for (int k = 0; k < PK; ++k) pg[k] = pgn[k];
-        }
-      }
-      
-      
-      PROF_DUMP;
-      
-        cp_wait<0>();
-        __syncthreads();   // matches the consumers' end-of-segment barrier
-      
-      return true;
-    }
-  }
-  if constexpr (ROLE != 1) {
-
-  const int prow = tid >> 1, phalf = tid & 1;
-  const int* pt_row = p.page_table + (ix_t)b * p.max_pages;
-  const int part = tid & 7;
-
-  // ---- producer helpers ----
-  // K/V: thread -> 16-byte chunk (tid & 7) of rows (tid >> 3) + 16*k: a warp copies 4 whole 128-byte rows.
-  // New-token rows come from S.kn / S.vn; rows past the range are zeroed.
-  const int cchunk = tid & 7, crow0 = tid >> 3;
-  constexpr int RPP = NT / 8;   // rows per pass
-  auto issue_kv = [&](int x, bool with_new) {
-    const int st = x % STAGES;
-    const int* idxs = &S.idx[(x % IDX_SLOTS) * TILE];
-    bool generic = false;   // st.shared into a K stage: the wgmma (async proxy) needs a proxy fence
-    // every row of the tile cached (pos < min(end, seq)), page size 1, caches below 4 GB: one shift-add
-    // per row, no per-row branches (the per-request issue runs from a cold instruction cache, mostly once)
-    if (with_new && p.off32 && p.lp == 0 && start + x * TILE + TILE <= min(end, seq)) {   // (in-loop issues only: the
-      // prologue's cold copy of the tile-0 issue stays the plain one, s1 measured +1.5% with it)
-      const uint32_t kst = smem_u32(S.k + st * STAGE_BYTES), vst = smem_u32(S.v + st * STAGE_BYTES);
-      const uint32_t col = (uint32_t)(pair * 128 + cchunk * 16);
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const uint32_t so = r * ROWB + ((cchunk ^ (r & 7)) << 4);
-        const uint32_t off = ((uint32_t)idxs[r] << p.lrb) + col;
-        cp_async16(kst + so, p.k_cache + off, 16);
-        cp_async16(vst + so, p.v_cache + off, 16);
-      }
-      return;
-    }
-#pragma unroll
-    for (int k = 0; k < TILE / RPP; ++k) {
-      const int r = crow0 + RPP * k;
-      const int pos = start + x * TILE + r;
-      const int sw = ((cchunk ^ (r & 7)) << 4);
-      uint8_t* dk = S.k + st * STAGE_BYTES + r * ROWB + sw;
-      uint8_t* dv = S.v + st * STAGE_BYTES + r * ROWB + sw;
-      if (pos < end && pos < seq) {
-        if (p.off32) {   // caches below 4 GB: 32-bit offsets (uniform branch)
-          const uint32_t off = ((((uint32_t)idxs[r] << p.lp) + (uint32_t)(pos & (p.P - 1))) << p.lrb) + (uint32_t)(pair * 128 + cchunk * 16);
-          cp_async16(smem_u32(dk), p.k_cache + off, 16);
-          cp_async16(smem_u32(dv), p.v_cache + off, 16);
-        } else
-        {
-          const int64_t row = ((int64_t)idxs[r] << p.lp) + (pos & (p.P - 1));
-          const int64_t off = row * p.row_bytes + pair * 128 + cchunk * 16;
-          cp_async16(smem_u32(dk), p.k_cache + off, 16);
-          cp_async16(smem_u32(dv), p.v_cache + off, 16);
-        }
-      } else if (pos < end) {
-        if (with_new) {
-          *reinterpret_cast<uint4*>(dk) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + cchunk * 16);
-          *reinterpret_cast<uint4*>(dv) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + cchunk * 16);
-          generic = true;
-        }
-      } else {   // past the range: masked out of S; V must be finite (P = 0 times V)
-        *reinterpret_cast<uint4*>(dk) = make_uint4(0, 0, 0, 0);
-        *reinterpret_cast<uint4*>(dv) = make_uint4(0, 0, 0, 0);
-      }
-    }
-    if (L == 8 && generic) fence_proxy_async();
-  };
-  auto issue_idx = [&](int y) {
-    if (phalf == 0 && prow < TILE && y < ntiles) {
-      const int pos = start + y * TILE + prow;
-      if (pos < end && pos < seq) cp_async4(smem_u32(&S.idx[(y % IDX_SLOTS) * TILE + prow]), pt_row + (pos >> p.lp));
-    }
-  };
-  // producer mode: wait for stage `st` (tile i) and write the block's own new keys / values into it
-  auto ws_patch = [&](int i, int st) {   // the block's own new rows (positions >= seq) into tile i's stage
-    const int t0 = start + i * TILE;
-    const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-    if (lo < hi) {   // same for every consumer thread
-      for (int e = tid; e < (hi - lo) * 8; e += NT) {
-        const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-        const int sw = ((c ^ (r & 7)) << 4);
-        *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-        *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-      }
-      if (L == 8) fence_proxy_async();
-    }
-    return lo < hi;
-  };
-  auto ws_acquire = [&](int i, int st) {
-    mbar_wait_full(&S.full[st], ((tb + i) / STAGES) & 1);
-    const int t0 = start + i * TILE;
-    const int lo = max(t0, seq), hi = min(t0 + TILE, end);
-    if (lo < hi) {   // same for every consumer thread
-      for (int e = tid; e < (hi - lo) * 8; e += NT) {
-        const int pos = lo + (e >> 3), c = e & 7, r = pos - t0;
-        const int sw = ((c ^ (r & 7)) << 4);
-        *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + c * 16);
-        *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + c * 16);
-      }
-      if (L == 8) fence_proxy_async();
-    }
-    return lo < hi;
-  };
-
-  // ---- 1. page indices of the first STAGES-1 tiles; raw q / k / v rows into registers ----
-  int tidL = tid, partL = part;   // (re-read after the page-index copies are issued)
-  constexpr int QPASS = L * 16 / RPP;            // L*16 rows, RPP rows per pass
-  const bool has_new = end > seq;
-  constexpr int KPASS = (L * 4 + RPP - 1) / RPP; // L*4 rows (k, v of 2 heads), RPP rows per pass
-  constexpr bool QDIR = L == 8 && !WS;
-  constexpr bool IDXF = !WS;
-  {
-  if constexpr (!WS) {
-#pragma unroll
-    for (int y = 0; y < STAGES - 1; ++y) issue_idx(y);
-  }
-  cp_commit();
-  if (!WS && (MODE & 8)) {   // (speculative builds only) a late copy of tid: the q / new-row / table math below cannot be hoisted above the page-index
-    // copies (or out of the speculative retry loop to the kernel top: scout's v200 census, segment head 21 -> 62/97)
-    asm volatile("mov.u32 %0, %%tid.x;" : "=r"(tidL));
-    partL = tidL & 7;
-  }
-
-  pdl_wait();   // qkv (q, new k / v, gate) is the preceding kernel's output; nothing above reads or writes it
-  // raw q rows: L*16 rows x 128 B = 8 chunks of 16 B per row
-  tfor<L * 16 * 8, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-    const int rr = e >> 3, ch = e & 7;
-    const int j = rr >> 4, hh = rr & 15;
-    cp_async16(smem_u32(&S.qst()[rr * 64 + ch * 8]), p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (16 * pair + hh) * 64 + ch * 8, 16);
-  });
-  if (has_new) {
-    tfor<L * 4 * 8, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const int rr = e >> 3, ch = e & 7;
-      const int kind = rr / (2 * L), jj = (rr % (2 * L)) >> 1, hh = rr & 1;
-      const int col = (kind == 0 ? p.Hq : p.Hq + p.Hkv) * 64 + (2 * pair + hh) * 64 + ch * 8;
-      cp_async16(smem_u32(&S.kvst[rr * 64 + ch * 8]), p.qkv + (ix_t)(b * L + jj) * p.ld_qkv + col, 16);
-    });
-  }
-  if (M_CL) cluster_stage_gate<L>(p, S, b, pair);
-  // small per-call constants: staged with the same group instead of cold loads in the middle of the prologue
-  if (tidL < 8) cp_async16(smem_u32(&S.ifreq[tidL * 4]), p.inv_freq + tidL * 4, 16);
-  else if (tidL == 8) cp_async4(smem_u32(&S.scl[0]), p.k_scale);
-  else if (tidL == 9) cp_async4(smem_u32(&S.scl[1]), p.v_scale);
-  else if (!FLAT && M_COOP && tidL == 10)   // the coop barrier's flag / epoch, early
-    cp_async4(smem_u32(&S.sense), p.ws_cnt + 24576 + bp);
-  else if (tidL >= 16 && tidL < 16 + L) {
-    const int jj = tidL - 16;
-    asm volatile("cp.async.ca.shared.global [%0], [%1], 8;\n" ::"r"(smem_u32(&S.cloc[jj])), "l"(p.cache_loc + b * L + jj));
-  }
-  cp_commit();
-  if (split == 0 && (FLAT || !M_CL)) {  // warm L2 with the gate rows for whichever CTA finishes last
-    tfor<L * 16, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const __nv_bfloat16* gp = p.qkv + (ix_t)(b * L + (e >> 4)) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + (e & 15)) * 64;
-      asm volatile("prefetch.global.L2 [%0];" ::"l"(gp));
-    });
-  }
-
-  // ---- 2. K/V of the first STAGES-1 tiles in flight as soon as their page indices land ----
-  // (per-request kernels): wait for the page-index group only (committed first, 256 B); the q / new
-  // k,v / constants group (up to 16 KB) may still be in flight while the K/V copies go out
-  cp_wait<IDXF ? 1 : 0>();
-  csync<WS, NT>();
-  if constexpr (!FLAT && (MODE & 8) != 0) {
-    // this CTA's ranges and page indices came from the speculated length (see the kernel); the real
-    // cache_seqlens value has landed by now (it was loaded alongside the indices). On a miss, nothing global has been
-    // written: drain the copies and let the caller redo the segment with the real length (today's path)
-    if (seq_real_ != seq) {
-      cp_wait<0>();
-      __syncthreads();
-      return false;
-    }
-  }
-  if constexpr (!WS) {
-    constexpr int PRE = STAGES - 1;   // two streams: one cp.async group per tile, the loop issues pairs
-    bool one = false;
-    // a CTA with a single fully cached tile (page size 1, caches < 4 GB): its copies straight-line (one
-    // shift-add per row), none of the loop / per-row tests / issue_idx past the last tile, then the commits the
-    // pipeline's group count expects (scout's census: ~168 instr, 11 taken branches here on s1, cold)
-    if (ONE && p.off32 && p.lp == 0) {
-      one = true;
-      const uint32_t kst = smem_u32(S.k), vst = smem_u32(S.v);
-      const uint32_t col = (uint32_t)(pair * 128 + cchunk * 16);
-      const int cend = min(end, seq);
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const uint32_t so = r * ROWB + ((cchunk ^ (r & 7)) << 4);
-        
-          // branch-free (scout's v200 census: the per-row branches cost 16 instr + 4 taken branches per warp, cold):
-          // cached rows copy, rows past the range zero-fill (masked out of S; V must be finite), the block's new
-          // rows are skipped (written by the patch pass after the new-k/v pass)
-          const int pr = start + r;
-          const bool cached = pr < cend;
-          const bool doit = cached || pr >= end;
-          const uint32_t off = ((uint32_t)S.idx[r] << p.lrb) + col;   // (zero-filled index past the cached rows)
-          cp_async16_pred(kst + so, p.k_cache + off, cached ? 16 : 0, doit);
-          cp_async16_pred(vst + so, p.v_cache + off, cached ? 16 : 0, doit);
-            // (the block's new rows: written by the patch pass after the new-k/v pass, as with the general issue)
-      }
-#pragma unroll
-      for (int k = 0; k < STAGES - 1; ++k) cp_commit();
-    }
-    if (!one) {
-#pragma unroll
-    for (int k = 0; k < STAGES - 1; ++k) {   // (unrolled: no loop branches; rolled: one copy of the issue code)
-      if (k < PRE && k < ntiles) issue_kv(k, false);
-      issue_idx(k + STAGES - 1);
-      if (k < PRE - 1 || k == STAGES - 2) cp_commit();
-    }
-    }
-  }
-  }
-
-  if constexpr (IDXF) {   // the q group (all but the STAGES-1 K/V groups just committed), visible to every thread
-    cp_wait<STAGES - 1>();
-    csync<WS, NT>();
-  }
-  // ---- 3. while they load: RoPE table, queries, the block's new keys / values ----
-  if (p.rope) {
-    tfor<L * 32, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
-      const int j = e >> 5, i = e & 31;
-      const float ang = (float)(seq + j) * S.ifreq[i];   // fp32 angle, as the reference builds it
-      float sv, cv;
-      // Cody-Waite reduction mod 2 pi with a 3-part constant (6.25 has 5 significant bits: exact products for
-      // |k| < 2^19, angles up to ~3e6), then the hardware sin / cos on [-pi, pi]: ~5e-7 absolute, against
-      // ~30 cold instructions (and a Payne-Hanek call above |x| ~ 1e5) for the accurate sincosf
-      const float kq = rintf(ang * 0.15915493667125702f);
-      float rr = fmaf(-kq, 6.25f, ang);
-      rr = fmaf(-kq, 0.03318530693650246f, rr);
-      rr = fmaf(-kq, 2.430837753308879e-10f, rr);
-      __sincosf(rr, &sv, &cv);
-      S.cs[e] = cv;
-      S.sn[e] = sv;
-    });
-  }
-  csync<WS, NT>();
-
-  const float kscale = S.scl[0], vscale = S.scl[1];
-  const float sl2 = p.scale_log2 * kscale;
-
-  if constexpr (QDIR) {
-    // (q_len 8, QDIRECT): four threads per query row, 16 dims each (half the passes of the 8-thread
-    // layout, two shuffle levels instead of three, one 16-byte e4m3 store); same math per element
-    constexpr int RP4 = NT / 4;                    // rows per pass
-    constexpr int QP4 = L * 16 / RP4;
-    const int q4 = tidL & 3;
-#pragma unroll
-    for (int ps = 0; ps < QP4; ++ps) {
-      const int rr = ps * RP4 + (tidL >> 2);
-      const int j = rr >> 4, hh = rr & 15;
-      const uint4 qa = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + q4 * 16]);
-      const uint4 qb = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + q4 * 16 + 8]);
-      const __nv_bfloat162* ha = reinterpret_cast<const __nv_bfloat162*>(&qa);
-      const __nv_bfloat162* hb = reinterpret_cast<const __nv_bfloat162*>(&qb);
-      float x[16];
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 fa = __bfloat1622float2(ha[e]);
-        const float2 fb = __bfloat1622float2(hb[e]);
-        x[2 * e] = fa.x; x[2 * e + 1] = fa.y;
-        x[8 + 2 * e] = fb.x; x[8 + 2 * e + 1] = fb.y;
-      }
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 16; ++e) ss += x[e] * x[e];
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-      for (int e = 0; e < 16; ++e) x[e] *= r;
-      if (p.rope) {
-#pragma unroll
-        for (int e = 0; e < 8; ++e) {
-          const int i = q4 * 8 + e;
-          const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
-          const float a0 = x[2 * e], a1 = x[2 * e + 1];
-          x[2 * e] = a0 * c - a1 * sn;
-          x[2 * e + 1] = a0 * sn + a1 * c;
-        }
-      }
-      const int hk4 = hh >> 3, gg4 = hh & 7;
-      const int r4 = j * 8 + gg4, kb = q4 * 16;
-      *reinterpret_cast<uint4*>(S.q8s + hk4 * 4096 + r4 * 64 + (((kb >> 4) ^ ((r4 >> 1) & 3)) << 4)) =
-          make_uint4(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]),
-                     e4m3x4f(x[8], x[9], x[10], x[11]), e4m3x4f(x[12], x[13], x[14], x[15]));
-    }
-  } else
-#pragma unroll
-  for (int ps = 0; ps < QPASS; ++ps) {
-    const int rr = ps * RPP + (tidL >> 3);
-    const int j = rr >> 4, hh = rr & 15;
-    const uint4 qv = *reinterpret_cast<const uint4*>(&S.qst()[rr * 64 + partL * 8]);
-    const __nv_bfloat162* h2 = reinterpret_cast<const __nv_bfloat162*>(&qv);
-    float x[8];
-#pragma unroll
-    for (int e = 0; e < 4; ++e) {
-      const float2 f = __bfloat1622float2(h2[e]);
-      x[2 * e] = f.x;
-      x[2 * e + 1] = f.y;
-    }
-    float ss = 0.f;
-#pragma unroll
-    for (int e = 0; e < 8; ++e) ss += x[e] * x[e];
-    ss = oct_sum(ss);
-    const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-    for (int e = 0; e < 8; ++e) x[e] *= r;
-    if (p.rope) {
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const int i = partL * 4 + e;
-        const float c = S.cs[j * 32 + i], sn = S.sn[j * 32 + i];
-        const float a0 = x[2 * e], a1 = x[2 * e + 1];
-        x[2 * e] = a0 * c - a1 * sn;
-        x[2 * e + 1] = a0 * sn + a1 * c;
-      }
-    }
-    // f16 query pre-scaled to log2 units, staged in the (still free) last pipeline stage
-    uint4 qw;
-    uint32_t* qwp = reinterpret_cast<uint32_t*>(&qw);
-    // (q_len 8 on sm_90 rounds the query to e4m3: keep it unit-RMS like SGLang does -- pre-scaling it by the
-    // kv scale would push it into e4m3's subnormals -- and scale the scores instead)
-    const float qsc = (L == 8) ? 1.f : sl2;
-    const int hk = hh >> 3, gg = hh & 7;
-    if constexpr (QDIR) {
-      // straight to the e4m3 A tile of the SS QK^T wgmma (64-byte rows, 16-byte chunks swizzled by
-      // (row >> 1) & 3), one fp32 -> e4m3 rounding, no f16 staging / re-read (scout's census: ~90 instr / warp)
-      const int r = j * 8 + gg, kb = partL * 8;
-      *reinterpret_cast<uint2*>(S.q8s + hk * 4096 + r * 64 + (((kb >> 4) ^ ((r >> 1) & 3)) << 4) + (kb & 15)) =
-          make_uint2(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]));
-      continue;
-    }
-#pragma unroll
-    for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);
-    if constexpr (L == 1) { const uint32_t t1 = qwp[1]; qwp[1] = qwp[2]; qwp[2] = t1; }   // (scout: quad order 0,2,1,3)
-    if constexpr (WS) {   // in place over the raw row (same thread, same 16 bytes)
-      *reinterpret_cast<uint4*>(S.kvq + rr * 128 + partL * 16) = qw;
-    } else {
-      uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;
-      *reinterpret_cast<uint4*>(qs + (j * 8 + gg) * 128 + partL * 16) = qw;
-    }
-  }
-  if constexpr (QDIR) fence_proxy_async();   // the e4m3 q tile (st.shared) is read by the wgmma after the loop's first barrier
-
-  if (has_new) {
-#pragma unroll
-    for (int ps = 0; ps < KPASS; ++ps) {
-      const int rr = ps * RPP + (tidL >> 3);
-      const bool live = rr < L * 4;
-      const int kind = rr / (2 * L);
-      const int jj = (rr % (2 * L)) >> 1, hh = rr & 1;
-      float x[8];
-      const uint4 kvv = live ? *reinterpret_cast<const uint4*>(&S.kvst[rr * 64 + partL * 8]) : make_uint4(0, 0, 0, 0);
-      const __nv_bfloat162* h2 = reinterpret_cast<const __nv_bfloat162*>(&kvv);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 f = __bfloat1622float2(h2[e]);
-        x[2 * e] = f.x;
-        x[2 * e + 1] = f.y;
-      }
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) ss += x[e] * x[e];
-      ss = oct_sum(ss);   // every lane of the warp (rows of both kinds share warps)
-      float sc;
-      if (kind == 0) {
-        const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-#pragma unroll
-        for (int e = 0; e < 8; ++e) x[e] *= r;
-        if (p.rope && live) {
-#pragma unroll
-          for (int e = 0; e < 4; ++e) {
-            const int i = partL * 4 + e;
-            const float c = S.cs[jj * 32 + i], sn = S.sn[jj * 32 + i];
-            const float a0 = x[2 * e], a1 = x[2 * e + 1];
-            x[2 * e] = a0 * c - a1 * sn;
-            x[2 * e + 1] = a0 * sn + a1 * c;
-          }
-        }
-        sc = __fdividef(1.f, kscale);   // (MUFU.RCP: no IEEE slow-path call and its branches on the once-path;
-      } else {                          // exact for the power-of-two scales)
-        sc = __fdividef(1.f, vscale);
-      }
-      if (live) {
-        uint32_t w0 = 0, w1 = 0;
-#pragma unroll
-        for (int e = 0; e < 4; ++e) {
-          w0 |= (uint32_t)to_e4m3(x[e] * sc) << (8 * e);
-          w1 |= (uint32_t)to_e4m3(x[4 + e] * sc) << (8 * e);
-        }
-        uint8_t* dst = (kind == 0 ? S.kn : S.vn) + jj * ROWB + hh * 64 + partL * 8;
-        *reinterpret_cast<uint2*>(dst) = make_uint2(w0, w1);
-        const int pos = seq + jj;
-        if (pos >= start && pos < end) {
-          const int64_t row = S.cloc[jj];
-          uint8_t* g8 = const_cast<uint8_t*>(cache_row(kind == 0 ? p.k_cache : p.v_cache, p, row, (2 * pair + hh) * 64 + partL * 8));
-          *reinterpret_cast<uint2*>(g8) = make_uint2(w0, w1);
-        }
-      }
-    }
-  }
-  csync<WS, NT>();
-  if (!WS && has_new) {
-    // new-token rows of the tiles already issued (their cached rows are in flight with cp.async)
-    for (int x = 0; x < (STAGES - 1) && x < ntiles; ++x) {
-      const int st = x % STAGES;
-#pragma unroll
-      for (int k = 0; k < TILE / RPP; ++k) {
-        const int r = crow0 + RPP * k;
-        const int pos = start + x * TILE + r;
-        if (pos >= seq && pos < end) {
-          const int sw = ((cchunk ^ (r & 7)) << 4);
-          *reinterpret_cast<uint4*>(S.k + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.kn + (pos - seq) * ROWB + cchunk * 16);
-          *reinterpret_cast<uint4*>(S.v + st * STAGE_BYTES + r * ROWB + sw) = *reinterpret_cast<const uint4*>(S.vn + (pos - seq) * ROWB + cchunk * 16);
-        }
-      }
-    }
-    if (L == 8) fence_proxy_async();   // new keys written with st.shared, read by the QK wgmma
-  }
-
-  
-  // ---- consumer state ----
-  constexpr int MT = 1;                    // m-tiles per warp
-  constexpr int NROW = (L == 1) ? 1 : 2;   // rows per thread
-  // (lane-0 broadcasts, so ptxas keeps them in uniform registers instead of re-deriving them every tile)
-  const int hk = __shfl_sync(0xffffffffu, (L == 1) ? (warp & 1) : ((warp & 7) >> 2), 0);      // L==8: warpgroup = KV head
-  const int wsub = __shfl_sync(0xffffffffu, (L == 1) ? (warp >> 1) : (warp & 3), 0);    // L==1: key half; L==8: m-tile (tokens 2*wsub, 2*wsub+1)
-  const int wgi = hk;          // named barrier of this warpgroup
-  float o[MT][8][4];
-#pragma unroll
-  for (int mt = 0; mt < MT; ++mt)
-#pragma unroll
-    for (int t = 0; t < 8; ++t)
-#pragma unroll
-      for (int e = 0; e < 4; ++e) o[mt][t][e] = 0.f;
-  float m_r[NROW], l_r[NROW];
-#pragma unroll
-  for (int r = 0; r < NROW; ++r) { m_r[r] = -INFINITY; l_r[r] = 0.f; }
-  // tiles with no window / causal / range edge skip the per-element mask
-  const int lo_all = (L == 1 || !p.window) ? start : max(start, seq + (L - 1) - p.window + 1);
-  const int hi_all = __shfl_sync(0xffffffffu, min(end - 1, seq), 0);
-
-  if constexpr (L == 1) {
-  // Q A-fragments (f16, pre-scaled to log2 units) for 4 k-steps of 16 dims: thread holds dims
-  // 16*tig + 4*ks + {0,1} (a0) and + {2,3} (a2); the K B-fragments use the same dims.
-  uint32_t qa[4][2];
-  {
-    const uint8_t* qs = WS ? S.kvq + hk * 8 * 128 : (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;
-    const uint4 l0 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig);
-    const uint4 l1 = *reinterpret_cast<const uint4*>(qs + g * 128 + 32 * tig + 16);
-    // (scout: chunk words stored (0, 2, 1, 3): l0 = {ks0 a0, ks1 a0, ks0 a2, ks1 a2}, l1 the same for ks 2, 3)
-    qa[0][0] = l0.x; qa[0][1] = l0.y; qa[1][0] = l0.z; qa[1][1] = l0.w;
-    qa[2][0] = l1.x; qa[2][1] = l1.y; qa[3][0] = l1.z; qa[3][1] = l1.w;
-  }
-
-  for (int i = 0; i < ntiles; ++i) {
-    if constexpr (WS) {
-      if (ws_acquire(i, (tb + i) % STAGES)) csync<WS, NT>();
-    } else {
-      cp_wait<STAGES - 2>();
-      __syncthreads();
-      if (i + STAGES - 1 < ntiles) issue_kv(i + STAGES - 1, true);
-      issue_idx(i + 2 * STAGES - 2);
-      cp_commit();
-    }
-
-    const uint8_t* K = S.k + ((tb + i) % STAGES) * STAGE_BYTES;
-    const uint8_t* V = S.v + ((tb + i) % STAGES) * STAGE_BYTES;
-    const int t0 = start + i * TILE;
-    const bool interior = (t0 >= lo_all) && (t0 + TILE - 1 <= hi_all);
-    // warp: kv head hk, keys [32*wsub, 32*wsub+32) of the tile
-    float s[4][4];
-    uint32_t kw[4][4];
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) {
-      const int key = 32 * wsub + 8 * nt + g;
-      const uint4 kb = lds128(K + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));
-      kw[nt][0] = kb.x; kw[nt][1] = kb.y; kw[nt][2] = kb.z; kw[nt][3] = kb.w;
-    }
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) {   // (scout: unpadded quads; even k-steps -> rows g of se, odd -> rows g+8 of so)
-      float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};
-#pragma unroll
-      for (int h = 0; h < 2; ++h) {
-        mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h]), cvt2h(kw[nt][2 * h]));
-        mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[nt][2 * h + 1]), cvt2h(kw[nt][2 * h + 1]));
-      }
-      s[nt][0] = se[0] + so[2]; s[nt][1] = se[1] + so[3]; s[nt][2] = 0.f; s[nt][3] = 0.f;
-    }
-    if (!interior) {
-#pragma unroll
-      for (int nt = 0; nt < 4; ++nt)
-#pragma unroll
-        for (int e = 0; e < 2; ++e) {
-          const int pos = t0 + 32 * wsub + 8 * nt + 2 * tig + e;
-          if (pos >= end) s[nt][e] = -INFINITY;
-        }
-    }
-    float mx = -INFINITY;
-#pragma unroll
-    for (int nt = 0; nt < 4; ++nt) mx = fmaxf(mx, fmaxf(s[nt][0], s[nt][1]));
-    mx = quad_max(mx);
-    const float m_new = fmaxf(m_r[0], mx);
-    if (m_new != -INFINITY) {
-      const float alpha = ex2(m_r[0] - m_new);
-      m_r[0] = m_new;
-      float ls = 0.f;
-#pragma unroll
-      for (int nt = 0; nt < 4; ++nt)
-#pragma unroll
-        for (int e = 0; e < 2; ++e) {
-          const float pv = ex2(s[nt][e] - m_new);
-          s[nt][e] = pv;
-          ls += pv;
-        }
-      if constexpr (ONE) {   // (scout: the only tile: o = 0 and l = 0, alpha would only multiply zeros)
-        l_r[0] = ls;
-      } else {
-        l_r[0] = l_r[0] * alpha + ls;
-#pragma unroll
-        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }
-      }
-#pragma unroll
-      for (int ks = 0; ks < 2; ++ks) {   // (timing probe only, wrong results)
-        uint32_t b0[8], b1[8];
-        load_v_frags(V, 32 * wsub + 16 * ks, hk, g, tig, b0, b1);
-        const uint32_t a0 = pack_h2(s[2 * ks][0], s[2 * ks][1]);
-        const uint32_t a2 = pack_h2(s[2 * ks + 1][0], s[2 * ks + 1][1]);
-#pragma unroll
-        for (int t = 0; t < 8; ++t) mma_f16(o[0][t], a0, 0u, a2, 0u, b0[t], b1[t]);
-      }
-    }
-    if constexpr (WS) {   // this warp is done with the stage
-      __syncwarp();
-      mbar_arrive(&S.empty[(tb + i) % STAGES]);
-    }
-    PROF_TILE;
-  }
-  PROF_DUMP;
-  pdl_launch_dependents();
-  } else {
-  // ---- L == 8 on sm_90: QK^T with FP8 wgmma straight from the FP8 K tile in shared memory (warpgroup =
-  // KV head, 64 rows = 8 tokens x 8 heads, K-major 128B-swizzled B operand), PV with f16 mma.sync from a
-  // per-tile f16 copy of V. Softmax with a lazily updated per-row offset; row sums from a ones column.
-  uint8_t* V16 = S.kvq;
-  uint32_t qa8[2][4];   // e4m3 A fragments, k-steps of 32 dims
-  if constexpr (!QDIR) {
-    const uint8_t* qs = (hk ? S.v : S.k) + (STAGES - 1) * STAGE_BYTES;   // f16 staging, row = j*8 + g
-    const int r0 = 16 * wsub + g, r1 = r0 + 8;
-    // producer mode: in place in S.kvq, row j*16 + hk*8 + g
-    const uint8_t* q0 = WS ? S.kvq + ((r0 >> 3) * 16 + hk * 8 + (r0 & 7)) * 128 : qs + r0 * 128;
-    const uint8_t* q1 = WS ? S.kvq + ((r1 >> 3) * 16 + hk * 8 + (r1 & 7)) * 128 : qs + r1 * 128;
-#pragma unroll
-    for (int ks = 0; ks < 2; ++ks) {
-#pragma unroll
-      for (int hf = 0; hf < 2; ++hf) {        // dims 32*ks + 16*hf + 4*tig .. +3
-        const int dofs = (32 * ks + 16 * hf + 4 * tig) * 2;
-        const uint2 lo = *reinterpret_cast<const uint2*>(q0 + dofs);
-        const uint2 hi = *reinterpret_cast<const uint2*>(q1 + dofs);
-        qa8[ks][2 * hf] = pack_e4m3x4(lo.x, lo.y);
-        qa8[ks][2 * hf + 1] = pack_e4m3x4(hi.x, hi.y);
-      }
-    }
-       // the A tile for the SS QK^T wgmma
-#pragma unroll
-      for (int ks = 0; ks < 2; ++ks)
-#pragma unroll
-        for (int hf = 0; hf < 2; ++hf) {
-          const int kb = 32 * ks + 16 * hf + 4 * tig;
-          *reinterpret_cast<uint32_t*>(S.q8s + hk * 4096 + r0 * 64 + (((kb >> 4) ^ ((r0 >> 1) & 3)) << 4) + (kb & 15)) =
-              qa8[ks][2 * hf];
-          *reinterpret_cast<uint32_t*>(S.q8s + hk * 4096 + r1 * 64 + (((kb >> 4) ^ ((r1 >> 1) & 3)) << 4) + (kb & 15)) =
-              qa8[ks][2 * hf + 1];
-        }
-      fence_proxy_async();   // read by the wgmma after the loop's first barrier
-    
-    
-  }
-  float cr[2] = {0.f, 0.f};   // per-row offsets (log2 units), rows g and g+8
-  const float ssc = sl2;   // raw score -> log2 units
-  // the lazy-max test on raw scores against (offset + 8) / ssc (ssc > 0), updated with the offset
-  float thr[2] = {0.f, 0.f};
-  float lacc[4] = {0.f, 0.f, 0.f, 0.f};
-  bool first = true;
-     // the zero init stays before the loop: ptxas had sunk these moves into the first QK^T
-    float* oz = &o[0][0][0];   // wgmma's pipeline stage (warning C7515: every wgmma of the kernel serialized)
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(oz[e]);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-  
-  const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
-  // FP8 PV: the per-CTA kernels (the flat kernel's register budget serializes its wgmmas: measured slower)
-  // transpose roles (warpgroup = head): warp wq takes keys 16wq..16wq+15, lane = (q, w) of the ldmatrix fragments
-  const int vwq = warp & 3, vq = lane & 3, vw = lane >> 2;   // (warp: uniform)
-  const uint32_t vsel0 = (vw >= 4) ? 0x7531u : 0x6420u, vsel1 = (vw >= 4) ? 0x6420u : 0x7531u;
-  const int vr0 = (vw >= 4) ? 1 : 0;   // rows d + vr0 then d + 1 - vr0 (bank spread)
-  // hoisted addressing (registers are tight in the flat kernel): V^T row n = 16*dgrp + 2*vw + r has swizzle chunk
-  // vwq ^ (vw & 3) for every dgrp, so the 8 stores per tile are one per-thread base plus immediates; the two
-  // ldmatrix rows are key = 16*vwq + 8*(mat & 1) + (lane & 7) with chunk (4*hk + 2u + (mat >> 1)) ^ (lane & 7)
-  const uint32_t vt_off0 = 128 * vw + ((vwq ^ (vw & 3)) << 4) + 4 * vq + 64 * vr0;
-  const uint32_t vt_off1 = 128 * vw + ((vwq ^ (vw & 3)) << 4) + 4 * vq + 64 * (1 - vr0);
-  const int vkey_t = 16 * vwq + 8 * ((lane >> 3) & 1) + (lane & 7);
-  const uint32_t vld_off0 = vkey_t * ROWB + (((4 * hk + 0 + ((lane >> 3) >> 1)) ^ (lane & 7)) << 4);
-  // the V^T stores as two stmatrix.x4 per thread (instead of eight 4-byte stores). For ldmatrix group u,
-  // matrix m = 2*g2 + ab holds, in row j, the 16 key bytes of V^T row 16(2u+g2) + 2j + (ab ^ (j >= 4)) (the same
-  // rows and the same half swap for bank spread as the per-thread stores: thread (q, w) supplies row j = w)
-  const int stj = lane & 7, stm = lane >> 3;
-  const uint32_t vst_off = 1024 * (stm >> 1) + 128 * stj + 64 * ((stm & 1) ^ (stj >> 2)) + ((vwq ^ (stj & 3)) << 4);
-  // (per-request kernels: stmatrix measured vs16 -2.5%, vs1/vs32 -1.5%, vf1 -1%; the flat kernel: +0..1.5%)
-  constexpr bool STSM_ON = !FLAT;
-  // P fragments of the in-flight PV wgmma: kept live (fenced) until the next wgmma wait, so the compiler cannot
-  // hand their registers to anything the next tile writes before that
-  uint32_t pa[2][4] = {{0u, 0u, 0u, 0u}, {0u, 0u, 0u, 0u}};
-  // per-tile addressing as loop-carried values instead of re-derived from (tb + i) every tile: stage and
-  // full-barrier phase counters, wgmma descriptors as base + stage offset (the 14-bit address field takes it without
-  // a carry: shared memory < 256 KB), the V^T buffer and its descriptor toggled, new-row tiles found once
-  // per-request (non-producer) q8 kernels with the split PV and the consumers' own V^T
-  constexpr bool LSYNCN = !WS && !FLAT;
-  constexpr bool LSYNC = WS;
-  int st_c = tb % STAGES;
-  uint32_t ph_c = (uint32_t)(tb / STAGES) & 1u;
-  // descriptor low words broadcast from lane 0: a shuffle result is uniform and is not rematerialized, so the
-  // bases stay in uniform registers (the high words are constants); +st*512 / +2 never carry out of the low word
-  const uint32_t qlo0 = __shfl_sync(0xffffffffu, (uint32_t)((smem_u32(S.q8s) + hk * 4096) >> 4) | 0x10000u, 0);
-  const uint32_t klo0 = __shfl_sync(0xffffffffu, (uint32_t)((smem_u32(S.k) + hk * 64) >> 4) | 0x10000u, 0);
-  const uint64_t qdesc0 = ((uint64_t)((512 >> 4) | (2u << 30)) << 32) | qlo0;
-  const uint32_t vsrc0 = smem_u32(S.v);
-  uint8_t* vtb_c = S.kvq + hk * 4608;
-  const uintptr_t vtb_x = uintptr_t(S.kvq + hk * 4608) ^ uintptr_t(S.kvq + (2 + hk) * 4608);
-  uint64_t vdesc_c = desc_sw64(smem_u32(S.kvq + hk * 4608));
-  const uint64_t vdesc_x = vdesc_c ^ desc_sw64(smem_u32(S.kvq + (2 + hk) * 4608));
-  const int i_new = seq > start ? (seq - start) / TILE : 0;   // first tile that can hold the block's new rows
-  // interior tiles (no mask) are i in [i_lo, i_lo + i_span], found once (shuffled: kept uniform)
-  uint32_t i_lo = 0, i_span = 0;
-  
-
-  // (producer mode): the common tiles -- no mask, no new rows (every key before the block's first new
-  // position seq) -- are i in [r_lo, r_lo + r_span], found once; the per-tile test is then one compare, and t0, the
-  // exact mask test and the new-row patch run only on the rare tiles
-  uint32_t r_lo = 0x7fffffffu, r_span = 0u;
-  if constexpr (WS) {
-    const int hi2 = min(end - 1, seq - 1);
-    const int a = (lo_all - start + TILE - 1) / TILE;
-    const int z = hi2 - (TILE - 1) - start;
-    const int bz = z >= 0 ? z / TILE : -1;
-    r_lo = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)a : 0x7fffffffu, 0);
-    r_span = __shfl_sync(0xffffffffu, bz >= a ? (uint32_t)(bz - a) : 0u, 0);
-  }
-  // (flat producer mode): the two KV heads' warpgroups take turns in the exponential phase (named barriers
-  // 5 / 6), so the 4 consumer warps of an SMSP do not all queue on the MUFU unit at once (scout: the exps segment
-  // takes ~650-820 cycles for ~110 instructions; both warpgroups start each tile together on the same stage)
-  
-  int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
-  
-  const int nit = ntiles;
-  constexpr int UNR8 = WS ? 2 : 1;   // (pragma arguments are not macro-expanded;
-  // plain split-KV with many tiles per CTA (b32 q8 sliding: 9) gains from the unroll, 1-tile coop grids lose)
-#pragma unroll (UNR8)
-  for (int jj = 0; jj < nit; ++jj) {
-    const int i = jj;   // S2: tiles 2jj and 2jj + 1; F2: claimed
-    
-      if constexpr (WS) {
-      // tile i landed (+ new rows); previous tile's PV of this warpgroup done (its V16 half is free). The two
-      // warpgroups (one per KV head) only meet when both must: tile 0 (q staging) and tiles with new rows.
-      bool patched;
-      
-        mbar_wait_full(&S.full[st_c], ph_c);
-        patched = ((uint32_t)i - r_lo > r_span) && (i >= i_new) && ws_patch_ni<L, NT, false>(&S, i, st_c, start, seq, end, tid);
-        
-       
-      if (patched || i == 0) csync<WS, NT>();
-      // (FP8 PV: V^T is double-buffered and each warp's wgmma wait already covers the PV that read this tile's
-      // buffer, so the tile needs no warpgroup barrier before its transpose)
-    } else {
-      cp_wait<STAGES - 2>();   // (timing probe only, wrong results)
-      __syncthreads();       // tile i landed; previous tile's PV done (V16 free)
-    }
-      
-    
-
-    const int st = st_c;
-    
-    float s[32];
-    wgmma_fence();
-    
-      const uint32_t kl = klo0 + (uint32_t)(st * (STAGE_BYTES >> 4));
-      const uint64_t kd = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | kl;
-      const uint64_t kd2 = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | (kl + 2u);
-      const uint64_t qd2 = ((uint64_t)((512 >> 4) | (2u << 30)) << 32) | (qlo0 + 2u);
-      
-       wgmma_m64n64k32_e4m3_ss(s, qdesc0, kd, 0);
-      wgmma_m64n64k32_e4m3_ss(s, qd2, kd2, 1);
-     
-    wgmma_commit();
-    if constexpr (!WS) {   // the copies for tile i + STAGES - 1
-      if (i + STAGES - 1 < ntiles) issue_kv(i + STAGES - 1, true);
-      issue_idx(i + 2 * STAGES - 2);
-      cp_commit();
-    }
-    if constexpr (FLAT) {
-      // the previous tile's PV (committed before this QK^T) is done: its P registers are free for the transpose
-      // below (the flat kernel's 104-register consumers spilled there) and o / lacc are settled
-      wgmma_wait<1>();
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-      float* od0 = &o[0][0][0];
-#pragma unroll
-      for (int e = 0; e < 32; ++e) reg_fence(od0[e]);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-    }
-    uint8_t* V16t = V16 + 0;   // PV reads it asynchronously: double buffer
-    // this head's V^T for this tile (PV reads it asynchronously: double buffer per stream)
-    uint8_t* vtb = vtb_c;
-    
-      if (jj == 0) {   // rows 64..71 of this head's two V^T buffers: e4m3 ones (0x38), so the PV
-                                     // wgmma also produces the row sums (after the first barrier: the q staging shares this space)
-        const int wt = tid & 127;
-        *reinterpret_cast<uint2*>(S.kvq + ((0 + (wt >> 6)) * 2 + hk) * 4608 + 4096 + (wt & 63) * 8) =
-            make_uint2(0x38383838u, 0x38383838u);
-      }
-    
-         // meanwhile: this head's V tile -> V^T (FP8, 72 x 64, keys in P-register order: k = 4q + 2h + b for
-        // key = 8h + 2q + b within each 16-key block), two ldmatrix.trans (b16 pairs) + byte permutes per thread
-      const uint32_t vsrc = vsrc0 + st * STAGE_BYTES;
-#pragma unroll
-      for (int u = 0; u < 2; ++u) {
-        uint32_t r0, r1, r2, r3;
-        ldsm_x4_t(vsrc + (u ? (vld_off0 ^ 32u) : vld_off0), r0, r1, r2, r3);   // (scout: off1 == off0 ^ 32)
-        // r0/r1: dims group 2u (h = 0 / 1), r2/r3: dims group 2u+1
-        if constexpr (STSM_ON) {
-          stsm_x4(smem_u32(vtb) + vst_off + 2048 * u, prmt(r0, r1, vsel0), prmt(r0, r1, vsel1), prmt(r2, r3, vsel0),
-                  prmt(r2, r3, vsel1));
-        } else {
-#pragma unroll
-        for (int g2 = 0; g2 < 2; ++g2) {
-          const uint32_t R0 = g2 ? r2 : r0, R1 = g2 ? r3 : r1;
-          const uint32_t w0 = prmt(R0, R1, vsel0), w1 = prmt(R0, R1, vsel1);
-          *reinterpret_cast<uint32_t*>(vtb + vt_off0 + 1024 * (2 * u + g2)) = w0;   // row 16(2u+g2) + 2vw + vr0
-          *reinterpret_cast<uint32_t*>(vtb + vt_off1 + 1024 * (2 * u + g2)) = w1;   // row 16(2u+g2) + 2vw + 1 - vr0
-        }
-        }
-      }
-      if (!LSYNC && !LSYNCN) fence_proxy_async();   // V^T written with st.shared, read by the PV wgmma
-     
-      if (LSYNC || LSYNCN) {   // (/ N: fence + barrier just before the PV)
-    } else wgsync(wgi);   // this head's V16 / V^T ready
-                              // V16 ready
-    wgmma_wait<0>();
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(s[e]);
-    
-#pragma unroll
-      for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-    
-    if constexpr (WS) {   // K (wgmma) and V (conversion) of the stage are consumed
-      mbar_arrive(&S.empty[st]);
-    }
-    
-
-    const bool common_t = WS && ((uint32_t)i - r_lo <= r_span);
-    const int t0 = start + i * TILE;
-    const bool interior = common_t || ((t0 >= lo_all) && (t0 + TILE - 1 <= hi_all));
-    if (!interior) {
-#pragma unroll
-      for (int hf = 0; hf < 2; ++hf) {
-        const int pj = seq + 2 * wsub + hf;
-        const int vlo = p.window ? max(start, pj - p.window + 1) : start;
-        const int vhi = min(end - 1, pj);
-#pragma unroll
-        for (int nt = 0; nt < 8; ++nt)
-#pragma unroll
-          for (int e = 0; e < 2; ++e) {
-            const int pos = t0 + 8 * nt + 2 * tig + e;
-            if (pos < vlo || pos > vhi) s[4 * nt + 2 * hf + e] = -INFINITY;
-          }
-      }
-    }
-    // after a segment's first tile the offset test runs on the packed P instead of on 32 row-max steps: an
-    // e4m3 byte above 0x78 (P > 256, i.e. a score past the offset + 8) sets bit 7 when 0x07 is added to every byte
-    // (P >= 0: no carry between bytes); the (rare) hit moves the offset and repacks that half (see the PV loop)
-    constexpr bool PCHK = WS;
-    const bool chk = PCHK && !first;
-    float mlo = -INFINITY, mhi = -INFINITY;
-    if (!chk) {
-#pragma unroll
-    for (int nt = 0; nt < 8; ++nt) {
-      mlo = fmaxf(mlo, fmaxf(s[4 * nt], s[4 * nt + 1]));
-      mhi = fmaxf(mhi, fmaxf(s[4 * nt + 2], s[4 * nt + 3]));
-    }
-    }
-    // the threshold check needs no row reduction: any element past the offset + 8 shows in its own thread's
-    // partial max; only the (rare) offset move and the first tile reduce over the row's quad
-    if (!chk) {
-      mlo *= ssc;   // scores -> log2 units (ssc > 0; ssc = 1 when the query was pre-scaled)
-      mhi *= ssc;
-    }
-    float dlo, dhi;
-    if (first) {
-       mlo = quad_max(mlo); mhi = quad_max(mhi); 
-      
-      dlo = (mlo == -INFINITY) ? 0.f : mlo;
-      dhi = (mhi == -INFINITY) ? 0.f : mhi;
-      cr[0] = dlo; cr[1] = dhi;
-      
-      first = false;
-    } else {
-      dlo = cr[0]; dhi = cr[1];
-      if (!PCHK && __any_sync(0xffffffffu, (mlo > cr[0] + 8.f || mhi > cr[1] + 8.f))) {
-        // rare: a score grew past 2^8 relative to the offset -> move the offset up, rescale the state
-         mlo = quad_max(mlo); mhi = quad_max(mhi);    // (warp-uniform branch: full-mask shuffles)
-        
-        const float nlo = fmaxf(mlo, cr[0]), nhi = fmaxf(mhi, cr[1]);
-        const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-        // (the previous tile's PV wgmma completed at this tile's wgmma wait)
-#pragma unroll
-        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-        lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;   // (FP8 PV: the row sums live here too)
-        cr[0] = nlo; cr[1] = nhi;
-        dlo = nlo; dhi = nhi;
-        
-      }
-    }
-       // my turn for the exponentials
-    
-       // P (e4m3, registers, k-steps of 32 permuted keys) x V^T (e4m3, K-major, 72 columns: 64 dims + 8 copies of
-        // the row sum) as an asynchronous wgmma; the next tile's wgmma wait covers it before P, o or V^T are reused
-      constexpr bool PK2 = PCHK;
-      if constexpr (PK2) {
-        auto pack2 = [&]() {   // both halves of P from the scores (32 independent chains)
-#pragma unroll
-          for (int kk = 0; kk < 2; ++kk) {
-            const float* sv = s + 16 * kk;
-            pa[kk][0] = e4m3x4f(ex2(fmaf(sv[0], ssc, -dlo)), ex2(fmaf(sv[1], ssc, -dlo)), ex2(fmaf(sv[4], ssc, -dlo)), ex2(fmaf(sv[5], ssc, -dlo)));
-            pa[kk][1] = e4m3x4f(ex2(fmaf(sv[2], ssc, -dhi)), ex2(fmaf(sv[3], ssc, -dhi)), ex2(fmaf(sv[6], ssc, -dhi)), ex2(fmaf(sv[7], ssc, -dhi)));
-            pa[kk][2] = e4m3x4f(ex2(fmaf(sv[8], ssc, -dlo)), ex2(fmaf(sv[9], ssc, -dlo)), ex2(fmaf(sv[12], ssc, -dlo)), ex2(fmaf(sv[13], ssc, -dlo)));
-            pa[kk][3] = e4m3x4f(ex2(fmaf(sv[10], ssc, -dhi)), ex2(fmaf(sv[11], ssc, -dhi)), ex2(fmaf(sv[14], ssc, -dhi)), ex2(fmaf(sv[15], ssc, -dhi)));
-          }
-        };
-        pack2();
-        if (chk) {
-          // an e4m3 byte above 0x78 (P > 256: a score past its row's offset + 8) sets bit 7 when 0x07 is added
-          constexpr uint32_t PB = 0x07070707u;
-          const uint32_t ov = ((pa[0][0] + PB) | (pa[0][1] + PB) | (pa[0][2] + PB) | (pa[0][3] + PB) |
-                               (pa[1][0] + PB) | (pa[1][1] + PB) | (pa[1][2] + PB) | (pa[1][3] + PB)) & 0x80808080u;
-          if (__any_sync(0xffffffffu, ov != 0u)) {
-            // rare: offsets up to the tile's row maxima, state rescaled (no PV of this tile issued yet; the previous
-            // tile's finished at its end), both halves repacked (P <= 1 afterwards: one pass)
-            float hlo = -INFINITY, hhi = -INFINITY;
-#pragma unroll
-            for (int nt = 0; nt < 8; ++nt) {
-              hlo = fmaxf(hlo, fmaxf(s[4 * nt], s[4 * nt + 1]));
-              hhi = fmaxf(hhi, fmaxf(s[4 * nt + 2], s[4 * nt + 3]));
-            }
-            hlo = quad_max(hlo) * ssc;
-            hhi = quad_max(hhi) * ssc;
-            const float nlo = fmaxf(hlo, cr[0]), nhi = fmaxf(hhi, cr[1]);
-            const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-#pragma unroll
-            for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-            lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;
-            cr[0] = nlo; cr[1] = nhi;
-            dlo = nlo; dhi = nhi;
-            pack2();
-          }
-        }
-        float* odk = &o[0][0][0];
-#pragma unroll
-        for (int e = 0; e < 32; ++e) reg_fence(odk[e]);
-#pragma unroll
-        for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-        for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-        if constexpr (LSYNC) {   // every warp's V^T for this tile written (and visible to the async proxy)
-          fence_proxy_async();
-          wgsync(wgi);
-        }
-        wgmma_fence();
-        
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[0], vdesc_c);
-          wgmma_m64n72k32_e4m3(odk, lacc, pa[1], vdesc_c + 2);
-         
-        wgmma_commit();
-      }
-#pragma unroll
-      for (int kk = 0; kk < (PK2 ? 0 : 2); ++kk) {
-        const float* sv = s + 16 * kk;
-#define EXQ(x, q) ex2(x)
-        bool rchk = chk;   // one retry at most: after the offset move every finite P is <= 1 (NaN / garbage scores
-                           // would otherwise retrigger the check forever: the SASS oracle's value-perturbing probe hung)
-#pragma unroll 1
-        for (;;) {   // (repeated once after a rare offset move; otherwise a single pass)
-        pa[kk][0] = e4m3x4f(EXQ(fmaf(sv[0], ssc, -dlo), 0), EXQ(fmaf(sv[1], ssc, -dlo), 1), EXQ(fmaf(sv[4], ssc, -dlo), 2), EXQ(fmaf(sv[5], ssc, -dlo), 3));
-        pa[kk][1] = e4m3x4f(EXQ(fmaf(sv[2], ssc, -dhi), 0), EXQ(fmaf(sv[3], ssc, -dhi), 1), EXQ(fmaf(sv[6], ssc, -dhi), 2), EXQ(fmaf(sv[7], ssc, -dhi), 3));
-        pa[kk][2] = e4m3x4f(EXQ(fmaf(sv[8], ssc, -dlo), 0), EXQ(fmaf(sv[9], ssc, -dlo), 1), EXQ(fmaf(sv[12], ssc, -dlo), 2), EXQ(fmaf(sv[13], ssc, -dlo), 3));
-        pa[kk][3] = e4m3x4f(EXQ(fmaf(sv[10], ssc, -dhi), 0), EXQ(fmaf(sv[11], ssc, -dhi), 1), EXQ(fmaf(sv[14], ssc, -dhi), 2), EXQ(fmaf(sv[15], ssc, -dhi), 3));
-        if constexpr (!PCHK) break;
-        else {
-          if (!rchk) break;
-          {
-            // (test hook, a hit at P > 1 instead of P > 256: exercises the offset move on most tiles)
-            constexpr uint32_t PB = 0x07070707u;
-            const uint32_t ov = ((pa[kk][0] + PB) | (pa[kk][1] + PB) | (pa[kk][2] + PB) | (pa[kk][3] + PB)) & 0x80808080u;
-            if (!__any_sync(0xffffffffu, ov != 0u)) break;
-            {
-              // rare: a score of this half passed its row's offset + 8: offsets up to the half's row maxima,
-              // state rescaled (half 0's PV wgmma finished first), this half repacked
-              float hlo = fmaxf(fmaxf(fmaxf(sv[0], sv[1]), fmaxf(sv[4], sv[5])), fmaxf(fmaxf(sv[8], sv[9]), fmaxf(sv[12], sv[13])));
-              float hhi = fmaxf(fmaxf(fmaxf(sv[2], sv[3]), fmaxf(sv[6], sv[7])), fmaxf(fmaxf(sv[10], sv[11]), fmaxf(sv[14], sv[15])));
-              hlo = quad_max(hlo) * ssc;
-              hhi = quad_max(hhi) * ssc;
-              const float nlo = fmaxf(hlo, cr[0]), nhi = fmaxf(hhi, cr[1]);
-              const float alo = ex2(cr[0] - nlo), ahi = ex2(cr[1] - nhi);
-              if ((kk == 1)) {   // (a PV wgmma may still accumulate into o)
-                wgmma_wait<0>();
-                float* odw = &o[0][0][0];
-#pragma unroll
-                for (int e = 0; e < 32; ++e) reg_fence(odw[e]);
-#pragma unroll
-                for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-              }
-#pragma unroll
-              for (int t = 0; t < 8; ++t) { o[0][t][0] *= alo; o[0][t][1] *= alo; o[0][t][2] *= ahi; o[0][t][3] *= ahi; }
-              lacc[0] *= alo; lacc[1] *= alo; lacc[2] *= ahi; lacc[3] *= ahi;
-              cr[0] = nlo; cr[1] = nhi;
-              dlo = nlo; dhi = nhi;
-              rchk = false;
-            }
-          }
-        }
-        }   // (pack / check loop)
-#undef EXQ
-           // each half of P goes to the tensor cores as soon as it is packed
-          float* od = &o[0][0][0];
-          if constexpr (LSYNCN) {   // every warp's V^T for this tile written (and visible to the async proxy)
-            if (kk == 0) {
-              fence_proxy_async();
-              wgsync(wgi);
-            }
-          }
-          if (kk == 0) {
-#pragma unroll
-            for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-            for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-          }
-#pragma unroll
-          for (int e = 0; e < 4; ++e) asm volatile("" : "+r"(pa[kk][e]));
-          wgmma_fence();
-          wgmma_m64n72k32_e4m3(od, lacc, pa[kk], vdesc_c + 2 * kk);
-          
-          wgmma_commit();
-        
-      }
-      
-      
-      float* od = &o[0][0][0];
-      
-           // done before the next tile (no wgmma in flight across the loop edge)
-          wgmma_wait<0>();
-#pragma unroll
-          for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-          for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-#pragma unroll
-          for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-        
-          // (!PVSPLIT)
-     
-    PROF_TILE;
-    
-    
-      if (++st_c == STAGES) { st_c = 0; ph_c ^= 1u; }
-      vtb_c = reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(vtb_c) ^ vtb_x);
-      vdesc_c ^= vdesc_x;
-    
-  }
-  PROF_DUMP;
-  pdl_launch_dependents();
-  
-  wgmma_wait<0>();
-  
-#pragma unroll
-    for (int e = 0; e < 8; ++e) asm volatile("" : "+r"(pa[e >> 2][e & 3]));
-  
-  {
-    float* od = &o[0][0][0];
-#pragma unroll
-    for (int e = 0; e < 32; ++e) reg_fence(od[e]);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) reg_fence(lacc[e]);
-  }
-  
-  m_r[0] = first ? -INFINITY : cr[0];
-  m_r[1] = first ? -INFINITY : cr[1];
-  l_r[0] = 0.25f * lacc[0];   // every lane of the quad holds the full row sum; the epilogue quad-sums
-  l_r[1] = 0.25f * lacc[2];
-  
-  }
-
-  // ---- merge: rescale to the fixed reference 2^0 and accumulate with FP32 atomics ----
-  bool do_red = true;
-     // stream 1's state was merged into stream 0
-  if (L == 1) {
-    // warps 2,3 (second key half) hand their state to warps 0,1 (same heads) through shared memory
-    // (outside cluster mode both halves add their own rescaled state to the workspace instead)
-    cp_wait<0>();
-    csync<WS, NT>();
-    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;
-    if (wsub == 1) {
-      xs[0] = m_r[0];
-      xs[1] = l_r[0];
-#pragma unroll
-      for (int t = 0; t < 8; ++t) { xs[2 + 2 * t] = o[0][t][0]; xs[3 + 2 * t] = o[0][t][1]; }
-    }
-    csync<WS, NT>();
-    if (wsub == 0) {
-      const float m1 = xs[0], l1 = xs[1];
-      const float mm = fmaxf(m_r[0], m1);
-      const float f0 = (m_r[0] == -INFINITY) ? 0.f : ex2(m_r[0] - mm);
-      const float f1 = (m1 == -INFINITY) ? 0.f : ex2(m1 - mm);
-      m_r[0] = mm;
-      l_r[0] = l_r[0] * f0 + l1 * f1;
-#pragma unroll
-      for (int t = 0; t < 8; ++t) {
-        o[0][t][0] = o[0][t][0] * f0 + xs[2 + 2 * t] * f1;
-        o[0][t][1] = o[0][t][1] * f0 + xs[3 + 2 * t] * f1;
-      }
-    } else {
-      do_red = false;
-    }
-  }
-  if (M_CL) {
-    cp_wait<0>();
-    csync<WS, NT>();
-    float* PB = reinterpret_cast<float*>(S.k);
-    float* PL = PB + L * 16 * 64;
-    // two tile streams (Cfg::S2): stream 0 writes its rows, then stream 1 (same rows) adds its own
-#pragma unroll 1
-    for (int ph = 0; ph < 1; ++ph) {
-    if (ph == 1) csync<WS, NT>();
-    const bool mine = true;
-#pragma unroll
-    for (int r = 0; r < NROW; ++r) {
-      const int mt = r >> 1, hf = r & 1;
-      const int j = (L == 1) ? 0 : 2 * (wsub + mt) + hf;
-      const int row = j * 16 + hk * 8 + g;
-      const float lsum = quad_sum(l_r[r]);
-      if (do_red && mine) {
-        const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
-        if constexpr (L == 1) {   // permuted dims: n-tile t, column c <-> dim 16*tig + 8*c + t
-#pragma unroll
-          for (int c = 0; c < 2; ++c)
-#pragma unroll
-            for (int t4 = 0; t4 < 8; t4 += 4)
-              *reinterpret_cast<float4*>(&PB[row * 64 + 16 * tig + 8 * c + t4]) =
-                  make_float4(o[mt][t4][2 * hf + c] * f, o[mt][t4 + 1][2 * hf + c] * f,
-                              o[mt][t4 + 2][2 * hf + c] * f, o[mt][t4 + 3][2 * hf + c] * f);
-        } else {                  // natural dims: n-tile t, column c <-> dim 8*t + 2*tig + c
-#pragma unroll
-          for (int t = 0; t < 8; ++t) {
-            float2* d2 = reinterpret_cast<float2*>(&PB[row * 64 + 8 * t + 2 * tig]);
-            const float2 pv = ph ? *d2 : make_float2(0.f, 0.f);
-            *d2 = make_float2(pv.x + o[mt][t][2 * hf] * f, pv.y + o[mt][t][2 * hf + 1] * f);
-          }
-        }
-        if (tig == 0) PL[row] = (ph ? PL[row] : 0.f) + lsum * f;
-      }
-    }
-    }
-    csync<WS, NT>();
-    cluster_finish<L>(p, S, b, pair, n_keys, chunk);
-    return true;
-  }
-  // BULKRED (q_len 1 per-request kernels, not the one-tile-per-split builds): the partial goes to shared memory (the V
-      // stages; the K stages hold the exchange) in the workspace's own row layout ([16][72]: dims, the row sum in column 64,
-      // pad) and one TMA bulk reduction adds it into the workspace below
-      constexpr bool BULKRED = PADWS;
-      constexpr int PSTR = WSR<PADWS>::STR;                        // smem partial row stride (floats)
-      float* pbuf = reinterpret_cast<float*>(S.v);
-      if (do_red) {   // (one branch, not one per row: the post-loop merge runs straight-line from a cold cache)
-    #pragma unroll
-      for (int r = 0; r < NROW; ++r) {
-    const int mt = r >> 1, hf = r & 1;
-    const int j = (L == 1) ? 0 : 2 * (wsub + mt) + hf;
-    const int hh = hk * 8 + g;
-    const float lsum = quad_sum(l_r[r]);
-    const float f = (m_r[r] == -INFINITY) ? 0.f : ex2(fminf(m_r[r], 126.f));
-    float* acc = p.ws_acc + ((ix_t)((bp * p.nc + copy) * L + j) * 16 + hh) * WSR<PADWS>::STR;
-        if constexpr (BULKRED) {   // permuted dims (see below): float4 of n-tiles t4..t4+3 at dim 16*tig + 8*c + t4
-    #pragma unroll
-          for (int c = 0; c < 2; ++c)
-    #pragma unroll
-            for (int t4 = 0; t4 < 8; t4 += 4)
-              *reinterpret_cast<float4*>(pbuf + hh * PSTR + 16 * tig + 8 * c + t4) =
-                  make_float4(o[mt][t4][2 * hf + c] * f, o[mt][t4 + 1][2 * hf + c] * f,
-                              o[mt][t4 + 2][2 * hf + c] * f, o[mt][t4 + 3][2 * hf + c] * f);
-          if (tig == 0) {   // the row sum in column 64, the pad zeroed (the bulk op adds whole rows)
-            *reinterpret_cast<float4*>(pbuf + hh * PSTR + WSL) = make_float4(lsum * f, 0.f, 0.f, 0.f);
-            *reinterpret_cast<float4*>(pbuf + hh * PSTR + WSL + 4) = make_float4(0.f, 0.f, 0.f, 0.f);
-          }
-          continue;
-        } else if constexpr (L == 1) {
-    #pragma unroll
-          for (int c = 0; c < 2; ++c)
-#pragma unroll
-        for (int t4 = 0; t4 < 8; t4 += 4)
-          red_v4(acc + 16 * tig + 8 * c + t4, o[mt][t4][2 * hf + c] * f, o[mt][t4 + 1][2 * hf + c] * f,
-                 o[mt][t4 + 2][2 * hf + c] * f, o[mt][t4 + 3][2 * hf + c] * f);
-    } else {
-      // 16-byte atomics (half the L2 atomic operations of 8-byte ones): lane pairs (tig, tig ^ 1) swap halves so
-      // each lane holds 4 consecutive dims: even tig keeps t even, odd tig keeps t odd (dims 8t + 4(tig >> 1) + 0..3)
-      const bool odd = tig & 1;
-#pragma unroll
-      for (int t = 0; t < 8; t += 2) {
-        // mine: (t, 2tig..2tig+1) and (t+1, same); partner's: same t's at 2(tig^1)..
-        const float a0 = o[mt][t][2 * hf] * f, a1 = o[mt][t][2 * hf + 1] * f;
-        const float b0 = o[mt][t + 1][2 * hf] * f, b1 = o[mt][t + 1][2 * hf + 1] * f;
-        // even lane sends its t+1 pair, odd lane sends its t pair
-        const float s0 = odd ? a0 : b0, s1 = odd ? a1 : b1;
-        const float r0 = __shfl_xor_sync(0xffffffffu, s0, 1), r1 = __shfl_xor_sync(0xffffffffu, s1, 1);
-        // even lane: t (dims 2tig, 2tig+1, then the partner's); odd lane: t+1 (the partner's, then mine) -- selects,
-        // one atomic, no branch
-        red_v4(acc + 8 * (t + (odd ? 1 : 0)) + 4 * (tig >> 1), odd ? r0 : a0, odd ? r1 : a1, odd ? b0 : r0, odd ? b1 : r1);
-      }
-    }
-    if (tig == 0) red_f32(WSL_AT(PADWS, ((bp * p.nc + copy) * L + j) * 16 + hh), lsum * f);
-      }
-      }
-      if constexpr (BULKRED) {
-        fence_proxy_async();   // the partial's st.shared, visible to the async proxy
-        csync<WS, NT>();
-        if (tid == 0) {
-          bulk_red_add_f32(p.ws_acc + ((ix_t)((bp * p.nc + copy) * L) * 16) * WSR<PADWS>::STR, pbuf,
-                           L * 16 * WSR<PADWS>::STR * 4);
-          bulk_commit();
-          bulk_wait_all();
-          fence_proxy_async_global();   // ... performed, and ordered (through the CTA barrier) before the ticket's release
-        }
-      }
-      // (last-CTA finalizes): no per-thread fences; one acq_rel atomic by thread 0 after the CTA barrier
-  // releases every thread's reds (cumulativity through bar.sync, as CUTLASS's semaphore release) and acquires the
-  // others' for the last CTA's reads
-  const bool mode1 = !((FLAT && (L == 8)) && M_COOP) && !(!FLAT && M_COOP);
-  // the same for the cooperative grids (the barrier's arrive is an acq_rel atomic after a CTA barrier)
-  if (!(mode1 || !mode1)) gpu_fence();
-  csync<WS, NT>();
-  if ((FLAT && (L == 8)) && M_COOP) {
-    // flat cooperative mode: every request is finalized after all CTAs have merged all their segments
-  } else if (!FLAT && M_COOP) {
-    // ---- all splits of this (request, kv pair) are resident: wait for every split's merge, then each
-    // CTA finalizes its own slice of the rows (instead of one CTA doing all of them)
-    // (the slice arithmetic first: it does not depend on the merge, so its divisions leave the barrier's chain)
-    const int split_idx = (int)blockIdx.x;
-    int nact = fdiv_i(n_keys + chunk - 1, chunk);    // splits with keys
-    int R = fdiv_i(L * 16 + nact - 1, nact);          // rows per CTA
-    // keep both divisions above the barrier wait (ptxas otherwise sinks them below the spin, where
-    // they are first used: scout's v200 census found them after the poll); volatile asm keeps program order
-    asm volatile("" : "+r"(nact), "+r"(R));
-      if (tid == 0) {
-      // two key counters alternating per launch (parity = this slot's epoch, read in the prologue): the last split
-      // to arrive resets the OTHER counter (unused until the next launch) and bumps the epoch, so nobody needs a
-      // departure counter (no atomic round trip at the very end of the kernel)
-      const int ep = S.sense;
-      int* c = p.ws_cnt + ((ep & 1) ? 12288 : 8192) + bp;
-      const int mine = end - start;
-      int old;
-      asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(c), "r"(mine) : "memory");
-      
-      if (old + mine == n_keys) {
-        p.ws_cnt[((ep & 1) ? 8192 : 12288) + bp] = 0;
-        p.ws_cnt[24576 + bp] = ep + 1;
-      } else {
-        int v;
-        SPIN_T0;
-        for (;;) {
-          asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(c) : "memory");
-          if (v >= n_keys) break;
-          SPIN_CHECK;
-          __nanosleep(64);
-        }
-      }
-    } else if (tid == 0) {
-      atomicAdd(p.ws_cnt + bp, end - start);
-      int v;
-      SPIN_T0;
-      for (int spin = 0;; ++spin) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(p.ws_cnt + bp) : "memory");
-        if (v >= n_keys) break;
-        SPIN_CHECK;
-        
-        __nanosleep(64);
-      }
-    }
-    csync<WS, NT>();
-    const int r_lo = split_idx * R, r_hi = min(L * 16, r_lo + R);
-    const int part = tid & 7;
-    for (int rbase = r_lo; rbase < r_hi; rbase += NT / 8) {   // warp-uniform trip count (shuffles below)
-      const int rr = rbase + (tid >> 3);
-      const bool act = rr < r_hi;
-      const int j = act ? rr >> 4 : 0, hh = act ? rr & 15 : 0;
-      const uint4 graw = act ? *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8)
-                             : make_uint4(0, 0, 0, 0);
-      float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-      float lsum = 0.f;
-      sum_copies<L, PADWS>(p, bp, j, hh, part, act, y, lsum);
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      if (act) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-    
-  } else {
-  if (tid == 0) {
-    const int mine = end - start;
-    int old;
-    asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(p.ws_cnt + bp), "r"(mine) : "memory");
-    
-    S.flag = (old + mine == n_keys);
-  }
-  csync<WS, NT>();
-  if (S.flag) {
-  
-
-  // ---- last CTA: sum the copies, normalize, rmsnorm * sigmoid(gate), store; reset the workspace ----
-  if (p.nc == 1) {
-    fin_nc1<L, PADWS, NT>(p, b, pair, bp, vscale, 0);
-  } else
-  {
-    const int part = tid & 7;
-    for (int rr = tid >> 3; rr < L * 16; rr += NT / 8) {
-      const int j = rr >> 4, hh = rr & 15;
-      float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-      float lsum = 0.f;
-      // gate row in flight with the copies (one L2 round trip per row instead of two)
-      const uint4 graw = *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8);
-      sum_copies<L, PADWS>(p, bp, j, hh, part, true, y, lsum);
-      const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-      float ss = 0.f;
-#pragma unroll
-      for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-      ss = oct_sum(ss);
-      const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-      uint4 ov;
-      uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-      for (int e = 0; e < 4; ++e) {
-        const float2 gt = __bfloat1622float2(g2[e]);
-        const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-        __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-        ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-      }
-      *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-    }
-  }
-  if (tid == 0) p.ws_cnt[bp] = 0;
-  if (p.dbg && tid == 0) p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * 16 + 6] = 1;
-  }
-  }
-     // consumers' shared memory is reused by the next segment
-   __syncthreads();                   // shared memory is reused by the next segment
-  }
-  return true;
-}
-
-// Flat grids whose CTAs are all resident: once every CTA has merged all its segments (grid-wide count),
-// each CTA finalizes its own slice of all requests' rows (sum the copies, normalize, rmsnorm * gate, store,
-// zero the workspace). Runs on the NT consumer threads; the last CTA out resets the two counters.
-template <int L, bool WS, int NT>
-__device__ __forceinline__ void flat_finalize(const Params& p, const int* sense_s) {
-  const int tid = threadIdx.x;
-  pdl_wait();   // a CTA without segments has not waited yet (the gate rows are qkv)
-  const int G = gridDim.x * gridDim.y * gridDim.z;
-  const int c = blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z);
-  int* cnt = p.ws_cnt + 30000;
-     // (thread 0's acq_rel arrive releases the CTA's reds)
-  csync<WS, NT>();
-  if (tid == 0) {
-    // two grid counters alternating per launch (parity = the epoch thread 0 read at kernel start): the last CTA
-    // to arrive resets the other counter and bumps the epoch; no departure counter at the end of the kernel
-    cp_wait<0>();
-    const int ep = *reinterpret_cast<const volatile int*>(sense_s);
-    int* ac = p.ws_cnt + 30020 + (ep & 1);
-    int old;
-    asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], 1;\n" : "=r"(old) : "l"(ac) : "memory");
-    
-    if (old + 1 == G) {
-      p.ws_cnt[30020 + ((ep & 1) ^ 1)] = 0;
-      p.ws_cnt[30022] = ep + 1;
-      
-    } else {
-      int v;
-      SPIN_T0;
-      for (;;) {
-        asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(ac) : "memory");
-        if (v >= G) break;
-        SPIN_CHECK;
-        __nanosleep(64);
-      }
-    }
-  } else   if (tid == 0) {
-    atomicAdd(cnt, 1);
-    int v;
-    SPIN_T0;
-    for (;;) {
-      asm volatile("ld.acquire.gpu.global.s32 %0, [%1];\n" : "=r"(v) : "l"(cnt) : "memory");
-      if (v >= G) break;
-      SPIN_CHECK;
-      __nanosleep(64);
-    }
-  }
-  csync<WS, NT>();
-  const int pairs = p.Hkv >> 1;
-  const int rows = p.B * pairs * L * 16;
-  const int R = fdiv_i(rows + G - 1, G);
-  const int r_lo = c * R, r_hi = min(rows, r_lo + R);
-  const float vscale = __ldg(p.v_scale);
-  const int part = tid & 7;
-  for (int rbase = r_lo; rbase < r_hi; rbase += NT / 8) {   // warp-uniform trip count (shuffles below)
-    const int r = rbase + (tid >> 3);
-    const bool act = r < r_hi;
-    const int bp = act ? r / (L * 16) : 0, rr = act ? r % (L * 16) : 0;
-    const int j = rr >> 4, hh = rr & 15;
-    const int b = (pairs == 1) ? bp : fdiv_i(bp, pairs), pair = bp - b * pairs;
-    const uint4 graw = act ? *reinterpret_cast<const uint4*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 + (16 * pair + hh) * 64 + part * 8)
-                           : make_uint4(0, 0, 0, 0);
-    float y[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-    float lsum = 0.f;
-    sum_copies<L, false>(p, bp, j, hh, part, act, y, lsum);
-    const float inv = lsum > 0.f ? __fdividef(vscale, lsum) : 0.f;
-    float ss = 0.f;
-#pragma unroll
-    for (int e = 0; e < 8; ++e) { y[e] = pr8(y[e] * inv); ss += y[e] * y[e]; }
-    ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-    const float rn = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
-    const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
-    uint4 ov;
-    uint32_t* ow = reinterpret_cast<uint32_t*>(&ov);
-#pragma unroll
-    for (int e = 0; e < 4; ++e) {
-      const float2 gt = __bfloat1622float2(g2[e]);
-      const float s0 = sigm(gt.x), s1 = sigm(gt.y);
-      __nv_bfloat162 r2 = __floats2bfloat162_rn(y[2 * e] * rn * s0, y[2 * e + 1] * rn * s1);
-      ow[e] = *reinterpret_cast<uint32_t*>(&r2);
-    }
-    if (act) *reinterpret_cast<uint4*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + part * 8) = ov;
-  }
-  
-}
-
-template <int L, bool FLAT, int MODE = 0>
-__global__ void __launch_bounds__(Cfg<L, FLAT>::NTX, Cfg<L, FLAT>::MINB) attn_kernel(const __grid_constant__ Params p) {
-  constexpr int NT = Cfg<L, FLAT>::NT;
-  constexpr int STAGES = Cfg<L, FLAT>::STAGES;
-  constexpr int IDX_SLOTS = 2 * STAGES;
-  extern __shared__ __align__(1024) uint8_t smem_raw[];
-  // 1024-byte aligned base: the 128B-swizzled tiles must start on swizzle-pattern boundaries (wgmma)
-  Smem<L, FLAT>& S = *reinterpret_cast<Smem<L, FLAT>*>(smem_raw + ((1024u - (smem_u32(smem_raw) & 1023u)) & 1023u));
-  const int pair = blockIdx.z;
-  if (!FLAT) {
-    // grid (n_splits, B): request b, split s of its window / context
-    const int split = blockIdx.x, b = blockIdx.y;
-    // (MODE | 8 builds, chosen by the host for one request with page size 1): SGLang's FA3 backend builds
-    // page_table = req_to_token[req_pool_indices, :max_seq_len_k] (sglang/srt/layers/attention/
-    // flashattention_backend.py, init_forward_metadata: decode / target-verify paths), so with one request its row
-    // is exactly seq_len + q_len entries wide. The page table's width is a shape: speculate seq = width - q_len and
-    // issue the window's page indices in the same trip as cache_seqlens; the real length is checked (segment) before
-    // the indices are used for any K/V address or any softmax work, and a miss re-runs everything with the real one
-    const int seq_ld = __ldg(p.seq_lens + b);
-    constexpr bool SPEC = (MODE & 8) != 0;
-    int seq = SPEC ? p.max_pages - L : seq_ld;
-    for (;;) {
-    const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-    const int n_keys = seq + L - lo;
-    int chunk = fdiv_i(n_keys + p.n_splits - 1, p.n_splits);
-    chunk = (chunk + 15) & -16;
-    // plain split-KV: whole tiles per split (the per-CTA tile count is what costs); trailing splits may get no keys:
-    // they skip the workspace merge (the merge counts keys, the cooperative finalize counts the splits with keys).
-    // Not for clusters (an empty cluster CTA still runs the cluster epilogue: measured slower)
-    if ((MODE & 3) == 0 ? p.cs <= 1 : (MODE & 3) != 2) {
-      const int ntl = ((n_keys + 63) >> 6) + p.n_splits - 1;
-      // ceil(2^32 / n_splits) from the host (exact for ntl < 2^20, n_splits <= 1024): one IMAD.HI instead
-      // of the ~20-instruction fdiv_i on the once-path (scout's census)
-      chunk = (p.ns_magic ? (int)__umulhi((unsigned)ntl, p.ns_magic) : ntl) << 6;
-      
-    }
-    int start = lo + split * chunk;
-    int end = min(seq + L, start + chunk);
-    // splits beyond the SM count share an SM with an earlier split, which gets the warp schedulers'
-    // priority: the first-wave splits take w0/1024 of a second-wave split's tiles (only when every split still gets
-    // at least one tile, so all splits have keys and the cooperative finalize counts all of them)
-    
-    if (start >= end) {
-      if (SPEC && seq != seq_ld) { seq = seq_ld; continue; }   // (an empty split only on the real length)
-      if ((MODE & 3) == 0 ? p.cs > 1 : (MODE & 3) == 2) {   // still part of its cluster: contributes an empty partial, finalizes its slice
-        pdl_wait();     // (the gate rows are qkv)
-        cluster_stage_gate<L>(p, S, b, pair);
-        if (threadIdx.x == 0) cp_async4(smem_u32(&S.scl[1]), p.v_scale);
-        cp_commit();
-        float* PB = reinterpret_cast<float*>(S.k);
-        float* PL = PB + L * 16 * 64;
-        for (int e = threadIdx.x; e < L * 16 * 64; e += NT) PB[e] = 0.f;
-        for (int e = threadIdx.x; e < L * 16; e += NT) PL[e] = 0.f;
-        cp_wait<0>();
-        __syncthreads();
-        cluster_finish<L>(p, S, b, pair, n_keys, chunk);
-      }
-      return;
-    }
-    if (segment<L, FLAT, 0, MODE>(p, S, b, pair, split == 0, start, end, seq, n_keys, split - fdiv_i(split, p.nc) * p.nc,
-                                  chunk, 0, SPEC ? seq_ld : seq))
-      return;
-    seq = seq_ld;   // (miss: today's path with the real length)
-    }
-  }
-  if constexpr (FLAT && (L == 8)) {
-    if (p.coop && threadIdx.x == 0) {   // the grid barrier's epoch, long before it is needed
-      cp_async4(smem_u32(&S.sense), p.ws_cnt + 30022);
-      cp_commit();
-    }
-  }
-  // the per-SM registration's atomics go out from warp 1 while warp 0 builds the prefix sums
-  // the same uneven per-SM shares for the non-cooperative (q_len 1) flat grids. No grid barrier ends those,
-  // so the registration state is generation-tagged: a monotonic launch counter picks one of two state copies, and
-  // the launch's last registrant clears the other copy (the previous launch's) for the next launch
-  int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
-  unsigned w0_smid = 0;
-  int w0_rank = 0;
-  
-  
-  // grid (G): CTA c takes keys [c*T/G, (c+1)*T/G) of all requests' keys laid end to end (equal work)
-  // warp 0 computes the key range and the segment list right after its prefix sums (one request per lane)
-  constexpr bool fpart = L == 1;   // (compile time: no run-time branch in the main flow)
-  if constexpr (L == 1 && Cfg<L, FLAT>::WS) {
-    if (threadIdx.x == 32) {   // the first segment's stage barriers (segment skips its init for that segment)
-      for (int st = 0; st < Cfg<L, FLAT>::STAGES; ++st) {
-        mbar_init_n(&S.full[st], Cfg<L, FLAT>::NP);
-        mbar_init_n(&S.empty[st], Cfg<L, FLAT>::NT);
-      }
-      mbar_fence_init();
-    }
-  }
-  if (threadIdx.x < 32) {
-    int run = 0;
-    int incl_l = 0, n_l = 0, seq_l = 0;
-    for (int b0 = 0; b0 < p.B; b0 += 32) {
-      const int b = b0 + (int)threadIdx.x;
-      int n = 0;
-      if (b < p.B) {
-        const int seq = __ldg(p.seq_lens + b);
-        const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-        n = seq + L - lo;
-        seq_l = seq;
-      }
-      int incl = n;
-#pragma unroll
-      for (int o = 1; o < 32; o <<= 1) {
-        const int t = __shfl_up_sync(0xffffffffu, incl, o);
-        if ((int)threadIdx.x >= o) incl += t;
-      }
-      if (b < p.B) S.cum[b + 1] = run + incl;
-      run += __shfl_sync(0xffffffffu, incl, 31);
-      incl_l = incl;
-      n_l = n;
-    }
-    if (threadIdx.x == 0) S.cum[0] = 0;
-    if (fpart && p.B > 32) {   // many requests: the generic partition by lane 0 (after the whole prefix sum)
-      __syncwarp();
-      if (threadIdx.x == 0) {
-        constexpr int SEGKF = (L == 8) ? 600 : 400;
-        const int64_t Tg = (int64_t)S.cum[p.B] + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);
-        int csg = (int)((int64_t)blockIdx.x * Tg / gridDim.x), ceg = (int)((int64_t)(blockIdx.x + 1) * Tg / gridDim.x);
-        if (SEGKF > 0) {
-          auto vmapg = [&](int v) -> int {
-            int lo_b = 0, hi_b = p.B - 1;
-            while (lo_b < hi_b) {
-              const int mid = (lo_b + hi_b + 1) >> 1;
-              if (S.cum[mid] + mid * SEGKF <= v) lo_b = mid; else hi_b = mid - 1;
-            }
-            return min(v - lo_b * SEGKF, S.cum[lo_b + 1]);
-          };
-          csg = vmapg(csg);
-          ceg = vmapg(ceg);
-        }
-        int b = 0, n = 0;
-        while (S.cum[b + 1] <= csg) ++b;
-        for (; b < p.B && S.cum[b] < ceg && n < MAXSEG; ++b) {
-          S.seg[n][0] = b;
-          S.seg[n][1] = max(csg, S.cum[b]) - S.cum[b];
-          S.seg[n][2] = min(ceg, S.cum[b + 1]) - S.cum[b];
-          ++n;
-        }
-        S.nseg = n;
-        S.fcs = csg;
-        S.fce = ceg;
-      }
-    } else if (fpart) {   // (one iteration above: lane b holds cum[b + 1] = incl_l, cum[b] = incl_l - n_l; lanes >= B: n = 0)
-      const unsigned FULL = 0xffffffffu;
-      const int lane_f = (int)threadIdx.x;
-      constexpr int SEGKF = (L == 8) ? 600 : 400;
-      const int excl = incl_l - n_l;
-      const int64_t Tf = (int64_t)__shfl_sync(FULL, incl_l, 31) + (SEGKF > 0 ? (int64_t)(p.B - 1) * SEGKF : 0);
-      const int cf = blockIdx.x, Gf = gridDim.x;
-      int csf = (int)((int64_t)cf * Tf / Gf), cef = (int)((int64_t)(cf + 1) * Tf / Gf);
-      if (SEGKF > 0) {   // virtual -> real: the last request whose virtual start (cum[b] + b * SEGK) is <= v
-        const int vstart = excl + lane_f * SEGKF;
-        const unsigned ms = __ballot_sync(FULL, lane_f < p.B && vstart <= csf);
-        const unsigned me = __ballot_sync(FULL, lane_f < p.B && vstart <= cef);
-        const int bs = 31 - __clz(ms), be = 31 - __clz(me);   // (lane 0 always qualifies: virtual start 0)
-        const int is = __shfl_sync(FULL, incl_l, bs), ie = __shfl_sync(FULL, incl_l, be);
-        csf = min(csf - bs * SEGKF, is);
-        cef = min(cef - be * SEGKF, ie);
-      }
-      // segment list: the requests with cum[b + 1] > cs and cum[b] < ce (a contiguous run of lanes)
-      const bool in = lane_f < p.B && incl_l > csf && excl < cef;
-      const unsigned mi = __ballot_sync(FULL, in);
-      const int rank = __popc(mi & ((1u << lane_f) - 1u));
-      if (in && rank < MAXSEG) {
-        S.seg[rank][0] = lane_f;
-        S.seg[rank][1] = max(csf, excl) - excl;
-        S.seg[rank][2] = min(cef, incl_l) - excl;
-      }
-      if (lane_f == 0) {
-        S.nseg = min(__popc(mi), MAXSEG);
-        S.fcs = csf;
-        S.fce = cef;
-      }
-      if (mi != 0u && csf < cef) {   // the first segment's first STAGES tiles of page indices toward L2
-        const int b0 = __ffs(mi) - 1;
-        const int seqb = __shfl_sync(FULL, seq_l, b0), exb = __shfl_sync(FULL, excl, b0), inb = __shfl_sync(FULL, incl_l, b0);
-        const int lob = p.window ? max(0, seqb + 1 - p.window) : 0;
-        const int s0 = max(csf, exb) - exb + lob, s1 = min(cef, inb) - exb + lob;
-        const int cend = min(min(s1, seqb), s0 + Cfg<L, FLAT>::STAGES * TILE);
-        if (cend > s0) {
-          const long long e0 = (long long)b0 * p.max_pages + (s0 >> p.lp);
-          const long long e1 = (long long)b0 * p.max_pages + ((cend - 1) >> p.lp);
-          const long long l0 = e0 >> 5, l1 = e1 >> 5;   // 128-byte lines of int32 page indices
-          if (l0 + lane_f <= l1) asm volatile("prefetch.global.L2 [%0];" ::"l"(p.page_table + ((l0 + lane_f) << 5)));
-        }
-      }
-    }
-  }
-  __syncthreads();
-  const int64_t T0 = S.cum[p.B];
-  // every request boundary costs a CTA that crosses it a whole extra segment (q staging, pipeline refill,
-  // merge: ~7 us at q_len 8), so the shares are cut in a virtual key space with SEGK keys inserted before each
-  // request after the first, then mapped back (a CTA crossing a boundary gets SEGK fewer real keys)
-  constexpr int SEGK = (L == 8) ? 600 : 400;
-  const int64_t T = T0 + (int64_t)(p.B - 1) * SEGK;
-  const int c = blockIdx.x, G = gridDim.x;
-  // (experiment: the first-dispatched half of the grid takes the second half of the keys)
-  const int cpart = c;
-  int cs, ce;
-  if constexpr (fpart) {   // (computed by warp 0)
-    cs = S.fcs;
-    ce = S.fce;
-  } else {
-    cs = (int)((int64_t)cpart * T / G);
-    ce = (int)((int64_t)(cpart + 1) * T / G);
-  }   // (a float-estimate + correction
-  // version without the 64-bit division call measured slower: q_len 1 b16 full +3 us, likely code layout)
-  
-  int vc = c;
-  
-  
-  if (!fpart) {   // virtual -> real key positions
-    auto vmap = [&](int v) -> int {
-      int lo_b = 0, hi_b = p.B - 1;   // the last request whose virtual start is <= v
-      while (lo_b < hi_b) {
-        const int mid = (lo_b + hi_b + 1) >> 1;
-        if (S.cum[mid] + mid * SEGK <= v) lo_b = mid; else hi_b = mid - 1;
-      }
-      return min(v - lo_b * SEGK, S.cum[lo_b + 1]);
-    };
-    cs = vmap(cs);
-    ce = vmap(ce);
-  }
-  if (cs >= ce) {
-    if constexpr (L == 8) {
-      if (p.coop) {   // still part of the grid-wide finalize
-        if constexpr (Cfg<L, FLAT>::WS) {
-          if (threadIdx.x < Cfg<L, FLAT>::NT) flat_finalize<L, true, Cfg<L, FLAT>::NT>(p, &S.sense);
-        } else {
-          flat_finalize<L, false, Cfg<L, FLAT>::NTX>(p, &S.sense);
-        }
-      }
-    }
-    return;
-  }
-  
-  
-  // segment list in shared memory (keeps the per-segment loop state out of registers)
-  if (threadIdx.x == 0 && !fpart) {
-    int b = 0, n = 0;
-    while (S.cum[b + 1] <= cs) ++b;
-    for (; b < p.B && S.cum[b] < ce && n < MAXSEG; ++b) {
-      S.seg[n][0] = b;
-      S.seg[n][1] = max(cs, S.cum[b]) - S.cum[b];
-      S.seg[n][2] = min(ce, S.cum[b + 1]) - S.cum[b];
-      ++n;
-    }
-    S.nseg = n;
-  }
-  if (!fpart) __syncthreads();   // (warp 0 wrote the list before the barrier above)
-  const int nseg = S.nseg;
-  auto run_segments = [&](auto role) {
-    constexpr int R = decltype(role)::value;
-    int tb = 0;
-#pragma unroll 1
-    for (int k = 0; k < nseg; ++k) {
-      const int b = S.seg[k][0];
-      const int seq = __ldg(p.seq_lens + b);
-      const int lo = p.window ? max(0, seq + 1 - p.window) : 0;
-      const int n_keys = seq + L - lo;
-      const int s0 = S.seg[k][1] + lo, s1 = S.seg[k][2] + lo;
-      
-      if (s0 < s1) {
-        segment<L, FLAT, R>(p, S, b, pair, s0 == lo, s0, s1, seq, n_keys, vc - fdiv_i(vc, p.nc) * p.nc, 0,
-                            0, 0,
-                            L == 1 && Cfg<L, FLAT>::WS && k == 0);
-        tb += (s1 - s0 + TILE - 1) / TILE;
-      }
-      
-    }
-       // the producer leaves with its copies landed
-  };
-  if constexpr (Cfg<L, FLAT>::WS) {
-    // separate code for the two roles, so the producer warpgroup can hand its registers to the consumers
-    if (threadIdx.x >= Cfg<L, FLAT>::NT) {
-      asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;\n" ::"n"(Cfg<L, FLAT>::PREGS));
-      run_segments(std::integral_constant<int, 1>());
-    } else {
-      asm volatile("setmaxnreg.inc.sync.aligned.u32 %0;\n" ::"n"(Cfg<L, FLAT>::CREGS));
-      run_segments(std::integral_constant<int, 2>());
-      if constexpr (L == 8) {
-        if (p.coop) flat_finalize<L, true, Cfg<L, FLAT>::NT>(p, &S.sense);
-      }
-    }
-  } else {
-    run_segments(std::integral_constant<int, 0>());
-    if constexpr (FLAT && (L == 8)) {
-      if (p.coop) flat_finalize<L, false, Cfg<L, FLAT>::NTX>(p, &S.sense);
-    }
-  }
-}
-
-}  // namespace
-
-template <int L>
-void launch(const Params& p0, dim3 grid, cudaStream_t stream, int cs, bool pdl) {
-  Params p = p0;
-  static bool init = false;
-  const int sm_f = (int)sizeof(Smem<L, true>) + 1024, sm_n = (int)sizeof(Smem<L, false>) + 1024;
-  const int sm = p.flat ? sm_f : sm_n;
-  static int occ_c = 0, occ_f = 0, nsm = 0;
-  static int occ_c1 = 0, occ_sp = 0, occ_sp1 = 0;   // the coop ONE / SPEC / SPEC-ONE instances
-  typedef void (*KernFn)(const Params);
-  // per-request kernels, one build per launch mode (1 plain split-KV, 2 clusters, 3 cooperative)
-  static const KernFn kn[4] = {attn_kernel<L, false, 2>, attn_kernel<L, false, 1>,
-                               attn_kernel<L, false, 2>, attn_kernel<L, false, 3>};
-  static const KernFn kn1[4] = {0, attn_kernel<L, false, 5>, 0, attn_kernel<L, false, 7>};
-  static const KernFn ksp[4] = {0, attn_kernel<L, false, 9>, 0, attn_kernel<L, false, 11>};
-  static const KernFn ksp1[4] = {0, attn_kernel<L, false, 13>, 0, attn_kernel<L, false, 15>};
-  if (!init) {
-    for (int m = 1; m < 4; ++m)
-      cudaFuncSetAttribute(kn[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    cudaFuncSetAttribute(kn1[1], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    cudaFuncSetAttribute(kn1[3], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    for (int m = 1; m < 4; m += 2) {
-      cudaFuncSetAttribute(ksp[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-      cudaFuncSetAttribute(ksp1[m], cudaFuncAttributeMaxDynamicSharedMemorySize, sm_n);
-    }
-    cudaFuncSetAttribute(attn_kernel<L, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm_f);
-    cudaFuncSetAttribute(kn[2], cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_c, kn[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_c1, kn1[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp, ksp[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_sp1, ksp1[3], Cfg<L, false>::NTX, sm_n);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occ_f, attn_kernel<L, true>, Cfg<L, true>::NTX, sm_f);
-    int dev;
-    cudaGetDevice(&dev);
-    cudaDeviceGetAttribute(&nsm, cudaDevAttrMultiProcessorCount, dev);
-    init = true;
-  }
-  // the cooperative finalize waits for every split of a request: only when the whole grid is resident
-  Params q = p;
-  if (q.coop && (long long)grid.x * grid.y * grid.z > (long long)(p.flat ? occ_f : occ_c) * nsm) q.coop = 0;
-  const bool cl = cs > 1;
-  KernFn kern = p.flat ? (KernFn)attn_kernel<L, true> : kn[cl ? 2 : (q.coop ? 3 : 1)];
-  if (!p.flat && !cl) {
-    // every split holds at most one tile: whole tiles per split (TCHUNK) and at least as many splits as the longest
-    // request's tiles (sliding windows: window + L - 1 keys)
-    const long long kmax = p.window ? std::min<long long>((long long)p.window + L - 1, (long long)p.max_pages * p.P)
-                                    : (long long)p.max_pages * p.P;
-    if ((long long)p.n_splits * 64 >= kmax) kern = kn1[q.coop ? 3 : 1];
-  }
-  // one request, page size 1: the speculative-length builds (; the kernel verifies and falls back)
-  if (!p.flat && !cl && p.B == 1 && p.P == 1 && p.max_pages >= L && (int)grid.y == 1) {
-    const bool one = kern != kn[q.coop ? 3 : 1];
-    kern = one ? ksp1[q.coop ? 3 : 1] : ksp[q.coop ? 3 : 1];
-  }
-  if (q.coop && !p.flat && !cl) {
-    // the instance actually launched must hold the whole grid, else its grid barrier would wait forever
-    int occ_k = occ_c;
-    KernFn plain = kn[1];
-    if (kern == kn1[3]) { occ_k = occ_c1; plain = kn1[1]; }
-    if (kern == ksp[3]) { occ_k = occ_sp; plain = ksp[1]; }
-    if (kern == ksp1[3]) { occ_k = occ_sp1; plain = ksp1[1]; }
-    if ((long long)grid.x * grid.y * grid.z > (long long)occ_k * nsm) {
-      q.coop = 0;
-      kern = plain;
-    }
-  }
-  if (cl || pdl) {
-    // cluster dims and / or programmatic stream serialization (PDL: this grid may start while the preceding
-    // kernel finishes; the kernel waits with griddepcontrol.wait before reading qkv)
-    cudaLaunchConfig_t cfg = {};
-    cfg.gridDim = grid;
-    cfg.blockDim = dim3(p.flat ? Cfg<L, true>::NTX : Cfg<L, false>::NTX, 1, 1);
-    cfg.dynamicSmemBytes = sm;   // (one cluster CTA per SM)
-    cfg.stream = stream;
-    cudaLaunchAttribute attr[2];
-    int na = 0;
-    if (cl) {
-      attr[na].id = cudaLaunchAttributeClusterDimension;
-      attr[na].val.clusterDim.x = cs;
-      attr[na].val.clusterDim.y = 1;
-      attr[na].val.clusterDim.z = 1;
-      ++na;
-    }
-    if (pdl) {
-      attr[na].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-      attr[na].val.programmaticStreamSerializationAllowed = 1;
-      ++na;
-    }
-    cfg.attrs = attr;
-    cfg.numAttrs = na;
-    cudaLaunchKernelEx(&cfg, kern, q);
-  } else {
-    kern<<<grid, p.flat ? Cfg<L, true>::NTX : Cfg<L, false>::NTX, sm, stream>>>(q);
-  }
-}
-
-typedef CUresult (*EncodeTiledFn)(CUtensorMap*, CUtensorMapDataType, cuuint32_t, void*, const cuuint64_t*,
-                                   const cuuint64_t*, const cuuint32_t*, const cuuint32_t*, CUtensorMapInterleave,
-                                   CUtensorMapSwizzle, CUtensorMapL2promotion, CUtensorMapFloatOOBfill);
-// [rows, row_bytes] byte view of a cache, boxes of one 128-byte row (one KV pair), 128-byte swizzle
-
-void run(torch::Tensor qkv, torch::Tensor seq_lens, torch::Tensor cache_loc, torch::Tensor k_cache,
-         torch::Tensor v_cache, torch::Tensor page_table, torch::Tensor k_scale, torch::Tensor v_scale,
-         torch::Tensor inv_freq, torch::Tensor out, torch::Tensor ws_acc, torch::Tensor ws_l,
-         torch::Tensor ws_cnt, int64_t B, int64_t L, int64_t Hq, int64_t Hkv, int64_t P, int64_t window,
-         int64_t rope, int64_t n_splits, int64_t flat, int64_t nc, double scale_log2,
-         std::optional<torch::Tensor> dbg, int64_t cs, int64_t ncl,
-         int64_t tma) {
-  Params p;
-  p.qkv = reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr());
-  p.seq_lens = seq_lens.data_ptr<int>();
-  p.cache_loc = cache_loc.data_ptr<int64_t>();
-  p.k_cache = reinterpret_cast<uint8_t*>(k_cache.data_ptr());
-  p.v_cache = reinterpret_cast<uint8_t*>(v_cache.data_ptr());
-  p.page_table = page_table.data_ptr<int>();
-  p.k_scale = k_scale.data_ptr<float>();
-  p.v_scale = v_scale.data_ptr<float>();
-  p.inv_freq = inv_freq.data_ptr<float>();
-  p.out = reinterpret_cast<__nv_bfloat16*>(out.data_ptr());
-  p.ws_acc = ws_acc.data_ptr<float>();
-  p.ws_l = ws_l.data_ptr<float>();
-  p.ws_cnt = ws_cnt.data_ptr<int>();
-  p.B = (int)B; p.Hq = (int)Hq; p.Hkv = (int)Hkv; p.P = (int)P;
-  TORCH_CHECK(P > 0 && (P & (P - 1)) == 0, "page size must be a power of two");
-  TORCH_CHECK(k_cache.numel() / (Hkv * 64) < (1LL << 31), "cache rows must fit in 31 bits");
-  p.lp = 0;
-  while ((1 << p.lp) < P) ++p.lp;
-  p.max_pages = (int)page_table.size(1);
-  p.window = (int)window; p.rope = (int)rope; p.n_splits = (int)n_splits; p.flat = (int)flat; p.nc = (int)nc;
-  p.ns_magic = (n_splits >= 2 && n_splits <= 1024) ? (unsigned)(((1ull << 32) + (uint64_t)n_splits - 1) / (uint64_t)n_splits) : 0u;
-  TORCH_CHECK(n_splits <= 1024, "n_splits <= 1024");
-  p.dbg = dbg.has_value() ? reinterpret_cast<long long*>(dbg->data_ptr<int64_t>()) : nullptr;
-  p.cs = (int)cs; p.ncl = (int)ncl;
-  p.ld_qkv = (int)qkv.size(-1);
-  p.row_bytes = (int)(Hkv * 64);
-  TORCH_CHECK((p.row_bytes & (p.row_bytes - 1)) == 0, "Hkv * 64 must be a power of two");
-  p.lrb = 0;
-  while ((1 << p.lrb) < p.row_bytes) ++p.lrb;
-  p.off32 = (k_cache.numel() < (1LL << 32) && v_cache.numel() < (1LL << 32)) ? 1 : 0;   // larger caches: 64-bit offsets
-  TORCH_CHECK(ws_acc.numel() < (1LL << 31), "workspace too large");
-  TORCH_CHECK(B * (Hkv / 2) <= 4096, "at most 4096 (request, kv pair) slots in the counter workspace");
-  TORCH_CHECK(qkv.numel() < (1LL << 31), "qkv too large");
-  TORCH_CHECK((out.numel() < (1LL << 31) && page_table.numel() < (1LL << 31)), "out / page table too large");
-  p.scale_log2 = (float)scale_log2;
-  dim3 grid((unsigned)n_splits, flat ? 1u : (unsigned)B, (unsigned)(Hkv / 2));
-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-  p.coop = (int)((tma >> 1) & 1);
-  const bool pdl = ((tma >> 16) & 1);   // programmatic dependent launch (off by default)
-  if (L == 1) launch<1>(p, grid, stream, (int)cs, pdl);
-  else launch<8>(p, grid, stream, (int)cs, pdl);
-}
-"""
+# achitaan ATP: lossless CUDA-source storage, decoded bytes=141821 sha256=2c89c30fdcb47aada7e2b2c3a989d1d009bfc1aa63d7576e9ccc3ffb2538e690
+_ATP_CUDA_SRC = _atp_source(
+    'c-ri}d3)Q&k}v$fJ_X`=oB$F@6C@=oq~%=OahAtRbS%f2c{C0Kk`M`V6+lvy6Q9ri)~~9&(E!0kPIB&<`%Y$#MQpuPS6A0w2mcXG'
+    'x}!xebRNy8ad+?_T+PEt5=|$S!Q+GU;gh%F<Ux1Q3m!cC`P(PYrjt3nn0;k_I}6+MIEdzneH$OOuV(&9_HDl1xhlMUH9K9uo4u3F'
+    'd(ngka4-qRVKNK4q4WE}LA%`xmr*xtx1Dx-GL0sqXo8F7H0n9YESj{hf@tJ=&hPY`20L@Tmh;JRoCgmace<E6(<=v`G@W4>&Jt%n'
+    '2pzme_pkV3HXYIPzB8ImXI~{wciIcRga7D-SM-r{asK1$_S>qnAPDv+Vb5uEmlNmAsiKcV#|<V<G!NroP9UbQ7n6C@37q@=(X<nc'
+    '=FvEeoj447&WwJbFDDsIZ>S~o-K9RAP7udY7$?p@{rjGC_#oT)vmc&6d*Sq^G{5M|agUDl2p&7Gzi=Ksa%v6Fvmt@$-wdKr=(tr+'
+    '4f64sQ~R~naAZ_Gj-=@%VRt&|CEV#e9M49<oK}LC!FgG7I@9UM`R?&SGLIMCx%2F*Ps`yr$(&}|rIAk(!kAg?;PuyU2_WuE=j_b!'
+    'J?9(8ubnzgr*?eOl7+zA3qWE%04x#)#<RCi4*2O6^-HT0Pr{KyFighnud7Y^6*`2Hap272X>ZY`FK&W(=0r)d2oon<hViZQ;=wy='
+    'e0J-&{4AM;-6$AEA9*#rl9NmU=Yz~35@&*sF%w#ih!$;D36k4MSDJ3|%Fx3;^%BIPGYBR<TCXX-xrycjXRKGO2pkNyUoHq9-?cV^'
+    '>zp3bI~q_`1tv351*Xm5{!eOvfPO?x;oJ59sI_%i7dH0l$JbA(wVE0Oy(ynuykbDaVLzg`32Ng-GIt1M(;I<j63)lLYC<m%+(!}b'
+    'G<-oV&^}7Pb4S5q(j7FNljGz1i9_3xyFA1+Xo+IlGJtPydNXn6Q|Hv%G}5O}E}p-6{ykvpnzm}HA&)Lj>GvsZjN0)r!M4@_Y`46*'
+    'aedBpFDXVJpHN%%+Qv_w=}%lUO76`mtJdi196h_VY>$a}e1r9CQsbF{H%<?n-T#@neST*xwI?*{&!SlfGU@cf8KJm)(kKtZTW3yW'
+    'B=MSbH=H?F)0h`{G$nG$n>Hr8NSkcHSmC(In0{bq4QSu=oN+jw#<wNuiGGGQa+QEe4iSGrk~mDFUO1V1rWbmx9EaDm*XK?@jtG$n'
+    'zmieZ1F^n|CWJ2u%?4yby|!s>F5W)*{yFbR0)%TVYMo%x@UXB79A*Q~f+PuvLcTtKa7q|TJ%vGcAX@-1;Smyy=#gB9tDrj{5giIg'
+    'Nhn|Rr_Put3WiG*MA3Uqf^O(kRn(6F1JXj2&k!DcCZt=TjRD1T_X{E$fBZoUd+yw)l{~{a^yQbJC`95<@$;lXPh5TD8$80AWA*uU'
+    'ue63@_ws~CCfa3^7sv#OPTmZr^g}>%&ublgY8_+&{r1O~&k4*Yjr;?%0&7p+{PYW`57EKa1~S&Uori)nJPraaoh;6acg}!Ex}xri'
+    'dTT%ZueaPK59*LRYUwslofl8JNr5&{?ggPQ@g4m8otJCz$8Z0$eev?Aw`dP!MCOy9%d02<iMbs6wbuGHc)!eocpl+sYHFO7nRRI|'
+    'tT%S?{Ck1s&c>3kKc>x-(t3Srp9gU;PWa&F=D|ZPiAx(zgSmfl=v)t%E%S`JJ*1|t+aqEaGq+C~ZF<zDEfBUx(=MJZ==Le@4%>V`'
+    'b8ng6vznd}tlRUTGqN7=NYF?^Fj&98+;BglSzHka@gO%P;`wk_y?B$fgKjr_V}wf{5nXgAb9L!FEjd42)BlFcl5<{i=x}Re$VB0U'
+    '+~BO5g(YXw=JSs3V;$(4+h?kXe-52qr{6MbHJxFNz;qEoqqT8ngMdf`I77m|F|nks#VgW*I9Ui=GMUCiPnpK50d^B~Hfm*XL6J}*'
+    'usvdOyGcr9^%M8oi&xKI5ysITS9}q*lG5H8v#6ScqN7o-eGMqkW^42QGXQjWJqQW<nqeSzjqf?YCizK>XqSW!x`X%J(9`25cDI$s'
+    '<#jqgA5cHwyl_J3gQ2N7K0uJTV=#H(&u}7;prBX}&|N)+S-~dc;b2Xjgg)298pWMf@v9*3LVu`(KsJC-AVLzF-bq8ZLDED$yX`@`'
+    'rgW6@M~Tx3aYQzp@1Htuy;klJza-7km&8dW#J2O%p$-;2p9S*)c9oVrCP{l7^rLP|uY5@Ce(l$KjR?HPNspNRrn!=n4um=@M-h>u'
+    'kF_X;ZCkIkX>IAmZZGOJSN0l2EZVgmlaDx@FXD;g>X*HCyStnR?S423V>+Ma)3zM@?hHr6w*FXj>(1KDdH5%$NvD_4ZnFDM;%<q-'
+    'OFsk=WiUZ9rZ;Hw(TU*R(@adI+powNDoW0|ykC7^qJMq**FPya_iL^Hp4@Yq&3o}ZmwKa}aBp<arPlE)=3lCxJ5HiK!_@CG6D48c'
+    'JDC*oA7L-*k`&fcQq5%QbmD-xXX3%|kmXJ#0Zj<Ih`A`GP4d%^VLUBgMI_*@0qXbvo;Vfo>lJS6nt%Z=epZ=;l@6g15x@KO5{V;p'
+    '|NmS&cZBOF0&SkP*ay;b?GkW22F9Hr-`EcG?dTG0nO0*XrtCYu?sPnk=B%06Gys01-6s)frn-alo|DC2Ki;P|FqGT+!gJ}#xnI?D'
+    'o7{6>d)(y#VPBd46Y1M|`|1hk98p2=SR{mZhlDVlTV}Vl{3|LAEjS1(g*J8$7Y($p!U??*O=Q?>tHh5hx+{K<P<Is4*;!F1mzqV>'
+    'xhImwy}ee3J0~_P?9SWs6{C-^H*{aN=te@LM^nL{Wmqw-C_HL5yYryZAr8D<Qpj}QxA4f&S8B&oc&|G9oJjyC?McxLSPivx1`N;q'
+    'sP`PQYW;JDEP%@nc^^n`fbYhE<_AaEy_j^ArU6@l`TRifVy=;YEL9cMK4m(bz5Qm!`|FBWx1#kRRy~^E7EP2$a*iVZ^5n<2?fYlV'
+    '|DG5i%;Q^bzas6dLE}1uZU5(sYaAMmYG^BEE?Qna*mV$sH!+((4harRutv1`d6|fU-VDMCvu(_fMTrt9zk>W6kMNn%IM4wX(bt1u'
+    '89F0YvF%Ot+jqhxLjv<i1#NP-a1-1GuZU6;v));ZhH_@Bv!wi3t3h1<q>NooaA7`<B#Q+x`?C?Vt^SFlk3l*P=qBrt>HmX?f%Q(n'
+    'p!YUtwJRszX7)p|9{U3gO{Xvt!mG|p15kP(LnrZW)ocncVjrgWYxq@Xxb8qioV9Drg3T!GTo9aHyc|a0X{trJq{f{}1>kXxG?_m-'
+    'Qww!T{n69+j(asDW+>?Os7LGQW6Oa?XYPO@ROUmKXSLTdQBQ4ZyG`<ft7Ot0%O&fB|JK%srx@BxrIsdx)##Q-S)q<A)NyWcik3w!'
+    '&B$;+Ht3lR+I)WD+fVyLWH+P4Gb`Yh>|XEEBNJ;PQ`{$W-XdJ`s!nG)>ZLa(9TYc28bupLO^=CL-Lx>)xGm1BTEw#K4=rJt=&)Md'
+    'Dncl$olZkAlHbsTNDX-!_d-ykP6&mgqr^54@1$@J!hdl~YBJK^_8HI+h@e3PQF1dO@ieOs22iJq{y?;yP`RZ_=m4r`l6ln70eo*S'
+    '$XJ3HI^QA`1e4qLPQhT8yi+X{4s_F+5b2YW)u@>5>$mHcu;~O^W0*X9<^!Lwx!uN4^jmzcQWLat5hOpOsb1>`r!j0{f^gY}6Q|Cq'
+    '=*DiI1_vx-*aU)^6ZM21P1ZLly;<SayI;-mj!{q1h)I?{IG^_FUQX%#1|aYLr9-&sV^-YxO}_|TG82aaJMFek#|u8n9ZsoSr>uk}'
+    'WzO3}!sEfnFrq8Vz~TOK;cXh2U&_gPZ`TMl>zp#U=JHUt4M-G$;Yyuf&Ps+Q7q=||lzWd}s01@mkjmBkBOg0zeePitXIJ-J;WFvR'
+    '%Hz=}CDZK=dBW`OSv;Pndp#(nPde7`Bpk^IQ>tJFi56J*Awv^Z<$hfa5!;)GNIwF7;OWDVTD1q=(@gTs)Cn8oy5s)v<M%%>e+Nw*'
+    '9VrAS;tH?)lU1$h%;u{gAt_|k6Q6`ZFuKA>NuU&>`CaY1b7C~6bk<<cx|JV%C~l|D#Sh=@1)T13UK^y)S#5*?$sqqd7b&De!=1Nq'
+    'J)SNZF29qgHUFfx)ql^a(Mmk2@FXgj=1M>(AAMQ}+iC}ppcO5KkvwD0nQq}XVC3yR_dh>%Iy%~a?bP=|YT`KC1HHLM(~{a*gGi>)'
+    'ZUYWAXW*Qn5j;z3e5)N#T)a<jS{)z8)CqCzBw^0m-5{Ai(p?=scE23x)2j9>KCS&ahzK+gjfL^0>C(?AZZeieli7k6O55xSP4V3Q'
+    'WA%sg2<AqdP)#R{W0I~P!RMrWN=S<{>DABQ{Y=Qb7X*lMY?;5BmIf2(&}d4%;0L{<=R+hCJX%0(4DG8)63wF}$+b8+JE0uAO_>PK'
+    'ESS&3iO61yIZd(zADZsKx%mENFzGAjp=g4ZpMD2~6+S8+C$Q5vhfbdedkGL>ye^l;h)q&*l(1*eAnXpst{R6Qu*=!Z(OE>J-fm($'
+    'i%+w}RsmtP2U499MCa2shE>>xt6uWhkVaT8I0cRV)$G(=(I#lWe%HQu^7gwQU;p^_xw?MdcvatdREU0L9JC2dw6xQ;NOMrNFMRu='
+    'W?$4x`}jrhf9Vlmx83mzj&RlHJsKb%m=z_VSH}Ly<aFqtRO0Ck$sHpcUfB5ZKad96_;gy(VR64s6yo>$jne(&(*2Xt{fB&cTDt!='
+    '{m@d?z0CWTxJ88Gh>pMRW%WId75VL3ziZa-`g<?^3@1`m9Yuk!f7JAkx<0M+I|Kk(tzGESaOg-Pc19V2j7=AIpv@#DeYrtYWwwjM'
+    '!izO@bkg|Terl#4?8$e|)ACguC^I;ed$dP~;cWuFbUbG#jJY%HI4=8U3_C})dDJgCM}%`nr}V$C2~O}Ra0bJY(~HK5bK0*|PWwj>'
+    'D?1S!nwK^V(m_ATPv@QRc*BnTMeF$6mp?oPLym#6d*gWq*$)kZ8+$uZ96BHdLn2KLVn^M+^Z2m?M1kYu8Lq#CONjCXN<SM`=_vu~'
+    'h&>%>fazmdwIyDVrF%zj(fi_EflgfN^jF8FdtW*aJrC}Q4UZl`kGj^5pJ@jl9m$Att(hl#v{@@?^K@gIr+c+oFKF}YjctCtsm+uf'
+    '!PSZyW%hMhtq_S_`uMlHI`$h?Lh4SHC<48~e9TI2`1-~GcQ!ZiuzpgLFKYQF>f4&Q<tA>kqiE!tINq~~bQCA~CLV5XqQ(=cXJO&z'
+    'Vc~CsMWzWo3O^4Ee;X`nJdt`97JeQU{x(=-nn*`+l5Zjh3n6B#XAk3k=%m6u>thnIW}=x1y4USE998<Wh2y?@{_5$IH<c$ZUsk?9'
+    '|JkE`Owu9IGGeIPZISEvtFIC?FAXH!%(oZM@F}6|^EYqkntnWc_V#7v$9L4I*HlAFlAs@!;Q<DMIs?x{RC*GIJ$Uf3agK&eLt8|#'
+    '@K`%(CyhZ&fv)Cmt?{~hS(cztwX~^$W*ApRQhTb^$tgocE@h1;i+U`T-qpy3p)4EgBhf!@^^cGG$ITvtTsEw6{+>#y^uNZZf>F!g'
+    'TlM#&`g^lBo87D%k-c$y)o9yNcCQzwXV#ZaT+LkhnX6jns$MkLQEwc~<7k!Rz)mNpl~toMC*e2I+Bk@4InL|yexul`AhKA@><|C)'
+    '&99pIRX4&tP0C0PSJOr8oUTqC^v8q4&bx}IW6P^~O|9v&hv+CES*LI8Vz8m3ZQ40aenxD?nAnQ((L;7jr{0(!p^Yj~aK<gIbtYzk'
+    'wFB&9`k+x#8r6n7zu)jG75RHq$G75~$_?yR?Im+w(@iUyS<uXSW|niqY9{k-t7)xcip;!}C17%@K;!ig#x>R)Y^=H5SaZ2Fgo1U?'
+    'Vz~BefSVb|2#Cp-q`<3aWE{uFu;C#BByrqc6!a(41b)OUor#XN>6E|y>BY15`J11<J0o6%9UXL}25z<?9A)pkdh+IlJM^+Q;g6cV'
+    '^X<>C&hri!sS5Yit0%;mj%Gl*y}T>dtOQ&9D{TF~Wit9a&x)HqOL`VD&vwbrE9&&I(BseamfDUsbZ1+Q_UQG_t~W9a?R~Rh5UB|$'
+    'GlaY+&fQO&z5+L&B}8G@wd41+j2U~>jjaGDgnLmQ2Op*}tFOgIo!mqpKaOZ<f(>Ow+!S%@g-JJ#X7KHFPucmMCzUvUwboGdDS%({'
+    'PAwgb&)i%)xq+~mAx7)!3B2yPOcsc{uCD6e(SIH!8e*~kAlBQw<b&__PjYu%9-zEV&+E0KufU|q3GnUZNn>?F{GNN{ojFf%RVN10'
+    'g$|{Z9s-a7o~nnxzSWPj$3hA+Z%<qrpEM>XjUhoJRoNUmy}ws$vL;oU1yXK{?AP1dqD0AhvcN)XyB5yCuRK(iGyREd4$N6mpv;+}'
+    '!NAHFfP(+Y>QtO8GerM8rvJesk@~t%a{c|U@eaR;H+{V7<6R#w`^T1!=01Be`uNbtmp(qN;nNy-f=_Gsw1!V>=%~iNkNBd7FKYOr'
+    'jxXwdR{K-uA>!jYKCT}_tz4(C2`<#QpLNnvJGN(Og?g4&sAp+~de91)-wo^cvGx1J`u*^|6#=5|om$Vow)@Nsz#f5b55c#`;M;@n'
+    'j|+P9?cw+j?F)M#zCDtfJ(5}m7WPPL^@9Ft_K0dWTx#}6YW7HK_DE{>Nb2@T>i%7Ia&V}iU8RjkYFq6`cs5d&e*qn8CrOSJ355vk'
+    'i_Tw2EE@kmB^D{I_+Q%a{}64!z7I43=xo^j#wCX1jQMF<eEwkqW>20nTdsm`cQIbjrkch{Q(Kyr(R7h;l-yS&#*Bkxh|q$hJ0<ZG'
+    '5#*EUoP+}oJ&#xs#9NAkq{SMYgdA2t|34}7Gl#{LNX%ka4s5h`&(JePJ&9Q{e&C42o<KeH?BOxC44csoI9@o8RM?JqTS*s60=rsF'
+    'Bsj_9OO5fH!GWk4u&5B2OLX;AGpm{xr7?|Jls@)r%5&~6Z0JejZ|6cWu+2<pt$+!ANYwvmCky(pmL>ffewiZxVZ4M(L|>1bMrIxF'
+    'a3DOa6)>jiS6H(2=3<q|oDMklwjK%l(|R7p|4dqse+sxkn^`<j%<}y@KCZ)(c)wAV)8Ky(g#Xb8Lax8iTD8zxwa{9%aNY2$zT%&L'
+    '`m>h)6d-G6(`YtF(`oFkoCi)%0`05t(pWi<Bs&O5t&clBeaH6I6n!-u8fNj7jwZ*2hLcVgy2U315u};dL_hyLWfMd!?$?QJk3dWR'
+    'tW`OnasqBK?1!<_i<ayrp}j7~Y+AsF&UDfZ%h29Q8VSekPDeC)<Z0PPx4?&9QM2ucUHDeQnWmw3;+YnWq3f~d1V5F^n`h_jYW3su'
+    '=g&D`OPO6$5vJW#f&6CH64)7Zl4;yY_=sfp7cU#K?8H5B*TGEbRCWEz6&xvGVH9_Zc;fcNVF&}gPMv#dblr|Wy1AEEApLRA%UW+^'
+    '2kTj;?+?Yz=^Dp}8zUP4O}>nukDRLQA9SsdBZ>NB)*q?_4B`jFel1O>S~;d;1OLv0$$(LajxRo!#d|I8-5_KaPaU_OS^gHFqnv{N'
+    'S^Kq2w3gjg8F2WT9crYzuat8UF%X_Z?}w`y^?Ma0Hs<a2m%&^Lon7)PK>twtZ3Ki}x#gAFDd+LD9|v>-K@HpsXW;}v$d1NAR?^ae'
+    'YC?&$vrowBDG<l(xC}(N;}YM7yVt{|r~QU_Lq#!7i|(?ca|_*$!Z|;hge!@L7WV~4E96I^`H!akMaa7%tGR|_aF4pHI8PCFjK!Et'
+    '%g|`6P$!O4kqPW}X_)m!o0Xav7{P?FZcgK2?PlvUG`Q$P#?v+sPF%A?;RueXp<8DjM}1I<K!8JUYD&T>A$a!6;VNA!l~71J2#pIh'
+    'K?%c`F2WT7w#5MIg`g-jp4%`+8mIxF_2j`*rUT*C6+E_>#u1SWMp#zevbPI9YjZ3D7L7)Qg{y#Y9u-I7V_rAYcqlosOfC_LD`zYl'
+    'Op&ew9%kZ9is*KvZK0v7SaKC|6ot(AN0MtKPg<3w3e<OSfb3tiO_-`gtM<ILZ9Q{NFOn&Oc=EhAOeaVTmngX@zJ!>oS;QDg79@ai'
+    'WXF3W^VO`vG4`I`$!Ln5FVc{72m!=G&nlz11J8@}N!p%8_*4t{>X1G%$qwkAd0#EfZ&(aBB;q=cdMzg;8u}W4j*y1w2k$qbgaJp2'
+    '5DJu$%K>OR(;2}K8F=d~CWH?ogn%*f2GPh4`F52>ke4M~h1~`2nk_HpsVSlWZXy~vToRpnxuGJ&L&;IoLc*3{NVqPyX#mJFa#Ah('
+    ')vD9I?T$huIin*qZ|l&`=s(Z`jRHc0?{-^1=5)^$M<$xocVB+#Tw%rjV+L2OK+PAv;Q$}r3*kIeZQ-wgu&QCGf}GN$4A917201?i'
+    '8n~~W`|>{LzWL)1Sqx%l+>jUdlV!ve=UDbA#wCjhvc&GHs&|3*GDf<vfDj`9vEI*56;8m7D}B&Zjk(`9ziQ@JJ#|9%Puk+xI*5!X'
+    'vhpsb5wOG^Di7n-ZN6r?&JXUv<yHI6SGD2a7yjY1+JkqkYOki-t7jaT)7><h8o`yX2aytYZ38+x2E)%=oVkgB^+;?7u=(8c3RlH='
+    'e9Jrg`%BAGqyqe)YMVs{wR*;Px*Z2MkWD)bt_s|CT$5%a8BAl6)u{y*@~`N>g-6?}a=Ym@IM$sos5%?ks?{@XbvCp`ucd8eWod#O'
+    'vxLe;7t^3g)RdR*s^$jU{dCvbqea`=UT0T(8ZBsG>D+)A8FbhqlH__3^xETKrS{QMmTF1EyP~^S?h-vGgR4<{HI=9&SGwaaOAb9('
+    'n182lY8mWa?%-Igp(cxQeyB%hdknF)@2j=D4{X|<|EtEe*Q<@SDHsO_ac?PiM$_&vO+w_Vw2z#tNOIxaaJ*Z{S}N9BiY%&P@|0bJ'
+    'neQ-}v%s*+KZ03{5$*oT(9JO+xe$@KwVsn;x~wcT^}MeJ-tH2APR*qOLvfa9BCSchV+qx;`cbcVRJtt&*^j+d<s;$^h{^mm8WSZs'
+    'a?FEU2!*bG1SxG+=_1HEeMR5gD~riUR=0>@6Gxg2fpHvWucO6PxV_Hak@{ccU*sGI%6o9Tn}+Bzf_Vcn0UsE`H9No2-`^k|%t8_v'
+    'e#6rIM(jN2N+YD{EQpgQR^+!4<jCK^&p{%Pl$8kI_jYcz2B0$PHP(TW$xy}}2%s>ClFkyP0(R7suulTAx|PGgfCgs*uDLbwCDw13'
+    '3UM@;1#8jzi%fW%jj6fNHVjm-SIu<UDsb0ZYhSr17J25GNWW!;-4f;JZTj<L`twE)C;kk=%xmKRzrQAXE{W#y5VCA7!WIbUgHz9c'
+    'dCWYwN+kHp#Ty-Co{FNJAt<<=E=a&R{{_C!Bta6TW|u}5OgWdJ<7bk*iC}J}d4pYw1nM$o!{Vr<lNIMXt@+%L+4BwcN?m{BJgm{&'
+    'Bv+z1Rbu2YPPuArT55Dnohi<t^ODp5PDhLJ1bH)ElYuP>iDCd4NEhfV!|q%(dL&-7QZdDh<Clw<MVT7yEO#knG6P_;gZ>Xp*4{7&'
+    'VGNT98h-vp|NKUxu-#ZX{4@!kl}m2(OtcRo4Zi*4t$Y3p=lk=Bu|NL>*-=U2mh6d;q)m21&*hg60q`Sy3!IWyM<Psn-T}A2F{8AF'
+    'Ru{CHOm+($tTw!ScGZ7GAAI+?*;J`R5ACd;@2zB$&T{X!S;c^yC6}k~6`mkhh$K#gMkmb(>YiwKwlr%v4YdPKCAdOTMMBVAUKh{q'
+    'W`=GW@AHYBr7vV4EJu@GxPo$-1XRg?<G3^&oltPr@3z)($b826-6RoQPvls0is?i<Iwz=Vuh;2MTG{q`VQ0}-+YIUDrhRCC%Htp&'
+    'irPYbx{P|ORzU*Nn=tARSVfU$BDDsBsY%x5i&umhIz<o@w31Us^v_}vAx0Av4KNH6*RP#=GJoon0C;&?-2y~<v&YWag!+qFcRGfe'
+    'm2(!aW!+IZJTr>~rA&$ox%LGS^vb|1ML!omZk2K%VC0BmozF<;3dwXtJ7In+J#FepC5GsURYe1f(|GEX5%3AlG`pN%UDn>~bdc|U'
+    'eJe1BzIhG>(5+HSOLxh7)49CAxyHky#@RKUTISrAoPzf&=lq>mh?Bbv{u;_^laV*gjLZq4!~q@$2!jX9>Rwca%WIGIpA52|Lw6>`'
+    '&0bWN6P;mn6hvb^Y?aXbs^4sWS8Iw+eKFxzAWlGaj3KI2!m5SIY7VqBP1r54o4xVO{wk3sGYz`E>7qk_h0zqEAo(j+m)HtLv<e>K'
+    '?^OnBC?>8=OaLGta*~V63ME_rKe~mm{qpSWRGFj}aU4$O+W+GP1L_@!18ZVx&dRBAwq*XtlkPYdHZ@>@IfI=Udj%Abtht<+1l>Gm'
+    'w6D_elXwSr;_uE+2`Ne@YqL`5XJ8{MseoT%1S15ZQ$@H38Yf3#9yzB597tAUtS#zjBo>V)#j&0)bvS0N>3n)%j?;7FE+JWPywpKL'
+    'IhGh#lBNUjG)}6gLjG;aRIN3<^o&|wUs{>OU(zxX6p#^?{sAlEpEl|>y{ZCc=}ll`)cCx-AluM_5rY&*D%-V!3`2qez|#awN~zzr'
+    'HFR&|Sg%hLHP%y%_0<2G2YB*cvL|oktn;~|6Uot}xW={6-0bU*UF=rL%9MFRpiAbLFF7m~@Y3WLm_G!bGEwma&z9B=1_EQ$bQn(7'
+    'n(eQ*x}F}nA1DVRlj2FvDrM`GWWw&FGw0=@fAT;8?^(>oaKe2c@YB#3^fC!=1Ox3&OYHXtq9j(L^7p*VHuGY)XL$T>!gm$^D2wJ~'
+    '{a%C=*q8N`+{s|xOwXSqLpD)U+MLXGPr5)WSJ6$zL!Ir&vr;>c6w8unP9=3N>15n?u4@ACw0rq70}GQSISY-i5?MISkPr*e*Vb<2'
+    'X9!!l>J?HRg)6HpO-6ib1s|5=gb?$ftEr-8kY@foNZFt6Vtk48|D2=!h$Ir)0PoZ8`}!eruH(^V-8`kCnSov*1@~1qY^@jDFt~)e'
+    '3B=^|LsgWd3QaeAyb=BKtdb|a+et8nOfy(ahKbY6oYr8VgoATNM7y;6ou=~qO^K;U0J5<NMV>;|$|S9MViLo<O8P1(t1}I<#D-M<'
+    '0ovWtIlzTA!|CiH$}Lm3Kr^S?AvOcZi2Cy&_08Tjf8n3V+l?$+-n+iCALpKh*=NXSjdR)B+9jGQfjB5mYwozB5@<G&_#9#IO&B}v'
+    'Rg+A5Jw*aI0}o~{%Ekj*?3DsBBe*1J;zBPgb`U3$0vWS|oq!H+Ztcy}2X9{Tf|>N?73U|rK+$9>&YB#2Gh<WWB0&zdxhyn95ggI5'
+    '5id-+6-dr{9Q0h+11+_Hm=JWZfb*!ofPX0a&)EJM&Q&<?4!p{G2_Tq&kwA<X_{SRyF|kyqwV`ZgUf050y!z6)C|S0>XPGNe#-!J8'
+    '&Y#^Wa>Z(CdQ-Jq>dcIH;+v=G&zDxNglrKb#h+aTBtH|6_WEtsy=ETuSZ4_8!^%`P`Tzp7sCW`D!dA|XNw9%gLVS@@HEfB1;H|w2'
+    'ChCkoDeF(@g7#8{C^eg@rP_dPQnjtp1UhC#jBz?m9+`m>eFIoQv=7B4wWVIuvCAa)pE<S)z=aop=XPdl7;Gk=vBp`kKO+9q?_Vz7'
+    'JklV9j)r^r((#Y+u+hp4Nb7N_w@v9j<P~Hqdh_%Wg$5e$&2Ux3HI1<ZOCJ8Y#XleM&rK#d;YNsAz|yhgN-4sVC^<VP4M4(x{O09l'
+    'sK>Sz$u2i@sn)bzn=uRJS<HHwtdx3pYyFO*X+m*mL$h=#%rT#ToPJShyp8@WU43l-Gj^7ax=(sN(cN?>oDvn&e0G63@s{)rm@g_g'
+    'c44&S&(9bbBSKO?m%*}Nda^a7g>=GnH=S!CtUd$B_r~(I&HwC`l&8^;wFdl>p3srA=FyNFU{~B4y6{DK_NwI^9d+&4WK0;(WE(Fp'
+    'yYJcfI_h=%?k=R?wFmFM0X=VRp4filU>J%fyWv*h9GCgW`#d06OOpq~?-?2oGd!&(U_)e;&F%W~7MCB*<wsoJn9G}1rk!;n@^?aV'
+    'AF!ok`*g7WYs+{oa)%wOTl%zXcNA_6;qkG~G^*Ct#p6R}ef6{z<%X-*ZKjXK#L<RBASPr+|Itn6(IGdV8Da`6Ca*=H$Wl;E(Jr&}'
+    '>^;xWP@Dov^(i%q5P8y8Yn#tBELO#NZtBq}!mR1^AV`c34m^7tvfR`&R!H~!Y16rci242!Lg5rTgI~w&6?^_tKXOKL+Y|m#yMSh5'
+    'Ix5`1m^p>_WV!1SHx9u@Icz{W@;zL6CKc_0B^hhGI$PeAekY9JW@Z)Iq06yy_*S1;>@|Dpnt&4hw&tPHm(E43d1&}~hgz*v%t?!$'
+    'CrT7Yo-)mM;ZqB3+QO>BEh-u8!K-%c3#3B4b5wQu`J@dkK`E1^i)5tFU`N+$tL5I+HOlhuZ>nXslg+iccV-PC3j@2DVHKx}S<W3D'
+    'N44R7g(eujHw)B+n?zY9ctB;J(>6YHI-oH8;t~H<s<n&CkcFd*%2H}Z^*#`O!R7M&scfV}Y_UIRW65Pn+u{h-peMt#H}onERlP}K'
+    '8m``_MZ?Zf*R7aN6PczVcvgk6bJzmUp=GeNg4XjlXpCMu;_mGS`0x!r6b?te%GJwz{{4?Xy{7kUjiYKw@r=9)*%+fMjwRhVAQ4Zy'
+    'LlXH>+nh#0XTp(!5{E1(kB^yV{toiu6(E5{Kjf2UEgiAeiT<wj`eWMf^E4Mf?81?h+2zt^;>kW^vkE&QbDo{RS(8#(t;E5KB>zTG'
+    'v&`noajuzi%r3hS!&2d)EbkaOQvfH$=7_lss$@nQ&@<4P5xbA0BAZk&y<qo|q=jFY8(eWCsZ&9(Al+ZuBicYuGH~J8+4+PG6)-W+'
+    'RXFEhadkC<)c^Koss=YRwimI-!0nd(dZq9Vl=mYT*(y0X@$FA<u@H(Ae#oa>UX~nnv8U=jG3o7gcl6QaeV66o9AEfxX%f{EsbO>S'
+    '!bXVM1jt?_soGi9GMO?Z=hw25)lj+j4&mNQZSk)oAvDa6C>Meto|TpH&vKJK$g$qFO^mncZz0_+5U&J|Wl<~&fJAX}z6FoN_9@Q3'
+    '$O}pDf(VU3->&)UONW4G2|GDKV?;0Umk%6739_9`-6`WKmMHyjdAWFh7q$_+%}~I(&P{V)5^Ad2Ro+Rofw9f6OS~m8_ju%Ka=~8_'
+    'Us+Q0B*THR>i`;KUsmN<gXUgxbEdU|k3Si<>`yG4c}o&i`YrzP2pBHE9tnZ5hO9=r(=U-<E18Upna^+c`}}sp=O6d`{NsktZ}$8A'
+    'Cja@Te|K!Ruou;7uX9R{0zBR!5V_LDi9%z~$VULs8Xl9x5Rcxgr^3hNQ8jbLU(v<y2lnyRl=A@eSS387BcvhxFh?JCraeLoB5Pyg'
+    '9+D_cyHL;Vhn{zEXI+P-&yjqtIYo!r>+6~~`INPmBT<r=cg~E2bQirqDqfC^d|7zTm^ognbK<(HHug0i6O9xx%puTtpV3S@Be}IV'
+    'foZG}m|{Z78-}-60bv`dZx~+R<cXsCG`9k#8B};r<=Ic4G4xb9vdAh&7Fp%UBC8w$!DwMk=!$31%AosQH4oUQBUXz*4(CZSOackJ'
+    'VO~J}vDiptK2?QY*?Wq3^qv&$4meiQvcV|%_@G#)E<s@0fTPw^Udfmr9=&{welJRFWe`Osi^5_YfJp$hfHyBaJ?@-362@qg)?G!#'
+    'y09Fl#mQMFg$>=*aba;7yr=S8fUii(AlZ??ODUHNjVLUx{`<T>zas<y!MgbKCGl{m4%^9+gN~sGTX`xXt%~oIfZKI_FvnRT-?P<Q'
+    '<|SSWF!5(ul5|jbG~mT=%q9TtlepX9Z$V>P+pQ7tX#Ir`@|YVeIfH?^TyISg2r%7x9E$#DcA))oG(pS=fASdb&?i=i@KRa6@!Z?k'
+    'h)_xC?=B_`YH&{`P$iF*48*^q7yt+Ym%;W*j$Gg7u0Q6kZ`AdtY@-Q;gj-}-K9oO4^v9PgU#@C$Rg<f_T-6O(rWSVbE=gkB688L{'
+    'cGnLYcm3ehD?*7F6eUis<N1|K4IMg&6eniqq(LhJSvxErU**1(OyPa_u$=A8TL0xm1<oqW$M6x|ZDeg)1*O_+hfcp%q=YDZm-@h1'
+    'OoKAK>C(QI1TC`nwiO7OF1=l+?NAAQnw=l6OJS19!0FG~?qNnM=?rRazjir%zs7DV3<a;i0sZ|sM-e2xb>r6hDhmZCuGtk*%zY$J'
+    'xMgR&Ay64*2B?pcqwZma)B83LJiWPO9rE^qDshUpwsxAxgSX*Ju4GVwNuOx2GE1-u{mA*i@jSE257$y{9B;7J2O2QC7!15D65+Vk'
+    '>-<TdKcAE$`}+;vPg?mZn%44ThY{3qwTn<mhsq)WhJ?p+R#jn!y}w8y%g#w{oU@;!l>K*8p%!XBIT)*?)o7{GG*zZ$r2tC-YaP9('
+    'TZ92Vg8A&Nm!tv&j@^fO-B9k#E$u#It$OVy0%o0%4KO@A%Z>VPRzaGJV)UL>M!mLr%$P2fCs-MrN->+To_j3mm|2bKKOqsBHk1>t'
+    'ym+UOMEg`-a$XH~f%0;Ob>+e}n<nhjo>b7_1u+Pmn4@b&XDA;Z@k~{!$I~*gf6U2pyQ<AHj~uKg`@lILbg_|vxc0Eg9#)fz^Gq6*'
+    'QbQSOQ*?qzoFn&B^&qv{4`H$KB#=RCT`k!(i6mnPZTc;0S1FuSq<JL@HlfMg1Zfrn2Ofs}0@6?Xv$j$tqSDMSMNUN~x@c#f^2N9<'
+    '5Z)Blr9FHsR?)ryaBU(%>wR~xBF+5jIDYrbTkrDpy}JBTv4+1}@<~<!F3T~ym3S!7O@?R^N_q}{B#zan>KMjlzGG54xCwFbK*?@6'
+    'NfyeR!<;9--^FLgY&h1P$R2`qo7O^`wgDqu5oV3aT?PC5EKv8JSKLbHZmn?TmqIqbn>J*HFm0HtX+n71Gnx&Es_?jcb=y)rE?<3Y'
+    '39BntH|f_6xz~}ekM$LQeWI`U>xcTve9dA8Wbv-Pvqc2w$?vTuK6H1q#07NrZjNyo$ROIf!`%S3jrPKLh#}pUvGwjaP0Q{w^-^?H'
+    'CrmPtf)YJ=iqu6D+Ahi)iuT7>NopXGG7DVBjfCFZ{wNN{b0vO&X;`CdwxG^PHJuK*Kw+9o=w;37!njnKeZll#)j@zyR#nyITicmu'
+    '%kScJ&FLZ&zPfRH%aWX?z881i=niIa7pJ7m26r&|yMCS7*bZQ2w_qdOuIYLEs@ArGIwcIs11Y5q$_FVW56TNEr4Ttkq?AmUwvMeE'
+    '8De4DdT8CS+DeHAJ;?cO{mnS>mr<v`oIY)*P&?;-mQ~0W)2spwc8W<#f8DJbcd2exgPjtGh7bp>$2O#4gBE)q9k%5@0y%>9&w4u4'
+    '<6Z2FG_t$APUGg+E%+&F3+qmiZ{J-=Sk{B=^QhS3Pf@YOpQd7qtyFC5481%`{tf7{W3?<QxX4q%MV<;S@>FoKi3%?ARB(}}f{Q#A'
+    'Tx_C(i#t=nKaE!ZvkBq$>2IKgT9STABV;Ec?SLl&sAkdFvxSpf+EVdt6Ve+*nt03~l{Q&aNHCpG<B(k+<1kU_FHK_==k*kr47sq^'
+    '+#<e0h>q;+cpTJ1{2ip(%~I(81=wl&?Mc_)DvGW-3Kq(#wiRekfi!KV7vJXVd=@(EA(v=gU4X1OL4t@Pu}ri1I>XvBL`A8mJj9R+'
+    'QiWV2jeN_}NYr#|#DoVbdRcgCW~SX;x`qvkhNfZr;YZt0op@_Xxbr6$7p$~Xo^Zt0zkW;qo_gyFyYJ88awi`=hR*IAiP6owAz~Lf'
+    'Vg-BH+R6aT6az2=10XH)1(B%l&)0c?@6Uw^puagTz}%7AyHMN9y*+9F_vagle~e_n?u^Ml>yZ_Fw5bnDLT`h)EzW2H<4wl4zd`5l'
+    'XO8ecdw_2_zIUh<c-<E7cUXTU2;py1g=#<=U-o}r4Enop2WR0IhD83)KD&3TSyBU2fkm4!d7DWaFXU|6+RS`v%*=`n%$SlDCs=Ur'
+    'W5GRbb}l~Y_`Oa+ADx0eIt6`n>^_Q2+Xc=@Md345F|e>&AoP?0`4-V8hy2H~ET5TVi%IgA8Ib?Hu@}o}+jkp(pS{-tSVIBq?)KjB'
+    'UvKXX3+%n&R(o&w+4f!`L&cvq{t|<)q4znH?<cE@v}UC^-vHP$M7nd%weW^(=FB)SfEcZSjk{Jcpl&chVz$8)*$3dx*a4d;$-y(R'
+    'J<6uR6%tU3mbJ8;^<|Cg7G_&>-*4aOOw&8#%jtyRk+vt1d-3YfxllPMBUNy0uK%)8PjWh3%a3r<D``Gi@RW_oSl5eLF6@Odj}z`6'
+    'Ig!fDlYND=@FG|3yo!_q*Ir2y>5iib-J;L%iI^3&&l-L5$U%DL-?u~|BWZ5gK~m=;`)-Cyoq_~WquSFDW#zis&|BgP5O}9d(^)^7'
+    '6L$A>yQo(m+lA^kTO>5bBGTrFz?03c2K%wfV1lPN-X1Iv=WPOu!@~p=(-yjX*zGl(<zF_O<$lBYWULE1n@&NkU2X7CafE91b14=x'
+    '8S!2|c`F$D<|p6|e!cqX+vgy%Tjf&zS{bwpTqefhm{Uzr^N;i16YadHYHldUOOg-wH<nuHh0T*`oOVLyn!ua6mWa6a=X3@|LwhZj'
+    'E^}wzX#<S;0g$LXk_QK$VGT}((X5T6>S%&}MberTvg(Q4<}6*>cSiE;m2@47&`D-tSEV*4BHbtIIgUuw?ZGZgvNOtvsHjORp7b`H'
+    'LmW?&TZu~!VOyC+ZAtkkJ`N@s4yLR6Q2A##%cgp58H^UlXUAy>!*bQ>#M7XMeS(}cgxkxYL({PRORZxf&5xL=9-$HpB9gNw^1g}*'
+    ')j9vHQtB|r!LBzB<;`s2%4uxk*wAvxG|*Wfog2m%PSP6NKfnGFrE!$+-@4zQ3yz}dW#bEJ9r0bK4Ym>otz7fQU=@{U25?U>+>_)v'
+    'atkQ#@oAvnAr#AnI0~Ap=L+Y&lFs*mn~cr41tiw@7@?ty(L*GJ275*)ad?Fr3K2R@mG;o~rq&htphpQtP!HWgAA^jj#0})K5HjL$'
+    'Cc+q~$NDrvfU(NEB-x%59ThQ|N0S9Dc{iRWCQ(tsXkjNY67^5Ot}Z5}4kyji$Y)iC>cv5X!hs4!K?0j5(VR)-gW7}`zo!el(0sAA'
+    '=4)Cel@@3!Y5REl(Qb)3!J2GLiKtekV07vnH(wPcjoR3%xAL0EbIV0`IDc*V#k&$o?>Ze(NxG@qNv&EA7>-`pjS!Ct$$?gfONYo3'
+    'sZ6;RK%74uxKamdI^ZRc>>Jf>rbKUq_mcFvgDFbaQ!8V5=Rnmb2?}%dV!URykWMKjEzzXRnmlEm*BR^haFEP@NW6}Wd?OycDt@A7'
+    'pdD8PoLoMOU09f(f8Z>M)z0YYn6&=%8pqxjIJ01(aCy#O!m9R#icHCUaQ@`mUqlHAuN!=0KK_ClYh|+UX7cJHj<~ZJ4a;e0>Nt%1'
+    ';X#JhziK~wnHiBDQe71w`G%eP5R!mAxS5AFiw5Y%e)<Wj$ihYdYRq!2oqB7lXCoi*`#CnMS5tpQor+A$308)}Y&tR~|3s>z9xbq7'
+    'l&-)uMwUoMN8V^E|0MD`>Szg_AM~z{l<6}6vObAl^aL2AIn$ct#${n9f0Shf8$Q)Sj?A^ACUlZ5`#94yFLRdBhpx$7nO0UN+?L#y'
+    'iC1{iwVY=^zkT`S;^HeF#dH$U>D|T<+EH)Chm{lcqUqS%uHY~6^o*(+H6?leXPb{brL8+IsoHO8>wOO4nXo8P!;9v|mloy;>%@fR'
+    'Oqmb9VN~`1qELS8sFaiJjETWFvafL1mW^lz8H?i+iH@*{rrdhygC?y#SOp+51Z+Nag((YrIyW*WsLqD1|8kM>rA;^5`T9mXFG>M^'
+    'j!fkA_5+A-S$89oxYBGU*ffgTc!3CPOzr`-*UIL8W>brmP*tfJQfAaRRk>+#Id#l_mFWD5bW$Mi1`KVBnPbiv0j+20FCdFB5d+n;'
+    'l2fVt&$KlLiYKr#b*Mw#%@icY(GzkOWu`9bjLIZE_SS=cles9F5`={+y5JlgCG%|TDEJeZ{sivGoY6U%zc0~JWP)sS?@2;tdGW0d'
+    'P(zAeHf8DzzYK0>UQkghN$Fcb`0YWaCy@)$pSz|V+L(DJkCS={{7g<TuA!1k+?+H`GIC)b-D{TZRo?gn*Q_a^&2#?daM(&K$eDP6'
+    'RBuyCJA+>`;_?!)%W_)FRwkz>Qqq|0r_e01o<_2gs|3_`_Q<RRcWolw<n+qPcd#5>E3HPAe`6ABFA_1Cv(}@6oZ#(wfF#3Ov&OWh'
+    'G7eU4JWL9D;aYXV%|naB`XVR+j8TEJv0t9QNR_}`i=d4y8P8qX`S<DQJYzZY-uZV=F5W73T9v1kC5e)>yf;^59F4>{D@*v5r0%&_'
+    '6ni)0`j?m>m%zi0oK;3MD_VE0y3>r9R4y^4Yjm+N17$|-RJ+YvYL@)h3DjH!bE5}wNfu$9QME{Eq>|H{bnLY7$gJ<`@(;{ofah*<'
+    'vgmTH(zsu8FqN`jd3e9IuB+758`-nGO7CRi7E{K6x;g*8%^6X2>XGe(k}ZDHC=;QIk;Z&wh-%3>|5k}nfgJ7U7m_iglx{d9580G>'
+    'jgW&~X>faIDZ&aOb%d@78MV{+)A;ha`&C^01EI8Bu+XB>7OBu+$P&j~jD1n;{U(ZgZm4aJa&ln<CY-*PO}w^|@MQ^QLA4;R?+xbT'
+    'epQwGxi`7z5(RfMWq)$h`gD*<7F?X~pT!^vGY&OtYGXyqk?>vG(zkXwdnO`ZL2gEw7f1(Ij+tjafBVFGB6P2IoErdpO++7s6pn%z'
+    '6--qbP8QUO4W+%H>eSoYFwL$!o44oFdB8h4t-vv>Jl#grGM|s4F`IC8Lq|9SzI4ha(_ye6v7DV{q%C^;^2_&9GucL!6oEi~P%>Kh'
+    'v@AMVyrQIqaDnhgXzD(2YVFl@uv{6^nq`h~GY!%V;7aM{Jsb!ih2FN7IoK+!W~N>Ep0ADofm?~#PH6Pm*rK3T&<}I9Tq@*Ds(raP'
+    'NV#)U&Ez^Y8-(_2*rnB2rJIQ$McXMYPpbceblQd&55I~E0{rS_^?fOS)^T7v8YnrLW{YyOwDzVThBT~%GGNuuzXf4fc{a|tt2HKv'
+    '(F$XiH`;R>uS#-i_p;2~-nheXM6Iwk*u6X)-Sji!qA##+#feO=Ac|~8siIGMBeTfvR#d&3c`UvwI<IJvs!^sSXPq9TAMQ-7X$9Dx'
+    'zgUZ~UAGS9Ck3lWm3cozxY{^IYal_bZ2fqYazm&Tkij~BL2ox?Cq`lJp2XH~!Ll48Y(|5B2N<Mejd`qfh`=$Z?}FV__96`sZwDB%'
+    'o9&Bqx22$QX%El(234)o4N5h{yu5Q<F1w;s4++;$HI-Rzf$5I>P*wTRvP;t`Dy6~YChU3|2e!D%sU%Cn(_1Aq3ae>ss76szxgAj*'
+    'ETaUH1NUGvg^>kNRHl$TFmae0+K_6EY(8sZbL{)^OBs>|RQWbTk8N`1t}=_IGY4gwvz8XE`S@a@NkSUCc{5<8DFkT6peTha^MwVX'
+    'CMP@P*~6JpX73eHMN7yfay2(ZQGdZ2lp^YA<bYwvE_hdL0H&2*=3Xl@%vznKJ_D*$lZc+cJKk))lCWrCo&Ysf>0F|-8qW7mRg`No'
+    'h_2>k<ncGjS5yoo{kD5cqbYM07VKD6mhlDVDovm^TUo`4rjt~NyLfeRo_JYbE*8{?bQBOD{`2U}rY9ST-W|x^+M20!P^sicvMW(H'
+    'yDmC}!z}M^MRyN@ClCOS93**knO;H)gl()cY>U?5ND?JkBIH^_%dHJ9w>I=Cx3B)f(;*hgw&)<(=LlJU-#}i3<^q|yNMtrBlRsp#'
+    'iz{K1EcT~4HS_zS>C|iGPBd2xMuN)H%0|kV?;RA`vez(X1J2CY3CU6<(1^dpsLq*!$ixh8?W=Lvgn7wyA2eG>H2H41<2#ezE&cEJ'
+    'gAM)#Tzka8M%^fY%sM>44H5}zi&!8!?mQs=FT>#=4-<oobfgsEVcJa_I>CZ5ZX^Wq!TR8KW=7XdwE1Y0w9vMacU>jm(5C+ByS8@Q'
+    '+W+MLOqGP}N9Mj(ETllocNK>!do|8=<|8iF*@Vxd{DOUF%-#&&Z^~w9;BjC9<=dZMo#%K<1~FKMN7ct}#;-D~p_XZmS+SdBPsFc)'
+    'EamBy@g`CFv1~`m7b>le@+pl9&nvvYPzvv?SxFL>C@U5?DHN<X7O<?53Hso+e6X)dcykcQL4neJ5RPWx2DscfKY#In?WLT^mw57='
+    'GF~-ispF0FJov(s!y(L8Y{FBlUjqhx8Zwa#X$hZIq_5ZEO<A&ta9gS0j8zV?rHoD)#XYO3uo=T%B{S!)_Bl}lC6-I2sL|srNJM=O'
+    '%b3IiwDNW?F>kTx#|%|_xXcQE;?x<<2kl9Cv!2C<Is8?QwYS!nq*9#EL<=CFx_Hx=l0CbkqDmy#4<}(9b+x;e-nVmAH(7jB0_TO8'
+    'r9^u#!ivij$YBpZ&zXcFd@AHpoc|6orCMT^@>7or;b-+JpD{0ZySUsOldC%_;C1s1uH`Qy{OoS;l@c5EN4M;*k!BguOC%<Tb?d_p'
+    'UN<{oW1rNHB|Nx983r;ksIKTH<&k^hCuIS)T-BWVJh&B-B(66EGIlT-he5Ky(jNJh<NIQHjOJdkxns!qwuhXPe{ZXxlj~%MK}NQq'
+    'Vv+Vvx2BB6v>7+#UDF(ISLJ%bw#{(8yLng{*=9a=m;8avdKqUWkc<Fgvp&guFW$%IdaO@2vpt_OC(%9;Qu{!8FBsoNs#tf_-VS|L'
+    'NAl3=4LPCcJ|5cZ-!A#v<sH6FB^MY@jjoJ+r?WPLzf^eHEx2Tn?Jp8tGJCU-^)@u2H{3%^F8px0Q!LI2FNNYQ3oR<CvyoYffRYDA'
+    '>tMSGgf_R!H7S(-uL9|yP^x*97i#R&Eh`Ib4mqH4|Jmq<4XCuG&*h&EVc5`T$`qx1c>x4}Hx5V^D~Zgt$&ij$RfzJU<-Bvo3pgxr'
+    'sh)^fRu>FnRh89v=N;?|Uyh#SThNHB|Myx4`@(Ab_n!(QIY7b`JT?b)w6Z)c?JA3@H8H1*aUz{428o3ib&AmCZGr7{(;0D_o)Kte'
+    'AM&gBO(T=1k@@7?B0gC){T@3@#HPGy!xGt)%Vo}Y93mtioZ{8>TQdI*A`bDtkyQCc^g_7VZRmlHK~RORG@NzRmjz}M@MR8^qE<!7'
+    'G8r79(_q+$4>}L*t3*bdlRP$tfc=ReuzVPpl0LK}kWOnR619>dx0ZO@6)g5=!^Q3tF!pa3GWKs4G?onu-4QsJ%|n$2kJ;3Rqvfv`'
+    'Q5<gA7YD^g^3*p{8G|C*7?j$9{&zF{?`HV--wc*s&aY%0{WAU)g5PD|QC4N7Xul@BAL7)JgMv?mG#pK7^_1uROTo1gD+Y0azuMs('
+    'QFl=JNzE75LeN0U5{IC}W@2Sk?5*dp`3Ew`*ePsS#LRk+qc|Inv&4dBUdd*;i4KB<bv3NOcOGLM*7bHTRF|BSx}l_1<x9`KbC(Tu'
+    'gbqstB+m6C4hLJtkosi)<J%wK=#U)dtiJfAD5irrk?#;%BM*OH(*}PbKKa{Z^jne9Z;gvMW&#<VxG}?|xwj@Jmv|$|T<)6aZ0g01'
+    'G&;4^R60NtmER<KlT}q7hnLL5R4EnpL}duP(t-64#D!48<we?65%rx=g6iQS*g+Ud7H<xWiCmJR(p;@-@AjBzU&JbNsq)QGUbFM*'
+    'tm)|Zt7WZPO+&AgmY$v3Yd&<<C$$G(KNRjfYXuokmlfh3o%=-B@873MR#vThFn^rI_n^RjsX0TvGkCYCWaFQ(L1(=YA3?^1fYdhb'
+    'bxAlsY`~HubybveG|`uC$nKgl6R>oP`D{TOPRGOw$i!)rK*OA6B0M8h(7d~WpUrgRI4c%WQFifERPszC=;>3fO{K5rgjJ7BRmD>T'
+    '20Z3zmdqg=TDUQf19)$g5n;)hoF#*-R>Uet0TcY@9Ta5N*`23-M<$&ON!hOx0{LYeucc+*I}iJw+1AZ2Qlv+px(1ewzYUao12a<@'
+    'En+u+dY}45z}ZWJ$%hYIJ}V~SNZs?4k;wvhLEM1obEQcg#P`EBLZ&5iQ!Z;$Z3{$A>&5FiTq4W<9hNh{o-|fVP4X#I_y`e>UO^Ft'
+    'w2V?mf}%Yo{3T<AE^w-H{9uR#lQ~L6;^ST#cg|d$PE~K>d|9Dy(l_J1anwUtp(1fw_kUo@I=@6_9&ZzLqN_N(zU0@qiVDCIO_puk'
+    'mfCkOrPiSWfYA%d>3(K6ofVo<o~im?>8dzyQgH)cZ)?DRuXI)g4VbV}6&Wg_Ruach^-}qkV?&i?m1yGCDCj!~S)O(WB@P<6&5(oK'
+    'Ac*#dJO-(Xjih3Y<A+En)tMDch=gU@{(2~nB=ywGbt4_`8-Ay3bbi?rMAr|gbOU8+tEiL)m-pese0kree^0f6osJcI++7mtFF$;E'
+    '4@=p-(LHxo5ic3KjiINwzU_EdA&W{A<1)Pe_`~^vv7Tv=l+GF>5u!odzA2OfR^w(6QNO61t@2<-3Fs2)R%fXlN__l{q%M>0=+NoU'
+    '*uY&#0qiP(cTXy(%K>_(2=V&b(oxOsl4?aO1U@Wki&v6XtDh>4Ji`!Zj=ffa#e5s1Zuv(BiIYqTG6C}lQJiJ=N6;^&hIrRDe(Lyn'
+    'OGB08(N$thWCL&ob-<QM`V&NSI8VKn&Du#P!_v}ukP<%Cio0Mwi~#xKsYiStf*d0vke#r=*)wDSC?2mr1)Fn_x??bFETOO3Goy=*'
+    '^yrrh!7y*V@bX&F{HX-ZTUG6><PfaIm6-kvIJ<%NCMZr(;wE8ev6>1xNHAjfR^Fr}d(an&DE2r51r|!8oF>EzyBvEhY5c(m!;jts'
+    '->AWO73U{fc20{@$|prZlbtY}=x$Yll%}MSP*l_8Ef}f9vL;(fZ@M#83X#KUFSzA^A-xruq?iOUUz}wvUPazCh0&fyrWJRDEiN%%'
+    'Yzj<1e}ha3w$vj_d^07qqt3>ODg~oxu#-l#N~{~ZXIoZy4#-YjCZ-%<ZjFx`PeZHeXF`iXs0^*rt@d+}3=>6e4Ue?rE|PAjg~?Du'
+    '&PJ;{TJ!Anu>KRnBJj8$821NBL-D}U%NuLOh=1q_YrMclPmIR_6xu3R%2#?bOYKAn)>*5<(scgmpPY&l1+f)AyADrMGCn|vHBqbt'
+    '^Cxa6#T|sSZ*ZkZ(MUjV8)bI-D-=2>{1u)EYg}((pzQxBe}#jLdPNqk%uai5fy`{Bps^ioxa1L$dd30jw~@zznaY`=Frb<3RqYq$'
+    'z%{!q75ZzzSF4N|QODhBZc_ml+7cpXRXzy;bWuncFoRE$PAR3Lw8hfG73foS7PJ||2TQ)~6?;m@mX5f<JDQ1!n(i6ie#AJm;l<vR'
+    '6HKW0iBY2u#38kHu)oK<n7ayGP81tv;L5IF-~$Zct%dOljnQple0tmbR8$M!06Vz&Ddx1nvMr5m@nG5ASeo&{T6(1cx$6p-z+<IM'
+    'FzlhhNT{l}XNeVSuV*!KLod&s+g8{wi0185_HAogGuXN`**b6Ca`Y2ZkxLyW;z))pPj>zbcDsGU)Ou(cY_&ThG^3LG&Ddm(z7cBv'
+    'bcC6jO1f3L59}U-@|#y{8$qObgHP*;OTa2-Y@yeh9ffe-QNdS+xdzv%Qn-Hr{V+@~PLL>xpt2+;RwaW-tuLCjN#|vFoC41Dlf~=T'
+    'D=E`^%lux`c{4qKF8a}uL##Sda;=fCoM~8V<=Leup3cHGT~odGw=0@HXg$+$$%&MjsqPo$04Dkkn#30#SVpa7)B1|&z0LtJBSs(q'
+    'FI7?^jswvuhD}7Pouhd+vGI~9!_vxg@NC+<E&me0$Zln`n)Z;RKhg|az0AJNT5NILlS=KF`RHS0*PTRHQ5W|+5p+4>3RObH(9b!('
+    ';<URzhJT>c>#zRTB^i0*i0t#vdU)bloEFLay&FDsq6te(4CKr5EFxMLy(d2EI4nPOf=)6WE#?3~KfsBacJ<GCb<JZnK`la(8JzRr'
+    'b`q9<2qxi>IeVoX{$urr^H0YQkJEbHLASezA=IM`;xxG`Sg|3Jk;JshS1uOs(5Y7Z<FEbW#@F?elZSro_+hn{ugJ`b$E$I0<(7xn'
+    'B?kb#VvwYKe)f%OrCP81r^of`2{n6Mtu;>QgE-#wey!4|S5NB?A0F4~@9D#@!?It^enA3;%*l<38T}Ht@ntvV{VpoqMA8_i7;{lc'
+    'CUP%X=2e1gyZImorfl_csBsDlnrAXPk7}%{;P=|2X`c)2@>Oe{qQQJ*39TxL$Z3h~O3$CYB_ZN!x`;EC*Fi*X#VwjnN>hLxis_Nk'
+    'DoO$+Me|R~7HvbV431MRiTEV-(n$(jhNHyRT;dx-QXC-K!=K}5xi$ug!mRIPgAc|OjzY+m1+v?l^M>}FZ?v4^8g+Ra+q&tnku@AP'
+    '^0tHPMrxC(Z?7jYOH?%r2x`<aPSshmu_C}M;exddRR-WCrw;r4N)nQ-{5sgf&|F~LxNa~E-g||OcK%eO2$|khmU|G~B~$x#u&cSw'
+    'oto?9DAMYZK=Ie*Z@&tP^S2LzjrrT@qt1qpI@ym_Iw?E!45$yavNN*t&0G8JQ>D3-FFNvtxoN)Yq+fmdv-JS{lT1N?l@tV6WeWoA'
+    'Q)=G7Yi;^kacP15Dhu3weloMORD#PgTD!t;3rZ*yN8f^L;?0G13)h7@nP!&{6FRs)Fkc7nBRXf2iJUPL`}U?L0{AXz45KsIPcIo$'
+    '?C&f@43P7xOZ+W;a7aBCyrvP2Urpfm!tZuBN8?!~iH9J{L<+@L+3%~%LThD=haVKI=+%<M<15;<PlojCQ@ClP(?h3G{TlQvZWxun'
+    'izrSu6F^(y(i50HC2@(;nt0Bcoxmpbti`#vYFxQ1<^YK5@V_<ww+@R}`U2NKygcTAPx#-5?>CeKvA*Jxs+V6&<Ejro+psU)`E~gt'
+    '{rJc4GajoO!pAoqeNQefvWH*s(RXeieRc1yW_$aDT7KRMB~BNI>G`zbIJr|Dk!#I2>cix8M<J>$CrS25*l;3b%7EDCfmAUo*mYN$'
+    'x_>&@ld|uw^Rh<Pi>ti+HH3KEaB@_54;p-zGhNePjXI4i3I5Xr`18o`Uc`4#(rY{SL$oFiP9y_D{W8lNoW_PFki{h8jOF69piD-t'
+    'nCzep_QZBzvZ$xt;%ejGq;=b*w$Am<Y*%re>l?3?7i`#4Fm8Wcl|p=?0+3-t6GP;#DOri5IS;!0=GBEWiiV+c@%>APs=X=eN6aK)'
+    'C5z@t>!*7gE*%lmZl((or)P@<0g>YSh(6#CzvxK8MsAJM*YOu@DC?s9pB9F^wf%6NbWIAzQ)EiQerQ7S%hSfeFna>#4#3T_po-ZQ'
+    '9gg;RWBKce7@m}DcX8qT<HfIUbpY>4BaNUgWh1i_ovjFFNh`k}H2vvOC;}g=Y08hKLtZEXGY8=U%YYmJ`vXV2gsz*6Xo1CAzzzp9'
+    'uP}x%J?_<MZ|MB?^S+ij@2%s0<7vNs*yAmFN16T$5B}PpKKO06mWv4N6N_0u+-S3j3S$;@hwVYlU8N<S2pLORlEL@9A`E+}GwkNA'
+    '3UiPw^g_f+{Z%(=>P8JW=6;Kq45eVik~eAZLS2B|SWdN6EBU3mSI{vVc1<p**$8Rrr%R=khaV%b&}Ef^=qgI0U&!Z--0E<?gx)bu'
+    'je8oK{1cBSqkx~yU1b78uQ{h7q0=`U9@<2JDPxJH-Of6X?`BG`Ig?|G=H9Nc6`I9`E)@BVr;2disn^OTZDRe|*OYgtvWf_qNDU&Y'
+    'N|rdK=xi42ZjO7aQ(mm|ly~APGxo6&{C=66e8jq+#$G;-1)7<=_&nOo;JS)sxa4|+7}z)aFtRykMvISinmc0m{t6bChWi)Rx7&-a'
+    '-Ne~$=57B1&Bf^+ii<3dYv-}x{Qv4a<-8=WP8`Sy2!UgX)ajAJ5MFk;-Hgpkd&q8p;-6A#+=-vg^3*Wx0d4oo!?qPC_U5rS^Vypi'
+    '?G37q&sTQrt?syk!lO8U6SIU?=}{jAP>0G5RvnqIe*W&~%A05BY>xZ!`Sa(<rgWp~#jr_76(ZVbrE9H+D{uG@*v(cg;|Mst31cKL'
+    'VzocUWf}boN54#+c=N$b8kO|-hLPYzIz-1fy>RtTcwB^O)Z8Do_s)FU#!2U@Elz9>xH<O}E0^&Up#C>}$Vj^F<4>7cNzw?(!fCs|'
+    'b68rF^ACCKnVY)h3<hiTepiGVs5PgCJ+s-*8wO-yK3^3%EvD8Fxg9Tw&BRZ|#7nQ`IV(z|kUApUz%+2^pTe|;@6w^4valzPkkm*n'
+    'MnL<EG*fqv5(@UQ^=d<yfPtE~N7?{Du7A1<aG%y>=1&{lOm&o0F3jVBggaTusH_w{Y0WW}-`*APUEB4EW8+faSlFqxzoK`rDL-t6'
+    '`^@Ab&*hBWl27Vi?y$CRQb`+G36u9g)jc!C{9DAP-Z}flzbHhta9p3ZW{lV-eHiZ*?SRFYZA6e#M*jH63sW46-Fqz8850JLf+L}J'
+    'fyvr|U!fA1zsZU`F3VQb-iYgk#0Ugd?F{8~Udv~6GuCpP*=uDYi^@T6sP$-B)8nwrMYU9QhOt$FCR_iCHAb5YI;KN+nN>w3J8DMh'
+    'tB0Q0r&*Fn!)njYPMcP#pEI3RJJa<|vgq8Yb5W`^%~0xTx6-K(W!|j=zl4?=ge(%=&4+NAuN|V-lKOk(XMu6k2YWdfwleEH3C2)j'
+    'soEq=g-Ogcvpdk7`SkMD+xH~MT{emo`-T9HRVk1$N`bt33(_~9ds}5*^~GFs-^H(QXLF{P<N5nb`hVt4RbhG=__!Tk0#}K<9qFIj'
+    'W)Ms3kdyH)I*6ffK|3*8FaP-ZyB}Zw`1ZeA++eJG)V^!7Z+PPpXQ~qT!*O?!1S9DA*h4q$^~IyscnK@756+L1s~p`1KWp|Hhat@>'
+    '(lQW84u&S@Qc#7gg_&_*%2`)-^y}crb7kBHk!pS;t}35xw51a@RJ{WKo0nG2DFVbloG0ZgfLRLCTp`G5lR8}-t{Tp;OpVQSlr7wG'
+    'Om<8uONm?3ynk|tl5<B+<8TPo(C^if|H*NKs$`C#8?{m$H)<-@<c0Ip8qXpL(@;aSip-XV^}Y@W(V?$9a5Cn+tcHtt8)jZvS;orK'
+    'Q>Bz@evbCbR*sCSdmK%y66+g1SRE`N!Ne<Q&j0-8IMb+QeNf6uIr?s<F&Dv^B4r{}FSQb|r0z9k3cnAND#?Ek-+c9#u50SL_Nj!S'
+    'Wy)L8V%E?A_ebkcMcoo8imLG2kQ=_bamzRS^o@`DhJHgS1L<Z>zvZiTYWgi-wNp>u_^5B_H*QQQnxPbtP>LwSMMhROr@|_MDuI|u'
+    '#o|UK$7EH}d?xW=1^o1yzIDyFwzfNd2)#!cKjR`N<?I_JjwvZ{SdNqrjpd1KMI`4Pl8g4y3zL1&U5CQ<O~T*5GZ_f)^!;8*YFKf~'
+    'J0_aOTsfi&_FCvMOAu+E8Uf^)qNeF?!AaVL4UH2g42G&U#${a}*6PO*G96k%kZq#|DQdjW8V#M{jlR9@aGj{rbu!nd<z!wY=YX>~'
+    'lO4~T%MnvD4*BgD>Tbc@5IrVJ;l4ng{_xfgrE$fQ#6i@3HXGpuOSmv-LerSc)xI0DXO_C-t2?*mPEFnUXztY2otu43K^s7kC2EU_'
+    's`v|23~gxQEGOnrDnAy!wvUBM;Lq9Xr8kdG`SvuY(F|#gKnJVP0%iXB1nzh9(_OOWK&CT*Lp5eIu*EzQ3))u*cZZ*Rz}mQh)PG8^'
+    'eCvueb(!aK2k&&3^O~#IfIs!*<{)?15`j$r)4!pAepEOHd9tQuOHv%8^`O59nqg~PlHwXY@zs;Mc~UdnU6Nv);x98{D4I;{_O~d+'
+    '!@KDAYFqu}L|4Fcsc<`|hk964Q9>v2m+6LChBqhS+Kx2iRrbxh??i6lig?&7cf2a8UwY+AW~KD%^6S{8ZLq!LRe`I`SS2-5jS{nt'
+    'hRmy&vb^$zHS|J1Bqtcn*j+bV)l@@7@cCndZ0h!z+|HW7MthoJ{zlx8fy|a_5@vn#(@6J=7|EBJLPl&8vhRH=EK~K<>*s5vRdnwo'
+    'k<**blyiJ?h_z_B1;pZH!tbe)hqqEoHr20>G@wUGUWH%qj{G=O%^&ecy8yZ_lG0?RU_6D49G*#YEpyYiZ+_Z0<V{(7hlyUfVPe%{'
+    'j>b@M%;ITB09SHuVpNWc!-ODX0mSeGoho}jc6`g?s;WsLt4YvL+;^o6S>WUi!=%KVNuP^&)Ay(exTUxg8;!L0L~<!H8G4uMEC2nL'
+    '25JQjq(?yZ4mb1}E2fViwL~SBKB^?nLi)g8g4SH1WmN?Ew6UnN<#u6oByb7naph-|xyCqqX$~CkrR;aEB8gPmTH{>bXM*@LrAcrr'
+    'Q<ej{vPQvT(jByW;SBY%NxW6jbm_Lxnn9IYO?!?tmB$l?|K0hi@@X)>QYN1Rp1n{BP$!NmejwFML}R6NVXCNwu5f>%(!rrirKDQX'
+    'PfiJE%D+L}d|EaRRZpGiER2aT&<T&yZx|XprD$MMTSdwd9O#+`q65PlIyUoN#krVX&57#k2)0r1F(N{;nDsa%g$~M=#NjPdxK39('
+    ';PQ6e>1Z*YXsv(<8`Q~}2>h+Aw%`=fWJ5>hDc>@qY$(}!4cdN6iIGd#V7sgpX&dgQQAiybm5W(PnWa7)vj0rpM;UvXsez&lc;D9*'
+    'uTG6TlS|-h9FXV-!$o@eaL6GrgW+0V>6EH@1&WIr(Nfz)h0rLK%8^w)TB}!BSHX3r>AFxdy!Hz^@Hckg7k1$54z|V@7t`@w{QH$+'
+    ';I9k^f90iCXo59Iqmg_ll<?$`-h{Rb+*_sM9My~Jj83l@Rq81P#hS{ON;^b<YDJ{ECK*|`X^CJUyaqy`AFsF(&f&VV5r4fA>>`{T'
+    '%*kIF4?S@UbVt()afS5n?Z!{EyMg`LAi`(#?`<K8Po2J$E2y^cXM90F=N#X8WNldgLZ+U@?JaA%+a{*`hzmVEs~cTCt9SABELg)o'
+    'H!gqUxcomiuAFO&ahcj^m%FpupGg;@PHg406N^Ckdn)9c(md9IlpxKq(Ttb0(gD13|L8OyBFpY3aF=#WB1`tUhGrsd=D;92orSk$'
+    'oQ+6+14h7nk?1ID$5jP~k6^BRz<s#*=dn|z@#tgJFg^0NndW@3K2P(IPK)j~rH9HQB;d>>vr*%RG~gg}i7MgK39m3)y%bGlPaM#S'
+    'CD2gQ1LA?k)1^)mpJooj4o_v+LudLCwV|e>a;E>+MVPVT$mW#s=x4rX0v7$*!(;!rsjQHK9!is^(yAt590em(boci4R<3JFE)M%`'
+    'Mof45QG5gM=<l31z@S&|h1oJ*qW)7gyNEsRUYnX;bp-_E9GlP#lW00&OQgg+XWilj%fKw2zf1GqAor8Xs3r+Vu13K;P1I_t0(Ta@'
+    'emGB|m9YO712k!-g_+>z6~>;zXyO!;*))NhK9_{G4YS}gJ+aj~H`knKClURte{yqOso>uu|F|Sxi)Wl+_Qt4TN4;?{kE2z}$7O)F'
+    'yaAB3wYKCeamfwI<&C}sNVV6RsDqVtJGIXmPI8%qY&LP}^T%f(Yu`B4)x+buzd#z7)k&iU(FL#hYp?M`evLoKn)#M-zFkfdXWQ#x'
+    'G{bA0g#i~RM~@qBC!md#%wiS6K_8ez#JwI74y5!#QfqCjhkMSPB?uKBW34zX2r5s5+)bG0JnZ#jlmxFGE^pXD1DPe1I3Rc>T>{|0'
+    '@(e)st)%bxo;?XTKwpeeiAh+-gMp03vVzzWJ3)fFUkk#p@i^>7M9va15)w{JZ)Ww4zmaSb8ZQPyl=0A|H^gb+NPHW_XF$A>q<~-J'
+    'Z~)szZGl(tI-gs7ikS}zuwdRMlFA%;4T?L4i|b|qke+*B0+_));a_pJwW&$}^O|%OBIGQ`OM*yyuH^;=6};|hysvxf@F^PHsHZ2a'
+    '+O%y67y(1E%GXxg1;DhNm(+Q|WzGd9kR^rF+{w~bRt?KX1q9T%n1qbHDga2n_A1VIgmMNigvcyP2fD^3ZjNaRwZlH#Zi9}PtWjS<'
+    'gd)jQL%;$iNhu^qt7<d&CvI(V)UN?rwGWsoweTw<9(cogLONk4J+Sg}5l>*Or<}4Pxd~>xH>^FY)5BOhK;~qO>x%Lvi`i_140}9Y'
+    'khiQ4NizSC61j(nfg4*?u3ogX2_qhmq*`NK!Z*Ub9VuKys~XezG2_gyc=dyL;CME&;;x0Qt<Cv6n`Wug(_@*?0+ef&<NF|^{)1(L'
+    '@GM`hX@ivg`>j05YC1<%IxXlOZ#^6R#oLQl?VnyFAw3dls^Ofcr-n%vH7P59MP1Pz=jd!MArLN~(LIk22clXk!`5o9_z9SK4T<Yc'
+    '$Fm68C?zkvBFG9AqS$hpLUGE;t)#y+EizG5>CX-G6wGaf#w-wh2Dr4}ap0u?`&4rBcT8~~t&Fh_1<uqtot3-H828e8J!{@vNS_Mz'
+    'i&2K9UR^3dG_YNILhi`2c3PSZK+QStBF(v^Al3_$ZXC@B&3WH5#XnN*DDIXwl;7YQa%#xL7>1*s;uIqBER_taoW&BexNYY2UynH7'
+    '>x-u<kskJQXK{5!BhxPE=~!q*`u!0+`E<H}aTmHmTp+uqr=Zlx>`tbWvevtJ&h@Ebrc$jVCo3kj()7S8vy0M3@0iccA@0kI|9buG'
+    'wG>j|Vhb95i{4{hN=sF@fXgx%#7?HrYKlDrer)B5q&G7KV-^ZyEWn`7fjE;G_dvl1rY=>~xz+h~L;()nt9BD)KqtubN)Ktr8-82w'
+    '8R-s4z}1^>i+v0kAqKQX)ktvan`FHt3mzr&!(+cjb2+Nf0xo$A5=Pi{7W6#UN#XTqTHWdrn8M4ovT>4N?AemBrv%|Yh|lw@^xr~9'
+    'I^~mneqMh=)7wd7pT5}R{TeG-HOUmYc%bV7R=NQ?+(57ERiWE(cld)rQg~>@+}K)9Qls2k&O7a{*2Nm=oK#P<t<B~!^FEz6tcB)|'
+    'yY?B5oAt+Tjo<O~OL_=A<t3)fgWw;@%}FBz##{$QP?IJwG~L**+ZxLcC&!LO%G?RxzsJh4<r~gA48LVuLY8M|m6Y)pL3l1{_MoB&'
+    'Cd{@tMTsE~RM4sNh!N67<cWP2J#os%&bo}+qbcz{Z7!G;wUb#ed0(=K9F0o$a!(zBmPBN*fInx`ptK-CFeJL_1K(Cfdrgy}7jZs3'
+    'vU1r`W8-k^w7#31EX;+a$^$)Ffrv@jt!u%F=QqOJ%`9V{Wh}Fd*Js&EnJ$K}lvNh-N^(h#XVh9rsCKoK5-N!{!pP+-P1g0HAqhF-'
+    '#Y8NnDzYgSv5Tf|gE3ZMTs=&;ery1`SkDKZOB}77L~CjCUgHRAWvNVGg_+z{KC5NpU!{GdGz#Xwg60LClpQyHRehd+w}Y2If-Oc|'
+    '%*Pa|%PR6zO?e~b>+r_`c88&Xfe6m&OFDYg!0JxTxpb3o1s>fg(NrG7F0+<J=nLsY8PDkCHmZz-84?GHzfI{2S}VdK;uV9D;(*+Y'
+    'FSpvP$B2jY4C~lPLjySc5~mhT?&8(Oxzn5S0g81a#$yp`v_hmED-j*|fy?eqP5LyBL}x=+LKibn|2#RamQQO{r+eEK4kvd0>HF18'
+    'KE{?rg<2C8eBl&)vT3IMkh+QWU|7&$F3uAzmQcR#A{J87g$d%!khkw@&74O&5-W^?XsnWs%jO%<o*EOU43-bt2TsYH*OE;*!?1Go'
+    'T#JYJ`SqJqZE&j5s_VS!uF}>8aepD=0Cp(=Jr26@v`h_fetXSBb1`z}=gKdX^^-@IhGRgT=5|PGAx<zEMMx*nL?sc{-KHj6Q4f|J'
+    'U#JgP0_n$54-9z{<`t2SiwStPe=CQ26CmmDBTOFpL==e0(+1dkK73Hqy#T;@s5SZyu*KgafCFoxK!0GR)86bTtDNbn162aRJu*a`'
+    'xG@rKm(g^Q@JqC;=kM0z7sNX6f(eK5mL=pUku)t8=dDrrSl*fn5nZJ+()-a<PAOrCS`5gI49rC;ZJ999BKKO`TEzw3js#G{uBg74'
+    'v1TeBngrFU^W3HijO{L+FW{~%6PRiwS2>+%4->)1ihPN;Y6LnJNgy6w>nf@3N%ZI?{ESs*Vno}QP#6+DmYg)CfQvE0Nu*bh72Qt%'
+    'rpENgA3zQc;4XA$mJOoS#Som>pJLG&g=G<;pkX9PGCjcJe3e)Nv56DxBK?J^I0y-tk72C_<APvE+MhIRC?c=jBn*2Ahie$b(bA>j'
+    '5IF6>)-`+kJ7eF`nJ4eG?G*2XLgW`z2bwc_XRMsE;SLId8?nZ%bU$jB<9baQ$QazpfZ(<4jk_jpz!?`ZN2VY;hv2z(44%}NS@$Yt'
+    'mU!693lXe0GE#(JAVmyE8yl<Ly)~C60*&pa5niu1x>L?^uLUkvt9siAe8(q^$w^~KAcNhyog{8jQbJXUreWu@*!lqiEAWr;-m=y('
+    '>yBSkEyS)H#f3Jm6qoO0;{pEfhZ3yM0LqK((II64^Si{V)?=7|q7pC#dfJ^!ijAB*S%U^wdeHs>h89?ag=;ky7`Xguqil>^Ml(Z)'
+    'yc7}udlSluF?AlWfmG@(g!B0*>}8gnDU4)LzjH#5Y#Aml$aoarBVv6iHmdiRY`U`ir?pwMSIyZ)_wT&Oj@hejG-Q5`DO2Nv?WP6F'
+    '_KsbAG$%+)FIk^)Zh*)Ri2f34jBcCi$WbRlrsfe&ep*2sO|tUpKylo?+hZm|D(iUJaW3a@>tIzzE5{MJV7?^tiDjTWX;dl?eZ%Fb'
+    '!9i$9m5#{34)-(mVIw)EewuRs=kE@jeg4xnZ#rNRpDTij$}q28<=oT*BIEj?3!3W0W~?hsWWdCUbVIMeZRuui?9G1d;XVl-QlBn9'
+    'Z*JJKcEbK!SuF{SS>jKEm%emP*!$}=?;>I)JOIq({~)-f7dZ!_gG{(|7)-cWK{Jatf-L37yg=Y|O3uTYv!az$fk4FUpQprubAL5C'
+    'jX;CTtqr(fU7AB*GV-w@@)XZ%*Zcx_OlpbQB>$w$nhmHkJTcO1n^lFW76}iuGq`FKRDEpXA{-qr=3y>oyWo_EY7R)t8oKoW`(2xQ'
+    'A)9)kU7i+&iBIAxoDb=Lbdtq&%agg6jN2<Zb6p+=_zVc$#(elIk(&iXZhZ&NGnuvwL#8BHv5B5J=5x;mbX<K9`%Uq~6RwaBcb5Zi'
+    'h*0}zz4jok=iWH-?W7FW5v43eStqY#&T~q&eMAqiEZT5JYg}!>O141s?0D|#39+kyS8&reH+jnD&4RtZ_L^@8@fZeomn&OeiQM#8'
+    'tt-r!zi%$Q^9BbBz5NXVkd_Ohf8(25b=>l|)a~KKI6U?@{ACIZPL;Fv#P{}gL|d};NgLpgjMWmX35@uC7$eVU1gYah)^f{+^<`ZB'
+    'oDTgh9r{~4R0jHk%~_S~j6+|DNe4C`F#>JNNdd~WPdW;1)I7*bgVGtvg1Rpq;qbtD-IR_&hLpVZL5fouwe0!3jI?#r=fU0dqcmfm'
+    'MQ^#J0bA4|7#{3A=I}xKs>NefH}P0|GC4`go&5cr+V*IL7j*JrV!~oF2do{rjIWcjug1o5*xMGbkj%53*FipLR@Ct98=|VD7w9G)'
+    'ooVI7pN`Bm{SlVAcL>w9BEjwu!MDqE*9yk_U=mANK{tb|q9i{{)>)fG4d2-59H^aK4hN@c>&9~}u?u!aSwH)*M-WXW`s{Q^^x6LL'
+    'XB(mucSR(oF^P{DHmK=_07Xm>@re!ld-mzw6s=gCkp~8SW?=)ZzBb06xh}P;90k}06E7wvha5c2Npd^4{TS#`y$15k&b1uw(WD)x'
+    '`(mb?c`d0mR9!thB`JdDQ#(E>IZ-97U?l9hYl_O*Zn*3i3|EDRqJONest+NsO1!cuy@f7Js)lnml5mPVF;sWL`Ax`$-H-@Y3{)=c'
+    'Mjma6x$=^=dIrUaLrgajy&7v!O)XcV`S9-Wa%E<Cd!9f0;f3)U$WjN+%fruc1ToC*?D1pX31%Tn&X^H8x3auxyMy7boT`ObZ4gxY'
+    'QW2ss=jpgpK`)L*Gni(_7R#8_hl42pA@DN$aXnLBz`{aSClJe>u-&yg2)n~nA&KMOROSLc-Rkl{MOZ@87UV<{1)#uy=ZEm}O8*J_'
+    '0?`bZjA*be6^@yrfNBU>U`&qIj^J_FxrV1Vv}F*3yS5-Ha1YPmKCaGc<z}AoOgEn8E#=GZ3x21`%u(()O&sG{3!oZbi$?BYC3}M?'
+    '#T1@~MVDmV)A-@hly-xxX?k-2CL^n_>+yFkf1ZgN{s#W*NWwFkY82^lb1t`9{H`9MgU|quSEcq_xZpsRUiw_0LCP)OF8`ZVL(2fU'
+    'xt1CMH)rSn_(Jc!cAF5Y$TeilwgVXy;T4UR$S)@HSPhPEdY(<`IrtzBn}&?_<M2kXwD#*MVGkIZWvCOdD`X>FV0^P~Es)bNv{J|;'
+    'iCId`_g^~8>AI}FeIy-dQ(VZ{!meBqtbp3WWV4ezrC{iwzHpurFoe7f<qfzML|}JS6gjm^jRf3?y6^LSOyMA3tFu6(DXJPc6O2N3'
+    '$)4MW56fQS{WXEl)Ag`t>sC!}5$2j(_4HOMm#_xUYLc)0+_lvhUt29@ZATf^6#G+hDdqWeYN?yl7Ms{xY?5v<y?6Mz?3~Qgjp1YC'
+    'TSsbgE8VbVnolySBK8aAMEIptx10|SRjQaC>xVpNC8{I&NJY%D5=r7yiN`o;i2eceU+L|qS2p5Uz=3Q5gTJk@6bxx)9YnK+Hf3Oo'
+    'jAV9Ra;6SV7h{9e5QmE-%&3ekM&LzF9rvw5lP^8D$w;su0s)Q#U!fSM5oFlnN({(S9H-B%a`SSoAnXxkc~ulNoux2|@590lb>_~Y'
+    '3E>+SbFoS%o*<EeiNzZZvz#kQYQv$*IHJoMU~hAM#$+i`?x;0TCY19~`@nkWZ+qC-_V76S&?_92ziCjl^lKtLxu)ye9-eG__%Qph'
+    'cu=)XgF4+d-><iVv9|STeIHoWHx0|LZkw|2Z++U>`t*1Uyezej?Eyf0#r3kOU^9G}7I!AwrI2P;00D0%EZ*K?NM2>f8{DYv&Y!X$'
+    'TJ@p)-(p*3?j_q;XFC1c5q->t)S1rzmb+71yHhuJb{ReJfxp&`zt)Yv){UQb1Hb0#>a;5Vx5($#*~DqlM8AL=o|mUKhMUqcp;9PU'
+    'yDWSqF&e~lMB|{O^1LdhsmDH<mOG4?a3z`YEfOBsoJ77?)jEp9Cj((8fC(WdWUxuF$c5<b94ZxG#A#x-dWqD^&ewj|-1#6c-wpEe'
+    '-A01Fw_K<H8(3W1;4bo=X~5#{26vP5)^}|>BEzZDB@9wY(#?J}$TGA8C_M^Z+r*&`HgTwfA`bP>a;f{Q*T0ar{0sQYENFIej=Q<X'
+    'LP}j+{=k^shkKdb?_hWzZZW*y-Sqw$bv5qpgRqul7Dfca5~`SM@eEtH(rdc~m;JV?)N^HTPA0<^51U988A9w@2$ub!VCf3HrLwkS'
+    '%YElzO}p=4WlD^JC5I2Mk`4&S^}X{`Km8Px$^JYy#;ixp9?7a~4jDW<v>3?v?X7dmJ2>V4=!I7ZqksON|8Q3&=h|b6vPxHh#fDha'
+    'gk8y4O>2!KB@XAb-p~<F;dq()AlRxaK?)pTbS9pIIpO2UeI2}Z9yt9V?!ed~GQ+_RHwZ~b1{a;1D3Si7eqVJex;h9%OYQh@@#Nxy'
+    '1f!tKhbTw8l}Vx_`LL5Z01g(D{+a`>pWQ&MR%$4tlQ!gx3+#QZwbtzJZ_T@9jWa;K`u-??1{cXCScPJ_q{P`C?B{;&xu1L9$UU#+'
+    'o*(C)*S(A<>$-emf1H(1)(2P5J<kvBB=<Z&xQDstMT4tt8r<m)$bG#7aye;beRMg2rFeMtO~cE{D+Md-?|@!TYAG1t@izG7+zp`('
+    '@SIK@2A1TU%i*VVl`)GlxmTTaZrNok&0snudKj=ZgUAFV8{f9l7*Qu&g>g4ZvgVHeuf1<=ZrfPW{;ppEXX`kCMA0OrI6l<H<y)MT'
+    '<yd7YXHS)1hs6s>;Rw8#AZ06w_P1|8-93XD0Hi2K*;D)0rcxFG3}yy%>FMj!Og^R)rY_>X9hG^c&4rpZVvTM?SD4VnU%b^S-`YUt'
+    '(81e4>?n<FP-3D>nqBLG25S&VOgyL*7ptTfyyHtR<<^Sg47by8)ty#65ygJZ>5q|13e~!@hp@u#zlQjM#zmINSBeJ071_J?*%Nv8'
+    'ckcz+$h=>pvNWNcaQN{;o%;5kSLb87`F&L<nx@-+znj`|&T3s2YBrNWHkLx}Qx3TweR;kILU1le3>0C`({8?w#@*{cQuh)IwHz-~'
+    'EIft@nnoqwpyVG?EMPhJ&l_^?cjn+fuVuZzmXr72zFA-Wze}RKUzu)GscsXwE-=ihW0tED{;PyNlL8hr3u!`_r4*z3e=H}&DdUjc'
+    'DkP(WpC{8gKG8-<<7{+8@g$qV%UtnJvgs7se$LpO1tr307i@98dV8oSe*OFx%3qrL@v@ZoaU=0;rHHnADoPD*qRhB$o8G!hzkY|_'
+    'd|l4T)si<jinyS(S|P`-ltCR4l&bS&P!{^UI!e_QWzmAIEhyOFZ&|d3&B9?(jzeLNfdVb5oC0|&ImBdUnMIT1JU!9Ynj_#&lkqic'
+    '<({-M_pg`njSIxn|KsfR<frq<aRBv@i*rOov*~tr1WDw`VuSo{utksr889Nh9sw=HE(C-7Q0Y-C*%K=tF|GqU+jjcEdSFNh`z;oI'
+    '!2mIQIdH)nH-%f?s^kzhbt3(`sj&HpR&I(v0XR6gN5H`w>8wS`7f+U_xz?XPRJ>NSRC7%!ac8k0?~QuvyCKmT<quXSB<B3;l1GYN'
+    'o0i1(sbO4fBJnIqr=z8m+=VlNHq$IMBk_?YDUgBJ9>?<$$w}6G#h^`oLE_370j<#Bw0;%jdxzyz1n#{SNv+dy($7rNKGuZ|rky#*'
+    '`1){|5>*s5zs*!)f~ORBVIVxL7HDia2?(1`5>CMYXw~-M(nqKKz^0gsTtF$Qd@<GXjapOl%QH|x1ShlUa&+P2B3UQI>2i@JgE;7?'
+    'OAc}Y-hpRG>JCgp@L01_pKX;<SEut!4j(eYy!sr@itKo0ps{X_FIg4okcY<x`X+Re0cr+itRY5*ev&(sNrFFTI0LHQB!HMZ#}VCa'
+    '=9vg?3y`VgslNabUmaypRnB7{;Mrc)Guk4at4ig#xF6D}&U`WEl+YPV$Ep5q7V^1k$#FT?Ml-4^$w+@Dk4Cj?oS$f8TwM)AV2+#X'
+    's%ZMJ=Se!o=2kgX1P6YkKp!49zh=Jd!RW|BN1k9LP59F)trcHw`g7{Mx>x<`O{G(yp&zc_pb}-Qfw!F(Cl=V@PFsrAUu(CNU;G5F'
+    'Kmc|;5e#;qOj&Sw#Hul8CUh$c!WY9)yM5M*+Ln|V<T_P1Wi`RmF{Drl6GKFRuw=#)wp!h8=W%vnm=2oBCT4PW;iPg4@tik%<zP6@'
+    '&EtfjWQ9<#J2_V*nk=Q};*^?mhD@wU=mFC7HV;Y#|K+D+W#bGYi8Sh9yokKm0|)zG@&c4V@kdpgE~Qh^sD$WeC^;~_^m4k|9zNv3'
+    'SYa3nhK2^r*U^9>RWa0JwV>I046oCbwn0OXEvmM7(n%i4iNY||)O9ZC2Zy`Ic$nvse6kIhWw8MhtxRg)_>1+U&8*=2N-*|?V$k0m'
+    'z<U;C*zM{qg)EH^PoIClj43uc?;-6x{o?NLe=H-Q+aOn|DAbgx`wk|0pD9VrWK-Rj{42%Bw|LVyFSpj$y;pi%5qnr^m78=I%Xv4w'
+    'eO{kzvxA0CZhwPmT}#g`A!}_1i~><TORe%OVQQRMmo>f@Ey>YD^yX=>J!o-SS2Js^&;X?u-rwflxCLid^)J+(O^j=jD)1!G!|U=x'
+    'NuS_PL$%Hdn;b(bT*K)Jz7*$F$h|h#ZSE+iTq2S|^;RWdSi_tszt|B~|KZ7TII9Izq*vqM<ytW5z(uwuSjz^jD`r<*!zU}^*7ILZ'
+    '-n@VHG6+9)QaUV}K?PWBjX{|tOI6HE3WnQVf!6FT6OtMfrOU)n7`<B|9S(zlZn?IMkwKS!qgOe^Ui_thfrP-3!S%9??za-afkl*d'
+    'uYoWberP`a_~HB3M+rEtxsJVfU6=pk{aW7o49G<cEkVc9`P*moCFx}zQDTnB92q}nv>DH$+NIZwC!OWbUYZD>A|lr5+4*}80D6DO'
+    'rH<(&KYxF)#@db;Xgj+6VT(B=hmaR_7Ww+0S#LR9&wN}}980+sfb~Kg4Ioo*0H3H~o#$z`*kvsc%Ty8pW^yC#awY&x7}V#;oo@d^'
+    'bw%rW#&swEhUflQp85`;-vuWF_fPtb&-r^j$8|aZd&2RLNR7+E{bBNj;dOd5>gKFI!A<0Nf+%)EzyFoz@wvdy;!0b=CFtU<W)mc~'
+    'jh8;{b~!7dK9EC(w)=j)zS!T{gK@cvbJ$-!|F^LZYhS!q7J_#UMvVrIcj*c?;(t9CQ9P=CF9k&SbW_RufRl{C@XWxVpqNAim{fiy'
+    '%B|wX*4K~rf1aI0-hsUznnSXX5v6$0-?bUQpA?%a=UrKG;`2sdB$H)aV$4=&e*enVe`{#c?W>-sd*^CD6zWmAp!1b;4-57l)@VUY'
+    '=dAXUbHHc;#q|Np@WiMFB|jeHXM!?4kr#mXgQV+ScDzm)%{q~cj=`^(8%_+M8n?{BJY-`czb2Ydfe4NJOAgi(7Ms%`qo&Ikfl3R$'
+    'A^DHpySNUSiar6eyU#n%VEs4h^}WawD4CVOJ4aj#A8vQiwk)s$T7?iqh@5Tu_FB-QO6zs}yVDdNC|v9SxVAfv0Ut?x#w4D9i!1?9'
+    '86f<dh<Xd1{<Rs^>(%jl4c5n0an;>s`H|(RtD^yXPHpb8(;9ot>c<teioSay6Pd*mReaC~E3=GoE<WT(l^x5tWAw^Xd~usof@aP9'
+    '9&*R@n$;gQcTmT_Oy?EeM_EJs%Q(T{`jSlt%dYU5#H8tJYw=2#nO1#};nR7BX|~Phw|PiH@3Foj%8K1x8lg1qFS453DwsprevBn8'
+    'eB)Ln<>3@4n6FR<i}UP6CaX%mCu%yFa||$&lj<ePcbn$2*HC~Qy=*c#&Z>N+&RK^(4fk3h9Ri(a=OHsjwO~VTs%C|@QZnu8jK4Wk'
+    'wYAPv??Cejo6n{Tizl<%MIc{k)j*==>jxEn1319J`giCA=ONjc$&?|f;4Nz`eXQkTtb()fDsaiX^On0;Hi7E{#)0jossE@nww+Nr'
+    '?R8T-#Pxa|j4eW*F|aHF0$fa(8Zp;khyf<7&^wW9C0``{%Xq=rxzf0s#VhfIAW5afh;WuK64fPhSHzeTPQDrLaCRX3sQ-zkBQ?hv'
+    ';|Fn}hU3ufbWHQzNJlc07es*#u+HhMQ$t#El`O8UJ&NAvl(98<z`Xe7{N&l$85UeT?#?cz9Jb1JMrw`wv`hr6PGQ*DpE~>22KM4R'
+    '(J^kdJIM2aiRO1Yh(XXEgbYT>z%!C=H)0f;x1AU7-ktK#2jK%#MDIEYi}*A$O#-%=Py4G_(VK-Qm65@b#n?O?fj23Rtnn0gCs{TA'
+    '4?^kgAAbZ7_!sqYG+VkZ9~C=|{pr?zoHZ>n1g6`2Nf;}WXH+jqW|z#s^fpb=U-)w3B{62=rkWySn~E*xL`$QYcZ036c%Ah)ne|)^'
+    'wF|Z2@`{haNaL7cs+=s^68D_v7~|K!RqLuA7~q^tJKpNI=o?v@^sV(-au0ZjF|y1DQ_hq_os^P_6KO*JrIPMESzL@`+LvM!2SzEq'
+    '8B5j^aYZojG}_5*D%ocekX3MtwAdACAzwcnBOMiyf$_C~Wrb`{HzGz8{Auu|uAUJbfQK9fN5PQl?<Aop<3Kz)^BJQKsbbD(cVq_G'
+    '(v7mVqW5_%C*};|%DEE!iVl2dWQ?Rjp>J7G#CRrF<@|dk#?|>=nblA-MCQ>FSu$aKn|Q1su98zHAr|*Da0DErmTQ56Ww!)`yte~J'
+    '5=5*=tI-Jh@g!TCbUs{RPSIw>(9(w(-wt;45YCzC_-Ni83x(#!Rycw1Sk&bA`^eL7m5)9(sKKIdk|WU~qdya>7O^PQFY#o7_u(9b'
+    '^GI<z(<#0vo=u?}W74eJN$M#(NT?>12_ny{)8^FBB-%`H{YJre=RdxBZ@LkL%L&G=nCeP8BgDA39M3ZK$>3gO$WG9k4z3j&r<=D('
+    'i@%Eqn>cTP4j-j~bD4^HG815oIN<%vyTwh?8I{ap@r)D95Wk%JbkhCp!0M^`9Pk;2vAPQouh(ilLH6h;&A&4`UvE}6x2c6tu(>=C'
+    'FFYj~%v}150N+zr0$(RmU6&KTPE1W5In4e>JmQDHA&ld1t%LtJ;Wcwa>x3!<TG%(~H(?)Zhi(a{OZP-&{Y?>+8tVxf%^mIQk*eBV'
+    'w#p2^2lw;w*~oo>QIOC7XtK5x-fHcC_x)pABA#)IfUN@Vq-E^@YL-`WcKXxLopYzwJYdRUk^Iq12X#H)-LZ4W%^kC=e8j4T$&Aqz'
+    ';I+)ql;SA3n=gKR_2P|tx6_$)C(|sYjUPVVuLvUa4EWVMTbA~-!60;&VQ*G**Hq*#Dm!?Ep|gTDh#k)qv@y8w5IOE+B)y)l7}eXx'
+    'v}#1RZW-9y%}lu+T++tmhu?Pa9=UQXoSvLcHs#OzQVpO(7Rgv~jB~X==b$^{w-5B{kgGRWJ4e*9;1OUJe$O4WEOZeQF(z>~e^REZ'
+    '>atBAMh2}_mJp}RJSZz*<P@LJO<yYg3Q*`N3IXOG@@!2k2=+emZgX0x5^V53@vYs@w(Pph@T|tHe<F^I`Ydu;&y`MR^>onD$Fus6'
+    '23C=NUS35uSvU(_VCk%3fba9%0Qq^n>badmLGOq3nfkwvi5^^kc(Njeb=5yN{>y4wp$FzZ-RKB(4-#>Run21>_Vm9n)HUvY4P#gf'
+    'u0=Yp^odF)upV;@$83IiN*e>r6|uF$@QPjQ^mQ@N`d!O1)3G~)mi|tI!U&AB`IC@;ZlgC5VBN5?^%nl*{=D*Ny$UFERX`iQ(7Njj'
+    '`<0_P2T`17pXQ5UNEIOyE)D4;0I{=WyBY6(H!QqKbm*$n<M*47TiXJTykgN8${vRgu~%$`vVEpk?lr>(2kf!44p#W#^y+I6_A6a='
+    'TES?+iaOiVmU<bCT7GmwNrjjtqj5M|)W1ZkKQuS4owxi^03<XT6Ps_#-tWvOw5+h-c^%QzY_lR!?-`w_+;??`)6cRl*TOJAoVQAv'
+    'E*wW-xL3R>)Cz|AYHB4UO42B9K$f6fz4B0XJx-{K6S$qH^f=0U=O_I$eJyXv|D4r_X?FyfvXZ+r4jU^J5AwEryX$jpv@&hB=jGW;'
+    'ps1aXSt6$+dz|44YlBwcG#P}W?jpvjL?Yw^kyQ!~5bA-=?tf4Wx;8G7^*fV((~@iH>&)>^0qr*QR@1-nY+8@~P1%OIKH?0^a!?B+'
+    '!WS;jP<eFgp{)nD9@T&8Y4!*p3kxx^=8-ivS*>E!vH!(M%N5Yn`@)UaCJ8oL%~JgPnTb1};P6cP|Lq7T%GF=6mq?cV-#Pk!=V;*^'
+    '{dXLnH>D%fsvaDrgpl?@Zv@@3Ta<2n2y>+;T%_j7;AJwdLn_RlTsu#$>4|;tTV%~?kI`Jy9Bwx@ddJDp?RyX=nc``h)C#N}%X4h5'
+    '$`V)frn^(6=$Gd_d9$^J1e#Fei{at(#WagWHxC^s^wqh#oRMinRSuQ*MIMNRa?tx4&3zD}y4}wl5(Hs3s%;rJgj=-e(j@EcY0yNU'
+    'zR{VF<4BKsZVc`{{$U^0gZB==I~}PuQL2vffoB5Zl;4hm6Pi||Wvy>5;_-~bx(-1fPHG})gG<0QaSB_V&LF;`&+2rrMW^#VZ4r1B'
+    '()AT_Cu~0Hn4t)T9-MaP-EsCXnAP$lemh|OWJh&#P7Z~H{VKTcR&kHuMX127nNVy)n&m#9B1|953Mea>fntg<$GWTlIy@t<&DTib'
+    ';_MT5XPDo=`AMsxOZ{{EOq0@YBlWAVnB7Ch@;q8DG*(7f&5WVUXsXq=sFp`HD@LoC(IP9Z%69bePTF?WZ|4?J{$sPpsV=YWt-Y;v'
+    'ns&BoSVee+D*XVK*|N%9mE$G7_^Oy7UroM>5wpe)%+PUY)~Xdw;PzRXv=*oIQmyhm$}!CqVobNcN?^$q;T&Z4IzQO$X=3|p)!^{9'
+    '^3>j5*;ZNKUF8aPtJc<6ci)SOw%fl=FZ+5UmF%sWSpC-Oos=uLX~=5c3eW-ZhNCnX_oMd*mT1LTtQ?8*I8=_p&1w<X6$jzIcO;?+'
+    '`wIEbnE>PQb7hG#=9^d~^a?tLReooOC^XwtUl&?b&3C_~@s<cXPv7nGrXq|mo0$$q#7bRt_)h7Ait_FMoKoER$Tb@AvOe5Xhda6F'
+    'XSvp!I;AFoNL1o1s+)&@^Bz{Y?XQu{od!9sMplIS_){O+W?ms*N-973i{o@gliV{)!>#XsojQKKGX75}FRE1+z7Vguus2l0--86d'
+    'f&6~Y()%6N?{`$b-%<7cwF-lKRu}lng8NVvY@#Um3N^vkC<*>j6~P@91i91dzd^~)a3mz+R!eGdClgui?Yoz+Fl&(5gn2L$TF1b^'
+    '^q|1ZIvoV7gKpsE<97S!^MBR?|JK`|etsSigR_9b8_acR)+6MG4qtR93u-|`y<p}@bvCY!PQ#<1*w#U*m?qLL7M0uO;y=CoXXotX'
+    '-8tUK^KheF`~^}B?_($wSYjoybTpw)Mz+exWHjdZy$<c94<FT?5sx*V0WU!LK<BSWGtJhM=eybG<hS2A2{uPpjgkCO6917Pt`B!-'
+    'G-Buh4>XBRP##N0Lu%!W+O(hdFgUARe_kQTA=**q+tJA-9hrFwR`VG6n)GyU89BeoyqYV*{$>Qk2W~=gXv85IhLetX!PSE2QQNvf'
+    '_G;pE5U_uuILUFQKUNaa94)H+^E}D9#*9KPFI!B7kXP^@!4r*Pg;(A*;}mcL#|fxYP$+>{mJYG5e#R)t$!|1O)Yr4uC*8@21mho`'
+    '?a?guFJl%hQDvT6Y!r7E-5zs<R8?m&rT?km2VBf(V|D1Wl0MWl?Q!=@CyO~Aw{!WC27i=N{g1Nw;!)bYCh7SRW_^M%mq(6IDXl?s'
+    'yQ96R&#tjolLhoBNI%dS$BXWuyXdw_&g}zjhGgaLd=xKsui|+!yr!NmE;7lB&7bOiy8=s?Hj|7t01>G4I?(RYqLIJU4PJ~;Wz~ao'
+    'c50^~;}Q6lZ&TH9%!Mj$M$0~%#eISMK~BgcEwQWBk*uCKnk~g~Q5M3tnN+RAXT0$wZiQXjG6_G$kWyW$tRev=4d`+t{a|cCIDo63'
+    '$2feuiRerV(C@Ie5K9AD=iWT}2O{9+F&)QxE1M1%$aM%Mnz)#ENodHRJK5z}S=I+4GxaF9{&1gYyo)OuV>@sp2_0+*Ej{<3&x4T9'
+    'PG7wMbIc3;A&C0}D|Bm>aNt9!r^J+E!Ob}MdY6umwzgO)MCRS9%E^gP7*6TgbdqvbGWqHgYf^xoP<fLbj&)z`DO>iSoz)GQ(Bz%='
+    '+6;ug7|IXo$#)=7yCVO|UQD~RNcgSYH~(mB+@erfPDsxbMB-rLIXmyOo<=081lnHq-_91CCUV|QQqJZs-2!SVZ6|1w(C4=2Ae&v%'
+    'g7ht^5<eYU-(+bf3nYHO=;v<Ko~D#|<ND6SQQfrp^Hk`U!UZ5RJ#9_oskMkx_&Nc3<z>n3=_7;q)kX^UYzc*VMzW(g%B#b>F0j3b'
+    '^%T6A`id#v4xFbCyl6CM87xwUeYO*f9Q2&7zBJj63AG<5Y1sO8uSL|$&VQcris^R9q=`QtjT{E8Ut5iuEzW(!2`%|petP@tW&OvW'
+    'jCnP0N)>+p)oSeG*<7&!WL+ASI5hk?iZ3*II(*03+u7P@&8nnN$~xojDCr|RJKV=R9fW6GBw<M7&x}As{pFRdC9!|#Rumi_29JHk'
+    'SiYebqDNq5ge>4~X*J(dIF&?op?j`o6A8O85xF~hFTS2?s>`#ty8M~ZK|BTB;T4A!)t#q_**NeEPx=?w1G1bLGAttkJ6NW$=-6$D'
+    'jKay{x}E3J-2DtEd~JO};%)G`@rbj2!@>~=4x3Zx+f27@$mu#c>5>zZpbHy4v1x4=@bu3F(E#uALFWWPaA*auMU&-o-S#U5CfJ=J'
+    'BYVt#C;7r>Uky;*hYy+XJvdTY%kYj&l$G}8;l&mP*X~{UIR0c^fX-<aIZdtDp2x-Ac_h2jfO25aSS(PEO9?`o`!r8_OMpz--e|O1'
+    'tzeyE%T(^%>{(ax0FFwliS8N2IAK_j4hoiVPKqIJxkX3Sru~_OfbHiD?8CEq)=ve>+*itJv$KkTvpXVsZHDSql7C%`6idSHD}k!}'
+    'BC1VfNyoimvx?k0PAcjsn=*n5i)v|t?gT=Uo4&=OT9kK{|1uH@E48ptOO-31e}n>>3Y@kY^B;N3QfSw(5lW!ou@q@Y<85dQmU?qf'
+    'lw(qkj2WdUs`ws%E6Z{R`$x2HI_O?A&q}n@=ltCL>)7d?NYZk6nS;Vs2ccqPeQ6sw*bXdf<snWQL6T01fzc30fx|{5NuIT`dK<xF'
+    '#k<I}P~}bzrLA<6!wwnlijEOU_bFlf9B3}#{i7)xlKE8UGX%+x895sl4Hd9VzP4fVB~VaOH&$>t;h1P`i4U*L1`tlBlU<j(8wjLG'
+    'BJ|j_UneHY8?=C9#1{}0YtmRY)j7;RLjgKz97pj)5easQj*So%MUudDGF?n3#003>(^wj339^Y#6_)k$RO>MYd=Z26`{Y#`Ft&Y~'
+    '*1<c|2{-pGp0n#hid^$@ln+K8W+YZ)I(tVX=`-Kbs__+(`hYhaF6hgQCC_j!bib30*}C31u(g;<8j1?L<p}++iT?r%+UMh5xZdDH'
+    'fBXE=>l*R!JIx3`qq2ts7bHf0z-$dtyaU959@9nwa~*A2dkC!+WB}$<ON_VI!5qL+_J~)a6Ql`7Qoyb`HVp@vv$(`D&q%{!ww}b%'
+    'R!ROEs#!<CKMVyxFBpz38OIz1Of2^<E;MG|$gblqy9SDxrV332yWCe@{pXoW3knoqujP>diO|z;7JS^14Fk+931(qM&T?oFbfI+Z'
+    'n^7rHMj<FNU{F+Q)(}ABp~j7=)eh??CZH%l9sZCZ^I$=Tcj_EFg?E?<seI|YbmZ`>5+9BVie#xcbcZr>mVu_}3Oq47ne@|6DqCV='
+    'elXR~%h};!Knofk`g;fiCI8wva@r``wt8$lhmcV4Rk2~Ft|=Y8?@85VC%ateU!z3$^YT6Zn^X$*dMfhB(BG0jxsE1MNZjUAIAxzP'
+    '`Xk8P^!L!i8una$auki_tis5GHfzDOz(^Ly9DMvVk`B_0EvmfX?a-gq`^)i%o>&5oc+u?etL81fW4pDgPkT)#Oih=WTZ^o>68}^_'
+    '{G~q)$L#{;ghCM=fvNo1B@tujuMD9T;fxP4I<1)1=ku+n=-~|#OKcRcC{l8I8Ev^7BuH`S$K{q8m926*DOT9Odi~}Hi{|zOmfpt='
+    'pnvQ)8Wn5z@qT9!oR2g@8&{Ex0(~s<Lxob`F^fdDNQj}>6>MuM&~}2GR4<j8TBFdu=s0O@quEEfrxvkC{kY;4-+_{wEWGHiNZa8;'
+    'ASV)nUyZx7ktPIZSCA;!J?7r}@SL)#J3S#&7YYB;Z}y?IgwG1O@FABhXB%+?EO6jU=^d$;KgoD!6cd=pRM1-=InH5Vhnu!B^<BG2'
+    '4-Ui^Mth2qrJnj}aMVc?Dvm3rJ)NGZyr%m=ds#@WbmQe)<~in34e7U6P$pBK#iPnZmxg@fQ1C;1bzD6PK_87q=xFQ}qjm$ODcGj^'
+    '4wdIV(47hWeEaO5^mRB_3o``neDq<W_}aaLsz*$oK-H=Jnr(m<kNsWw8hdGBh^ZenkJ_zzb!TT%HBM)Bk{?Dn5z{c3KD5HrCI2SG'
+    'T59lMRU|OeGatY*St#c%U<V2S)>AAmk4OuJtpz&9<_1z{b<zWVF~cG7ye(5&h`TWC?+?G6oN&rJOU=t6qo}JhG!&uYV81)%a~ux8'
+    '^wVPRw<?L_&?S!UQG{=(*#X&Oe6p{hmyRFnuwagRJ#?L6U52Kg4a>B$kHiw^aB+A&WO`arChQL_9o3TVN#l}FSs_=+d;wX3C?$k%'
+    '$BWb&`q-!2loNeks0(B#FoY%29I96p%*U0{%JQ`An5oy%DxO<*6^%1-aUg+bx^O2&-?ubD>t_lwj8@kd-@U$gSjiLi(6v1<f1OT0'
+    '{Vg2BQrL?NH)G>M9V(B|O+R-@T!V0y3`vr07lySFRkW34fzKrQE3=2DlX!g@PqD{qiwPI~+Qqlnvmwdcg0U?abHUgt7?*?!XaF4f'
+    'v8~Dg;h#js<ItL8>Ici64mn5GJy!RQmXOWCACkPwM5h83kkJT=Q>Q!rn7@*)dBvgb0;YYwD3TS6BAHZdVU^%Jo!NBO59!^9a1L0)'
+    'A|X8i>2EH5*cIw1^@LwFCzX3h$$^5$dP+%62bBe!vuar5uS1LYTV38cq=sfa6yI>UcSDs6T&O*wP?i09T6p?7RR`Cw>fjnyHA>^i'
+    'nMN^8m^YrUwW7LQtNV(WKBhz8{=JyO&L5n#s<yAd4-SVJzQX6GJUOvfxvf}!qg{mrx$&3kG8kYjl1zH*cV}aT+}T?tc=pyyp3WyU'
+    '{N>V<xySody}E!o%fo+ORbxN5p0Ne3DIJ2N1f=vTbqCI(pH5yCIC-w<nBMXkHff3Vu>4Ql5T07EBbvHx&r(mPGPO)R_N<=Hd>*w}'
+    'RrB_$q+7enw%=N1ir&TC{CArBhFZauQvPO3u~!keBd$AebMuyJ0Wl_R<VPeOL20v??+b!uyy#yTPxX^l@ZoQbj|blb?Y4wmJ6<;U'
+    'CZ|R=o_^=0d%Y?9-fvY}I|`grgQ1U%G^yTPK6aaWV_l1rfJPFr?u=9Dv4xE8io6_uS<Jik2nj#2J}#LMZ#_$9F+-_CqE1s)H)|fP'
+    '|N1^yGAgSmt)Ga?4r?<-%MF8Ce~FG$Q|7#d?o<2@_+Y}RCaTng2;Ce3O=<;D05=8~l#j~ge5OJM8MHf_vF}>{62}<pa`BA}+m;Um'
+    'TZ6f^Vf-1P%&~MPi?*sb-ZczwVK%7bxlxl<a;58Hs%m~%md<5JU5V$(n1lCn+w>rzfm^_iZS#v-gNi7xMU~9C!rT(xXG$+rJ=`}+'
+    '@;<C&@j*%5Taap0jm>e2qS;nQ{*2cooj~dY6YF(+uvG}3;i5$bTYW$gN?^`3uA;<b&%|9o_-tF+8mPtSxl5}h8N+S?xX}4LW|s*W'
+    'TiPbTpR-|g7@x=cyFCE*DK=fuho-;aa?%b=dWv52v1F&)*`p0W#3#9oQ|z=stjQoEu`w_Q-Z!JH_uzf#4{AXW;2koXW~}BC5@nSv'
+    'YjrGZwJU*RwYf#a@WqMsnwY!lVAg0~?xuY4ZManmmsR?fn}d8AVod3Tc2}I-iY?v+pO`Fq_hZMxQM8CW@m(y$7P`Wt!E9Oyvo%f&'
+    'D-t5Cva(bwF%Qco2tQgC&jjV5Sdi`8)~H%e_TwccF4V};809Mexw6g*{IA@4edAi`Jj)oo=KOpvif*p9Tw551Xt7*kk57kcous`V'
+    'ZB?s&8Tr+0%&pa0w3Qk(M}c;W@@%c{Y=z#eN@uoSWmcswyIosmHDxzjWewR)fq+$nx`PU<$@BAkx)48Eo;wG>*ch@|E9M_e+MKkD'
+    'HktO3K-#hK&q4#`KCv&JU#LC95nVTk`|09(7KdD{-M;FkCRqYoW_mKK>vPYE-8g^*$z7rmx?E*0lOex!^Bv#G`1NN^UmH2MmZTKh'
+    '>*hz6K2$idw_9?%0){e!Au;m|UnTFE_hrAC1~weG(-07O&try8OzSRl)i3zU&}LlgF4MTR#A^FB?rEa&oKn#u*`Z@C!<e(21%XPq'
+    'yGKEuJh_k!+p3t2pUHeWSoUG92gtALWZ1Dy;C4tv5MP&@G6%Nm0ASik`%v67201D<yf(1nGs}<L=CLzJ^XYO%EY3ud$g)ShA&v&y'
+    '-J)MqTJ?^PDo&Z|2;VG*6Z(W2sMBs_yzjb3o79&a=PMDu?QbUE6u$KI{j1k!xwzz#fG}GO+HE+&jpp6dhUOqjs1`Jj!>Brg$I7lH'
+    'le=~8#aDK%m3QqnCc<YU{?rj(3hkCQHtuyJ@AYQRV7K)BF3f@m#W!19H=0{;9JBCPiVZv7;<ztyA1Xp}5LFl?<2`1&U}70`&p0C~'
+    'qN4am&B{Qm;G7Lo`4$uD1!Bxp7CZ$|@kI^FVLmo%t3y`DxqSsOI@4ijf}AjM#~dWtXzkZfa<ZbNM7Wxw#Rm9zU?;Js(p;PCa{9=Q'
+    '3jMw$Y_IXpp>i|)dZVgrGcTOY+}}+(1}#NnSHE{ZzalEgE{XDI7k3g~JfdE~@jHlz5|kHizlrCQA10AEKL%aDGV33wfrFc!3(>(j'
+    's>5a>jDoh84Kt_(d#=}Xlz*wTEd2;BCm;4XJlTo*b5>~UxE54DX&&F|wRzVn_l|E4R(7+g{cNmy`@3WI4y}Ip{hF$?*=<$-eO=Yf'
+    '=GwY%?RRr;ZSCJ3-`J2nY&Q$=XSlPmc;bvr(606Pz$X8JR?Atuc(zcN@sQ?w{IO=A*#~dCUtV4lZAtoPEM2^1;o^*Oim<DUd{|v)'
+    '^F#BmsC4g7RJvk(#)X_r)os&~_%oxly4vQSs`qB~a1~Y$)7ZN=G+aL;#0OW@`SWygI-Rq|_k|E2)b}if&S;Pa=i|M1{r+-Bgz=jC'
+    '@vINJ^c;G?>@=RgU8akKxHKY~*>oO0WLjJUecH>t3gtl1*yX|sx@+CdT42`L{nwt+IgVBISJmFE32pgn>K~S<k*+6gim&pPh7JVI'
+    'Aim0*eH|}eGKyIEknTJEk-M+m)%B2$<eGVi+uX5J)3FzD&aMS{HOhJv66vmt6+%o!R?L?o5lwpHwu3x=DR-n}%`#)t36fmS5kZul'
+    '8Pfd8I{rI09=vOD#w^HK{kP!QEfrcOM);GqupyB5Xh@<!t5$Bsu|cz!i9{0Ni8*p&#-^~9hRSeMO(?ZR`-|#%8Xzr#`HH8+I<x^2'
+    'We*;$4f>&e>PTPiSc*pvl^Rc-(5{t{o#!up{N?92n%T$%gaMV0BX=bZtSf3Q3=>U|X;kMck2}lKWFRrTPzPjf6P+$Xf79yz%O<o-'
+    'ga><C29^TG$>h)$Iu4!5vL&_dTHrm*&3O>kPooXuS^y%mu8!PW)GK8}C>cS5#8G@oWM&_P&7aJV&L(mE=WA{heOn`0B?z3h&#uO1'
+    'Ym`TL;NY$W9IBqg;z&WnC(YOZ6;-Yo<K$`-5A<Qq@BEXG;jWKe1ZhCGjSFk+CT3(rY5w2`_~NP$4$Od{@KYg~g<{wPM5tGcmcO@G'
+    '?gNQT7oH#BJ4+glYvt9UsRe9=O{tv|mYTZG(KLF|EuW`LDr+)4VUy(`b3_|18PJw!gnXiId=UkBB+SR7_c8!Sde%W5?^QvZQT`&>'
+    'xC6(J*}lssS@GR$=DbTKR=(S;e7WhpU2OW!WK=3wnrXN@pLROyfm<#I9?(Ml<BweSl{jaO#O6$nSnH2~FQ6%r#?14J1RZ3wBXHV?'
+    'zhij%@}w>Kig<DnlP=aJ(VuH5P(KFk%CkiA-jZlOla*a>$`QtTGgLT;XB-MTP3yc;RJjZt6^Nk?<HV7A!YlE`bTUjv9XJC*!Th^1'
+    '0}V%YHNUDMHowniT6qBVL4H=1I04!=Rg8#}9~1Qrl=&n9|M@jyfsTlQIB@($-H>>k7H4lG`?3!6k&gF4;qxpn0p?{+ysDcD%y+!c'
+    'H*X+?C*6;Aw%%1#r%dfj7^7huJt)3-)lKVtTL{LKz!-s7m%28fyXy-5<`&x7nRJVh2F_C5;7d-OMJwu`Gk3{W_GY&J9cA;^^%GNv'
+    'Dlysko3Dn+a{Npmm{;;%zu{H?>Pz^Liq?1&)Phe@$(W7@hlhtkPw%`w!F0-UIzB!QwR#3#Qnk&CUx@W1Rx}8=UrnH7KBvt)fClHq'
+    'FAG`_)A`%(Y@1l){OV<Q(LJZv!Oj|FsT%8lwhc0_Jb*!edz0YTinqL5j9pcE%jwonh;C%<`$kPVZ=MOzkyqPEi&n;XiZ$Tf{{h|y'
+    '@7_I!vkZ+U?duN;(m4Ixfj3h2F<_^pt0ev`3^*ghK=1fPyp%u(tnU)=_L(xg`G<s?*Yalyz_cZb&-ro^E~fMTMZ0~@y#WoRCE(pM'
+    'MyKL^L8l>VSA1~Uk?!R~=0CsE=Y`w37gV`I#n&s=Bez$zlT5BU!#S)({{884QM@I|V=L~aD{GhF;hJ^nd7l3~$$$R%$@z`3H5aG('
+    'PvMW9hRlQc6g$FP<v>&B4mPgyocceQF5yMS<3dw2YB{wspFW*o`E}Dn?_-XGL2s1T)X&^n(~6!g#$8|6%}~?~EV&s(-!@T>%d0vd'
+    'ojS9{Tx|u8h4aX+J6i}kdkyiQ)$Qs7-8R3yqUfkCu4{4?-ro}jveQE4UR`bS_SLGlJrJ$@qWZgZt%JprUwJVeI$Q9{7Q9+t&};(^'
+    'u#lgtio)%o;v0)IN5#rtsri?WbT6%H0((jdrE7`^@VES^9;fHV0P_4GV8B4V{PEL)qU@R*msbZOJjpeShv)C!zxYwWeZx}@5P<}B'
+    '8t^}`(?$x>@J%l4u}IP*Rw<alwM#?Y1xVPf&#WRks^c_-#WzHE1kms>2%9G-@ao({y6|sgT``gf*FQ|yUuCZu^k}PpqaT}EhFl#<'
+    '!X~O<e^;vV6ka5_kkYwqsGsbtIebajGy^Syxt5YEj1}mPxr^TiE~Js(H`fP-fzbQ-eIQx4P07BrW)Xyra?m_TuPyd$DdHPJ4`Y#q'
+    'LU`?`DGwVb;S9~G9=T9UJl3Tr?Ch{C&Qh^Knv3EsGx|s-aRdrkzvyNi_6G^kztTRjq805CD!zMML5>&|iN0kfTpa`3=s@)|8Mrhb'
+    'xm4$0Kza2x2q(|uu9-;7C|Ku5yW)!99lE6-2HvH&@J$VC*FAM@-dnXc=e>x1nQQ~POy@nNHpAf_&`L`?#@Qq-PDOpSt^g-#Wrr3K'
+    'ic;VLDtnT(jhiMlmI<JeI~q!>D(dCknZunerc<f7yx#%Y&Ex$DRuWn}`;EUprk9Og50_QRsgaV`;{F*V4clV59ZdVGj$(DJ=^|6?'
+    '%6D0tl#_?bGH3uN!y^X_vDg}&+?MCSlrlw+@_Q&_t?4dim}P2I3TZB(-Lub$t8&PI8D;TrFI(hUTxz%Rq}?9Hix<oJJf19G{POad'
+    'l(gJ~=s46-n7A4CIE`$20!L{^@*+dMnL>}XltBY?lp2z<n_UStEd;GPI6ae8)Fpw)DEdxRK_{gSo9x3N(wOlqP=Zin%?d-dLVVK~'
+    'p4|Sz&DMVdBx$sN'
+)
 
 
 _ATP_Q_HEADS_PER_PAIR = 16    # query heads per KV-head pair (the kernel's unit of work)
@@ -19587,2457 +11828,372 @@ def _atp_zh_vfg(data, route, pdl=False):  # achitaan ATP
     return out
 
 
-_ATP_ZH_WST_CUDA = r"""// ZhimaoL/sglang okc_patch/_cuda_src_wst.py (Apache-2.0): wst_ct14b (full-layer verify, balanced over the batch). Trimmed to
-// the cooperative balanced kernel (ct14 / q_len 1 / TMA-map parameters dropped). OKC edits are marked "OKC:".
-// ZH_SCH=1 keeps his piecewise-linear (Schraudolph) exp for measurement builds only; the default is the exact exp.
-#include <torch/extension.h>
-#include <ATen/cuda/CUDAContext.h>
-#include <cuda.h>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <cuda_fp8.h>
-#ifndef ZH_SCH
-#define ZH_SCH 0
-#endif
-
-#define DINL __device__ __forceinline__
-
-DINL void wgmma_fence()  { asm volatile("wgmma.fence.sync.aligned;" ::: "memory"); }
-DINL void wgmma_commit() { asm volatile("wgmma.commit_group.sync.aligned;" ::: "memory"); }
-template <int N> DINL void wgmma_wait() { asm volatile("wgmma.wait_group.sync.aligned %0;" :: "n"(N)); }
-
-DINL void mbar_init(unsigned bar, unsigned count) {
-    asm volatile("mbarrier.init.shared.b64 [%0], %1;" :: "r"(bar), "r"(count));
-}
-DINL void mbar_arrive(unsigned bar) {
-    asm volatile("mbarrier.arrive.shared.b64 _, [%0];" :: "r"(bar) : "memory");
-}
-DINL void mbar_wait(unsigned bar, unsigned phase) {
-    asm volatile(
-        "{\n.reg .pred p;\nWAIT_%=:\n"
-        "mbarrier.try_wait.parity.shared.b64 p, [%0], %1;\n"
-        "@!p bra WAIT_%=;\n}\n" :: "r"(bar), "r"(phase) : "memory");
-}
-DINL void fence_proxy_async() { asm volatile("fence.proxy.async.shared::cta;" ::: "memory"); }
-DINL void fence_barrier_init() { asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory"); }
-DINL void cpa_mbar_arrive_noinc(unsigned bar) {
-    asm volatile("cp.async.mbarrier.arrive.noinc.shared.b64 [%0];" :: "r"(bar) : "memory");
-}
-DINL void fence_u(unsigned& x) { asm volatile("" : "+r"(x)); }
-DINL void fence_f(float& x)    { asm volatile("" : "+f"(x)); }
-template <int N> DINL void fence_ubank(unsigned (&b)[N]) {
-#pragma unroll
-    for (int i = 0; i < N; i++) fence_u(b[i]);
-}
-template <int N> DINL void fence_fbank(float (&b)[N]) {
-#pragma unroll
-    for (int i = 0; i < N; i++) fence_f(b[i]);
-}
-
-// no-swizzle (interleaved core matrices) descriptor - the V images
-// 128B-swizzled K-major descriptor (TMA SWIZZLE_128B tiles, 128B rows, 8-row groups 1024B)
-DINL unsigned long long make_desc_sw128(unsigned saddr) {
-    return (unsigned long long)((saddr >> 4) & 0x3FFF)
-         | (1ull << 16)
-         | ((unsigned long long)(1024 >> 4) << 32)
-         | (1ull << 62);
-}
-
-template <int ACC>
-DINL void wgmma_qk(unsigned* d, unsigned* a, unsigned long long db) {
-    asm volatile(
-        "{\n.reg .pred p;\nsetp.ne.b32 p, %37, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n128k32.f16.e4m3.e4m3\n"
-        "{%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,"
-        "%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30,%31},"
-        "{%32,%33,%34,%35}, %36, p, 1, 1;\n}\n"
-        : "+r"(d[0]), "+r"(d[1]), "+r"(d[2]), "+r"(d[3]), "+r"(d[4]), "+r"(d[5]), "+r"(d[6]), "+r"(d[7]),
-          "+r"(d[8]), "+r"(d[9]), "+r"(d[10]), "+r"(d[11]), "+r"(d[12]), "+r"(d[13]), "+r"(d[14]), "+r"(d[15]),
-          "+r"(d[16]), "+r"(d[17]), "+r"(d[18]), "+r"(d[19]), "+r"(d[20]), "+r"(d[21]), "+r"(d[22]), "+r"(d[23]),
-          "+r"(d[24]), "+r"(d[25]), "+r"(d[26]), "+r"(d[27]), "+r"(d[28]), "+r"(d[29]), "+r"(d[30]), "+r"(d[31]),
-          "+r"(a[0]), "+r"(a[1]), "+r"(a[2]), "+r"(a[3])
-        : "l"(db), "n"(ACC));
-}
-
-DINL __half2 u32h2(unsigned v) { return *reinterpret_cast<__half2*>(&v); }
-DINL unsigned h2u32(__half2 v) { return *reinterpret_cast<unsigned*>(&v); }
-DINL unsigned prmt(unsigned a, unsigned b, unsigned sel) {
-    unsigned r;
-    asm("prmt.b32 %0, %1, %2, %3;" : "=r"(r) : "r"(a), "r"(b), "r"(sel));
-    return r;
-}
-// OKC: exact exp2 on a packed f16 pair (one MUFU per 2 scores) and the f16x2 -> e4m3x2 conversion of the P codes
-DINL unsigned ex2_f16x2(unsigned x) {
-    unsigned r;
-    asm("ex2.approx.f16x2 %0, %1;" : "=r"(r) : "r"(x));
-    return r;
-}
-DINL unsigned short cvt_e4m3x2(unsigned h2) {
-    unsigned short r;
-    asm("cvt.rn.satfinite.e4m3x2.f16x2 %0, %1;" : "=h"(r) : "r"(h2));
-    return r;
-}
-DINL int pi_lane(int lam) {
-    return (lam & 1) | (((lam >> 2) & 3) << 1) | (((lam >> 1) & 1) << 3) | (lam & 16);
-}
-
-constexpr int KIMG = 16384;             // K image: [128 keys][128B] SW128 (both kv heads)
-constexpr int VIMGH = 8192;             // per-head V image (pi-permuted, interleaved)
-constexpr int STG = KIMG + 2 * VIMGH;   // 32KB per stage
-constexpr int RAWB = 16384;             // raw V slab: [128 keys][128B] SW128
-constexpr unsigned NEG = 0xFC00;
-#define M_INIT (-30000.0f)
-#ifndef OKC_WST_ACC32
-#define OKC_WST_ACC32 1
-#endif
-// serving: 4 dims of one split-KV O partial row as fp32 (fp32 partials, or the bank's bf16 ones)
-DINL float4 ld_part4(const float* __restrict__ ws_acc, long row, int dq) {
-#if OKC_WST_ACC32
-    return __ldcg(reinterpret_cast<const float4*>(ws_acc + row * 64 + dq));
-#else
-    const uint2 x = __ldcg(reinterpret_cast<const uint2*>(reinterpret_cast<const __nv_bfloat16*>(ws_acc) + row * 64 + dq));
-    const __nv_bfloat162 u0 = *reinterpret_cast<const __nv_bfloat162*>(&x.x), u1 = *reinterpret_cast<const __nv_bfloat162*>(&x.y);
-    return make_float4(__bfloat162float(u0.x), __bfloat162float(u0.y), __bfloat162float(u1.x), __bfloat162float(u1.y));
-#endif
-}
-
-DINL void mask_lohi(unsigned (&s)[32], int limA, int limB, int lowA, int lowB, int t) {
-#pragma unroll
-    for (int j = 0; j < 16; j++) {
-        int k0 = 2 * t + 8 * j;
-        if (k0 > limA || k0 < lowA)         s[2 * j]     = (s[2 * j]     & 0xFFFF0000u) | NEG;
-        if (k0 + 1 > limA || k0 + 1 < lowA) s[2 * j]     = (s[2 * j]     & 0x0000FFFFu) | (NEG << 16);
-        if (k0 > limB || k0 < lowB)         s[2 * j + 1] = (s[2 * j + 1] & 0xFFFF0000u) | NEG;
-        if (k0 + 1 > limB || k0 + 1 < lowB) s[2 * j + 1] = (s[2 * j + 1] & 0x0000FFFFu) | (NEG << 16);
-    }
-}
-
-// Schraudolph's 2^y in e4m3 (exponent = floor(y) + 7, mantissa = 8 * frac(y), linear in frac: +0..6%
-// mid-octave, inside e4m3's own 6.25% rounding). t = fma(s, 8c, 1144 - 8m) lands in [1024, 2048) where
-// the f16 ulp is 1, so the f16 bit pattern's low byte IS the code; max(t, 1024) clamps code >= 0
-// (masked = -inf -> 0). The row sums come from the PV wgmma (ones column), so l matches the P used.
-DINL void wgmma_pv72(float* d, unsigned* a, unsigned long long db) {
-    asm volatile(
-        "{\n.reg .pred p;\nsetp.ne.b32 p, %41, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n72k32.f32.e4m3.e4m3\n"
-        "{%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,"
-        "%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30,%31,%32,%33,%34,%35},"
-        "{%36,%37,%38,%39}, %40, p, 1, 1;\n}\n"
-        : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-          "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-          "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-          "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31]),
-          "+f"(d[32]), "+f"(d[33]), "+f"(d[34]), "+f"(d[35]),
-          "+r"(a[0]), "+r"(a[1]), "+r"(a[2]), "+r"(a[3])
-        : "l"(db), "n"(1));
-}
-
-constexpr int VIMG9 = 9216;             // per-head V^T image with the ones row (72 rows x 128B, SW128)
-
-constexpr int STG2 = KIMG + RAWB;
-DINL void cpa16(unsigned dst, const void* src) {
-    asm volatile("cp.async.cg.shared.global [%0], [%1], 16;" :: "r"(dst), "l"(src) : "memory");
-}
-// ---------------------------------------------------------------- wst_ct10 helpers
-// QK first k-step, write-only accumulators (a fresh S per key block)
-DINL void wgmma_qkw(unsigned* d, unsigned* a, unsigned long long db) {
-    asm volatile(
-        "{\n.reg .pred p;\nsetp.ne.b32 p, 0, 0;\n"
-        "wgmma.mma_async.sync.aligned.m64n128k32.f16.e4m3.e4m3\n"
-        "{%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,"
-        "%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30,%31},"
-        "{%32,%33,%34,%35}, %36, p, 1, 1;\n}\n"
-        : "=r"(d[0]), "=r"(d[1]), "=r"(d[2]), "=r"(d[3]), "=r"(d[4]), "=r"(d[5]), "=r"(d[6]), "=r"(d[7]),
-          "=r"(d[8]), "=r"(d[9]), "=r"(d[10]), "=r"(d[11]), "=r"(d[12]), "=r"(d[13]), "=r"(d[14]), "=r"(d[15]),
-          "=r"(d[16]), "=r"(d[17]), "=r"(d[18]), "=r"(d[19]), "=r"(d[20]), "=r"(d[21]), "=r"(d[22]), "=r"(d[23]),
-          "=r"(d[24]), "=r"(d[25]), "=r"(d[26]), "=r"(d[27]), "=r"(d[28]), "=r"(d[29]), "=r"(d[30]), "=r"(d[31])
-        : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db));
-}
-// softmax_sch without the accumulator rescale and the packing (both run after PV(kt-1) retires): mask, max, lazy
-// reference (m, kc, al), e4m3 codes in place. Returns whether this warp's rows moved their reference.
-DINL bool softmax_sch_a(unsigned (&s)[32], float (&m)[2], float (&al)[2], __half2 (&kc)[2], float qk2f,
-                        __half2 qk8h2, int diag, int limA, int limB, int t) {
-    if (diag) {
-#pragma unroll
-        for (int j = 0; j < 16; j++) {
-            int k0 = 2 * t + 8 * j;
-            if (k0 > limA)     s[2 * j]     = (s[2 * j]     & 0xFFFF0000u) | NEG;
-            if (k0 + 1 > limA) s[2 * j]     = (s[2 * j]     & 0x0000FFFFu) | (NEG << 16);
-            if (k0 > limB)     s[2 * j + 1] = (s[2 * j + 1] & 0xFFFF0000u) | NEG;
-            if (k0 + 1 > limB) s[2 * j + 1] = (s[2 * j + 1] & 0x0000FFFFu) | (NEG << 16);
-        }
-    }
-    __half2 t0v[8], t1v[8];
-#pragma unroll
-    for (int j = 0; j < 8; j++) {
-        t0v[j] = __hmax2(u32h2(s[4 * j]), u32h2(s[4 * j + 2]));
-        t1v[j] = __hmax2(u32h2(s[4 * j + 1]), u32h2(s[4 * j + 3]));
-    }
-#pragma unroll
-    for (int st = 4; st > 0; st >>= 1)
-#pragma unroll
-        for (int j = 0; j < 8; j++) if (j < st) {
-            t0v[j] = __hmax2(t0v[j], t0v[j + st]);
-            t1v[j] = __hmax2(t1v[j], t1v[j + st]);
-        }
-    const float f0 = fmaxf(__half2float(__low2half(t0v[0])), __half2float(__high2half(t0v[0])));
-    const float f1 = fmaxf(__half2float(__low2half(t1v[0])), __half2float(__high2half(t1v[0])));
-    al[0] = 1.0f; al[1] = 1.0f;
-    const bool ok = (f0 * qk2f <= m[0] + 0.75f) & (f1 * qk2f <= m[1] + 0.75f);
-    const bool moved = !__all_sync(0xFFFFFFFFu, ok);
-    if (moved) {
-        float r0 = f0, r1 = f1;
-        r0 = fmaxf(r0, __shfl_xor_sync(0xFFFFFFFFu, r0, 1));
-        r0 = fmaxf(r0, __shfl_xor_sync(0xFFFFFFFFu, r0, 2));
-        r1 = fmaxf(r1, __shfl_xor_sync(0xFFFFFFFFu, r1, 1));
-        r1 = fmaxf(r1, __shfl_xor_sync(0xFFFFFFFFu, r1, 2));
-        const float mn0 = ceilf(fmaxf(m[0], r0 * qk2f) * 8.0f) * 0.125f;   // 1/8-octave reference: kc exact in f16
-        const float mn1 = ceilf(fmaxf(m[1], r1 * qk2f) * 8.0f) * 0.125f;
-        al[0] = exp2f(m[0] - mn0);
-        al[1] = exp2f(m[1] - mn1);
-        m[0] = mn0; m[1] = mn1;
-#if ZH_SCH
-        kc[0] = __float2half2_rn(1144.0f - 8.0f * mn0);
-        kc[1] = __float2half2_rn(1144.0f - 8.0f * mn1);
-#else
-        // OKC: kc = 8 - m (P = 2^(s*c - m + 8), the Schraudolph codes' scale); a row that has not seen a key keeps a finite -60000
-        // (8 - m would overflow f16 to +inf, and -inf * c + inf is NaN, which would reach the e4m3 conversion)
-        kc[0] = __float2half2_rn(mn0 < -20000.0f ? -60000.0f : 8.0f - mn0);
-        kc[1] = __float2half2_rn(mn1 < -20000.0f ? -60000.0f : 8.0f - mn1);
-#endif
-    }
-#if ZH_SCH
-    const __half2 h1024 = __float2half2_rn(1024.0f);
-#pragma unroll
-    for (int j = 0; j < 32; j++)
-        s[j] = h2u32(__hmax2(__hfma2(u32h2(s[j]), qk8h2, kc[j & 1]), h1024));
-#else
-    // OKC: exact exp. s[j] = f16x2 of 2^(s*c - m + 8), at most 2^8.75 = 430 (e4m3 max 448); masked scores (-inf) give 0
-#pragma unroll
-    for (int j = 0; j < 32; j++)
-        s[j] = ex2_f16x2(h2u32(__hfma2(u32h2(s[j]), qk8h2, kc[j & 1])));
-#endif
-    return moved;
-}
-
-// softmax_sch_a for q_len 1: only row A (q rows g of warp 0) is live; row B registers (token 1, q = 0) hold exact
-// zeros, which pack to e4m3 code 0 (P = 0), so they are left untouched.
-
-// ---- attn-engine bal: wst_ct14b = wst_ct14 (FQ, PBF, in-kernel merge) with the work balanced over the batch (stream-K over requests) ----
-template <int CORE = 0>
-__device__ __forceinline__ void eng_bal_row(const float* __restrict__ ws_acc, const float* __restrict__ ws_m, const float* __restrict__ ws_l,
-                                            long recb, int pst, int r, int dq, int np, float vsc, uint4 graw, float eps,
-                                            __nv_bfloat16* __restrict__ op, unsigned gmask) {
-    // one row, 8 threads x 8 dims: fold np partials (16 per batch, loads in flight together, online merge across batches)
-    float M = -1e30f, Ls = 0.f, a[8];
-#pragma unroll
-    for (int i = 0; i < 8; i++) a[i] = 0.f;
-#pragma unroll 1
-    for (int p0 = 0; p0 < np; p0 += 6) {   // attn-next (bank 16)
-        float mv[6], lv[6];
-        float4 xv[6][2];
-#pragma unroll
-        for (int p = 0; p < 6; p++) {
-            if (p0 + p < np) {
-                const long row = recb + (long)(p0 + p) * pst + r;
-                mv[p] = __ldcg(ws_m + row);
-                lv[p] = __ldcg(ws_l + row);
-                xv[p][0] = ld_part4(ws_acc, row, dq);
-                xv[p][1] = ld_part4(ws_acc, row, dq + 4);
-            } else {
-                mv[p] = -1e30f; lv[p] = 0.f; xv[p][0] = xv[p][1] = make_float4(0.f, 0.f, 0.f, 0.f);
-            }
-        }
-        float Mc = M;
-#pragma unroll
-        for (int p = 0; p < 6; p++) Mc = fmaxf(Mc, mv[p]);
-        const float sc = exp2f(M - Mc);
-        Ls *= sc;
-#pragma unroll
-        for (int i = 0; i < 8; i++) a[i] *= sc;
-        M = Mc;
-#pragma unroll
-        for (int p = 0; p < 6; p++) {
-            const float w = exp2f(mv[p] - M);
-            Ls += lv[p] * w;
-#pragma unroll
-            for (int i = 0; i < 2; i++) {
-                a[4 * i] += w * xv[p][i].x; a[4 * i + 1] += w * xv[p][i].y;
-                a[4 * i + 2] += w * xv[p][i].z; a[4 * i + 3] += w * xv[p][i].w;
-            }
-        }
-    }
-    const float inv = vsc / Ls;
-    float ss = 0.f;
-#pragma unroll
-    for (int i = 0; i < 8; i++) { a[i] *= inv; ss += a[i] * a[i]; }
-    if constexpr (CORE) {   // serving: the riders' pre-norm attention output (no RMSNorm, no gate)
-        uint4 c;
-        unsigned* cu = reinterpret_cast<unsigned*>(&c);
-#pragma unroll
-        for (int i = 0; i < 4; i++) {
-            const __nv_bfloat162 rr = __floats2bfloat162_rn(a[2 * i], a[2 * i + 1]);
-            cu[i] = *reinterpret_cast<const unsigned*>(&rr);
-        }
-        *reinterpret_cast<uint4*>(op) = c;
-        return;
-    }
-#pragma unroll
-    for (int o2 = 1; o2 < 8; o2 <<= 1) ss += __shfl_xor_sync(gmask, ss, o2);   // the row's 8 lanes only
-    const float rn = rsqrtf(ss * (1.0f / 64.f) + eps);
-    const __nv_bfloat162* g = reinterpret_cast<const __nv_bfloat162*>(&graw);
-    uint4 o;
-    unsigned* ou = reinterpret_cast<unsigned*>(&o);
-#pragma unroll
-    for (int i = 0; i < 4; i++) {
-        const float s0 = 1.f / (1.f + __expf(-__bfloat162float(g[i].x))), s1 = 1.f / (1.f + __expf(-__bfloat162float(g[i].y)));
-        const __nv_bfloat162 rr = __floats2bfloat162_rn(a[2 * i] * rn * s0, a[2 * i + 1] * rn * s1);
-        ou[i] = *reinterpret_cast<const unsigned*>(&rr);
-    }
-    *reinterpret_cast<uint4*>(op) = o;
-}
-// one WG: wait until every piece of request fb arrived (its counter is a multiple of 256), then fold rows j + k * nb (16 rows per pass)
-template <int CORE = 0>
-__device__ __forceinline__ void eng_bal_fold(const int* __restrict__ ctr, const float* __restrict__ ws_acc, const float* __restrict__ ws_m,
-                                             const float* __restrict__ ws_l, const __nv_bfloat16* __restrict__ qkv, int qkv_stride,
-                                             int gate_col0, __nv_bfloat16* __restrict__ out, float vsc, float eps,
-                                             int fb, int wg, int j, int nb, int np, long recb, int L, int t128) {
-    const int LG = L * 8;
-    const int nk = j < LG ? (LG - j + nb - 1) / nb : 0;   // rows j + k nb of this folder (WG-uniform); np partials
-    if (nk <= 0) return;
-    const int kk = t128 >> 3, dq = (t128 & 7) * 8;       // 16 rows per pass, 8 threads per row
-    if (t128 == 0) {
-        unsigned v;
-        do { asm volatile("ld.acquire.gpu.global.u32 %0, [%1];" : "=r"(v) : "l"(ctr) : "memory"); } while (v & 255u);
-    }
-    asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");
-    const unsigned gm = 0xffu << (t128 & 24);
-    for (int k = kk; k < nk; k += 16) {
-        const int r = j + k * nb;
-        const long tok_r = (long)fb * L + (r >> 3);
-        const int qcol = (wg * 8 + (r & 7)) * 64 + dq;
-        uint4 graw = make_uint4(0u, 0u, 0u, 0u);
-        if constexpr (!CORE) graw = *reinterpret_cast<const uint4*>(qkv + tok_r * qkv_stride + gate_col0 + qcol);
-        __nv_bfloat16* op = out + tok_r * (16 * 64) + qcol;
-        eng_bal_row<CORE>(ws_acc, ws_m, ws_l, recb, 2 * LG, r, dq, np, vsc, graw, eps, op, gm);
-    }
-}
-template <int NST, int PF, int NPW, int RR, int DEC, int CORE = 0>
-__global__ void __launch_bounds__(256 + 128 * NPW, 1) wst_ct14b(
-    const unsigned char* __restrict__ q8,
-    const unsigned char* __restrict__ vc_,
-    const int* __restrict__ pt,
-    const int* __restrict__ lens,
-    float* __restrict__ ws_acc, float* __restrict__ ws_m, float* __restrict__ ws_l,
-    const float* __restrict__ k_scale,
-    float smqk_log2e, int B, int L, int maxP, int spl, int S, int window,
-    const __nv_bfloat16* __restrict__ qkv = nullptr, int qkv_stride = 0, int gate_col0 = 0,
-    __nv_bfloat16* __restrict__ out = nullptr, int* __restrict__ tickets = nullptr,
-    const float* __restrict__ v_scale = nullptr, const unsigned char* __restrict__ kc_ = nullptr,
-    const long long* __restrict__ cache_loc = nullptr, float rcp_k = 1.f, float rcp_v = 1.f, float eps = 1e-5f)
-{
-    constexpr int PDL = 0, FUSE = 0, EX = 0, MODE = 0, PFL2 = 0, ABL = 0, FQ = CORE ? 0 : 1, PBF = 1;
-    constexpr int NPT = 128 * NPW;               // producer threads
-    constexpr int NWP = 4 * NPW;                 // producer warps
-    constexpr int VP = (128 + 4 * NWP - 1) / (4 * NWP);   // cp.async passes per tile (4 rows per warp per pass; K + V)
-    const int tid = threadIdx.x;
-    const int c = blockIdx.x, G = gridDim.x;
-    const int LG = L * 8;
-
-    extern __shared__ __align__(1024) char smem[];
-    const unsigned sbase = (unsigned)__cvta_generic_to_shared(smem);
-    const unsigned vimg_base = sbase + NST * STG2;      // 2 bufs x 2 heads x 9KB (72-row V^T images)
-    const unsigned mb = vimg_base + 2 * 2 * VIMG9;
-    const unsigned mfull = mb, mempty = mb + NST * 8;
-    int* sP = reinterpret_cast<int*>(smem + NST * STG2 + 4 * VIMG9 + 2 * NST * 8 + 64);   // tile prefix over the batch [B + 1]
-    if (tid < NST) {
-        mbar_init(mfull + tid * 8, NPT);        // every producer's cp.async noinc
-        mbar_init(mempty + tid * 8, 256);       // both consumer WGs
-    }
-    if (tid < 256) {                             // ones row (64) + zero rows (65-71) of all 4 V^T images
-        const int img = tid >> 6, o = (tid & 63) * 16;
-        const unsigned v = o < 128 ? 0x38383838u : 0u;
-        *reinterpret_cast<uint4*>(smem + NST * STG2 + img * VIMG9 + 8192 + o) = make_uint4(v, v, v, v);
-        fence_proxy_async();
-    }
-    if (tid >= 256 && tid < 288) {               // one producer warp: tiles per request from the device-side lengths -> prefix
-        const int ln = tid & 31;
-        int run = 0;
-#pragma unroll 1
-        for (int cb = 0; cb < B; cb += 32) {
-            const int bb = cb + ln;
-            int tl = 0;
-            if (bb < B) { const int sb = lens[bb]; tl = (sb + L - (window ? max(0, sb - window + 1) : 0) + 127) >> 7; }
-            int x = tl;
-#pragma unroll
-            for (int o = 1; o < 32; o <<= 1) { const int y = __shfl_up_sync(0xffffffffu, x, o); if (ln >= o) x += y; }
-            if (bb < B) sP[bb + 1] = run + x;
-            run += __shfl_sync(0xffffffffu, x, 31);
-        }
-        if (ln == 0) sP[0] = 0;
-    }
-    fence_barrier_init();
-    __syncthreads();
-    const int T = sP[B];
-    const int Ge = min(G, T);
-    if (c >= Ge) return;                         // T < G: no tiles here
-    // virtual map: request b = [V(b), V(b + 1)), V(b) = sP[b] + bw b: bw setup units (no tile; a piece start costs about bw tiles of
-    // consumer time) then its tiles; CTA c owns virtual [c W / Ge, (c + 1) W / Ge), W = T + bw B
-    const int bw = spl;
-    const int W = T + bw * B;
-    auto VV = [&](int bb) { return sP[bb] + bw * bb; };
-    auto cof = [&](int v) { return (int)(((long long)(v + 1) * Ge - 1) / W); };   // the CTA holding virtual unit v
-    const int v0 = (int)(((long long)c * W) / Ge), v1 = (int)(((long long)(c + 1) * W) / Ge);
-    int b0, tbs = 0, ntl = 0;
-    {
-        int lo_ = 0, hi_ = B - 1;                // largest b with V(b) <= v0
-        while (lo_ < hi_) { const int mid = (lo_ + hi_ + 1) >> 1; if (VV(mid) <= v0) lo_ = mid; else hi_ = mid - 1; }
-        int bf = -1;
-        for (int bb = lo_; bb < B && VV(bb) + bw < v1; bb++) {
-            const int r0 = VV(bb) + bw, x0 = max(v0, r0), x1 = min(v1, VV(bb + 1));
-            if (x1 > x0) { if (bf < 0) { bf = bb; tbs = x0 - r0; } ntl += x1 - x0; }
-        }
-        b0 = bf;
-    }
-    // achitaan ATP: every active CTA waits before producer/consumer qkv reads.
-    // Dependents may start their prologue now, but their wait still fences the
-    // WHOLE attention grid's completion (including cache writes and the fold).
-    asm volatile("griddepcontrol.wait;" ::: "memory");
-    asm volatile("griddepcontrol.launch_dependents;" ::: "memory");
-    if (ntl == 0) return;                        // only setup units here
-
-    if (tid >= 256) {                            // ---------- producer: K and V rows by cp.async, the CTA's tiles back to back
-        if (NPW == 1) asm volatile("setmaxnreg.dec.sync.aligned.u32 56;" ::: "memory");
-        if (NPW >= 2 && NPW <= 4) asm volatile("setmaxnreg.dec.sync.aligned.u32 40;" ::: "memory");
-        if (NPW >= 5) asm volatile("setmaxnreg.dec.sync.aligned.u32 32;" ::: "memory");
-        const int ptid = tid - 256;
-        const int pw = ptid >> 5, pl = ptid & 31;
-        const int vsub = pl >> 3, vch = pl & 7;     // 4 rows per instruction, 8 lanes per row
-        if (!CORE && ptid < 32 * L) {   // q rows of the later pieces (their q build follows a drain) + gate rows of every piece (fold) -> L2
-            const int isg = ptid >= 16 * L, tq = (isg ? ptid - 16 * L : ptid) >> 4, ln_ = ptid & 15;
-#pragma unroll 1
-            for (int pb = isg ? b0 : b0 + 1; pb < B && VV(pb) + bw < v1; pb++)
-                asm volatile("prefetch.global.L2 [%0];" :: "l"(qkv + ((long)pb * L + tq) * qkv_stride + (isg ? gate_col0 : 0) + ln_ * 64));
-        }
-        int pvs[PF][VP];
-        int sb = b0, st_ = tbs, snt = sP[b0 + 1] - sP[b0];                // stage cursor (request, tile of it)
-        int sseq = lens[b0], sbs = window ? max(0, sseq - window + 1) : 0;
-        int fb = sb, ft = st_, fnt = snt, fseq = sseq, fbase = sbs;        // fetch cursor (runs PF tiles ahead)
-        const int* fprow = pt + (long)fb * maxP;
-        auto fetch = [&](int (&pv)[VP]) {
-            const int p0 = fbase + ft * 128;
-            const int last = fseq + L - 1 - p0;       // >= 0: every tile holds a valid row
-#pragma unroll
-            for (int i = 0; i < VP; i++) {
-                const int r = i * 4 * NWP + pw * 4 + vsub;
-                if (r < 128) pv[i] = fprow[p0 + min(r, last)];
-            }
-            if (++ft == fnt) {
-                ++fb; ft = 0;
-                if (fb < B) { fnt = sP[fb + 1] - sP[fb]; fseq = lens[fb]; fbase = window ? max(0, fseq - window + 1) : 0; fprow = pt + (long)fb * maxP; }
-            }
-        };
-        auto stage = [&](int kt, const int (&pv)[VP]) {
-            const int sl = kt % NST;
-            const int round = kt / NST;
-            if (round > 0) mbar_wait(mempty + sl * 8, (round - 1) & 1);
-            if (MODE == 2) {
-                mbar_arrive(mfull + sl * 8);
-            } else {
-                const unsigned st = sbase + sl * STG2;
-#pragma unroll
-                for (int i = 0; i < VP; i++) {
-                    const int r = i * 4 * NWP + pw * 4 + vsub;
-                    if (r < 128) {
-                        const long src = (long)pv[i] * 128 + vch * 16;
-                        cpa16(st + r * 128 + ((vch ^ (r & 7)) << 4), kc_ + src);
-                        cpa16(st + KIMG + r * 128 + ((vch ^ ((r >> 4) & 7)) << 4), vc_ + src);
-                    }
-                }
-                cpa_mbar_arrive_noinc(mfull + sl * 8);
-            }
-        };
-#pragma unroll
-        for (int u = 0; u < PF; u++) {
-#pragma unroll
-            for (int i = 0; i < VP; i++) pvs[u][i] = 0;
-            if (u < ntl) fetch(pvs[u]);
-        }
-        bool nrdone = false;
-        auto newrows = [&](int nrb) {   // unit = (token, k|v, kv head): 8 lanes x 8 dims; k RMSNorm / scale -> e4m3 -> cache
-            const int nu = ptid >> 3, nd0 = (ptid & 7) * 8;
-            const int ntok = nu >> 2, nisv = (nu >> 1) & 1, nkh = nu & 1;
-            const bool act = nu < 4 * L;
-            float x[8];
-            if (act) {
-                const uint4 raw = *reinterpret_cast<const uint4*>(qkv + ((long)nrb * L + ntok) * qkv_stride
-                                                                  + (16 + 2 * nisv + nkh) * 64 + nd0);
-                const __nv_bfloat162* p2 = reinterpret_cast<const __nv_bfloat162*>(&raw);
-#pragma unroll
-                for (int i = 0; i < 4; i++) { x[2 * i] = __bfloat162float(p2[i].x); x[2 * i + 1] = __bfloat162float(p2[i].y); }
-            } else {
-#pragma unroll
-                for (int i = 0; i < 8; i++) x[i] = 0.f;
-            }
-            float ss = 0.f;
-#pragma unroll
-            for (int i = 0; i < 8; i++) ss += x[i] * x[i];
-            ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-            ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-            ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-            const float sc = nisv ? rcp_v : rsqrtf(ss * (1.0f / 64) + eps) * rcp_k;
-            if (act) {
-                uint2 q8v;
-                q8v.x = (unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[0] * sc, x[1] * sc), __NV_SATFINITE, __NV_E4M3)
-                      | ((unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[2] * sc, x[3] * sc), __NV_SATFINITE, __NV_E4M3) << 16);
-                q8v.y = (unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[4] * sc, x[5] * sc), __NV_SATFINITE, __NV_E4M3)
-                      | ((unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[6] * sc, x[7] * sc), __NV_SATFINITE, __NV_E4M3) << 16);
-                unsigned char* dst = const_cast<unsigned char*>(nisv ? vc_ : kc_) + cache_loc[(long)nrb * L + ntok] * 128 + nkh * 64 + nd0;
-                *reinterpret_cast<uint2*>(dst) = q8v;
-            }
-            __threadfence();
-            asm volatile("bar.sync 8, %0;" :: "r"(NPT) : "memory");   // every producer thread: rows in L2 before staging
-        };
-        for (int kt0 = 0; kt0 < ntl; kt0 += PF) {
-#pragma unroll
-            for (int u = 0; u < PF; u++) {
-                const int kt = kt0 + u;
-                if (kt < ntl) {
-                    if (!CORE && !nrdone && sbs + st_ * 128 + 127 >= sseq) { newrows(sb); nrdone = true; }   // this piece holds new positions
-                    stage(kt, pvs[u]);
-                    if (kt + PF < ntl) fetch(pvs[u]);
-                    if (++st_ == snt) {
-                        ++sb; st_ = 0; nrdone = false;
-                        if (sb < B) { snt = sP[sb + 1] - sP[sb]; sseq = lens[sb]; sbs = window ? max(0, sseq - window + 1) : 0; }
-                    }
-                }
-            }
-        }
-        return;
-    }
-
-    // ---------- consumer warpgroups (WG w = kv head w)
-    if (NPW == 1) asm volatile("setmaxnreg.inc.sync.aligned.u32 216;" ::: "memory");
-    if (NPW == 2) asm volatile("setmaxnreg.inc.sync.aligned.u32 200;" ::: "memory");
-    if (NPW == 3) asm volatile("setmaxnreg.inc.sync.aligned.u32 176;" ::: "memory");
-    if (NPW == 4) asm volatile("setmaxnreg.inc.sync.aligned.u32 160;" ::: "memory");
-    if (NPW == 5) asm volatile("setmaxnreg.inc.sync.aligned.u32 168;" ::: "memory");
-    if (NPW == 6) asm volatile("setmaxnreg.inc.sync.aligned.u32 160;" ::: "memory");
-    const int wg = tid >> 7;
-    const int wiw = (tid >> 5) & 3;
-    const int lane = tid & 31;
-    const int t = lane & 3;
-    const int h = lane >> 2;
-    const int t128 = tid & 127;
-    const int kcv = t128 & 7;                            // 16-key group: lanes 0-7 of each octet
-    const int d0 = 16 * (t128 >> 5) + 4 * ((t128 >> 3) & 3);   // 4-dim window
-    const int cbyte = 64 * wg + d0;
-
-    const float qk2f = k_scale[0] * smqk_log2e;
-    const __half2 qk2h2 = __float2half2_rn(qk2f);
-    const int tok0 = 2 * wiw;
-    int gb = 0;                                  // ring position (CTA-local tile index) of the piece's first tile
-#pragma unroll 1
-    for (int b = b0, tb0 = tbs; b < B && VV(b) + bw < v1; b++, tb0 = 0) {   // pieces: the requests with tiles in [v0, v1)
-    const int tb1 = min(v1, VV(b + 1)) - (VV(b) + bw);
-    if (tb1 <= tb0) continue;
-    const int nst_total = tb1 - tb0;
-    const int seqb = lens[b];
-    const int tot = seqb + L;
-    const int base = window ? max(0, seqb - window + 1) : 0;   // first position token 0 sees
-    const int lo = base + tb0 * 128;
-    const int hi = min(tot, base + tb1 * 128);
-    unsigned qf[8];
-    if constexpr (FQ) {   // dims 16 c4 + 4t .. +3 (c4 = 2 sl2 + hi) of q head 8 wg + h, tokens tok0, tok0 + 1
-        float x[2][16];
-#pragma unroll
-        for (int rr = 0; rr < 2; rr++) {
-            const int tok = tok0 + rr;
-            const __nv_bfloat16* qp = qkv + ((long)b * L + tok) * qkv_stride + (wg * 8 + h) * 64 + 4 * t;
-#pragma unroll
-            for (int c4 = 0; c4 < 4; c4++) {
-                uint2 raw = make_uint2(0u, 0u);
-                if (tok < L) raw = *reinterpret_cast<const uint2*>(qp + 16 * c4);
-                const __nv_bfloat162 u0 = *reinterpret_cast<const __nv_bfloat162*>(&raw.x);
-                const __nv_bfloat162 u1 = *reinterpret_cast<const __nv_bfloat162*>(&raw.y);
-                x[rr][4 * c4 + 0] = __bfloat162float(u0.x); x[rr][4 * c4 + 1] = __bfloat162float(u0.y);
-                x[rr][4 * c4 + 2] = __bfloat162float(u1.x); x[rr][4 * c4 + 3] = __bfloat162float(u1.y);
-            }
-        }
-#pragma unroll
-        for (int rr = 0; rr < 2; rr++) {
-            float ss = 0.f;
-#pragma unroll
-            for (int i = 0; i < 16; i++) ss += x[rr][i] * x[rr][i];
-            ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-            ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-            const float rn = rsqrtf(ss * (1.0f / 64) + eps);
-#pragma unroll
-            for (int sl2 = 0; sl2 < 2; sl2++)
-#pragma unroll
-                for (int hi2 = 0; hi2 < 2; hi2++) {
-                    const int c4 = 2 * sl2 + hi2;
-                    qf[4 * sl2 + rr + 2 * hi2] =
-                        (unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[rr][4 * c4] * rn, x[rr][4 * c4 + 1] * rn), __NV_SATFINITE, __NV_E4M3)
-                        | ((unsigned)__nv_cvt_float2_to_fp8x2(make_float2(x[rr][4 * c4 + 2] * rn, x[rr][4 * c4 + 3] * rn), __NV_SATFINITE, __NV_E4M3) << 16);
-                }
-        }
-    } else {
-#pragma unroll
-    for (int sl2 = 0; sl2 < 2; sl2++)
-#pragma unroll
-        for (int rr = 0; rr < 2; rr++) {
-            const int tok = tok0 + rr;
-            const unsigned char* qp = q8 + (((long)b * L + tok) * 16 + wg * 8 + h) * 64
-                                    + sl2 * 32 + 4 * t;
-            qf[4 * sl2 + rr]     = (tok < L) ? *reinterpret_cast<const unsigned*>(qp) : 0u;
-            qf[4 * sl2 + rr + 2] = (tok < L) ? *reinterpret_cast<const unsigned*>(qp + 16) : 0u;
-        }
-    }
-
-    float m[2] = {M_INIT, M_INIT}, al[2];
-    __half2 kc[2] = {__float2half2_rn(-60000.0f), __float2half2_rn(-60000.0f)};
-    const __half2 qk8h2 = ZH_SCH ? __float2half2_rn(8.0f * qk2f) : qk2h2;   // OKC: exact exp multiplies by c itself
-    float acc[36];
-#pragma unroll
-    for (int i = 0; i < 36; i++) acc[i] = 0.f;
-    float alc[2] = {1.f, 1.f};   // serving: lazy rescales since the last fold (rows A, B)
-    bool fl = false;
-    float* const fsm = reinterpret_cast<float*>(smem + (NST * STG2 + 4 * VIMG9 + 2 * NST * 8 + 64 + ((4 * (B + 1) + 15) & ~15))) + wg * 128 + t128;
-    unsigned sv[32] = {}, pk[16] = {};
-
-    const int vA = min(hi - 1, seqb + tok0);
-    const int vB = min(hi - 1, seqb + tok0 + 1);
-    const int wA = window ? (seqb + tok0 - window + 1) : -0x40000000;      // sliding lower bounds
-    const int wB = window ? (seqb + tok0 + 2 - window) : -0x40000000;
-    if (nst_total > 0) {   // FA3 order (prefill owner's fmha4): nothing pending across a back edge or branch merge
-        unsigned voff[16], vsto[4];
-#pragma unroll
-        for (int ww = 0; ww < 4; ww++)
-#pragma unroll
-            for (int q = 0; q < 4; q++) {
-                const int lamb = kcv * 16 + ww * 4;
-                const int kk = ((lamb + q) & ~31) | pi_lane((lamb + q) & 31);
-                voff[4 * ww + q] = KIMG + kk * 128 + ((((cbyte >> 4) ^ ((kk >> 4) & 7)) << 4) | (cbyte & 15));
-            }
-#pragma unroll
-        for (int rr = 0; rr < 4; rr++) vsto[rr] = (d0 + rr) * 128 + ((kcv ^ ((d0 + rr) & 7)) << 4);
-        fence_ubank(voff);
-        fence_ubank(vsto);
-        const unsigned long long dq0 = make_desc_sw128(sbase + 64 * wg);
-        const unsigned long long dv0 = make_desc_sw128(vimg_base + wg * VIMG9);
-        auto qk_issue = [&](unsigned (&s_)[32], int kt) {
-            if (ABL & 64) return;
-            const unsigned long long dq = dq0 + (unsigned long long)(((gb + kt) % NST) * (STG2 >> 4));
-            wgmma_fence();
-            wgmma_qkw(s_, qf, dq);
-            wgmma_qk<1>(s_, qf + 4, dq + 2);
-            wgmma_commit();
-        };
-        auto pv_issue = [&](int kt) {
-            if (ABL & 4) return;
-            const unsigned long long dv = dv0 + (unsigned long long)(((gb + kt) & 1) * (2 * VIMG9 >> 4));
-            fence_fbank(acc);
-            fence_ubank(pk);
-            wgmma_fence();
-#pragma unroll
-            for (int js = 0; js < 4; js++) wgmma_pv72(acc, pk + 4 * js, dv + 2 * js);
-            wgmma_commit();
-        };
-        auto vtrans = [&](int kt) {   // own V half of tile kt: raw (SW128) -> V^T image (gb + kt) & 1
-            if (ABL & 1) {
-                if (!(ABL & 4096)) fence_proxy_async();
-                if (!(ABL & 8192)) asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");
-                return;
-            }
-            const char* rb = smem + ((gb + kt) % NST) * STG2;
-            unsigned w[4][4];
-#pragma unroll
-            for (int ww = 0; ww < 4; ww++) {
-                unsigned lv[4];
-#pragma unroll
-                for (int q = 0; q < 4; q++) lv[q] = *reinterpret_cast<const unsigned*>(rb + voff[4 * ww + q]);
-                const unsigned t0 = prmt(lv[0], lv[1], 0x5140);
-                const unsigned t1 = prmt(lv[0], lv[1], 0x7362);
-                const unsigned t2 = prmt(lv[2], lv[3], 0x5140);
-                const unsigned t3 = prmt(lv[2], lv[3], 0x7362);
-                w[ww][0] = prmt(t0, t2, 0x5410);
-                w[ww][1] = prmt(t0, t2, 0x7632);
-                w[ww][2] = prmt(t1, t3, 0x5410);
-                w[ww][3] = prmt(t1, t3, 0x7632);
-            }
-            char* vimg = smem + NST * STG2 + (((gb + kt) & 1) * 2 + wg) * VIMG9;
-#pragma unroll
-            for (int rr = 0; rr < 4; rr++)
-                *reinterpret_cast<uint4*>(vimg + vsto[rr]) = make_uint4(w[0][rr], w[1][rr], w[2][rr], w[3][rr]);
-            fence_proxy_async();
-            asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");
-        };
-        bool resc = false;
-        auto sm_a = [&](unsigned (&s_)[32], int kt) {   // mask, max, lazy reference, e4m3 codes in place
-            const int p0 = lo + kt * 128;
-            const int limA = vA - p0, limB = vB - p0;
-            const int lowA = wA - p0, lowB = wB - p0;
-            const int diag = (limA < 127) | (limB < 127);
-            const int wdiag = (lowA > 0) | (lowB > 0);
-            if (wdiag) mask_lohi(s_, limA, limB, lowA, lowB, t);
-            resc = softmax_sch_a(s_, m, al, kc, qk2f, qk8h2, diag & !wdiag, limA, limB, t);
-        };
-        auto sm_b = [&](unsigned (&s_)[32]) {   // after PV(kt-1): rescale acc, pack the codes as the next A operand
-            if (resc) {
-#pragma unroll
-                for (int j = 0; j < 9; j++) {
-                    acc[4 * j]     *= al[0]; acc[4 * j + 1] *= al[0];
-                    acc[4 * j + 2] *= al[1]; acc[4 * j + 3] *= al[1];
-                    if (j < 1) { alc[0] *= al[0]; alc[1] *= al[1]; }
-                }
-            }
-#pragma unroll
-            for (int js = 0; js < 4; js++) {
-#if ZH_SCH
-                pk[4 * js]     = prmt(s_[8 * js],     s_[8 * js + 2], 0x6420);
-                pk[4 * js + 1] = prmt(s_[8 * js + 1], s_[8 * js + 3], 0x6420);
-                pk[4 * js + 2] = prmt(s_[8 * js + 4], s_[8 * js + 6], 0x6420);
-                pk[4 * js + 3] = prmt(s_[8 * js + 5], s_[8 * js + 7], 0x6420);
-#else   // OKC: the f16 exps -> e4m3 pairs (cvt.rn.satfinite), two per register half
-                pk[4 * js]     = (unsigned)cvt_e4m3x2(s_[8 * js])     | ((unsigned)cvt_e4m3x2(s_[8 * js + 2]) << 16);
-                pk[4 * js + 1] = (unsigned)cvt_e4m3x2(s_[8 * js + 1]) | ((unsigned)cvt_e4m3x2(s_[8 * js + 3]) << 16);
-                pk[4 * js + 2] = (unsigned)cvt_e4m3x2(s_[8 * js + 4]) | ((unsigned)cvt_e4m3x2(s_[8 * js + 6]) << 16);
-                pk[4 * js + 3] = (unsigned)cvt_e4m3x2(s_[8 * js + 5]) | ((unsigned)cvt_e4m3x2(s_[8 * js + 7]) << 16);
-#endif
-            }
-        };
-        const bool live = !DEC || tok0 < L;      // DEC (q_len 1): a warp whose 16 q rows are all tokens >= L skips
-        {   // kt = 0                               // the softmax (its P stays 0)
-            unsigned s0[32];
-            mbar_wait(mfull + (gb % NST) * 8, (gb / NST) & 1);
-            fence_proxy_async();                    // K landed by cp.async (generic proxy) -> wgmma reads
-            qk_issue(s0, 0);
-            vtrans(0);
-            wgmma_wait<0>();
-            fence_ubank(s0);
-            mbar_arrive(mempty + (gb % NST) * 8);
-            if (live) {
-                sm_a(s0, 0);
-                sm_b(s0);
-            }
-        }
-        if (RR && nst_total > 1 && wg == 1) asm volatile("bar.arrive 6, 256;" ::: "memory");   // WG0 issues first
-        for (int kt = 1; kt < nst_total; kt++) {
-            const int sl_ = (gb + kt) % NST;
-            unsigned s1[32];
-            mbar_wait(mfull + sl_ * 8, ((gb + kt) / NST) & 1);
-            if (!(ABL & 8)) fence_proxy_async();
-            if (RR) asm volatile("bar.sync %0, 256;" :: "r"(6 + wg) : "memory");
-            qk_issue(s1, kt);
-            if ((kt & 15) == 0) {   // serving: fp32 fold, the wgmma accumulator restarts at 0
-#pragma unroll
-                for (int i = 0; i < 36; i++) {
-                    float* const p_ = fsm + i * 256;
-                    *p_ = fl ? fmaf(*p_, alc[(i >> 1) & 1], acc[i]) : acc[i];
-                    acc[i] = 0.f;
-                }
-                alc[0] = 1.f; alc[1] = 1.f; fl = true;
-            }
-            pv_issue(kt - 1);
-            if (RR) asm volatile("bar.arrive %0, 256;" :: "r"(6 + (wg ^ 1)) : "memory");
-            vtrans(kt);
-            wgmma_wait<1>();
-            fence_ubank(s1);
-            mbar_arrive(mempty + sl_ * 8);          // K read, raw V transposed
-            if (live && !(ABL & 2)) sm_a(s1, kt);
-            fence_ubank(s1);                        // codes done before the PV(kt-1) wait (overlap the PV wgmma)
-            wgmma_wait<0>();
-            fence_fbank(acc);
-            fence_ubank(pk);
-            if (live && !(ABL & 2)) sm_b(s1);
-        }
-        if (RR && nst_total > 1 && wg == 0) asm volatile("bar.sync 6, 256;" ::: "memory");   // WG1's last arrive
-        pv_issue(nst_total - 1);
-        wgmma_wait<0>();
-        if (fl) {
-#pragma unroll
-            for (int i = 0; i < 36; i++) acc[i] = fmaf(fsm[i * 256], alc[(i >> 1) & 1], acc[i]);
-        }
-    }
-    fence_ubank(pk);
-    fence_fbank(acc);
-    {   // attn-engine bal: this piece's bf16 O partial -> slot c + b (staged in this WG's idle V^T image), then arrive on (b, kv head)
-        const long pbase = ((long)(c + b) * 2 + wg) * LG;
-#if OKC_WST_ACC32   // serving: fp32 O partial, one 8-B store per column pair from the accumulators
-#pragma unroll
-        for (int rr = 0; rr < 2; rr++) {
-            const int tok = tok0 + rr;
-            if (tok >= L) continue;
-            const long row = pbase + tok * 8 + h;
-            if (t == 0) {
-                ws_m[row] = m[rr];
-                ws_l[row] = acc[32 + 2 * rr];
-            }
-            float* op = ws_acc + row * 64 + 2 * t;
-#pragma unroll
-            for (int j = 0; j < 8; j++)
-                *reinterpret_cast<float2*>(op + 8 * j) = make_float2(acc[4 * j + 2 * rr], acc[4 * j + 2 * rr + 1]);
-        }
-#else
-        char* stg = smem + NST * STG2 + wg * VIMG9;
-#pragma unroll
-        for (int rr = 0; rr < 2; rr++) {
-            const int tok = tok0 + rr;
-            if (tok >= L) continue;
-            const int r = tok * 8 + h;
-#pragma unroll
-            for (int j = 0; j < 8; j++)
-                *reinterpret_cast<__nv_bfloat162*>(stg + r * 144 + (8 * j + 2 * t) * 2) =
-                    __floats2bfloat162_rn(acc[4 * j + 2 * rr], acc[4 * j + 2 * rr + 1]);
-            if (t == 0) {
-                const long row = pbase + r;
-                ws_m[row] = m[rr];
-                ws_l[row] = acc[32 + 2 * rr];
-            }
-        }
-        asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");
-        __nv_bfloat16* gdst = reinterpret_cast<__nv_bfloat16*>(ws_acc) + pbase * 64;
-        for (int i = t128; i < LG * 8; i += 128) {
-            const int r = i >> 3, cc = i & 7;
-            *reinterpret_cast<uint4*>(gdst + r * 64 + cc * 8) = *reinterpret_cast<const uint4*>(stg + r * 144 + cc * 16);
-        }
-        asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");   // staging reads done (the arrive waits for the CTA's last piece)
-        // the staging overwrote rows 64-71 of this image (ones row + zero rows): restore them for the next piece's PV
-        *reinterpret_cast<uint2*>(stg + 8192 + t128 * 8) = t128 < 16 ? make_uint2(0x38383838u, 0x38383838u) : make_uint2(0u, 0u);
-        fence_proxy_async();
-#endif
-    }
-    gb += nst_total;
-    }   // pieces
-    asm volatile("bar.sync %0, 128;" :: "r"(4 + wg) : "memory");   // every partial + m / l store of this WG issued
-    if (t128 == 0) {   // one release for all pieces, then the per-request arrivals (+1, last piece + 256 - n_b + 1)
-        asm volatile("fence.acq_rel.gpu;" ::: "memory");
-#pragma unroll 1
-        for (int ab = b0; ab < B && VV(ab) + bw < v1; ab++) {
-            if (min(v1, VV(ab + 1)) <= max(v0, VV(ab) + bw)) continue;   // no tiles of ab here
-            const int cf = cof(VV(ab) + bw), cl = cof(VV(ab + 1) - 1);
-            const unsigned inc = c == cl ? (unsigned)(256 - (cl - cf + 1) + 1) : 1u;
-            asm volatile("red.relaxed.gpu.global.add.u32 [%0], %1;" :: "l"(tickets + ab * 2 + wg), "r"(inc) : "memory");
-        }
-    }
-    const float vsc = v_scale[0];
-#pragma unroll 1
-    for (int fb = b0; fb < B && VV(fb) + bw < v1; fb++) {   // fold: the interior pieces of each request (1-piece CTAs) fold its rows
-        if (min(v1, VV(fb + 1)) <= max(v0, VV(fb) + bw)) continue;
-        const int cf = cof(VV(fb) + bw), cl = cof(VV(fb + 1) - 1);
-        const int nb = cl - cf + 1, j = c - cf;
-        const int jlo = nb >= 3 ? 1 : 0, jhi = nb >= 3 ? nb - 2 : nb - 1;
-        if (j < jlo || j > jhi) continue;
-        eng_bal_fold<CORE>(tickets + fb * 2 + wg, ws_acc, ws_m, ws_l, qkv, qkv_stride, gate_col0, out, vsc, eps, fb, wg, j - jlo, jhi - jlo + 1, nb,
-                     ((long)(cf + fb) * 2 + wg) * LG, L, t128);
-    }
-}
-
-
-// achitaan ATP: host-only launch policy, set from _pdl(T) before each call.
-static int atp_pdl = 0;
-void atp_set_pdl(int64_t on) { atp_pdl = on ? 1 : 0; }
-
-template <int NST, int PF = 2, int NPW = 4, int RR = 1, int CORE = 0>
-static void launch_ct14b(int G, cudaStream_t stream,
-                         const unsigned char* vcp, const unsigned char* kcp, const int* pt, const int* lens,
-                         float* wa, float* wm, float* wl, const float* ks, float smqk, int B, int L, int maxP, int window, int bw,
-                         const __nv_bfloat16* qkv, int qkv_stride, const long long* cache_loc, float rcp_k, float rcp_v, float eps,
-                         __nv_bfloat16* out, int* tick, const float* vs, const unsigned char* q8 = nullptr) {
-    auto f0 = wst_ct14b<NST, PF, NPW, RR, 0, CORE>;
-    TORCH_CHECK(L > 1, "wst_attn_bal: q_len 1 is not built");
-    const int smem = NST * STG2 + 4 * VIMG9 + 2 * NST * 8 + 64 + ((4 * (B + 1) + 15) & ~15) + 36864;   // + the step-7 fold copy
-    static int set = 0;
-    if (smem > set) {
-        cudaFuncSetAttribute(f0, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
-        set = smem;
-    }
-    cudaLaunchConfig_t cfg = {};
-    cfg.gridDim = dim3((unsigned)G, 1, 1);
-    cfg.blockDim = dim3(256 + 128 * NPW, 1, 1);
-    cfg.dynamicSmemBytes = smem;
-    cfg.stream = stream;
-    cudaLaunchAttribute attr[2];  // achitaan ATP: preserve cooperative + add PDL
-    attr[0].id = cudaLaunchAttributeCooperative;   // the in-kernel merge waits on other CTAs: co-residency guaranteed (or an error)
-    attr[0].val.cooperative = 1;
-    cfg.attrs = attr;
-    attr[1].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-    attr[1].val.programmaticStreamSerializationAllowed = atp_pdl;
-    cfg.numAttrs = 2;  // achitaan ATP
-    cudaError_t e = cudaLaunchKernelEx(&cfg, f0, q8, vcp, pt, lens, wa, wm, wl, ks, smqk,
-                                       B, L, maxP, bw, G, window, qkv, qkv_stride, (16 + 2 * 2) * 64, out, tick, vs, kcp, cache_loc,
-                                       rcp_k, rcp_v, eps);
-    if (e != cudaSuccess) throw std::runtime_error(cudaGetErrorString(e));
-}
-// attn-engine bal: the fulls balanced over the batch (wst_ct14b, G co-resident CTAs, in-kernel merge)
-void wst_attn_bal(torch::Tensor qkv, torch::Tensor k_cache, torch::Tensor v_cache, torch::Tensor page_table,
-                  torch::Tensor seq_lens, torch::Tensor cache_loc, torch::Tensor ws_acc, torch::Tensor ws_m,
-                  torch::Tensor ws_l, torch::Tensor k_scale, double smqk_log2e, int64_t B, int64_t L, int64_t maxP,
-                  int64_t G, int64_t window, int64_t bw, double rcp_k, double rcp_v, double eps,
-                  torch::Tensor out, torch::Tensor tickets, torch::Tensor v_scale) {
-    auto stream = at::cuda::getCurrentCUDAStream();
-    launch_ct14b<4, 2, 4, 1>((int)G, stream, reinterpret_cast<const unsigned char*>(v_cache.data_ptr()),
-                             reinterpret_cast<const unsigned char*>(k_cache.data_ptr()), page_table.data_ptr<int>(),
-                             seq_lens.data_ptr<int>(), reinterpret_cast<float*>(ws_acc.data_ptr()), ws_m.data_ptr<float>(),
-                             ws_l.data_ptr<float>(), k_scale.data_ptr<float>(), (float)smqk_log2e, (int)B, (int)L, (int)maxP,
-                             (int)window, (int)bw, reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()), (int)qkv.stride(0),
-                             reinterpret_cast<const long long*>(cache_loc.data_ptr()), (float)rcp_k, (float)rcp_v, (float)eps,
-                             reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), tickets.data_ptr<int>(), v_scale.data_ptr<float>());
-}
-"""
-
-
-_ATP_ZH_VFG_CUDA = r"""// ZhimaoL/sglang okc_patch/_cuda_src_vfg.py (Apache-2.0), verbatim except the edits marked "OKC:".
-// ZH_SCH=1 keeps his piecewise-linear (Schraudolph) P codes; the default computes the VP2 tile's P with the exact exp.
-#ifndef ZH_SCH
-#define ZH_SCH 0
-#endif
-#include <cuda.h>
-#include <cudaTypedefs.h>
-#include <cuda_runtime.h>
-#include <cuda_bf16.h>
-#include <cuda_fp16.h>
-#include <cuda_fp8.h>
-#include <cooperative_groups.h>
-#include <stdint.h>
-#include <stdexcept>
-namespace cg = cooperative_groups;
-#define V_ST 5
-#define V_GRAN 128
-#define V_TH 8.0f
-#define V_PROF 0
-#define V_ABL 0
-#define V_CL2 1
-#define V_SCL 0
-#define V_NK2 1
-#define V_CL3 1
-#define V_NK3 1
-#define V_IS 2
-#define V_POG 72
-#define V_PBF 0
-#define V_MLS 1
-#define V_FA3 5
-#define V_FA3_PROF 0
-#define V_FA3_VLATE 0
-#define V_FA3_PROF2 0
-#define V_FA3_NOPRO 0
-#define V_FA3_PREDBG 0
-#define V_FA3_EDUM 0
-#define V_FA3_VSSS 3
-#define V_FA3_SVIS 1
-
-// achitaan ATP: host-only launch policy, set from _pdl(T) before each call.
-static int atp_pdl = 0;
-void atp_set_pdl(int64_t on) { atp_pdl = on ? 1 : 0; }
-
-namespace vfgns {
-#define V_ABL 0
-#define V_CL2 1
-#define V_CL3 1
-#define V_CL4 0
-#define V_DLA 2
-#define V_DYN 0
-#define V_FA3 5
-#define V_FA3_EDUM 0
-#define V_FA3_NOPRO 0
-#define V_FA3_PREDBG 0
-#define V_FA3_PROF 0
-#define V_FA3_PROF2 0
-#define V_FA3_SVIS 1
-#define V_FA3_VLATE 0
-#define V_FA3_VSSS 3
-#define V_FM3 0
-#define V_FMASK 0
-#define V_FUSEDM 0
-#define V_GPF 0
-#define V_GRAN 128
-#define V_IS 2
-#define V_LS 0
-#define V_MINB 1
-#define V_MLS 1
-#define V_MRG2 0
-#define V_NK2 1
-#define V_NK3 1
-#define V_NKE 0
-#define V_P2 0
-#define V_PBF 0
-#define V_PDL 0
-#define V_POG 72
-#define V_PROF 0
-#define V_PROF2 0
-#define V_PROF3 0
-#define V_RR 0
-#define V_SCL 0
-#define V_ST 5
-#define V_TH 8
-#define V_TTAIL 0
-
-namespace cg = cooperative_groups;
-
-#define V_CLB 1216
-#define V_NT (256 + (V_DYN ? 32 : 0))
-#define V_L 8
-#define V_HQ 16
-#define V_HKV 2
-#define V_D 64
-#define V_QKVW ((2 * V_HQ + 2 * V_HKV) * V_D)
-#define V_PO 68
-#define V_PREC (V_PBF ? 40 : V_POG)
-#define V_MOFF (V_PBF ? 32 : V_D)
-#define V_MINIT (-1.0e30f)
-#define V_TILE 16384
-
-struct VSmem {
-  uint8_t kt[V_ST][V_TILE];
-  uint8_t vt[V_ST][V_TILE];
-  uint8_t nk[4096];
-  uint8_t nv[4096];
-  uint8_t pt[2][2][8192];
-  float al[2][64];
-  float al2[2][2][64];
-  unsigned long long mbm;
-  unsigned long long dfull[V_ST], dempty[V_ST];
-  int tix[V_ST];
-};
-
-__device__ __forceinline__ uint32_t v_u32(const void* p) { return (uint32_t)__cvta_generic_to_shared(p); }
-__device__ __forceinline__ unsigned long long v_now() {
-  unsigned long long t;
-  asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
-  return t;
-}
-__device__ __forceinline__ void v_cpa16(void* dst, const void* src) {
-  asm volatile("cp.async.cg.shared.global [%0], [%1], 16;" :: "r"(v_u32(dst)), "l"(src) : "memory");
-}
-__device__ __forceinline__ void v_fence_async() { asm volatile("fence.proxy.async.shared::cta;" ::: "memory"); }
-__device__ __forceinline__ void v_wgbar(int h) { asm volatile("bar.sync %0, 128;" :: "r"(2 + h) : "memory"); }
-__device__ __forceinline__ void v_allbar() { asm volatile("bar.sync 1, 256;" ::: "memory"); }
-__device__ __forceinline__ bool v_wgbar_or(int h, bool v) {
-  uint32_t r;
-  asm volatile("{\n .reg .pred p, q;\n setp.ne.u32 q, %1, 0;\n bar.red.or.pred p, %2, 128, q;\n selp.u32 %0, 1, 0, p;\n}\n"
-               : "=r"(r) : "r"((uint32_t)v), "r"(2 + h) : "memory");
-  return r != 0;
-}
-__device__ __forceinline__ float v_ex2(float x) {
-  float y;
-  asm("ex2.approx.ftz.f32 %0, %1;" : "=f"(y) : "f"(x));
-  return y;
-}
-// OKC: exact exp2 on a packed f16 pair and the f16x2 -> e4m3x2 conversion (P codes)
-__device__ __forceinline__ uint32_t v_ex2h2(uint32_t x) {
-  uint32_t r;
-  asm("ex2.approx.f16x2 %0, %1;" : "=r"(r) : "r"(x));
-  return r;
-}
-__device__ __forceinline__ uint32_t v_cvt_e4m3x2h(uint32_t h2) {
-  unsigned short r;
-  asm("cvt.rn.satfinite.e4m3x2.f16x2 %0, %1;" : "=h"(r) : "r"(h2));
-  return (uint32_t)r;
-}
-__device__ __forceinline__ uint32_t v_prmt(uint32_t a, uint32_t b, uint32_t sel) {
-  uint32_t r;
-  asm("prmt.b32 %0, %1, %2, %3;" : "=r"(r) : "r"(a), "r"(b), "r"(sel));
-  return r;
-}
-
-__device__ __forceinline__ uint32_t v_e4m3x2(float lo, float hi) {
-  return (uint32_t)__nv_cvt_float2_to_fp8x2(make_float2(lo, hi), __NV_SATFINITE, __NV_E4M3);
-}
-__device__ __forceinline__ float2 v_e4m3x2_dec(uint32_t two) {
-  __half2_raw const h = __nv_cvt_fp8x2_to_halfraw2((__nv_fp8x2_storage_t)(two & 0xFFFFu), __NV_E4M3);
-  return __half22float2(*reinterpret_cast<const __half2*>(&h));
-}
-__device__ __forceinline__ void v_ldsm4t(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& d, uint32_t addr) {
-  asm volatile("ldmatrix.sync.aligned.m8n8.x4.trans.shared.b16 {%0,%1,%2,%3}, [%4];\n"
-               : "=r"(a), "=r"(b), "=r"(c), "=r"(d) : "r"(addr));
-}
-__device__ __forceinline__ void v_sincos(float ang, float* sn, float* cs) {
-  double const a = (double)ang;
-  float const r = (float)(a - 6.283185307179586 * floor(a * 0.15915494309189535 + 0.5));
-  __sincosf(r, sn, cs);
-}
-__device__ __forceinline__ unsigned long long v_desc(uint32_t saddr) {
-  return (unsigned long long)((saddr >> 4) & 0x3FFF) | (1ull << 16) | ((unsigned long long)(1024 >> 4) << 32) | (1ull << 62);
-}
-__device__ __forceinline__ void wg_fence() { asm volatile("wgmma.fence.sync.aligned;" ::: "memory"); }
-__device__ __forceinline__ void wg_commit() { asm volatile("wgmma.commit_group.sync.aligned;" ::: "memory"); }
-__device__ __forceinline__ void wg_wait0() { asm volatile("wgmma.wait_group.sync.aligned 0;" ::: "memory"); }
-template <int N> __device__ __forceinline__ void wg_wait() { asm volatile("wgmma.wait_group.sync.aligned %0;" :: "n"(N) : "memory"); }
-
-template <int N> __device__ __forceinline__ void v_fence_f32(float (&x)[N]) {
-#pragma unroll
-  for (int i = 0; i < N; i++) asm volatile("" : "+f"(x[i]) :: "memory");
-}
-template <int N> __device__ __forceinline__ void v_fence_u32(uint32_t (&x)[N]) {
-#pragma unroll
-  for (int i = 0; i < N; i++) asm volatile("" : "+r"(x[i]) :: "memory");
-}
-__device__ __forceinline__ void v_fence_u16(uint32_t (&x)[4][4]) {
-#pragma unroll
-  for (int i = 0; i < 4; i++)
-#pragma unroll
-    for (int j = 0; j < 4; j++) asm volatile("" : "+r"(x[i][j]) :: "memory");
-}
-
-#define V_QK16_OUT "{%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30,%31}"
-
-__device__ __forceinline__ void wg_qk16_0(uint32_t (&d)[32], const uint32_t (&a)[4], unsigned long long db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, 0, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n128k32.f16.e4m3.e4m3\n" V_QK16_OUT ", {%32,%33,%34,%35}, %36, p, 1, 1;\n}\n"
-      : "=r"(d[0]), "=r"(d[1]), "=r"(d[2]), "=r"(d[3]), "=r"(d[4]), "=r"(d[5]), "=r"(d[6]), "=r"(d[7]),
-        "=r"(d[8]), "=r"(d[9]), "=r"(d[10]), "=r"(d[11]), "=r"(d[12]), "=r"(d[13]), "=r"(d[14]), "=r"(d[15]),
-        "=r"(d[16]), "=r"(d[17]), "=r"(d[18]), "=r"(d[19]), "=r"(d[20]), "=r"(d[21]), "=r"(d[22]), "=r"(d[23]),
-        "=r"(d[24]), "=r"(d[25]), "=r"(d[26]), "=r"(d[27]), "=r"(d[28]), "=r"(d[29]), "=r"(d[30]), "=r"(d[31])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db));
-}
-__device__ __forceinline__ void wg_qk16_1(uint32_t (&d)[32], const uint32_t (&a)[4], unsigned long long db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, 1, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n128k32.f16.e4m3.e4m3\n" V_QK16_OUT ", {%32,%33,%34,%35}, %36, p, 1, 1;\n}\n"
-      : "+r"(d[0]), "+r"(d[1]), "+r"(d[2]), "+r"(d[3]), "+r"(d[4]), "+r"(d[5]), "+r"(d[6]), "+r"(d[7]),
-        "+r"(d[8]), "+r"(d[9]), "+r"(d[10]), "+r"(d[11]), "+r"(d[12]), "+r"(d[13]), "+r"(d[14]), "+r"(d[15]),
-        "+r"(d[16]), "+r"(d[17]), "+r"(d[18]), "+r"(d[19]), "+r"(d[20]), "+r"(d[21]), "+r"(d[22]), "+r"(d[23]),
-        "+r"(d[24]), "+r"(d[25]), "+r"(d[26]), "+r"(d[27]), "+r"(d[28]), "+r"(d[29]), "+r"(d[30]), "+r"(d[31])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db));
-}
-
-__device__ __forceinline__ void wg_qk4_0(uint32_t (&d)[8], const uint32_t (&a)[4], unsigned long long db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, 0, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n32k32.f16.e4m3.e4m3\n{%0,%1,%2,%3,%4,%5,%6,%7}, {%8,%9,%10,%11}, %12, p, 1, 1;\n}\n"
-      : "=r"(d[0]), "=r"(d[1]), "=r"(d[2]), "=r"(d[3]), "=r"(d[4]), "=r"(d[5]), "=r"(d[6]), "=r"(d[7])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db));
-}
-__device__ __forceinline__ void wg_qk4_1(uint32_t (&d)[8], const uint32_t (&a)[4], unsigned long long db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, 1, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n32k32.f16.e4m3.e4m3\n{%0,%1,%2,%3,%4,%5,%6,%7}, {%8,%9,%10,%11}, %12, p, 1, 1;\n}\n"
-      : "+r"(d[0]), "+r"(d[1]), "+r"(d[2]), "+r"(d[3]), "+r"(d[4]), "+r"(d[5]), "+r"(d[6]), "+r"(d[7])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db));
-}
-__device__ __forceinline__ __half2 v_h2(uint32_t v) { return *reinterpret_cast<__half2*>(&v); }
-__device__ __forceinline__ uint32_t v_u(__half2 v) { return *reinterpret_cast<uint32_t*>(&v); }
-
-__device__ __forceinline__ void wg_pv(float (&d)[32], const uint32_t (&a)[4], unsigned long long db) {
-  asm volatile(
-      "{\n.reg .pred p;\nsetp.ne.b32 p, %37, 0;\n"
-      "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3\n"
-      "{%0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,"
-      "%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30,%31},"
-      "{%32,%33,%34,%35}, %36, p, 1, 1;\n}\n"
-      : "+f"(d[0]), "+f"(d[1]), "+f"(d[2]), "+f"(d[3]), "+f"(d[4]), "+f"(d[5]), "+f"(d[6]), "+f"(d[7]),
-        "+f"(d[8]), "+f"(d[9]), "+f"(d[10]), "+f"(d[11]), "+f"(d[12]), "+f"(d[13]), "+f"(d[14]), "+f"(d[15]),
-        "+f"(d[16]), "+f"(d[17]), "+f"(d[18]), "+f"(d[19]), "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]),
-        "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
-      : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "l"(db), "n"(1));
-}
-
-template <bool SLIDE, bool CL, bool SCLT = false>
-__global__ void __launch_bounds__(V_NT, V_MINB)
-vfg_kernel(const __nv_bfloat16* __restrict__ qkv, const int* __restrict__ page_table, int pt_stride,
-           const int* __restrict__ seq_lens, const long long* __restrict__ cache_loc,
-           uint8_t* __restrict__ k_cache, uint8_t* __restrict__ v_cache, const float* __restrict__ inv_freq,
-           int window, float c2, float k_rscale, float v_rscale, float eps, float* __restrict__ ws,
-           unsigned long long* __restrict__ dbgp, __nv_bfloat16* __restrict__ out, float v_scale,
-           unsigned int* __restrict__ tick) {
-  extern __shared__ uint8_t smem_raw[];
-  VSmem& sm = *reinterpret_cast<VSmem*>(smem_raw + ((1024u - (v_u32(smem_raw) & 1023u)) & 1023u));
-  int const s = (int)blockIdx.x, NS = (int)gridDim.x, b = (int)blockIdx.y;
-  int const tid = threadIdx.x, lane = tid & 31;
-  int const h = tid >> 7;
-  int const w = (tid >> 5) & 3;
-  int const g = lane >> 2, t = lane & 3;
-  bool const ntcta = (s == NS - 1);
-#define V_STAMP(i) do { if (dbgp && tid == 0) dbgp[((long long)b * NS + s) * 8 + (i)] = v_now(); } while (0)
-  unsigned long long pacc[8] = {0, 0, 0, 0, 0, 0, 0, 0}, pclk = 0;
-#define V_PH(i) do { } while (0)
-#define V_PH0() do { } while (0)
-  V_STAMP(0);
-  __nv_bfloat162 gpre = __float2bfloat162_rn(0.f);
-  int const seq = seq_lens[b];
-  int const lo = SLIDE ? max(0, seq - window + 1) : 0;
-  int const n = seq - lo;
-  int const chunk = (((n + NS - 1) / NS) + V_GRAN - 1) / V_GRAN * V_GRAN;
-  int const p0 = min(seq, lo + s * chunk), p1 = min(seq, p0 + chunk);
-  int const ntiles = (p1 - p0 + 127) >> 7;
-  const int* ptb = page_table + (long long)b * pt_stride;
-
-  uint2 qraw[2][4];
-#pragma unroll
-  for (int e = 0; e < 2; e++) {
-    const __nv_bfloat16* qp = qkv + ((long long)b * V_L + 2 * w + e) * V_QKVW + (8 * h + g) * V_D;
-#pragma unroll
-    for (int c4 = 0; c4 < 4; c4++) qraw[e][c4] = *reinterpret_cast<const uint2*>(qp + 16 * c4 + 4 * t);
-  }
-  int const nu = tid >> 3, nd0 = (tid & 7) * 8;
-  int const ntok = nu >> 2, nisv = (nu >> 1) & 1, nkh = nu & 1;
-  uint4 nraw = make_uint4(0u, 0u, 0u, 0u);
-  long long ncrow = 0;
-  if (ntcta) {
-    nraw = *reinterpret_cast<const uint4*>(qkv + ((long long)b * V_L + ntok) * V_QKVW + (V_HQ + nisv * V_HKV + nkh) * V_D + nd0);
-    ncrow = cache_loc[(long long)b * V_L + ntok];
-  }
-
-  float2 qfr[4] = {make_float2(0.f, 0.f), make_float2(0.f, 0.f), make_float2(0.f, 0.f), make_float2(0.f, 0.f)};
-  float4 nfr = make_float4(0.f, 0.f, 0.f, 0.f);
-  if (SLIDE) {
-#pragma unroll
-    for (int c4 = 0; c4 < 4; c4++) qfr[c4] = *reinterpret_cast<const float2*>(inv_freq + 8 * c4 + 2 * t);
-    if (ntcta) nfr = *reinterpret_cast<const float4*>(inv_freq + nd0 / 2);
-  }
-
-  long long nk_crow = 0;
-  float nk_ifr = 0.f;
-  __nv_bfloat162 nk_kraw = __float2bfloat162_rn(0.f), nk_vraw = nk_kraw, nk_qraw = nk_kraw;
-  uint32_t qf[2][4];
-
-  int const gch = tid & 7, grs = tid >> 3;
-  constexpr int VIS = CL ? V_ST : (SLIDE ? V_FA3_SVIS : V_IS);
-  int rws[V_ST][4];
-  if constexpr (!(V_DYN && !SLIDE && !CL)) {
-#pragma unroll
-    for (int it = 0; it < V_ST; it++)
-#pragma unroll
-      for (int k = 0; k < 4; k++) {
-        int const pos = p0 + it * 128 + grs + 32 * k;
-        rws[it][k] = (it < ntiles && pos < p1) ? ptb[pos] : -1;
-      }
-    if (dbgp) {
-      int sm_ = 0;
-#pragma unroll
-      for (int it = 0; it < V_ST; it++)
-#pragma unroll
-        for (int k = 0; k < 4; k++) sm_ += rws[it][k];
-      if (tid == 0) dbgp[((long long)b * NS + s) * 8 + 5] = v_now() + (sm_ == 0x7fffffff ? 1 : 0);
-    }
-#pragma unroll
-    for (int it = 0; it < VIS; it++) {
-      if (it < ntiles) {
-#pragma unroll
-        for (int k = 0; k < 4; k++) {
-          int const gi = grs + 32 * k;
-          int const off = gi * 128 + ((gch ^ (gi & 7)) << 4);
-          if (rws[it][k] >= 0) {
-            v_cpa16(&sm.kt[it][0] + off, k_cache + (long long)rws[it][k] * 128 + gch * 16);
-            v_cpa16(&sm.vt[it][0] + off, v_cache + (long long)rws[it][k] * 128 + gch * 16);
-          } else {
-            *reinterpret_cast<uint4*>(&sm.kt[it][0] + off) = make_uint4(0u, 0u, 0u, 0u);
-            *reinterpret_cast<uint4*>(&sm.vt[it][0] + off) = make_uint4(0u, 0u, 0u, 0u);
-          }
-        }
-      }
-      asm volatile("cp.async.commit_group;" ::: "memory");
-    }
-  }
-  if constexpr (!(V_DYN && !SLIDE && !CL)) V_STAMP(6);
-
-  {
-    float x[2][16];
-#pragma unroll
-    for (int e = 0; e < 2; e++) {
-      int const tok = 2 * w + e;
-      float ss = 0.f;
-#pragma unroll
-      for (int c4 = 0; c4 < 4; c4++) {
-        uint2 const raw = qraw[e][c4];
-        __nv_bfloat162 const u0 = *reinterpret_cast<const __nv_bfloat162*>(&raw.x);
-        __nv_bfloat162 const u1 = *reinterpret_cast<const __nv_bfloat162*>(&raw.y);
-        x[e][4 * c4 + 0] = __bfloat162float(u0.x); x[e][4 * c4 + 1] = __bfloat162float(u0.y);
-        x[e][4 * c4 + 2] = __bfloat162float(u1.x); x[e][4 * c4 + 3] = __bfloat162float(u1.y);
-#pragma unroll
-        for (int i = 0; i < 4; i++) ss += x[e][4 * c4 + i] * x[e][4 * c4 + i];
-      }
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-      if (SLIDE) {
-        float const pf = (float)(seq + tok);
-#pragma unroll
-        for (int c4 = 0; c4 < 4; c4++)
-#pragma unroll
-          for (int i2 = 0; i2 < 2; i2++) {
-            float sn, cs;
-            v_sincos(pf * (i2 ? qfr[c4].y : qfr[c4].x), &sn, &cs);
-            float const ev = x[e][4 * c4 + 2 * i2] * rn, od = x[e][4 * c4 + 2 * i2 + 1] * rn;
-            x[e][4 * c4 + 2 * i2] = ev * cs - od * sn;
-            x[e][4 * c4 + 2 * i2 + 1] = ev * sn + od * cs;
-          }
-      } else {
-#pragma unroll
-        for (int i = 0; i < 16; i++) x[e][i] *= rn;
-      }
-    }
-
-#pragma unroll
-    for (int ks = 0; ks < 2; ks++)
-#pragma unroll
-      for (int e = 0; e < 2; e++)
-#pragma unroll
-        for (int hi = 0; hi < 2; hi++) {
-          int const c4 = 2 * ks + hi;
-          qf[ks][e + 2 * hi] = v_e4m3x2(x[e][4 * c4], x[e][4 * c4 + 1]) | (v_e4m3x2(x[e][4 * c4 + 2], x[e][4 * c4 + 3]) << 16);
-        }
-  }
-
-  if (dbgp) {
-    uint32_t qq = qf[0][0] ^ qf[1][3];
-    if (tid == 0) dbgp[((long long)b * NS + s) * 8 + 7] = v_now() + (qq == 0x12345678u ? 1 : 0);
-  }
-
-  if (ntcta && !(CL && V_NK2 && V_CL2)) {
-    for (int i = tid; i < 2 * 4096 / 16; i += 256) {
-      int const row = (i & 255) >> 3;
-      if (row >= V_L) reinterpret_cast<uint4*>(i < 256 ? sm.nk : sm.nv)[i & 255] = make_uint4(0u, 0u, 0u, 0u);
-    }
-    int const d0 = nd0, tok = ntok, isv = nisv, kh = nkh;
-    uint4 const raw = nraw;
-    float x[8];
-    {
-      __nv_bfloat162 const* p2 = reinterpret_cast<const __nv_bfloat162*>(&raw);
-#pragma unroll
-      for (int i = 0; i < 4; i++) { x[2 * i] = __bfloat162float(p2[i].x); x[2 * i + 1] = __bfloat162float(p2[i].y); }
-    }
-    float ss = 0.f;
-#pragma unroll
-    for (int i = 0; i < 8; i++) ss += x[i] * x[i];
-    ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 4);
-    if (!isv) {
-      float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-#pragma unroll
-      for (int i = 0; i < 8; i++) x[i] *= rn;
-      if (SLIDE) {
-        float const pf = (float)(seq + tok);
-#pragma unroll
-        for (int i2 = 0; i2 < 4; i2++) {
-          float sn, cs;
-          v_sincos(pf * (i2 == 0 ? nfr.x : i2 == 1 ? nfr.y : i2 == 2 ? nfr.z : nfr.w), &sn, &cs);
-          float const ev = x[2 * i2], od = x[2 * i2 + 1];
-          x[2 * i2] = ev * cs - od * sn; x[2 * i2 + 1] = ev * sn + od * cs;
-        }
-      }
-#pragma unroll
-      for (int i = 0; i < 8; i++) x[i] *= k_rscale;
-    } else {
-#pragma unroll
-      for (int i = 0; i < 8; i++) x[i] *= v_rscale;
-    }
-    uint2 q8;
-    q8.x = v_e4m3x2(x[0], x[1]) | (v_e4m3x2(x[2], x[3]) << 16);
-    q8.y = v_e4m3x2(x[4], x[5]) | (v_e4m3x2(x[6], x[7]) << 16);
-    *reinterpret_cast<uint2*>((isv ? v_cache : k_cache) + ncrow * 128 + kh * 64 + d0) = q8;
-    int const cb = kh * 64 + d0;
-    *reinterpret_cast<uint2*>((isv ? sm.nv : sm.nk) + tok * 128 + ((((cb >> 4) ^ (tok & 7))) << 4) + (cb & 15)) = q8;
-  }
-
-  float o[32], la[32];
-#pragma unroll
-  for (int i = 0; i < 32; i++) { o[i] = 0.f; la[i] = 0.f; }
-  float mref[2] = {V_MINIT, V_MINIT};
-  float lsr[2] = {0.f, 0.f};
-  int const tokA = 2 * w, tokB = 2 * w + 1;
-  int const lowA = SLIDE ? seq + tokA - window + 1 : -0x40000000;
-  int const lowB = SLIDE ? seq + tokB - window + 1 : -0x40000000;
-  uint32_t const pt_base = v_u32(&sm.pt[h][0][0]);
-  uint32_t const ones[4] = {0x38383838u, 0x38383838u, 0x38383838u, 0x38383838u};
-  __half2 const c8h = __float2half2_rn(8.f * c2);
-  __half2 const lo2 = __float2half2_rn(1024.f);
-  V_STAMP(1);
-
-#define V_T3(i) do { } while (0)
-  auto tile = [&](auto nj8c, uint32_t kaddr, uint32_t vaddr, int tbase, int tlim, bool isnew) {
-    constexpr int NJ8 = decltype(nj8c)::value;
-    uint32_t sc[2 * NJ8];
-    uint32_t const kb = kaddr + 64 * h;
-    wg_fence();
-    if constexpr (NJ8 == 16) { wg_qk16_0(sc, qf[0], v_desc(kb)); wg_qk16_1(sc, qf[1], v_desc(kb + 32)); }
-    else { wg_qk4_0(sc, qf[0], v_desc(kb)); wg_qk4_1(sc, qf[1], v_desc(kb + 32)); }
-    wg_commit();
-    wg_wait0();
-    V_T3(0);
-    bool const edge = !(V_ABL & 256) && (isnew || (tbase + 8 * NJ8 > tlim) || (SLIDE && (tbase < lowB)));
-    if (edge) {
-#pragma unroll
-      for (int j8 = 0; j8 < NJ8; j8++)
-#pragma unroll
-        for (int e = 0; e < 2; e++) {
-          int const pos = tbase + 8 * j8 + 2 * t + e;
-          bool vA = pos < tlim && pos >= lowA, vB = pos < tlim && pos >= lowB;
-          if (isnew) { vA = vA && (pos - seq) <= tokA; vB = vB && (pos - seq) <= tokB; }
-          uint32_t const keep = e ? 0x0000FFFFu : 0xFFFF0000u, neg = e ? 0xFC000000u : 0x0000FC00u;
-          if (!vA) sc[2 * j8] = (sc[2 * j8] & keep) | neg;
-          if (!vB) sc[2 * j8 + 1] = (sc[2 * j8 + 1] & keep) | neg;
-        }
-    }
-    __half2 mA2 = v_h2(sc[0]), mB2 = v_h2(sc[1]);
-#pragma unroll
-    for (int j8 = 1; j8 < NJ8; j8++) { mA2 = __hmax2(mA2, v_h2(sc[2 * j8])); mB2 = __hmax2(mB2, v_h2(sc[2 * j8 + 1])); }
-    float mxA = fmaxf(__low2float(mA2), __high2float(mA2)), mxB = fmaxf(__low2float(mB2), __high2float(mB2));
-    mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 1)); mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 2));
-    mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 1)); mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 2));
-    mxA *= c2; mxB *= c2;
-    float alA = 1.f, alB = 1.f;
-    bool resc = false;
-    if (mxA > mref[0] + 8.5f) {
-      float const nm = ceilf(mxA * 8.f) * 0.125f - 8.f;
-      resc = mref[0] > -1.0e29f; alA = v_ex2(mref[0] - nm); mref[0] = nm; lsr[0] *= alA;
-    }
-    if (mxB > mref[1] + 8.5f) {
-      float const nm = ceilf(mxB * 8.f) * 0.125f - 8.f;
-      resc = resc || mref[1] > -1.0e29f; alB = v_ex2(mref[1] - nm); mref[1] = nm; lsr[1] *= alB;
-    }
-    V_T3(6);
-
-    __half2 const bA = __float2half2_rn(mref[0] > -1.0e29f ? 1080.f - 8.f * mref[0] : -60000.f);
-    __half2 const bB = __float2half2_rn(mref[1] > -1.0e29f ? 1080.f - 8.f * mref[1] : -60000.f);
-#pragma unroll
-    for (int j8 = 0; j8 < NJ8; j8++) {
-      sc[2 * j8] = v_u(__hmax2(__hfma2(v_h2(sc[2 * j8]), c8h, bA), lo2));
-      sc[2 * j8 + 1] = v_u(__hmax2(__hfma2(v_h2(sc[2 * j8 + 1]), c8h, bB), lo2));
-    }
-    V_T3(7);
-    {
-      int const rA = 16 * w + g, rB = rA + 8;
-#pragma unroll
-      for (int jj = 0; jj < NJ8 / 2; jj++) {
-        uint32_t const wA = v_prmt(sc[4 * jj], sc[4 * jj + 2], 0x6420), wB = v_prmt(sc[4 * jj + 1], sc[4 * jj + 3], 0x6420);
-        *reinterpret_cast<uint32_t*>(&sm.pt[h][0][0] + rA * 128 + ((jj ^ (rA & 7)) << 4) + 4 * t) = wA;
-        *reinterpret_cast<uint32_t*>(&sm.pt[h][0][0] + rB * 128 + ((jj ^ (rB & 7)) << 4) + 4 * t) = wB;
-      }
-      if (t == 0) { sm.al[h][rA] = alA; sm.al[h][rB] = alB; }
-    }
-    V_T3(1);
-    v_fence_async();
-    bool const anyresc = v_wgbar_or(h, resc);
-    V_T3(2);
-    if (anyresc) {
-#pragma unroll
-      for (int jj = 0; jj < 8; jj++) {
-        float2 const a2 = *reinterpret_cast<const float2*>(&sm.al[h][8 * jj + 2 * t]);
-        o[4 * jj + 0] *= a2.x; o[4 * jj + 1] *= a2.y; o[4 * jj + 2] *= a2.x; o[4 * jj + 3] *= a2.y;
-        la[4 * jj + 0] *= a2.x; la[4 * jj + 1] *= a2.y; la[4 * jj + 2] *= a2.x; la[4 * jj + 3] *= a2.y;
-      }
-    }
-
-    uint32_t va[NJ8 / 4][4];
-#pragma unroll
-    for (int ks = 0; ks < NJ8 / 4; ks++) {
-      int const key = 32 * ks + 8 * (lane >> 3) + (lane & 7);
-      uint32_t r0, r1, r2, r3;
-      v_ldsm4t(r0, r1, r2, r3, vaddr + key * 128 + ((((4 * h + w) ^ (key & 7))) << 4));
-      va[ks][0] = v_prmt(r0, r1, 0x6420); va[ks][1] = v_prmt(r0, r1, 0x7531);
-      va[ks][2] = v_prmt(r2, r3, 0x6420); va[ks][3] = v_prmt(r2, r3, 0x7531);
-    }
-    V_T3(3);
-    wg_fence();
-#pragma unroll
-    for (int ks = 0; ks < NJ8 / 4; ks++) wg_pv(o, va[ks], v_desc(pt_base + 32 * ks));
-#pragma unroll
-    for (int ks = 0; ks < NJ8 / 4; ks++) wg_pv(la, ones, v_desc(pt_base + 32 * ks));
-    wg_commit();
-    wg_wait0();
-    V_T3(4);
-    v_wgbar(h);
-    V_T3(5);
-  };
-  if (ntcta && !(V_ABL & 16) && !(CL && V_NK2 && V_CL2)) {
-    v_fence_async();
-    v_allbar();
-    tile(std::integral_constant<int, 4>{}, v_u32(sm.nk), v_u32(sm.nv), seq, seq + V_L, true);
-  }
-
-  if (ntiles > 0) {
-    constexpr int VISS = (VIS == V_ST) ? V_FA3_VSSS : VIS;
-    static_assert(VISS >= 1 && VISS <= V_ST - 2 || VIS < V_ST, "ring lag");
-    uint32_t sc[2][32];
-    uint32_t va[2][4][4];
-#define V_F3(i) do { } while (0)
-#define V_F3A(i) do { } while (0)
-#define V_F3B(i) V_F3(i)
-    auto gissue = [&](int j) {
-      {
-
-        int const nt = j + VISS;
-        if (nt >= VIS && nt < ntiles) {
-          int const nst = nt % V_ST;
-          uint32_t const sk = v_u32(&sm.kt[0][0]) + (uint32_t)nst * (uint32_t)V_TILE + (uint32_t)(grs * 128 + ((gch ^ (grs & 7)) << 4));
-          uint32_t const dv = v_u32(&sm.vt[0][0]) - v_u32(&sm.kt[0][0]);
-#pragma unroll
-          for (int k = 0; k < 4; k++) {
-            int row = -1;
-            if (nt < V_ST) {
-#pragma unroll
-              for (int q = VIS; q < V_ST; q++) row = (q == nt) ? rws[q][k] : row;
-            } else {
-              int const pos = p0 + nt * 128 + grs + 32 * k;
-              row = pos < p1 ? ptb[pos] : -1;
-            }
-            uint32_t const sz = row >= 0 ? 16u : 0u;
-            long long const ro = (long long)(row >= 0 ? row : 0) * 128 + gch * 16;
-            asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;" :: "r"(sk + 4096u * k), "l"(k_cache + ro), "r"(sz) : "memory");
-            asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;" :: "r"(sk + dv + 4096u * k), "l"(v_cache + ro), "r"(sz) : "memory");
-          }
-        }
-        asm volatile("cp.async.commit_group;" ::: "memory");
-      }
-    };
-    auto data_wait = [&](int j) {
-      if (j < VIS) asm volatile("cp.async.wait_group %0;" :: "n"(VIS - 1) : "memory");
-      else asm volatile("cp.async.wait_group %0;" :: "n"(VISS - 1) : "memory");
-      v_fence_async();
-      V_F3A(0);
-      v_allbar();
-      if (j == 0) V_STAMP(2);
-      V_F3A(1);
-      if constexpr (SLIDE) gissue(j);
-      V_F3A(2);
-    };
-    auto issue_qk = [&](uint32_t (&s)[32], int j) {
-      uint32_t const kb = v_u32(&sm.kt[j % V_ST][0]) + 64 * h;
-      wg_fence();
-      wg_qk16_0(s, qf[0], v_desc(kb));
-      wg_qk16_1(s, qf[1], v_desc(kb + 32));
-      wg_commit();
-    };
-    auto issue_pv = [&](uint32_t (&a)[4][4], int buf) {
-      v_fence_f32(o); v_fence_f32(la); v_fence_u16(a);
-      uint32_t const pd = v_u32(&sm.pt[h][buf][0]);
-      wg_fence();
-#pragma unroll
-      for (int ks = 0; ks < 4; ks++) wg_pv(o, a[ks], v_desc(pd + 32 * ks));
-#pragma unroll
-      for (int ks = 0; ks < 4; ks++) wg_pv(la, ones, v_desc(pd + 32 * ks));
-      wg_commit();
-    };
-    auto vfrags = [&](uint32_t (&a)[4][4], int j) {
-      uint32_t const vb = v_u32(&sm.vt[j % V_ST][0]);
-#pragma unroll
-      for (int ks = 0; ks < 4; ks++) {
-        int const key = 32 * ks + 8 * (lane >> 3) + (lane & 7);
-        uint32_t r0, r1, r2, r3;
-        v_ldsm4t(r0, r1, r2, r3, vb + key * 128 + ((((4 * h + w) ^ (key & 7))) << 4));
-        a[ks][0] = v_prmt(r0, r1, 0x6420); a[ks][1] = v_prmt(r0, r1, 0x7531);
-        a[ks][2] = v_prmt(r2, r3, 0x6420); a[ks][3] = v_prmt(r2, r3, 0x7531);
-      }
-      v_fence_u16(a);
-    };
-    auto softmax_store = [&](uint32_t (&s)[32], int j, int buf) -> bool {
-      int const tbase = p0 + j * 128, tlim = p1;
-      bool const edge = (tbase + 128 > tlim) || (SLIDE && (tbase < lowB));
-      if (edge) {
-#pragma unroll
-        for (int j8 = 0; j8 < 16; j8++)
-#pragma unroll
-          for (int e = 0; e < 2; e++) {
-            int const pos = tbase + 8 * j8 + 2 * t + e;
-            bool const vA = pos < tlim && pos >= lowA, vB = pos < tlim && pos >= lowB;
-            uint32_t const keep = e ? 0x0000FFFFu : 0xFFFF0000u, neg = e ? 0xFC000000u : 0x0000FC00u;
-            if (!vA) s[2 * j8] = (s[2 * j8] & keep) | neg;
-            if (!vB) s[2 * j8 + 1] = (s[2 * j8 + 1] & keep) | neg;
-          }
-      }
-      __half2 mA2, mB2;
-      if constexpr (SLIDE) {
-      __half2 tA[8], tB[8];
-#pragma unroll
-      for (int i = 0; i < 8; i++) { tA[i] = __hmax2(v_h2(s[4 * i]), v_h2(s[4 * i + 2])); tB[i] = __hmax2(v_h2(s[4 * i + 1]), v_h2(s[4 * i + 3])); }
-#pragma unroll
-      for (int i = 0; i < 4; i++) { tA[i] = __hmax2(tA[i], tA[i + 4]); tB[i] = __hmax2(tB[i], tB[i + 4]); }
-#pragma unroll
-      for (int i = 0; i < 2; i++) { tA[i] = __hmax2(tA[i], tA[i + 2]); tB[i] = __hmax2(tB[i], tB[i + 2]); }
-      mA2 = __hmax2(tA[0], tA[1]); mB2 = __hmax2(tB[0], tB[1]);
-      } else {
-        mA2 = v_h2(s[0]); mB2 = v_h2(s[1]);
-#pragma unroll
-        for (int j8 = 1; j8 < 16; j8++) { mA2 = __hmax2(mA2, v_h2(s[2 * j8])); mB2 = __hmax2(mB2, v_h2(s[2 * j8 + 1])); }
-      }
-      float mxA = fmaxf(__low2float(mA2), __high2float(mA2)), mxB = fmaxf(__low2float(mB2), __high2float(mB2));
-      mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 1)); mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 2));
-      mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 1)); mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 2));
-      mxA *= c2; mxB *= c2;
-      float alA = 1.f, alB = 1.f;
-      bool resc = false;
-      if (mxA > mref[0] + 8.5f) {
-        float const nm = ceilf(mxA * 8.f) * 0.125f - 8.f;
-        resc = mref[0] > -1.0e29f; alA = v_ex2(mref[0] - nm); mref[0] = nm;
-      }
-      if (mxB > mref[1] + 8.5f) {
-        float const nm = ceilf(mxB * 8.f) * 0.125f - 8.f;
-        resc = resc || mref[1] > -1.0e29f; alB = v_ex2(mref[1] - nm); mref[1] = nm;
-      }
-      __half2 const bA = __float2half2_rn(mref[0] > -1.0e29f ? 1080.f - 8.f * mref[0] : -60000.f);
-      __half2 const bB = __float2half2_rn(mref[1] > -1.0e29f ? 1080.f - 8.f * mref[1] : -60000.f);
-#pragma unroll
-      for (int j8 = 0; j8 < 16; j8++) {
-        s[2 * j8] = v_u(__hmax2(__hfma2(v_h2(s[2 * j8]), c8h, bA), lo2));
-        s[2 * j8 + 1] = v_u(__hmax2(__hfma2(v_h2(s[2 * j8 + 1]), c8h, bB), lo2));
-      }
-      uint8_t* ptw = &sm.pt[h][buf][0];
-      int const rA = 16 * w + g, rB = rA + 8;
-#pragma unroll
-      for (int jj = 0; jj < 8; jj++) {
-        *reinterpret_cast<uint32_t*>(ptw + rA * 128 + ((jj ^ (rA & 7)) << 4) + 4 * t) = v_prmt(s[4 * jj], s[4 * jj + 2], 0x6420);
-        *reinterpret_cast<uint32_t*>(ptw + rB * 128 + ((jj ^ (rB & 7)) << 4) + 4 * t) = v_prmt(s[4 * jj + 1], s[4 * jj + 3], 0x6420);
-      }
-      if (t == 0) { sm.al2[h][buf][rA] = alA; sm.al2[h][buf][rB] = alB; }
-      v_fence_async();
-      return v_wgbar_or(h, resc);
-    };
-    auto rescale = [&](bool anyresc, int buf) {
-      if (anyresc) {
-#pragma unroll
-        for (int jj = 0; jj < 8; jj++) {
-          float2 const a2 = *reinterpret_cast<const float2*>(&sm.al2[h][buf][8 * jj + 2 * t]);
-          o[4 * jj + 0] *= a2.x; o[4 * jj + 1] *= a2.y; o[4 * jj + 2] *= a2.x; o[4 * jj + 3] *= a2.y;
-          la[4 * jj + 0] *= a2.x; la[4 * jj + 1] *= a2.y; la[4 * jj + 2] *= a2.x; la[4 * jj + 3] *= a2.y;
-        }
-      }
-    };
-
-    auto mid = [&](auto pc, int j) {
-      constexpr int P = decltype(pc)::value, Q = P ^ 1;
-      issue_pv(va[Q], Q);
-      V_F3(0);
-      wg_wait<1>();
-      v_fence_u32(sc[P]);
-      V_F3(1);
-      vfrags(va[P], j);
-      V_F3(2);
-      bool const anyresc = softmax_store(sc[P], j, P);
-      V_F3(3);
-      wg_wait<0>();
-      v_fence_f32(o); v_fence_f32(la);
-      V_F3(4);
-      rescale(anyresc, P);
-      data_wait(j + 1);
-      issue_qk(sc[Q], j + 1);
-      V_F3(5);
-    };
-    auto last = [&](auto pc, int j) {
-      constexpr int P = decltype(pc)::value, Q = P ^ 1;
-      issue_pv(va[Q], Q);
-      V_F3(0);
-      wg_wait<1>();
-      v_fence_u32(sc[P]);
-      V_F3(1);
-      vfrags(va[P], j);
-      V_F3(2);
-      bool const anyresc = softmax_store(sc[P], j, P);
-      V_F3(3);
-      wg_wait<0>();
-      v_fence_f32(o); v_fence_f32(la);
-      V_F3(4);
-      rescale(anyresc, P);
-      V_F3(5);
-      issue_pv(va[P], P);
-      wg_wait<0>();
-      v_fence_f32(o); v_fence_f32(la);
-      V_F3(7);
-    };
-
-    data_wait(0);
-    issue_qk(sc[0], 0);
-    if constexpr (!SLIDE) gissue(0);
-    wg_wait<0>();
-    v_fence_u32(sc[0]);
-    {
-      bool const anyresc = softmax_store(sc[0], 0, 0);
-      rescale(anyresc, 0);
-    }
-    vfrags(va[0], 0);
-    V_F3(6);
-    for (int j = 1; j < ntiles; j++) {
-      data_wait(j);
-      issue_qk(sc[0], j);
-      issue_pv(va[0], (j + 1) & 1);
-      if constexpr (!SLIDE) gissue(j);
-      V_F3B(0);
-      wg_wait<1>();
-      v_fence_u32(sc[0]);
-      V_F3B(1);
-      V_F3A(4);
-      bool const anyresc = softmax_store(sc[0], j, j & 1);
-      V_F3(3);
-      wg_wait<0>();
-      v_fence_f32(o); v_fence_f32(la);
-      V_F3B(4);
-      rescale(anyresc, j & 1);
-      V_F3B(5);
-      vfrags(va[0], j);
-      V_F3B(2);
-      V_F3A(5);
-    }
-    issue_pv(va[0], (ntiles - 1) & 1);
-    wg_wait<0>();
-    v_fence_f32(o); v_fence_f32(la);
-    V_F3(7);
-#undef V_F3
-  }
-  V_STAMP(3);
-  if constexpr (SLIDE && !CL && !SCLT) { if (tick == nullptr) asm volatile("griddepcontrol.launch_dependents;" ::: "memory"); }
-#define V_P2S(i) do { } while (0)
-  asm volatile("cp.async.wait_all;" ::: "memory");
-  V_P2S(1);
-
-  float* wsb = ws + ((long long)b * NS + s) * (V_L * V_HQ) * V_PREC;
-  float* mlh = reinterpret_cast<float*>(&sm.pt[h][0][0]);
-#define V_MLW(R, j) mlh[(R) * 2 + (j)]
-  if (t == 0) {
-    int const rA = 16 * w + g, rB = rA + 8;
-    int const RA = (rA >> 3) * V_HQ + 8 * h + (rA & 7), RB = (rB >> 3) * V_HQ + 8 * h + (rB & 7);
-    V_MLW(RA, 0) = mref[0];
-    V_MLW(RB, 0) = mref[1];
-  }
-#pragma unroll
-  for (int jj = 0; jj < 8; jj++)
-#pragma unroll
-    for (int e = 0; e < 2; e++) {
-      int const nq = 8 * jj + 2 * t + e;
-      int const R = (nq >> 3) * V_HQ + 8 * h + (nq & 7);
-      if (V_PBF)
-        reinterpret_cast<__nv_bfloat162*>(wsb + R * V_PREC)[8 * w + g] = __floats2bfloat162_rn(o[4 * jj + e], o[4 * jj + 2 + e]);
-      else if (!(V_ABL & 512))
-        *reinterpret_cast<float2*>(wsb + R * V_PREC + 16 * w + 2 * g) = make_float2(o[4 * jj + e], o[4 * jj + 2 + e]);
-      if (!V_LS && w == 0 && g == 0) V_MLW(R, 1) = la[4 * jj + e];
-    }
-  __syncthreads();
-  {
-
-    int const R = tid >> 1, hf = tid & 1;
-    const float* src = reinterpret_cast<const float*>(&sm.pt[(R & 15) >> 3][0][0]) + 2 * R;
-    float4 const v = hf == 0 ? make_float4(src[0], src[1], 0.f, 0.f) : make_float4(0.f, 0.f, 0.f, 0.f);
-    *reinterpret_cast<float4*>(wsb + R * V_PREC + V_MOFF + 4 * hf) = v;
-  }
-#undef V_MLW
-  V_P2S(2);
-  V_STAMP(4);
-}
-
-#define V_MW 8
-#define V_MP 3
-__global__ void __launch_bounds__(V_MW * 32, 1)
-vfgm_kernel(const float* __restrict__ ws, int NS, const __nv_bfloat16* __restrict__ qkv,
-            __nv_bfloat16* __restrict__ out, float v_scale, float eps) {
-  __shared__ float red[V_MW][32][4];
-  int const R = (int)blockIdx.x, b = (int)blockIdx.y, warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
-  int const tok = R / V_HQ, hq = R % V_HQ;
-  __nv_bfloat162 const g2 = *reinterpret_cast<const __nv_bfloat162*>(
-      qkv + ((long long)b * V_L + tok) * V_QKVW + (V_HQ + 2 * V_HKV) * V_D + hq * V_D + 2 * lane);
-  float M = V_MINIT, Ls = 0.f, a0 = 0.f, a1 = 0.f;
-  for (int base = warp; base < NS; base += V_MW * V_MP) {
-    float2 ml[V_MP], ov[V_MP];
-#pragma unroll
-    for (int j = 0; j < V_MP; j++) {
-      int const p = base + j * V_MW;
-      if (p < NS) {
-        const float* rp = ws + (((long long)b * NS + p) * (V_L * V_HQ) + R) * V_PREC;
-        ml[j] = __ldcg(reinterpret_cast<const float2*>(rp + V_MOFF));
-        if (V_PBF) {
-          unsigned const u = __ldcg(reinterpret_cast<const unsigned*>(rp) + lane);
-          ov[j] = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u));
-        } else {
-          ov[j] = __ldcg(reinterpret_cast<const float2*>(rp + 2 * lane));
-        }
-      } else {
-        ml[j] = make_float2(V_MINIT, 0.f); ov[j] = make_float2(0.f, 0.f);
-      }
-    }
-    float Mn = M;
-#pragma unroll
-    for (int j = 0; j < V_MP; j++) Mn = fmaxf(Mn, ml[j].x);
-    float const sc = v_ex2(M - Mn);
-    Ls *= sc; a0 *= sc; a1 *= sc;
-#pragma unroll
-    for (int j = 0; j < V_MP; j++) {
-      float const wt = v_ex2(ml[j].x - Mn);
-      Ls += ml[j].y * wt; a0 += ov[j].x * wt; a1 += ov[j].y * wt;
-    }
-    M = Mn;
-  }
-  red[warp][lane][0] = M; red[warp][lane][1] = Ls; red[warp][lane][2] = a0; red[warp][lane][3] = a1;
-  __syncthreads();
-  if (warp == 0) {
-    float M2 = V_MINIT;
-#pragma unroll
-    for (int i = 0; i < V_MW; i++) M2 = fmaxf(M2, red[i][lane][0]);
-    float L2 = 0.f, b0 = 0.f, b1 = 0.f;
-#pragma unroll
-    for (int i = 0; i < V_MW; i++) {
-      float const wt = v_ex2(red[i][lane][0] - M2);
-      L2 += red[i][lane][1] * wt; b0 += red[i][lane][2] * wt; b1 += red[i][lane][3] * wt;
-    }
-    float const inv = v_scale / L2;
-    b0 *= inv; b1 *= inv;
-    float ss = b0 * b0 + b1 * b1;
-#pragma unroll
-    for (int o2 = 16; o2 > 0; o2 >>= 1) ss += __shfl_xor_sync(0xffffffffu, ss, o2);
-    float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-    float const s0 = 1.f / (1.f + __expf(-__bfloat162float(g2.x)));
-    float const s1 = 1.f / (1.f + __expf(-__bfloat162float(g2.y)));
-    *reinterpret_cast<__nv_bfloat162*>(out + ((long long)b * V_L + tok) * (V_HQ * V_D) + hq * V_D + 2 * lane) =
-        __floats2bfloat162_rn(b0 * rn * s0, b1 * rn * s1);
-  }
-}
-
-__global__ void __launch_bounds__(256, 4)
-vfgm2_kernel(const float* __restrict__ ws, int NS, const __nv_bfloat16* __restrict__ qkv,
-             __nv_bfloat16* __restrict__ out, float v_scale, float eps) {
-  int const tok = (int)blockIdx.x, b = (int)blockIdx.y, tid = threadIdx.x;
-  int const hq = tid >> 4, dq = (tid & 15) * 4, R = tok * V_HQ + hq;
-  uint2 const graw = *reinterpret_cast<const uint2*>(qkv + ((long long)b * V_L + tok) * V_QKVW + (V_HQ + 2 * V_HKV) * V_D + hq * V_D + dq);
-  __nv_bfloat162 const g01 = *reinterpret_cast<const __nv_bfloat162*>(&graw.x);
-  __nv_bfloat162 const g23 = *reinterpret_cast<const __nv_bfloat162*>(&graw.y);
-  float const s0 = 1.f / (1.f + __expf(-__bfloat162float(g01.x))), s1 = 1.f / (1.f + __expf(-__bfloat162float(g01.y)));
-  float const s2 = 1.f / (1.f + __expf(-__bfloat162float(g23.x))), s3 = 1.f / (1.f + __expf(-__bfloat162float(g23.y)));
-  asm volatile("griddepcontrol.wait;" :: "f"(s0), "f"(s1), "f"(s2), "f"(s3) : "memory");
-  float M = V_MINIT, Ls = 0.f, a0 = 0.f, a1 = 0.f, a2 = 0.f, a3 = 0.f;
-  if (NS == 4) {
-    float2 ml[4];
-    float4 ov[4];
-#pragma unroll
-    for (int j = 0; j < 4; j++) {
-      const float* rp = ws + (((long long)b * 4 + j) * (V_L * V_HQ) + R) * V_PREC;
-      ml[j] = __ldcg(reinterpret_cast<const float2*>(rp + V_MOFF));
-      if (V_PBF) {
-        uint2 const u = __ldcg(reinterpret_cast<const uint2*>(rp) + (dq >> 2));
-        float2 const f0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
-        float2 const f1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
-        ov[j] = make_float4(f0.x, f0.y, f1.x, f1.y);
-      } else {
-        ov[j] = __ldcg(reinterpret_cast<const float4*>(rp + dq));
-      }
-    }
-    M = fmaxf(fmaxf(ml[0].x, ml[1].x), fmaxf(ml[2].x, ml[3].x));
-#pragma unroll
-    for (int j = 0; j < 4; j++) {
-      float const wt = v_ex2(ml[j].x - M);
-      Ls += ml[j].y * wt; a0 += ov[j].x * wt; a1 += ov[j].y * wt; a2 += ov[j].z * wt; a3 += ov[j].w * wt;
-    }
-  } else
-  for (int pb = 0; pb < NS; pb += 4) {
-    float2 ml[4];
-    float4 ov[4];
-#pragma unroll
-    for (int j = 0; j < 4; j++) {
-      int const p = pb + j;
-      if (p < NS) {
-        const float* rp = ws + (((long long)b * NS + p) * (V_L * V_HQ) + R) * V_PREC;
-        ml[j] = __ldcg(reinterpret_cast<const float2*>(rp + V_MOFF));
-        if (V_PBF) {
-          uint2 const u = __ldcg(reinterpret_cast<const uint2*>(rp) + (dq >> 2));
-          float2 const a0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
-          float2 const a1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
-          ov[j] = make_float4(a0.x, a0.y, a1.x, a1.y);
-        } else {
-          ov[j] = __ldcg(reinterpret_cast<const float4*>(rp + dq));
-        }
-      } else {
-        ml[j] = make_float2(V_MINIT, 0.f); ov[j] = make_float4(0.f, 0.f, 0.f, 0.f);
-      }
-    }
-    float Mn = M;
-#pragma unroll
-    for (int j = 0; j < 4; j++) Mn = fmaxf(Mn, ml[j].x);
-    float const sc = v_ex2(M - Mn);
-    Ls *= sc; a0 *= sc; a1 *= sc; a2 *= sc; a3 *= sc;
-#pragma unroll
-    for (int j = 0; j < 4; j++) {
-      float const wt = v_ex2(ml[j].x - Mn);
-      Ls += ml[j].y * wt; a0 += ov[j].x * wt; a1 += ov[j].y * wt; a2 += ov[j].z * wt; a3 += ov[j].w * wt;
-    }
-    M = Mn;
-  }
-  float const inv = v_scale / Ls;
-  a0 *= inv; a1 *= inv; a2 *= inv; a3 *= inv;
-  float ss = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
-#pragma unroll
-  for (int o2 = 1; o2 < 16; o2 <<= 1) ss += __shfl_xor_sync(0xffffffffu, ss, o2);
-  float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-  __nv_bfloat162 const r01 = __floats2bfloat162_rn(a0 * rn * s0, a1 * rn * s1);
-  __nv_bfloat162 const r23 = __floats2bfloat162_rn(a2 * rn * s2, a3 * rn * s3);
-  uint2 r;
-  r.x = *reinterpret_cast<const uint32_t*>(&r01);
-  r.y = *reinterpret_cast<const uint32_t*>(&r23);
-  *reinterpret_cast<uint2*>(out + ((long long)b * V_L + tok) * (V_HQ * V_D) + hq * V_D + dq) = r;
-}
-
-void vfg_launch(int64_t qkv, int64_t page_table, int64_t pt_stride, int64_t seq_lens, int64_t cache_loc,
-                int64_t k_cache, int64_t v_cache, int64_t inv_freq, int64_t out, int64_t B, int64_t NS, int64_t window,
-                double c2, double k_rscale, double v_rscale, double v_scale, double eps, int64_t ws, int64_t dbgp,
-                int64_t tick, int64_t stream) {
-  static bool configured = false;
-  if (!configured) {
-    int const sm = (int)sizeof(VSmem) + 1024;
-    cudaFuncSetAttribute(vfg_kernel<false, false>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm);
-    cudaFuncSetAttribute(vfg_kernel<true, false>, cudaFuncAttributeMaxDynamicSharedMemorySize, sm);
-    configured = true;
-  }
-  cudaStream_t st = reinterpret_cast<cudaStream_t>(stream);
-  const __nv_bfloat16* a_qkv = reinterpret_cast<const __nv_bfloat16*>(qkv);
-  float* a_ws = reinterpret_cast<float*>(ws);
-  __nv_bfloat16* a_out = reinterpret_cast<__nv_bfloat16*>(out);
-  const int* a_pt = reinterpret_cast<const int*>(page_table);
-  const int* a_sl = reinterpret_cast<const int*>(seq_lens);
-  const long long* a_cl = reinterpret_cast<const long long*>(cache_loc);
-  uint8_t* a_k = reinterpret_cast<uint8_t*>(k_cache);
-  uint8_t* a_v = reinterpret_cast<uint8_t*>(v_cache);
-  const float* a_f = reinterpret_cast<const float*>(inv_freq);
-  unsigned long long* a_d = reinterpret_cast<unsigned long long*>(dbgp);
-  dim3 grid((unsigned)NS, (unsigned)B);
-  size_t const smem = sizeof(VSmem) + 1024;
-  if (window > 0)
-    vfg_kernel<true, false><<<grid, 256, smem, st>>>(a_qkv, a_pt, (int)pt_stride, a_sl, a_cl, a_k, a_v, a_f, (int)window,
-        (float)c2, (float)k_rscale, (float)v_rscale, (float)eps, a_ws, a_d, a_out, (float)v_scale, (unsigned int*)nullptr);
-  else
-    vfg_kernel<false, false><<<grid, V_NT, smem, st>>>(a_qkv, a_pt, (int)pt_stride, a_sl, a_cl, a_k, a_v, a_f, 0,
-        (float)c2, (float)k_rscale, (float)v_rscale, (float)eps, a_ws, a_d, a_out, (float)v_scale, (unsigned int*)nullptr);
-  if (NS >= 32)
-    vfgm_kernel<<<dim3(V_L * V_HQ, (unsigned)B), V_MW * 32, 0, st>>>(a_ws, (int)NS, a_qkv, a_out, (float)v_scale,
-                                                                     (float)eps);
-  else {
-    cudaLaunchConfig_t mc = {};
-    mc.gridDim = dim3(V_L, (unsigned)B);
-    mc.blockDim = dim3(256, 1, 1);
-    mc.dynamicSmemBytes = 0;
-    mc.stream = st;
-    cudaLaunchAttribute ma[1];
-    ma[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-    ma[0].val.programmaticStreamSerializationAllowed = 1;
-    mc.attrs = ma;
-    mc.numAttrs = 1;
-    cudaError_t e = cudaLaunchKernelEx(&mc, vfgm2_kernel, (const float*)a_ws, (int)NS, (const __nv_bfloat16*)a_qkv, a_out,
-                                       (float)v_scale, (float)eps);
-    if (e != cudaSuccess) throw std::runtime_error(cudaGetErrorString(e));
-  }
-}
-
-namespace b1vp2 {
-#define VP2_PUSH 1
-#define VP2_LATEQ 0
-#define VP2_ST 0
-#define VP2_QSM 1
-#define VP2_LWG0 1
-#define VP2_MLB 0
-#define VP2_P64 0
-#define VP2_NOTF 0
-#define VP2_STRM 0
-#define VP2_WG1A 1
-
-#define Q_BLK 1120
-#define Q_TX 1056
-struct VP2Smem {
-  uint8_t kt[128 * 128];
-  uint8_t vt[128 * 128];
-  uint8_t pt[64 * 128];
-
-  uint8_t mrb[16 * Q_BLK];
-  float2 tab[256];
-  float kdec[8 * 65];
-  float qdec[4 * 65];
-  float vdec[8 * 64];
-  float pp[4 * 8];
-  float lrow[64];
-  uint8_t qs[64 * 160];
-  alignas(16) uint32_t nks[128 * 8];
-  alignas(8) unsigned long long mbm;
-  alignas(8) unsigned long long mbml;
-  alignas(8) unsigned long long mbs[16];
-};
-#define Q_ST(i) do { } while (0)
-
-__global__ void __launch_bounds__(256, 1)
-vp2_kernel(const __nv_bfloat16* __restrict__ qkv, const int* __restrict__ page_table,
-           const int* __restrict__ seq_lens, const long long* __restrict__ cache_loc,
-           uint8_t* __restrict__ k_cache, uint8_t* __restrict__ v_cache, const float* __restrict__ inv_freq,
-           int window, float c2, float k_rscale, float v_rscale, float eps,
-           unsigned long long* __restrict__ dbgp, __nv_bfloat16* __restrict__ out, float v_scale,
-           int pt_stride) {
-  {
-    int const b = (int)blockIdx.y;
-    qkv += (long long)b * 8 * V_QKVW;
-    out += (long long)b * 8 * (V_HQ * V_D);
-    page_table += (long long)b * pt_stride;
-    seq_lens += b;
-    cache_loc += 8 * b;
-  }
-  extern __shared__ uint8_t smem_raw[];
-  VP2Smem& sm = *reinterpret_cast<VP2Smem*>((reinterpret_cast<uintptr_t>(smem_raw) + 1023) & ~uintptr_t(1023));
-  int const tid = threadIdx.x, lane = tid & 31;
-  int const wg = tid >> 7;
-  int const w = (tid >> 5) & 3;
-  int const g = lane >> 2, t = lane & 3;
-  unsigned const r = cg::this_cluster().block_rank();
-  int const hk = (int)blockIdx.x >> 4;
-  int const otok = (int)r >> 1, oh0 = 8 * hk + 4 * ((int)r & 1);
-  __nv_bfloat162 gpre = __float2bfloat162_rn(0.f);
-  // achitaan ATP: both warpgroups read fresh Q/K/V below, after the producer.
-  asm volatile("griddepcontrol.wait;" ::: "memory");
-  Q_ST(0 + 16 * wg);
-  if (wg == 1) {
-
-    uint32_t const d_ = v_u32(&sm.nks[(tid & 127) * 8]);
-#pragma unroll
-    for (int i = 0; i < 2; i++) {
-      int const j = w + 4 * i;
-      asm volatile("cp.async.ca.shared.global [%0], [%1], 4;" :: "r"(d_ + 4 * i),
-                   "l"(qkv + (long long)j * V_QKVW + (V_HQ + hk) * V_D + 2 * lane) : "memory");
-      asm volatile("cp.async.ca.shared.global [%0], [%1], 4;" :: "r"(d_ + 8 + 4 * i),
-                   "l"(qkv + (long long)j * V_QKVW + (V_HQ + V_HKV + hk) * V_D + 2 * lane) : "memory");
-    }
-    asm volatile("cp.async.ca.shared.global [%0], [%1], 4;" :: "r"(d_ + 16),
-                 "l"(qkv + (long long)otok * V_QKVW + (oh0 + w) * V_D + 2 * lane) : "memory");
-    asm volatile("cp.async.ca.shared.global [%0], [%1], 8;" :: "r"(d_ + 24), "l"(cache_loc + otok) : "memory");
-    asm volatile("cp.async.commit_group;" ::: "memory");
-  }
-  if (tid == 0) {
-    uint32_t const mb = v_u32(&sm.mbm);
-    asm volatile("mbarrier.init.shared::cta.b64 [%0], 1;" :: "r"(mb) : "memory");
-    asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
-    asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;" :: "r"(mb), "r"(VP2_MLB ? 16 * 512 : 16 * Q_TX) : "memory");
-  }
-  asm volatile("barrier.cluster.arrive.relaxed.aligned;" ::: "memory");
-  int const seq = seq_lens[0];
-  int const lo = max(0, seq - window + 1);
-  int const n = seq - lo;
-  int const chunk = (((n + 15) / 16) + 127) / 128 * 128;
-  int const p0 = min(seq, lo + (int)r * chunk), p1 = min(seq, p0 + chunk);
-  int const ntiles = (p1 - p0 + 127) >> 7;
-  float const nk_ifr = inv_freq[lane];
-
-  __nv_bfloat162 nk_kraw[2], nk_vraw[2], nk_qraw = __float2bfloat162_rn(0.f);
-  long long nk_crow = 0;
-  auto small_loads = [&]() {
-    if (wg == 1) {
-    }
-  };
-  small_loads();
-
-  int const gch = tid & 7, grs = tid >> 3;
-  {
-    int rws[4];
-#pragma unroll
-    for (int k = 0; k < 4; k++) {
-      int const pos = p0 + grs + 32 * k;
-      rws[k] = (ntiles > 0 && pos < p1) ? page_table[pos] : -1;
-    }
-    if (wg == 0) {
-      int const qrow = tid >> 1, qh = tid & 1;
-      const uint8_t* const qsrc = reinterpret_cast<const uint8_t*>(qkv)
-          + 2 * ((long long)(qrow >> 3) * V_QKVW + (8 * hk + (qrow & 7)) * V_D) + 64 * qh;
-#pragma unroll
-      for (int c = 0; c < 4; c++) v_cpa16(sm.qs + qrow * 160 + 64 * qh + 16 * c, qsrc + 16 * c);
-      asm volatile("cp.async.commit_group;" ::: "memory");
-      gpre = *reinterpret_cast<const __nv_bfloat162*>(qkv + (long long)otok * V_QKVW + (V_HQ + 2 * V_HKV) * V_D
-                                                       + (oh0 + w) * V_D + 2 * lane);
-    }
-#pragma unroll
-    for (int k = 0; k < 4; k++) {
-      int const gi = grs + 32 * k;
-      int const off = gi * 128 + ((gch ^ (gi & 7)) << 4);
-      if (rws[k] >= 0) {
-        v_cpa16(sm.kt + off, k_cache + (long long)rws[k] * 128 + gch * 16);
-        v_cpa16(sm.vt + off, v_cache + (long long)rws[k] * 128 + gch * 16);
-      } else {
-        *reinterpret_cast<uint4*>(sm.kt + off) = make_uint4(0u, 0u, 0u, 0u);
-        *reinterpret_cast<uint4*>(sm.vt + off) = make_uint4(0u, 0u, 0u, 0u);
-      }
-    }
-    asm volatile("cp.async.commit_group;" ::: "memory");
-  }
-  Q_ST(3 + 16 * wg);
-  {
-    float sn_, cs_;
-    v_sincos((float)(seq + (tid >> 5)) * nk_ifr, &sn_, &cs_);
-    sm.tab[tid] = make_float2(cs_, sn_);
-  }
-  asm volatile("cp.async.wait_group 1;" ::: "memory");
-  __syncthreads();
-  Q_ST(4 + 16 * wg);
-  uint32_t qf[2][4];
-  if (wg == 0) {
-    float x[2][16];
-#pragma unroll
-    for (int e = 0; e < 2; e++) {
-      int const tok = 2 * w + e;
-      float ss = 0.f;
-#pragma unroll
-      for (int c4 = 0; c4 < 4; c4++) {
-        uint2 const raw = *reinterpret_cast<const uint2*>(sm.qs + (8 * tok + g) * 160 + 32 * c4 + 8 * t);
-        __nv_bfloat162 const u0 = *reinterpret_cast<const __nv_bfloat162*>(&raw.x);
-        __nv_bfloat162 const u1 = *reinterpret_cast<const __nv_bfloat162*>(&raw.y);
-        x[e][4 * c4 + 0] = __bfloat162float(u0.x); x[e][4 * c4 + 1] = __bfloat162float(u0.y);
-        x[e][4 * c4 + 2] = __bfloat162float(u1.x); x[e][4 * c4 + 3] = __bfloat162float(u1.y);
-#pragma unroll
-        for (int i = 0; i < 4; i++) ss += x[e][4 * c4 + i] * x[e][4 * c4 + i];
-      }
-      ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-      ss += __shfl_xor_sync(0xffffffffu, ss, 2);
-      float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-#pragma unroll
-      for (int c4 = 0; c4 < 4; c4++)
-#pragma unroll
-        for (int i2 = 0; i2 < 2; i2++) {
-          float2 const t2_ = sm.tab[tok * 32 + 8 * c4 + 2 * t + i2];
-          float const cs = t2_.x, sn = t2_.y;
-          float const ev = x[e][4 * c4 + 2 * i2] * rn, od = x[e][4 * c4 + 2 * i2 + 1] * rn;
-          x[e][4 * c4 + 2 * i2] = ev * cs - od * sn;
-          x[e][4 * c4 + 2 * i2 + 1] = ev * sn + od * cs;
-        }
-    }
-#pragma unroll
-    for (int ks = 0; ks < 2; ks++)
-#pragma unroll
-      for (int e = 0; e < 2; e++)
-#pragma unroll
-        for (int hi = 0; hi < 2; hi++) {
-          int const c4 = 2 * ks + hi;
-          qf[ks][e + 2 * hi] = v_e4m3x2(x[e][4 * c4], x[e][4 * c4 + 1]) | (v_e4m3x2(x[e][4 * c4 + 2], x[e][4 * c4 + 3]) << 16);
-        }
-    Q_ST(5);
-  } else {
-    {
-      uint32_t const* s_ = &sm.nks[(tid & 127) * 8];
-      nk_kraw[0] = *reinterpret_cast<const __nv_bfloat162*>(s_); nk_kraw[1] = *reinterpret_cast<const __nv_bfloat162*>(s_ + 1);
-      nk_vraw[0] = *reinterpret_cast<const __nv_bfloat162*>(s_ + 2); nk_vraw[1] = *reinterpret_cast<const __nv_bfloat162*>(s_ + 3);
-      nk_qraw = *reinterpret_cast<const __nv_bfloat162*>(s_ + 4);
-      nk_crow = *reinterpret_cast<const long long*>(s_ + 6);
-    }
-#pragma unroll
-    for (int i = 0; i < 2; i++) {
-      int const j = w + 4 * i;
-      float2 kv = __bfloat1622float2(nk_kraw[i]);
-      float2 const vv = __bfloat1622float2(nk_vraw[i]);
-      float ks = kv.x * kv.x + kv.y * kv.y;
-#pragma unroll
-      for (int o2 = 16; o2 > 0; o2 >>= 1) ks += __shfl_xor_sync(0xffffffffu, ks, o2);
-      float const krn = rsqrtf(ks * (1.0f / V_D) + eps);
-      float2 const tk_ = sm.tab[j * 32 + lane];
-      float const ck = tk_.x, sk = tk_.y;
-      kv.x *= krn; kv.y *= krn;
-      uint32_t const k8 = v_e4m3x2((kv.x * ck - kv.y * sk) * k_rscale, (kv.x * sk + kv.y * ck) * k_rscale);
-      uint32_t const v8 = v_e4m3x2(vv.x * v_rscale, vv.y * v_rscale);
-      if (j == otok && (r & 1) == 0) {
-        *reinterpret_cast<uint16_t*>(k_cache + nk_crow * 128 + hk * 64 + 2 * lane) = (uint16_t)k8;
-        *reinterpret_cast<uint16_t*>(v_cache + nk_crow * 128 + hk * 64 + 2 * lane) = (uint16_t)v8;
-      }
-      float2 const kd = v_e4m3x2_dec(k8), vd = v_e4m3x2_dec(v8);
-      sm.kdec[j * 65 + 2 * lane] = kd.x; sm.kdec[j * 65 + 2 * lane + 1] = kd.y;
-      *reinterpret_cast<float2*>(sm.vdec + j * 64 + 2 * lane) = vd;
-    }
-    {
-      float2 qv = __bfloat1622float2(nk_qraw);
-      float qs = qv.x * qv.x + qv.y * qv.y;
-#pragma unroll
-      for (int o2 = 16; o2 > 0; o2 >>= 1) qs += __shfl_xor_sync(0xffffffffu, qs, o2);
-      float const qrn = rsqrtf(qs * (1.0f / V_D) + eps);
-      float2 const tq_ = sm.tab[otok * 32 + lane];
-      float const cq = tq_.x, sq = tq_.y;
-      qv.x *= qrn; qv.y *= qrn;
-      uint32_t const q8 = v_e4m3x2(qv.x * cq - qv.y * sq, qv.x * sq + qv.y * cq);
-      float2 const qd = v_e4m3x2_dec(q8);
-      sm.qdec[w * 65 + 2 * lane] = qd.x; sm.qdec[w * 65 + 2 * lane + 1] = qd.y;
-    }
-    Q_ST(16 + 5);
-  }
-  asm volatile("cp.async.wait_group 0;" ::: "memory");
-  v_fence_async();
-  __syncthreads();
-  asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory");
-  // achitaan ATP: input staging is complete; overlap the downstream prologue.
-  asm volatile("griddepcontrol.launch_dependents;" ::: "memory");
-  Q_ST(6 + 16 * wg);
-  uint8_t* const mrb = sm.mrb;
-  uint32_t const mbpush = v_u32(&sm.mbm);
-  if (wg == 0) {
-
-    float mref[2] = {V_MINIT, V_MINIT};
-    float lA = 0.f, lB = 0.f;
-    int const tokA = 2 * w, tokB = 2 * w + 1;
-    int const lowA = seq + tokA - window + 1, lowB = seq + tokB - window + 1;
-    if (ntiles > 0) {
-      uint32_t sc[32];
-      uint32_t const kb = v_u32(sm.kt) + 64 * hk;
-      wg_fence();
-      wg_qk16_0(sc, qf[0], v_desc(kb));
-      wg_qk16_1(sc, qf[1], v_desc(kb + 32));
-      wg_commit();
-      wg_wait0();
-      Q_ST(7);
-      int const tbase = p0, tlim = p1;
-      if (tbase < lowB) {
-#pragma unroll
-        for (int e = 0; e < 2; e++) {
-          int const pos = tbase + 2 * t + e;
-          uint32_t const keep = e ? 0x0000FFFFu : 0xFFFF0000u, neg = e ? 0xFC000000u : 0x0000FC00u;
-          if (pos < lowA) sc[0] = (sc[0] & keep) | neg;
-          if (pos < lowB) sc[1] = (sc[1] & keep) | neg;
-        }
-      }
-      if (tbase + 128 > tlim) {
-#pragma unroll
-        for (int j8 = 0; j8 < 16; j8++)
-#pragma unroll
-          for (int e = 0; e < 2; e++) {
-            uint32_t const keep = e ? 0x0000FFFFu : 0xFFFF0000u, neg = e ? 0xFC000000u : 0x0000FC00u;
-            if (tbase + 8 * j8 + 2 * t + e >= tlim) {
-              sc[2 * j8] = (sc[2 * j8] & keep) | neg;
-              sc[2 * j8 + 1] = (sc[2 * j8 + 1] & keep) | neg;
-            }
-          }
-      }
-      __half2 mA2 = v_h2(sc[0]), mB2 = v_h2(sc[1]);
-#pragma unroll
-      for (int j8 = 1; j8 < 16; j8++) { mA2 = __hmax2(mA2, v_h2(sc[2 * j8])); mB2 = __hmax2(mB2, v_h2(sc[2 * j8 + 1])); }
-      float mxA = fmaxf(__low2float(mA2), __high2float(mA2)), mxB = fmaxf(__low2float(mB2), __high2float(mB2));
-      mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 1)); mxA = fmaxf(mxA, __shfl_xor_sync(0xffffffffu, mxA, 2));
-      mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 1)); mxB = fmaxf(mxB, __shfl_xor_sync(0xffffffffu, mxB, 2));
-      mxA *= c2; mxB *= c2;
-      if (mxA > mref[0] + 8.5f) mref[0] = ceilf(mxA * 8.f) * 0.125f - 8.f;
-      if (mxB > mref[1] + 8.5f) mref[1] = ceilf(mxB * 8.f) * 0.125f - 8.f;
-#if ZH_SCH
-      __half2 const c8h = __float2half2_rn(8.f * c2);
-      __half2 const lo2 = __float2half2_rn(1024.f);
-      __half2 const bA = __float2half2_rn(mref[0] > -1.0e29f ? 1080.f - 8.f * mref[0] : -60000.f);
-      __half2 const bB = __float2half2_rn(mref[1] > -1.0e29f ? 1080.f - 8.f * mref[1] : -60000.f);
-#pragma unroll
-      for (int j8 = 0; j8 < 16; j8++) {
-        sc[2 * j8] = v_u(__hmax2(__hfma2(v_h2(sc[2 * j8]), c8h, bA), lo2));
-        sc[2 * j8 + 1] = v_u(__hmax2(__hfma2(v_h2(sc[2 * j8 + 1]), c8h, bB), lo2));
-      }
-#else
-      // OKC: exact exp. P = 2^(s*c - mref) (at most 2^8.5) = ex2(fma(s, c, -mref)); masked scores (-inf) give 0
-      __half2 const c1h = __float2half2_rn(c2);
-      __half2 const bA = __float2half2_rn(mref[0] > -1.0e29f ? -mref[0] : -60000.f);
-      __half2 const bB = __float2half2_rn(mref[1] > -1.0e29f ? -mref[1] : -60000.f);
-#pragma unroll
-      for (int j8 = 0; j8 < 16; j8++) {
-        sc[2 * j8] = v_ex2h2(v_u(__hfma2(v_h2(sc[2 * j8]), c1h, bA)));
-        sc[2 * j8 + 1] = v_ex2h2(v_u(__hfma2(v_h2(sc[2 * j8 + 1]), c1h, bB)));
-      }
-#endif
-      {
-        int const rA = 16 * w + g, rB = rA + 8;
-#pragma unroll
-        for (int jj = 0; jj < 8; jj++) {
-#if ZH_SCH
-          uint32_t const wA = v_prmt(sc[4 * jj], sc[4 * jj + 2], 0x6420), wB = v_prmt(sc[4 * jj + 1], sc[4 * jj + 3], 0x6420);
-#else
-          uint32_t const wA = v_cvt_e4m3x2h(sc[4 * jj]) | (v_cvt_e4m3x2h(sc[4 * jj + 2]) << 16);
-          uint32_t const wB = v_cvt_e4m3x2h(sc[4 * jj + 1]) | (v_cvt_e4m3x2h(sc[4 * jj + 3]) << 16);
-#endif
-          *reinterpret_cast<uint32_t*>(sm.pt + rA * 128 + ((jj ^ (rA & 7)) << 4) + 4 * t) = wA;
-          *reinterpret_cast<uint32_t*>(sm.pt + rB * 128 + ((jj ^ (rB & 7)) << 4) + 4 * t) = wB;
-          {
-            float2 const a0 = v_e4m3x2_dec(wA), a1 = v_e4m3x2_dec(wA >> 16), c0 = v_e4m3x2_dec(wB), c1 = v_e4m3x2_dec(wB >> 16);
-            lA += (a0.x + a0.y) + (a1.x + a1.y);
-            lB += (c0.x + c0.y) + (c1.x + c1.y);
-          }
-        }
-      }
-    }
-    lA += __shfl_xor_sync(0xffffffffu, lA, 1); lA += __shfl_xor_sync(0xffffffffu, lA, 2);
-    lB += __shfl_xor_sync(0xffffffffu, lB, 1); lB += __shfl_xor_sync(0xffffffffu, lB, 2);
-    v_fence_async();
-    __threadfence_block();
-    asm volatile("bar.arrive 1, 256;" ::: "memory");
-    Q_ST(8);
-    if (t == 0) {
-      uint32_t d0, d1, b0, b1;
-      int const owA = 4 * w + (g >> 2), owB = owA + 2, rib = g & 3;
-      uint32_t const mbsrc = mbpush;
-      asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(d0) : "r"(v_u32(mrb + r * Q_BLK + 1088 + rib * 4)), "r"(owA));
-      asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(b0) : "r"(mbsrc), "r"(owA));
-      asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(d1) : "r"(v_u32(mrb + r * Q_BLK + 1088 + rib * 4)), "r"(owB));
-      asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(b1) : "r"(mbsrc), "r"(owB));
-      asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.f32 [%0], %1, [%2];" :: "r"(d0), "f"(mref[0]), "r"(b0) : "memory");
-      asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.f32 [%0], %1, [%2];" :: "r"(d1), "f"(mref[1]), "r"(b1) : "memory");
-      asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.f32 [%0], %1, [%2];" :: "r"(d0 + 16), "f"(lA), "r"(b0) : "memory");
-      asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.f32 [%0], %1, [%2];" :: "r"(d1 + 16), "f"(lB), "r"(b1) : "memory");
-    }
-
-    float nk_m = V_MINIT, nk_l = 0.f, nk_o0 = 0.f, nk_o1 = 0.f;
-    {
-      int const j = lane & 7, dq = 16 * (lane >> 3);
-      float d = 0.f;
-#pragma unroll
-      for (int i = 0; i < 16; i++) d += sm.qdec[w * 65 + dq + i] * sm.kdec[j * 65 + dq + i];
-      d += __shfl_xor_sync(0xffffffffu, d, 8);
-      d += __shfl_xor_sync(0xffffffffu, d, 16);
-      float const sj = j <= otok ? c2 * d : V_MINIT;
-      float mx = sj;
-      mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
-      mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
-      mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 4));
-      float const pj = j <= otok ? v_ex2(sj - mx) : 0.f;
-      float sl = pj;
-      sl += __shfl_xor_sync(0xffffffffu, sl, 1);
-      sl += __shfl_xor_sync(0xffffffffu, sl, 2);
-      sl += __shfl_xor_sync(0xffffffffu, sl, 4);
-      nk_m = mx; nk_l = sl;
-      if (lane < 8) sm.pp[w * 8 + lane] = pj;
-      __syncwarp();
-#pragma unroll
-      for (int jj = 0; jj < V_L; jj++) {
-        float const p = sm.pp[w * 8 + jj];
-        float2 const v = *reinterpret_cast<const float2*>(sm.vdec + jj * 64 + 2 * lane);
-        nk_o0 += p * v.x; nk_o1 += p * v.y;
-      }
-    }
-    Q_ST(9);
-    asm volatile("{\n.reg .pred p;\nPHW_%=:\nmbarrier.try_wait.parity.shared::cta.b64 p, [%0], 0;\n@!p bra PHW_%=;\n}\n"
-                 :: "r"(v_u32(&sm.mbm)) : "memory");
-    Q_ST(10);
-    {
-      int const sl = lane & 15;
-      float const ms = *reinterpret_cast<const float*>(mrb + sl * Q_BLK + 1088 + w * 4);
-      float const ls = *reinterpret_cast<const float*>(mrb + sl * Q_BLK + 1104 + w * 4);
-      float M = fmaxf(ms, nk_m);
-#pragma unroll
-      for (int o2 = 1; o2 < 16; o2 <<= 1) M = fmaxf(M, __shfl_xor_sync(0xffffffffu, M, o2));
-      float const ws = v_ex2(ms - M);
-      float L2 = ls * ws;
-#pragma unroll
-      for (int o2 = 1; o2 < 16; o2 <<= 1) L2 += __shfl_xor_sync(0xffffffffu, L2, o2);
-      float const wn = v_ex2(nk_m - M);
-      L2 += nk_l * wn;
-      float b0 = nk_o0 * wn, b1 = nk_o1 * wn;
-#pragma unroll
-      for (int src = 0; src < 16; src++) {
-        float const wt = __shfl_sync(0xffffffffu, ws, src);
-        float2 const ov = *reinterpret_cast<const float2*>(mrb + src * Q_BLK + w * 272 + 8 * lane);
-        b0 += ov.x * wt; b1 += ov.y * wt;
-      }
-      float const inv = __fdividef(v_scale, L2);
-      b0 *= inv; b1 *= inv;
-      float ss = b0 * b0 + b1 * b1;
-#pragma unroll
-      for (int o2 = 16; o2 > 0; o2 >>= 1) ss += __shfl_xor_sync(0xffffffffu, ss, o2);
-      float const rn = rsqrtf(ss * (1.0f / V_D) + eps);
-      float const s0 = __fdividef(1.f, 1.f + __expf(-__bfloat162float(gpre.x)));
-      float const s1 = __fdividef(1.f, 1.f + __expf(-__bfloat162float(gpre.y)));
-      *reinterpret_cast<__nv_bfloat162*>(out + (long long)otok * (V_HQ * V_D) + (oh0 + w) * V_D + 2 * lane) =
-          __floats2bfloat162_rn(b0 * rn * s0, b1 * rn * s1);
-    }
-    Q_ST(11);
-  } else {
-
-    float o[32], la[32];
-#pragma unroll
-    for (int i = 0; i < 32; i++) { o[i] = 0.f; la[i] = 0.f; }
-    uint32_t va[4][4];
-    if (ntiles > 0) {
-      uint32_t const vaddr = v_u32(sm.vt);
-#pragma unroll
-      for (int ks = 0; ks < 4; ks++) {
-        int const key = 32 * ks + 8 * (lane >> 3) + (lane & 7);
-        uint32_t r0, r1, r2, r3;
-        v_ldsm4t(r0, r1, r2, r3, vaddr + key * 128 + ((((4 * hk + w) ^ (key & 7))) << 4));
-        va[ks][0] = v_prmt(r0, r1, 0x6420); va[ks][1] = v_prmt(r0, r1, 0x7531);
-        va[ks][2] = v_prmt(r2, r3, 0x6420); va[ks][3] = v_prmt(r2, r3, 0x7531);
-      }
-    }
-    Q_ST(16 + 7);
-    asm volatile("bar.sync 1, 256;" ::: "memory");
-    Q_ST(16 + 8);
-    if (ntiles > 0) {
-      uint32_t const ones[4] = {0x38383838u, 0x38383838u, 0x38383838u, 0x38383838u};
-      uint32_t const pb = v_u32(sm.pt);
-      wg_fence();
-#pragma unroll
-      for (int ks = 0; ks < 4; ks++) wg_pv(o, va[ks], v_desc(pb + 32 * ks));
-      wg_commit();
-      wg_wait0();
-    }
-    Q_ST(16 + 9);
-
-    Q_ST(16 + 10);
-#pragma unroll
-    for (int jj = 0; jj < 8; jj++) {
-      int const ow = 2 * jj + (t >> 1);
-      uint32_t mbr;
-      asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(mbr) : "r"(mbpush), "r"(ow));
-#pragma unroll
-      for (int e = 0; e < 2; e++) {
-        int const rib = 2 * (t & 1) + e;
-        float const v0 = o[4 * jj + e], v1 = o[4 * jj + 2 + e];
-        uint32_t dst;
-        asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(dst) : "r"(v_u32(mrb + r * Q_BLK + rib * 272 + (16 * w + 2 * g) * 4)), "r"(ow));
-        asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.v2.f32 [%0], {%1, %2}, [%3];"
-                     :: "r"(dst), "f"(v0), "f"(v1), "r"(mbr) : "memory");
-        if (!VP2_LWG0 && g == 0 && (jj >> 1) == w) {
-          uint32_t dl;
-          asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(dl) : "r"(v_u32(mrb + r * Q_BLK + 1104 + rib * 4)), "r"(ow));
-          asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.f32 [%0], %1, [%2];" :: "r"(dl), "f"(la[4 * jj + e]), "r"(mbr) : "memory");
-        }
-      }
-    }
-    Q_ST(16 + 11);
-  }
-}
-
-void vp2_launch(int64_t qkv, int64_t page_table, int64_t pt_stride, int64_t seq_lens, int64_t cache_loc,
-                int64_t k_cache, int64_t v_cache, int64_t inv_freq, int64_t out, int64_t B, int64_t window,
-                double c2, double k_rscale, double v_rscale,
-                double v_scale, double eps, int64_t dbgp, int64_t stream) {
-  static bool configured = false;
-  int const smem = (int)sizeof(VP2Smem) + 1024;
-  if (!configured) {
-    cudaFuncSetAttribute(vp2_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
-    cudaFuncSetAttribute(vp2_kernel, cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
-    configured = true;
-  }
-  cudaLaunchConfig_t cfg = {};
-  cfg.gridDim = dim3(32, (unsigned)B, 1);
-  cfg.blockDim = dim3(256, 1, 1);
-  cfg.dynamicSmemBytes = smem;
-  cfg.stream = reinterpret_cast<cudaStream_t>(stream);
-  cudaLaunchAttribute attr[2];  // achitaan ATP: cluster launch + PDL
-  attr[0].id = cudaLaunchAttributeClusterDimension;
-  attr[0].val.clusterDim.x = 16;
-  attr[0].val.clusterDim.y = 1;
-  attr[0].val.clusterDim.z = 1;
-  cfg.attrs = attr;
-  attr[1].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-  attr[1].val.programmaticStreamSerializationAllowed = atp_pdl;
-  cfg.numAttrs = 2;  // achitaan ATP
-  cudaError_t e = cudaLaunchKernelEx(&cfg, vp2_kernel, reinterpret_cast<const __nv_bfloat16*>(qkv),
-                                     reinterpret_cast<const int*>(page_table), reinterpret_cast<const int*>(seq_lens),
-                                     reinterpret_cast<const long long*>(cache_loc), reinterpret_cast<uint8_t*>(k_cache),
-                                     reinterpret_cast<uint8_t*>(v_cache), reinterpret_cast<const float*>(inv_freq),
-                                     (int)window, (float)c2, (float)k_rscale, (float)v_rscale, (float)eps,
-                                     reinterpret_cast<unsigned long long*>(dbgp), reinterpret_cast<__nv_bfloat16*>(out),
-                                     (float)v_scale, (int)pt_stride);
-  if (e != cudaSuccess) throw std::runtime_error(cudaGetErrorString(e));
-}
-#undef Q_BLK
-#undef Q_TX
-#undef Q_ST
-#undef VP2_PUSH
-#undef VP2_LATEQ
-#undef VP2_ST
-#undef VP2_QSM
-#undef VP2_LWG0
-#undef VP2_MLB
-#undef VP2_P64
-#undef VP2_NOTF
-#undef VP2_STRM
-}
-}
-
-void muse_vp2_launch(int64_t qkv, int64_t page_table, int64_t pt_stride, int64_t seq_lens, int64_t cache_loc,
-    int64_t k_cache, int64_t v_cache, int64_t inv_freq, int64_t out, int64_t B, int64_t window, double c2,
-    double k_rscale, double v_rscale, double v_scale, double eps, int64_t dbgp,
-    int64_t stream) { vfgns::b1vp2::vp2_launch(qkv, page_table, pt_stride, seq_lens, cache_loc, k_cache, v_cache,
-    inv_freq, out, B, window, c2, k_rscale, v_rscale, v_scale, eps, dbgp, stream); }
-void muse_vfg_launch(int64_t qkv, int64_t page_table, int64_t pt_stride, int64_t seq_lens, int64_t cache_loc,
-    int64_t k_cache, int64_t v_cache, int64_t inv_freq, int64_t out, int64_t B, int64_t NS, int64_t window, double c2,
-    double k_rscale, double v_rscale, double v_scale, double eps, int64_t ws, int64_t dbgp,
-    int64_t stream) { vfgns::vfg_launch(qkv, page_table, pt_stride, seq_lens, cache_loc, k_cache, v_cache, inv_freq,
-    out, B, NS, window, c2, k_rscale, v_rscale, v_scale, eps, ws, dbgp, 0, stream); }
-"""
+# achitaan ATP: lossless CUDA-source storage, decoded bytes=47767 sha256=2caaf4b8acb2eb7d9b343e58ed26c87b232e8f36a00ea8d6c47a4d6b71bcc9eb
+_ATP_ZH_WST_CUDA = _atp_source(
+    'c-rlKZFk!?(&%^p3N$@QNn27xN_Je!a<82xX-}Lq+hmh_*6Zp}6e%&HNSdTx+&1^O-<bhOf+Q%(X?O4Q;d-|b2?B$+!MtHGc>0w6'
+    'YvwJi@cL;o^{rsa!nr+)tkj-89ofr?HA-T8v`*4abkDTQ$g*cn+w64pGX{wxJ2m=arnyVsZ~NB06SI{Qd+vRUjV*v?I};W{3QK1W'
+    'qySL8!#>2`VgVo0@ZjlF`eKJ+<iu9$t(>CV+=&CnXBt+)p0c}<?*z<%rw?x~+Y2jVkri7DCw1b4P2w<$oCyH`<@IysOuRH<R_w5a'
+    '70&_GBS<}a)WPch_0#D6^Ph$WfOn#V&Afy~o?|;}FLBzw7dTeTwD<Nbww9C7k7hb^HW72fm@OPDS;o%72~sv*dj2F~Vc_2ns0S0r'
+    'wU&O$035zL8_Q0yWar>pFR=aP#9`-Y7{j1Co74#sFAO@f3+dzK2Pb%n<NfscKYzS@9tJ67EN8*5^^}nt87GS5v8zmWqf?&h2GC|P'
+    '90%XRGxS}&vhKmRPB8J@gZ#sfKfk?ZqtV1!dA2he!6OWb?RWtW*=TfdKp9q{H(~4PVgdCyFo~MZ*dNSF7VyP~>Gd7$5q<8^=T34T'
+    '*d5FFrhzjVJYr{OXYA3!S%mTZBYnWW)PUOIV&SC#RSlGX9!=wL8SR9fI*SO3!?<`bp>Ho(wX(Ifr7HZWsE9r8QeEs(@JM^BQ$<oQ'
+    '7Go<Oc>%y(0t!$8NNKVB%?_7A3UwYZ_$$|oWn<5YJ6OJx%mBS7o$*PZ-8}Bzw%B7sR2)CjAgA7<Ck{^^9DJ#^0)efZQag6k%S*^L'
+    'k6KiDxnd@dbG=>~)rQ_jGb?eFt)LYAd-TV@gHG&BStp9I#Ngk-r^}x|j2;iq{vA9jvgNH#<9n*J1JuGx@8#x4tzzs-h5y$#5gW%A'
+    '6OiHK7x-QuUD4jg4il1(qBz{#k1RwJ1v>GCKzTZpN3`(l%ucQCYl4Fp9pz}%1b-ptg7Nc#mN^}u3ki_V?X}pEHIgu96of!f_P`rE'
+    '68)(n5CNzn@V+?2`@GESf5JBPK0m_pM*wT1D~HV0TtBo@D$7_yaW^l%g;I#-jICf^42kw+tlzx7#bNn2immCw0u+x!-=|SRR-z#w'
+    'j}2LO06*vKE&LoE>3Q$QH{LCEd}q}zRZZRb%k{cNy~rtpu$`>E-+%WVD(A$2G%KP}#8}f9I6<NV=S%F^i-5VYHu1iX48)14lOPPk'
+    'JiW@GOxSB++n*tyR73-2&fb6e`CtFKelfz_4Cf$eQArkuYj`|u!!ILZn=qqm_OEn4rTK{aA;>NC&%&BJBZNOn)&QcIl*F1$a!ie#'
+    'bQuRss{_zAjdHS!3)a`!6V~1IUcP*(=fr{i$ut9`9d>@sjFWP@5*{{KK!YMZQw{3G<l|nR@XP1VFKSHiu0XXzHYv#GA+uVlA(@OH'
+    'Oi~jkjXHtT8TU-2l8<}OT7WVo8p+upwntDci3@fXC;b3Mf8H}YD1|uvMUVa|LHOfwxAoX)JvLj9d#%U)*5l*W<CE6oXRXJlt;gTP'
+    'C;SZG4ai_X4g<0n$1MrMV*~OVP{4o^1{5)&h>0MfhzUhZC}ILw6Y`mm&xCv?<m*Acp7EtsYE2It0)=`|sCWDYyM5Ba?i=ub!2|OA'
+    'g1}5}y0^#-__HBBo6>VndhScl$I|nO^!yB-3oOY}Po*5+%e9u8Ah*Gg8)3+;Fyv+!$IAK)xk<(|`9*GuA-Bbp+hUf+LvD-NQ`Tt8'
+    'tup1&G3B<Ha$8KfEvDR-p4^t6p{UW4X3vsl&yr@(!r7Cj-3M@E{0b5ttWPdn9SHe&X8EqkmOXQ37Q|qM97>R!!`LBO3QG-?Co4(M'
+    'MWMqB?a8X(R(au>3DC3*@^(-;C1`*Z#S2OHlBva5dQKcaBN%yFJje)$_6VU6Wq|byq7(dQ;#wIH+Z@7>asG{CC*-8D_(jP2K&HSk'
+    '4j%9c)Xxf~$ppoUS)kw9sJsCMfkzK`MF@(>n}5FiCj(`XnJht01RTf;Cd7Ck<Hls|3x=cyp6oCH)e}`M7P^$<9i#zss0@p<F-KIk'
+    '7@N)35r6_6D?*vA!|UWDp%{UUs=wvhlUW$2%wDA<-fT^p`dTY^X1Og;uoDNJ#7bS1?VJvWqH5SoY8b$7Y8f(~$Qywc?vT9TTZ<~+'
+    'gd|{%hE7b6-hjcG$S!-t<tkqco##gWM_)ww6TWs}o<I!UL@`zU`sX*VKteH2dZ+yXlm7ruUUS*vi~(&s1r`22xy7feTaY0zMH`3d'
+    'jLlbU=2(+NuYmptpnn3`r^feY4K(0X8%t&K3)3R64T+0o>HwFOB%mtT_aCsq)b1ld%R^qzfP?LsudfJSlN5kfO8$EJ>8i1>v9*S_'
+    'B)&Cn>aGMW$B?%#urb}u%jezhAXnetjDCLm^9QE2dtLbJbX`5S0Kn24eR}_41hlMY<^@Wr%*gBk(5%FXS6(nZV|_O976~pbT$f4Y'
+    'dujXiNA?TaWm3=bQF;R$Wo`rzH2PP30hun$OhUo@yM&>w0-+>Aup@c4&-}><OY}ABCr>>DDhsO~rO$LUV(VmN*>;OdI#3}^6r0?U'
+    '5bRZZC*kmD<WKCWR->U(RehkN96rn|cIJ?QwsM5f0dc=|{KO%MyvPy&nQQ}tza2E?1IP`ZN26dh8dLqoN!|cm)q<k#QX$|!U1-JO'
+    'J{1t#*>pBQpqIu23*DCq2ua?2+<;x>dFfYMcBu|k`n@vUXvl9sej0p2$Fgz7O6DU!oO!Y)mgqM<^Oj?U?=3F#rz`Okt}pW^k(Tb#'
+    'pgwaA>N7(X0De)0`XiSSFvlEc07*d#vvmr;p9jTvmuc|*g4)CW{1Y>uQ$zH8`6oA6`138j44GDXN2LUGl9#xYmq<@x&DX#mF{4}s'
+    'CS=v@1dpJx3IeYoP2uW}x))b+FRp66z^ZShYWVxZdT~|l#g)Dr{Ptda5qhp<>;+O}{&o*DNFoH&fV2Wtg83XGMF?Z<9v31gLklZN'
+    'y(F=anLwRxY}pzjvM?Y608Bb#N8L{6<T2K=@FwlhPJw?Qk|o~6p*o<(a2>Fdj(PkTR`?Ro8kEKkqbe7chUzbnH^b=nLA^c&P7Hi`'
+    'l3)!ts9Cm{+3la|Y&~;gCo`ubHC_4<8lyoxOTs*H>;Y@HQdr;tR1BlY#`mCW{`_88;U~@jy0+2M7U|hKvw>5C(v4r(1t2}vpy5J;'
+    '#WiGYFK|)b>Y`B}03d}*mJ7_kfC}Sq!KJQ`TyrG>4nO+KMW9o|d^9B3Gba(^*)jp`v8M4xt7oPrsQ-UQ;q4m_S9qV9r0>Fi|3mfN'
+    'R!zk%>%UM46#d6NDAfBN_1}JXtN!as`mZbLzpkYJx|06uO8T!W>A$X||GG;3*Ol~NSJHo7S^srq{nwTCUsu+DU0MHi)%ve1>%Xq7'
+    '|GKjN>&p7CE9<|mtpB>Q{_CpsUsu+DU0MHiW&PKc^<P)ke_dJsb!Gk6RqMYzxin4k2=(N)^p5`%+Owgn<bM>NzX#&-y@|ZFQAq#o'
+    'gAmi#9!UI1J&3p<3DTaKWH|(3429(u7nb#dy4Y?OayyFRgR<G%I4LBFNdh#H%R>11kR`Fb!|rWQGb8uZ562)6^Ua2v#|HcheakK0'
+    '02@aHhK7JvY~Rr9_Fw$Vc51tz7WpuQWSafQYvy_}^k?3NL4jqyjzN8F<CZ1^iF3JFLXW~YVVVV`+(~BaJ?Sx^g|M+7+H+lDnOy(3'
+    'O_SaKZ<wqR=AmSm97=}Cp=6jGN`}dyWSAUEhRLC1m>en%lS9ccIg|{OL)kDnlns+Z*)Tbj4U<FJFga8kCWo?Nawr=nhq7UEC>th+'
+    'vSD&48zzUcVREQ8Ob%tk<WM$D4rRmSP&P~sWy9o9HcSp>!{jhGOv;ld5mt$=N@O*os;!KeW>g{x-4ukkQDV=CD2B_F=%TckL03y`'
+    '%Xe~<8JgHY;1qU~co{Iu1?dn(Hf^4^4IPy`4~=YRq+X%my8$WJ`u!ejj2#!G&cJp+CTy`e$f=eO?IPKk3~eZ;M!sb`9ri0}i3tj-'
+    'P%&!%Af2wQIQlN(#Cj3p<`R7K;sUUc1;=6N%l#W!DjhG|1zYGh@+-87-ZLAj_GE6$Iqv4BE6;iPFDrF7Kb@Jvy5L#UW{oo6zDE@X'
+    'vo>gx56~$0(JE`2rT$kHNu@IRx9E;F{Zap`>Y`F*{L305*Ak0=Gh9f!D<FC;mKyjw*w<EYTANq|^!b)dMl(QdQ{y`a$xWYz6s<CH'
+    '0-6_Zb*XXKfadblO$Cfz4&%$#rYER`_6PWTfqlSVPy!A8A?TcS8fORJleCK2wL#zsE&c)8o20iD<f-+WC-51m7x^NY%J`ahyIjBC'
+    'xY^bUw=a!GpcI>!K&=2etmlLy%Q5q&vvQV_ElyNm?5@DrU4c=m!1Cb@?Zut0JHR(1f0G(O#4?;CzC$+;iN3M(AzNVKBi8LaJ9g0^'
+    'uR$B-uSW5;296WwA^T=DvV4C;zASt_(&}kJeWDP~Gv$`2nU6_KgANi~OoL+-6BHNI5qEJsl9}s|Hesx&2{Rb-B6w(FvsAd4r`Xt4'
+    '*r?Y0z`~`PWo%gl*azG3V9q%_oGfgvm?0g0Ptj}-zuk^u9=l?D!FYNq%t{5*JOfrNHq+1$Wt=qBY1HaO%_KIO>&yXVn24Koys@l}'
+    'z0gZp3^|LzvlvpA1qTA<1|0wJ8PEa^_rftT%R0At-Vrx3)ABG!aiF1P3>t~XG5k5Kv;xW*`<63GR(+vy(#|A|CmQ;o{Y-m@Joq;)'
+    'Ikf2=7%{A1l%*s)BA0%?V<c?puvAGeO=mFdGb>?12*lNKaE}wUDej31S{7~KvGxgaCAke6uX-IWeeO={qUjC|dTGdxyufXdKu6}d'
+    'Lx#H*_yqFRTk9?8bu$koLMj|Pmd&+gA*5wHr26iWMkGCFZBy(Zu^&WB@%fC8Vte1wN95ZBmQk4c1-mL^Mz%S@+478BZB%m&>4?aC'
+    'bLyVSxz<5p$tHG_Z^jeTfnQiS1=A&lE#yS#`DfhX#3X80dCRD_<=x4u;QO|rTgNe6vmtcX{OuHoG_vMimuWPQ&>Yt9pXvi9Y_oi8'
+    'oN0&>I-8<jb@#7!zSt(uhhdNI>*XoTHj9u$WR7Mf!Je8Ve7(=e!J5|2CDZP>o-oD1LB)Y}b;NNWIyay^R{(wLCFBsUrQsYwK#Q<v'
+    'I-7<5gbz1X`MVQ`Nwzdl3Br|>>n*Iymw8vutmpUSP3}8x3Zs{XOM8ZP>dZC+Q<Da5Cz#^S>DcmR*Z5)n%(R#PXt8%!FHuiu3-9)Y'
+    '6HgtzFk-F4c;4hX5AtgY3wY6f%|FD>-O@?YM5jhnT*sdO^6Lxi!o@+e*EYA^K)Xj!;|PXukB!!?ITky<`^|cm>W^>gI`)`rRuS6Z'
+    '@FC82dHHV;WvbjNffnKhYoASHYn>$nd3{*L<xSXfH^N9VWleFtWs(kH1MY;=F7zo(TZ}#kYy;1@QGN!P4Ja5y`7Suq(6a?5l4ck8'
+    'ur0o`<N6>0f+iVGNmp*+GC<TKWC491a5v$FaL2q5u-@RFjN$aUz!0tzoc#{6hMhW!<Pmx*JVLD-@0J6o7G*}caMb0cBjgT2L=Q(p'
+    'c7mQtG$yn-0%rrdIBxfsye5Sxvbs3|$-~E=LHS#sZ7>zo^}$Z9BN7dPc7P5YDRgL%O|f;9C5Wn@3yzX`697O&KPaJbXHH%kB_cpZ'
+    '+>;;FAV6oL+rkR~R|Vg^*Xw!xT3){~?*{X7)|~rAWQ&qeZgSUH%Gg#4YV21^eqqR|6vLBsj$_#%?*QV7+(M~Z*)M?bvGh;1;)D8='
+    'z-<)4-h34jP*E=8zJYF29~uPl#LgwwH^6$|*it@NQHMjwvAYdT>q!*P^5b%SWB(0!E%#tuh}<+c(22?zLqA}B@|ini>&E(<x@3wj'
+    ')v?1O69aS<;G?e!#{%!Rvl(RHxap<({eI8{i%cH1{J+cadiC$??O0W}2YA5>Itc88J%#ZZNHjG`)MRic1^pwRa{xX-IM7O-L_Y)3'
+    '3?NFyzLbV+JExqvs}+g>u{Qz1<~tU}PCE$W1=3X~NXff#nMO+>uR+Luee?b;d~AV^!KNS#6r`53MG5_i%^7=1gl>yBsjWW<>-$O+'
+    'QTi&yaUroMW}c2>yG7PI?-p5@nIlgHo9!j%R85{saxdbzW)#9dg(EGF6_f~p)DPt`<KpW+#<LLj7L5V^5>DXnIU3IdCRB|DQ*K{R'
+    '&^ON1g?68Er;6_qkRi|?lb<-OVJ`^OFn`HioVpr7KLo)7HK?cTqz@DpMhyg@E&gJMAX6*mzsd6pB`X1q<5V~}DC1MO6Q4qT@AXv2'
+    'r4qsJk_8MqtKrWPG#FNrtF>#sV^g9;IvU&(<6))l^}6Ne;dl)HpxZXIxs1_yx@;Q>zXq>4PVd6!P;3~Xu=?p0C@YpnYK`YJ2lR@2'
+    'ejparETLgAcg*<VtqDv|n($+aAh>#Hwpc9v)Qfy7U>=`vYe>MQUDDXlAUlWt1!IzUDGkNm$Vxzb{i|vV)+6*508kOu?KIw@lI)|@'
+    'JV<xgr2(nXr;_h(zT%n<Jd7}P;ykboSQyFw$PRt7iEhznmT5_S`bw3Fs&s{>wif$ipM`=pE)=zjPIoOf&Co$ZEb)9U*)_T{U!xgv'
+    'Q27#|c^i!tkmU!a!M|-nGeEI6(%7f?bcQ5^yHXcu2<dbf08ke(2hdRa^s2oKJV3Dp&|OJC%k9}v+c_B#Wb$7$W{!=)9-yy#k3{Mr'
+    '(<tEydq!r|L1E0Rt^iqA#5DMrS4=R5RP`S<zRgwzwU~spQ;hzkW7&60FLpZ9XeoS9I!keG1HDj+^9n0n_~yWRDLbHmDzKh;cm!|-'
+    'oiUG(mnBkDu5xU}<ZeMVK+_8s7j#-)Pb<DHlJ9h(Pm}Yy>n?F4E*nEL(@%2#fFnMi58xLRIr=?9H~Ko4AaeoXN=AdKbes?}4d)}w'
+    '#??F^cZYy?p!Lx?z+R2^)7pfkg(cQgoM4_Ar&}+av<DU83pr<|5mAcPU4j;r|5tXem88ONxL7F4A8zq1M=B3g1FGj;I+SP#B<3^$'
+    'p0NW`jTIUZqSk>f1O+4{-q<%?6fVk2CZuz0>P4<&a-$F@e0<d--@AU*LL&|uaF8Yt-Qflsq&s9{nJy$Z-O4f8_a8Xbc=wY3zJ2$J'
+    'Km7VD|NZgBbN(Q+6TSj6_5mulwG8apXpBy`$!Mej??QHL;>J2b1Ui!2@iY~-+A}MzlJ3*io;g?cs8uE;l?+k3{k!i3f<|v+ZOxXt'
+    '?KZk*E;b+0wnj@<k`{O9dOtNCKI~T|;trbkJN}eJK7V*G_=Fcs!gZ@jGOe>kn9E@4`%xNK86?hftIYQ(>0qZlZ<$u0Rx+fXJ$KSX'
+    '%CuvER(ybDsJqc&ZjaP8<lb^s(FP;2z@Xc5JwhL_qtTp8xN_2}oP?WBkl?hBUHw2}y}5(ryC1LlsJ{H?`xpG_#sB8NZ+`hvq`Z51'
+    'ZStqft1SCJ;Fnh353CC$-yo|usY8ld-oE>QpR#2)sE8Hl^cjbfrA?M_Vv{N$pU__4SA!@6!L0)oh>r+C!*(2TKmbz65}J6=)UwRQ'
+    'llZs8*>*}yvS09a+M>vq{D8d%upjk`<dAx}sm{Cg^JLT6R7DG%TynOguPufG(G<}AM{iNjEQ?F@2}8}$Q77()N|H2rLISlD{{8R)'
+    'R<E<TxmEJxWNamf$ho_fJ{sAp)EZ5lzyU-YrJ(?>Arv)JUwI2;4+Mw<JVF`{4Mi8+K|Vz$8!ufnn4A3g9z1>j`U>57DF8t3@|)<Y'
+    'S{At1QdGrH;$^4tzE?JEfnke~Ap={2)<@|*z2wakVkeP=<ef^V#ZMR1^-`Y%3UOCv-Vy;3-hhE->OJBN0CT-fb*ty*id4fw5(G>+'
+    'M<B9@Q-qV@JvkzTf?8U*s`P<`{z9=6i{QJYz+no<p#sSVM1qORog~PT%OH;Easf^M^eU0$!lKDoi0oO-e_Rz6zS~^9!2LPCl(duM'
+    '_A^+8AhcW1#lD0F3ZV?99~TtV4078END?H8!|M}v(nHD2IH}5V1)8G3gARB=0)D`_52yTpOH?G5gFVbeDm=gz6_|i0PvIxj%VHp?'
+    'd*c6+K&FTuGf)ii#Sq7sJ$b^!fS;b$2V7|TB_epnLv3)SBUALVGdo=OZqqp>5HzOgEWwjL99b0u?+0SspRk_f*hAv?G9YV?dLOAI'
+    '*4txl_krJYc16D+*Y`}dB@s)Eu>|eV_`#s&Fq!(i=ISQUnBe0u6_65ygfi95cziqHMYRMWUjrY|xTpe%f#;)u$t9?1io_#i6KANU'
+    'q5KFMA0Xeefn;IK+JmP<Q-42;dnoLOVn;sA%!hKD?^$k0Tt=DGkt_Z{r2vi*!ji=<!vq1Q0OD<MNbhT{lSU<Z2SbqgOycYvu}ygl'
+    'DKW2FS#Qr!+FC_ZxK0Zd(QZ*!#%onnqk)j(uqGh{XnK|Xp%?)WuWqX!ULoUIc!365#|Ozx&BhUV<>YGpHUjklhUV27TGjcYq2qSq'
+    '+scd6rG-b?U`=H!39;$sBZWSIe+fnSqt2T-MsK_EnvKu!-vn9^0Xm>@O%s)%+Yq<JC8>oW0>T8N+Ko|Qg(AEip_{cLr^KnZfIg88'
+    '4#82r0ek-85~PW69VB^sZ*2Anq?=bDv}-m;V*U;d{RFN2z*~4#8O|~4pdiUthgm9e2#c572bO8bK7Pcpcyg=p1uKQHAWXZ>%8bW='
+    'l~OqyXns*p4t;?MI>r|$!tAVg2M%$zh1m89%@>j-9fttjK+xem8v`72wyN}Gg{nin4jZ6<(z6j-8OluANETUhA%cy8ZlvRcOUZ#u'
+    'oXV$%{cyzd%shO!!VV1-Na<Vgl;axtj}USJkysVZW5RZW0M8LxnS3lr{G_i(R2Q`z12%A)@$sVuSp-a7Gz(G&e0!L;4uMenzLfef'
+    'c4?b<P$%+4vH{kBae{-a3u;2dAVfHap~Y`a8%V@caE7EpKytdoQa9QP9Zb=4XJd$EzXAn>^72(!X9pYf7~i0gjnhFF+CXpA2}Dai'
+    'YfwiUV53nCXAdYKlx#!tK)G=}#wLwjnYf`lggx_8%L>@#hj(W}F0*V3eTfK)#`uJd9T%f)W&HYSzPM2bCi>UO;Qi=CPB3u-D7CQe'
+    '1+C!6D4;kf<x2<17L3q%nWdA#KLNtvb81VcZ!>tGe){G5g|xYd>c)3;q&M;%O3`>kNnA#xgz}SPNfCzy)|lQ=*as2R#EGCYDYT4Y'
+    'DAr=n?Jg$lHj}*HY8Yg=#Wf~dZnuh{{(XrK6Ny)dT06wq(s{jn2G2kN#PRvarP}d*E`YZ(+Vq{E)t~`ze>D6pF;38Ju{*Fv%L4?h'
+    '2Fwp)XWE%Kl@o7h@I5|J50MNP`-UqKpJBcCA6iGhyH_2@4}}Y|Pb1ud9z;TuCRzk@q|AeSD-ycFaf?NM_Fk4*B|eZWkyb%QZrERe'
+    'Vn(k|P`ne9Evft-6pWWPE|ONhV=LSAv%w&HE{=A@W%eE!Me}`s;pr%X7NOxY=8^#VHPQ;c;}K|asri`IVw2eN0$rGR^YZe3o<{2u'
+    'rTA;JfvkGTG#?|hr(>%CKWRS$zx}|!wZ$ipdGVcCM!y9T_^23B<9Lg}Uv_W7G3L<6Xf7Jl8J+>A7u+E#bBAawJE-P9BPGm2UBv-i'
+    'I@|iVHswf@{v%;0=geD=GMj&Tr&q1!qVI)aQONq(VKRuTMP2OMD!F<0^7iKAyW6r-MA`<*14)X52K)scDbNJUL|ra@xB1JhiuY4E'
+    'A!aY*1jkWGoh@!sfQk1~y<A`7+~xWW9xX_Sqt&z;%vRHD%1w92WXEYSmztZ7;EA_9z@0>15dwmj-0G9a#t530qV1r8vv)5A@w3qM'
+    'qt_SXA#)?{kr$=8KOSw=pm|w3c7T#2ub_|}wI|U^$4O|GD9DY`6{aKT*&%IUHDvZJIvYiO<@zDY0Z~`7j$pKmjJ?yOpyY`Qbp_Oo'
+    'HpU<7clGgIqvKV1uginRXBNyOBzyRJMAWSAXNBY_=2j0K(3LwK&`{ryvm**naf^Da-!{2bWq^*35GRI+52|LuXON``ZMy1~xVd8P'
+    'W{bfcON+rp)!dbEnI{M|t75aO#^&vqROyx^*j12>ufPJy=6QsGJy9+}1~gCEW3(7Gp&G@6;rX7{^U>^44vfMgMOe<QcTfo#??kqC'
+    '7L2V9huidr%v4RC95XsIHgeGWx{g*Y%c*1yCP-uq-nJ;dVqyHn#Zg-ze;jQ0`XD_piS2wVnXf1!CRhtlrLqmO28O~;aNpv*n5JRD'
+    '--;dP^K%f;TC`_$M3E@=0w^L~DBx;EyjuzUY6ti)2fI_$(WAFxki6n{IUO!J8Z2Rg-o1ohjs{;#S&>~YZ-wi7eT85xpi=0Zzi2$S'
+    'lK0c0$snGf(G|#{1xunrJpyM<LRvvTf_R)ufMk{!ic>5w(SNR5SyV&)EEg@aqXp>yARIq|Nbt=^5e5@~Nl9xUFTqk0ib2E;CS>~%'
+    'LY#13X)2r2DN_J}(I26#m!J(@;|ZM3K<a$PGd*F33K9(!o`RxG=d?Jl%NhB8<%Z5NRObXrHgiPocJUCe2_X%_TnKRxJ6RS8ALbUN'
+    '{5v9F3cfK!qjrSDlzWcABq)}g+I2HBAL6^oT{pji#^zp_Fb%?+aaa$}7n$70a**Z9tjG;H@AVqH&Dh6Rv@!F%-biOxnyJ$s?%n%T'
+    '#=UtroXX=*xlXmSZ^>AWE?`xDyk{}<>xxy6d(=)q5KjIeoCeMsT#GZuVsu|chl9P>CXbYPce<+MI3#v9mHlSGVT_K;&vfF3vm2dm'
+    'OszOqVrm=QM>u5YMzpyx_#>UGfBSLt{_?|141W4Tyuawb>FEt?SdQVoZ_Q>=b8nBDmBBEwuHS!6*ZV~Sj{mz|KPhT{_E)-I@r#*|'
+    'Y)D91_8jNmFEoLkD4*cj>=9yO?hbRKqTq!HhU};yv-P&9cXyF^Vwf&yR}F8=WMwqs8&u-{n{w6$cS#V>^Lu0BM;h+kmz^*bTlm6j'
+    '<cynoyntPsnbjB-6EB#m6qmw*G8M=6@PVWn{s`pb-OGJND7Em_EPu~aQe;rAT&ndy$RR|mKN^Mc+<5kl5U}78tr<sTOUdThFrT3g'
+    'j&=y-T0-2?k}>-DW`bE7FCDbzi!Gw;E-0a^Lm3u@iHG*QMA;lt0X0<oYO<iBXGdt|*e*fV6>72%k!@w0_5u0E17S<*4jLs-RTW9D'
+    'a_9D^L{_;I)Uajq5l?uC`ADG`?4v)Z_EgFTa1QDQ_k5=WT^z)nA=;-`bS_Rv&}^+AJiw&x1q!pYX`D1~I|!iWgMoItJAw8d3e<SE'
+    'yQTdH13lT@(&L8%J>3cP<Zo+fL6+8%&(O2lM{k|^5aG4~#kjBLL2az&{vvt#;mW}*ilVdZ8>&#Xg5>@$-~vIb9XzmC*~x=^N1}OG'
+    '$~b9bv=LepXF`MQwx7{90Y(K0?bJytHIOz)#(ph3;Bc%9?=~$@>hZ|`f=~6^ppyz3P<3adaKl4nzlS*NM+{kT?K~UBBpPOp#zMBs'
+    'U5p2c&>v7@W~xGeP#~MyxQ2NoHJILFe|{?5k9PjykrLeg%(w&7o`1M(gYaSb+}I19cQ$&qgF{T^yF|p>#0)#m)MuLmDQzLAXgx1&'
+    'm6vzQkB+jO-Q0k{w~NHdQ4uFXM42EnJI0U3o${4Y^GO|7_s#jXIXXcVbxSJ~3!Gysp?2J(^@62SJFf$*DGgK0r|zJ!9I{t40rMz)'
+    'ux{&<M%)SW9AyRq$tgu`0jBH<hQzlaXgcya<Pk%<7?~%jE^u_l61GYlX=!snTFRanH)v_A$Zhc4dijtfyK{4MM)|DA%YWpPNcSti'
+    '>a$T=?We5MVMjft*?mIZ#5c)pgV5}bbGB2ys%9<Tn}krk#S#8U_P7%k74sIOY3??&(dkAQw>ahpz~gwEcLui$iAv*mu<I1?A-luV'
+    'CM63@z8zOJzhIX9%uQi4L5h;@r^VCwp_gHw8#e5|T5#ohYURw1snyQv$kG&c{T#P)cN?8hr+|JRar$ca_cZxD^mYem2wG(Jgl#++'
+    '_Pr|V#7!LE(gA%!-LBFEM0Y|As(Fp3ynEDRs>>RxdU{QH@3(}c_&b)#U$i@6c+isJ340}sPyF%!r2%TsQ|ZN-^nH4dgpT@;4>Ydu'
+    'fcyXZ+6ZT!0Dun!03P<)FcOsZFsHSqT9*Q1-p_Nv<a5g|WCtW`RK6Z;ZYl7W9~o~c)()nBjrr&63_#V@r)*Vkk5)CBhH9ZZw%CWi'
+    '8e#r(Y_4M2;%ts@y(!ro?Fv-6+rfTY3fS30bS27};T9Cl!}sP4>xX?p4ctX~<upVC`rm#HY~qF03ckp?zK9ofL-7CLw_3Ht?N(nf'
+    '{4@oMl4JGGZIQXA8srfN2{Ri%eo^Zir=)L)`?7zi0}xRqc_7U*uAmH5k^i#z37*5<0?}#P@m;CAmTlkkPWF%C)yr4}7A$Xt2!MVz'
+    'D0CbU{>j{=^N2GT;ya5Lp0LEjAm7{>4e2|EcF@T1c-dlCoTkt|p6i#5PU3i^U<=7YwO7US<fmt}y^m4RG9pd%ii`H}4=L#X2Yz%t'
+    'TS?p=nC23D;exQjxZyYqfI86}C1H9gX{6)_cqt@%5b@h|r4H9ZaOu~S%hgqLW@={5!f+`oE}ERZs=2hgn|_!7702ch-y>gKKU`xh'
+    'IXcc<t>UV&3LMs~nran=A8oF_T}V3S%gY`MV+x@_=Yl|w4c7skE^`+%tFPmEiF8JavO^aeWwGll?&IoArVic&H;%2qp7HQ@iZBPE'
+    '>*CztIq@{S>F=Sgtk--stk+z^U$1wF3wg;qUhs~WyW3^a_ANSgh=!Pqc#}uTV4D@3LNjYr^oZRN!uIIK#O&6^(zl+WV2d;+WJE#S'
+    'xVtUxF`3UL_YO_t78mZ^fsP*Vx#sDCte@vYw@tk!|2~Lo_A{<YlZA{1Iy>PUQkR;BLxv5?KS>R$o`K`{Yh$0AK0#f2<H0`ZzLC3b'
+    'rprlpL}y+|!YZ{Fpp^=ceEM{qAN$iQo*#Gfk(VUP%ymq@$Y3PhRyR*o;S2GQ^%IhyWlQ)T9f#Vm_eTwvUTafCIIQzAKV=G3l}IpQ'
+    'O9dtPZ7<3luHqt?WYhw|KoOQO%W`g9h)hW5MI=H~nb{5(i{c!Z${8<Ol?HX!06uv9(9nvLzI*(h@Y6q9e)L#5g!1j}c)z3SE643<'
+    'zJ2ufp=zHK5#Bf9EA(@MD^$8%jY364bHQ*wgJw5b36A?Y`N}C-r9jq`>V$~H7VCh0WGF0=jTB9$^Yo02CK|u32_2V;OP)%@+c2kw'
+    'id55vVK(XA?@x5S`CM&NIXtwh>wi7gP3Z)s0{gxwaFOc`F}Yj|`AD%;x$C5IOMMLta~sdx%{Nt+v3v=vcER4oT>-+~o^j4%?01#('
+    'HCndvHquTvU48AZD5^gEV4(Z%=Gf?W_b6{Pm4DVdG508MO65&nzW0#&drjpV>R;ci*CGxp6-&_qY*K}NquW@(P!xD}(rd24EDC^_'
+    'oA!3r&{Gsp)KFOmv;tQAWWVZ!y@L3fVhQHKANE0hr5LlPe+W7dQWKAIxu<f(e+?6Y$t@TQBY!gUrye~i`M?%Z^|#O@iExt=hiYGg'
+    '*J`pDS^LN>oXS_Oj4E!ZP~H)>?O=u<(gg1~m4TPt4pCdfvluOYZR`*gGCG^lR4U{OSY9gR+S2w?c(D^Xd1IaD{M7%S^m-*;n@X<p'
+    'qF6EMQ-9LS6}{BG=+^uasp5KL6q@+WQ~cH`eupu?zc{S`5OZ0+I|~6U&|1PT?V<~?vdI0^x+m<LHNWLbt|#5X>;W;xjfhc%0xw-I'
+    'c2-<RM&bt@dldK3CU|o=zEI%sOBO~BNE4I#;Rk@AKfqm7y650~<vm+@uWVb~!o-*Tkl%SSC_V^-YxZF~6k#77@@rAbP<qmbMo%ER'
+    '8jPX}`*cBv)F7X3*(hM|_N)1Nneh+R<t*7>H0OOvGV3DI`ebx-%2Qi>Yax55F+m=1(l=F1BL|ml3zfl9YO4gUw=XzT39erOcd{?I'
+    'o)X+~1>7?k9Nh&X*#omHnw?FQ<j(t%<>6fx_A2efK_{_Nenkw1SY3xAa0|cjf@JC46H-|C(YTLwY)ol_^!iSKDj&axtkGs)o41|N'
+    'j9Y!LT6=reYVK8Qf6rP^_N=wHSFOi;*7{7URk}cB>$x=PL<L@pf){rE_~JQUoldsCb9P;r4e^5}E?NOnZ1I3)>sbhB33w>ZAmg<s'
+    '7<Wmy6I@_`v1IN=g+HVq?d03p-R(DncrLgRk0tyLy(sS!V0~%@Cg~yzDUZB#&P|*oLJ=@mhw!)?yg%jd_0w)Dv8tiDuj#&ZXohrR'
+    'AAs}dXN*9Qs>&}oFT&I1TO-2QqhZkJDjDG#ves29*x0@E?uE9+G>}wFmQLwqCjiSsqYy9<Ra9&cg*|1v#m8~I0bd$I{`~qYx-Q9P'
+    'WCIh>^G@M>iE=FO1;+3)72yj+sESuzMx!fSt5j~zJc<(cE6%FN_iY<{iI0A?6+OE_zfO#O&=VnYyeyzLqG!qWu#drlkMLFtMK*|}'
+    '4V>(<P!w1TdfGfyREPe|WG&9Z6Ib?++^A>LJ`oRZ!IwwnCR&VClHj#g-LE<Alkak=<+sw#Q#7K}+Ne6>`Oi{-h>~*0Gy3cYyf4Jn'
+    ';JroimF5*k+VDOC+E~K@<WJ4QpZX+{+WT2Zb`+#D7wg0uZLE>I`W96=GlJsew3TS3#uBmClz4)^R=<(|Un8~%GFHPAiH;fD>6oz('
+    '9TRIvCe=isk?6L_boh}`OCn%l6D5_SQv+gUp-GQZI2Ddpo419dadm|p?!^HN#Q6LMWeT>VVR%R1io_>AH2OoS{#TicxAc8n9{C55'
+    '>~15m*+H<4?-IU;%xCwYhPp+CWejc{9ts=af5oZa`ZhVOc_0%vf=JwMTm0%Pf|XODo;~?`Ecx!Z;v5Q$)fjbxU$T(&C}|{qn9?1O'
+    'W4sT}ngS2<0$%9TD=6VjK%vep=h<xxVu_=x^0+uktO|u5Wg%a+BA(f}Y*f2`#qa0@#bxyA{fE)z^XEYA6$~J6c#FbMp0=+**rUK!'
+    'pt0DYzgz^Q;}mfxB^HtVH{EqI-%S*7t8UDSK@#yJGAG|~o_Xvjpw<HT=O~?w7B>KiZplLH-$0ec&$5skh$(huYPl7MTSX9e9toV^'
+    'E0%f7n)`dp*6(uO!zRj|Vd%z@?5c9TbQc(HITfZ6-lG<)CsyzL`BJ%}m79l?w8=VL?86TJXW~;9n4*M4|FMaw`S9Y%iI@<5@~AnL'
+    'hCiisuQxa`Hr#geb@RG=xil`nc<|p^TE)}fVtB7O!B6?Y*X?t5nBA>_{!M%Ya7_=?_i>Te6LGuiSNt9lk8aAS$1<r#N#WrjY@1%5'
+    'WapxG?}AV#I6@Jnv27CC_6WdG#Y8GuGP?Xd!(YVD^5`lWj5JQtn??+XGfEzY5y!HK&PQ?!F=qXsYS9qTP|RD$VHSbyq~CsK<oC^p'
+    't?WG3wG`%>+rm>JJTCHz$@-ni0`EQ^>^`N;M^VI?PI*{;8h(04dlH?FDNZvKajsi(&}$sCZHFF|N@?k?X8d<b0h|lPTlnxwN0bi!'
+    'p6L{aqlK7s#4r$wFNBS3{6D?o)`E%hew`vpcI@~Lt}C1bw0-f03PFm_b2)K4i}OqPLYKK787&D#keD2wfDjvu_yMX0+@*2En|el2'
+    'E#A~qKdrbsZnnh_j1BOiI3{M5&xu)M^^K^~Q7<by>vdklQk4Md5+~!smB&NI@a*FvDzd_r-la4Bt|r3+0^`fc+|RMDx>k0?y#UFQ'
+    'jWcJXu3p$uH9qE=jp~E#=5C>gGRAV--f8SiIxqv)27aaclB@|oMv9RGTkNq>L=Via1v$cw=hAVD@Dv)@wAb2j0p*Ie=~nrP$6dGX'
+    'y4j4o@{GIX8F%@Ni_>nQKjGU9L^-@Lk13fQ0L@TZGuj-5f$SwZ_x43<h=l5(0drh6=C}&XIoOUIt{OR9C2~k73@H$NG3_mqk8FBZ'
+    '<^N1)`k)j@Xg$Co1KrM{5S`*HlIcP*6Tb1A#mZ_Yie3ok&p)BE3oNVZrhHMIxE-m$9k;-p7E@iCM0deS_rS^5y3y5bba@h8n}oNo'
+    'A(+p28JZvR&d?(tkYL<!rCYA*xzwVnve%*@pv4(Rypf6SJ}-wdo`p%;rYO2RLNAL#-?Q)00a{!vFp4I=_Ce3gB!qN;?|$b1_$Q1B'
+    'O^lUBn2$%`qN|!P1z=EV$Z^sir9h`?FEq~!imjMK-2ZI8FbdD}<d;U_l`+}HQD|tZ-WerYMU4<qhxuht6jdJZb2+iz)0ONajHiqb'
+    'TQ1F0o(NglQN!&(^WqDIzl_q-YjOJ%+hYD)Tlqat>*C6%wO_gNaGtcJo1C`a;Uw;C5~1LC_P2V_Q*pIn{i35hm`mwKqtabQ`(0F6'
+    'z0_=(iW{DA1y%-Ol{C!6-Dz>fQpP}en9(k&*W!w>b3!w`lZ<W;!@I~}jnabW>*m8RzdrwI^!%q6&tGfTXio!Xfu+#`G$PZF*p9<{'
+    'HG?pv7{6&fUID4OL-zNalfZq;lT%P2IF~pQ;;a+3pK;1>hY`PVR$8ODqVouO6hs7@bb;xmEBIi2yo6=*-bpW0nCtN}bu_oz%0J|('
+    'Z>-Ia_kp$W?Duq=&>Lc$@4epvJEV(+s2Nl@Cdz@;5#lv1(dS{{deadym8m$+K^fd>N8Fr*uDsr&CvCyPS~iL^keHP&U6S(FFNZ7V'
+    'pNQ5&v##zj7`og<%)rS51<b{VL8aCCNT5A1##2m+VDTXBqkRoMWXK<eg2sdVF`3|9T^uj5boaJH;jk6ppBE*in-RRAJ$K^3@%b4H'
+    'q5a^^((pAVIp7Q`1)&!&gbD0>HeFh=1#$$s`Jk8_Fei?~ST8jK<l>Ip)Zzv(7!b^a!-T(sqL|U#_IGhOjjhE3(U6nf_aMhuzW2L@'
+    '2l&fCu<mGkflG{??M$c*#7Bz81<S>yXrEc1iG1!}V4nfioKk~d(@?(HXioqX&?!LpyVDjY^+?5ubQ5VtnvBF4=`T^<ePat=5l`ks'
+    '8E-!T1kUJkO<*WO4VwHsp%5H62}G*LSxruJ_icnA%7PphcT6KeaM(9|NZv1PkTDaykOXz!B%Pd{#dz89!Wj|DXqfAjlhRniEP)!W'
+    'Ip{7=cN8nE<Di%UEyghUz6H9|q<VFhmQ!TBFRj4Zl<>G!MRuJF88RW(Ky9>VXJ;Q^qQaPuXgO&<qT#A0uhhvA=>4PA8vDv?e9L(g'
+    'hnPT8g(0!T@`p@ltfek?SH?xmYS;Mnj%*Sxp~cm^9ZCASDju(kM?yzMo!R$SMOI0Opm)S!QJ=sn>1~z2H8A^f2RL$<l7zfnpDyZZ'
+    'iKpju+DgyP5H-)vrcU~N8OMM@&;R-3B_|}=4wNhwp2Nxl;S&BeE;PCs=2a^b3)v3$_AIoWz@W~=O05yd8=9`~SdV)Go+|)Lh?%FO'
+    'z<i<Ysx-sWTCwKiog7cg^&^%RASmbVx)Es=g)+odebVSrmr<GK=Suuui{B;;mUSh}m!U7cAnxuHF@wjLEe`+zz*J7GweDBWb|E`o'
+    'XgQ^*RK>?YEHCM8mA~!2^n0gm8Wvx<TCw!%h_Y&$E+YN^7s>eNA^'
+)
+
+
+# achitaan ATP: lossless CUDA-source storage, decoded bytes=66812 sha256=ab594a1cdf93ed28816059b37f4502e7925919f640cefa986816ee3deea94bab
+_ATP_ZH_VFG_CUDA = _atp_source(
+    'c-rlKYj@kWvgmjJ3N~HIB_l-<DcMo&#JyJfJhjs_&TjWTuD2FNQI;Z!l1NIno8$Z2@66yqfCMGVanilcJ>5GN3F0vT27|%OVCMOA'
+    '>pw^1nLj^$o?K1+=*pT;g5JVUgVFO|up0QiBo2D(;Z<XCYuP6YKNyA2yhhWhTkA0H`{{UQg*QRCNUd}fTH#=vCf3Z4C*i<)^y@FL'
+    '4<9x5o<kcy_0C`a^vbm+VYo=F(KxXd<1h%X$4U5XI*vj=w(Rp@6#J{ee7YDp)>|u>55nY#svU$we>F`ZX|`CUVM2+&zxAwiJPrR>'
+    '0-3MJ>4-sa;|D4HT{QN-9uFfZ$s6DM8lIsg{%SS%z7C_ocnH~|V7eNF)=TVfV|1KLd4IbIp=eV4(u-FS3_xi3(jU49hUDR*B)OAI'
+    'ozE9x45Paadsp#%waB%eq=Rvk7Sh;E9PdT`EKFdoLMynkURlN3j^t?k-aCJ9?JKW8zB_qixn4&}djFHvX*7pQ%G-Cp{(vJW6HdCP'
+    '+WYHM&vMm9UhCiA{Gxw<ecICA-~6J#|9ozFYWu(bXuZ%9x;i{(r{`MvA5L0YFX6q|2~7O`^yK~bg;dPy6;j{)3h9Qt-+$Nrv5@@z'
+    'cmFsmwswAgZnbiW=fD4qz~j1s<u*=zKeA5Vzdf`@^CW#XkEXZQ)L%ux$Xd*&<KVV#C1Gj}<N3_$Ee2Ejy<_#m;XH=L0OhT~pH3Tl'
+    'Nec5HSb#N_pDr*TAV%|OZ#^FmC<W@E(vahz-Ak=`<X9h-yz|KV)^e>wC}iF3DJTZSAxf-|J0L@TvR|LJwfx_mo@lfE-T!%$AGyM0'
+    '8i#kM2{NLCdE)sDRl%I%44<|1OlK$OzvwCdIRE}Ty)!?))j=~X(%cFG{MXjQ&u_XK#Q6ns_U=b-;|k5M$Tz>}oqekp&o9Wg-|09}'
+    'T*3L_FAhDX=!5s}o%WiiGC9(QbWDAHfATZtuR<<0Y=x2Z+yiwi-dnb}e_+)tn_=s>R?EYs;yCJ*Xs!SBo2Aw9(=Wg4NN*jqmDk^X'
+    '`TY;ewms`9D_gVp<1fEE^zfadjjnaj(MIn3*9aTV%C}a#39!)=sAbN6{o#i!55b?S6_Ds>=;<@J(F|M7q5A3l&!^u*e_EaP9*~-N'
+    '1$*%C=d*AIbiuM#KvOzEQYPsI&dKEk%YS*Kd|Pk$7ELbN&2J9$v~@9UkzRP0`2UXkjYnUG)42}>Z;FWrZ7s>;d3o|GO2$_aa4pk0'
+    'FhTTZ)}NJp84Op`DTB8T%*kw#-m*8$k0dr7--v`eK%QQ25U$5T*y~xn9#G~W97o9Yz&pa;@^AoptCnX6^C*F5Aj(gz1rp#mOjmJa'
+    '*&?6Q>jmr7?_Gsa7>|QqI`1VTKMn`>!a>5ksi|T|*1c$cZ98n1il0;LkDtr{psA0%mi=fpUpH0<ZR>HfZasc{HJ$hUDe^$^(IY^Z'
+    'N3W)j?9_3v9ETk0*a#JEK<i$x@ZAHOb$pPdbxR!y;6WLTIxNAW;U~9I&<L&?Y!Dg@AnW3B6K3Y(u?v6Q0|X6Viyzr+kfDAD7}!Su'
+    'E7c6&09EJl?IWieu){Ed&(yX}yQBsdeQhk_`OPhdj{$dh7^FVIqBdw%Y4G~0@5i_`Tccuo@Tq~#(44@gkagDsGBMKoSE)JR7_hw!'
+    'O}TXo2;PpJ>Cfj=(V5<y_ovR29Z4!^ImAWO`}k*MHRABfg0TfOUDU1R5hMZQvS>tM17_A*0#X8KO-x5v5hdoa%>US<0g?r$3o1q9'
+    '2BqrO0@CmPj2=PT+JA`IFrG1uB|K!yagB&%9_nlj#MW2DY;7DJMwr&U@W!**^9>sl_HxSy#C`-B8vX+Dt1(RfY7BV~9=m)A4j<XK'
+    '1PMIcXlwBnK>)TA4`$g($wS`Gw_pRrQyUyy;Bg#Vel(yH6(rnv*0W<PY|mQo1Pc?6e#saL+5D8|RHSeK`N)%FC;C^IbG?hyyw*W='
+    'CiD)*TgF&{1*m9`^=OnqH1cw^Fd5Bb6)-5(h@(d0r?Byj)3Cv+FhMy|poDr=Ff;Vo0pLYEOEXCQdiJfaJOfgfjw;sB=u32A>)~<B'
+    'FseSs>OTL)S_|V`b<$~sI7(0Fb&k)YF@w{v!9{F#D4&Nr9Gs7#hM7MJd7_Q=Kn-<h_zi5dC+~ki-sF4!{(bwb<y2X2o`erF2HEJQ'
+    '*K-D4uQ&3iL$4S6*L+7B0f(4@h=3u4m<#fFwoTtydXmm#|0;w&*-)YN#A@FB0ROEV9ZWd}yfKgW@o5aureO@!EA0h-lD=dR@N7?y'
+    '?I$Cr;*K>PB(rvgK2KEqd7>iF6Dv?(1`2BVgF$TChNpv>pT^@G+8G-DlvYk-)`>cen|33O{U{OJb03JyN5DQnKES=ltvlSLfdMNg'
+    'xrB+Y1S;Y~ARY!1TM@8|1CflQV4iSn^rI_|j=*C?@-awQHwW`oe;V?6_hH^`mf}FUjFn`cWBg1Bj_q5|tb>NvX}O*KR`Z4X;+y@>'
+    '0Wj(C8FoD%o|+AJ{~LF|{Y|^o{KoBkv)|f>{iE5~XREBo!5rFgod5%fwh;;wa|fhZLFy!%K)L7&r5xL)eAe-?)piJHTY$5U^<S3l'
+    '0@rK3d<h&Cy&6lqO|Q+%Le7?_6+G}N&C>N1<FE`2$o181<~JCJrJ~z?*eYlyn9pY8w6q=enH>TjqPc5-oHk2a!>@+6fN?Oimcpq6'
+    'iig%q<f7gjTNRt%x%J0Q&QC^<>^B8oa(6fc_Y7<cUxoIQ8|UK9C1U2+3m}*?AFw%|Pp7!V=CMV5;+Vu$@bl7o13$Hzlj{X-Vl`xW'
+    'F2+#TVUDT4H=KB2kW1(xL5<5mtqd6)m~_b6m+=3}z_l50#mq|f4=no!mi@z)zFd4TbVn0nxCgyo|MA{>q;3NB$L;##{rcmB`r{Y%'
+    '$DR7)Z{QPthVL$9a3O~aSzO5DLM9h-xsc6;d>-WUupY?gK|T-id63V8d>-TjX8*AV`C5>#<=#EotFla&69BWRj_ts?XnB|7P^x_J'
+    'anS2V8A0E$SMp5`k22~>2KGO3ib3{lL1&SsvMcg63jcciM5%4H2ki)sHIo+cp~RBXA1JR4dL8!O7LGU!R0{^GwSR~F-$5N)1a{EX'
+    'Pd|JI9$Yjp<(7NlD$kzs+)|#~%JaVRe4sqPfM>bo^R$lg{TsDS4FDAaR|UaUVQ^I-+<il9t_qI(LVZyIaaBk>6%tPy3l$QtWoXY+'
+    'A@bC5@l;4W6%tQ{#8V+@sgSe)l5EnDBjR&Lk8bwpWshvIrck`^RNa+nVYq+m!f^jR7Di237&T>K)Rcu$Qx--|Sr|2CVbqj`Q8O%z'
+    'nzArz%EG9r3!|nkjGDSIYU;wMsSBfKS{OBTVbs)xQBxO2O<fo@bz#)hg;7%%M$NP^YU;wMsSBf~E{vMGFly?;sHqF1rY?-y!!3+z'
+    'E2CZ5F*^U&8%E1BEQ_*j`3_fzx-;YYfW7(e**LxoscRP~UFYAL(0$$s{j3D<b51CimH^kRiXPXBZlx$^Q6wzuty&dDfn&?YHdZf+'
+    'Wc63U$i-Tom%jL}`?&RDS9CmR6FR~_b=#FK-jDy6<v;ZxP*)(?apxZ@3t^}%grTw!hRQ-1Dhpw#EQF!55Qc`Gf2i#ILuKb5syqKs'
+    '-T8;=&OcOl{-L__4^2D&P~G{5>drq@cmAQe^AFXXf2i*KLv`mLns)x7y7Ld!oqwqA{6lr;AF4b5P~G{5>drrWh@HPq0uPsS0GafF'
+    'lvU@aKY#Z<S6sb5<qzktPv667dFW4*@E8^}Q$>me-0Lx$onC*wiUvuqXQSCbottJjd+Xs<ZxY5)IJJe8H(K}lwBp@^r|=qwNg9uX'
+    '6lz>f)?)F)+RuGlkjUBZPs2Ltq8DiozYW5=Dq<}worKHYG>j5azoa0!d;wYl_NMbdtCefwb9pB{%3Uw{ycVBXi(Ck+Wf`MPJr0*z'
+    'W7xUtaWt4;3!OsXiKj^~P68i?K&aL9_i&NajV)a#dWQ;>G?#zSzgpBcPS$*tW>7F7j4c%BA{_@4MzzBm*g#N0z~tzB+d-R$WERd)'
+    'J8?m_2V`^c1QG!ei~A0Jg-u74L3<Sv*siQ+7T1l7Zz%eOPpy@sJPGp#Hc<(Ryy4a90~$<z9^5o;>eicck$MF<_uY7giTy&(TfM3j'
+    'R>&(W9mSzP;1x~%D8w}Q^2BPndj1jra(ryP(7#+`Q~c9Dg5J`<qk#`q4c`G<Qt`?&(n@AIqcliK=nwsTh5dSFxsGl)d2;sF9y``x'
+    '4!iw$XxWGi){`f!JFl#!L+Ei~+nIp8Z#~7jYF2_~I~|;Yv2zK{a8nH62CVB5Y|fV5bj(&63qJ^8V}LRrn~d?#{U5flMKGN(13$$G'
+    '=qCxR+J>3|h0}!$mh5YjYbO+B_pB>GFw%)JwUzwPizB<)80L{CTta3+WiI-c`se8!z7l!0zO`oljoqwMk!O6R!+5z486j%LB3374'
+    'o6hww!DtoXNZ7U=L18|P)^m7r;GLV&@ihMSlt1V-Et*ixY#iCpP#pn<IfSg#0BjcvSN#l`Yy49VQe?bn<v@XFET8MWa3m@#gn5zT'
+    '!pZ14B8!emlC~f1ah0!UEs+{{C<#8=AO{YaU>9~Y%Yz>j?0($KHijHQTP`3w>^ej-bP&+4jTxii<b=!^jjYumZwKB+@NmU#)Q&a^'
+    'n}aq33Vuo49JCQE>Q8ui5wtIjR4rqIkzof&VL(ya2DQ|zHaw&>1$X*1tTGDHs$0>ZDd@%%>jkaM{Ityxi=Y^z8__sfV+oev5{-n^'
+    '$%tiwH({98wjw08fE%d3rWCumf>kR25qR11j)Hi8&DO3(RD}qUm>yo)reSE~Fl?AB?2A54+@g>=#f=K_bu!}9hA#uQ_$>*a<Nz*8'
+    'Te)NdFI1&~o5T2mrtzby%m*p~;{c?hZaqNqom9=j&<|rV@+?JW%l<fGoQdohwI|zg6#BIpKN*xTGlG?YA?gS$^(2;RGtQvjSYunS'
+    '5%KuB<vDWP6|@2_OhGKhkU-*?8i8>zkaqYyVfa=`-4W?~YnF*;r=+Epbfg-jEQf+T={s{UlKVZJHm~ADS)!6MhBu3t3ZV)1E8xCi'
+    'pCCiuLq37@E{(Jg$ue5f;P^V>W~R*Q69zl0)&7cG@4^oL6{`!MUY|PKkYb#2ty&65f%W5KiE2$L#&&4<AxxTNG+1!AeB+tpNYG9J'
+    '4Ln5)HYBMqJ~cGceQHgPWGU?6IK8}>ToTKL@bDc6x`GwGgpJC9F@nA20^ToSgr2#g{GG%=<XbXm5SC=t;|#^dKJ7LXn+F4%ti4kD'
+    'B;Z5{cjB@36%Gpt9(4u^-@F*I|HRz}z6kGjnC_p?c^9+c8frsdf<4tyL0cuLz%|dknr#kUdWD$<y4W_ZuYXxKq~R7v<{52AD-B>P'
+    '_;XBy`%$yY5q7#yl38PtQqJZj)DF$n#W7FkQj`iM<^mv3(TL=zwC;7j?)9hCeP@MmCeL-nES5uhYUrG^b^oqf@%p|M-|gj}#BZ5V'
+    'v|_wcuprqJ72NGY1;sf4hZoAR0p+%;NYmYe%gr2KDc7kT28q>@9Hkfp)=rX$-D)!(GVjwF3NT)o+iuZTrSO^AxaT%R&SW(=Y|DBH'
+    'oOP(TapP>O)7`nwTcyq$guE^IiRLA3*|G%v+N&mlk<03qWi7AWGZ%3UwYSQ$V(r^#V$oCuXCF2My^S%h{(RC=ZjG>lC_foadpGmA'
+    'N4ERT8&3X*u-=lSP6zy*3V4o=o*bd@JQ^p<I33yv9ujT0(HznN^E=#s!bRe!dzs`s<rpZHEryC|VM1&kGVt5S&$tB2N~z=S@qzc)'
+    'G97#Q?MN<0GEK~rac*J>a6`wTl5Yij+_;4;Ry^MT>-YpKcoHNz3aa)##A8+t|KMTl;jG6{d_E}2z>pg=>9w0Hdxb5b=_ee@p-Qv|'
+    '-Cj(rA1a!le1VGULn6tw*oAh$d-s4NKDCaR{z~c39jD?ON$w=!tVP0RbCPUlOp9cCE6^hj^=QlrjmG6X3?U{lFUZD>#_DLn;b4+n'
+    'UW9y%M`OmhaU*hN5-#fnN=CM(ro2S7>IK^5aAVdZZEK}-Q=SLT4lgLa0w9~ThyM#7-OG#CWp;Smi7|bVV@$Dn<V#(z)!sjN(OGGX'
+    'sRWJ5CUIZ3;RFP~?7k*Fygv0D0k(!y02sq699X<O2Ly=_3@M$re_+~+*@@9cp3&RicjQ@2@{8~t7)3bpJ60**Lv8LKKv#ePiYCw<'
+    '{9QX2yxPkOOb|bsNWe&71IOJuXBSZ1P`8*=2IUyQj*={9GCGnI*w*&@h@VR{4yMCrQ4E7=qkd{FkUZ|PQ9E1DOvR1vBQjJ-V~iW<'
+    '!UI~sw_D0px{<S-x1?mwhOq)GWdg2~+lBegD|Xu*_t+hG*oxWPiWuc9z=I5_ci*5Z&ss-P={$-4e7n20OSetCblDzV+@X==!0L>K'
+    'apMM7Crfd8%B@WCc*<Xpg1^^gTex8Z=liVOuayl{Eh#e^H)Ors=8ZQyCEa@(g%XidppE-?mHO6teS6tCWZ7Y9%MMI{w%;{r-zx5H'
+    'Y(LBIVNm{7FVFVL{X+QzN`H|nZ$7&sA+wRRek;%6hvKx4tA$B~#SwghC-4K@VFyh--ip2{`#-8R)NB<Sr(J{Z9utSH6h**c+fXsP'
+    'dh##WhT$6tI=G|*v%vQ!mb>p{U}eH-YtC$Hrat~2RWqS)d6HhwFNjtnJ;ge*mpj?QEDllhiQ;d5nZ7P=)n`I$YnsG7laNr~<&>rK'
+    '$%!~1)ArX@j>~RdpLTtsXw)QuIngv~C<JWYw43a|LJeJ04c#p@NRElqxwO~!laP=T^~@*>S)>=EOU6k#h9dJQOt`k7dDH5!{~=FM'
+    '<>l@uyS*pSt}{|3+5BE#WOo`!1_RG2mYB{xQwda=bG?C(h~TECx<hCgRjroguhKbrErNP4o?P1W9)0L2m+q_y-oH}b*X*7A3g8&>'
+    '$LV;+El<Wt6kcokJ1Hf9^B)~(X%Gg}^mY;2*phR2xb~;3@JMHDlYnR|6u8WNVPi3&MN3!1YPfEJH)r{>+gftxRisG-z$>~k_EEW8'
+    'kwAxui>`}nY7;c&Q;f`c4p+@VLQh9BGmIW*=C>OwZC9&PxfCY5$FFU%cbZ%wCsxb_!od|zDoW4L|IHJ|Q3FSA)AU&X1@xDuk1Kv~'
+    'V2)`P9r`9kZ9LaYT6vD6@H5zivvmXd(BXG>I(Px;KRWnS<pj4uHfPdDsD1g+5lSpoU?&G?jU<REAF#hd6#?f4Bu_9G-3{Nnc@ee1'
+    'c2+I?!7;=9&yY9)wSPqf?ub<je~jO|M~XzXi0omA8t)JYUh@Vi8r|E)a~R#=#S|bnQFtXY{qUNRK9-4!K*}l){8#G}M=Z4uWW!-A'
+    'Z%?RU+^V7KV$rTrRB%9cE~TUjmHQVoZg%1kIUadf30cR@x@wYp>1;k55URNaRD-!;bwf)tA8&4-cy(DT?<_7k)||}ME#zXydbv3H'
+    'HhO~-KZG(vyVnC0;b$Fag>F`l##bXH3A=UEHJ9iXOLRT4<kWWHxxV@EK{;IN)$Zk#HoHpM?$)wh+2+pWw0;728hET4_Na`vKgIsI'
+    '$c*^YE_+nSUkr3q*ga;n3M)Nk91rO_I*t9I`79Qpv04z0r!-n97lFN%-I4b8hp=ipqB%>nC8|BP$QP0K4X{}ZO6ER8e18U&<KXaD'
+    'IP=erh`(wQKMqAS;R1o(6=1tNfZeSGHvIst7uD<FcXjYx9eh^>-{s(URq$zJ;+mN}Bhx=I@iE0=L}^pA11u+lAG#y*0DpIYRE_gJ'
+    'g$BB%4Y(B=aB~f8B|1$5(Gik+mAZ1He4;P#3k$@v^Mt65oFTAMCk~o*$z@>`iS72<7{L-XcJ&&Sd3xdKq9#S+MvLu$v-4MVE5@OP'
+    ')Ee3(ZQ1(8b=?naXwVh}--@a)Wv{zt>xSHmKtGVP`|trcB>Bvxr_Gy#wug>Cue*i<)N#E~D=U<3M4N9z=!XKRBR)|Mcu*@G>>x=|'
+    'U`rb>fa&_={_S*&?Q~1q>E_i-B=_Y~-;a1c^`}^Se1cemWJXErvb3%)k|V4TqOqKZsRFO*N4K1$DBhF+;V@BUQ$2-w<Yg-Gk17&%'
+    'is-{lxi}<V6`Q9gviBW{Q8<{F3S!JN#NpK0Yup^E$*xGg)sj7P?pBstwgKmIV<T$1+KQU)mE<qBBh@n6Vq5zcY(=(9Of$=LHoO$q'
+    '+!!dvBt)4{ODa@wjBR1#+#<mTH*tO;$2;>5)C9C~;UDl`u@vn~hcWu+Iy;M^kO$gSB`<Am=y^@D7yPQqUSzW{2&mm@US<?Tv>+&j'
+    '$m1IGyx4EK`Pw`+Cx<g%Tg#Y7sZCjhEvI;}z3*(Xdt385heMt_g*Zf5@g&YCH!}6>Br@6DM)fmpTM{GYeQu<F+-LfzqoO`a9DiMQ'
+    '`rV?SGE%zC0UdiM!<Hl+93CQ>xr+U1k1*elQuO9gx7x=a@9LJgz|bIj?CcF)w2@IZlU@DZJFQ!3ybALwH8PVs&WxT4_J(w|f$R=n'
+    'k>JOXwua>8^^k1An6iSr?Lx1TFiveMdW;fv>_5J|WEB7t<RL?dbuw!?yoxkNb)kPHtaLO9%_S2~<|zx=Q!=uWxsh#cG57zWb+R=_'
+    '7jy8ss8teJU5%4uB}7=XXJmBg<DS8UF+z(uq?XwGj2^RbCj}ym01Qr~Tg{oI5BLw&eb!@UURZvJPbQkQaguUTBa$rXZ45I$Ro=NP'
+    'Q#Ff?=5|FpI!ILb17`yugS7_8S_1OS1l~~v6OAqAg521Zbhnvxr#9v<IR<|$Z%u0v)!t<4xRiFCOKg@ah)Hc7rMM!{DsM?fd58E_'
+    'Z{28$S7PiMZ8LV|hbw|W*tV9Lw&soKO!)E_GTKa`jp{J>fP^_Ky^74DT4>0z|B44Jr3QRN-F?A4QLplTUQN+`U*_r)kiAAq{S}T8'
+    'zsHzaWX5yh$?va%lgiHk$Y5=NX1x<MMSI6juymA6*-=Ks27c<(wr8eexK2JW`(CH4;ml{2<|Ye?*)w)esQ?F||IXEw*Js>7El%B='
+    'N;Z8<75!sJ7NN!Pa^+n$w<6T%8f~@>*dKDGL@nxIQ_kLU!pB;<vYzm}?787LX&*FV`GIc$f~2b|iK0@%QgshTEkQ1u%d;7E1zBF5'
+    'k1F<fu`c%5=Z?BqpZhCCz@$1yn<MwCyia{40eye@MQ)zc(1AhC2JJ{iTLtd6jP)#XwmHUju$8B+Sap$~9TZvFEt9YwLhH%4DJVy~'
+    'bw9szYiM`B?wRg*+~*9p^%S@19M`}9A<nWYoZ>1U;zVs5PjM9waoJvBS|=)EB=cc9^KZySYq*6dDeLsvF%!cWjMlk!n>d#bY*_0|'
+    'odt=K4Jj%NrBV>*p^8FKCEy!1f@LyOwE5ep60EKiysuhN8;FNf4}KXvo~p^y6nWeAc&a9^pvbGD$1C3cP_%iZzuUNDf6Nt1PspiJ'
+    '+9lh^oei5lVg=kpkx9jwG@PVk<4Z@V^VmBH(NI|h&6O4s0`y#3i)#VzVMv(=k>2Z+j7;jK0U&y(VUbyOXxgjTw70!!@6yTi)VfX;'
+    'DrvI1P)(atr9$y0tHsTB{KDBwRRGg=rs;o6)xYH`U`bgvX@Dy!fX({f4C}wFCiw5s1^+$T;7$7A?Hb`yop2Sc@cs3|526`1=yW!#'
+    'gYT~peo&Qg$%gRRG{0Y7_q&yoQKlrRr2XBl{Iv=@^w!!oDu1&Hl3tJ&DN3#iN3^5QrxP})^EN6<5yBmnutG7cD3XnO<fEM+*hM{?'
+    'gFtAeH!7w#C~`eHHF<Te@+Gg-Efvggr+}q;TlJ8F$-XodCBn+JxCYTd6&>#mXz>Yp-fURPwY^_P-}|LBzIm?vjvL|7EY8Tcl{EHU'
+    '1O=gku4sCz8tg8lxo+M14L-aD)R%`zA!4%E{>5*A)4yqgI7Rx$^?NVfW4j<YBrRER@%B<LtY}$DhJtOpg*J3ypCU0dnkQ(-Y}QO2'
+    '57ck<T3Q82n+8bBgkow<ZAZ1ag2iLY6_d3oCBHUJzoU=ma)N;3c<NuN{(ZwTo%%`oKQsJqHN)Cm>BETdy?rofUS#;Nr=ymb8x^VW'
+    'Ox84-$$zDb)SJ3uUI8yRsZyZ(ai>WlKr&biW7*W~A~Fn7yFeo#t`2D-BU~0Tf@yMj+=!3G)n{CJO$`UtslzXP$)bTliE`qrP1=d>'
+    'ZfmA_nJew)bRF#-S4Werjt?6A54%FTo0dqi;jXey^l8qITwXi0uV2m0PZT$(c&5)*IYw{nnp|vOuPCNBzH{#-LV4A4iXNR*|0T?!'
+    '$?H>8dh?6g!GzS-tLb!+#(6Ct`mY>>3#csx7OKJBw?aw?5JYKWipryg!#yv%0<=N-=TE051tzP`WwyQCYw2}@x{2$=;N~s6Vs4`^'
+    'HWo3KxpKomut!-Xv+2lmnVEe(HeAwD0|@_Nze6O!N-peoSU=v&gavoGmt&;&b~(=IdEa4PJZ>;Oh>U(KJPV4GNZoqZrJUXJoLxnI'
+    '!aHz+)GU)5Xy3Z(H<$aeE58<K<fuR08%~6l7dj)YO4F5*B7cO-((c12ReOXJM8SR?MJ7@3gPyz2j!0L7mINv}#NyK|US>joM0XRX'
+    'FzF#)09H6`O44=XBp{boWcw~0pf{Wp<<TP#neYO6%?Itu(HsGK)uAGQD4;eFkZX2V8lJAC?wqd#*CAiBYPA`C?2+7!Ik-(2<>Q7@'
+    '`UG-+cW&Jp4W&0c&JJqsk&`$mcSDd{zxF$J?UhjDGP8ohae1fQ^br0LP-l(JGb0w&dm^+-#2tU}P%V8ZT8CA<ESAn-+dP9jC^b9V'
+    'kH}fpnlD4K4Zz?_0_ka2GTZs+Q)ho@0l3fJTCGZMx}n@ttA(Ls$xZi6_tRbCM4H{cJg-~Tym@Onq8+_SXD+Qp%u4Acntg%i3+x6N'
+    '4+_tRI^D>-aW;5tu3OiBywKe=lb7YpSF`e==(Cym>3By@7Jm8-5PV6mkLlIme3JXS^LFuz#fNc|_tP@xr}=Q|=$U3IAMq>p(#h^='
+    'pP@yZxW;|TeQDG!zbT*G%(14V`CLtmLwRIzz3!WH{#biuadboUbW{gx9&EEXiFkaOui4X4)zEF2JI949dRxfHm9`&P%YUe(Z$SX6'
+    'q9G0M2_rZcVq!xU1vUiMxXz1kt;6)<1KUHUgW$^ECTfZol0K+1+iX|UWLeUSHg~qRwH;A_T0)rR<V*S0TEHt2aC_j^ymy$D3cJBJ'
+    'GHayzph#484C1MR3XqSwx-&|oCbBJIFgn}K-+9QCB4_Ag<?KEvN+p@{>MW`=5Tye>RpY{Mz@UEQ49*#65zhmQ@hP0Wf+Jjv;>qPt'
+    'pRi`swy)DnH^Tr_As`rFHM37>WpkYpG>}H)3E6p?o2Bu5%1|PWIg5n*YNX>xI4&=6ez^h8*-;^#v=ygG@dMe|_|4)6vaIplBQvLh'
+    'i;B^Hg`MZK>}6E2vL7KLF-%8J<@sErMGwF=&bp_~`Kc!eYhRMszPqCfBc<srvzh}1XE!?l11#v6R?R}b=5R*)&B8ZNesc@oT9<`c'
+    'S0Nfl%y^t>0-i(5{5BY2HhiT@`D5O>6J{cKC=dMEJWk~80(ENeaEv2{zj$xKsp@@c?irS8b#I8;;%+j%GUT)Irv|OVp?+vTD>%8j'
+    '@_;-zraIhR>bRA4Jl%d00zPaTi@`XHr=puCZo+z{cm*|`ooEIzh!l)Roy{V9bNTHRiXF9$hxPUk&@&csuij^8Uq6+9&9jWvnA1WC'
+    'kzB-(Wp=u1*R8=a^Y@P@qo<fi2QYFe#CgKe@@P+Y6??Va{l2%w{r>$J(81Cv=aHMcIgh={Jkpl%+^yZ~yLIv*(RW$FO_!E%eWxYc'
+    'bmf}W+Vyr=^)1nEYo|h@-Hjqc6zOp@{^27#!MoG+;ED%NJhTe7{X3p9>P$n+o?6+t1GnxsbYZPsJWdEl$NcaQOh~)>nWCLzj;fvt'
+    '(Bs#KYKMY{I1(5S1nP>ea2DW;njHk}0g2c&OA$>~K5TySsQ_`ZtakU)Yrj=%FS7S-d)P!W3x9#G4qbY76^GD;Q^XF(l(v{CAZW(Z'
+    '!<l3Vx&7J{xGw|&9$e-&Sbp%tht?$<vU}q0cE<i8_<CHTGVL#s*2>bZbDSU>XH|Nz=(A41FB2QUL+$ggZCzM^ZCW4x`^g9%m?-2e'
+    'Xdap@<m-QE!eAy1K9L5WNP|zL!FM%Z@t-EeFp`IdmS1d;Pd|Vpqy0t17)VUSQ)@@jM*HuPYwS$_^74<3=VEgG>Sw27-_0Jq?6IYs'
+    'm6ek+7NmYqIf9;w5zJHy{%mpz%FfPoWPT~m&@W%!<LrE&le3YFkDG3(O3v4gm45zMX|9h>1ts-)vIeithKs$moa_V@<6}$?Za1Bu'
+    'gpVG8-(e+gtCsLsbLEa?Kk3vCBnhX3v`Tc)#+a?_sEsIa&_?(07@1YP<RY=MG#QOmCS@U4MT$ANs@RGti;Sr%64v<y88cO;(AitO'
+    'bhAf1=Zj|^P_@wRV7|f#gcxC!KV~6TdBVDwpubblRoRg8OhHsjyNY%i%4nr<!k;nX#oTO2)0^S=YJ~x;m5T?Yyv;rpZ4oF`DhU&k'
+    '@n7M5Xj70>oO$%}$`!Axf&T+c^Ldz_q%e8?RT|n^z}}bCTAfG!t;_5(@0ow|-EHL0#=$u$=FaGxcMk2r%AYya8bOaGpWKEzMp&Vs'
+    'tXSPS4J?hYQM0UMIkx#MWC1I4G9SN(B9Ll+@|nEEQOr{O-gUCcF6G)l_OKK#?^j#Q7#J0Ba-lZ;-Xbjr7qcAO*>WzHPNv&Ri&d_a'
+    'RbmSJy<kHPS;k{q(gsOc=`Mlao0!Ur@5jOyM84E|bE&mbO5^GM-f+A9fgnMwQ9~$Yzc(<pU(9;U!f{|lgYm3op{T{SMMeinSoYSX'
+    'e7K-9=N_=C(IBs6k&}vpd9y|jK-}ojxcFYae2I<MEt0BYz3?|ZK0dYy>Fb0`bw*PZYL7Tlr+LP|6Z}JYhdgVZ@bZ`dNO1XMMsRt;'
+    'I-fuU78eix9n{&1P_m2MTFhxj*uUX8@B^pTd5yfu-m~!K57GVR-`#00Bs<0n_;TunnFn+j5l%Ut>X=ry6bq4NHWmmE4FaO392yg7'
+    'g^llC|7D{gCsO#a0?K_#Y|3k*|F9-zc;xuVjo4>FgU9MdyL8^y;&P&lBym@A(i(8HpdOHAz_%g5jP7k3CL-b}ePsIvF2wXG2b|o>'
+    ';G}jTqC(8jn6yEneM8Q-@%$?GXEWpi*xqy=#$$gv{tHs(ky^#tpEeeov!6_-^K04~T?wxbO(k@Alu6NQcEVHLtPkJEF>v<GrZ0o^'
+    '7eb-$Z|o<tpl+$^7Z_iaRysL^u}%A=qoL8>ZitaB1RYVhBLV9x2KV_Y2*M<BP?G}0ki4$Nt0*1M!d{4dv@zF@VM-l_Q5;8CHn%k('
+    'Z4^v?m@NDtwEFIP;o(&zVRH4>>%INQ`A?RsC7qtU|Nb|tsimF2&n5hJewHux$B)fi(%ES@SM2RUJD2k2*Y`gZ8hdw^OZwwS_XH}J'
+    'X}|Tlr@vUP>ot|6_y2_LWB*_eaC#M_SPpTX79HO}tx0-;x7O(H+NHAdTI;e8i}Zp#*|2ow!z}J!kVPZGa(R>mRR)&i0@h)cWK9NP'
+    'K$e*Y`%3B(Q``B}wanXAQWp!#*-?_FfDaculK^U&aA*&h?JTUNtH@7mbp9t@F+`JucebNt>Nuw8_Ot%1Ql@E@TnP(Fd3U5t+xdH='
+    'VRltDDjESUa!S-~>QR+f)IKUFM0GirWzSBE1qM>fXFfklu20J=50d83@>p4}E|v$)y_{bV&e8~xh9{n~JzXe*<GdzV2i(9pY7o%*'
+    'aaXl-9$Lw)utQ@0plDD!^O!rR>(yMq^(nZUQ1P-{BzZ9AQUwkyZ-y0yA`(pQX_BJ^=IrzBNX$N_VGDh6%nNUT&5l$9QL&JbkLzIo'
+    'R9c~&ls#dm<Dxi)f5*r?#<K%3R&+?@m2yVAh4(=Iul#OPl9MwM&1>;9<5JSq=Z#9QuQIj%i`*xn;YS-)Y`Ud?zan#O=3xm?GZn8q'
+    'W6op{gQN#nhllBCoB$KMN}$uW!}uZSV>GdIJsBBH7s&WP&o)<V9Aa+zJs&l>&Hre^jh}6vL0qKCN$9Q?<i)5oN;?*L{@en@7^l7;'
+    'Stsw`9$Ni*IwC_<ayge+IOY~C<YZ+1_WYOUzgzuqip$p@LSJD{LJJtE!72#jMrF-+PODASw<&G&uQKy8GN*SPVHKbEpxM*>aN&+3'
+    'j5oX&6iabis0x#RmV$N*W#rd<#AQ^<GN*(72B(Pa%pW3v&MS0`EE{@8<mMvTLjPbg5E)Gzg9VYnC*VUs+<7Rd$)u$^^i1ym5Iq1M'
+    '!~nVx@VT)15wPP5BtK{sAifW*ogA!QoBPOAXg86D9opOC1oLh$AD;B1X{F6{k9WXm8JnH;{Wu;2B^XEJly~&-Fi8DI9~eT`RX6M8'
+    'tiQD*bm^}l>g`dzaX1bABy4bcYxeC~0vP_R!$x?s2!R7gZwf&6>Kx9;I-txmsW?x3%ShF}>p=%N|NZ`-h2Gp1D58La!!F=~F8Mcr'
+    '6vVlP15=k2;dF>*YGRA$_tVtSY;-ccv75}dwHlBuS5w65fh^Ox{v{Z#BHDp$8{;UVG2C-<-d$s~^|>VvDtf^MZc?*xWRq`gfTbpO'
+    'v8Sw37|DgJ<{{sB>{AXpc2yLBfCA50K5AU->YAUONpC#F?O5=g%#fB2OSx?kvQChxLAN9DyjGr<%#d&6j+vb#pg_R<43j8>xe%QB'
+    '(<v-fe;^!8O6`Kap-FQN5=v&JY<8bh;Yfm!WOQEC$?36VZdykgPl`^Kw?+{tcM@&%w`_8<jO|RwJzeG>T{z%FcgyJTIb&DzZkO+J'
+    '!_hQBuw(<9-F#b)@;BeaiAWw%c*%{I;4&dLY8RB9fKhW*31|}x*~Lk*4M-M@Wnlhhq-u~(zRS@z2Rs3f!p?)R<21mbYT>&F=$(Fv'
+    'W4`3^GY^_swSq~)kagHk@w#=Fuiy-svx}8YL$+_2B{r=06>V<Zf(34UGVWg?Q)t3^g*_jlngcQx{lAY@|3g|#Y_?{OHGH?!NuQt='
+    '8mg{anTKv=ba@4Nr{T_#sjjuGYki-(3Klg_OT&08fIAf;c5kh0y;Eg(71+ZHED)VQTDcR5dZQ(YdKfUdC!7=TSjl>b=ImUF_{nx8'
+    'iiO;xV8}fYvwGG*;T&Yn+bBVvIyP0pJeXX9yQVG~ZtGAF+qoWQ@#}{d*&Wa#VHTm#ArDE;KKc4OJKl=uw4v@taAO2=m4voA4Q+EG'
+    '+Ac=4^0eUY+YIyt<s}l2FxK#fxFEqq4T3hmJ)bHFZM2M8HFq+X&#dn^)#>hBr)q_Fa}i#W1ebczG{%NsHF*emHLF{ewY+xET*Nih'
+    '-YUy_TP5Oo(YvdNM6b5Nqtfe1c|UJE#;V^rTK&U^n>Vh3-J-;MrBUJq)}<Z_S_IjmJ-+4fWx(c|`=1zlmt_Ip1L9h}9?I^Lh(F(M'
+    '2@kK~6ORCoHe@nhd@%#}+y<HS0P?1)Ou^*06sjCz{;qo5CXc&--!j!j!n$>yM|^RNxPWUkE|1?!m?S;TkH+dq!1jQi)<ZrFqw%F4'
+    'PF{`^g^$+>M?S>7P9y3CQlN*P&jyq>Fdkq^<xb2#`eAZ<+>543EGQ}$M?oTmmFX((<g%!{V^Pg}oH%|qcdx`_Fs$zhLraBWxp{ju'
+    '*U(mL;OF3{6-<?=@IfVh{r=)vPQS?7%wYa5CU1P{<VtW~C*|eVrgCgSPu67UOg}aJxn*y++o<@4E4GvEJIqAAVyn~9iMq#3Hr}$$'
+    ')BK4-^FIiR&t)nG@{ar*lp*pio+Wu_1M>>OIpX8OUP{8cbX4+U^I?T1o{2$CNNlWF0r5N(W{Bqrv^-@|QPx^pYgSFBdR()**7;gw'
+    'oE$pyVmJn-g~`b?%Fa6Ofogq+QLXqA5+}0JgmmxvtzZ^?49hx`&QY}{*7t5=-8nM3R~HB}87KqS8-#&9>7a-HLh`zku}g4PM8kp)'
+    'WNx6ejPz?VK$oheS;Wo@*(6?V@ce`)NvMarFDZ0$Jy2y)AN39{%U3^A%G^p@;?iF-#96YXzhqdm{IsRN+`jae<x795F8$?BOMj^>'
+    '{kg*Lm9KufM!jUKUp&iMTJqJu#MQs#tAAO#`j^^@<O3U^keUx`vaE~oPL|nd2TOBzmIaJlY8XidFxMuGTndadXAu~=lo+XSDsarM'
+    'S^GO2<eR30yun?x;cUNI#ei)z{9w5n$KfUgLqQWfjutDl`}VIe_T)H$@tiHDVH)D?sW6`U3sV0M=GPH7;9CHO&#zYDR!#7Bw~0bz'
+    'abOTxD8k-Z+-JB751K?n=&cs3WMtG`<-{C{oP#|3(edD;yfnri?$mo)6hMG(ijhnHrf}r1i8)S$oTH9!T}A5Q=5u3Q8?KP4v7)N#'
+    'rcQBf)bCyGduFv)j9IFO3vFemwDNdrB-YC!s7)$`Pzx%?Pz!bsqE-w?%MnEJU1$iqWC*rI>P|IwQU$;0TLK=Hg*!4vIr<X8i0Jw)'
+    'DPs_+9E*I+QaB-cC=DZ|mFrSDSClIcKXhkumv4w)^>;?3`f?$l%41!j@L!CCuGzpKzDmfbpi0arrBoIzDySANN{@NEA$XLG`$Jxj'
+    '>slzFU_&gRPlyB*R0;(Yl*I!2pBO-YPYj^)Kt5SGor-aL%46(g5pK4I)cG1}`Olwv=dXV<hNlTSBU5}D7J(-4N`l%<=bot)-WMtl'
+    'g!BJhtev1zu$`b%w4I=GxSgPCyq&M*btYnZfBoh4p%vcv0qi0-iw4DE@cv~dPXibw93RKBk)q6DpuK+q9^&~CZ^A>{7!DSgnP-#@'
+    'mzSSR!T~@%kAVZTpN*p-x}0B!R@01yt`Q4M@oxuQdiFW6=h+v)7Z}<R&gp6szPJouwxG(kswAqo3{`Y2i3a1L3}0Vl_3jaVsY0Zk'
+    '0@*S!FV`nZJflDfsT3GvD%Gv)uAzX4fE1L3KvI`UIS|1*<wxt00t*-V8$YrDh6O2qv4L)R1FB}BEQ6{_&?a+hbSd(Wy=#Q4>yx9M'
+    '>)$1Ql^)YnXCR9%Wi)xmH4;|x1d~f9)2ahp0L3z0S{KD+UPk98;V6uE63`6{I>tb~Fm?)E!I1L|O;1b(x>O)w1p-kZU<HDFfxEJh'
+    'N_$!B8#$RNv0X=1vkLmlz}%d@%WJNd)yu`V&;o(=dQ7gvKG6*U+i1_)_l4;w3I@FW1G7yR9gsW9g}yW=pO#B*04L>vi%wMQ<PfxA'
+    '@kGnL&550T#rzu8Ehdt{uQj|b5sy)Va3yX_7%hpJc^;F@n61`k{=&};bGaC6)$**zO|;8}e;)SNdh`k{rJH1S3r|dNff6BDTH;C^'
+    'T{7w55<}RYV#I1@%8Tb>=K<R9%l4^j4_y1ey>IWj57Rr>+`H1+laz}#^DPJyY)Ii^#9n%Hc-Y6wz>Og^FU+pd0NcA%OyPxxM9$D~'
+    '82GqvzUA;4pm9}bTnUZ)_dwI+R~iVU>B-+cHX1bDO=EMXN?fB!Z>IXRg!ieCt-|xXslK?XtktXz<~O!paF4FUq}k$DS1YG38C0`2'
+    'Q*_bD#F8?4fF!@59~dl!y-`7##XrfAb6dBJLEXxf6_v6pd$Z<F495j{O|G&07S6Z;)Bq+%`svo?Cn#zDkRALLslisE0h2Y{v#59f'
+    'qHV|6^+mqx%#j(42%PV35I38d?17sgBKj?4_u+M`nb%aa3#(SZ+qHmZbAd}{c5@_FOEOjECxq>AvTzUy7YoA9j?m$0ons0myzyr{'
+    'JB5w?y?0uS5ULG4Q_U!?!_lC`gXy|TBvD1FTh!`i6*H0n<GDc9eS;0r+|5#MP3FVIEPZ2Sw?6(EHRABfYAn!6(&FgP=<QE`^d7%D'
+    '{4<g_i_-X(^b?JRACJ@9!o{M6xLDML;{W@rh1HLJi&X;&cYj8Yie~YL>eermR|aCrG>%QDj3yE~bE4?(o7TuI**5+#{EYd4$_m`a'
+    'HSr#%il_Ij*lo5;D$abt&Jx-ZW==INyU`C{R@>PY5_3knc4IHeF%|cZm}s71l_&*MRKi~;p8zWhFt8EGQ?Jw_;5w2(67|p=*iy|z'
+    'NdU%3FHVsa*rLLZJir25Q!Mx99x;v|$Ob;JKEYEt-5_t1yqCouqDK^DMN0_Dyb>kh7zglVD2KS_y%2`2IhxYv-Ylgn%RYBysm15W'
+    '*~(~MDSN%)V7wj=!l5m_uAC}yR7*oQ+#`6y=Lz3%-vAB<2k^>ZxX9RTbFK~(sYG)y#B;b$g||wD)q^_}?mOjtLvFez{Ay2)hj5S3'
+    '4!VtrtDD0r9Q7Qv{OBctY5OZ0S+=B=B~(C0zQ`G2E!oSRem{8aU$if!U+Jyp2Yj>l2ZLBOHCU%xNw{V*-R36KM#1bPMAx7#Y0KQv'
+    'xqq5Nen3zbxCAkVagX6_6Qew%rQWWZ4w6|rwe<{j-kTb=o5}NRyDjbs0xJB=vhg#?_PB6Qy}0F*eRcCP6Vr-Dgg92@agBLi?6=%v'
+    'eV&?^1Dmg}Wz3`1cW1P1dQmEvLMpOdEJc;5vZ)GqGmk>N;EI+x&6`$-{SPmMRe8B9kw`5xqnAbMm`q*ngPTx(v9{-RKGf3KWzm;c'
+    '3zMBJUh-4$jl<(hXGz2aZgluuqIW0?{J5zS$<pnV#J)u%+F3t-04WpHl8Kp6E-2+p&epNtX!)UNYe+IlSA0`usjHdgsQbwpH>g}7'
+    '(6y_lc}gTtU67ijS?Z?<{*rW?<d2E`7{_Ag!<uTcK$X@!gb--$DRQ8X4D>rZ-?T1|9+_|V3K0=>i;0KULaeuTIh+Cu@?t9yY*n~-'
+    'lVMiL?i!|pP!m(Gi@y8Wq)b(1!l%s2bgMX)om&dxSlx&IXP3lHg%D1QJiB$E?>3TrR|zl0TwO1`{}!&UAHuzLS>cWDu9=Indpfa>'
+    'a$amTf7Q$vSKgVe!RfWx!}KEaNV%g^>2R~_>P;2DnMZHuG2zQ=wgRwH?tn8BuWj^KopWg#46me5Q+Uq1G)3>Mibqq?2Ik!C(-d<U'
+    'T$*C{#b@c%bO)!|2Dhi^YZN%SBZGl9CleN1f-u!@zdJ?CYb>$BKPn$v=o_p#?hsX!L5HY;{7zo^;p|wR;a2!NE&2YJ_>LnY+@|8M'
+    'EaQHXBUe$yPL5ptbkSR|JpsW|T(^3~Vcx6e$rUQ9TPk+%;N!fa)7GkP$m<ndj(=LSX7A(mD$d65+i=kVdA+i)@rrG#PPgyvcly5F'
+    'EA?+)ujakJY9I5ie>JDv@^ZujIRBLq*@-*KUf%yRdp>_J!?trz!0J1>0ag?A?7y9#X}N(tRNv1|yISQ3ZS@tM{_0h~JKM{co7pM}'
+    'dtZvf`HWnR!o}<<e90#U>d1m~6u1}kXdNZMrlP0k!$V~VY3S4;Q-(_MVk?Ix8xAoHyhSkt)OF~x=qfJNtYgYGPSF+W1LL~Hz6-2_'
+    'GT&b)c*_?G*z$Si{(3h&P{#Dr5g_MRSRerQeK#bymWa^QaN+*}6NaaL'
+)
 
 
 def _atp_state(st):
