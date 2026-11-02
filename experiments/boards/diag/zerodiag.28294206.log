@@ -1,0 +1,10 @@
+ZD_INFO v=1 device='NVIDIA H200' src=moe_b13 sha=613aaa92c30e cuda=41b11ff8f6da poll_s=2.0 flush_MiB=256
+ZD_SETUP seconds=0.5
+ZD_BUILD kind=MID seconds=17.2
+ZD_BUILD kind=MAIN seconds=28.8
+ZD_CASE M=32 build=MAIN routes=60 jobs=16 experts=16 rem_ids_distinct_in_token=1 rem_local=0
+ZD M=32 build=MAIN step=mixed1 done=1 ms=0.128 finite=1 zero=0 eq_mixed=1 eq_warm=1 ctr=0/0/0/2/0/132 dA=0 xr=0 dAs=0
+ZD M=32 build=MAIN step=mixed1_graph done=1 ms=0.130 finite=1 zero=0 eq_mixed=1 ctr=0/0/0/3/132/0 dA=0 xr=0 dAs=0
+ZD_HANG M=32 build=MAIN step=allremote_graph timeout_s=2.0
+ZD_STOP hang: no further GPU work
+ZD_DONE seconds=31.0
