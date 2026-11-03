@@ -1,0 +1,295 @@
+== BACKTEST: score replay (sum(w*baseline)/sum(w*median) per load, geometric mean over 6 loads) ==
+accepted 63 Decode jobs (23 new-format records, 40 old-archive format); rejected 2
+  rejected b0caa4c9: no benchmark records (duplicate/failed job)  [decode_gd first check: prepare AssertionError, comment trim removed the '// router piece:' patch anchor (ledger); no timing; repaired as 8ffd6871]
+  rejected d588efd5: no benchmark records (duplicate/failed job)  [duplicate submission (duplicate_of another job); no records]
+  not a Decode timing job 0b6a581c: moe_vms2 build failure (vms_run 13 vs 16 tensors): incumbent only, repaired as 74e3e792 (MoE board job)
+replay: max |calc - judge| = 4.44e-16 over 63 jobs (tolerance 0.0005)
+all-board replay via muse_score.score: 78 unique jobs, 0 mismatches
+
+job      fmt mode     score  kind      path          group                   
+a589fabe old check   2.0746  clean     old_diag_routeold/diag_route          
+0ca71861 old check   2.0975  clean     old_p1b       old/p1b                 
+7abd8d0d old check   2.0434  clean     old_p1        old/p1                  
+ac41a480 old check   2.0813  clean     old_p2        old/p2                  
+f82e5ab8 old check   2.0503  clean     old_p3        old/p3                  
+d543da40 old check   2.0891  clean     old_p4        old/p4                  
+6553b299 old check   2.0960  clean     old_p5        old/p5                  
+831de9a6 old check   2.0900  clean     old_p5b       old/p5b                 
+0aa30c92 old check   2.0783  clean     old_p6        old/p6                  
+689fd93e old check   2.0682  clean     old_p6        old/p6                  
+97c2ab82 old check   2.0806  clean     old_p7        old/p7                  
+b2574b49 old check   2.0667  clean     old_p7        old/p7                  
+db30df75 old check   2.0766  clean     old_p7        old/p7                  
+2ef9150c old check   2.0671  clean     old_p8        old/p8                  
+e057dc9d old check   2.0776  clean     old_p8        old/p8                  
+c5f34d4f old check   2.0942  clean     old_p9        old/p9                  
+e1af1dd0 old check   2.0970  clean     old_p10       old/p10                 
+f9845bc9 old check   2.1043  clean     old_p10       old/p10                 
+c1d5a6f1 old check   2.0711  clean     old_p12       old/p12                 
+182d084e old check   2.0656  clean     old_p14       old/p14                 
+f35cb9c2 old check   2.0926  clean     old_p15       old/p15                 
+d23cc6a2 old check   2.0814  clean     old_p16       old/p16                 
+848a03ac old check   2.0717  clean     old_p17       old/p17                 
+482d0e7c old check   2.0741  clean     old_p18       old/p18                 
+9b254bbb old check   2.0718  clean     old_p19       old/p19                 
+0898ae00 old check   2.0709  clean     old_p20       old/p20                 
+f67edab8 old check   2.0792  clean     old_p21       old/p21                 
+15e19cf8 old check   2.0698  clean     old_p22       old/p22                 
+2cbdfa2a old check   2.0667  clean     old_p23       old/p23                 
+a6aedcc2 old check   2.0607  clean     old_p24       old/p24                 
+35724766 old check   2.0877  clean     old_p25       old/p25                 
+a7836845 old check   2.1107  clean     old_p25       old/p25                 
+17ef7061 old check   2.0834  clean     old_p28       old/p28                 
+2014d84e old check   2.0787  clean     old_p31       old/p31                 
+69d26d1c old check   2.0883  clean     old_p32       old/p32                 
+ba1e91bb old check   2.0840  clean     old_p32       old/p32                 
+d2d2daa4 old check   2.0667  clean     old_p33       old/p33                 
+a40cbaf0 old check   2.0867  clean     old_p34       old/p34                 
+412977a6 old check   2.0865  clean     old_p35       old/p35                 
+9dabcd9a old check   2.1056  clean     old_p36       old/p36                 
+154b834f new check   2.1063  clean     old_p38       old/p38                 
+cde2084a new check   2.2588  clean     keell         keell-import            
+3bd3d93a new check   2.2084  clean     alygg         alygg-import            
+1857a8ab new check   2.2441  clean     kb0           kb0                     
+2a45f597 new check   2.2589  clean     kb1           kb1                     
+2ecb3de5 new run     2.2341  clean     kb1           kb1                     
+aa9b9c16 new check   2.2257  diag      kb1           decode_ab32             
+979a2ab5 new check   2.2446  diag      kb1           decode_prof             
+26331ae5 new run     2.2442  withdrawn kb1           decode_attnport         
+f79f3879 new run     2.2452  withdrawn kb1           decode_chain            
+1ca0668a new run     2.2347  clean     kb1           decode_v3               
+7fd03cfa new check   2.2607  clean     kb1           decode_v3b              
+4dcc1d37 new check   2.2424  clean     kb1           decode_pf               
+781d89f7 new check   2.2412  clean     kb1           decode_gle8             
+afe3c0e2 new check   2.2318  clean     kb1           decode_pfy              
+89a7e977 new check   2.2551  clean     kb1           decode_edge             
+b3e93db2 new check   2.2433  clean     kb1           decode_rt               
+f2ab6d4c new check   2.2445  clean     kb1           decode_curp             
+ff8f8f9c new check   2.2588  clean     kb1           decode_wgs              
+8b79f36a new check   2.2560  clean     kb1           decode_wgs2             
+a8c7dd57 new check   2.2722  clean     kb1           decode_wgs3             
+7bae45c5 new check   2.2489  clean     kb1           decode_wgs4             
+8ffd6871 new check   2.2312  clean     kb1           decode_gd               
+
+wrote rows.csv (756 job x shape rows) and family_rows.csv (3024 job x shape x kernel-family rows)
+
+== NOISE FLOOR: identical default path (kb v1; every gated wrapper whose gate adopted 0 arms ran this code) ==
+19 jobs, all path=kb1: score mean 2.2460 sd 0.0120 range [2.2257, 2.2722]  (sd = 0.53% of score)
+shape   mean us   sd us   cv%  cv% of speedup
+d1S        66.4    0.73  1.10            0.71
+d1F        73.6    0.51  0.69            0.66
+d16S      124.5    3.35  2.69            0.95
+d16F      202.2    3.44  1.70            0.72
+d32S      147.1    3.48  2.36            1.89
+d32F      297.3    8.79  2.95            3.19
+v1S       104.6    2.68  2.56            1.23
+v1F       112.3    2.55  2.27            0.94
+v16S      239.7    5.31  2.21            1.61
+v16F      325.9    4.85  1.49            1.15
+v32S      313.0    5.48  1.75            1.19
+v32F      474.9    5.27  1.11            0.98
+per-family kernel-time sd across the same jobs (profile reports, us):
+  moe        d1S:27.5+-3.5 d1F:24.3+-3.1 d16S:73.4+-7.9 d16F:67.7+-10.0 d32S:81.5+-10.2 d32F:81.6+-10.9 v1S:62.6+-7.8 v1F:59.4+-10.0 v16S:155.4+-11.1 v16F:152.4+-9.1 v32S:197.6+-7.7 v32F:198.5+-10.8
+  dense      d1S:38.8+-1.1 d1F:38.2+-0.6 d16S:50.2+-0.5 d16F:53.5+-2.2 d32S:56.8+-1.0 d32F:62.9+-2.4 v1S:39.0+-0.5 v1F:39.4+-0.6 v16S:64.7+-0.7 v16F:63.3+-0.9 v32S:84.0+-0.8 v32F:83.5+-0.8
+  attention  d1S:5.3+-0.1 d1F:11.8+-0.4 d16S:7.6+-0.1 d16F:88.9+-1.3 d32S:9.3+-0.1 d32F:169.9+-2.3 v1S:7.2+-0.1 v1F:14.9+-0.2 v16S:12.1+-0.2 v16F:107.0+-2.2 v32S:15.5+-0.2 v32F:189.7+-2.3
+  glue_route d1S:4.5+-0.1 d1F:4.5+-0.2 d16S:10.8+-0.4 d16F:11.0+-0.8 d32S:10.6+-0.4 d32F:11.8+-1.1 v1S:6.9+-0.1 v1F:7.5+-0.5 v16S:12.4+-0.3 v16F:11.7+-0.2 v32S:17.4+-0.3 v32F:17.1+-0.2
+same-code pairs in old archive (same revision, two jobs): p7-p7b: 0.0139, p10-p10b: 0.0073, p6-p6b: 0.0101, p8-p8b: 0.0105
+
+== UNCHANGED-PARENT PREDICTOR (candidate score := parent score) vs running group mean ==
+  kb1 path, time order: n=19  MAE vs previous job 0.0127x   MAE vs running mean 0.0095x   (sd of scores 0.0120)
+  old archive, revision order: n=40  MAE vs previous job 0.0147x   MAE vs running mean 0.0120x   (sd of scores 0.0143)
+  per-shape |log(child/parent)| for identical code (median): d1S:1.1% d1F:0.7% d16S:2.9% d16F:1.8% d32S:3.2% d32F:2.4% v1S:2.0% v1F:1.9% v16S:1.2% v16F:1.8% v32S:2.3% v32F:0.7%
+  => any effect smaller than ~1-2% per shape (~1-3 us at d1, 3-6 us at d32/v16) is invisible in ONE judged job.
+
+== CRITICAL-PATH ESTIMATE: per-kernel profile sum vs judged layer time (f2ab6d4c profile, all kb1 jobs averaged) ==
+A profile kernel's time includes waits for the PDL-overlapped predecessor, so sum(kernels) over-counts; judged/sum = fraction of a kernel saving that can
+reach the critical path at most. Family columns are mean kernel us across kb1-path jobs.
+shape   judged  profSum  ratio    moe  dense   attn   glue     sol judged/sol
+d1S       66.4     76.1   0.87   27.5   38.8    5.3    4.5    40.0       1.66
+d1F       73.6     78.9   0.93   24.3   38.2   11.8    4.5    44.2       1.67
+d16S     124.5    142.0   0.88   73.4   50.2    7.6   10.8    76.7       1.62
+d16F     202.2    221.1   0.91   67.7   53.5   88.9   11.0   137.5       1.47
+d32S     147.1    158.3   0.93   81.5   56.8    9.3   10.6    84.5       1.74
+d32F     297.3    326.3   0.91   81.6   62.9  169.9   11.8   208.1       1.43
+v1S      104.6    115.7   0.90   62.6   39.0    7.2    6.9    62.3       1.68
+v1F      112.3    121.2   0.93   59.4   39.4   14.9    7.5    66.4       1.69
+v16S     239.7    244.5   0.98  155.4   64.7   12.1   12.4   126.6       1.89
+v16F     325.9    334.5   0.97  152.4   63.3  107.0   11.7   188.7       1.73
+v32S     313.0    314.4   1.00  197.6   84.0   15.5   17.4   143.8       2.18
+v32F     474.9    488.8   0.97  198.5   83.5  189.7   17.1   267.2       1.78
+
+== TRANSFER: does a claimed/isolated gain survive into the full layer? (positive = faster, us) ==
+claims = design/ledger numbers made BEFORE timing (pre); isolated = standalone paired A/B (iso); layer = in-layer ABBA or judge-check delta.
+NEGATIVE CONTROLS inside the data: 7bae45c5 (pre +5-7 us, layer -1.2..-11.4 us) and 74e3e792 (pre -7.5 us at bs16, measured +99.5 us slower).
+-- pre-measurement claim -> full-layer delta: n=27 rows, 9 revision groups; group-weighted
+   predictor        MAE us  MAE(cap20)  median AE  score MAE
+   zero-transfer     21.12        6.48       1.34    0.02179
+   full-transfer     23.52        8.37       4.84    0.02561
+   LOGO-shrunk       21.12        6.48       1.34    0.02179
+   rows beyond noise (|y|>=1% of layer): 13; sign of the claim (x>0 means faster) is right in 0/13; measured faster in 0/13
+   fitted transfer slope y = b*x: b=-5.95  (group-bootstrap 80% interval [-15.21, -1.25]); interval excludes 0
+   claims>0: 27 rows, 0 realised >=50% of the claim and >=0.5 us (empirical hit rate 0/27; not a calibrated probability)
+
+-- isolated A/B gain -> full-layer delta: n=24 rows, 10 revision groups; group-weighted
+   predictor        MAE us  MAE(cap20)  median AE  score MAE
+   zero-transfer      4.39        3.53       0.27    0.00494
+   full-transfer      1.66        1.66       1.29    0.00330
+   LOGO-shrunk        1.66        1.66       1.29    0.00330
+   rows beyond noise (|y|>=1% of layer): 6; sign of the claim (x>0 means faster) is right in 6/6; measured faster in 3/6
+   fitted transfer slope y = b*x: b=1.04  (group-bootstrap 80% interval [0.43, 1.38]); interval excludes 0
+   claims>0: 16 rows, 4 realised >=50% of the claim and >=0.5 us (empirical hit rate 4/16; not a calibrated probability)
+
+-- pre-measurement claim -> isolated/board A/B (includes VMS iterations; 74e3e792 is the 2x-slower row): n=25 rows, 14 revision groups; group-weighted
+   predictor        MAE us  MAE(cap20)  median AE  score MAE
+   zero-transfer     15.97        5.82       1.70        n/a
+   full-transfer     21.89       10.34      10.25        n/a
+   LOGO-shrunk       15.97        5.82       1.70        n/a
+   rows with |y|>=1 us: 21; claim sign right in 6/21
+   fitted transfer slope y = b*x: b=-1.98  (group-bootstrap 80% interval [-3.53, -0.34]); interval excludes 0
+   claims>0: 25 rows, 0 realised >=50% of the claim and >=0.5 us (empirical hit rate 0/25; not a calibrated probability)
+
+-- old-to-keell rebase shift (fit slope on one era, test on the other; group-weighted MAE us)
+   pre_us->layer_us train old (n=9, b=0.00) test keell (n=18): MAE(cap20) shrunk 5.75 vs zero 5.75 vs full 8.11
+   pre_us->layer_us train keell (n=18, b=0.00) test old (n=9): MAE(cap20) shrunk 7.40 vs zero 7.40 vs full 8.70
+   iso_us->layer_us train old (n=16, b=1.00) test keell (n=8): MAE(cap20) shrunk 1.60 vs zero 1.23 vs full 1.60
+   iso_us->layer_us train keell (n=8, b=0.22) test old (n=16): MAE(cap20) shrunk 4.41 vs zero 4.52 vs full 1.69
+
+-- top-3 selection quality (rank arms by the claim; mean realised layer gain of the top 3 vs all arms vs oracle top 3)
+   by pre claim, old: top3 -15.92 us  all-arms mean -5.31 us  oracle top3 +0.00 us
+   by pre claim, keell: top3 -4.92 us  all-arms mean -17.66 us  oracle top3 -0.08 us
+   by isolated gain, old: top3 +0.10 us  all-arms mean -2.75 us  oracle top3 +1.27 us
+   by isolated gain, keell: top3 +1.37 us  all-arms mean +1.08 us  oracle top3 +2.17 us
+
+Reading: slope intervals and LOGO errors above decide whether the data support ANY source-only forecast; if the zero-transfer row
+is as good as the shrunk row, the honest forecast for an untimed claim is 'zero, range 0..claim', not a point estimate.
+
+== GATE -> JUDGE: adopted in-prepare full-layer gate gains vs the judge's parent->child delta (old archive, us, positive = faster) ==
+arm       shape    gate  judge raw  judge norm
+p1b-d1S   d1S      4.35       4.03        4.13
+p1b-d1F   d1F      4.35       4.33        4.32
+p2-d1S    d1S      5.00      -0.64       -0.56
+p2-d1F    d1F      6.65       1.90        1.10
+p2-v1S    v1S      2.15      -1.57       -1.36
+p4-d1S    d1S      1.40       4.55        5.61
+p4-v1F    v1F      2.10       0.92        0.37
+p5b-d16S  d16S     1.95      -2.79       -0.69
+p9-v1S    v1S      2.90       7.61        2.05
+p9-v1F    v1F      4.85      -0.18       -0.47
+p25-d16S  d16S     2.70       2.89        3.80
+p25-d16F  d16F     2.70      11.61        7.48
+p25-d32S  d32S     2.20       5.88        6.37
+p32-d16S  d16S     1.60       6.17        1.29
+p32-d32S  d32S     1.90      -0.70       -5.39
+-- gate gain -> judge delta (raw_us): n=15 rows, 7 revision groups; group-weighted
+   predictor        MAE us  MAE(cap20)  median AE  score MAE
+   zero-transfer      3.60        3.60       2.89    0.00758
+   full-transfer      3.50        3.50       3.72    0.00690
+   LOGO-shrunk        3.74        3.74       3.65    0.00766
+   rows beyond noise (|y|>=1% of layer): 11; sign of the claim (x>0 means faster) is right in 9/11; measured faster in 9/11
+   fitted transfer slope y = b*x: b=0.67  (group-bootstrap 80% interval [0.34, 1.11]); interval excludes 0
+   claims>0: 15 rows, 8 realised >=50% of the claim and >=0.5 us (empirical hit rate 8/15; not a calibrated probability)
+
+-- gate gain -> judge delta (norm_us): n=15 rows, 7 revision groups; group-weighted
+   predictor        MAE us  MAE(cap20)  median AE  score MAE
+   zero-transfer      2.77        2.77       2.05    0.00604
+   full-transfer      2.98        2.98       3.51    0.00588
+   LOGO-shrunk        3.02        3.02       3.09    0.00636
+   rows beyond noise (|y|>=1% of layer): 10; sign of the claim (x>0 means faster) is right in 8/10; measured faster in 8/10
+   fitted transfer slope y = b*x: b=0.45  (group-bootstrap 80% interval [0.13, 0.85]); interval excludes 0
+   claims>0: 15 rows, 8 realised >=50% of the claim and >=0.5 us (empirical hit rate 8/15; not a calibrated probability)
+
+   old-archive per-shape sd of the judged median (us): d1S:1.7 d1F:1.9 d16S:3.5 d16F:3.7 d32S:4.1 d32F:8.0 v1S:2.9 v1F:3.0 v16S:5.0 v16F:5.6 v32S:5.2 v32F:5.5
+   a parent->child delta therefore carries sd ~ sqrt(2)*that, e.g. d1S ~2.5 us vs gate claims of 1.4-6.7 us.
+
+== WHAT 2.37 NEEDS (anchor 1ca0668a: scored 2.2347; muse_score what-ifs) ==
+per-load speedups at anchor: decode 1:2.5719 decode 16:2.1163 decode 32:1.8997 verify 1:2.4696 verify 16:2.1715 verify 32:2.2458
+uniform saving on all 12 shapes: 7.9 us/layer reaches 2.37 (x+6.1% needed); -3/-5/-8 us -> 2.2840/2.3183/2.3721
+match Joey's ratio on every shape where he leads (his table, our baseline): 2.3564  (shapes: d1S:3.5% d1F:2.8% d16S:10.0% d16F:5.7% d32S:3.7% d32F:0.4% v1S:10.6% v1F:2.2% v16S:3.5% v16F:2.6% v32S:5.6% v32F:4.3%)
+  task-brief scenario (d16 -10/-8 + dense 4.4/2.4/3.5 on both layer types, full transfer): 2.3037
+  extra uniform saving still needed on all 12 shapes: after design-number lanes 3.3 us, after measured-so-far lanes 7.5 us, from scratch 7.9 us
+  the five current lane rows at DESIGN numbers: 2.3103;  at numbers MEASURED so far (8ffd6871, c5800fa6): 2.2409 (+0.0062; gap to 2.37 is x+5.76%)
+  VMS d16 (-10.4 S / -7.6 F): 2.2603
+  VMS d16 + VML d32 (-3.3 S/-1.8 F): 2.2662
+  dense T=1/8/16 (4.4/2.4/3.5, both layer types): 2.2775
+  all lanes added, full transfer: 2.3103  -> remaining gap to 2.37: x+2.58%
+  extra uniform saving on all 12 shapes after the lanes: 3.3 us/layer (weights: sliding x46, full x16 per load)
+  coverage of the verify-32 sliding one-head attention win in Decode: -0.50 us on v32S only (q1 sliding shapes d16S/d32S showed no 1h win) -> 2.2351 (+0.00039); even 1 us on every sliding shape is only 2.2466
+  sensitivity (score per 1 us on one shape): d1S:0.00411 d1F:0.00142 d16S:0.00189 d16F:0.00066 d32S:0.00149 d32F:0.00052 v1S:0.00258 v1F:0.00089 v16S:0.00108 v16F:0.00038 v32S:0.00079 v32F:0.00028
+
+== CHASE: ranked by expected score gain per check ==
+anchor 1ca0668a = 2.2347. gross = design/ledger claim; cap = documented headroom (floor); net_full = min(gross,cap) (full transfer, ceiling);
+net_hat = shrunk slope of the claim's evidence class (see TRANSFER/GATE; clipped to [0,1]); hit = empirical rate (k+1)/(n+2) that a claim of that class realised >=50% of itself.
+E[gain/check] = hit * (score_full - anchor) / checks. 'Conditional' score = score if the claim materialises at full transfer.
+
+#1 N2-CURP32: NEW: FP32-faithful rq/CURP qkv at T=16/32 (fix the BF16 per-split reduce that flips expert ids)  [not built; accumulator fix specified by f2ab6d4c root cause]
+    design claim / documented headroom us: d16S:0.4 d16F:0.2 d32S:1.7 d32F:2.0   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 sk2 qkv (kb/exp/decode_curp.py arms Q)   change: keep rq tiling but reduce split partials in FP32 and round once (as sk2 does), then rerun the Q arms
+    loads: decode 16, decode 32 (d16S/F, d32S/F)   mechanism: dense qkv 18.5-21.1 us; documented dense headroom 15-27 us/shape vs byte floor 34.9
+    gross->net_full us per shape: d16S:0.4->0.2 d16F:0.2->0.1 d32S:1.7->0.8 d32F:2.0->1.0
+    net_hat us per shape (class slope b=0.45): d16S:0.09 d16F:0.05 d32S:0.39 d32F:0.45   ceiling (net=cap) score 2.3307
+    conditional score 2.2369 (+0.0022); at class slope b=0.45: 2.2357 (+0.0010); checks 2; hit 0.53; E[gain/check] 0.00059 (optimistic flat hit=0.25: 0.00028)
+    evidence [gate]: in-layer paired ratios measured (f2ab6d4c d32S 0.985/0.991, d32F 0.991/0.995, d16 0.996-0.998) but with numerics that flip 1.6-2.3% of ids; haircut 0.5 is an ASSUMPTION for the extra FP32 partial traffic (unmeasured)
+    kill: ids flip >0 or in-layer ratio > 0.99 at d32S/d32F after the FP32 reduce
+#2 VMS-16: VMS MoE engine at T=16 (MID replacement)  [iteration 4 DONE (c5800fa6): no arm passes the board gate; Decode wiring (decode_vms.py) not yet checked]
+    design claim / documented headroom us: d16S:10.4 d16F:7.6   resources feasibility (smem<=227KiB, 0 spills): PASS
+    parent: kb v1 MID at M=16 (kb/exp/moe_vms4.py, kb/exp/decode_vms.py)   change: it1 engine + split-K B + wide finalizer (arm r4+fin2 best); route into decode MoE call at T=16 only
+    loads: decode 16 (d16S, d16F)   mechanism: output-owned tiles, B split-K=2, PDL A->B; removes ramp/tail between phases
+    gross->net_full us per shape: d16S:1.9->1.9 d16F:1.4->1.4
+    net_hat us per shape (class slope b=1.00): d16S:1.90 d16F:1.40   ceiling (net=cap) score 2.2610
+    conditional score 2.2392 (+0.0045); at class slope b=1.00: 2.2392 (+0.0045); checks 3; hit 0.28; E[gain/check] 0.00042 (optimistic flat hit=0.25: 0.00038)
+    evidence [iso]: board bs16: arm 94-96 us vs incumbent 98.3 (median 0.955-0.981, paired 0.991-1.006, so ~0 to -4 us); mean of both = -2.5 us x (in-layer MoE/board 0.76 S, 0.575 F) = 1.9/1.4 us. Stream-only A 61.1 + B 33.5 us = 94.6 us serialised, i.e. the engine already sits at its phase-stream floor; the 84 us target needs A->B streaming without drain (iteration 2's continuous ring was 2x slower)
+    kill: decode gate paired AND median > 0.988 at d16S/d16F in two passes; or MoE-board paired >0.99 on the best arm
+#3 N3-GLUE16: NEW: fold/hide the two boundary-glue kernels per layer at T>=16 (pre-wait weight stages + early trigger)  [not built; partial PDL variants closed]
+    design claim / documented headroom us: d16S:8.6 d16F:9.4 d32S:8.7 d32F:10.6 v16S:9.8 v16F:8.8 v32S:13.7 v32F:13.3   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 glue_cluster_boundary x2 (d16) / _graft_row_boundary (d32, v16, v32)   change: single boundary kernel per layer or PDL early-trigger with 2 pre-wait stages of the next GEMV (the T<=8 recipe, see H200_FACTS)
+    loads: decode 16/32, verify 16/32 (8 shapes)   mechanism: boundary glue 8.6-13.7 us/shape visible in the profile (d16S 5.4+3.2, d32S 8.7, v16S 9.8, v32S 13.7)
+    gross->net_full us per shape: d16S:2.1->2.1 d16F:2.3->2.3 d32S:2.1->2.1 d32F:2.5->2.5 v16S:2.4->2.4 v16F:2.1->2.1 v32S:3.3->3.3 v32F:3.2->3.2
+    net_hat us per shape (class slope b=0.00): d16S:0.00 d16F:0.00 d32S:0.00 d32F:0.00 v16S:0.00 v16F:0.00 v32S:0.00 v32F:0.00   ceiling (net=cap) score 2.3067
+    conditional score 2.2516 (+0.0169); at class slope b=0.00: 2.2347 (+0.0000); checks 2; hit 0.03; E[gain/check] 0.00029 (optimistic flat hit=0.25: 0.00211)
+    evidence [pre]: gross = 24% capture prior (best past glue gain: M16 glue PDL -2.1/-1.8 us of 8.6, p5b) x documented glue time; H200_FACTS: at T<=8 skipping a whole glue launch saves only 1.2-2.0 us because the next GEMV already streams pre-wait; last-CTA/GEMV-tail folds closed (b3e93db2 2x slower, gle8 1.03x slower, sfnfold neutral)
+    kill: boundary-only ablation (skip one boundary launch, wrong numerics, timing only) saves <1.5 us at d16/v32 in the layer
+#4 N1-MOE128: NEW: MoE T=128/256 phase-B consumer throughput (cheaper FP4 dequant/MMA issue per value, MAIN consumers)  [not built; headroom documented, lever not demonstrated]
+    design claim / documented headroom us: v16S:31.4 v16F:31.9 v32S:57.1 v32F:52.7   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 WGS MAIN (moe_fused<true>)   change: reduce consumer instruction count per FP4 value in phase B (c967ffa3: consumer-bound, dequant+MMA 66%, ring full 83% of B)
+    loads: verify 16, verify 32 (v16S/F, v32S/F)   mechanism: MoE 162-191 us vs read-flush stream floor 131-134 us (f125e6ab BASE/STREAM bs128 182.8/147.3, bs256 227.3/159.5)
+    gross->net_full us per shape: v16S:1.9->1.9 v16F:1.9->1.9 v32S:3.4->3.4 v32F:3.2->3.2
+    net_hat us per shape (class slope b=0.00): v16S:0.00 v16F:0.00 v32S:0.00 v32F:0.00   ceiling (net=cap) score 2.3516
+    conditional score 2.2410 (+0.0064); at class slope b=0.00: 2.2347 (+0.0000); checks 3; hit 0.03; E[gain/check] 0.00007 (optimistic flat hit=0.25: 0.00053)
+    evidence [pre]: gross = 6% capture prior (best past MoE-MAIN in-layer capture: ERL/HINT/FINREG 0.5-1.7% of MoE, pfy ~2 us of 57) x documented headroom; same-family attempts closed: P2-RS64 1.49x slower, L1 1.03-1.06x, L2 1.03-1.12x, 7bae45c5 tables slower; NODQ ~= BASE in D-MoE diag vs 'dequant removal saves 3.8-6.9%' in c967ffa3 (conflict)
+    kill: isolated MAIN consumer A/B (read flush, bs128+bs256, 3 draws) not <=0.98 on both
+#5 DG-T1: Dense GEMVs at T=1 (cgemv qkv + unpooler slice)  [CHECK 8ffd6871 DONE: adopted 0 (qkv cg+pdl 0.995-1.000 best, un:cg 1.01-1.02 slower)]  ** KILLED by existing data **
+    design claim / documented headroom us: d1S:4.4 d1F:4.4   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 (kb/exp/decode_gd.py, d2d2c48)   change: replace sk2 launches with vjeux cgemv (FP32 reduce, one BF16 round) at T=1 qkv and unpooler slice
+    loads: decode 1 (d1S, d1F)   mechanism: higher HBM rate on the 4 dense GEMVs (38 us measured vs 34.9 us byte floor)
+    gross->net_full us per shape: d1S:0.3->0.3 d1F:0.3->0.3
+    net_hat us per shape (class slope b=0.45): d1S:0.14 d1F:0.14   ceiling (net=cap) score 2.2528
+    conditional score 2.2363 (+0.0017); at class slope b=0.45: 2.2354 (+0.0007); checks 2; hit 0.53; E[gain/check] 0.00000 (optimistic flat hit=0.25: 0.00000)
+    evidence [gate]: in-layer read-flush ABBA exists (8ffd6871): best arm qkv:cg+pdl S1 0.9991/0.9921, F2 0.9947/0.9991 (~+0.3 us); un:cg 1.012-1.020 slower; design 4.4 us exceeds the 3.2 us documented headroom
+    kill: no arm <=0.988 median AND paired in two passes (already hit for every T=1 arm)
+#6 DG-T8: Dense GEMVs at T=8 (gv qkv, o, unpooler slice)  [CHECK 8ffd6871 DONE: adopted 0 (all 1.000-1.025)]  ** KILLED by existing data **
+    design claim / documented headroom us: v1S:2.4 v1F:2.4   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 (decode_gd.py)   change: chenwainuo gv for qkv/o/unpooler slice at verify-1
+    loads: verify 1 (v1S, v1F)   mechanism: same as DG-T1
+    gross->net_full us per shape: v1S:0.0->0.0 v1F:0.0->0.0
+    net_hat us per shape (class slope b=0.45): v1S:0.00 v1F:0.00   ceiling (net=cap) score 2.2494
+    conditional score 2.2347 (+0.0000); at class slope b=0.45: 2.2347 (+0.0000); checks 2; hit 0.53; E[gain/check] 0.00000 (optimistic flat hit=0.25: 0.00000)
+    evidence [gate]: 8ffd6871: qkv:gv 1.008, o:gv 1.021-1.025, o:gv+pdl 1.003-1.008, un:gv+pdl 0.9996-1.0027; none faster
+    kill: already met: no arm below 1.000
+#7 DG-T16: Dense GEMV at T=16 (gv o-projection)  [CHECK 8ffd6871 DONE: adopted 0 (1.006-1.022 slower)]  ** KILLED by existing data **
+    design claim / documented headroom us: d16S:3.5 d16F:3.5   resources feasibility (smem<=227KiB, 0 spills): n/a (not built)
+    parent: kb v1 (decode_gd.py)   change: gv for o at decode-16
+    loads: decode 16 (d16S, d16F)   mechanism: same as DG-T1
+    gross->net_full us per shape: d16S:0.0->0.0 d16F:0.0->0.0
+    net_hat us per shape (class slope b=0.45): d16S:0.00 d16F:0.00   ceiling (net=cap) score 2.2788
+    conditional score 2.2347 (+0.0000); at class slope b=0.45: 2.2347 (+0.0000); checks 2; hit 0.53; E[gain/check] 0.00000 (optimistic flat hit=0.25: 0.00000)
+    evidence [gate]: 8ffd6871: o:gv 1.014-1.022, o:gv+pdl 1.004-1.011; (S1/F1 also failed correctness)
+    kill: already met
+#8 VML-32: VML MoE engine at T=32  [iteration 4: every bs32 arm 1.000-1.016 slower]  ** KILLED by existing data **
+    design claim / documented headroom us: d32S:3.3 d32F:1.8   resources feasibility (smem<=227KiB, 0 spills): PASS
+    parent: kb v1 WGS MAIN at M=32   change: VMS engine with 4 token fragments at M=32
+    loads: decode 32 (d32S, d32F)   mechanism: as VMS-16
+    gross->net_full us per shape: d32S:0.0->0.0 d32F:0.0->0.0
+    net_hat us per shape (class slope b=1.00): d32S:0.00 d32F:0.00   ceiling (net=cap) score 2.2669
+    conditional score 2.2347 (+0.0000); at class slope b=1.00: 2.2347 (+0.0000); checks 3; hit 0.28; E[gain/check] 0.00000 (optimistic flat hit=0.25: 0.00000)
+    evidence [iso]: c5800fa6 bs32: arms 129.8-131.4 vs incumbent 128.9-130.0 (paired 1.008-1.015); design number = Joey's d32 ratio edge (2.3% / 0.6%)
+    kill: already met (all bs32 arms slower)
