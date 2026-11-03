@@ -1,0 +1,140 @@
+[
+  {
+    "name": "BASE",
+    "rc": 0,
+    "seconds": 28.45299999997951,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "sha256": "58fb5d95dd63ec46ddef497098347915aadd13bd19653d35fd5d57f561166768",
+    "resources": [
+      "ptxas         .     16 bytes stack frame, 56 bytes spill stores, 124 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     16 bytes stack frame, 56 bytes spill stores, 124 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ],
+    "c7512": false,
+    "launchable_register_budget": true
+  },
+  {
+    "name": "RUNTIME96",
+    "rc": 0,
+    "seconds": 43.01599999994505,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "sha256": "438a4a480a60a4de6a4fdac48959c590ca60b8a22950ecb3183cb85ae116973c",
+    "resources": [
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE'",
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE'",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ],
+    "c7512": true,
+    "launchable_register_budget": true
+  },
+  {
+    "name": "TWO96",
+    "rc": 0,
+    "seconds": 50.93700000003446,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "sha256": "809a5c11b69fce1df51eb86a4c322e4dd9dd63d87ad334b80d070004649f1ba7",
+    "resources": [
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE'",
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE'",
+      "ptxas         .     16 bytes stack frame, 104 bytes spill stores, 184 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     16 bytes stack frame, 104 bytes spill stores, 184 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ],
+    "c7512": true,
+    "launchable_register_budget": true
+  },
+  {
+    "name": "OVER112",
+    "rc": 0,
+    "seconds": 43.703000000095926,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "sha256": "fe8f4b24e0274bf0fb6320ea5e3185b5ec1357421e0ec96bf09fdb56c239815a",
+    "resources": [
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE'",
+      "ptxas info    : (C7512) Potential Performance Loss: wgmma.mma_async instructions are serialized due to insufficient register resources for the function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE'",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 112 registers, used 16 barriers",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 112 registers, used 16 barriers",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ],
+    "c7512": true,
+    "launchable_register_budget": false
+  }
+]

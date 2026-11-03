@@ -1,0 +1,124 @@
+[
+  {
+    "name": "L2",
+    "seconds": 31.39000000001397,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "source_sha256": "37a1248bba7f9a1dffbbb9944feab12cfab69c2c93fd741a21e153d9671ec57d",
+    "resources": [
+      "ptxas         .     32 bytes stack frame, 236 bytes spill stores, 456 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 32 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     32 bytes stack frame, 236 bytes spill stores, 456 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 32 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ]
+  },
+  {
+    "name": "NARROW",
+    "seconds": 22.594000000040978,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_L2_CAP=64"
+    ],
+    "source_sha256": "37a1248bba7f9a1dffbbb9944feab12cfab69c2c93fd741a21e153d9671ec57d",
+    "resources": [
+      "ptxas         .     16 bytes stack frame, 96 bytes spill stores, 160 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     16 bytes stack frame, 96 bytes spill stores, 160 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ]
+  },
+  {
+    "name": "OFF",
+    "seconds": 21.483999999938533,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_L2=0"
+    ],
+    "source_sha256": "37a1248bba7f9a1dffbbb9944feab12cfab69c2c93fd741a21e153d9671ec57d",
+    "resources": [
+      "ptxas         .     16 bytes stack frame, 56 bytes spill stores, 124 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     16 bytes stack frame, 56 bytes spill stores, 124 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ]
+  },
+  {
+    "name": "TWO_SLOT",
+    "seconds": 31.108999999938533,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++20",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "source_sha256": "a299530141629a0d1a7c8ab83ccb340239de84f5b61629310345112b7bed6137",
+    "resources": [
+      "ptxas         .     64 bytes stack frame, 460 bytes spill stores, 624 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 64 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas         .     64 bytes stack frame, 460 bytes spill stores, 624 bytes spill loads",
+      "ptxas info    : Used 96 registers, used 16 barriers, 64 bytes cumulative stack size",
+      "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads"
+    ]
+  }
+]

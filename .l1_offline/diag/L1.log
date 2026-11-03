@@ -1,0 +1,53 @@
+device-preflight.cu(147): warning #177-D: variable "md_MAIN_L1::NRB" was declared but never referenced
+  constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(162): warning #177-D: variable "md_MAIN_L1::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+device-preflight.cu(162): warning #177-D: variable "md_MAIN_L1::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+device-preflight.cu(165): warning #177-D: variable "md_MAIN_L1::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+device-preflight.cu(172): warning #177-D: variable "md_MAIN_L1::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+device-preflight.cu(553): warning #177-D: variable "md_MAIN_L1::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+device-preflight.cu(963): warning #177-D: variable "md_MAIN_L1::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+device-preflight.cu(1666): warning #177-D: variable "md_MAIN_L1::WGS_FIXF" was declared but never referenced
+  constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;  // + doneAs
+                   ^
+
+device-preflight.cu(1828): warning #177-D: variable "md_MAIN_L1::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
+                ^
+
+ptxas info    : 250 bytes gmem
+ptxas info    : Compiling entry function '_ZN10md_MAIN_L19moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN10md_MAIN_L19moe_fusedILb1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN10md_MAIN_L110wgs_rangesERKNS_6ParamsERNS_4SmemE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN10md_MAIN_L19moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN10md_MAIN_L19moe_fusedILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN10md_MAIN_L110wgs_rangesERKNS_6ParamsERNS_4SmemE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

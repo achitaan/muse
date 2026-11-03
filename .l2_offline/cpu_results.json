@@ -1,0 +1,461 @@
+{
+  "seed": 20261101,
+  "cases": [
+    {
+      "routes": 3072,
+      "base_jobs": 64,
+      "native_jobs": 64,
+      "wide": 0,
+      "xrows": 3072
+    },
+    {
+      "routes": 3072,
+      "base_jobs": 48,
+      "native_jobs": 48,
+      "wide": 0,
+      "xrows": 3072
+    },
+    {
+      "routes": 2015,
+      "base_jobs": 62,
+      "native_jobs": 31,
+      "wide": 31,
+      "xrows": 2232
+    },
+    {
+      "routes": 1,
+      "base_jobs": 1,
+      "native_jobs": 1,
+      "wide": 0,
+      "xrows": 8
+    },
+    {
+      "routes": 8,
+      "base_jobs": 1,
+      "native_jobs": 1,
+      "wide": 0,
+      "xrows": 8
+    },
+    {
+      "routes": 9,
+      "base_jobs": 1,
+      "native_jobs": 1,
+      "wide": 0,
+      "xrows": 16
+    },
+    {
+      "routes": 63,
+      "base_jobs": 1,
+      "native_jobs": 1,
+      "wide": 0,
+      "xrows": 64
+    },
+    {
+      "routes": 64,
+      "base_jobs": 1,
+      "native_jobs": 1,
+      "wide": 0,
+      "xrows": 64
+    },
+    {
+      "routes": 65,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 72
+    },
+    {
+      "routes": 68,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 72
+    },
+    {
+      "routes": 72,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 72
+    },
+    {
+      "routes": 73,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 80
+    },
+    {
+      "routes": 75,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 80
+    },
+    {
+      "routes": 80,
+      "base_jobs": 2,
+      "native_jobs": 1,
+      "wide": 1,
+      "xrows": 80
+    },
+    {
+      "routes": 81,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 88
+    },
+    {
+      "routes": 88,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 88
+    },
+    {
+      "routes": 89,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 96
+    },
+    {
+      "routes": 95,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 96
+    },
+    {
+      "routes": 96,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 96
+    },
+    {
+      "routes": 97,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 104
+    },
+    {
+      "routes": 128,
+      "base_jobs": 2,
+      "native_jobs": 2,
+      "wide": 0,
+      "xrows": 128
+    },
+    {
+      "routes": 144,
+      "base_jobs": 3,
+      "native_jobs": 3,
+      "wide": 0,
+      "xrows": 144
+    },
+    {
+      "routes": 192,
+      "base_jobs": 3,
+      "native_jobs": 3,
+      "wide": 0,
+      "xrows": 192
+    },
+    {
+      "routes": 384,
+      "base_jobs": 6,
+      "native_jobs": 6,
+      "wide": 0,
+      "xrows": 384
+    },
+    {
+      "routes": 392,
+      "base_jobs": 11,
+      "native_jobs": 9,
+      "wide": 2,
+      "xrows": 408
+    },
+    {
+      "routes": 1409,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1512
+    },
+    {
+      "routes": 1388,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1528
+    },
+    {
+      "routes": 1625,
+      "base_jobs": 39,
+      "native_jobs": 38,
+      "wide": 1,
+      "xrows": 1728
+    },
+    {
+      "routes": 1721,
+      "base_jobs": 40,
+      "native_jobs": 38,
+      "wide": 2,
+      "xrows": 1816
+    },
+    {
+      "routes": 1512,
+      "base_jobs": 38,
+      "native_jobs": 35,
+      "wide": 3,
+      "xrows": 1608
+    },
+    {
+      "routes": 1575,
+      "base_jobs": 38,
+      "native_jobs": 37,
+      "wide": 1,
+      "xrows": 1696
+    },
+    {
+      "routes": 1330,
+      "base_jobs": 36,
+      "native_jobs": 32,
+      "wide": 4,
+      "xrows": 1440
+    },
+    {
+      "routes": 1394,
+      "base_jobs": 36,
+      "native_jobs": 35,
+      "wide": 1,
+      "xrows": 1488
+    },
+    {
+      "routes": 1379,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1504
+    },
+    {
+      "routes": 1546,
+      "base_jobs": 38,
+      "native_jobs": 36,
+      "wide": 2,
+      "xrows": 1656
+    },
+    {
+      "routes": 1428,
+      "base_jobs": 37,
+      "native_jobs": 35,
+      "wide": 2,
+      "xrows": 1552
+    },
+    {
+      "routes": 1375,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1464
+    },
+    {
+      "routes": 1531,
+      "base_jobs": 38,
+      "native_jobs": 36,
+      "wide": 2,
+      "xrows": 1648
+    },
+    {
+      "routes": 1550,
+      "base_jobs": 38,
+      "native_jobs": 36,
+      "wide": 2,
+      "xrows": 1672
+    },
+    {
+      "routes": 1617,
+      "base_jobs": 39,
+      "native_jobs": 38,
+      "wide": 1,
+      "xrows": 1728
+    },
+    {
+      "routes": 1524,
+      "base_jobs": 38,
+      "native_jobs": 35,
+      "wide": 3,
+      "xrows": 1648
+    },
+    {
+      "routes": 1320,
+      "base_jobs": 36,
+      "native_jobs": 32,
+      "wide": 4,
+      "xrows": 1448
+    },
+    {
+      "routes": 1438,
+      "base_jobs": 37,
+      "native_jobs": 36,
+      "wide": 1,
+      "xrows": 1560
+    },
+    {
+      "routes": 1428,
+      "base_jobs": 37,
+      "native_jobs": 35,
+      "wide": 2,
+      "xrows": 1528
+    },
+    {
+      "routes": 1442,
+      "base_jobs": 36,
+      "native_jobs": 36,
+      "wide": 0,
+      "xrows": 1536
+    },
+    {
+      "routes": 1609,
+      "base_jobs": 39,
+      "native_jobs": 37,
+      "wide": 2,
+      "xrows": 1696
+    },
+    {
+      "routes": 1461,
+      "base_jobs": 37,
+      "native_jobs": 36,
+      "wide": 1,
+      "xrows": 1568
+    },
+    {
+      "routes": 1576,
+      "base_jobs": 38,
+      "native_jobs": 37,
+      "wide": 1,
+      "xrows": 1696
+    },
+    {
+      "routes": 1456,
+      "base_jobs": 37,
+      "native_jobs": 36,
+      "wide": 1,
+      "xrows": 1560
+    },
+    {
+      "routes": 1586,
+      "base_jobs": 39,
+      "native_jobs": 37,
+      "wide": 2,
+      "xrows": 1688
+    },
+    {
+      "routes": 1364,
+      "base_jobs": 36,
+      "native_jobs": 33,
+      "wide": 3,
+      "xrows": 1488
+    },
+    {
+      "routes": 1561,
+      "base_jobs": 38,
+      "native_jobs": 37,
+      "wide": 1,
+      "xrows": 1656
+    },
+    {
+      "routes": 1361,
+      "base_jobs": 36,
+      "native_jobs": 33,
+      "wide": 3,
+      "xrows": 1456
+    },
+    {
+      "routes": 1342,
+      "base_jobs": 36,
+      "native_jobs": 33,
+      "wide": 3,
+      "xrows": 1464
+    },
+    {
+      "routes": 1577,
+      "base_jobs": 39,
+      "native_jobs": 37,
+      "wide": 2,
+      "xrows": 1688
+    },
+    {
+      "routes": 1380,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1456
+    },
+    {
+      "routes": 1322,
+      "base_jobs": 36,
+      "native_jobs": 32,
+      "wide": 4,
+      "xrows": 1440
+    },
+    {
+      "routes": 1367,
+      "base_jobs": 36,
+      "native_jobs": 33,
+      "wide": 3,
+      "xrows": 1488
+    },
+    {
+      "routes": 1737,
+      "base_jobs": 40,
+      "native_jobs": 39,
+      "wide": 1,
+      "xrows": 1856
+    },
+    {
+      "routes": 1371,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1464
+    },
+    {
+      "routes": 1356,
+      "base_jobs": 36,
+      "native_jobs": 33,
+      "wide": 3,
+      "xrows": 1496
+    },
+    {
+      "routes": 1567,
+      "base_jobs": 38,
+      "native_jobs": 37,
+      "wide": 1,
+      "xrows": 1664
+    },
+    {
+      "routes": 1403,
+      "base_jobs": 36,
+      "native_jobs": 34,
+      "wide": 2,
+      "xrows": 1504
+    },
+    {
+      "routes": 1545,
+      "base_jobs": 38,
+      "native_jobs": 36,
+      "wide": 2,
+      "xrows": 1664
+    },
+    {
+      "routes": 1444,
+      "base_jobs": 37,
+      "native_jobs": 37,
+      "wide": 0,
+      "xrows": 1560
+    }
+  ],
+  "narrow_grouping_preserved": true
+}

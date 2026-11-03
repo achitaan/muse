@@ -1,0 +1,348 @@
+[
+  {
+    "function": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+    "launch_regs": 96,
+    "consumer_limit": 112,
+    "producer_limit": 32,
+    "producer_max_operand_R": 19,
+    "consumer_max_operand_R": 109,
+    "producer_instructions": 586,
+    "consumer_instructions": 17516,
+    "capture_sites": [
+      {
+        "sync": "0x6b20",
+        "release": "0x6b70",
+        "xwait": "0x6b80"
+      },
+      {
+        "sync": "0x9380",
+        "release": "0x93d0",
+        "xwait": "0x93e0"
+      },
+      {
+        "sync": "0xbac0",
+        "release": "0xbb00",
+        "xwait": "0xbb10"
+      },
+      {
+        "sync": "0xe330",
+        "release": "0xe360",
+        "xwait": "0xe370"
+      },
+      {
+        "sync": "0x10070",
+        "release": "0x100b0",
+        "xwait": "0x100c0"
+      },
+      {
+        "sync": "0x128e0",
+        "release": "0x12910",
+        "xwait": "0x12920"
+      },
+      {
+        "sync": "0x14b90",
+        "release": "0x14be0",
+        "xwait": "0x14bf0"
+      },
+      {
+        "sync": "0x17540",
+        "release": "0x17590",
+        "xwait": "0x175a0"
+      },
+      {
+        "sync": "0x1a630",
+        "release": "0x1a680",
+        "xwait": "0x1a690"
+      },
+      {
+        "sync": "0x1cfc0",
+        "release": "0x1d010",
+        "xwait": "0x1d020"
+      },
+      {
+        "sync": "0x1fcf0",
+        "release": "0x1fd80",
+        "xwait": "0x1fdd0"
+      },
+      {
+        "sync": "0x22580",
+        "release": "0x225d0",
+        "xwait": "0x225e0"
+      },
+      {
+        "sync": "0x26040",
+        "release": "0x26090",
+        "xwait": "0x260a0"
+      },
+      {
+        "sync": "0x28ac0",
+        "release": "0x28af0",
+        "xwait": "0x28b20"
+      },
+      {
+        "sync": "0x2caa0",
+        "release": "0x2caf0",
+        "xwait": "0x2cb00"
+      },
+      {
+        "sync": "0x2f400",
+        "release": "0x2f450",
+        "xwait": "0x2f460"
+      },
+      {
+        "sync": "0x346d0",
+        "release": "0x346e0",
+        "xwait": "0x34700"
+      },
+      {
+        "sync": "0x369d0",
+        "release": "0x369e0",
+        "xwait": "0x369f0"
+      },
+      {
+        "sync": "0x38c20",
+        "release": "0x38c30",
+        "xwait": "0x38c50"
+      },
+      {
+        "sync": "0x3af20",
+        "release": "0x3af30",
+        "xwait": "0x3af40"
+      },
+      {
+        "sync": "0x3caf0",
+        "release": "0x3cb00",
+        "xwait": "0x3cb20"
+      },
+      {
+        "sync": "0x3ee00",
+        "release": "0x3ee10",
+        "xwait": "0x3ee20"
+      },
+      {
+        "sync": "0x40db0",
+        "release": "0x40dc0",
+        "xwait": "0x40de0"
+      },
+      {
+        "sync": "0x430e0",
+        "release": "0x430f0",
+        "xwait": "0x43100"
+      },
+      {
+        "sync": "0x459c0",
+        "release": "0x459d0",
+        "xwait": "0x459f0"
+      },
+      {
+        "sync": "0x47cf0",
+        "release": "0x47d00",
+        "xwait": "0x47d10"
+      },
+      {
+        "sync": "0x4a2d0",
+        "release": "0x4a2e0",
+        "xwait": "0x4a300"
+      },
+      {
+        "sync": "0x4c670",
+        "release": "0x4c680",
+        "xwait": "0x4c6a0"
+      },
+      {
+        "sync": "0x4f5e0",
+        "release": "0x4f5f0",
+        "xwait": "0x4f610"
+      },
+      {
+        "sync": "0x51a10",
+        "release": "0x51a20",
+        "xwait": "0x51a40"
+      },
+      {
+        "sync": "0x54db0",
+        "release": "0x54dc0",
+        "xwait": "0x54de0"
+      },
+      {
+        "sync": "0x57110",
+        "release": "0x57120",
+        "xwait": "0x57150"
+      }
+    ],
+    "local_load_store_instructions": 0
+  },
+  {
+    "function": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+    "launch_regs": 96,
+    "consumer_limit": 112,
+    "producer_limit": 32,
+    "producer_max_operand_R": 19,
+    "consumer_max_operand_R": 109,
+    "producer_instructions": 586,
+    "consumer_instructions": 17516,
+    "capture_sites": [
+      {
+        "sync": "0x6b20",
+        "release": "0x6b70",
+        "xwait": "0x6b80"
+      },
+      {
+        "sync": "0x9380",
+        "release": "0x93d0",
+        "xwait": "0x93e0"
+      },
+      {
+        "sync": "0xbac0",
+        "release": "0xbb00",
+        "xwait": "0xbb10"
+      },
+      {
+        "sync": "0xe330",
+        "release": "0xe360",
+        "xwait": "0xe370"
+      },
+      {
+        "sync": "0x10070",
+        "release": "0x100b0",
+        "xwait": "0x100c0"
+      },
+      {
+        "sync": "0x128e0",
+        "release": "0x12910",
+        "xwait": "0x12920"
+      },
+      {
+        "sync": "0x14b90",
+        "release": "0x14be0",
+        "xwait": "0x14bf0"
+      },
+      {
+        "sync": "0x17540",
+        "release": "0x17590",
+        "xwait": "0x175a0"
+      },
+      {
+        "sync": "0x1a630",
+        "release": "0x1a680",
+        "xwait": "0x1a690"
+      },
+      {
+        "sync": "0x1cfc0",
+        "release": "0x1d010",
+        "xwait": "0x1d020"
+      },
+      {
+        "sync": "0x1fcf0",
+        "release": "0x1fd80",
+        "xwait": "0x1fdd0"
+      },
+      {
+        "sync": "0x22580",
+        "release": "0x225d0",
+        "xwait": "0x225e0"
+      },
+      {
+        "sync": "0x26040",
+        "release": "0x26090",
+        "xwait": "0x260a0"
+      },
+      {
+        "sync": "0x28ac0",
+        "release": "0x28af0",
+        "xwait": "0x28b20"
+      },
+      {
+        "sync": "0x2caa0",
+        "release": "0x2caf0",
+        "xwait": "0x2cb00"
+      },
+      {
+        "sync": "0x2f400",
+        "release": "0x2f450",
+        "xwait": "0x2f460"
+      },
+      {
+        "sync": "0x346d0",
+        "release": "0x346e0",
+        "xwait": "0x34700"
+      },
+      {
+        "sync": "0x369d0",
+        "release": "0x369e0",
+        "xwait": "0x369f0"
+      },
+      {
+        "sync": "0x38c20",
+        "release": "0x38c30",
+        "xwait": "0x38c50"
+      },
+      {
+        "sync": "0x3af20",
+        "release": "0x3af30",
+        "xwait": "0x3af40"
+      },
+      {
+        "sync": "0x3caf0",
+        "release": "0x3cb00",
+        "xwait": "0x3cb20"
+      },
+      {
+        "sync": "0x3ee00",
+        "release": "0x3ee10",
+        "xwait": "0x3ee20"
+      },
+      {
+        "sync": "0x40db0",
+        "release": "0x40dc0",
+        "xwait": "0x40de0"
+      },
+      {
+        "sync": "0x430e0",
+        "release": "0x430f0",
+        "xwait": "0x43100"
+      },
+      {
+        "sync": "0x459c0",
+        "release": "0x459d0",
+        "xwait": "0x459f0"
+      },
+      {
+        "sync": "0x47cf0",
+        "release": "0x47d00",
+        "xwait": "0x47d10"
+      },
+      {
+        "sync": "0x4a2d0",
+        "release": "0x4a2e0",
+        "xwait": "0x4a300"
+      },
+      {
+        "sync": "0x4c670",
+        "release": "0x4c680",
+        "xwait": "0x4c6a0"
+      },
+      {
+        "sync": "0x4f5e0",
+        "release": "0x4f5f0",
+        "xwait": "0x4f610"
+      },
+      {
+        "sync": "0x51a10",
+        "release": "0x51a20",
+        "xwait": "0x51a40"
+      },
+      {
+        "sync": "0x54db0",
+        "release": "0x54dc0",
+        "xwait": "0x54de0"
+      },
+      {
+        "sync": "0x57110",
+        "release": "0x57120",
+        "xwait": "0x57150"
+      }
+    ],
+    "local_load_store_instructions": 0
+  }
+]

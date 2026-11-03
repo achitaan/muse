@@ -1,0 +1,36 @@
+device-preflight.cu(1523): warning #177-D: variable "ce" was declared but never referenced
+      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+                                             ^
+          detected during:
+            instantiation of "void okc::run_phase<PB,BIG>(const okc::Params &, okc::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2562
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(165): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+device-preflight.cu(172): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+device-preflight.cu(565): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+device-preflight.cu(975): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+ptxas info    : 112 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 146 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 146 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms

@@ -1,0 +1,14 @@
+{
+  "experiments\\boards\\moe\\moe_b13.py": {
+    "bytes": 187536,
+    "sha256": "b6390e9993caebd178645d2f33e780724fd84242d15b4a17639d98bc17a3c7ce"
+  },
+  "experiments\\boards\\moe\\moe_l1.py": {
+    "bytes": 190023,
+    "sha256": "5608124583138c16d6f3739023c0ccd71a705118016ef68e0c51f3ddf9d69457"
+  },
+  "experiments\\boards\\diag\\moediag_l1.py": {
+    "bytes": 175826,
+    "sha256": "faef2acf6855547df5ea5210589e0e65b8eb172777edb148afa2905140c0c156"
+  }
+}
