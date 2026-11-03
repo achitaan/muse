@@ -134,6 +134,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Dense M128 DW v5: X cluster multicast (2/4) and 2 MMA warpgroups | closed | multicast much slower (mc2 55.1, mc4 94.8 us: rank-0 handshake serializes), mma2 31.8; vec2 still best 30.2 us = 1.094/1.089x of cuBLAS. DW line closed after 5 iterations: bit-exact c12 WGMMA plateaus ~9% slower than cuBLAS at m128 (stream floor 22 us; X reload + MMA overlap not recovered) | `027ee79b` | experiments/boards/dense/dense_b7.py (decode-next) | Oct 31 |
 | Lane B: Dense-board GEMVs | closed | check 8ffd6871 2.2312 (incumbent): every arm 0.99-1.025 in the full layer, adopted 0 at T=1/8/16 (qkv cgemv T=1 0.997/1.006, o gv T=8 1.006-1.025, un gv+pdl T=8 ~1.000, o gv T=16 1.008-1.019); several pdl arms incorrect (nan). Dense-board standalone wins do not transfer: decode's sk2 already pre-issues weights under PDL. Closed | `b0caa4c9, 8ffd6871` | kb/exp/decode_gd.py (argon/decode-20261103, d2d2c48) | Nov 03 |
 | N2: rq/CURP qkv in Decode | closed | check ec73a259: FP32 split reduction fixed numerics (ids identical, qkv err 1.658e-3 = sk2's) but the layer got SLOWER: T=32 1.019-1.022, T=16 1.022-1.024 (the partial-sum handshake + reduce costs more than CURP saves). Closed | `ec73a259` | kb/exp/decode_rqf.py (argon/decode-20261103, 4a515f9) | Nov 03 |
+| Extend _de_source escape-warp decoupling | closed | check 35e0aa5a 2.2292: every arm BIT-IDENTICAL on real decode inputs (o/pool/un/qkv at T=8/16/32) but not faster: T=8 o 1.003-1.006, pool 1.018-1.022, un 0.999-1.007; T=16 qkv 1.012-1.030; T=32 o 1.004-1.008, pool 1.004-1.018, un 1.002-1.014, qkv 0.998-1.018; nothing passed the 0.997 screen. qkv's speed at T=8 comes from the narrow build's geometry, not from the decoupling | `35e0aa5a` | kb/exp/decode_esc.py (argon/decode-20261103, 633281e) | Nov 03 |
 
 ## Norms and glue kernels
 
@@ -348,4 +349,3 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| Extend _de_source escape-warp decoupling (escape warps off the TMA ring empty barrier, escape x read from L2) from qkv 2<=m<=8 to qkv T=1/16/32, unpooler T=1/8/16/32, o T=8/16/32, sk2f/gle_pr T=1/8/16/32 via one runtime pdl bit (18), same per-escape-warp stage order => bit-identical; in-prepare bit test + full-layer read-flush ABBA gate per arm/combination (council Q2 #1) | check submitted, result pending | 35e0aa5a | - | - | Nov 03 |
