@@ -1,0 +1,20 @@
+{
+  "seed": 20261102,
+  "roundtrip": [
+    {
+      "kind": "A",
+      "code_bytes": 16777216,
+      "scale_bytes": 2097152,
+      "fragments": 32768
+    },
+    {
+      "kind": "B",
+      "code_bytes": 8388608,
+      "scale_bytes": 1048576,
+      "fragments": 32768
+    }
+  ],
+  "activation_gather": true,
+  "readiness": true,
+  "mathematical_composition": true
+}

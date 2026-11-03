@@ -1,0 +1,12 @@
+{
+  "base": {
+    "path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\decode-next\\experiments\\boards\\moe\\moe_b15.py",
+    "sha256": "eeeced020b79edec2e578d56cb116e4aacddf4152d0baf710f5004f1d182cc06",
+    "cuda_sha256": "0caaad987b0cec9f59b67151362008a72c344e39bfd5e0a7ba5264c7f83d538d"
+  },
+  "reference": {
+    "path": "C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.slim\\worktrees\\alygg\\kernels\\muse_moe_w4a16.py",
+    "sha256": "2f7a20c15c4c5173bba176122aaa065dd437a8d647ea5809b284554fc2738252",
+    "cuda_sha256": "054d36c2d997e44bd047ab19d74a449d641d7eb99535387c64070fcac1256e91"
+  }
+}

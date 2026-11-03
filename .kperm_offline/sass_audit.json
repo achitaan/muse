@@ -1,0 +1,678 @@
+[
+  {
+    "build": "BASE",
+    "function": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+    "loops": [
+      {
+        "N": 24,
+        "start": "0x9650",
+        "end": "0xaa60",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0xe520",
+        "end": "0xf930",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x12a40",
+        "end": "0x13e50",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x17600",
+        "end": "0x18a10",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x1ceb0",
+        "end": "0x1e2c0",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x22400",
+        "end": "0x23900",
+        "instructions": 337,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x288a0",
+        "end": "0x29e40",
+        "instructions": 347,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x2f310",
+        "end": "0x30700",
+        "instructions": 320,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 24,
+        "start": "0x368c0",
+        "end": "0x37cc0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0x3acf0",
+        "end": "0x3c0f0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x3eaa0",
+        "end": "0x3fea0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x42c50",
+        "end": "0x44050",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x47740",
+        "end": "0x48b40",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x4bf70",
+        "end": "0x4d3a0",
+        "instructions": 324,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x51220",
+        "end": "0x526f0",
+        "instructions": 334,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x569c0",
+        "end": "0x60680",
+        "instructions": 2509,
+        "LDS64": 7,
+        "PRMT": 49,
+        "local": [
+          {
+            "pc": "0x59220",
+            "ins": "LDL R2, [R1+0x8] ;"
+          },
+          {
+            "pc": "0x597e0",
+            "ins": "LDL.LU R22, [R1] ;"
+          },
+          {
+            "pc": "0x5b050",
+            "ins": "LDL.LU R88, [R1+0x4] ;"
+          },
+          {
+            "pc": "0x5b5c0",
+            "ins": "STL [R1+0x4], R88 ;"
+          },
+          {
+            "pc": "0x5eab0",
+            "ins": "STL [R1+0x4], R89 ;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "BASE",
+    "function": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+    "loops": [
+      {
+        "N": 24,
+        "start": "0x9650",
+        "end": "0xaa60",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0xe520",
+        "end": "0xf930",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x12a40",
+        "end": "0x13e50",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x17600",
+        "end": "0x18a10",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x1ceb0",
+        "end": "0x1e2c0",
+        "instructions": 322,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x22400",
+        "end": "0x23900",
+        "instructions": 337,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x288a0",
+        "end": "0x29e40",
+        "instructions": 347,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x2f310",
+        "end": "0x30700",
+        "instructions": 320,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 24,
+        "start": "0x368c0",
+        "end": "0x37cc0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0x3acf0",
+        "end": "0x3c0f0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x3eaa0",
+        "end": "0x3fea0",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x42c50",
+        "end": "0x44050",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x47740",
+        "end": "0x48b40",
+        "instructions": 321,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x4bf70",
+        "end": "0x4d3a0",
+        "instructions": 324,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x51220",
+        "end": "0x526f0",
+        "instructions": 334,
+        "LDS64": 4,
+        "PRMT": 16,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x569c0",
+        "end": "0x60680",
+        "instructions": 2509,
+        "LDS64": 7,
+        "PRMT": 49,
+        "local": [
+          {
+            "pc": "0x59220",
+            "ins": "LDL R2, [R1+0x8] ;"
+          },
+          {
+            "pc": "0x597e0",
+            "ins": "LDL.LU R22, [R1] ;"
+          },
+          {
+            "pc": "0x5b050",
+            "ins": "LDL.LU R88, [R1+0x4] ;"
+          },
+          {
+            "pc": "0x5b5c0",
+            "ins": "STL [R1+0x4], R88 ;"
+          },
+          {
+            "pc": "0x5eab0",
+            "ins": "STL [R1+0x4], R89 ;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "KPERM3",
+    "function": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+    "loops": [
+      {
+        "N": 24,
+        "start": "0x9990",
+        "end": "0xabb0",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0xe420",
+        "end": "0xf640",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x124f0",
+        "end": "0x13710",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x16ac0",
+        "end": "0x17cc0",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x1bea0",
+        "end": "0x1d0a0",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x20fd0",
+        "end": "0x22290",
+        "instructions": 301,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x27070",
+        "end": "0x28360",
+        "instructions": 304,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x2d520",
+        "end": "0x2e720",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 24,
+        "start": "0x34680",
+        "end": "0x35890",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0x386e0",
+        "end": "0x398f0",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x3c080",
+        "end": "0x3d290",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x3fe20",
+        "end": "0x41030",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x44510",
+        "end": "0x45720",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x48910",
+        "end": "0x49b50",
+        "instructions": 293,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x4d790",
+        "end": "0x4e9d0",
+        "instructions": 293,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x52a10",
+        "end": "0x5c4f0",
+        "instructions": 2479,
+        "LDS64": 4,
+        "PRMT": 35,
+        "local": [
+          {
+            "pc": "0x55630",
+            "ins": "LDL.LU R22, [R1+0x4] ;"
+          },
+          {
+            "pc": "0x56ea0",
+            "ins": "LDL.LU R88, [R1+0x8] ;"
+          },
+          {
+            "pc": "0x57460",
+            "ins": "STL [R1+0x8], R88 ;"
+          },
+          {
+            "pc": "0x5a920",
+            "ins": "STL [R1+0x8], R89 ;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "KPERM3",
+    "function": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+    "loops": [
+      {
+        "N": 24,
+        "start": "0x9990",
+        "end": "0xabb0",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0xe420",
+        "end": "0xf640",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x124f0",
+        "end": "0x13710",
+        "instructions": 291,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x16ac0",
+        "end": "0x17cc0",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x1bea0",
+        "end": "0x1d0a0",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x20fd0",
+        "end": "0x22290",
+        "instructions": 301,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x27070",
+        "end": "0x28360",
+        "instructions": 304,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x2d520",
+        "end": "0x2e720",
+        "instructions": 289,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 24,
+        "start": "0x34680",
+        "end": "0x35890",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 8,
+        "start": "0x386e0",
+        "end": "0x398f0",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 16,
+        "start": "0x3c080",
+        "end": "0x3d290",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 40,
+        "start": "0x3fe20",
+        "end": "0x41030",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 32,
+        "start": "0x44510",
+        "end": "0x45720",
+        "instructions": 290,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 56,
+        "start": "0x48910",
+        "end": "0x49b50",
+        "instructions": 293,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 64,
+        "start": "0x4d790",
+        "end": "0x4e9d0",
+        "instructions": 293,
+        "LDS64": 1,
+        "PRMT": 4,
+        "local": []
+      },
+      {
+        "N": 48,
+        "start": "0x52a10",
+        "end": "0x5c4f0",
+        "instructions": 2479,
+        "LDS64": 4,
+        "PRMT": 35,
+        "local": [
+          {
+            "pc": "0x55630",
+            "ins": "LDL.LU R22, [R1+0x4] ;"
+          },
+          {
+            "pc": "0x56ea0",
+            "ins": "LDL.LU R88, [R1+0x8] ;"
+          },
+          {
+            "pc": "0x57460",
+            "ins": "STL [R1+0x8], R88 ;"
+          },
+          {
+            "pc": "0x5a920",
+            "ins": "STL [R1+0x8], R89 ;"
+          }
+        ]
+      }
+    ]
+  }
+]

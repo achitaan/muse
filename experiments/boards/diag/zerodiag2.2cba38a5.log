@@ -1,0 +1,29 @@
+ZD_INFO v=1 device='NVIDIA H200' src=moe_b15_J0FIX sha=eeeced020b79 cuda=0caaad987b0c poll_s=2.0 flush_MiB=256
+ZD_SETUP seconds=0.5
+ZD_BUILD kind=MID seconds=17.4
+ZD_BUILD kind=MAIN seconds=29.0
+ZD_CASE M=32 build=MAIN routes=60 jobs=16 experts=16 rem_ids_distinct_in_token=1 rem_local=0
+ZD M=32 build=MAIN step=mixed1 done=1 ms=0.129 finite=1 zero=0 eq_mixed=1 eq_warm=1 ctr=0/0/0/2/0/132 dA=0 xr=0 dAs=0
+ZD M=32 build=MAIN step=mixed1_graph done=1 ms=0.129 finite=1 zero=0 eq_mixed=1 ctr=0/0/0/3/132/0 dA=0 xr=0 dAs=0
+ZD M=32 build=MAIN step=allremote_graph done=1 ms=0.015 finite=1 zero=1 eq_mixed=na ctr=0/0/0/4/0/132 dA=0 xr=0 dAs=0
+ZD M=32 build=MAIN step=mixed2_graph done=1 ms=0.129 finite=1 zero=0 eq_mixed=1 eq_g1=1 ctr=0/0/0/5/132/0 dA=0 xr=0 dAs=0
+ZD M=32 build=MAIN step=allremote_eager done=1 ms=0.015 finite=1 zero=1 eq_mixed=na ctr=0/0/0/6/0/132 dA=0 xr=0 dAs=0
+ZD_CASE M=128 build=MAIN routes=217 jobs=24 experts=23 rem_ids_distinct_in_token=1 rem_local=0
+ZD M=128 build=MAIN step=mixed1 done=1 ms=0.185 finite=1 zero=0 eq_mixed=1 eq_warm=1 ctr=0/0/0/2/0/132 dA=0 xr=0 dAs=0
+ZD M=128 build=MAIN step=mixed1_graph done=1 ms=0.186 finite=1 zero=0 eq_mixed=1 ctr=0/0/0/3/132/0 dA=0 xr=0 dAs=0
+ZD M=128 build=MAIN step=allremote_graph done=1 ms=0.015 finite=1 zero=1 eq_mixed=na ctr=0/0/0/4/0/132 dA=0 xr=0 dAs=0
+ZD M=128 build=MAIN step=mixed2_graph done=1 ms=0.187 finite=1 zero=0 eq_mixed=1 eq_g1=1 ctr=0/0/0/5/132/0 dA=0 xr=0 dAs=0
+ZD M=128 build=MAIN step=allremote_eager done=1 ms=0.015 finite=1 zero=1 eq_mixed=na ctr=0/0/0/6/0/132 dA=0 xr=0 dAs=0
+ZD_CASE M=256 build=MAIN routes=449 jobs=28 experts=25 rem_ids_distinct_in_token=1 rem_local=0
+ZD M=256 build=MAIN step=mixed1 done=1 ms=0.233 finite=1 zero=0 eq_mixed=1 eq_warm=1 ctr=0/0/0/2/0/132 dA=0 xr=0 dAs=0
+ZD M=256 build=MAIN step=mixed1_graph done=1 ms=0.232 finite=1 zero=0 eq_mixed=1 ctr=0/0/0/3/132/0 dA=0 xr=0 dAs=0
+ZD M=256 build=MAIN step=allremote_graph done=1 ms=0.017 finite=1 zero=1 eq_mixed=na ctr=0/0/0/4/0/132 dA=0 xr=0 dAs=0
+ZD M=256 build=MAIN step=mixed2_graph done=1 ms=0.235 finite=1 zero=0 eq_mixed=1 eq_g1=1 ctr=0/0/0/5/132/0 dA=0 xr=0 dAs=0
+ZD M=256 build=MAIN step=allremote_eager done=1 ms=0.016 finite=1 zero=1 eq_mixed=na ctr=0/0/0/6/0/132 dA=0 xr=0 dAs=0
+ZD_CASE M=16 build=MID routes=22 jobs=13 experts=13 rem_ids_distinct_in_token=1 rem_local=0
+ZD M=16 build=MID step=mixed1 done=1 ms=0.101 finite=1 zero=0 eq_mixed=0 eq_warm=0 ctr=0/0/0/2/0/132 dA=0 xr=0 dAs=0
+ZD M=16 build=MID step=mixed1_graph done=1 ms=0.103 finite=1 zero=0 eq_mixed=0 ctr=0/0/0/3/132/0 dA=0 xr=0 dAs=0
+ZD M=16 build=MID step=allremote_graph done=1 ms=0.010 finite=1 zero=1 eq_mixed=na ctr=0/0/0/4/0/132 dA=0 xr=0 dAs=0
+ZD M=16 build=MID step=mixed2_graph done=1 ms=0.102 finite=1 zero=0 eq_mixed=1 eq_g1=0 ctr=0/0/0/5/132/0 dA=0 xr=0 dAs=0
+ZD M=16 build=MID step=allremote_eager done=1 ms=0.010 finite=1 zero=1 eq_mixed=na ctr=0/0/0/6/0/132 dA=0 xr=0 dAs=0
+ZD_DONE seconds=29.3
