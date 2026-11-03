@@ -1,4 +1,4 @@
-# achitaan: Decode plan to match/beat joeyhlu (2.3569) - branch argon/decode-20261103
+﻿# achitaan: Decode plan to match/beat joeyhlu (2.3569) - branch argon/decode-20261103
 
 ## Hints received (verbatim, Nov 3) - no more info will come
 Engines by token count (T = batch x 8 draft tokens for verify):
@@ -62,7 +62,7 @@ His SGLang baseline ran 4-8% slower (slower GPU); absolute-time wins despite tha
 4. Win on the MoE board -> port into Decode file (kb/exp/decode_*.py) -> Decode check -> scored run if adopted
    -> publish board_best on main if above 2.2347.
 5. Loss -> one bounded repair if the cause is a bug; otherwise close and move to the next lane.
-Budget cap $800 (stop starting lanes at $750). Checks: 20/board/day, scored 10/board/day.
+Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/board/day.
 
 ## Iteration log
 | # | Lane | Job | Result | Next |
