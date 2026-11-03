@@ -1,0 +1,71 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 115s
+BUILD pw57_flush 30.4s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.34 us   0.61 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.46 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.21 us   1.64 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.14 us   1.65 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.61 us two_node 5.28 us overhead 3.94 us
+PREP rq thread ready at 55s (bake starts at 145s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.70 at 145s
+BAKE qkv_gate m=128 rq:d2s5hze 15.49 (ratio 1.3590 vs r6 20.70) at 145s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.50 (ratio 1.0528 vs rq:d2s5hze 15.49) at 145s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.79 (ratio 1.0377 vs rq:d2s5hze 15.49) at 145s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.66 (ratio 0.9871 vs rq:d2s5hze 15.49) at 145s
+BAKE qkv_gate m=128 rq:d2s6hze 16.43 (ratio 0.9989 vs rq:d2s5hze 15.49) at 145s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.72 (ref rq:d2s5hze 15.49)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0528)
+BAKE qkv_gate m=256 r6 23.07 at 145s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 20.49 (ratio 1.1368 vs r6 23.07) at 145s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.79 (ratio 0.9856 vs rq:n256s5m1hzmEH 20.49) at 145s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 20.49 (ref rq:n256s5m1hzmEH 20.49)
+BAKE rq unpooler esc2 slots max=4 ok
+BAKE unpooler m=128 r6 22.78 at 145s
+BAKE unpooler m=128 rq:d2s5hze 21.22 (ratio 1.1131 vs r6 22.78) at 146s
+BAKE unpooler m=128 rq:d2s5hzwP 21.30 (ratio 1.0141 vs rq:d2s5hze 21.22) at 146s
+BAKE unpooler m=128 rq:s4s5hzw 20.74 (ratio 1.0417 vs rq:d2s5hze 21.22) at 146s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.48 (ratio 1.0028 vs rq:d2s5hze 21.22) at 146s
+BAKE unpooler m=128 rq:s4s5hze 21.95 (ratio 0.9840 vs rq:d2s5hze 21.22) at 146s
+BAKE unpooler m=128 rq:d2s6hze 21.56 (ratio 1.0109 vs rq:d2s5hze 21.22) at 146s
+PICK unpooler m=128 rq:s4s5hzw 20.37 (ref rq:d2s5hze 21.22)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0141)
+BAKE unpooler m=256 r6 27.65 at 146s
+PICK unpooler m=256 r6 27.65 (ref r6 27.65)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 145s
+WGS_INFO base_prepare_s=145.5 lineage=1ca0668a read_flush_MiB=512 table_mode=per_T_constants
+WGS_BUILD b4=0 diagnostic=0 attrs=[96, 0, 0, 96, 0, 0] NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92)
+WGS_BUILD b4=0 diagnostic=1 attrs=[96, 136, 0, 96, 136, 0] NVRTC_regs_stack_spillStore_spillLoad=(96, 136, 1000, 1100)
+WGS_BUILD b4=1 diagnostic=0 attrs=[96, 0, 0, 96, 0, 0] NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 56, 184)
+WGS_BUILD b4=1 diagnostic=1 attrs=[96, 160, 0, 96, 160, 0] NVRTC_regs_stack_spillStore_spillLoad=(96, 144, 1160, 1260)
+WGS_FIT T=32 phase=A ns=1280.5,1541.5,1335.5,1913.3,2095.0,2240.3,2422.0,2506.7,2325.1,462.5 coverage=[90, 12, 30, 0, 0, 0, 0, 0] samples=132
+WGS_FIT T=32 phase=B ns=1091.1,1167.1,1267.2,1351.4,1450.3,1582.2,1714.0,1911.8,1616.5,0.0 coverage=[90, 11, 31, 0, 0, 0, 0, 0] samples=132
+WGS_MODEL T=32 candidate=fit table=((112, 135, 117, 167, 183, 196, 212, 219), (112, 120, 130, 139, 149, 162, 176, 196), 203, 166) heldout_gain_us=1.415 predicted_Bdone_us=[47.91, 64.11, 79.01, 70.42]
+WGS_MODEL T=32 candidate=half table=((112, 135, 128, 162, 178, 190, 206, 213), (106, 112, 122, 131, 140, 153, 166, 185), 182, 153) heldout_gain_us=0.733 predicted_Bdone_us=[48.46, 64.47, 79.93, 71.43]
+WGS_MODEL T=32 candidate=u80 table=((112, 135, 140, 158, 173, 185, 200, 207), (100, 104, 115, 123, 132, 144, 156, 174), 80, 70) heldout_gain_us=-0.499 predicted_Bdone_us=[50.21, 66.01, 80.48, 72.97]
+WGS_D T=32 exposed_consumer_median_bounds_us=(0.0, 0.0) MMA_after_release_median_us=3.712 producer_xr_median_us=0.976 first_da_median_us=4.672 measurement_only=1
+WGS_DIAG T=32 draws=8 train=4 heldout=4 overhead=[0.9997187039107491, 1.0072018406912464] disabled_vs_incumbent=[1.299596597650212, 1.2859378361450076] bias_limit=[0.95,1.05] heldout_relative_model_error=0.168 max_recoverable_us=1.415 model_usable=0 measured_Bdone_us=[65.28, 77.57, 95.87, 86.5]
+WGS_FIT T=128 phase=A ns=1218.3,1543.5,1251.9,1717.1,1730.4,2046.7,2136.0,2280.6,2398.8,416.0 coverage=[72, 28, 11, 8, 3, 5, 3, 2] samples=132
+WGS_FIT T=128 phase=B ns=1076.9,1176.5,1276.8,1358.5,1661.7,1530.1,1734.7,1786.1,1543.2,0.0 coverage=[74, 27, 12, 8, 3, 4, 2, 2] samples=132
+WGS_MODEL T=128 candidate=fit table=((112, 142, 115, 158, 159, 188, 196, 210), (112, 122, 133, 141, 173, 159, 180, 186), 221, 160) heldout_gain_us=6.659 predicted_Bdone_us=[166.32, 174.64, 177.19, 148.68]
+WGS_MODEL T=128 candidate=half table=((112, 138, 128, 158, 166, 186, 198, 208), (106, 113, 124, 132, 152, 152, 168, 180), 190, 150) heldout_gain_us=3.148 predicted_Bdone_us=[169.03, 177.19, 181.94, 151.61]
+WGS_MODEL T=128 candidate=u80 table=((112, 135, 140, 158, 173, 185, 200, 207), (100, 104, 115, 123, 132, 144, 156, 174), 80, 70) heldout_gain_us=0.221 predicted_Bdone_us=[171.75, 179.96, 185.03, 154.7]
+WGS_D T=128 exposed_consumer_median_bounds_us=(0.0, 0.0) MMA_after_release_median_us=3.392 producer_xr_median_us=1.12 first_da_median_us=0.352 measurement_only=1
+WGS_DIAG T=128 draws=8 train=4 heldout=4 overhead=[1.0020972371647028, 1.0034461049593508] disabled_vs_incumbent=[1.2733833293168517, 1.25393854261406] bias_limit=[0.95,1.05] heldout_relative_model_error=0.068 max_recoverable_us=6.659 model_usable=0 measured_Bdone_us=[183.71, 193.92, 197.38, 168.48]
+WGS_FIT T=256 phase=A ns=1209.9,1439.6,1241.1,1718.4,1790.9,1997.3,1955.2,2081.8,2182.8,425.1 coverage=[49, 15, 22, 9, 5, 8, 10, 14] samples=132
+WGS_FIT T=256 phase=B ns=1061.7,1201.2,1229.8,1427.0,1454.0,1549.3,1759.2,1953.8,1664.7,0.0 coverage=[53, 17, 17, 9, 5, 6, 11, 14] samples=132
+WGS_MODEL T=256 candidate=fit table=((112, 133, 115, 159, 166, 185, 181, 193), (112, 127, 130, 151, 153, 163, 186, 206), 202, 176) heldout_gain_us=5.189 predicted_Bdone_us=[213.68, 198.31, 208.8, 184.79]
+WGS_MODEL T=256 candidate=half table=((112, 134, 128, 158, 170, 185, 190, 200), (106, 116, 122, 137, 142, 154, 171, 190), 181, 158) heldout_gain_us=2.793 predicted_Bdone_us=[215.56, 203.42, 211.72, 186.69]
+WGS_MODEL T=256 candidate=u80 table=((112, 135, 140, 158, 173, 185, 200, 207), (100, 104, 115, 123, 132, 144, 156, 174), 80, 70) heldout_gain_us=-0.371 predicted_Bdone_us=[219.37, 206.56, 215.21, 188.86]
+WGS_D T=256 exposed_consumer_median_bounds_us=(0.0, 0.0) MMA_after_release_median_us=3.2 producer_xr_median_us=1.024 first_da_median_us=0.352 measurement_only=1
+WGS_DIAG T=256 draws=8 train=4 heldout=4 overhead=[1.0010812354266472, 0.9979175248565583] disabled_vs_incumbent=[1.2616159679341221, 1.2683310013057532] bias_limit=[0.95,1.05] heldout_relative_model_error=0.100 max_recoverable_us=5.189 model_usable=0 measured_Bdone_us=[242.98, 230.88, 235.97, 209.86]
+WGS_KILL all_T_below_3us=0
+WGS_SKIP T=32 model_kill_or_budget fallback=incumbent
+WGS_SKIP T=128 model_kill_or_budget fallback=incumbent
+WGS_SKIP T=256 model_kill_or_budget fallback=incumbent
+WGS_DONE total_prepare_s=145.8 adopted_T=[]

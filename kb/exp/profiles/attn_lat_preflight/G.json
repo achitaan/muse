@@ -1,0 +1,16 @@
+{
+  "arm": "G",
+  "rc": 0,
+  "seconds": 5.936999999918044,
+  "cubin_bytes": 950048,
+  "kernels": [
+    "attn_kernel<1, false, 13>",
+    "attn_kernel<1, false, 11>",
+    "attn_kernel<1, false, 9>",
+    "attn_kernel<1, false, 1>",
+    "attn_kernel<1, true>"
+  ],
+  "source_sha256": "20b47923187d9e4803581ca86435a44d6506712e55f01663220576cb4a5cf835",
+  "device_sha256": "221d6ded150b2dd9488bccad818255180907de95b5ccd0b64750973301c5633b",
+  "scope": "NVRTC 13 sm_90a device-code proxy only, no host ABI or GPU execution"
+}

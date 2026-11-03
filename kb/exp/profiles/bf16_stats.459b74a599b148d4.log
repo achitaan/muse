@@ -1,0 +1,140 @@
+g 1.17 tT 0.99
+V6|D|o|257|def 13.7 nbol 2.03 ag 1.58 tT 1.00
+V6|D|o|300|def 14.3 nbol 1.93 ag 1.49 tT 1.01
+V6|D|o|384|def 16.2 nbol 1.36 ag 1.13 tT 0.98
+V6|D|pooler|257|def 39.5 ag 1.99 tT 1.00
+V6|D|pooler|300|def 40.8 ag 1.40 tT 0.98
+V6|D|pooler|384|def 50.0 ag 1.00 tT 1.07
+V6|D|unpooler|257|def 29.6 ag 2.32 tT 1.00
+V6|D|unpooler|300|def 32.2 ag 1.86 tT 1.00
+V6|D|unpooler|384|def 39.4 ag 1.21 tT 1.00
+V6|SUM|qkv_gate|9-15:v16@0.75 17-31:rq32@0.77 41-41:rq128@0.96 43-43:rq128@0.95 45-49:rq128@0.96 51-61:rq128@0.94 63-63:rq128@0.92 65-127:rq128@0.82 146-150:tT@0.96 153-153:tT@0.96 156-156:tT@0.97 158-158:tT@0.96 160-160:tT@0.96 163-164:tT@0.89 167-167:tT@0.92 171-172:tT@0.96 175-175:ag@0.96 178-178:tT@0.97 182-182:tT@0.93 193-200:tT@0.69 207-207:tT@0.96 211-211:tT@0.96 225-225:tT@0.91 236-236:ag@0.96 237-237:tT@0.97 240-244:ag@0.94 247-255:ag@0.92 266-266:tT@0.96 269-269:tT@0.96 271-271:tT@0.94 273-273:tT@0.92 277-277:tT@0.95 280-280:tT@0.95 282-282:tT@0.96 291-291:tT@0.95 305-305:tT@0.97 328-329:tT@0.95 340-340:tT@0.94 352-352:tT@0.87
+V6|SUM|o|17-31:v32@0.92 113-120:n128@0.94 122-124:n128@0.95 127-127:n128@0.96 254-255:ag@0.96
+V6|SUM|pooler|17-31:v32@0.77 33-33:tT@0.96 40-40:tT@0.96 45-45:tT@0.96 48-48:tT@0.96 55-55:rq128@0.95 60-60:rq128@0.94 62-62:rq128@0.96 64-73:rq128@0.91 75-127:rq128@0.81 129-134:tT@0.96 136-139:tT@0.94 141-141:tT@0.95 143-143:tT@0.94 152-152:tT@0.96 161-192:ag@0.88 207-255:ag@0.80 282-282:tT@0.97 305-306:tT@0.94 308-309:tT@0.93 352-352:tT@0.97
+V6|SUM|unpooler|9-15:v16@0.80 17-31:v32@0.84 54-54:tT@0.97 64-64:tT@0.95 69-69:tT@0.97 94-127:rq128@0.90 131-131:tT@0.96 137-137:tT@0.93 139-139:tT@0.94 141-141:tT@0.96 143-143:tT@0.96 153-155:tT@0.96 157-157:tT@0.95 159-159:tT@0.95 165-165:tT@0.97 167-175:tT@0.96 177-191:tT@0.96 194-195:tT@0.97 197-198:tT@0.97 206-207:tT@0.96 224-224:ag@0.87 240-240:ag@0.95
+V6|SUM|router|2-7:n8@0.87 9-15:n16@0.86 17-31:n32@0.88 33-127:v128@0.65 129-255:v256@0.69
+V6|DONE|727 routes, 1738 cells timed, 0 skipped, 23.2 s
+STATS_E qkv_gate n=2304 g1.8.16.1.1 ilp1 bits=11.0729 esc=0.00031 maxpad=0.0391 (code 10.8903, pad 0.1176 bits/w, alphabet 152, len tab 48585878, 0.04 s)
+PREP gepack qkv_gate n=2304 g1.8.16.1.1 ilp1 pack_e 0.04s
+PREP gepack qkv_gate n=2304 g1.8.16.1.1 ilp1 ed16 proven bit-exact in 0.09s
+STATS_E qkv_gate n=2304 g1.8.16.1.1 ilp2 bits=11.1748 esc=0.00031 maxpad=0.0706 (code 10.8903, pad 0.2196 bits/w, alphabet 152, len tab 48585878, 0.01 s)
+PREP gepack qkv_gate n=2304 g1.8.16.1.1 ilp2 pack_e 0.01s
+PREP gepack qkv_gate n=2304 g1.8.16.1.1 ilp2 ed16 proven bit-exact in 0.04s
+STATS_E pooler n=4096 g2.8.16.1.1 ilp1 bits=11.0245 esc=0.00040 maxpad=0.0401 (code 10.8411, pad 0.1188 bits/w, alphabet 144, len tab 48585868, 0.02 s)
+PREP gepack pooler n=4096 g2.8.16.1.1 ilp1 pack_e 0.02s
+PREP gepack pooler n=4096 g2.8.16.1.1 ilp1 ed16 proven bit-exact in 0.06s
+STATS_E pooler n=4096 g2.8.16.1.1 ilp2 bits=11.1005 esc=0.00040 maxpad=0.0642 (code 10.8411, pad 0.1947 bits/w, alphabet 144, len tab 48585868, 0.02 s)
+PREP gepack pooler n=4096 g2.8.16.1.1 ilp2 pack_e 0.02s
+PREP gepack pooler n=4096 g2.8.16.1.1 ilp2 ed16 proven bit-exact in 0.04s
+STATS_E unpooler n=1024 g1.4.16.1.1 ilp1 bits=11.0242 esc=0.00036 maxpad=0.0429 (code 10.8309, pad 0.1269 bits/w, alphabet 144, len tab 48584868, 0.01 s)
+PREP gepack unpooler n=1024 g1.4.16.1.1 ilp1 pack_e 0.01s
+PREP gepack unpooler n=1024 g1.4.16.1.1 ilp1 ed16 proven bit-exact in 0.05s
+STATS_E unpooler n=1024 g1.4.16.1.1 ilp2 bits=11.1123 esc=0.00036 maxpad=0.0706 (code 10.8309, pad 0.2150 bits/w, alphabet 144, len tab 48584868, 0.01 s)
+PREP gepack unpooler n=1024 g1.4.16.1.1 ilp2 pack_e 0.01s
+PREP gepack unpooler n=1024 g1.4.16.1.1 ilp2 ed16 proven bit-exact in 0.03s
+STATS_E unpooler n=8192 g1.4.16.1.1 ilp1 bits=11.0258 esc=0.00037 maxpad=0.0440 (code 10.8308, pad 0.1302 bits/w, alphabet 144, len tab 48584868, 0.02 s)
+PREP gepack unpooler n=8192 g1.4.16.1.1 ilp1 pack_e 0.02s
+PREP gepack unpooler n=8192 g1.4.16.1.1 ilp1 ed16 proven bit-exact in 0.07s
+STATS_E unpooler n=8192 g1.4.16.1.1 ilp2 bits=11.1116 esc=0.00037 maxpad=0.0709 (code 10.8308, pad 0.2160 bits/w, alphabet 144, len tab 48584868, 0.02 s)
+PREP gepack unpooler n=8192 g1.4.16.1.1 ilp2 pack_e 0.02s
+PREP gepack unpooler n=8192 g1.4.16.1.1 ilp2 ed16 proven bit-exact in 0.05s
+DT build rq ok
+DT build gv ok
+DT diag qkv:16 rq32 shape(16, 2304) base4.12e-03 row4.30e-03 ref3.79e-03 pad4.42e-03 old0 new1
+DT diag qkv:16 rq128 shape(16, 2304) base4.17e-03 row4.29e-03 ref3.82e-03 pad4.44e-03 old0 new1
+DT diag poo:16 rq128 shape(16, 4096) base3.54e-03 row3.66e-03 ref3.16e-03 pad3.17e-03 old0 new1
+DT diag unp:16 rq128 shape(16, 8192) base2.88e-03 row2.96e-03 ref2.46e-03 pad0.00e+00 old0 new1
+DT qkv:256 n256s4hz-k6 21.36 22.50 1.053 1.057 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:256 n256s5hz-k6 21.41 22.98 1.073 1.076 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:256 n256s5m1hzm-k6 21.46 22.61 1.054 1.061 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:256 n256s5m1hzmEH-k6 21.39 22.21 1.038 1.045 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:256 n256s4m1hzm-k6 21.38 22.51 1.053 1.057 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:256 n256s4hz-k7 21.38 21.38 1.000 1.004 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 n256s5hz-k7 21.38 21.63 1.012 1.017 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 n256s5m1hzm-k7 21.38 21.41 1.001 1.012 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 n256s5m1hzmEH-k7 21.39 21.14 0.988 0.996 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 n256s4m1hzm-k7 21.26 21.44 1.008 1.012 e1 a0 b4.2e-03 r3.9e-03
+DT poo:256 n256s4hz-k3 28.10 34.75 1.237 1.246 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5hz-k3 28.11 35.46 1.261 1.266 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5m1hzm-k3 28.16 34.78 1.235 1.242 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5m1hzmEH-k3 28.06 34.43 1.227 1.235 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s4m1hzm-k3 27.98 34.70 1.240 1.249 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s4hz-k4 28.03 30.29 1.080 1.089 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5hz-k4 28.10 30.72 1.093 1.103 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5m1hzm-k4 28.10 30.18 1.074 1.084 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5m1hzmEH-k4 28.08 30.02 1.069 1.068 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s4m1hzm-k4 27.97 30.37 1.086 1.093 e1 a0 b3.5e-03 r3.2e-03
+DT unp:256 n256s4hz-k1 27.82 46.11 1.657 1.671 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5hz-k1 27.84 47.20 1.695 1.709 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5m1hzm-k1 27.95 46.53 1.665 1.676 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5m1hzmEH-k1 27.92 46.24 1.656 1.665 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s4m1hzm-k1 27.92 46.62 1.670 1.679 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s4hz-k2 27.84 30.77 1.105 1.108 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5hz-k2 27.86 31.20 1.120 1.124 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5m1hzm-k2 27.82 30.78 1.106 1.114 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5m1hzmEH-k2 27.68 30.48 1.101 1.102 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s4m1hzm-k2 27.74 30.72 1.107 1.107 e1 a0 b2.9e-03 r2.4e-03
+DT o:128 h128s5e-k1 10.59 11.73 1.107 1.108 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 h128s8e-k1 10.69 11.81 1.105 1.110 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 d2s5hzwP-k1 10.67 13.33 1.249 1.268 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 d2s5hzwP-k2 10.62 12.00 1.130 1.137 e1 a0 b2.9e-03 r2.5e-03
+DT qkv:1 t16s4curP-k7 12.74 13.12 1.030 1.044 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:1 t16s5curP-k7 12.80 13.09 1.023 1.038 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:1 ge 12.83 24.38 1.900 1.917 e1 a0 b4.8e-05 r1.7e-03
+DT qkv:1 ger 12.74 25.86 2.030 2.048 e1 a0 b4.8e-05 r1.7e-03
+DT qkv:1 ger-k2 12.74 25.63 2.013 2.037 e1 a0 b4.8e-05 r1.7e-03
+DT poo:1 t16s4curP-k4 17.36 18.50 1.065 1.081 e1 a0 b3.6e-03 r3.2e-03
+DT poo:1 t16s5curP-k4 17.20 18.03 1.048 1.058 e1 a0 b3.6e-03 r3.2e-03
+DT poo:1 ge 17.22 25.25 1.467 1.474 e1 a0 b3.0e-05 r1.7e-03
+DT poo:1 ger 17.25 25.76 1.494 1.503 e1 a0 b3.0e-05 r1.7e-03
+DT poo:1 ger-k2 17.30 26.21 1.515 1.526 e1 a0 b3.0e-05 r1.7e-03
+DT unp:1 t16s4curP-k2 7.46 13.62 1.826 1.870 e1 a0 b2.9e-03 r2.4e-03
+DT unp:1 t16s5curP-k2 7.46 13.09 1.755 1.799 e1 a0 b2.9e-03 r2.4e-03
+DT unp:1 ge 7.44 14.34 1.927 1.984 e1 a0 b0.0e+00 r1.8e-03
+DT unp:1 ger 7.42 15.39 2.073 2.129 e1 a0 b0.0e+00 r1.8e-03
+DT unp:1 ger-k2 7.46 15.10 2.026 2.088 e1 a0 b0.0e+00 r1.8e-03
+DT unp:1 gb-n4 7.46 8.22 1.103 1.137 e1 a0 b0.0e+00 r1.8e-03
+DT rou:1 r12 7.55 9.65 1.278 1.304 e1 a0 b2.7e-06 r2.7e-06
+DT rou:1 rhl 7.54 8.53 1.132 1.152 e1 a0 b2.7e-06 r2.7e-06
+DT qkv:8 t16s4curP-k7 13.10 13.15 1.004 1.022 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:8 t16s5curP-k7 12.93 13.15 1.017 1.016 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 ge 13.07 24.74 1.892 1.913 e1 a0 b1.0e-05 r1.7e-03
+DT qkv:8 ger 13.07 26.06 1.994 2.001 e1 a0 b1.0e-05 r1.7e-03
+DT qkv:8 ger-k2 12.99 25.95 1.998 2.011 e1 a0 b1.0e-05 r1.7e-03
+DT poo:8 t16s4curP-k4 17.52 18.46 1.054 1.056 e1 a0 b3.6e-03 r3.2e-03
+DT poo:8 t16s5curP-k4 17.54 18.14 1.035 1.042 e1 a0 b3.6e-03 r3.2e-03
+DT poo:8 ge 17.60 25.50 1.449 1.452 e1 a0 b6.3e-05 r1.7e-03
+DT poo:8 ger 17.60 25.76 1.464 1.471 e1 a0 b6.3e-05 r1.7e-03
+DT poo:8 ger-k2 17.66 26.27 1.487 1.496 e1 a0 b6.3e-05 r1.7e-03
+DT unp:8 t16s4curP-k2 8.10 14.18 1.751 1.778 e1 a0 b3.9e-03 r2.5e-03
+DT unp:8 t16s5curP-k2 8.06 13.09 1.623 1.656 e1 a0 b3.8e-03 r2.5e-03
+DT unp:8 ge 8.08 14.53 1.798 1.824 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger 8.06 15.39 1.909 1.946 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger-k2 8.06 15.20 1.885 1.923 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 gb-n4 8.10 8.61 1.063 1.078 e1 a0 b3.7e-03 r1.7e-03
+DT qkv:16 t16s4curP-k7 13.41 13.31 0.993 1.001 e1 a0 b4.3e-03 r3.9e-03
+DT qkv:16 t16s5curP-k7 13.54 13.15 0.972 0.982 e1 a1 b4.2e-03 r3.9e-03
+DT qkv:16 ge 13.41 26.58 1.982 1.983 e1 a0 b4.8e-05 r1.7e-03
+DT qkv:16 ger 13.44 27.12 2.018 2.033 e1 a0 b4.8e-05 r1.7e-03
+DT qkv:16 keep-t16s5curP-k7 13.33 13.12 0.984 0.991 e1 a0
+DT poo:16 t16s4curP-k4 17.73 18.59 1.049 1.052 e1 a0 b3.5e-03 r3.2e-03
+DT poo:16 t16s5curP-k4 17.94 18.24 1.017 1.017 e1 a0 b3.6e-03 r3.2e-03
+DT poo:16 ge 17.86 26.99 1.512 1.517 e1 a0 b0.0e+00 r1.7e-03
+DT poo:16 ger 17.86 26.91 1.507 1.511 e1 a0 b0.0e+00 r1.7e-03
+DT unp:16 t16s4curP-k2 17.54 19.17 1.093 1.095 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 t16s5curP-k2 17.52 18.43 1.052 1.062 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 ge 17.63 29.52 1.674 1.687 e1 a0 b7.0e-05 r1.7e-03
+DT unp:16 ger 17.63 34.21 1.940 1.937 e1 a0 b7.0e-05 r1.7e-03
+DT unp:16 ger-k2 17.66 34.67 1.963 1.973 e1 a0 b7.0e-05 r1.7e-03
+DT qkv:32 t32s5curP-k7 13.97 13.38 0.958 0.964 e1 a1 b4.5e-03 r3.9e-03
+DT qkv:32 t32s6curP-k7 13.97 13.44 0.962 0.972 e1 a0 b4.5e-03 r3.9e-03
+DT qkv:32 ge 14.11 43.68 3.095 3.135 e1 a0 b4.2e-03 r1.7e-03
+DT qkv:32 keep-t32s5curP-k7 13.94 13.41 0.962 0.969 e1 a1
+DT poo:32 t32s5curP-k4 18.82 18.40 0.978 0.978 e1 a1 b3.5e-03 r3.2e-03
+DT poo:32 t32s6curP-k4 18.93 18.48 0.976 0.982 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 ge 18.96 45.84 2.418 2.418 e1 a0 b1.2e-04 r1.7e-03
+DT poo:32 keep-t32s5curP-k4 18.85 18.30 0.971 0.976 e1 a1
+DT unp:32 t32s5curP-k2 18.29 18.54 1.014 1.014 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s6curP-k2 18.34 18.59 1.014 1.016 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 ge 18.51 32.58 1.760 1.759 e1 a0 b9.0e-05 r1.7e-03
+DT done 17/17 3.2s adopted 2: poo:32=arm('pooler', 32, 't32s5curP-k4') qkv:32=arm('qkv_gate', 32, 't32s5curP-k7')

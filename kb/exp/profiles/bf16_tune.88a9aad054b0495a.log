@@ -1,0 +1,228 @@
+v_gate m=1: cgemv=12.48 sk2=13.25 torch=17.63 -> cgemv
+[okc] tune o m=1: cgemv=9.02 sk2=9.31 torch=10.27 -> cgemv
+[okc] tune pooler m=1: cgemv=17.5 sk2=18.08 torch=25.38 -> cgemv
+[okc] tune unpooler m=1: cgemv=7.14 sgemv=7.36 sk2=8.03 torch=10.88 -> cgemv
+[okc] tune router m=1: rgemv=7.1 sk2=8.42 torch=19.55 -> rgemv
+[okc] tune qkv_gate m=16: sk2=13.15 torch=17.73 -> sk2
+[okc] tune unpooler m=16: sk2=17.7 torch=22.43 -> sk2
+[okc] tune o m=32: sk2=9.5 torch=10.43 -> sk2
+[okc] tune pooler m=32: sk2=18.91 torch=26.02 -> sk2
+[okc] tune unpooler m=32: sk2=18.53 torch=22.62 -> sk2
+[okc] tune router m=128: rk=9.95 wide=12.51 gemm=13.5 torch=21.28 -> rk
+[okc] tune router m=256: rk=10.56 wide=13.5 gemm=17.22 torch=22.08 -> rk
+[okc] disabled: []
+V6|D|qkv_gate|20|def 18.6 rq32 0.77 rq128 1.04 ag 1.43 tT 1.00
+V6|D|qkv_gate|28|def 18.7 rq32 0.77 rq128 1.03 ag 1.35 tT 1.00
+V6|D|o|20|def 10.8 v32 0.92 nbol 1.35 ag 1.29 tT 0.99
+V6|D|o|28|def 10.8 v32 0.94 nbol 1.27 ag 1.23 tT 1.01
+V6|D|pooler|20|def 25.5 v32 0.78 rq128 1.20 ag 1.36 tT 0.97
+V6|D|pooler|28|def 25.4 v32 0.78 rq128 1.20 ag 1.33 tT 1.00
+V6|D|unpooler|20|def 23.4 v32 0.82 rq128 1.34 ag 1.69 tT 0.96
+V6|D|unpooler|28|def 23.2 v32 0.85 rq128 1.33 ag 1.62 tT 0.98
+V6|D|router|20|def 10.3 n32 0.88
+V6|D|router|28|def 10.5 n32 0.88
+V6|D|qkv_gate|33|def 19.1 rq128 0.99 ag 1.33 tT 0.99
+V6|D|qkv_gate|40|def 18.9 rq128 0.95 ag 1.27 tT 0.99
+V6|D|qkv_gate|48|def 19.0 rq128 0.98 ag 1.19 tT 0.98
+V6|D|qkv_gate|64|def 19.3 rq128 0.93 ag 1.16 tT 0.99
+V6|D|qkv_gate|80|def 19.5 rq128 0.86 ag 1.35 tT 1.00
+V6|D|qkv_gate|100|def 20.3 rq128 0.82 ag 1.11 tT 1.00
+V6|D|qkv_gate|127|def 21.3 rq128 0.76 ag 1.00 tT 0.99
+V6|D|o|33|def 10.8 n128 1.31 ag 1.26 tT 1.01
+V6|D|o|40|def 11.0 n128 1.29 ag 1.26 tT 0.99
+V6|D|o|48|def 11.0 n128 1.27 ag 1.18 tT 1.03
+V6|D|o|64|def 11.1 n128 1.22 ag 1.13 tT 1.00
+V6|D|o|80|def 11.2 n128 1.14 ag 1.11 tT 1.00
+V6|D|o|100|def 11.7 n128 1.02 ag 1.07 tT 1.00
+V6|D|o|127|def 11.5 n128 0.94 ag 1.10 tT 0.98
+V6|D|pooler|33|def 26.1 rq128 1.11 ag 1.32 tT 0.99
+V6|D|pooler|40|def 26.7 rq128 1.01 ag 1.19 tT 0.95
+V6|D|pooler|48|def 26.4 rq128 0.96 ag 1.19 tT 0.97
+V6|D|pooler|64|def 27.3 rq128 0.91 ag 1.12 tT 0.95
+V6|D|pooler|80|def 27.4 rq128 0.85 ag 1.10 tT 1.00
+V6|D|pooler|100|def 28.8 rq128 0.80 ag 1.01 tT 0.98
+V6|D|pooler|127|def 26.9 rq128 0.80 ag 1.02 tT 0.94
+V6|D|unpooler|33|def 23.4 rq128 1.26 ag 1.58 tT 0.97
+V6|D|unpooler|40|def 23.1 rq128 1.35 ag 1.63 tT 0.99
+V6|D|unpooler|48|def 23.4 rq128 1.16 ag 1.47 tT 0.96
+V6|D|unpooler|64|def 24.0 rq128 1.09 ag 1.35 tT 0.93
+V6|D|unpooler|80|def 23.6 rq128 1.02 ag 1.11 tT 0.97
+V6|D|unpooler|100|def 24.4 rq128 0.92 ag 1.08 tT 0.96
+V6|D|unpooler|127|def 23.8 rq128 0.89 ag 1.10 tT 0.98
+V6|D|router|33|def 13.7 v128 0.66
+V6|D|router|40|def 13.6 v128 0.65
+V6|D|router|48|def 13.7 v128 0.66
+V6|D|router|64|def 13.8 v128 0.66
+V6|D|router|80|def 13.9 v128 0.68
+V6|D|router|100|def 14.1 v128 0.67
+V6|D|router|127|def 15.1 v128 0.64
+V6|D|qkv_gate|129|def 21.4 ag 1.65 tT 0.96
+V6|D|qkv_gate|160|def 22.4 ag 1.24 tT 1.05
+V6|D|qkv_gate|200|def 35.4 ag 0.99 tT 0.66
+V6|D|qkv_gate|255|def 23.7 ag 0.92 tT 1.05
+V6|D|o|129|def 11.7 nbol 1.85 ag 1.41 tT 1.01
+V6|D|o|160|def 11.3 nbol 1.85 ag 1.39 tT 1.00
+V6|D|o|200|def 12.4 nbol 1.59 ag 1.19 tT 0.98
+V6|D|o|255|def 13.2 nbol 1.21 ag 0.96 tT 0.99
+V6|D|pooler|129|def 27.4 ag 1.60 tT 0.96
+V6|D|pooler|160|def 29.2 ag 1.09 tT 1.01
+V6|D|pooler|200|def 34.3 ag 1.19 tT 0.98
+V6|D|pooler|255|def 37.7 ag 0.76 tT 1.00
+V6|D|unpooler|129|def 25.9 ag 1.82 tT 0.98
+V6|D|unpooler|160|def 24.5 ag 1.70 tT 1.00
+V6|D|unpooler|200|def 25.6 ag 1.33 tT 0.96
+V6|D|unpooler|255|def 28.4 ag 0.99 tT 0.99
+V6|D|router|129|def 14.2 v256 0.73
+V6|D|router|160|def 15.3 v256 0.68
+V6|D|router|200|def 15.9 v256 0.69
+V6|D|router|255|def 15.1 v256 0.73
+V6|D|qkv_gate|257|def 24.0 ag 2.47 tT 0.95
+V6|D|qkv_gate|300|def 24.8 ag 2.00 tT 0.99
+V6|D|qkv_gate|384|def 33.0 ag 1.23 tT 1.00
+V6|D|o|257|def 13.3 nbol 2.04 ag 1.60 tT 0.99
+V6|D|o|300|def 14.0 nbol 1.90 ag 1.47 tT 1.01
+V6|D|o|384|def 15.8 nbol 1.37 ag 1.14 tT 1.00
+V6|D|pooler|257|def 39.1 ag 2.00 tT 1.00
+V6|D|pooler|300|def 40.9 ag 1.38 tT 0.99
+V6|D|pooler|384|def 52.0 ag 0.98 tT 1.00
+V6|D|unpooler|257|def 29.1 ag 2.35 tT 1.00
+V6|D|unpooler|300|def 32.0 ag 1.86 tT 0.99
+V6|D|unpooler|384|def 38.6 ag 1.21 tT 0.99
+V6|SUM|qkv_gate|9-15:v16@0.75 17-31:rq32@0.77 40-40:rq128@0.95 45-45:tT@0.97 47-47:rq128@0.96 49-50:rq128@0.94 53-127:rq128@0.84 144-144:tT@0.93 147-148:tT@0.96 150-150:tT@0.97 152-152:tT@0.96 164-164:tT@0.89 176-176:tT@0.93 180-180:tT@0.91 182-182:ag@0.93 185-185:tT@0.92 187-187:tT@0.88 188-188:ag@0.93 191-191:tT@0.91 193-200:tT@0.67 207-207:tT@0.96 214-215:tT@0.93 225-225:tT@0.95 235-235:tT@0.94 239-255:ag@0.92 257-257:tT@0.95 262-262:tT@0.95 267-267:tT@0.95 278-278:tT@0.97 280-281:tT@0.94 284-284:tT@0.96 296-296:tT@0.93 306-307:tT@0.95 312-312:tT@0.96 323-323:tT@0.94 331-331:tT@0.94 352-352:tT@0.83 354-354:tT@0.95 357-357:tT@0.96 360-360:tT@0.97 374-374:tT@0.96 376-376:tT@0.96
+V6|SUM|o|17-31:v32@0.94 113-120:n128@0.93 123-127:n128@0.95 221-221:tT@0.96 248-254:ag@0.96
+V6|SUM|pooler|17-31:v32@0.79 40-40:tT@0.95 48-48:rq128@0.96 56-56:rq128@0.95 58-58:rq128@0.93 60-60:rq128@0.95 64-65:rq128@0.93 67-72:rq128@0.91 74-127:rq128@0.83 129-143:tT@0.93 152-152:tT@0.90 161-165:ag@0.93 167-192:ag@0.84 193-193:tT@0.97 195-196:tT@0.97 208-255:ag@0.79 267-267:tT@0.97 280-280:tT@0.89 287-287:tT@0.97 297-297:tT@0.97 299-299:tT@0.97 304-305:tT@0.92 308-309:tT@0.93 311-320:tT@0.94 329-329:tT@0.95 333-333:tT@0.97 335-337:tT@0.96
+V6|SUM|unpooler|9-15:v16@0.80 17-31:v32@0.84 33-33:tT@0.97 36-36:tT@0.96 38-38:tT@0.97 47-48:tT@0.97 64-64:tT@0.93 74-74:tT@0.97 80-80:tT@0.97 92-92:rq128@0.94 94-94:rq128@0.96 96-127:rq128@0.89 131-131:tT@0.95 133-133:tT@0.96 137-137:tT@0.96 139-139:tT@0.97 153-153:tT@0.97 157-157:tT@0.96 159-159:tT@0.97 163-163:tT@0.96 167-171:tT@0.95 173-175:tT@0.95 177-191:tT@0.95 193-195:tT@0.96 198-198:tT@0.97 200-201:tT@0.96 204-207:tT@0.96 219-219:tT@0.95 224-224:ag@0.89 240-240:ag@0.77
+V6|SUM|router|2-7:n8@0.87 9-15:n16@0.86 17-31:n32@0.88 33-127:v128@0.67 129-255:v256@0.71
+V6|DONE|762 routes, 1738 cells timed, 0 skipped, 23.2 s
+DT qkv:1 def 12.64 17.44 1.380 1.373 e1 a0
+DT qkv:1 tor 12.70 17.60 1.385 1.385 e1 a0
+DT qkv:1 pad8 12.74 15.84 1.244 1.245 e1 a0
+DT qkv:1 pad16 12.72 16.10 1.265 1.266 e1 a0
+DT qkv:16 def 13.62 17.89 1.314 1.310 e1 a0
+DT qkv:16 tor 13.52 17.87 1.322 1.317 e1 a0
+DT qkv:16 tT 13.55 17.54 1.294 1.298 e1 a0
+DT qkv:16 rq32 x neq
+DT qkv:16 rq128 x neq
+DT qkv:16 pad32 x neq
+DT qkv:16 pad128 x neq
+DT qkv:32 vjx x neq
+DT qkv:32 tor x neq
+DT qkv:32 ag x neq
+DT qkv:32 tT x neq
+DT qkv:32 rq128 x neq
+DT qkv:32 pad128 x neq
+DT qkv:32 pad256 x neq
+DT qkv:8 vjx 13.06 13.38 1.025 1.018 e1 a0
+DT qkv:8 tor 13.06 17.98 1.377 1.373 e1 a0
+DT qkv:8 pad16 13.09 16.32 1.247 1.243 e1 a0
+DT qkv:8 pad32 x neq
+DT qkv:128 tor x neq
+DT qkv:128 ag x neq
+DT qkv:128 tT x neq
+DT qkv:128 pad256 x neq
+DT qkv:256 def 21.33 23.25 1.090 1.095 e1 a0
+DT qkv:256 tor 21.20 23.10 1.090 1.088 e1 a0
+DT qkv:256 tT 21.22 24.22 1.142 1.140 e1 a0
+DT o:1 def 8.94 10.40 1.163 1.162 e1 a0
+DT o:1 tor 8.90 10.43 1.173 1.171 e1 a0
+DT o:1 pad8 8.93 11.73 1.314 1.318 e1 a0
+DT o:1 pad16 8.96 12.06 1.346 1.345 e1 a0
+DT o:16 vjx 9.60 9.47 0.987 0.987 e1 a0
+DT o:16 tor 9.57 10.43 1.090 1.096 e1 a0
+DT o:16 tT 9.57 10.40 1.087 1.082 e1 a0
+DT o:16 pad32 9.57 12.21 1.276 1.282 e1 a0
+DT o:16 pad128 9.60 13.44 1.400 1.398 e1 a0
+DT o:32 def 9.73 10.59 1.089 1.087 e1 a0
+DT o:32 tor 9.71 10.53 1.084 1.084 e1 a0
+DT o:32 nbol 9.71 13.92 1.433 1.430 e1 a0
+DT o:32 ag 9.73 12.86 1.322 1.326 e1 a0
+DT o:32 tT 9.70 10.53 1.086 1.083 e1 a0
+DT o:32 pad128 9.66 13.14 1.359 1.364 e1 a0
+DT o:32 pad256 9.76 15.01 1.538 1.540 e1 a0
+DT o:8 vjx 9.22 9.50 1.031 1.026 e1 a0
+DT o:8 tor 9.23 10.30 1.116 1.116 e1 a0
+DT o:8 pad16 9.23 12.06 1.307 1.303 e1 a0
+DT o:8 pad32 9.22 12.29 1.333 1.330 e1 a0
+DT o:128 def 10.62 11.04 1.039 1.035 e1 a0
+DT o:128 tor 10.66 10.94 1.027 1.032 e1 a0
+DT o:128 ag 10.62 12.16 1.145 1.144 e1 a0
+DT o:128 tT 10.66 11.04 1.036 1.035 e1 a0
+DT o:128 pad256 10.69 15.02 1.406 1.403 e1 a0
+DT o:256 def 12.86 12.93 1.005 1.004 e1 a0
+DT o:256 tor 12.83 13.26 1.034 1.031 e1 a0
+DT o:256 nbol 12.77 16.16 1.266 1.266 e1 a0
+DT o:256 tT 12.80 12.96 1.013 1.011 e1 a0
+DT poo:1 def 17.28 24.58 1.422 1.435 e1 a0
+DT poo:1 tor 17.28 24.90 1.441 1.449 e1 a0
+DT poo:1 pad8 17.25 20.38 1.182 1.180 e1 a0
+DT poo:1 pad16 17.25 20.64 1.197 1.194 e1 a0
+DT poo:16 vjx 17.92 18.32 1.022 1.022 e1 a0
+DT poo:16 tor 17.82 25.30 1.419 1.407 e1 a0
+DT poo:16 tT 17.92 23.86 1.331 1.330 e1 a0
+DT poo:16 rq128 x neq
+DT poo:16 pad32 17.94 22.30 1.244 1.245 e1 a0
+DT poo:16 pad128 x neq
+DT poo:32 def 18.85 25.54 1.355 1.356 e1 a0
+DT poo:32 tor 18.85 25.38 1.346 1.347 e1 a0
+DT poo:32 ag 18.82 33.50 1.781 1.788 e1 a0
+DT poo:32 tT 18.86 24.22 1.284 1.276 e1 a0
+DT poo:32 rq128 x neq
+DT poo:32 pad128 x neq
+DT poo:32 pad256 18.88 33.07 1.752 1.758 e1 a0
+DT poo:8 vjx 17.76 18.05 1.016 1.017 e1 a0
+DT poo:8 tor 17.79 24.80 1.394 1.395 e1 a0
+DT poo:8 pad16 17.79 20.70 1.164 1.164 e1 a0
+DT poo:8 pad32 17.76 22.02 1.240 1.240 e1 a0
+DT poo:128 tor x neq
+DT poo:128 ag x neq
+DT poo:128 tT x neq
+DT poo:128 pad256 x neq
+DT poo:256 def 27.94 34.16 1.223 1.188 e1 a0
+DT poo:256 tor 28.06 33.14 1.181 1.180 e1 a0
+DT poo:256 tT 28.13 32.91 1.170 1.139 e1 a0
+DT unp:1 def 7.26 9.73 1.339 1.334 e1 a0
+DT unp:1 tor 7.26 10.66 1.467 1.470 e1 a0
+DT unp:1 pad8 7.26 10.40 1.432 1.421 e1 a0
+DT unp:16 def 17.70 21.89 1.237 1.239 e1 a0
+DT unp:16 tor 17.63 21.84 1.239 1.240 e1 a0
+DT unp:16 tT 17.63 21.41 1.214 1.216 e1 a0
+DT unp:16 rq128 x neq
+DT unp:16 pad32 17.66 21.54 1.219 1.217 e1 a0
+DT unp:16 pad128 x neq
+DT unp:32 def 18.46 22.26 1.205 1.209 e1 a0
+DT unp:32 tor 18.46 22.27 1.206 1.204 e1 a0
+DT unp:32 ag 18.50 36.56 1.977 1.982 e1 a0
+DT unp:32 tT 18.51 21.73 1.174 1.177 e1 a0
+DT unp:32 rq128 x neq
+DT unp:32 pad128 x neq
+DT unp:32 pad256 18.46 30.46 1.650 1.653 e1 a0
+DT unp:8 vjx x neq
+DT unp:8 tor x neq
+DT unp:128 tor x neq
+DT unp:128 ag x neq
+DT unp:128 tT x neq
+DT unp:128 pad256 x neq
+DT unp:256 def 27.68 27.98 1.011 1.009 e1 a0
+DT unp:256 tor 27.65 27.94 1.010 1.023 e1 a0
+DT unp:256 tT 27.66 27.89 1.008 1.021 e1 a0
+DT rou:1 def 7.39 9.28 1.255 1.254 e1 a0
+DT rou:1 tor 7.39 18.02 2.437 2.428 e1 a0
+DT rou:1 pad8 7.36 10.75 1.461 1.455 e1 a0
+DT rou:1 pad16 7.36 10.91 1.483 1.485 e1 a0
+DT rou:16 def 8.26 9.57 1.159 1.157 e1 a0
+DT rou:16 vjx 8.22 8.66 1.053 1.051 e1 a0
+DT rou:16 tor 8.22 18.85 2.292 2.293 e1 a0
+DT rou:16 pad32 8.22 11.62 1.412 1.413 e1 a0
+DT rou:32 def 9.02 10.40 1.152 1.152 e1 a0
+DT rou:32 vjx 9.02 9.12 1.011 1.010 e1 a0
+DT rou:32 tor 9.02 19.10 2.117 2.123 e1 a0
+DT rou:8 def 8.19 9.41 1.148 1.150 e1 a0
+DT rou:8 vjx 8.16 8.82 1.080 1.077 e1 a0
+DT rou:8 tor 8.19 18.37 2.242 2.225 e1 a0
+DT rou:8 pad16 8.16 11.23 1.376 1.370 e1 a0
+DT rou:8 pad32 8.16 11.90 1.459 1.454 e1 a0
+DT rou:128 def 9.95 14.14 1.421 1.417 e1 a0
+DT rou:128 tor 10.03 20.19 2.013 2.026 e1 a0
+DT rou:256 def 11.09 14.85 1.339 1.340 e1 a0
+DT rou:256 tor 10.98 20.96 1.910 1.902 e1 a0
+DT done 30/30 2.7s adopted 0: 

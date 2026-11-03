@@ -1,0 +1,100 @@
+[mfab] modules built at 58s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 1.41e-05
+MP built arm=BASE seconds=89.7
+MP weights skinny_sc6=1 base_unit_B=36864 candidate_unit_B=35840 seconds=89.8
+MP built arm=experimental count=15 seconds=89.8
+MP attrs bs=1 arm=W regs_local_smem=[158, 0, 0, 158, 0, 0]
+MP attrs bs=1 arm=S regs_local_smem=[151, 0, 0, 151, 0, 0]
+MP attrs bs=1 arm=H regs_local_smem=[149, 0, 0, 149, 0, 0]
+MP attrs bs=1 arm=SH regs_local_smem=[151, 0, 0, 151, 0, 0]
+MP attrs bs=1 arm=WSH regs_local_smem=[162, 0, 0, 162, 0, 0]
+MP attrs bs=8 arm=W regs_local_smem=[158, 0, 0, 158, 0, 0]
+MP attrs bs=8 arm=S regs_local_smem=[148, 0, 0, 148, 0, 0]
+MP attrs bs=8 arm=H regs_local_smem=[151, 0, 0, 151, 0, 0]
+MP attrs bs=8 arm=SH regs_local_smem=[148, 0, 0, 148, 0, 0]
+MP attrs bs=8 arm=WSH regs_local_smem=[162, 0, 0, 162, 0, 0]
+MP attrs bs=16 arm=W regs_local_smem=[167, 0, 0, 167, 0, 0]
+MP attrs bs=16 arm=S regs_local_smem=[146, 0, 0, 146, 0, 0]
+MP attrs bs=16 arm=H regs_local_smem=[149, 0, 0, 149, 0, 0]
+MP attrs bs=16 arm=SH regs_local_smem=[146, 0, 0, 146, 0, 0]
+MP attrs bs=16 arm=WSH regs_local_smem=[167, 0, 0, 167, 0, 0]
+MP info experiment=small arms=W,S,H,SH,WSH flush_MiB=512 flush=READ_sum ABBA_quads=24 draws=3 stability=50 grid=132 routing=normal_busiest_ep8 ratio=median_draw_ratios paired=median_quad_ratios exact_maxerr=0 localB=cudaFuncGetAttributes separate_SC6_tables=1 W=issuer_before_job_wait_MMA H_doneA_active_bs=1,8 H_doneA_inactive_bs=16
+MP base_exact bs=1 draw=0 err=0.000222 maxerr=0.00195 drift=0.00195
+MP draw bs=1 arm=W draw=0 base_us=25.856 new_us=27.136 ratio=1.04950 maxerr=0.00195 drift=0.00195
+MP draw bs=1 arm=S draw=0 base_us=25.760 new_us=26.160 ratio=1.01553 maxerr=0.00195 drift=0.00195
+MP draw bs=1 arm=H draw=0 base_us=26.128 new_us=26.048 ratio=0.99694 maxerr=0.00195 drift=0.00195
+MP draw bs=1 arm=SH draw=0 base_us=26.112 new_us=26.448 ratio=1.01287 maxerr=0.00195 drift=0.00195
+MP draw bs=1 arm=WSH draw=0 base_us=26.080 new_us=27.728 ratio=1.06319 maxerr=0.00195 drift=0.00195
+MP base_exact bs=1 draw=1 err=2.11e-05 maxerr=0.000244 drift=0.000244
+MP draw bs=1 arm=WSH draw=1 base_us=26.112 new_us=27.616 ratio=1.05760 maxerr=0.000244 drift=0.000244
+MP draw bs=1 arm=SH draw=1 base_us=26.048 new_us=26.336 ratio=1.01106 maxerr=0.000244 drift=0.000244
+MP draw bs=1 arm=H draw=1 base_us=26.176 new_us=26.288 ratio=1.00428 maxerr=0.000244 drift=0.000244
+MP draw bs=1 arm=S draw=1 base_us=26.080 new_us=26.464 ratio=1.01472 maxerr=0.000244 drift=0.000244
+MP draw bs=1 arm=W draw=1 base_us=26.016 new_us=27.568 ratio=1.05966 maxerr=0.000244 drift=0.000244
+MP base_exact bs=1 draw=2 err=1.38e-07 maxerr=1.91e-06 drift=1.91e-06
+MP draw bs=1 arm=W draw=2 base_us=32.784 new_us=34.272 ratio=1.04539 maxerr=1.91e-06 drift=1.91e-06
+MP draw bs=1 arm=S draw=2 base_us=32.816 new_us=33.184 ratio=1.01121 maxerr=1.91e-06 drift=1.91e-06
+MP draw bs=1 arm=H draw=2 base_us=32.832 new_us=33.024 ratio=1.00585 maxerr=1.91e-06 drift=1.91e-06
+MP draw bs=1 arm=SH draw=2 base_us=32.864 new_us=33.120 ratio=1.00779 maxerr=1.91e-06 drift=1.91e-06
+MP draw bs=1 arm=WSH draw=2 base_us=32.704 new_us=34.576 ratio=1.05724 maxerr=1.91e-06 drift=1.91e-06
+MP bs=1 arm=W base_us=26.016 new_us=27.568 ratio=1.04950 paired=1.05531 err=0.000222 maxerr=0.00195 drift=0.00195 correct=0 adopted=0 regs=158/158 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=1 arm=S base_us=26.080 new_us=26.464 ratio=1.01472 paired=1.01579 err=0.000222 maxerr=0.00195 drift=0.00195 correct=0 adopted=0 regs=151/151 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=1 arm=H base_us=26.176 new_us=26.288 ratio=1.00428 paired=1.00463 err=0.000222 maxerr=0.00195 drift=0.00195 correct=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=1 arm=SH base_us=26.112 new_us=26.448 ratio=1.01106 paired=1.00703 err=0.000222 maxerr=0.00195 drift=0.00195 correct=0 adopted=0 regs=151/151 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=1 arm=WSH base_us=26.112 new_us=27.728 ratio=1.05760 paired=1.05841 err=0.000222 maxerr=0.00195 drift=0.00195 correct=0 adopted=0 regs=162/162 spills_localB=0/0 draws=3 reps=24 stability=50
+MP pick bs=1 arm=BASE seconds=90.2
+MP base_exact bs=8 draw=0 err=3.5e-05 maxerr=0.000977 drift=0.000977
+MP draw bs=8 arm=W draw=0 base_us=52.416 new_us=54.016 ratio=1.03053 maxerr=0.000977 drift=0.000977
+MP draw bs=8 arm=S draw=0 base_us=53.072 new_us=53.136 ratio=1.00121 maxerr=0.000977 drift=0.000977
+MP draw bs=8 arm=H draw=0 base_us=53.600 new_us=53.664 ratio=1.00119 maxerr=3.05e-05 drift=3.05e-05
+MP draw bs=8 arm=SH draw=0 base_us=53.504 new_us=53.616 ratio=1.00209 maxerr=3.05e-05 drift=3.05e-05
+MP draw bs=8 arm=WSH draw=0 base_us=52.672 new_us=55.328 ratio=1.05043 maxerr=3.05e-05 drift=3.05e-05
+MP base_exact bs=8 draw=1 err=0.000136 maxerr=0.00391 drift=0.00391
+MP draw bs=8 arm=WSH draw=1 base_us=71.664 new_us=74.928 ratio=1.04555 maxerr=0.000488 drift=0.000488
+MP draw bs=8 arm=SH draw=1 base_us=71.456 new_us=71.456 ratio=1.00000 maxerr=0.000488 drift=0.000488
+MP draw bs=8 arm=H draw=1 base_us=71.632 new_us=71.424 ratio=0.99710 maxerr=0.000488 drift=0.000488
+MP draw bs=8 arm=S draw=1 base_us=71.360 new_us=71.472 ratio=1.00157 maxerr=0.000488 drift=0.000488
+MP draw bs=8 arm=W draw=1 base_us=71.536 new_us=73.488 ratio=1.02729 maxerr=0.000488 drift=0.000488
+MP base_exact bs=8 draw=2 err=2.19e-09 maxerr=5.96e-08 drift=5.96e-08
+MP draw bs=8 arm=W draw=2 base_us=65.152 new_us=66.032 ratio=1.01351 maxerr=0.000244 drift=0.000244
+MP draw bs=8 arm=S draw=2 base_us=64.768 new_us=65.664 ratio=1.01383 maxerr=5.96e-08 drift=5.96e-08
+MP draw bs=8 arm=H draw=2 base_us=65.152 new_us=64.432 ratio=0.98895 maxerr=5.96e-08 drift=5.96e-08
+MP draw bs=8 arm=SH draw=2 base_us=65.024 new_us=64.800 ratio=0.99656 maxerr=5.96e-08 drift=5.96e-08
+MP draw bs=8 arm=WSH draw=2 base_us=65.008 new_us=67.728 ratio=1.04184 maxerr=0.000122 drift=0.000122
+MP bs=8 arm=W base_us=65.152 new_us=66.032 ratio=1.02729 paired=1.02723 err=3.5e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=158/158 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=8 arm=S base_us=64.768 new_us=65.664 ratio=1.00157 paired=1.00396 err=3.5e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=148/148 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=8 arm=H base_us=65.152 new_us=64.432 ratio=0.99710 paired=0.99871 err=1.7e-05 maxerr=0.000488 drift=0.000488 correct=0 adopted=0 regs=151/151 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=8 arm=SH base_us=65.024 new_us=64.800 ratio=1.00000 paired=1.00222 err=2.4e-05 maxerr=0.000488 drift=0.000488 correct=0 adopted=0 regs=148/148 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=8 arm=WSH base_us=65.008 new_us=67.728 ratio=1.04555 paired=1.04853 err=2.4e-05 maxerr=0.000488 drift=0.000488 correct=0 adopted=0 regs=162/162 spills_localB=0/0 draws=3 reps=24 stability=50
+MP pick bs=8 arm=BASE seconds=90.8
+MP base_exact bs=16 draw=0 err=2.6e-05 maxerr=0.000977 drift=0.000977
+MP draw bs=16 arm=W draw=0 base_us=96.320 new_us=99.856 ratio=1.03671 maxerr=0.000977 drift=0.000977
+MP draw bs=16 arm=S draw=0 base_us=96.560 new_us=99.776 ratio=1.03331 maxerr=0.000977 drift=0.000977
+MP draw bs=16 arm=H draw=0 base_us=96.640 new_us=96.976 ratio=1.00348 maxerr=0.000977 drift=0.000977
+MP draw bs=16 arm=SH draw=0 base_us=96.448 new_us=100.208 ratio=1.03898 maxerr=0.000977 drift=0.000977
+MP draw bs=16 arm=WSH draw=0 base_us=96.400 new_us=99.632 ratio=1.03353 maxerr=0.000977 drift=0.000977
+MP base_exact bs=16 draw=1 err=2.86e-06 maxerr=0.000122 drift=0.000122
+MP draw bs=16 arm=WSH draw=1 base_us=96.928 new_us=99.792 ratio=1.02955 maxerr=0.000122 drift=0.000122
+MP draw bs=16 arm=SH draw=1 base_us=96.832 new_us=100.560 ratio=1.03850 maxerr=0.000122 drift=0.000122
+MP draw bs=16 arm=H draw=1 base_us=96.816 new_us=97.120 ratio=1.00314 maxerr=0.000122 drift=0.000122
+MP draw bs=16 arm=S draw=1 base_us=96.640 new_us=99.856 ratio=1.03328 maxerr=0.000122 drift=0.000122
+MP draw bs=16 arm=W draw=1 base_us=96.784 new_us=100.080 ratio=1.03406 maxerr=0.000122 drift=0.000122
+MP base_exact bs=16 draw=2 err=5.9e-06 maxerr=0.000244 drift=0.000244
+MP draw bs=16 arm=W draw=2 base_us=72.560 new_us=74.928 ratio=1.03264 maxerr=0.000244 drift=0.000244
+MP draw bs=16 arm=S draw=2 base_us=72.256 new_us=74.496 ratio=1.03100 maxerr=0.000244 drift=0.000244
+MP draw bs=16 arm=H draw=2 base_us=72.624 new_us=73.360 ratio=1.01013 maxerr=0.000244 drift=0.000244
+MP draw bs=16 arm=SH draw=2 base_us=72.976 new_us=74.752 ratio=1.02434 maxerr=0.000244 drift=0.000244
+MP draw bs=16 arm=WSH draw=2 base_us=72.912 new_us=74.496 ratio=1.02172 maxerr=0.000244 drift=0.000244
+MP bs=16 arm=W base_us=96.320 new_us=99.856 ratio=1.03406 paired=1.03471 err=2.6e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=167/167 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=16 arm=S base_us=96.560 new_us=99.776 ratio=1.03328 paired=1.03473 err=2.6e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=146/146 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=16 arm=H base_us=96.640 new_us=96.976 ratio=1.00348 paired=1.00603 err=2.6e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=16 arm=SH base_us=96.448 new_us=100.208 ratio=1.03850 paired=1.03657 err=2.6e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=146/146 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=16 arm=WSH base_us=96.400 new_us=99.632 ratio=1.02955 paired=1.03030 err=2.6e-05 maxerr=0.000977 drift=0.000977 correct=0 adopted=0 regs=167/167 spills_localB=0/0 draws=3 reps=24 stability=50
+MP pick bs=16 arm=BASE seconds=91.4
+MP done prepare_seconds=91.4 selected=[]

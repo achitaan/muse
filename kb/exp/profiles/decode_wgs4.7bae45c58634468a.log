@@ -1,0 +1,59 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 128s
+BUILD pw57_flush 30.8s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.11 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.46 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.98 us   1.68 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.08 us   1.66 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.61 us two_node 5.18 us overhead 4.03 us
+PREP rq thread ready at 52s (bake starts at 159s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.58 at 159s
+BAKE qkv_gate m=128 rq:d2s5hze 14.86 (ratio 1.4102 vs r6 20.58) at 159s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.70 (ratio 1.0396 vs rq:d2s5hze 14.86) at 159s
+BAKE qkv_gate m=128 rq:s4s5hzw 16.15 (ratio 1.0068 vs rq:d2s5hze 14.86) at 159s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.21 (ratio 1.0066 vs rq:d2s5hze 14.86) at 159s
+BAKE qkv_gate m=128 rq:d2s6hze 16.59 (ratio 0.9874 vs rq:d2s5hze 14.86) at 159s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.30 (ref rq:d2s5hze 14.86)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0396)
+BAKE qkv_gate m=256 r6 22.98 at 159s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.38 (ratio 1.1060 vs r6 22.98) at 159s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.43 (ratio 0.9898 vs rq:n256s5m1hzmEH 21.38) at 159s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.38 (ref rq:n256s5m1hzmEH 21.38)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.62 at 159s
+BAKE unpooler m=128 rq:d2s5hze 21.59 (ratio 1.0672 vs r6 22.62) at 159s
+BAKE unpooler m=128 rq:d2s5hzwP 20.22 (ratio 1.0778 vs rq:d2s5hze 21.59) at 159s
+BAKE unpooler m=128 rq:s4s5hzw 21.15 (ratio 1.0213 vs rq:d2s5hze 21.59) at 159s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.69 (ratio 1.0015 vs rq:d2s5hze 21.59) at 159s
+BAKE unpooler m=128 rq:s4s5hze 21.70 (ratio 0.9937 vs rq:d2s5hze 21.59) at 159s
+BAKE unpooler m=128 rq:d2s6hze 21.54 (ratio 1.0177 vs rq:d2s5hze 21.59) at 159s
+PICK unpooler m=128 rq:d2s5hzwP 20.03 (ref rq:d2s5hze 21.59)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0778)
+BAKE unpooler m=256 r6 28.13 at 159s
+PICK unpooler m=256 r6 28.13 (ref r6 28.13)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 159s
+WGS_INFO base_prepare_s=159.3 lineage=ff8f8f9c read_flush_MiB=512 hardcoded_tables arms=[(128, 'fit'), (128, 'half'), (256, 'fit'), (256, 'half')] min_model_gain_us=2.0
+WGS_INCUMBENT NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0]
+WGS_CAND T=128 arm=fit NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=128 arm=half NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=256 arm=fit NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=256 arm=half NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_BASE_SELF T=128 sliding=1 pass=1 upstream_bits=0 ids_equal=0 hidden_l2=1.39e-01 update_l2=2.05e-01 moe_out_l2/row=2.11e-01/8.08e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating
+WGS_GATE T=128 sliding=1 arm=fit pass=1 old_us=235.872 new_us=238.464 median=1.01099 paired=1.00892 correct=1 isolated_moe_error=(0.00031157361809164286, 0.0010994531912729144) upstream_bits=0 ids_equal=0 hidden_l2=1.30e-01 update_l2=1.94e-01 moe_out_l2/row=2.22e-01/8.07e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0 reps=16
+WGS_GATE T=128 sliding=1 arm=half pass=1 old_us=236.144 new_us=237.248 median=1.00468 paired=1.00461 correct=1 isolated_moe_error=(0.0002539477136451751, 0.0010990491136908531) upstream_bits=0 ids_equal=0 hidden_l2=1.30e-01 update_l2=1.91e-01 moe_out_l2/row=2.13e-01/7.22e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0 reps=16
+WGS_NONE T=128 fallback=incumbent
+WGS_BASE_SELF T=256 sliding=1 pass=1 upstream_bits=0 ids_equal=0 hidden_l2=1.09e-01 update_l2=1.63e-01 moe_out_l2/row=2.07e-01/8.75e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating
+WGS_GATE T=256 sliding=1 arm=fit pass=1 old_us=323.024 new_us=335.040 median=1.03720 paired=1.03732 correct=1 isolated_moe_error=(0.0002558665000833571, 0.001288862549699843) upstream_bits=0 ids_equal=0 hidden_l2=1.14e-01 update_l2=1.73e-01 moe_out_l2/row=2.13e-01/8.85e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0 reps=16
+WGS_GATE T=256 sliding=1 arm=half pass=1 old_us=324.112 new_us=325.424 median=1.00405 paired=1.00812 correct=1 isolated_moe_error=(0.0002756692992988974, 0.0013288646005094051) upstream_bits=0 ids_equal=0 hidden_l2=1.00e-01 update_l2=1.53e-01 moe_out_l2/row=1.95e-01/8.75e+00 cache_equal=0 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0 reps=16
+WGS_NONE T=256 fallback=incumbent
+WGS_TABLE T=128 arm=fit median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0110/1.0089-
+WGS_TABLE T=128 arm=half median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0047/1.0046-
+WGS_TABLE T=256 arm=fit median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0372/1.0373-
+WGS_TABLE T=256 arm=half median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0040/1.0081-
+WGS_DONE total_prepare_s=159.6 adopted_T=[]

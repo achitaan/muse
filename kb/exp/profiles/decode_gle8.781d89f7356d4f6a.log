@@ -1,0 +1,51 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 107s
+BUILD pw57_flush 31.8s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.95 us   0.63 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.49 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.98 us   1.68 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.11 us   1.66 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.70 us two_node 5.36 us overhead 4.05 us
+PREP rq thread ready at 45s (bake starts at 138s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 21.06 at 138s
+BAKE qkv_gate m=128 rq:d2s5hze 15.09 (ratio 1.4064 vs r6 21.06) at 138s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.49 (ratio 1.0537 vs rq:d2s5hze 15.09) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.85 (ratio 1.0338 vs rq:d2s5hze 15.09) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.46 (ratio 0.9975 vs rq:d2s5hze 15.09) at 138s
+BAKE qkv_gate m=128 rq:d2s6hze 16.27 (ratio 1.0287 vs rq:d2s5hze 15.09) at 138s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.32 (ref rq:d2s5hze 15.09)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0537)
+BAKE qkv_gate m=256 r6 23.20 at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.49 (ratio 1.0840 vs r6 23.20) at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.93 (ratio 0.9849 vs rq:n256s5m1hzmEH 21.49) at 138s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.49 (ref rq:n256s5m1hzmEH 21.49)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.97 at 138s
+BAKE unpooler m=128 rq:d2s5hze 21.50 (ratio 1.1282 vs r6 23.97) at 138s
+BAKE unpooler m=128 rq:d2s5hzwP 20.76 (ratio 1.0345 vs rq:d2s5hze 21.50) at 138s
+BAKE unpooler m=128 rq:s4s5hzw 20.81 (ratio 1.0274 vs rq:d2s5hze 21.50) at 138s
+BAKE unpooler m=128 rq:s4s5hzeEH 20.96 (ratio 1.0338 vs rq:d2s5hze 21.50) at 138s
+BAKE unpooler m=128 rq:s4s5hze 21.59 (ratio 0.9871 vs rq:d2s5hze 21.50) at 138s
+BAKE unpooler m=128 rq:d2s6hze 21.96 (ratio 0.9819 vs rq:d2s5hze 21.50) at 138s
+PICK unpooler m=128 rq:d2s5hzwP 20.78 (ref rq:d2s5hze 21.50)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0345)
+BAKE unpooler m=256 r6 27.87 at 138s
+PICK unpooler m=256 r6 27.87 (ref r6 27.87)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 138s
+GLE8_INFO base_s=138.4 target=v1S,v1F gain=0.988 flush=512MiB_READ reps=24x3 TOKR=16 slots=4x48KiB router=FP32
+GLE8_REF v1S draw=0 spread_max=4.95e-04 ids=0.00e+00 kv_repeat=11 untouched=1
+GLE8_PIN v1S draw=0 raw16_exact=1 ids_exact=1 logits=2.40e-07/2.67e-07 pool16=0.00e+00/0.00e+00 pass=1
+GLE8_DETAIL v1S A numeric worst=moe_out:7.148 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+GLE8_REF v1F draw=0 spread_max=3.08e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+GLE8_PIN v1F draw=0 raw16_exact=1 ids_exact=1 logits=2.51e-07/2.61e-07 pool16=0.00e+00/0.00e+00 pass=1
+GLE8_DETAIL v1F A numeric worst=moe_input:3.754 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+GLE8_INFO total_prepare_s=140.0 adopted=0/2
+GLE8_SUMMARY
+GLE8 class=v1S arm=A ratio=1.03130 paired=1.03130 equiv=0 reason=equivalence_numeric_moe_input adopted=0 reps=2 draws=0
+GLE8 class=v1F arm=A ratio=1.02555 paired=1.02555 equiv=0 reason=equivalence_numeric_moe_input adopted=0 reps=2 draws=0

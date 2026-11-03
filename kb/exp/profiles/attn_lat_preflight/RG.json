@@ -1,0 +1,12 @@
+{
+  "arm": "RG",
+  "rc": 0,
+  "seconds": 1.297000000020489,
+  "cubin_bytes": 161504,
+  "kernels": [
+    "attn_kernel<1, false, 13>"
+  ],
+  "source_sha256": "ce4c5f0e27ec0038685359a329d343f9de6dd756f7e3a62eaf9eb2d9062b6bc0",
+  "device_sha256": "6a07dde4a3f6ec11466ae1a4b0a12e2b7ba727250aaebba1a9415caa45ec2f65",
+  "scope": "NVRTC 13 sm_90a device-code proxy only, no host ABI or GPU execution"
+}

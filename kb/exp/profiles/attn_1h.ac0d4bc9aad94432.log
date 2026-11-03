@@ -1,0 +1,258 @@
+AT build 1h ready
+AT builds ready 42.5s
+AT ref e4m3_err=0.066586 bound=0.1500
+AT score d1S base rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+[W1102 22:19:21.843516961 CUDAEvent.h:57] Warning: CUDA warning: misaligned address (function ~CUDAEvent)
+AT summary begin status=fallback AcceleratorError CUDA error: misaligned address Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cu selected=0/5-targets elapsed=43.3s
+AT summary d1S route=base not-tested
+AT summary d1F route=base base full-context unchanged
+AT summary d16S route=base not-tested
+AT summary d16F route=base base full-context unchanged
+AT summary d32S route=base not-tested
+AT summary d32F route=base base full-context unchanged
+AT summary v1S route=base not-tested
+AT summary v1F route=base base full-context unchanged
+AT summary v16S route=base not-tested
+AT summary v16F route=base base full-context unchanged
+AT summary v32S route=base not-tested
+AT summary v32F route=base base full-context unchanged
+AT summary end
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 485, in child_main
+    sync()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/__init__.py", line 1281, in synchronize
+    return torch._C._cuda_synchronize()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuCtxSynchronize_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-4p31np12/run/worker.py", line 450, in child_main
+    torch.cuda.empty_cache()
+  File "/opt/sglang/lib/python3.12/site-packages/torch/cuda/memory.py", line 229, in empty_cache
+    torch._C._cuda_emptyCache()
+torch.AcceleratorError: CUDA error: misaligned address
+Search for `cudaErrorMisalignedAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 716 (CUDA_ERROR_MISALIGNED_ADDRESS) from cuMemFree_v2
+
+

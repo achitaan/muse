@@ -1,0 +1,14 @@
+{
+  "arm": "RGP",
+  "rc": 0,
+  "seconds": 2.625,
+  "cubin_bytes": 446208,
+  "kernels": [
+    "attn_kernel<1, false, 13>",
+    "attn_kernel<1, false, 9>",
+    "attn_kernel<1, false, 1>"
+  ],
+  "source_sha256": "b3d371a7cd5e5283d74e805ceda4f1cd3de5220663d3ebf9e053eed2db39da23",
+  "device_sha256": "aa63ac68e6afbb96d8c4c4d241031716e11adaa14ec7a47a4fa06a7cdc87dc3b",
+  "scope": "NVRTC 13 sm_90a device-code proxy only, no host ABI or GPU execution"
+}

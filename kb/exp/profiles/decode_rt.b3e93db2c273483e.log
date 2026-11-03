@@ -1,0 +1,82 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 108s
+BUILD pw57_flush 30.0s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.98 us   0.63 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.62 us   0.83 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.95 us   1.69 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.24 us   1.64 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.51 us two_node 5.39 us overhead 3.63 us
+PREP rq thread ready at 45s (bake starts at 138s)
+BAKE rq qkv_gate esc2 slots max=2 ok
+BAKE qkv_gate m=128 r6 20.64 at 138s
+BAKE qkv_gate m=128 rq:d2s5hze 15.41 (ratio 1.3682 vs r6 20.64) at 138s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.82 (ratio 1.0379 vs rq:d2s5hze 15.41) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzw 16.99 (ratio 0.9606 vs rq:d2s5hze 15.41) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.52 (ratio 0.9877 vs rq:d2s5hze 15.41) at 138s
+BAKE qkv_gate m=128 rq:d2s6hze 16.75 (ratio 0.9839 vs rq:d2s5hze 15.41) at 138s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.85 (ref rq:d2s5hze 15.41)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0379)
+BAKE qkv_gate m=256 r6 23.10 at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.89 (ratio 1.0453 vs r6 23.10) at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.60 (ratio 1.0103 vs rq:n256s5m1hzmEH 21.89) at 138s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.89 (ref rq:n256s5m1hzmEH 21.89)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.14 at 138s
+BAKE unpooler m=128 rq:d2s5hze 21.42 (ratio 1.0873 vs r6 23.14) at 138s
+BAKE unpooler m=128 rq:d2s5hzwP 20.74 (ratio 1.0524 vs rq:d2s5hze 21.42) at 138s
+BAKE unpooler m=128 rq:s4s5hzw 20.74 (ratio 1.0476 vs rq:d2s5hze 21.42) at 138s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.99 (ratio 0.9822 vs rq:d2s5hze 21.42) at 138s
+BAKE unpooler m=128 rq:s4s5hze 22.11 (ratio 0.9827 vs rq:d2s5hze 21.42) at 138s
+BAKE unpooler m=128 rq:d2s6hze 22.50 (ratio 0.9698 vs rq:d2s5hze 21.42) at 138s
+PICK unpooler m=128 rq:d2s5hzwP 20.36 (ref rq:d2s5hze 21.42)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0524)
+BAKE unpooler m=256 r6 28.06 at 138s
+PICK unpooler m=256 r6 28.06 (ref r6 28.06)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 138s
+RT_INFO base_s=137.7 flush=512MiB_READ reps=24x3 modes=last/rows
+RT_MATH split ids/lids/wts/xm=1111
+RT_MATH sl8 ids/lids/wts/xm=1111
+RT_MATH graft ids/lids/wts/xm=1111
+RT_MATH sl ids/lids/wts/xm=1101
+RT_REF d16S draw=0 spread_max=1.34e-04 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d16S last draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111110
+RT_EXACT d16S rows draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111110
+RT_DETAIL d16S last worst=none:0.000 ids=0e+00 kv=11 n=[0]
+RT_DETAIL d16S rows worst=none:0.000 ids=0e+00 kv=11 n=[0]
+RT_REF d16F draw=0 spread_max=6.42e-04 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d16F last draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111110
+RT_EXACT d16F rows draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111110
+RT_DETAIL d16F last worst=none:0.000 ids=0e+00 kv=11 n=[0]
+RT_DETAIL d16F rows worst=none:0.000 ids=0e+00 kv=11 n=[0]
+RT_REF d32S draw=0 spread_max=3.57e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d32S last draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_EXACT d32S rows draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_REF d32S draw=1 spread_max=3.00e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d32S last draw=1 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_EXACT d32S rows draw=1 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_REF d32S draw=2 spread_max=3.02e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d32S last draw=2 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_EXACT d32S rows draw=2 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_DETAIL d32S last worst=moe_out:0.759 ids=0e+00 kv=11 n=[24, 24, 24]
+RT_DETAIL d32S rows worst=moe_out:0.687 ids=0e+00 kv=11 n=[24, 24, 24]
+RT_REF d32F draw=0 spread_max=3.38e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d32F last draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_EXACT d32F rows draw=0 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_REF d32F draw=1 spread_max=1.11e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+RT_EXACT d32F last draw=1 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_EXACT d32F rows draw=1 kind=sl8 pool/logits/ids/lids/wts/xm=111111
+RT_DETAIL d32F last worst=moe_out:1.007 ids=0e+00 kv=11 n=[24, 8]
+RT_DETAIL d32F rows worst=update:1.019 ids=0e+00 kv=11 n=[24, 6]
+RT_INFO prepare_s=139.8 adopted=0/6
+RT_SUMMARY T1=base T8=fp32 T16/32=hi+lo gain=.988 modes=last/rows
+RT d16S last=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,fixed_boundary_bits rows=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,fixed_boundary_bits pick=base
+RT d16F last=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,fixed_boundary_bits rows=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,fixed_boundary_bits pick=base
+RT d32S last=1.99324/1.99133,eq1,bits1,ids0e+00,kv11,n72x3,timing rows=1.94943/1.94962,eq1,bits1,ids0e+00,kv11,n72x3,timing pick=base
+RT d32F last=1.48828/1.47794,eq0,bits0,ids0e+00,kv11,n32x1,base_numeric_moe_out rows=1.47114/1.45801,eq0,bits0,ids0e+00,kv11,n30x1,equivalence_numeric_update pick=base
+RT v1S last=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,route_math_not_exact_sl rows=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,route_math_not_exact_sl pick=base
+RT v1F last=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,route_math_not_exact_sl rows=nan/nan,eq0,bits0,ids0e+00,kv11,n0x0,route_math_not_exact_sl pick=base

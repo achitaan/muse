@@ -1,0 +1,54 @@
+EDGE_API driver=13000 ctypes=reachable capture=v3 edges=v2 params=v2 edge_bytes=8 params_bytes=72
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 104s
+BUILD pw57_flush 30.0s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.60 us   0.66 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.52 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.44 us   1.78 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.05 us   1.67 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.54 us two_node 5.26 us overhead 3.82 us
+PREP rq thread ready at 45s (bake starts at 134s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.45 at 134s
+BAKE qkv_gate m=128 rq:d2s5hze 15.11 (ratio 1.3514 vs r6 20.45) at 134s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.58 (ratio 1.0390 vs rq:d2s5hze 15.11) at 134s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.78 (ratio 1.0242 vs rq:d2s5hze 15.11) at 134s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.25 (ratio 1.0025 vs rq:d2s5hze 15.11) at 134s
+BAKE qkv_gate m=128 rq:d2s6hze 16.87 (ratio 0.9601 vs rq:d2s5hze 15.11) at 134s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.54 (ref rq:d2s5hze 15.11)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0390)
+BAKE qkv_gate m=256 r6 22.94 at 134s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.20 (ratio 1.0883 vs r6 22.94) at 134s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.47 (ratio 1.0044 vs rq:n256s5m1hzmEH 21.20) at 135s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.20 (ref rq:n256s5m1hzmEH 21.20)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.94 at 135s
+BAKE unpooler m=128 rq:d2s5hze 20.58 (ratio 1.1256 vs r6 22.94) at 135s
+BAKE unpooler m=128 rq:d2s5hzwP 20.39 (ratio 1.0452 vs rq:d2s5hze 20.58) at 135s
+BAKE unpooler m=128 rq:s4s5hzw 20.89 (ratio 1.0262 vs rq:d2s5hze 20.58) at 135s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.37 (ratio 1.0153 vs rq:d2s5hze 20.58) at 135s
+BAKE unpooler m=128 rq:s4s5hze 21.42 (ratio 1.0009 vs rq:d2s5hze 20.58) at 135s
+BAKE unpooler m=128 rq:d2s6hze 21.26 (ratio 1.0129 vs rq:d2s5hze 20.58) at 135s
+PICK unpooler m=128 rq:d2s5hzwP 19.69 (ref rq:d2s5hze 20.58)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0452)
+BAKE unpooler m=256 r6 27.46 at 135s
+PICK unpooler m=256 r6 27.46 (ref r6 27.46)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 134s
+EDGE_INFO base_s=134.5 target=v16S,v16F,v32S,v32F gain=0.988 flush=512MiB_READ reps=24x3
+/opt/sglang/lib/python3.12/site-packages/torch/cuda/graphs.py:630: UserWarning: The CUDA Graph is empty. This usually means that the graph was attempted to be captured on wrong device or stream. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/cuda/CUDAGraph.cpp:249.)
+  super().capture_end_pre()
+EDGE_ERR v16S cuGraphGetNodes: 1 CUDA_ERROR_INVALID_VALUE
+EDGE_ERR v16F cuGraphGetNodes: 1 CUDA_ERROR_INVALID_VALUE
+EDGE_ERR v32S cuGraphGetNodes: 1 CUDA_ERROR_INVALID_VALUE
+EDGE_ERR v32F cuGraphGetNodes: 1 CUDA_ERROR_INVALID_VALUE
+EDGE_INFO total_prepare_s=134.6 adopted=0/4
+EDGE_SUMMARY type=programmatic(1) from_port=launch_completion(2) gain=0.988
+EDGE v16S ratio=nan paired=nan eq=0 ids=0e+00 kv=11 n=0x0 pick=base why=runtime_RuntimeError
+EDGE v16F ratio=nan paired=nan eq=0 ids=0e+00 kv=11 n=0x0 pick=base why=runtime_RuntimeError
+EDGE v32S ratio=nan paired=nan eq=0 ids=0e+00 kv=11 n=0x0 pick=base why=runtime_RuntimeError
+EDGE v32F ratio=nan paired=nan eq=0 ids=0e+00 kv=11 n=0x0 pick=base why=runtime_RuntimeError

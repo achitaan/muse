@@ -1,0 +1,131 @@
+=1 gate=0
+PF2 turn1_full S1+S2b_nmajor n=16 a_us=811.33 us=912.26 median_ratio=1.12440 paired=1.12511 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn1_full arm=default ratio=1.00000
+PF2_INFO turn4_sliding seed=20346162 n=16 routes=5916 default_spread=1.4e-04,2.0e-03,1.5e-04,2.4e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn4_sliding best_S2=S2a_g4
+PF2 turn4_sliding S1 n=16 a_us=1890.38 us=2028.45 median_ratio=1.07303 paired=1.07311 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S2a_g4 n=16 a_us=1889.22 us=1908.93 median_ratio=1.01043 paired=1.01057 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S2b_nmajor n=16 a_us=1890.90 us=2314.08 median_ratio=1.22380 paired=1.22500 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S1+S2a_g4 n=16 a_us=1888.53 us=2032.54 median_ratio=1.07626 paired=1.07667 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S1+S2b_nmajor n=16 a_us=1890.40 us=2346.74 median_ratio=1.24140 paired=1.24036 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn4_sliding arm=default ratio=1.00000
+PF2_INFO turn4_full seed=20344114 n=16 routes=5384 default_spread=1.2e-04,1.6e-03,1.3e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn4_full best_S2=S2a_g4
+PF2 turn4_full S1 n=16 a_us=2646.80 us=2768.08 median_ratio=1.04582 paired=1.04487 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S2a_g4 n=16 a_us=2646.96 us=2669.06 median_ratio=1.00835 paired=1.00752 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S2b_nmajor n=16 a_us=2645.71 us=2976.40 median_ratio=1.12499 paired=1.12289 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S1+S2a_g4 n=16 a_us=2648.48 us=2771.30 median_ratio=1.04637 paired=1.04655 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S1+S2b_nmajor n=16 a_us=2649.90 us=3011.86 median_ratio=1.13659 paired=1.13843 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn4_full arm=default ratio=1.00000
+PF2_INFO first_sliding seed=20312302 n=16 routes=23203 default_spread=7.4e-05,1.9e-03,8.2e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_sliding best_S2=S2a_g4
+PF2 first_sliding S1 n=16 a_us=7895.20 us=8247.46 median_ratio=1.04462 paired=1.04949 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S2a_g4 n=16 a_us=7895.09 us=7998.66 median_ratio=1.01312 paired=1.01298 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S2b_nmajor n=16 a_us=7903.57 us=9639.07 median_ratio=1.21958 paired=1.21977 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S1+S2a_g4 n=16 a_us=7894.00 us=8272.70 median_ratio=1.04797 paired=1.04964 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S1+S2b_nmajor n=16 a_us=7893.44 us=9630.64 median_ratio=1.22008 paired=1.21845 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_sliding arm=default ratio=1.00000
+PF2_INFO first_full_ctx32768 seed=20310254 n=16 routes=32164 default_spread=9.0e-05,1.9e-03,9.5e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx32768 best_S2=S2a_g4
+PF2 first_full_ctx32768 S1 n=16 a_us=11221.70 us=11907.89 median_ratio=1.06115 paired=1.05205 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S2a_g4 n=16 a_us=11211.65 us=11380.82 median_ratio=1.01509 paired=1.01571 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S2b_nmajor n=16 a_us=11255.09 us=13552.42 median_ratio=1.20411 paired=1.20835 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S1+S2a_g4 n=16 a_us=11239.15 us=11909.92 median_ratio=1.05968 paired=1.04948 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S1+S2b_nmajor n=16 a_us=11232.82 us=13523.73 median_ratio=1.20395 paired=1.20825 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx32768 arm=default ratio=1.00000
+PF2_INFO first_full_ctx0 seed=20277486 n=16 routes=33339 default_spread=9.5e-05,1.8e-03,1.0e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx0 best_S2=S2a_g4
+PF2 first_full_ctx0 S1 n=16 a_us=9511.06 us=10113.94 median_ratio=1.06339 paired=1.06507 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S2a_g4 n=16 a_us=9485.30 us=9652.27 median_ratio=1.01760 paired=1.01682 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S2b_nmajor n=16 a_us=9505.57 us=11852.51 median_ratio=1.24690 paired=1.24723 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S1+S2a_g4 n=16 a_us=9484.54 us=10026.70 median_ratio=1.05716 paired=1.06101 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S1+S2b_nmajor n=16 a_us=9491.52 us=11790.62 median_ratio=1.24223 paired=1.24113 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx0 arm=default ratio=1.00000
+PF2_INFO first_full_ctx65536 seed=20343022 n=16 routes=26392 default_spread=8.6e-05,2.0e-03,9.5e-05,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx65536 best_S2=S2a_g4
+PF2 first_full_ctx65536 S1 n=16 a_us=12346.05 us=12836.78 median_ratio=1.03975 paired=1.04002 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S2a_g4 n=16 a_us=12399.49 us=12650.26 median_ratio=1.02022 paired=1.01623 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S2b_nmajor n=16 a_us=12411.42 us=14558.30 median_ratio=1.17298 paired=1.17579 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S1+S2a_g4 n=16 a_us=12411.55 us=13023.23 median_ratio=1.04928 paired=1.05184 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S1+S2b_nmajor n=16 a_us=12381.26 us=14409.28 median_ratio=1.16380 paired=1.16177 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx65536 arm=default ratio=1.00000
+PF2_FINAL_BEGIN prepare_s=83.1 adopted_cases=0
+PF2_ATTR base fine=0 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_ATTR base fine=1 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_BUILD order ready_s=21.3
+PF2_ATTR order fine=0 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0 base_numRegs=168 base_localSizeBytes=8 resource_gate=1
+PF2_ATTR order fine=1 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0 base_numRegs=168 base_localSizeBytes=8 resource_gate=1
+PF2_BUILD phase ready_s=23.2
+PF2_ATTR phase fine=0 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0 base_numRegs=168 base_localSizeBytes=8 resource_gate=1
+PF2_ATTR phase fine=1 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0 base_numRegs=168 base_localSizeBytes=8 resource_gate=1
+PF2_EXACT S1 fixed_routing_gemm1_gemm2_bits=1
+PF2_EXACT S2a_g4 fixed_routing_gemm1_gemm2_bits=1
+PF2_EXACT S2b_nmajor fixed_routing_gemm1_gemm2_bits=1
+PF2_EXACT S1+S2a_g4 fixed_routing_gemm1_gemm2_bits=1
+PF2_EXACT S1+S2b_nmajor fixed_routing_gemm1_gemm2_bits=1
+PF2_INFO prepare_s=46.8 candidates=S1,S2a_g4,S2b_nmajor,S1+S2a_g4,S1+S2b_nmajor flush_bytes=536870912 schedule=ABBA rounds=16 gate=median_and_paired_le_0.988 tolerance=default_spread fixed_routing=exact resources=localSizeBytes_and_numRegs_le_base cached_outputs=0
+PF2_INFO turn1_sliding seed=20343903 n=16 routes=1778 default_spread=4.6e-04,1.9e-03,4.9e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn1_sliding best_S2=S2a_g4
+PF2 turn1_sliding S1 n=16 a_us=635.79 us=711.90 median_ratio=1.11971 paired=1.12002 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_sliding S2a_g4 n=16 a_us=636.69 us=640.66 median_ratio=1.00623 paired=1.00615 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_sliding S2b_nmajor n=16 a_us=635.01 us=679.12 median_ratio=1.06947 paired=1.06739 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_sliding S1+S2a_g4 n=16 a_us=635.95 us=708.42 median_ratio=1.11395 paired=1.11336 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_sliding S1+S2b_nmajor n=16 a_us=636.46 us=741.44 median_ratio=1.16494 paired=1.16529 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn1_sliding arm=default ratio=1.00000
+PF2_INFO turn1_full seed=20341855 n=16 routes=1242 default_spread=3.3e-04,1.6e-03,3.6e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn1_full best_S2=S2a_g4
+PF2 turn1_full S1 n=16 a_us=810.98 us=881.12 median_ratio=1.08649 paired=1.08676 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_full S2a_g4 n=16 a_us=812.14 us=813.58 median_ratio=1.00177 paired=1.00366 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_full S2b_nmajor n=16 a_us=810.94 us=850.19 median_ratio=1.04840 paired=1.04746 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_full S1+S2a_g4 n=16 a_us=811.79 us=878.45 median_ratio=1.08211 paired=1.08084 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn1_full S1+S2b_nmajor n=16 a_us=811.33 us=912.26 median_ratio=1.12440 paired=1.12511 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn1_full arm=default ratio=1.00000
+PF2_INFO turn4_sliding seed=20346162 n=16 routes=5916 default_spread=1.4e-04,2.0e-03,1.5e-04,2.4e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn4_sliding best_S2=S2a_g4
+PF2 turn4_sliding S1 n=16 a_us=1890.38 us=2028.45 median_ratio=1.07303 paired=1.07311 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S2a_g4 n=16 a_us=1889.22 us=1908.93 median_ratio=1.01043 paired=1.01057 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S2b_nmajor n=16 a_us=1890.90 us=2314.08 median_ratio=1.22380 paired=1.22500 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S1+S2a_g4 n=16 a_us=1888.53 us=2032.54 median_ratio=1.07626 paired=1.07667 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_sliding S1+S2b_nmajor n=16 a_us=1890.40 us=2346.74 median_ratio=1.24140 paired=1.24036 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn4_sliding arm=default ratio=1.00000
+PF2_INFO turn4_full seed=20344114 n=16 routes=5384 default_spread=1.2e-04,1.6e-03,1.3e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO turn4_full best_S2=S2a_g4
+PF2 turn4_full S1 n=16 a_us=2646.80 us=2768.08 median_ratio=1.04582 paired=1.04487 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S2a_g4 n=16 a_us=2646.96 us=2669.06 median_ratio=1.00835 paired=1.00752 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S2b_nmajor n=16 a_us=2645.71 us=2976.40 median_ratio=1.12499 paired=1.12289 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S1+S2a_g4 n=16 a_us=2648.48 us=2771.30 median_ratio=1.04637 paired=1.04655 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 turn4_full S1+S2b_nmajor n=16 a_us=2649.90 us=3011.86 median_ratio=1.13659 paired=1.13843 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK turn4_full arm=default ratio=1.00000
+PF2_INFO first_sliding seed=20312302 n=16 routes=23203 default_spread=7.4e-05,1.9e-03,8.2e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_sliding best_S2=S2a_g4
+PF2 first_sliding S1 n=16 a_us=7895.20 us=8247.46 median_ratio=1.04462 paired=1.04949 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S2a_g4 n=16 a_us=7895.09 us=7998.66 median_ratio=1.01312 paired=1.01298 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S2b_nmajor n=16 a_us=7903.57 us=9639.07 median_ratio=1.21958 paired=1.21977 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S1+S2a_g4 n=16 a_us=7894.00 us=8272.70 median_ratio=1.04797 paired=1.04964 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_sliding S1+S2b_nmajor n=16 a_us=7893.44 us=9630.64 median_ratio=1.22008 paired=1.21845 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_sliding arm=default ratio=1.00000
+PF2_INFO first_full_ctx32768 seed=20310254 n=16 routes=32164 default_spread=9.0e-05,1.9e-03,9.5e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx32768 best_S2=S2a_g4
+PF2 first_full_ctx32768 S1 n=16 a_us=11221.70 us=11907.89 median_ratio=1.06115 paired=1.05205 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S2a_g4 n=16 a_us=11211.65 us=11380.82 median_ratio=1.01509 paired=1.01571 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S2b_nmajor n=16 a_us=11255.09 us=13552.42 median_ratio=1.20411 paired=1.20835 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S1+S2a_g4 n=16 a_us=11239.15 us=11909.92 median_ratio=1.05968 paired=1.04948 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx32768 S1+S2b_nmajor n=16 a_us=11232.82 us=13523.73 median_ratio=1.20395 paired=1.20825 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx32768 arm=default ratio=1.00000
+PF2_INFO first_full_ctx0 seed=20277486 n=16 routes=33339 default_spread=9.5e-05,1.8e-03,1.0e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx0 best_S2=S2a_g4
+PF2 first_full_ctx0 S1 n=16 a_us=9511.06 us=10113.94 median_ratio=1.06339 paired=1.06507 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S2a_g4 n=16 a_us=9485.30 us=9652.27 median_ratio=1.01760 paired=1.01682 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S2b_nmajor n=16 a_us=9505.57 us=11852.51 median_ratio=1.24690 paired=1.24723 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S1+S2a_g4 n=16 a_us=9484.54 us=10026.70 median_ratio=1.05716 paired=1.06101 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx0 S1+S2b_nmajor n=16 a_us=9491.52 us=11790.62 median_ratio=1.24223 paired=1.24113 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx0 arm=default ratio=1.00000
+PF2_INFO first_full_ctx65536 seed=20343022 n=16 routes=26392 default_spread=8.6e-05,2.0e-03,9.5e-05,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PF2_INFO first_full_ctx65536 best_S2=S2a_g4
+PF2 first_full_ctx65536 S1 n=16 a_us=12346.05 us=12836.78 median_ratio=1.03975 paired=1.04002 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S2a_g4 n=16 a_us=12399.49 us=12650.26 median_ratio=1.02022 paired=1.01623 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S2b_nmajor n=16 a_us=12411.42 us=14558.30 median_ratio=1.17298 paired=1.17579 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S1+S2a_g4 n=16 a_us=12411.55 us=13023.23 median_ratio=1.04928 paired=1.05184 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2 first_full_ctx65536 S1+S2b_nmajor n=16 a_us=12381.26 us=14409.28 median_ratio=1.16380 paired=1.16177 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PF2_PICK first_full_ctx65536 arm=default ratio=1.00000
+PF2_FINAL_END unmeasured_or_rejected_cases=keell_default

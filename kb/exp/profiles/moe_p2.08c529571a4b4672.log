@@ -1,0 +1,105 @@
+[mfab] modules built at 47s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 5.62e-05
+MS attrs new/stream_regs_local_smem_occ=[160, 0, 104064, 2, 26, 0, 104064, 2] old_false/true=[96, 16, 231168, 1, 96, 16, 231168, 1] production_regs_local_static=[96, 0, 0, 96, 0, 0] baseline_no_local=0 grid_new=264 threads_new=192 build_seconds=102.0
+MS gate geometry=1 regs_le160=1 zero_local=1 two_ctas=1
+MS info draws=3 ABBA_quads=16 flush=READ_sum512MiB obligation=raw_FP32_GEMM2_before_norm old_stage_B=35840 new_stage_B=4608 K_order=lossless_K128 stages_per_unit=32 rings=8W/2X plans=excluded_both bytes=requested_not_measured_DRAM default=keell_unchanged
+MS draw b32/d0 seed=2826933919152867123 routes=60 experts=16 max_tokens=16 jobs64/128=16/16 padded64/128=136/136 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=146.801/150.995/150.995 unique_MB_old/new=146.801/150.995
+MS check b32/d0 arm=old production_BF16_rel=0
+MS check b32/d0 arm=new64 A_norm=295.3 boundary_splits=247 rel=1.21e-06 reference=raw_B_old
+MS check b32/d0 arm=new128 A_norm=295.3 boundary_splits=247 rel=1.21e-06 reference=raw_B_old
+MS time b32/d0 pair=new64/old us=50.944/75.728 ratio=1.4871 baseline_no_local=0
+MS time b32/d0 pair=new128/new64 us=75.136/75.280 ratio=1.0075 baseline_no_local=0
+MS time b32/d0 pair=stream/new128 us=75.680/40.608 ratio=0.5350 baseline_no_local=0
+MS stream b32/d0 us=40.608 job_TBps=3.718 unique_TBps=3.718
+MS fix b32/d0 arm=new64 clean=1
+MS fix b32/d0 arm=new128 clean=1
+MS draw b32/d1 seed=2826933919153867126 routes=46 experts=16 max_tokens=7 jobs64/128=16/16 padded64/128=128/128 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=146.801/150.995/150.995 unique_MB_old/new=146.801/150.995
+MS check b32/d1 arm=old production_BF16_rel=0
+MS check b32/d1 arm=new64 A_norm=254.8 boundary_splits=248 rel=1.19e-06 reference=raw_B_old
+MS check b32/d1 arm=new128 A_norm=254.8 boundary_splits=248 rel=1.19e-06 reference=raw_B_old
+MS time b32/d1 pair=new64/old us=50.384/73.696 ratio=1.4700 baseline_no_local=0
+MS time b32/d1 pair=new128/new64 us=73.888/74.000 ratio=1.0019 baseline_no_local=0
+MS time b32/d1 pair=stream/new128 us=73.584/40.576 ratio=0.5561 baseline_no_local=0
+MS stream b32/d1 us=40.576 job_TBps=3.721 unique_TBps=3.721
+MS fix b32/d1 arm=new64 clean=1
+MS fix b32/d1 arm=new128 clean=1
+MS draw b32/d2 seed=2826933919154867129 routes=47 experts=18 max_tokens=9 jobs64/128=18/18 padded64/128=152/152 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=165.151/169.869/169.869 unique_MB_old/new=165.151/169.869
+MS check b32/d2 arm=old production_BF16_rel=2.96e-05
+MS check b32/d2 arm=new64 A_norm=263.3 boundary_splits=247 rel=1.16e-06 reference=raw_B_old
+MS check b32/d2 arm=new128 A_norm=263.3 boundary_splits=247 rel=1.16e-06 reference=raw_B_old
+MS time b32/d2 pair=new64/old us=55.504/83.584 ratio=1.4994 baseline_no_local=0
+MS time b32/d2 pair=new128/new64 us=83.744/83.648 ratio=0.9953 baseline_no_local=0
+MS time b32/d2 pair=stream/new128 us=83.360/45.488 ratio=0.5397 baseline_no_local=0
+MS stream b32/d2 us=45.488 job_TBps=3.734 unique_TBps=3.734
+MS fix b32/d2 arm=new64 clean=1
+MS fix b32/d2 arm=new128 clean=1
+MS gate bs=32 draws64/128/stream=3/3/3 new64/old=1.4871 new128/new64=1.0019 new128/old_fallback=nan/0 stream_TBps=3.721 stream_ge3.6=1 baseline_no_local=0 new64_le0.90=None new128_additional=None jobs_saved=0
+MS draw b128/d0 seed=2827104465878233812 routes=217 experts=23 max_tokens=68 jobs64/128=24/23 padded64/128=304/304 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=220.201/226.492/217.055 unique_MB_old/new=211.026/217.055
+MS check b128/d0 arm=old production_BF16_rel=1.8e-05
+MS check b128/d0 arm=new64 A_norm=560.7 boundary_splits=246 rel=1.04e-06 reference=raw_B_old
+MS check b128/d0 arm=new128 A_norm=560.7 boundary_splits=251 rel=1.07e-06 reference=raw_B_old
+MS time b128/d0 pair=new64/old us=74.208/118.480 ratio=1.5969 baseline_no_local=0
+MS time b128/d0 pair=new128/new64 us=117.984/114.768 ratio=0.9712 baseline_no_local=0
+MS time b128/d0 pair=stream/new128 us=114.672/56.208 ratio=0.4911 baseline_no_local=0
+MS stream b128/d0 us=56.208 job_TBps=3.862 unique_TBps=3.862
+MS fix b128/d0 arm=new64 clean=1
+MS fix b128/d0 arm=new128 clean=1
+MS draw b128/d1 seed=2827104465879233815 routes=200 experts=21 max_tokens=95 jobs64/128=22/21 padded64/128=296/296 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=201.851/207.618/198.181 unique_MB_old/new=192.676/198.181
+MS check b128/d1 arm=old production_BF16_rel=1.76e-05
+MS check b128/d1 arm=new64 A_norm=536.2 boundary_splits=252 rel=1.12e-06 reference=raw_B_old
+MS check b128/d1 arm=new128 A_norm=536.2 boundary_splits=248 rel=1.16e-06 reference=raw_B_old
+MS time b128/d1 pair=new64/old us=72.992/109.632 ratio=1.5035 baseline_no_local=0
+MS time b128/d1 pair=new128/new64 us=109.584/107.472 ratio=0.9787 baseline_no_local=0
+MS time b128/d1 pair=stream/new128 us=107.344/52.112 ratio=0.4894 baseline_no_local=0
+MS stream b128/d1 us=52.112 job_TBps=3.803 unique_TBps=3.803
+MS fix b128/d1 arm=new64 clean=1
+MS fix b128/d1 arm=new128 clean=1
+MS draw b128/d2 seed=2827104465880233818 routes=209 experts=28 max_tokens=29 jobs64/128=28/28 padded64/128=328/328 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=256.901/264.241/264.241 unique_MB_old/new=256.901/264.241
+MS check b128/d2 arm=old production_BF16_rel=1.25e-05
+MS check b128/d2 arm=new64 A_norm=545.5 boundary_splits=250 rel=9.43e-07 reference=raw_B_old
+MS check b128/d2 arm=new128 A_norm=545.5 boundary_splits=250 rel=9.43e-07 reference=raw_B_old
+MS time b128/d2 pair=new64/old us=87.568/128.448 ratio=1.4642 baseline_no_local=0
+MS time b128/d2 pair=new128/new64 us=128.576/127.936 ratio=0.9918 baseline_no_local=0
+MS time b128/d2 pair=stream/new128 us=128.224/66.560 ratio=0.5183 baseline_no_local=0
+MS stream b128/d2 us=66.560 job_TBps=3.970 unique_TBps=3.970
+MS fix b128/d2 arm=new64 clean=1
+MS fix b128/d2 arm=new128 clean=1
+MS gate bs=128 draws64/128/stream=3/3/3 new64/old=1.5035 new128/new64=0.9787 new128/old_fallback=nan/0 stream_TBps=3.862 stream_ge3.6=1 baseline_no_local=0 new64_le0.90=False new128_additional=True jobs_saved=2
+MS draw b256/d0 seed=2827189739240917158 routes=449 experts=25 max_tokens=144 jobs64/128=28/26 padded64/128=552/552 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=256.901/264.241/245.367 unique_MB_old/new=229.376/235.930
+MS check b256/d0 arm=old production_BF16_rel=1.14e-05
+MS check b256/d0 arm=new64 A_norm=807 boundary_splits=249 rel=1.06e-06 reference=raw_B_old
+MS check b256/d0 arm=new128 A_norm=807 boundary_splits=249 rel=1.1e-06 reference=raw_B_old
+MS time b256/d0 pair=new64/old us=92.192/145.328 ratio=1.5757 baseline_no_local=0
+MS time b256/d0 pair=new128/new64 us=145.136/141.296 ratio=0.9734 baseline_no_local=0
+MS time b256/d0 pair=stream/new128 us=141.840/62.672 ratio=0.4454 baseline_no_local=0
+MS stream b256/d0 us=62.672 job_TBps=3.915 unique_TBps=3.765
+MS fix b256/d0 arm=new64 clean=1
+MS fix b256/d0 arm=new128 clean=1
+MS draw b256/d1 seed=2827189739241917161 routes=448 experts=24 max_tokens=149 jobs64/128=26/25 padded64/128=528/528 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=238.551/245.367/235.930 unique_MB_old/new=220.201/226.492
+MS check b256/d1 arm=old production_BF16_rel=1.02e-05
+MS check b256/d1 arm=new64 A_norm=805 boundary_splits=247 rel=1.02e-06 reference=raw_B_old
+MS check b256/d1 arm=new128 A_norm=805 boundary_splits=255 rel=1.07e-06 reference=raw_B_old
+MS time b256/d1 pair=new64/old us=84.528/128.336 ratio=1.5152 baseline_no_local=0
+MS time b256/d1 pair=new128/new64 us=128.560/128.352 ratio=0.9988 baseline_no_local=0
+MS time b256/d1 pair=stream/new128 us=128.016/60.272 ratio=0.4769 baseline_no_local=0
+MS stream b256/d1 us=60.272 job_TBps=3.914 unique_TBps=3.758
+MS fix b256/d1 arm=new64 clean=1
+MS fix b256/d1 arm=new128 clean=1
+MS draw b256/d2 seed=2827189739242917164 routes=366 experts=27 max_tokens=163 jobs64/128=29/28 padded64/128=488/488 xB_offset_rows=6848 python_reserve=4160 job_MB_old/64/128=266.076/273.678/264.241 unique_MB_old/new=247.726/254.804
+MS check b256/d2 arm=old production_BF16_rel=1.08e-05
+MS check b256/d2 arm=new64 A_norm=726.6 boundary_splits=255 rel=1.03e-06 reference=raw_B_old
+MS check b256/d2 arm=new128 A_norm=726.6 boundary_splits=251 rel=1.08e-06 reference=raw_B_old
+MS time b256/d2 pair=new64/old us=93.232/145.824 ratio=1.5589 baseline_no_local=0
+MS time b256/d2 pair=new128/new64 us=145.744/141.888 ratio=0.9731 baseline_no_local=0
+MS time b256/d2 pair=stream/new128 us=141.760/66.128 ratio=0.4688 baseline_no_local=0
+MS stream b256/d2 us=66.128 job_TBps=3.996 unique_TBps=3.853
+MS fix b256/d2 arm=new64 clean=1
+MS fix b256/d2 arm=new128 clean=1
+MS gate bs=256 draws64/128/stream=3/3/3 new64/old=1.5589 new128/new64=0.9734 new128/old_fallback=nan/0 stream_TBps=3.915 stream_ge3.6=1 baseline_no_local=0 new64_le0.90=False new128_additional=True jobs_saved=4
+MS SUMMARY complete=1 errors=0 geometry=1 new_regs/local/smem/occ=[160, 0, 104064, 2] old=[96, 16, 231168, 1] baseline_no_local=0 bs:new64/old,new128/new64,TBps=32:1.4871,1.0019,3.721[3/3/3];128:1.5035,0.9787,3.862[3/3/3];256:1.5589,0.9734,3.915[3/3/3] seconds=102.8 default=keell_unchanged

@@ -1,0 +1,159 @@
+def 21.8 ag 1.64 tT 0.98
+V6|D|qkv_gate|160|def 23.5 ag 1.18 tT 0.97
+V6|D|qkv_gate|200|def 34.0 ag 1.04 tT 0.70
+V6|D|qkv_gate|255|def 24.3 ag 0.91 tT 1.04
+V6|D|o|129|def 12.3 nbol 1.79 ag 1.39 tT 1.01
+V6|D|o|160|def 11.6 nbol 1.83 ag 1.39 tT 1.01
+V6|D|o|200|def 12.7 nbol 1.57 ag 1.20 tT 0.97
+V6|D|o|255|def 13.5 nbol 1.22 ag 1.01 tT 0.99
+V6|D|pooler|129|def 28.2 ag 1.49 tT 0.95
+V6|D|pooler|160|def 30.0 ag 1.04 tT 1.00
+V6|D|pooler|200|def 34.6 ag 1.04 tT 1.02
+V6|D|pooler|255|def 37.3 ag 0.78 tT 1.00
+V6|D|unpooler|129|def 26.7 ag 1.77 tT 1.01
+V6|D|unpooler|160|def 25.4 ag 1.65 tT 0.95
+V6|D|unpooler|200|def 26.0 ag 1.33 tT 0.97
+V6|D|unpooler|255|def 29.0 ag 0.98 tT 0.99
+V6|D|router|129|def 15.5 v256 0.69
+V6|D|router|160|def 16.9 v256 0.63
+V6|D|router|200|def 16.8 v256 0.67
+V6|D|router|255|def 16.2 v256 0.70
+V6|D|qkv_gate|257|def 23.5 ag 2.62 tT 1.01
+V6|D|qkv_gate|300|def 26.7 ag 1.98 tT 0.96
+V6|D|qkv_gate|384|def 34.0 ag 1.14 tT 0.98
+V6|D|o|257|def 14.1 nbol 1.99 ag 1.50 tT 0.98
+V6|D|o|300|def 14.6 nbol 1.88 ag 1.45 tT 0.99
+V6|D|o|384|def 16.4 nbol 1.34 ag 1.13 tT 0.99
+V6|D|pooler|257|def 40.8 ag 1.95 tT 0.97
+V6|D|pooler|300|def 42.8 ag 1.66 tT 1.01
+V6|D|pooler|384|def 50.9 ag 0.99 tT 1.04
+V6|D|unpooler|257|def 30.0 ag 2.28 tT 1.01
+V6|D|unpooler|300|def 32.6 ag 1.84 tT 0.99
+V6|D|unpooler|384|def 39.6 ag 1.20 tT 0.99
+V6|SUM|qkv_gate|9-15:v16@0.76 17-31:rq32@0.77 40-42:rq128@0.96 45-52:rq128@0.96 54-127:rq128@0.84 148-149:tT@0.96 151-153:tT@0.96 157-157:tT@0.96 159-160:tT@0.97 162-162:tT@0.96 171-171:tT@0.96 176-176:ag@0.91 180-180:tT@0.94 183-183:tT@0.95 191-200:tT@0.76 214-214:tT@0.95 226-226:tT@0.96 232-232:ag@0.95 234-234:ag@0.96 239-239:tT@0.92 240-255:ag@0.92 266-266:tT@0.95 273-273:tT@0.92 300-300:tT@0.96 322-322:tT@0.94 326-326:tT@0.97 352-352:tT@0.85
+V6|SUM|o|17-31:v32@0.93 113-127:n128@0.94 168-169:tT@0.96 174-174:tT@0.97 176-176:tT@0.95 194-194:tT@0.97 205-205:tT@0.97 252-252:ag@0.96 253-253:tT@0.97 263-264:tT@0.96
+V6|SUM|pooler|17-31:v32@0.78 40-40:tT@0.96 48-48:tT@0.96 51-51:rq128@0.95 57-59:rq128@0.95 62-62:rq128@0.97 64-73:rq128@0.90 75-127:rq128@0.81 129-143:tT@0.94 153-153:ag@0.97 161-192:ag@0.86 208-255:ag@0.81 257-257:tT@0.97 261-261:tT@0.95 264-264:tT@0.97 277-277:tT@0.97 289-289:tT@0.96 291-291:tT@0.96 305-305:tT@0.96 307-307:tT@0.95 315-315:tT@0.89 319-319:tT@0.90 372-372:ag@0.97
+V6|SUM|unpooler|9-15:v16@0.80 17-31:v32@0.84 34-34:tT@0.97 38-39:tT@0.96 44-44:tT@0.97 47-47:tT@0.97 58-59:tT@0.97 64-64:tT@0.94 72-72:tT@0.96 76-76:tT@0.97 82-82:tT@0.96 85-85:tT@0.97 88-88:rq128@0.92 92-92:rq128@0.95 94-94:rq128@0.93 96-127:rq128@0.89 130-130:tT@0.96 132-132:tT@0.96 136-138:tT@0.95 140-140:tT@0.95 142-142:tT@0.97 146-146:tT@0.96 150-150:tT@0.96 152-152:tT@0.95 154-154:tT@0.95 156-156:tT@0.96 158-158:tT@0.95 160-160:tT@0.95 168-170:tT@0.94 172-191:tT@0.95 193-201:tT@0.96 203-207:tT@0.96 224-224:ag@0.89 225-225:tT@0.96 240-240:ag@0.80
+V6|SUM|router|2-7:n8@0.87 9-15:n16@0.86 17-31:n32@0.87 33-127:v128@0.64 129-255:v256@0.69
+V6|DONE|762 routes, 1738 cells timed, 0 skipped, 23.0 s
+DT build rq ok
+DT build rq16 ok
+DT build rq32 ok
+DT diag qkv:16 rq32 shape(16, 2304) base4.17e-03 row4.36e-03 ref3.82e-03 pad4.54e-03 old0 new1
+DT diag qkv:16 rq128 shape(16, 2304) base4.17e-03 row4.33e-03 ref3.84e-03 pad4.54e-03 old0 new1
+DT diag poo:16 rq128 shape(16, 4096) base3.54e-03 row3.64e-03 ref3.14e-03 pad3.34e-03 old0 new1
+DT diag unp:16 rq128 shape(16, 8192) base2.87e-03 row2.98e-03 ref2.46e-03 pad0.00e+00 old0 new1
+DT qkv:256 n256s5m1hzm-k7 21.79 21.73 0.997 0.994 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 n256s5m1hzmEH-k7 21.82 21.58 0.989 0.997 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:256 n256s4m1hzm-k7 21.76 21.79 1.001 1.004 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 tried 3 best n256s5m1hzmEH-k7 0.997
+DT qkv:32 t32s5curP-k7 14.40 13.70 0.951 0.962 e1 a1 b4.6e-03 r3.9e-03
+DT qkv:32 t32s6curP-k7 14.42 13.73 0.952 0.960 e1 a1 b4.5e-03 r3.8e-03
+DT qkv:32 t32s4curP-k7 14.27 13.82 0.969 0.971 e1 a0 b4.6e-03 r3.9e-03
+DT qkv:32 t32s7curP-k7 14.43 14.11 0.978 0.988 e1 a0 b4.5e-03 r3.8e-03
+DT qkv:32 t32s8curP-k7 14.38 14.18 0.986 0.992 e1 a0 b4.6e-03 r3.8e-03
+DT qkv:32 t32s4curPz-k7 14.43 13.66 0.947 0.956 e1 a1 b4.4e-03 r3.9e-03
+DT qkv:32 t32s4curW-k7 14.42 14.02 0.972 0.980 e1 a0 b4.4e-03 r3.8e-03
+DT qkv:32 t32s5curPz-k7 14.34 13.89 0.969 0.972 e1 a0 b4.6e-03 r3.8e-03
+DT qkv:32 t32s5curW-k7 14.34 13.79 0.962 0.970 e1 a0 b4.6e-03 r3.8e-03
+DT qkv:32 t32s6curPz-k7 14.34 13.76 0.960 0.968 e1 a0 b4.4e-03 r3.9e-03
+DT qkv:32 t32s6curW-k7 14.37 13.89 0.967 0.974 e1 a0 b4.4e-03 r3.8e-03
+DT qkv:32 t32s5curP-k6 14.37 13.73 0.955 0.959 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s6curP-k6 14.34 13.65 0.952 0.959 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s4curP-k6 14.38 14.14 0.983 0.991 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s7curP-k6 14.34 13.92 0.971 0.975 e1 a0 b5.3e-03 r3.6e-03
+DT qkv:32 t32s8curP-k6 14.34 14.21 0.991 1.000 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s4curPz-k6 14.40 14.05 0.976 0.979 e1 a0 b5.3e-03 r3.6e-03
+DT qkv:32 t32s4curW-k6 14.30 14.24 0.996 0.999 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s5curPz-k6 14.40 13.79 0.958 0.962 e1 a0 b5.3e-03 r3.6e-03
+DT qkv:32 t32s5curW-k6 14.34 13.92 0.971 0.971 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 t32s6curPz-k6 14.40 13.76 0.956 0.965 e1 a0 b5.3e-03 r3.6e-03
+DT qkv:32 t32s6curW-k6 14.34 13.92 0.971 0.977 e1 a0 b5.3e-03 r3.7e-03
+DT qkv:32 tried 24 best t32s4curPz-k7 0.956
+DT qkv:32 keep-t32s4curPz-k7 14.18 13.70 0.966 0.971 e1 a1
+DT poo:32 t32s5curP-k4 19.10 18.66 0.977 0.980 e1 a1 b3.5e-03 r3.2e-03
+DT poo:32 t32s6curP-k4 19.10 18.90 0.989 0.993 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s4curP-k4 19.17 19.20 1.002 1.007 e1 a0 b3.6e-03 r3.2e-03
+DT poo:32 t32s7curP-k4 19.12 18.78 0.982 0.987 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s8curP-k4 19.07 19.14 1.003 1.002 e1 a0 b3.6e-03 r3.2e-03
+DT poo:32 t32s4curW-k4 19.10 19.04 0.997 1.001 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s5curPz-k4 19.09 18.88 0.989 0.995 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s5curW-k4 19.18 18.82 0.981 0.990 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s6curPz-k4 19.10 18.91 0.990 0.994 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s6curW-k4 19.14 18.80 0.982 0.991 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 t32s5curP-k3 19.10 18.56 0.972 0.972 e1 a1 b3.3e-03 r2.9e-03
+DT poo:32 t32s6curP-k3 19.04 18.30 0.961 0.967 e1 a1 b3.3e-03 r2.9e-03
+DT poo:32 t32s7curP-k3 19.01 18.51 0.974 0.972 e1 a0 b3.3e-03 r2.9e-03
+DT poo:32 t32s8curP-k3 19.07 19.09 1.001 1.009 e1 a0 b3.3e-03 r2.9e-03
+DT poo:32 t32s5curW-k3 19.07 18.75 0.983 0.985 e1 a0 b3.3e-03 r2.9e-03
+DT poo:32 t32s6curPz-k3 19.07 18.78 0.985 0.983 e1 a0 b3.3e-03 r2.9e-03
+DT poo:32 t32s6curW-k3 19.07 18.66 0.978 0.983 e1 a0 b3.2e-03 r2.9e-03
+DT poo:32 tried 24 best t32s6curP-k3 0.967
+DT poo:32 keep-t32s6curP-k3 18.80 18.46 0.982 0.988 e1 a1
+DT unp:32 t32s5curP-k2 18.83 18.53 0.984 0.988 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s6curP-k2 18.75 18.72 0.998 1.007 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s4curP-k2 18.78 18.94 1.009 1.016 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s7curP-k2 18.75 18.88 1.007 1.014 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s8curP-k2 18.82 19.10 1.015 1.019 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s4curW-k2 18.83 18.98 1.008 1.016 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s5curPz-k2 18.88 19.04 1.008 1.013 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s5curW-k2 18.78 18.72 0.997 1.004 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s6curPz-k2 18.91 18.83 0.996 1.000 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 t32s6curW-k2 18.82 18.78 0.998 1.004 e1 a0 b2.9e-03 r2.4e-03
+DT unp:32 tried 12 best t32s5curP-k2 0.988
+DT o:32 tried 24 best t32s5curP-k2 1.038
+DT qkv:16 t16s4curP-k7 13.66 13.34 0.977 0.986 e1 a1 b4.2e-03 r3.9e-03
+DT qkv:16 t16s5curP-k7 13.60 13.47 0.991 0.996 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s6curP-k7 13.63 13.34 0.979 0.988 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s7curP-k7 13.60 13.47 0.991 0.999 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:16 t16s4curPz-k7 13.55 13.38 0.987 0.997 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:16 t16s4curW-k7 13.58 13.57 0.999 1.004 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s5curPz-k7 13.49 13.31 0.987 0.988 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s5curW-k7 13.63 13.54 0.993 1.001 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s6curPz-k7 13.47 13.36 0.992 0.998 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s6curW-k7 13.52 13.54 1.001 1.005 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s4curP-k6 13.55 13.74 1.014 1.019 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:16 t16s5curP-k6 13.60 13.47 0.991 1.003 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:16 t16s6curP-k6 13.60 13.47 0.991 0.997 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s7curP-k6 13.58 13.47 0.992 1.005 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:16 t16s8curP-k6 13.60 13.71 1.008 1.011 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s4curPz-k6 13.63 13.66 1.002 1.013 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s4curW-k6 13.60 13.73 1.009 1.016 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:16 t16s5curPz-k6 13.60 13.41 0.986 0.990 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s5curW-k6 13.65 13.57 0.994 1.004 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s6curPz-k6 13.55 13.44 0.992 0.995 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:16 t16s6curW-k6 13.63 13.44 0.986 0.989 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:16 tried 24 best t16s4curP-k7 0.986
+DT qkv:16 keep-t16s4curP-k7 13.60 13.39 0.985 0.991 e1 a0
+DT poo:16 tried 24 best t16s6curW-k3 1.028
+DT unp:16 t16s6curP-k2 18.03 18.37 1.019 0.995 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 tried 12 best t16s6curP-k2 1.019
+DT o:16 tried 24 best t16s5curP-k2 1.033
+DT qkv:8 t16s4curP-k7 13.39 13.38 0.999 1.004 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s5curP-k7 13.38 13.44 1.005 1.012 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s6curP-k7 13.49 13.41 0.994 1.005 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s4curPz-k7 13.42 13.34 0.994 1.000 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s5curPz-k7 13.38 13.47 1.007 1.013 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s5curW-k7 13.39 13.41 1.001 1.010 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:8 t16s6curPz-k7 13.41 13.50 1.007 1.016 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s6curW-k7 13.44 13.55 1.008 1.013 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s5curP-k6 13.47 13.60 1.010 1.015 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:8 t16s6curP-k6 13.38 13.50 1.010 1.015 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:8 t16s4curPz-k6 13.38 13.50 1.010 1.015 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:8 t16s5curPz-k6 13.39 13.41 1.001 1.014 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:8 t16s5curW-k6 13.47 13.49 1.001 1.006 e1 a0 b4.0e-03 r3.7e-03
+DT qkv:8 t16s6curPz-k6 13.44 13.38 0.995 1.003 e1 a0 b4.0e-03 r3.6e-03
+DT qkv:8 tried 24 best t16s4curPz-k7 1.000
+DT poo:8 t16s5curP-k3 18.06 18.37 1.017 1.011 e1 a0 b3.3e-03 r2.9e-03
+DT poo:8 tried 24 best t16s5curP-k3 1.017
+DT unp:8 tried 23 best t16s3curP-k16 1.026
+DT o:8 tried 24 best t16s6curP-k2 1.040
+DT qkv:1 t16s4curP-k7 13.02 13.22 1.015 1.019 e1 a0 b4.3e-03 r3.9e-03
+DT qkv:1 t16s5curP-k7 13.09 13.12 1.002 1.012 e1 a0 b4.3e-03 r3.9e-03
+DT qkv:1 t16s4curPz-k7 13.09 13.23 1.011 1.017 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:1 t16s5curPz-k7 13.12 13.15 1.002 1.011 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:1 tried 24 best t16s5curPz-k7 1.011
+DT poo:1 tried 24 best t16s6curPz-k3 1.054
+DT unp:1 tried 23 best t16s4curPz-k16 1.103
+DT o:1 tried 24 best t16s4curPz-k2 1.069
+DT done 17/17 10.1s adopted 2: poo:32=arm('pooler', 32, 't32s6curP-k3') qkv:32=arm('qkv_gate', 32, 't32s4curPz-k7')

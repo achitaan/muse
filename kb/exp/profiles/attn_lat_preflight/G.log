@@ -1,0 +1,145 @@
+device-preflight.cu(2402): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(2473): warning #177-D: variable "w0g_rank" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+        ^
+
+device-preflight.cu(2473): warning #177-D: variable "w0g_par" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                      ^
+
+device-preflight.cu(2473): warning #177-D: variable "w0g_gen" was declared but never referenced
+    int w0g_rank = 2, w0g_par = 0, w0g_gen = 0;
+                                   ^
+
+device-preflight.cu(2474): warning #177-D: variable "w0_smid" was declared but never referenced
+    unsigned w0_smid = 0;
+             ^
+
+device-preflight.cu(2475): warning #177-D: variable "w0_rank" was declared but never referenced
+    int w0_rank = 0;
+        ^
+
+device-preflight.cu(685): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(577): warning #607-D: this pragma must immediately precede a statement
+  #pragma unroll 1
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(557): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1741): warning #177-D: variable "V16t" was declared but never referenced
+      uint8_t* V16t = V16 + 0;   // PV reads it asynchronously: double buffer
+               ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1610): warning #177-D: variable "thr" was declared but never referenced
+    float thr[2] = {0.f, 0.f};
+          ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1620): warning #177-D: variable "ckey" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+              ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1620): warning #177-D: variable "cq" was declared but never referenced
+    const int ckey = tid >> 2, cq = tid & 3;   // V conversion: key, two 16-byte chunks
+                               ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1663): warning #177-D: variable "i_lo" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+             ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1663): warning #177-D: variable "i_span" was declared but never referenced
+    uint32_t i_lo = 0, i_span = 0;
+                       ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1682): warning #177-D: variable "i_cur" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+        ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(1682): warning #177-D: variable "cnt2" was declared but never referenced
+    int i_cur = 0, cnt2 = 0;   // F2: this warpgroup's claimed tile, and how many it has taken
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=false, MODE=11]" 
+
+device-preflight.cu(26): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+device-preflight.cu(40): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+
+device-preflight.cu(133): warning #177-D: function "<unnamed>::bar_sync_n" was declared but never referenced
+  __device__ __forceinline__ void bar_sync_n(int id, int n) { asm volatile("bar.sync %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(134): warning #177-D: function "<unnamed>::bar_arrive_n" was declared but never referenced
+  __device__ __forceinline__ void bar_arrive_n(int id, int n) { asm volatile("bar.arrive %0, %1;\n" ::"r"(id), "r"(n) : "memory"); }
+                                  ^
+
+device-preflight.cu(171): warning #177-D: function "<unnamed>::ex2h2" was declared but never referenced
+  __device__ __forceinline__ uint32_t ex2h2(float lo, float hi) {
+                                      ^
+
+device-preflight.cu(263): warning #177-D: function "<unnamed>::desc_sw128" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw128(uint32_t addr) {
+                                      ^
+
+device-preflight.cu(267): warning #177-D: function "<unnamed>::wgmma_m64n64k32_e4m3" was declared but never referenced
+  __device__ __forceinline__ void wgmma_m64n64k32_e4m3(float* d, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3,
+                                  ^
+
+device-preflight.cu(299): warning #177-D: function "<unnamed>::desc_sw64" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_sw64(uint32_t addr) {
+                                      ^
+
+device-preflight.cu(407): warning #177-D: function "<unnamed>::cl_gid" was declared but never referenced
+  __device__ __forceinline__ int cl_gid(const Params& p) {
+                                 ^
+
+ptxas info    : 118 bytes gmem
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi9EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi9EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 116 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 120 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi13EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi13EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 102 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi11EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_4721211attn_kernelILi1ELb0ELi11EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 129 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _ZN56_INTERNAL_00000000_19_device_preflight_cu_45da949a_4721258_GLOBAL__N__00000000_19_device_preflight_cu_45da949a_472129spin_failEv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
