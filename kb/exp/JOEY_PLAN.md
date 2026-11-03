@@ -1,4 +1,4 @@
-﻿# achitaan: Decode plan to match/beat joeyhlu (2.3569) - branch argon/decode-20261103
+# achitaan: Decode plan to match/beat joeyhlu (2.3569) - branch argon/decode-20261103
 
 ## Hints received (verbatim, Nov 3) - no more info will come
 Engines by token count (T = batch x 8 draft tokens for verify):
@@ -73,7 +73,12 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | 3 | A VMS/VML | 4c5b2777 (commit bc2a25a) | it1 best 93.1 vs 92 us (tie); fin +2 us (full-K B); fin+tail = the 2x; prefetch irrelevant; codes 4.000 b (incompressible), scales 0.232 vs 0.5 b/value | iter 4 |
 | 4 | A VMS/VML | c5800fa6 (commit ddb74e8) | pending: stream-only/math-only diag, it1+fin2 (2-step finalizer), w16 (16 warps), r4 (4-slot ring) | - |
 | B1 | B Dense GEMVs in Decode | b0caa4c9 (e31cd51) | prepare failed: comment trim removed a patch anchor | fixed d2d2c48 |
-| B1b | B Dense GEMVs in Decode | 8ffd6871 (d2d2c48) | pending | - |
+| 4 | A VMS/VML | c5800fa6 (ddb74e8) | bs16 best r4+fin2 94.1 vs 98.6 us: median 0.955 but paired 0.993 (not adopted); bs32 none. Diag: neither stream- nor math-bound (A 68.5 vs stream 61.1 / math 56.5) -> overlap loss | iter 5 |
+| A-D | VMS in Decode T=16 | 482a22e2 (ceb0264) | all 4 arms 1.008-1.016 SLOWER in the full layer: MoE-board edge does not transfer | parked unless board <= 0.90 |
+| B1b | B Dense GEMVs in Decode | 8ffd6871 | all arms 0.99-1.025, adopted 0: CLOSED (decode sk2 already pre-issues weights under PDL) | - |
+| TL | timeline T=1/8 | 8ab7e4a3 (0f9f233) | d1S 64.1 us for 164 MB; kernels sum 78.9 (PDL overlap 15.4); excess: attn +6.8 route +5.2 fin +3.6; pre-wait streaming control 78.1 -> 48.7 us | -> PCX deep pre-wait |
+| PCX | deep pre-wait staging (P=4/NSTAGE, early trigger) T=1/8/16 | b91d6914 (f0861a6) | pending | - |
+| 5 | A VMS iter 5 (18 KiB slots d6/d8, register ping-pong, 4-lane producer) | adbd3ba4 (47b6071) | pending | - |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
 Source: user's Codex prompt. Items to look into (offline first, no GPU spend):

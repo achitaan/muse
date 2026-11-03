@@ -47,7 +47,8 @@ attention KS1/KS3/HYA/AX1. His component boards are below ours, so his edge live
 |---|---|---|---|
 | A | VMS/VML: own MoE engine at T=16/32 (oracle design, kb/exp/VMS_BRIEF.md) | kb/exp/moe_vms4.py | iter1 tie (93 vs 92 us); iter2 2x slower (tail split); iter3 ablation; iter4 bound diagnosis c5800fa6 pending |
 | A->Decode | wire VMS into Decode T=16/32 with full-layer gate | kb/exp/decode_vms.py | ready, waits for a MoE-board win; todo PDL-attach stage A |
-| B | Dense-board GEMVs (cgemv m1, gv m8/16) in Decode for qkv/o/unpooler | kb/exp/decode_gd.py | 8ffd6871 pending (first run hit a patch-anchor bug) |
+| B | Dense-board GEMVs in Decode | kb/exp/decode_gd.py | CLOSED: 8ffd6871 all arms 0.99-1.025 |
+| PCX | deep pre-wait weight staging + early triggers at T=1/8/16 (timeline 8ab7e4a3 motivated) | kb/exp/decode_pcx.py | b91d6914 pending |
 | Predictor | offline ranking/"chase" with muse_score | kb/predict/ | agent running |
 Queued: A2 VML at 32, C boundary-glue at 16 (8.6 us), D T=8 variant, E lossless scale coding (scales 0.232 vs 0.5 bit/value; codes incompressible).
 
