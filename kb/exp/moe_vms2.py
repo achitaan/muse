@@ -7504,8 +7504,8 @@ void vms_run(torch::Tensor wA, torch::Tensor wB, torch::Tensor gsA, torch::Tenso
 VMS_CPP = r'''
 #include <torch/extension.h>
 void vms_run(torch::Tensor wA, torch::Tensor wB, torch::Tensor gsA, torch::Tensor gsB, torch::Tensor normw,
-             torch::Tensor x, torch::Tensor ids, torch::Tensor tw, torch::Tensor inter, torch::Tensor part,
-             torch::Tensor rtpos, torch::Tensor err, torch::Tensor out, int64_t lo, int64_t nloc, int64_t grid,
+             torch::Tensor x, torch::Tensor ids, torch::Tensor tw, torch::Tensor inter, torch::Tensor ybuf,
+             torch::Tensor ssq, torch::Tensor pbuf, torch::Tensor cnt, torch::Tensor rtpos, torch::Tensor err, torch::Tensor out, int64_t lo, int64_t nloc, int64_t grid,
              int64_t mode);
 std::vector<int64_t> vms_attrs();
 '''
