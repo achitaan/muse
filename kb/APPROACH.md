@@ -60,7 +60,8 @@ every failure is informative (each check prints its own attribution: phases, byt
 ## 4. Current bets, ranked by potential (update after every result)
 | # | Bet | Shapes | Pool (us) | Max bp | Status |
 |---|---|---|---|---|---|
-| 0 | **Boundary glue (residual+RMSNorm) at T>=8**: measured ceiling 2.317 (385183f9); coarsened kernels building | v1, d16, d32, v16, v32 | 4-18 per layer (measured) | ~360 | N3b check 32120a38 |
+| 0 | ~~Boundary glue~~: ceiling inflated by a routing artifact; faster kernel bit-exact but no gain (closed) | | | | |
+| 0b | **MoE at T=1/8** (TINY/TINY2 run ~2.5 TB/s; MoE board bs1 2.2x SOL) | d1S/F, v1S/F (+ MoE board) | ~8-12 at d1 (est.) | ~150-250 | screen 62adc58a |
 | 1 | ~~Layer stream at T=1/8~~ (timeline + PCX: no exposed gap, closed): one persistent pipeline for the small-T layer (pooler+router -> route -> MoE -> unpooler -> boundary, then qkv/o), where weight streaming for the next stage starts while the current stage computes; no per-kernel ramp | d1S/F, v1S/F | ~15-25 per layer (est.) | ~300-450 | timeline diagnostic first |
 | 2 | VMS/VML small-batch MoE engine | d16, d32 (+ MoE board) | 10-20 | ~100-150 | iterating (iter 4 diagnosis) |
 | 3 | Dense-board GEMVs in Decode (FP32 reduction) | d1, v1, d16 | 2.4-4.4 | ~80-110 | check running |
