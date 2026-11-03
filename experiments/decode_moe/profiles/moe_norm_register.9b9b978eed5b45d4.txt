@@ -1,0 +1,47 @@
+okc run 9b9b978eed5b45d4 on muse_moe_w4a16
+submission  /mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.slim/worktrees/decode-moe-plan/experiments/decode_moe/moe_norm_register.py
+status      ok
+passed      true
+speedup     2.3421325305245366
+speedup_ci  [2.3070005425666684 2.3772645184824044]
+score_us    5741.989330120493
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               78.77      25.51   3.087x      11.42  
+bs=16 load=decode 16 sharding=ep8                            195.57      98.43   1.987x      52.52  
+bs=32 load=decode 32 sharding=ep8                            208.16     127.61   1.631x      70.76  
+bs=8 load=verify 1 sharding=ep8                              144.00      64.31   2.239x      37.32  
+bs=128 load=verify 16 sharding=ep8                           478.26     185.22   2.582x     101.34  
+bs=256 load=verify 32 sharding=ep8                           621.54     217.79   2.854x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           22.8 µs 100.0%      1
+total                                                             22.8 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           93.2 µs 100.0%      1
+total                                                             93.2 µs
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                          111.4 µs 100.0%      1
+total                                                            111.4 µs
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           50.1 µs 100.0%      1
+total                                                             50.1 µs
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           172.3 µs 100.0%      1
+total                                                            172.3 µs
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           191.5 µs 100.0%      1
+total                                                            191.5 µs

@@ -1,0 +1,20 @@
+NC1_RESOURCES [128, 0, 0, 67584, 256, 2, 89, 0, 0, 58368, 128, 3]
+NC1_BYTES_PASS spec_one_L1 1 10 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 2047 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 8192 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 63 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 80000 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 80000 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_TIMES spec_one_L1 1 80000 False ('parent', 'candidate') {'parent': 8.767999708652496, 'candidate': 8.511999621987343}
+NC1_TIMES spec_one_L1 1 80000 False ('candidate', 'parent') {'candidate': 8.799999952316284, 'parent': 8.671999908983707}
+NC1_TIMES spec_one_L1 1 80000 True ('parent', 'candidate') {'parent': 8.799999952316284, 'candidate': 8.767999708652496}
+NC1_TIMES spec_one_L1 1 80000 True ('candidate', 'parent') {'candidate': 8.608000352978706, 'parent': 8.86400043964386}
+NC1_TIMES spec_one_L1 1 8192 False ('parent', 'candidate') {'parent': 8.767999708652496, 'candidate': 8.576000109314919}
+NC1_TIMES spec_one_L1 1 8192 False ('candidate', 'parent') {'candidate': 8.736000396311283, 'parent': 8.736000396311283}
+NC1_TIMES spec_one_L1 1 8192 True ('parent', 'candidate') {'parent': 8.608000352978706, 'candidate': 8.767999708652496}
+NC1_TIMES spec_one_L1 1 8192 True ('candidate', 'parent') {'candidate': 8.608000352978706, 'parent': 8.86400043964386}
+NC1_SELECT spec_one_L1 False
+NC1_BYTES_PASS flat_L1 2 129 64 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS flat_L1 3 4096 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_FAIL flat_L1 parent_repeat 2 [1, 0, 0]
+NC1_DONE 46.8110709169996 []

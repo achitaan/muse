@@ -1,0 +1,6 @@
+NC1_RESOURCES [128, 0, 0, 67584, 256, 2, 89, 0, 0, 58368, 128, 3]
+NC1_BYTES_PASS spec_one_L1 1 10 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 2047 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_BYTES_PASS spec_one_L1 1 8192 1 three_changing_inputs;output_and_entire_cache_bytes
+NC1_ERROR RuntimeError('nc1 diagnostic did not select its screened entry')
+NC1_DONE 47.518447650945745 []
