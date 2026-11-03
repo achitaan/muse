@@ -1,0 +1,57 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 140s
+BUILD pw57_flush 30.4s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.47 us   0.67 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.36 us   0.86 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.44 us   1.78 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.02 us   1.68 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.50 us two_node 5.09 us overhead 3.90 us
+PREP rq thread ready at 76s (bake starts at 171s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.77 at 171s
+BAKE qkv_gate m=128 rq:d2s5hze 15.62 (ratio 1.3276 vs r6 20.77) at 171s
+BAKE qkv_gate m=128 rq:d2s5hzwP 16.36 (ratio 0.9777 vs rq:d2s5hze 15.62) at 171s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.94 (ratio 1.0318 vs rq:d2s5hze 15.62) at 171s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.23 (ratio 0.9935 vs rq:d2s5hze 15.62) at 171s
+BAKE qkv_gate m=128 rq:d2s6hze 16.58 (ratio 0.9844 vs rq:d2s5hze 15.62) at 171s
+PICK qkv_gate m=128 rq:s4s5hzw 15.14 (ref rq:d2s5hze 15.62)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 0.9777)
+BAKE qkv_gate m=256 r6 22.66 at 171s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.45 (ratio 1.0802 vs r6 22.66) at 171s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.76 (ratio 0.9999 vs rq:n256s5m1hzmEH 21.45) at 171s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.45 (ref rq:n256s5m1hzmEH 21.45)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.04 at 171s
+BAKE unpooler m=128 rq:d2s5hze 20.29 (ratio 1.1700 vs r6 23.04) at 171s
+BAKE unpooler m=128 rq:d2s5hzwP 20.70 (ratio 1.0572 vs rq:d2s5hze 20.29) at 171s
+BAKE unpooler m=128 rq:s4s5hzw 21.43 (ratio 1.0227 vs rq:d2s5hze 20.29) at 171s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.58 (ratio 1.0144 vs rq:d2s5hze 20.29) at 171s
+BAKE unpooler m=128 rq:s4s5hze 21.97 (ratio 0.9963 vs rq:d2s5hze 20.29) at 171s
+BAKE unpooler m=128 rq:d2s6hze 21.90 (ratio 0.9936 vs rq:d2s5hze 20.29) at 171s
+PICK unpooler m=128 rq:d2s5hzwP 19.20 (ref rq:d2s5hze 20.29)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0572)
+BAKE unpooler m=256 r6 27.97 at 171s
+PICK unpooler m=256 r6 27.97 (ref r6 27.97)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 171s
+WGS_INFO base_prepare_s=170.9 lineage=ff8f8f9c read_flush_MiB=512 hardcoded_tables arms=[(128, 'fit'), (128, 'half'), (256, 'fit'), (256, 'half')] min_model_gain_us=2.0
+WGS_INCUMBENT NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0]
+WGS_CAND T=128 arm=fit NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=128 arm=half NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=256 arm=fit NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_CAND T=256 arm=half NVRTC_regs_stack_spillStore_spillLoad=(96, 16, 32, 92) attrs=[96, 0, 0, 96, 0, 0] footprint_ok=1
+WGS_GATE T=128 sliding=1 arm=fit pass=1 old_us=nan new_us=nan median=nan paired=nan correct=0 isolated_moe_error=(0.00023726410290692002, 0.000998408650048077) passed=0 reps=0
+WGS_GATE T=128 sliding=1 arm=half pass=1 old_us=nan new_us=nan median=nan paired=nan correct=0 isolated_moe_error=(0.00023852144659031183, 0.0009115454740822315) passed=0 reps=0
+WGS_NONE T=128 fallback=incumbent
+WGS_GATE T=256 sliding=1 arm=fit pass=1 old_us=nan new_us=nan median=nan paired=nan correct=0 isolated_moe_error=(0.00022516664466820657, 0.0011597174452617764) passed=0 reps=0
+WGS_GATE T=256 sliding=1 arm=half pass=1 old_us=nan new_us=nan median=nan paired=nan correct=0 isolated_moe_error=(0.00021876049868296832, 0.001159701612778008) passed=0 reps=0
+WGS_NONE T=256 fallback=incumbent
+WGS_TABLE T=128 arm=fit median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:nan/nan!
+WGS_TABLE T=128 arm=half median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:nan/nan!
+WGS_TABLE T=256 arm=fit median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:nan/nan!
+WGS_TABLE T=256 arm=half median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:nan/nan!
+WGS_DONE total_prepare_s=171.0 adopted_T=[]

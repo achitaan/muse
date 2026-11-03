@@ -1,0 +1,115 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 106s
+BUILD pw57_flush 29.6s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.18 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.55 us   0.83 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.30 us   1.63 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.18 us   1.65 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.62 us two_node 5.42 us overhead 3.82 us
+PREP rq thread ready at 46s (bake starts at 135s)
+BAKE rq qkv_gate esc2 slots max=2 ok
+BAKE qkv_gate m=128 r6 20.58 at 135s
+BAKE qkv_gate m=128 rq:d2s5hze 15.88 (ratio 1.2994 vs r6 20.58) at 135s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.65 (ratio 1.0326 vs rq:d2s5hze 15.88) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.72 (ratio 1.0383 vs rq:d2s5hze 15.88) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.31 (ratio 0.9987 vs rq:d2s5hze 15.88) at 135s
+BAKE qkv_gate m=128 rq:d2s6hze 16.58 (ratio 0.9827 vs rq:d2s5hze 15.88) at 135s
+PICK qkv_gate m=128 rq:s4s5hzw 15.30 (ref rq:d2s5hze 15.88)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0326)
+BAKE qkv_gate m=256 r6 22.85 at 135s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.40 (ratio 1.0826 vs r6 22.85) at 135s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.56 (ratio 0.9928 vs rq:n256s5m1hzmEH 21.40) at 135s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.40 (ref rq:n256s5m1hzmEH 21.40)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.30 at 135s
+BAKE unpooler m=128 rq:d2s5hze 20.90 (ratio 1.1421 vs r6 23.30) at 135s
+BAKE unpooler m=128 rq:d2s5hzwP 20.56 (ratio 1.0586 vs rq:d2s5hze 20.90) at 135s
+BAKE unpooler m=128 rq:s4s5hzw 21.23 (ratio 1.0158 vs rq:d2s5hze 20.90) at 135s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.72 (ratio 1.0108 vs rq:d2s5hze 20.90) at 135s
+BAKE unpooler m=128 rq:s4s5hze 21.51 (ratio 1.0147 vs rq:d2s5hze 20.90) at 135s
+BAKE unpooler m=128 rq:d2s6hze 21.92 (ratio 1.0000 vs rq:d2s5hze 20.90) at 135s
+PICK unpooler m=128 rq:d2s5hzwP 19.75 (ref rq:d2s5hze 20.90)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0586)
+BAKE unpooler m=256 r6 28.03 at 135s
+PICK unpooler m=256 r6 28.03 (ref r6 28.03)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 135s
+[mfab] layer prepare done at 135s
+[mfab] moe T= 32 prod median   146.4 us  speedup vs barrier twin (twin without SC6) 1.0259 (per seed 1.020 1.019 1.026 1.027)  max|d| 0
+[mfab] moe T=128 prod median   193.3 us  speedup vs barrier twin (twin without SC6) 1.0256 (per seed 1.023 1.021 1.027 1.026)  max|d| 0
+[mfab] moe T=256 prod median   225.3 us  speedup vs barrier twin (twin without SC6) 1.0118 (per seed 1.012 1.005 1.003 1.018)  max|d| 0
+BND_INFO base_prepare_s=135.8 read_flush_MiB=512 adopt_ratio<=0.988 passes=2 blocks=12 tokens=(256, 128, 16, 8, 32) compose_graft={1: True, 8: True, 16: True, 32: True, 128: True, 256: True}
+BND_COMPILE s=7.0
+BND_EQ T=256 b1 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=256 b1 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=256 b2 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=256 b2 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_ISO T=256 b1 incumbent_us=11.36 new_us=11.84 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_ISO T=256 b2 incumbent_us=11.50 new_us=11.78 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_EQUIV T=256 ok=1 max_abs_diff=0.000e+00 max_rel_l2=0.00e+00
+BND_EQ T=128 b1 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=128 b1 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=128 b2 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=128 b2 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_ISO T=128 b1 incumbent_us=8.93 new_us=9.12 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_ISO T=128 b2 incumbent_us=9.04 new_us=9.23 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_EQUIV T=128 ok=1 max_abs_diff=0.000e+00 max_rel_l2=0.00e+00
+BND_EQ T=16 b1 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=16 b1 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=16 b2 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=16 b2 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_ISO T=16 b1 incumbent_us=7.74 new_us=7.74 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_ISO T=16 b2 incumbent_us=7.90 new_us=7.79 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_EQUIV T=16 ok=1 max_abs_diff=0.000e+00 max_rel_l2=0.00e+00
+BND_EQ T=8 b1x trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=8 b1x trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=8 b1x trial=0 tail bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=8 b1x trial=0 hr bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_ISO T=8 b1x incumbent_us=7.74 new_us=8.06 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_EQUIV T=8 ok=1 max_abs_diff=0.000e+00 max_rel_l2=0.00e+00
+BND_EQ T=32 b1 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=32 b1 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=32 b2 trial=0 h bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_EQ T=32 b2 trial=0 s1 bit_equal=1 max_abs_diff=0.000e+00 rel_l2=0.00e+00
+BND_ISO T=32 b1 incumbent_us=7.78 new_us=8.02 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_ISO T=32 b2 incumbent_us=7.84 new_us=8.26 (one launch per graph, fixed graph cost on both sides, read flush)
+BND_EQUIV T=32 ok=1 max_abs_diff=0.000e+00 max_rel_l2=0.00e+00
+BND_GATE T=256 S1 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=1.0e-01 update_l2=1.5e-01
+BND_GATE T=256 F1 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=1.2e-01 update_l2=1.8e-01
+BND_GATE T=256 S2 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=9.0e-02 update_l2=1.4e-01
+BND_GATE T=256 F2 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=1.1e-01 update_l2=1.8e-01
+BND_GATE T=128 S1 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=1.0e-01 update_l2=1.6e-01
+BND_GATE T=128 F1 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=1.4e-01 update_l2=2.2e-01
+BND_GATE T=128 S2 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=6.9e-02 update_l2=1.1e-01
+BND_GATE T=128 F2 old=nan new=nan med=nan pair=nan ok=0 base_self=0 ids_equal=0 cache_equal=0 upstream_bits=0 hidden_l2=4.8e-02 update_l2=8.1e-02
+BND_GATE T=16 S1 old=130.51 new=130.22 med=0.9978 pair=0.9958 ok=1 base_self=1
+BND_GATE T=16 F1 old=221.74 new=220.56 med=0.9947 pair=0.9937 ok=1 base_self=1
+BND_GATE T=16 S2 old=124.54 new=123.52 med=0.9918 pair=0.9901 ok=1 base_self=1
+BND_GATE T=16 F2 old=203.63 new=203.23 med=0.9980 pair=0.9978 ok=1 base_self=1
+BND_GATE T=8 S1 old=112.40 new=111.90 med=0.9956 pair=0.9972 ok=1 base_self=1
+BND_GATE T=8 F1 old=127.81 new=127.98 med=1.0014 pair=1.0047 ok=1 base_self=1
+BND_GATE T=8 S2 old=105.65 new=105.76 med=1.0011 pair=1.0001 ok=1 base_self=1
+BND_GATE T=8 F2 old=127.78 new=128.74 med=1.0075 pair=1.0083 ok=1 base_self=1
+BND_GATE T=32 S1 old=173.06 new=174.24 med=1.0068 pair=1.0065 ok=1 base_self=1
+BND_GATE T=32 F1 old=329.23 new=331.54 med=1.0070 pair=1.0066 ok=1 base_self=1
+BND_GATE T=32 S2 old=165.31 new=165.97 med=1.0040 pair=1.0037 ok=1 base_self=1
+BND_GATE T=32 F2 old=332.26 new=333.54 med=1.0039 pair=1.0041 ok=1 base_self=1
+BND_FOOTPRINT offline NVRTC 13.0 sm_90a --fmad=false (ptxas -v): threads/CTA, registers/thread, spills, static smem, CTAs/SM allowed by registers:
+  bnd_row<32,*> (T=128)  256 thr 128 regs 0 spill 256 B smem  2 CTAs/SM   bnd_row<16,*> (T=256)  256 thr 128 regs 0 spill 128 B smem  2 CTAs/SM
+  bnd_cl4<0|1> (T=16/32) 128 thr  92 regs 0 spill 256 B smem  5 CTAs/SM   bnd_cl4<2> (T=8, b1x)   128 thr 128 regs 0 spill 512 B smem  4 CTAs/SM
+BND_VERDICT T=256 v32 adopt=0 S1:nan/nan! S2:nan/nan! F1:nan/nan! F2:nan/nan!
+BND_VERDICT T=128 v16 adopt=0 S1:nan/nan! S2:nan/nan! F1:nan/nan! F2:nan/nan!
+BND_VERDICT T=16 d16 adopt=0 S1:0.9978/0.9958- S2:0.9918/0.9901- F1:0.9947/0.9937- F2:0.9980/0.9978-
+BND_VERDICT T=8 v1 adopt=0 S1:0.9956/0.9972- S2:1.0011/1.0001- F1:1.0014/1.0047- F2:1.0075/1.0083-
+BND_VERDICT T=32 d32 adopt=0 S1:1.0068/1.0065- S2:1.0040/1.0037- F1:1.0070/1.0066- F2:1.0039/1.0041-
+BND_KILL per-shape full-layer saving (us, incumbent - arm, median of passes) vs the oracle's target; ceiling = both boundary launches skipped (385183f9)
+  v32 T=256 | S n/a / target 7.1 (ceil 17.8) n/a | F n/a / target 6.2 (ceil 15.5) n/a | adopted=0
+  v16 T=128 | S n/a / target 4.2 (ceil 10.4) n/a | F n/a / target 4.6 (ceil 11.4) n/a | adopted=0
+  d16 T= 16 | S +0.66 / target 2.1 (ceil 5.2) FAIL | F +0.79 / target 2.2 (ceil 5.4) FAIL | adopted=0
+  v1  T=  8 | S +0.19 / target 1.8 (ceil 4.4) FAIL | F -0.57 / target 1.6 (ceil 4.0) FAIL | adopted=0
+  d32 T= 32 | S -0.92 / target 1.6 (ceil 4.0) FAIL | F -1.79 / target 1.7 (ceil 4.2) FAIL | adopted=0
+BND_DONE total_prepare_s=143.5 adopted=[] equiv={256: (1, 0.0, 0.0), 128: (1, 0.0, 0.0), 16: (1, 0.0, 0.0), 8: (1, 0.0, 0.0), 32: (1, 0.0, 0.0)}

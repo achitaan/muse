@@ -1,0 +1,73 @@
+AT build 1h ready
+AT builds ready 39.5s
+AT ref e4m3_err=0.066586 bound=0.1500
+AT score d1S base rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT probe 1h-s32 synchronized-ok
+AT score d1S probe-1h-s32 rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT score d1S 1h-s32 rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT score d1S repeat-1h-s32 rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT d1S 1h-s32 9.12 9.18 1.0070 1.0142 e1 a0
+AT ref e4m3_err=0.058987 bound=0.1500
+AT score d16S base rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT probe 1h-s16 synchronized-ok
+AT score d16S probe-1h-s16 rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S 1h-s16 rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-1h-s16 rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT d16S 1h-s16 12.30 12.45 1.0117 1.0149 e1 a0
+AT probe 1h-s32 synchronized-ok
+AT score d16S probe-1h-s32 rel=0.0044276 worstrow=0.0059118 bound=0.1500 judge=1 cache=1
+AT score d16S 1h-s32 rel=0.0044276 worstrow=0.0059118 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-1h-s32 rel=0.0044276 worstrow=0.0059118 bound=0.1500 judge=1 cache=1
+AT d16S 1h-s32 12.30 14.86 1.2081 1.2093 e1 a0
+AT ref e4m3_err=0.066388 bound=0.1500
+AT score d32S base rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score d32S probe-1h-s8 rel=0.0047349 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT score d32S 1h-s8 rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT score d32S repeat-1h-s8 rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT d32S 1h-s8 14.13 15.31 1.0838 1.0871 e1 a0
+AT probe 1h-s16 synchronized-ok
+AT score d32S probe-1h-s16 rel=0.004734 worstrow=0.0065476 bound=0.1500 judge=1 cache=1
+AT d32S 1h-s16 probe-numerical-reject e0 a0
+AT ref e4m3_err=0.070096 bound=0.1500
+AT score v1S base rel=0.071187 worstrow=0.085131 bound=0.1500 judge=1 cache=1
+AT ref e4m3_err=0.066076 bound=0.1500
+AT score v16S base rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score v16S probe-1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT score v16S 1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT score v16S repeat-1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT v16S 1h-s8 15.49 14.88 0.9607 0.9640 e1 a1
+AT probe 1h-s16 synchronized-ok
+AT score v16S probe-1h-s16 rel=0.067309 worstrow=0.10417 bound=0.1500 judge=1 cache=1
+AT v16S 1h-s16 probe-numerical-reject e0 a0
+AT score v16S preconfirm-1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT score v16S confirm-1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT v16S keep-1h-s8 15.54 15.01 0.9660 0.9623 e1 a1
+AT ref e4m3_err=0.065978 bound=0.1500
+AT score v32S base rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT probe 1h-s4 synchronized-ok
+AT score v32S probe-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S 1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S repeat-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT v32S 1h-s4 18.77 18.27 0.9736 0.9780 e1 a1
+AT probe 1h-s8 synchronized-ok
+AT score v32S probe-1h-s8 rel=0.067793 worstrow=0.11387 bound=0.1500 judge=1 cache=1
+AT v32S 1h-s8 probe-numerical-reject e0 a0
+AT score v32S preconfirm-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S confirm-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT v32S keep-1h-s4 18.77 18.38 0.9795 0.9809 e1 a1
+AT summary begin status=done selected=2/5-targets elapsed=40.0s
+AT summary d1S route=base base
+AT summary d1F route=base base full-context unchanged
+AT summary d16S route=base base
+AT summary d16F route=base base full-context unchanged
+AT summary d32S route=base base
+AT summary d32F route=base base full-context unchanged
+AT summary v1S route=base base control-only
+AT summary v1F route=base base full-context unchanged
+AT summary v16S route=1h-s8 1h-s8 search=0.9607/0.9640 confirm=0.9660/0.9623
+AT summary v16F route=base base full-context unchanged
+AT summary v32S route=1h-s4 1h-s4 search=0.9736/0.9780 confirm=0.9795/0.9809
+AT summary v32F route=base base full-context unchanged
+AT summary end

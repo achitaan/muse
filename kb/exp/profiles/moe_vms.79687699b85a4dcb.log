@@ -1,0 +1,23 @@
+[mfab] modules built at 52s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 7.05e-06
+[vms] modules ready at 84s; regs/local/static smem for A, B, fin + dyn smem:
+[vms]   M16: [79, 0, 0, 79, 0, 0, 181, 0, 256, 164096]
+[vms]   M32: [102, 0, 0, 102, 0, 0, 181, 0, 256, 214016]
+[vms] repacked weights at 84s
+[vms] bs 16 draws (U distinct experts / S sum ceil(cnt/8) / max tokens per expert / R routes / rel err): n:U12/S13/max16/R32/e2.6e-03(inc e2.6e-03) n:U14/S14/max7/R26/e2.5e-03(inc e2.5e-03) n:U13/S13/max7/R22/e2.5e-03(inc e2.5e-03) n:U12/S12/max4/R23/e2.6e-03(inc e2.6e-03) n:U9/S10/max16/R29/e2.5e-03(inc e2.5e-03) n:U6/S7/max14/R20/e2.5e-03(inc e2.5e-03) n:U12/S12/max3/R21/e2.6e-03(inc e2.6e-03) n:U11/S11/max5/R22/e2.5e-03(inc e2.5e-03) s:U4/S5/max13/R29/e2.6e-03 s:U5/S9/max14/R57/e2.6e-03
+[vms] bs 16 weight bytes moved per call ~ 315 MB (11.1 experts x 28.31 MB)
+[vms] bs 16 pass 1: paired 1.0056 median 1.0152 (incumbent 90.7 us, new 92.1 us, 96 rounds)
+[vms] bs 16 pass 2: paired 1.0051 median 1.0163 (incumbent 90.5 us, new 92.0 us, 96 rounds)
+[vms] bs 16 new-path phases (serialized, us): A 61.1  B 36.5  finalizer 8.6  sum 106.2; incumbent (one fused kernel, no phase split) 90.5 us per graph
+[vms] bs 32 draws (U distinct experts / S sum ceil(cnt/8) / max tokens per expert / R routes / rel err): n:U17/S19/max20/R48/e2.6e-03(inc e3.3e-03) n:U17/S19/max9/R58/e2.5e-03(inc e3.2e-03) n:U15/S18/max29/R50/e2.6e-03(inc e3.2e-03) n:U16/S21/max32/R81/e2.6e-03(inc e3.2e-03) n:U15/S15/max5/R40/e2.5e-03(inc e3.2e-03) n:U13/S15/max14/R46/e2.5e-03(inc e3.2e-03) n:U17/S18/max15/R46/e2.5e-03(inc e3.2e-03) n:U16/S18/max16/R61/e2.6e-03(inc e3.2e-03) s:U4/S15/max29/R107/e2.6e-03 s:U2/S8/max29/R58/e2.5e-03
+[vms] bs 32 weight bytes moved per call ~ 446 MB (15.8 experts x 28.31 MB)
+[vms] bs 32 pass 1: paired 1.0073 median 1.0025 (incumbent 128.0 us, new 128.3 us, 96 rounds)
+[vms] bs 32 pass 2: paired 1.0107 median 1.0108 (incumbent 127.1 us, new 128.5 us, 96 rounds)
+[vms] bs 32 new-path phases (serialized, us): A 84.4  B 46.9  finalizer 8.7  sum 140.1; incumbent (one fused kernel, no phase split) 127.1 us per graph
+[vms] SUMMARY prepare 85s | bs16: p1=1.006/1.015 p2=1.005/1.016 err=2.58e-03 row=2.74e-03 kerr=0 adopted=False (ratio gate) | bs32: p1=1.007/1.002 p2=1.011/1.011 err=2.56e-03 row=2.78e-03 kerr=0 adopted=False (ratio gate)

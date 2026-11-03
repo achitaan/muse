@@ -1,0 +1,35 @@
+[mfab] modules built at 50s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 5.50e-08
+[hum] modules ready at 132s
+[hum] schedule emulation ok (stream-K coverage / deposit / finisher sets; 1511 partial CTAs over 3 sizes)
+[hum] kernel: regs 62 local/spill bytes 0 static smem 24576 B, occupancy 4 CTAs/SM -> grid 528 CTAs (8 warps, tile 8 rows x 128 channels, K64 stages, 4 cp.async stages, stream-K)
+[hum] empty-kernel graph replay (event to event, read-flushed): 4.90 us (subtracted from the new kernel's raw time as 'net')
+[hum] bs 16 draws (U distinct experts / R routes / max rows per expert / T tiles): U10/R27/maxc12/T352 U11/R36/maxc10/T384 U8/R34/maxc16/T288 U12/R28/maxc15/T416
+[hum] bs 16 correctness (first replay): worst rel L2 7.84e-07 worst row 9.05e-07 OK
+[hum] bs 16 pass 1: incumbent B exposed 29.7 full 32.8 (whole kernel 93.2) us | new raw 152.2 net 147.3 us | new/inc exposed 4.959 full 4.494 raw 5.124
+[hum] bs 16 pass 2: incumbent B exposed 29.4 full 32.8 (whole kernel 93.3) us | new raw 152.0 net 147.1 us | new/inc exposed 4.997 full 4.489 raw 5.163
+[hum] bs 32 draws (U distinct experts / R routes / max rows per expert / T tiles): U18/R49/maxc9/T608 U9/R43/maxc27/T384 U17/R46/maxc11/T576 U14/R70/maxc17/T576
+[hum] bs 32 correctness (first replay): worst rel L2 9.49e-07 worst row 1.06e-06 OK
+[hum] bs 32 pass 1: incumbent B exposed 37.6 full 45.1 (whole kernel 130.3) us | new raw 292.5 net 287.6 us | new/inc exposed 7.642 full 6.383 raw 7.772
+[hum] bs 32 pass 2: incumbent B exposed 37.4 full 45.1 (whole kernel 130.4) us | new raw 292.0 net 287.1 us | new/inc exposed 7.682 full 6.373 raw 7.813
+[hum] bs 128 draws (U distinct experts / R routes / max rows per expert / T tiles): U23/R217/maxc73/T1248 U27/R195/maxc48/T1280 U23/R199/maxc49/T1216 U26/R227/maxc127/T1408
+[hum] bs 128 correctness (first replay): worst rel L2 1.19e-06 worst row 1.45e-06 OK
+[hum] bs 128 pass 1: incumbent B exposed 55.8 full 67.8 (whole kernel 198.0) us | new raw 2007.4 net 2002.5 us | new/inc exposed 35.881 full 29.517 raw 35.969
+[hum] bs 128 pass 2: incumbent B exposed 56.1 full 68.9 (whole kernel 198.8) us | new raw 2010.2 net 2005.3 us | new/inc exposed 35.768 full 29.120 raw 35.856
+[hum] bs 256 draws (U distinct experts / R routes / max rows per expert / T tiles): U29/R367/maxc71/T2016 U27/R347/maxc45/T1824 U23/R379/maxc169/T1920 U22/R521/maxc133/T2432
+[hum] bs 256 correctness (first replay): worst rel L2 1.25e-06 worst row 1.48e-06 OK
+[hum] bs 256 pass 1: incumbent B exposed 64.0 full 77.6 (whole kernel 221.5) us | new raw 1476.6 net 1471.7 us | new/inc exposed 22.996 full 18.974 raw 23.072
+[hum] bs 256 pass 2: incumbent B exposed 64.3 full 77.6 (whole kernel 222.4) us | new raw 1473.8 net 1468.9 us | new/inc exposed 22.860 full 18.937 raw 22.936
+[hum] SUMMARY screen (GEMM2 only; incumbent B = its phase-B span from per-CTA timestamps of its own debug build, same inputs; new B = hum_gemm2 graph replay minus the empty-kernel graph floor; read-flush 512 MiB, ABBA, 2 passes, 4 draws/bs):
+[hum] SUMMARY kernel regs 62 spills/local 0 B occupancy 4 CTAs/SM grid 528 empty-graph floor 4.90 us
+[hum] SUMMARY bs16: incumbent B 29.7 us (full 32.8; whole kernel 93.3) 3.26 TB/s | new B 147.3 us net (raw 152.2) 0.66 TB/s | ratio 4.959 (vs full 4.494, raw 5.124; p1=4.959 p2=4.997) <= 0.92: no | U10.2 R31 T360 | regs 62 spills 0 occ 4 | err 7.8e-07/7.8e-07 row 9.0e-07 ok
+[hum] SUMMARY bs32: incumbent B 37.6 us (full 45.1; whole kernel 130.4) 3.64 TB/s | new B 287.6 us net (raw 292.5) 0.48 TB/s | ratio 7.642 (vs full 6.383, raw 7.772; p1=7.642 p2=7.682) <= 0.92: no | U14.5 R52 T536 | regs 62 spills 0 occ 4 | err 9.5e-07/9.5e-07 row 1.1e-06 ok
+[hum] SUMMARY bs128: incumbent B 56.1 us (full 68.9; whole kernel 198.8) 4.17 TB/s | new B 2005.3 us net (raw 2010.2) 0.12 TB/s | ratio 35.768 (vs full 29.120, raw 35.856; p1=35.881 p2=35.768) <= 0.92: no | U24.8 R210 T1288 | regs 62 spills 0 occ 4 | err 1.2e-06/1.2e-06 row 1.5e-06 ok
+[hum] SUMMARY bs256: incumbent B 64.3 us (full 77.6; whole kernel 222.4) 3.71 TB/s | new B 1471.7 us net (raw 1476.6) 0.16 TB/s | ratio 22.904 (vs full 18.974, raw 22.981; p1=22.996 p2=22.860) <= 0.92: no | U25.2 R404 T2048 | regs 62 spills 0 occ 4 | err 1.2e-06/1.2e-06 row 1.5e-06 ok
+[hum] SUMMARY kill rule: continue only if new B <= 0.92 x incumbent B at 2+ of bs16/32/128/256 -> 0 of 4 -> KILL (prepare 134s)

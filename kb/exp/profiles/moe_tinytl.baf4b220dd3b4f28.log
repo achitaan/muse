@@ -1,0 +1,45 @@
+[mfab] modules built at 52s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 1.10e-07
+[tinytl] bs 1: regs/local B/static smem of moe_fused<false>: incumbent 149/0/0 (spill-free: True) | instrumented twin 152/0/0 (extra regs 3, spill-free: True)
+[tinytl] bs 1 draw 0: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.1 twin 27.6 stream 19.4 stream-2-launch 22.2 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 1 draw 1: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.2 twin 28.2 stream 19.5 stream-2-launch 21.9 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 1 draw 2: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 9.6 twin 10.8 stream 6.2 stream-2-launch 8.1 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 0/24
+[tinytl] bs 1 draw 3: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.0 twin 27.6 stream 19.3 stream-2-launch 21.9 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 1 draw 4: touched experts 3 (local routes 3, 85 MB) | graph us p50 incumbent 32.6 twin 34.8 stream 25.5 stream-2-launch 28.4 | twin vs incumbent rel diff 1.3e-07 | replays with full stamps 24/24
+[tinytl] bs 1 draw 5: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.2 twin 27.8 stream 19.4 stream-2-launch 22.2 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 1 draw 6: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.8 twin 28.2 stream 19.2 stream-2-launch 22.1 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 1 draw 7: touched experts 2 (local routes 2, 57 MB) | graph us p50 incumbent 26.4 twin 27.8 stream 19.3 stream-2-launch 22.1 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 8: regs/local B/static smem of moe_fused<false>: incumbent 151/0/0 (spill-free: True) | instrumented twin 146/0/0 (extra regs -5, spill-free: True)
+[tinytl] bs 8 draw 0: touched experts 8 (local routes 13, 226 MB) | graph us p50 incumbent 66.7 twin 67.6 stream 56.6 stream-2-launch 59.3 | twin vs incumbent rel diff 0.0e+00 | replays with full stamps 24/24
+[tinytl] bs 8 draw 1: touched experts 10 (local routes 16, 283 MB) | graph us p50 incumbent 9.6 twin 10.5 stream 6.2 stream-2-launch 7.9 | twin vs incumbent rel diff 9.8e-06 | replays with full stamps 0/24
+[tinytl] bs 8 draw 2: touched experts 9 (local routes 15, 255 MB) | graph us p50 incumbent 72.3 twin 74.1 stream 63.1 stream-2-launch 65.4 | twin vs incumbent rel diff 5.0e-07 | replays with full stamps 24/24
+[tinytl] bs 8 draw 3: touched experts 8 (local routes 15, 226 MB) | graph us p50 incumbent 64.8 twin 67.2 stream 56.1 stream-2-launch 59.5 | twin vs incumbent rel diff 2.3e-07 | replays with full stamps 24/24
+[tinytl] bs 8 draw 4: touched experts 10 (local routes 14, 283 MB) | graph us p50 incumbent 9.7 twin 10.5 stream 6.2 stream-2-launch 8.1 | twin vs incumbent rel diff 1.6e-05 | replays with full stamps 0/24
+[tinytl] bs 8 draw 5: touched experts 7 (local routes 13, 198 MB) | graph us p50 incumbent 59.7 twin 61.1 stream 50.0 stream-2-launch 52.6 | twin vs incumbent rel diff 6.4e-08 | replays with full stamps 24/24
+[tinytl] bs 8 draw 6: touched experts 9 (local routes 13, 255 MB) | graph us p50 incumbent 9.6 twin 10.3 stream 6.2 stream-2-launch 8.2 | twin vs incumbent rel diff 7.5e-05 | replays with full stamps 0/24
+[tinytl] bs 8 draw 7: touched experts 9 (local routes 15, 255 MB) | graph us p50 incumbent 72.8 twin 74.3 stream 62.9 stream-2-launch 66.0 | twin vs incumbent rel diff 1.2e-04 | replays with full stamps 24/24
+[tinytl] diagnostics done at 86s
+[tinytl] ================================ SUMMARY (diagnostic only; the scored path is the incumbent) ================================
+[tinytl] bs 1: 8 draws, 192 replays per arm, ~2 touched experts = 57 MB; globaltimer quantum ~1 ns
+[tinytl] bs 1: incumbent 26.2 us (p10/p50/p90 9.9/26.2/32.4) | stream control 19.3 us (6.2/19.3/25.2; 2.93 TB/s) | gap 6.9 us | 2-launch stream (A then B) 22.1 us (8.2/22.1/28.1)
+[tinytl] bs 1: instrumentation overhead: twin 27.8 us / incumbent 26.2 us = 1.061 -> ok (<= 1.10); regs incumbent 149 (local 0 B), twin 152 (local 0 B)
+[tinytl] bs 1: median over CTAs (us, median over 168 stamped replays; times from each CTA's own entry): route 2.11 | ramp before first bytes 3.10 | A 9.63 | waits for A-complete before B 1.54 | B 5.22 | B drain before the barrier 0.51 | final barrier 0.99 | final pass + exit 0.42 | total 21.63
+[tinytl] bs 1: critical path = last-exiting CTA (us): ramp 3.14 + A 9.60 + wait 2.53 + B 5.09 + drain 0.54 + barrier 1.86 + final 0.67 = 21.98; kernel span (first entry -> last exit) 22.05, graph 26.2 (launch + graph overhead 4.2), entry skew 0.22
+[tinytl] bs 1: hand-off detail (us): last A publication vs median CTA +0.51; first B wait lasts 1.54; first B wait ends 0.35 after the last A publication; first B unit lands 2.24 after this CTA's A compute ended (< 0 = prefetched); barrier arrival skew +0.26; barrier last-arrival -> release 0.77; slowest final pass 0.74
+[tinytl] bs 1: stream control (own stamps, us): first copies issued 1.57, first unit landed 2.91, last unit landed (span) 13.95
+[tinytl] bs 1: recoverable scheduling headroom = incumbent 26.2 - stream 19.3 - unavoidable epilogue 1.5 (barrier 0.77 + final pass 0.74) = 5.4 us   (vs the 2-launch stream: 2.7 us)   threshold 3.0 us
+[tinytl] bs 8: 8 draws, 192 replays per arm, ~9 touched experts = 255 MB; globaltimer quantum ~1 ns
+[tinytl] bs 8: incumbent 63.9 us (p10/p50/p90 9.5/63.9/72.6) | stream control 55.6 us (6.1/55.6/63.1; 4.58 TB/s) | gap 8.3 us | 2-launch stream (A then B) 58.0 us (7.9/58.0/65.8)
+[tinytl] bs 8: instrumentation overhead: twin 65.7 us / incumbent 63.9 us = 1.028 -> ok (<= 1.10); regs incumbent 151 (local 0 B), twin 146 (local 0 B)
+[tinytl] bs 8: median over CTAs (us, median over 120 stamped replays; times from each CTA's own entry): route 2.21 | ramp before first bytes 3.26 | A 34.75 | waits for A-complete before B 1.98 | B 17.76 | B drain before the barrier 0.61 | final barrier 2.53 | final pass + exit 0.45 | total 61.57
+[tinytl] bs 8: critical path = last-exiting CTA (us): ramp 3.30 + A 34.56 + wait 1.95 + B 17.89 + drain 0.74 + barrier 2.59 + final 0.80 = 61.95; kernel span (first entry -> last exit) 62.08, graph 63.9 (launch + graph overhead 1.8), entry skew 0.22
+[tinytl] bs 8: hand-off detail (us): last A publication vs median CTA +1.02; first B wait lasts 1.95; first B wait ends -0.06 after the last A publication; first B unit lands 2.78 after this CTA's A compute ended (< 0 = prefetched); barrier arrival skew +1.79; barrier last-arrival -> release 0.77; slowest final pass 0.86
+[tinytl] bs 8: stream control (own stamps, us): first copies issued 1.57, first unit landed 2.88, last unit landed (span) 50.21
+[tinytl] bs 8: recoverable scheduling headroom = incumbent 63.9 - stream 55.6 - unavoidable epilogue 1.6 (barrier 0.77 + final pass 0.86) = 6.7 us   (vs the 2-launch stream: 4.3 us)   threshold 4.0 us
+[tinytl] KILL verdict: CONTINUE  (bs1: 5.4 us, bs8: 6.7 us; CONTINUE if >= 3 us at bs1 or >= 4 us at bs8)

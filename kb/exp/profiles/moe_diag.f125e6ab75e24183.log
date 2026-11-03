@@ -1,0 +1,78 @@
+[mfab] modules built at 46s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 4.38e-07
+MD info reps=32 flush_MiB=512 flush=READ_sum raw_events=1 grid=132 routing=normal_busiest_ep8 seeds=moediag_f0f01b3229f94cbb NOB=SKIP_no_safe_existing_flag
+MD note TL=separate_build ready=consumer_full_weight_and_x phase_rates=window_averages_not_steady_DRAM postready_excludes_first_stage_latency_but_counts_all_bytes AB=signed_Adone_to_Bready STREAM=unique_packed_tables globals_x_scratch_excluded
+MD bs=1 var=BASE us=25.616 routes=2 touched=2 jobs=2 stage_B=36864 unique_MB=56.623 job_MB=56.623
+MD bs=8 var=BASE us=52.928 routes=12 touched=6 jobs=6 stage_B=36864 unique_MB=169.869 job_MB=169.869
+MD bs=16 var=BASE us=98.336 routes=22 touched=13 jobs=13 stage_B=36864 unique_MB=368.050 job_MB=368.050
+MD bs=32 var=BASE us=126.912 routes=60 touched=16 jobs=16 stage_B=35840 unique_MB=440.402 job_MB=440.402
+MD bs=128 var=BASE us=182.816 routes=217 touched=23 jobs=24 stage_B=35840 unique_MB=633.078 job_MB=660.603
+MD bs=256 var=BASE us=227.264 routes=449 touched=25 jobs=28 stage_B=35840 unique_MB=688.128 job_MB=770.703
+MD built seconds=108.5
+MD bs=1 var=BASE_PAIRED us=26.240
+MD bs=1 TL_us=27.536 TL_BASE=1.049 eq=1 finite=1 rel=0 attrs=[145, 0, 0, 145, 0, 0]
+MD bs=1 var=STREAM us=18.880 TBps=2.999 BASE_ratio=1.390
+MD bs=1 var=STREAM_A us=14.800 TBps=2.551 BASE_ratio=1.773
+MD bs=1 var=STREAM_B us=10.832 TBps=1.742 BASE_ratio=2.422
+MD bs=1 TL_us=cta_med/max entry=0.13/0.19 Aenter=2.85/3.01 Aready=3.23/3.97 Adone=13.87/14.72 Benter=12.76/13.52 Bready=15.14/15.47 Bdone=19.92/20.35 exit=21.58/22.10 finready=21.34/21.60 AB=1.09/2.06 tail=1.76
+MD bs=1 phase=A window_us=11.97 unique_TBps=3.154 job_TBps=3.154 postready_us=11.60 postready_job_TBps=3.254 STREAM_TBps=2.551
+MD bs=1 phase=B window_us=8.78 unique_TBps=2.149 job_TBps=2.149 postready_us=5.28 postready_job_TBps=3.575 STREAM_TBps=1.742
+MD bs=1 STREAM_A_entry_last_us=9.504 TBps=3.972
+MD bs=1 STREAM_B_entry_last_us=5.440 TBps=3.470
+MD bs=8 var=BASE_PAIRED us=52.848
+MD bs=8 TL_us=53.712 TL_BASE=1.016 eq=0 finite=1 rel=1.95e-05 attrs=[143, 0, 0, 143, 0, 0]
+MD bs=8 var=STREAM us=44.000 TBps=3.861 BASE_ratio=1.201
+MD bs=8 var=STREAM_A us=31.024 TBps=3.650 BASE_ratio=1.703
+MD bs=8 var=STREAM_B us=18.816 TBps=3.009 BASE_ratio=2.809
+MD bs=8 TL_us=cta_med/max entry=0.10/0.19 Aenter=3.04/4.50 Aready=3.83/5.10 Adone=30.28/31.92 Benter=29.38/31.55 Bready=31.62/32.66 Bdone=44.87/46.24 exit=47.87/48.24 finready=47.33/47.55 AB=1.28/2.51 tail=1.98
+MD bs=8 phase=A window_us=29.07 unique_TBps=3.895 job_TBps=3.895 postready_us=28.72 postready_job_TBps=3.943 STREAM_TBps=3.650
+MD bs=8 phase=B window_us=18.00 unique_TBps=3.146 job_TBps=3.146 postready_us=15.12 postready_job_TBps=3.745 STREAM_TBps=3.009
+MD bs=8 STREAM_A_entry_last_us=25.792 TBps=4.391
+MD bs=8 STREAM_B_entry_last_us=13.664 TBps=4.144
+MD bs=16 var=BASE_PAIRED us=98.592
+MD bs=16 TL_us=100.688 TL_BASE=1.021 eq=0 finite=1 rel=1.3e-05 attrs=[152, 0, 0, 152, 0, 0]
+MD bs=16 var=STREAM us=87.472 TBps=4.208 BASE_ratio=1.127
+MD bs=16 var=STREAM_A us=60.352 TBps=4.066 BASE_ratio=1.634
+MD bs=16 var=STREAM_B us=33.168 TBps=3.699 BASE_ratio=2.973
+MD bs=16 TL_us=cta_med/max entry=0.11/0.22 Aenter=3.14/3.30 Aready=3.52/4.40 Adone=59.58/61.54 Benter=59.54/61.49 Bready=60.74/62.40 Bdone=91.06/93.02 exit=94.62/95.14 finready=94.04/94.21 AB=0.99/2.16 tail=2.14
+MD bs=16 phase=A window_us=58.46 unique_TBps=4.197 job_TBps=4.197 postready_us=58.13 postready_job_TBps=4.221 STREAM_TBps=4.066
+MD bs=16 phase=B window_us=35.14 unique_TBps=3.492 job_TBps=3.492 postready_us=33.95 postready_job_TBps=3.613 STREAM_TBps=3.699
+MD bs=16 STREAM_A_entry_last_us=55.104 TBps=4.453
+MD bs=16 STREAM_B_entry_last_us=27.856 TBps=4.404
+MD bs=32 var=BASE_PAIRED us=127.008
+MD bs=32 TL_us=129.008 TL_BASE=1.016 eq=1 finite=1 rel=0 attrs=[96, 16, 0, 96, 16, 0]
+MD bs=32 var=STREAM us=103.648 TBps=4.249 BASE_ratio=1.225
+MD bs=32 var=STREAM_A us=70.944 TBps=4.138 BASE_ratio=1.790
+MD bs=32 var=STREAM_B us=38.336 TBps=3.829 BASE_ratio=3.313
+MD bs=32 TL_us=cta_med/max entry=0.10/0.22 Aenter=5.63/5.70 Aready=8.46/9.02 Adone=77.99/80.69 Benter=77.19/80.06 Bready=78.20/81.14 Bdone=116.40/120.24 exit=116.70/123.50 finready=120.42/120.64 AB=-0.34/4.43 tail=3.28
+MD bs=32 phase=A window_us=75.18 unique_TBps=3.905 job_TBps=3.905 postready_us=72.75 postready_job_TBps=4.036 STREAM_TBps=4.138
+MD bs=32 phase=B window_us=44.77 unique_TBps=3.279 job_TBps=3.279 postready_us=44.14 postready_job_TBps=3.325 STREAM_TBps=3.829
+MD bs=32 STREAM_A_entry_last_us=65.680 TBps=4.470
+MD bs=32 STREAM_B_entry_last_us=33.024 TBps=4.445
+MD bs=128 var=BASE_PAIRED us=182.032
+MD bs=128 TL_us=185.296 TL_BASE=1.018 eq=1 finite=1 rel=0 attrs=[96, 16, 0, 96, 16, 0]
+MD bs=128 var=STREAM us=147.312 TBps=4.298 BASE_ratio=1.236
+MD bs=128 var=STREAM_A us=99.648 TBps=4.235 BASE_ratio=1.827
+MD bs=128 var=STREAM_B us=51.984 TBps=4.059 BASE_ratio=3.502
+MD bs=128 TL_us=cta_med/max entry=0.10/0.19 Aenter=6.72/9.44 Aready=10.17/10.99 Adone=117.28/122.27 Benter=116.45/121.31 Bready=117.11/122.61 Bdone=172.14/176.56 exit=178.16/179.79 finready=176.66/176.99 AB=-0.61/5.47 tail=3.33
+MD bs=128 phase=A window_us=115.89 unique_TBps=3.642 job_TBps=3.800 postready_us=113.42 postready_job_TBps=3.883 STREAM_TBps=4.235
+MD bs=128 phase=B window_us=68.27 unique_TBps=3.091 job_TBps=3.225 postready_us=67.95 postready_job_TBps=3.241 STREAM_TBps=4.059
+MD bs=128 STREAM_A_entry_last_us=93.088 TBps=4.534
+MD bs=128 STREAM_B_entry_last_us=47.104 TBps=4.480
+MD bs=256 var=BASE_PAIRED us=227.024
+MD bs=256 TL_us=228.992 TL_BASE=1.009 eq=1 finite=1 rel=0 attrs=[96, 16, 0, 96, 16, 0]
+MD bs=256 var=STREAM us=159.456 TBps=4.315 BASE_ratio=1.424
+MD bs=256 var=STREAM_A us=108.848 TBps=4.215 BASE_ratio=2.086
+MD bs=256 var=STREAM_B us=56.624 TBps=4.051 BASE_ratio=4.009
+MD bs=256 TL_us=cta_med/max entry=0.10/0.19 Aenter=9.03/11.09 Aready=11.38/12.61 Adone=145.34/151.86 Benter=144.38/150.94 Bready=145.25/152.27 Bdone=213.78/217.73 exit=220.58/223.50 finready=216.38/218.18 AB=-0.67/9.47 tail=5.63
+MD bs=256 phase=A window_us=144.45 unique_TBps=3.176 job_TBps=3.557 postready_us=142.53 postready_job_TBps=3.605 STREAM_TBps=4.215
+MD bs=256 phase=B window_us=81.78 unique_TBps=2.805 job_TBps=3.142 postready_us=81.31 postready_job_TBps=3.159 STREAM_TBps=4.051
+MD bs=256 STREAM_A_entry_last_us=100.736 TBps=4.554
+MD bs=256 STREAM_B_entry_last_us=51.232 TBps=4.477
+MD done prepare_seconds=109.4

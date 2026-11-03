@@ -1,0 +1,194 @@
+d=20466 layer graph captured
+MG 140.9s T=16 F seed=20466 local_start=192 nexp=9 routes=28 build=mid
+MG 140.9s   layer warmup call 0 done (twin=True)
+MG 140.9s   layer warmup call 1 done (twin=True)
+MG 140.9s T=16 F seed=20466 twin layer graph captured: True
+MG 140.9s D T=16 k=3 F nexp= 9 maxtok= 9 mean=3.11 routes= 28 layer= 216.0 tw= 220.4 idsEq=True | moe span  79.8 work  74.8 ramp  4.9 tailB  2.4 bar  1.0 busy 132.0/132.0
+MG 140.9s T=16 k=3 timing the 4 MoE cells (20 interleaved replays each)
+MG 140.9s A T=16 k=3 us(tailB) SS  74.2( 2.3) FF  80.4( 2.6) SF  80.4( 2.6) FS  74.0( 2.3)
+MG 140.9s T=16 k=3 done in 0.1s
+MG 140.9s T=1 S seed=5461 input built
+MG 140.9s   layer warmup call 0 done (twin=False)
+MG 140.9s   layer warmup call 1 done (twin=False)
+MG 140.9s T=1 S seed=5461 layer graph captured
+MG 141.0s T=1 S seed=5461 local_start=32 nexp=2 routes=2 build=tiny
+MG 141.0s   layer warmup call 0 done (twin=True)
+MG 141.0s   layer warmup call 1 done (twin=True)
+MG 141.0s T=1 S seed=5461 twin layer graph captured: True
+MG 141.0s D T= 1 k=3 S nexp= 2 maxtok= 1 mean=1.00 routes=  2 layer=  67.3 tw=  70.3 idsEq=True | moe span  23.5 work  21.1 ramp  2.5 tailB  0.5 bar  1.0 busy 132.0/132.0
+MG 141.0s T=1 F seed=5466 input built
+MG 141.0s   layer warmup call 0 done (twin=False)
+MG 141.0s   layer warmup call 1 done (twin=False)
+MG 141.0s T=1 F seed=5466 layer graph captured
+MG 141.0s T=1 F seed=5466 local_start=96 nexp=2 routes=2 build=tiny
+MG 141.0s   layer warmup call 0 done (twin=True)
+MG 141.0s   layer warmup call 1 done (twin=True)
+MG 141.0s T=1 F seed=5466 twin layer graph captured: True
+MG 141.0s D T= 1 k=3 F nexp= 2 maxtok= 1 mean=1.00 routes=  2 layer=  73.7 tw=  75.0 idsEq=True | moe span  22.8 work  20.4 ramp  2.3 tailB  0.3 bar  1.0 busy 132.0/132.0
+MG 141.0s T=1 k=3 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.1s A T= 1 k=3 us(tailB) SS  25.9( 0.3) FF  25.9( 0.5) SF  26.0( 0.3) FS  25.9( 0.4)
+MG 141.1s T=1 k=3 done in 0.1s
+MG 141.1s T=8 S seed=12461 input built
+MG 141.1s   layer warmup call 0 done (twin=False)
+MG 141.1s   layer warmup call 1 done (twin=False)
+MG 141.1s T=8 S seed=12461 layer graph captured
+MG 141.1s T=8 S seed=12461 local_start=224 nexp=7 routes=12 build=tiny2
+MG 141.1s   layer warmup call 0 done (twin=True)
+MG 141.1s   layer warmup call 1 done (twin=True)
+MG 141.1s T=8 S seed=12461 twin layer graph captured: True
+MG 141.1s D T= 8 k=3 S nexp= 7 maxtok= 5 mean=1.71 routes= 12 layer= 104.4 tw= 109.0 idsEq=True | moe span  60.9 work  56.2 ramp  4.6 tailB  0.9 bar  1.8 busy 132.0/132.0
+MG 141.1s T=8 F seed=12466 input built
+MG 141.1s   layer warmup call 0 done (twin=False)
+MG 141.1s   layer warmup call 1 done (twin=False)
+MG 141.1s T=8 F seed=12466 layer graph captured
+MG 141.1s T=8 F seed=12466 local_start=192 nexp=6 routes=14 build=tiny2
+MG 141.1s   layer warmup call 0 done (twin=True)
+MG 141.1s   layer warmup call 1 done (twin=True)
+MG 141.1s T=8 F seed=12466 twin layer graph captured: True
+MG 141.1s D T= 8 k=3 F nexp= 6 maxtok= 5 mean=2.33 routes= 14 layer= 106.4 tw= 109.8 idsEq=True | moe span  53.1 work  48.2 ramp  4.7 tailB  0.8 bar  1.5 busy 132.0/132.0
+MG 141.1s T=8 k=3 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.2s A T= 8 k=3 us(tailB) SS  59.1( 1.0) FF  52.6( 1.0) SF  52.6( 1.0) FS  59.5( 1.2)
+MG 141.2s T=8 k=3 done in 0.1s
+MG 141.2s T=16 S seed=20478 input built
+MG 141.2s   layer warmup call 0 done (twin=False)
+MG 141.2s   layer warmup call 1 done (twin=False)
+MG 141.2s T=16 S seed=20478 layer graph captured
+MG 141.2s T=16 S seed=20478 local_start=160 nexp=6 routes=28 build=mid
+MG 141.2s   layer warmup call 0 done (twin=True)
+MG 141.2s   layer warmup call 1 done (twin=True)
+MG 141.2s T=16 S seed=20478 twin layer graph captured: True
+MG 141.2s D T=16 k=4 S nexp= 6 maxtok=10 mean=4.67 routes= 28 layer= 119.1 tw= 122.0 idsEq=True | moe span  60.3 work  55.3 ramp  4.8 tailB  1.8 bar  1.0 busy 132.0/132.0
+MG 141.2s T=16 F seed=20483 input built
+MG 141.2s   layer warmup call 0 done (twin=False)
+MG 141.2s   layer warmup call 1 done (twin=False)
+MG 141.2s T=16 F seed=20483 layer graph captured
+MG 141.2s T=16 F seed=20483 local_start=192 nexp=7 routes=29 build=mid
+MG 141.2s   layer warmup call 0 done (twin=True)
+MG 141.2s   layer warmup call 1 done (twin=True)
+MG 141.2s T=16 F seed=20483 twin layer graph captured: True
+MG 141.2s D T=16 k=4 F nexp= 7 maxtok=12 mean=4.14 routes= 29 layer= 205.2 tw= 209.8 idsEq=True | moe span  68.0 work  63.0 ramp  5.0 tailB  2.2 bar  1.0 busy 132.0/132.0
+MG 141.2s T=16 k=4 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.3s A T=16 k=4 us(tailB) SS  61.0( 1.8) FF  67.2( 2.0) SF  67.2( 2.2) FS  61.6( 1.8)
+MG 141.3s T=16 k=4 done in 0.1s
+MG 141.3s T=1 S seed=5478 input built
+MG 141.3s   layer warmup call 0 done (twin=False)
+MG 141.3s   layer warmup call 1 done (twin=False)
+MG 141.3s T=1 S seed=5478 layer graph captured
+MG 141.3s T=1 S seed=5478 local_start=96 nexp=2 routes=2 build=tiny
+MG 141.3s   layer warmup call 0 done (twin=True)
+MG 141.3s   layer warmup call 1 done (twin=True)
+MG 141.3s T=1 S seed=5478 twin layer graph captured: True
+MG 141.3s D T= 1 k=4 S nexp= 2 maxtok= 1 mean=1.00 routes=  2 layer=  67.4 tw=  70.0 idsEq=True | moe span  22.7 work  20.4 ramp  2.3 tailB  0.3 bar  1.0 busy 132.0/132.0
+MG 141.3s T=1 F seed=5483 input built
+MG 141.3s   layer warmup call 0 done (twin=False)
+MG 141.3s   layer warmup call 1 done (twin=False)
+MG 141.3s T=1 F seed=5483 layer graph captured
+MG 141.3s T=1 F seed=5483 local_start=0 nexp=2 routes=2 build=tiny
+MG 141.3s   layer warmup call 0 done (twin=True)
+MG 141.3s   layer warmup call 1 done (twin=True)
+MG 141.3s T=1 F seed=5483 twin layer graph captured: True
+MG 141.4s D T= 1 k=4 F nexp= 2 maxtok= 1 mean=1.00 routes=  2 layer=  73.2 tw=  75.2 idsEq=True | moe span  22.3 work  20.1 ramp  2.3 tailB  0.5 bar  1.0 busy 132.0/132.0
+MG 141.4s T=1 k=4 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.4s A T= 1 k=4 us(tailB) SS  26.0( 0.3) FF  26.0( 0.3) SF  25.9( 0.3) FS  26.0( 0.5)
+MG 141.4s T=1 k=4 done in 0.1s
+MG 141.4s T=8 S seed=12478 input built
+MG 141.4s   layer warmup call 0 done (twin=False)
+MG 141.4s   layer warmup call 1 done (twin=False)
+MG 141.4s T=8 S seed=12478 layer graph captured
+MG 141.4s T=8 S seed=12478 local_start=160 nexp=6 routes=11 build=tiny2
+MG 141.4s   layer warmup call 0 done (twin=True)
+MG 141.4s   layer warmup call 1 done (twin=True)
+MG 141.4s T=8 S seed=12478 twin layer graph captured: True
+MG 141.5s D T= 8 k=4 S nexp= 6 maxtok= 5 mean=1.83 routes= 11 layer=  98.8 tw= 102.0 idsEq=True | moe span  52.9 work  48.3 ramp  4.4 tailB  1.0 bar  1.5 busy 132.0/132.0
+MG 141.5s T=8 F seed=12483 input built
+MG 141.5s   layer warmup call 0 done (twin=False)
+MG 141.5s   layer warmup call 1 done (twin=False)
+MG 141.5s T=8 F seed=12483 layer graph captured
+MG 141.5s T=8 F seed=12483 local_start=160 nexp=8 routes=12 build=tiny2
+MG 141.5s   layer warmup call 0 done (twin=True)
+MG 141.5s   layer warmup call 1 done (twin=True)
+MG 141.5s T=8 F seed=12483 twin layer graph captured: True
+MG 141.5s D T= 8 k=4 F nexp= 8 maxtok= 4 mean=1.50 routes= 12 layer= 118.7 tw= 122.0 idsEq=True | moe span  66.3 work  61.7 ramp  4.6 tailB  1.0 bar  1.0 busy 132.0/132.0
+MG 141.5s T=8 k=4 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.6s A T= 8 k=4 us(tailB) SS  51.8( 1.0) FF  65.6( 1.0) SF  65.7( 1.0) FS  51.9( 1.0)
+MG 141.6s T=8 k=4 done in 0.1s
+MG 141.6s T=16 S seed=20495 input built
+MG 141.6s   layer warmup call 0 done (twin=False)
+MG 141.6s   layer warmup call 1 done (twin=False)
+MG 141.6s T=16 S seed=20495 layer graph captured
+MG 141.6s T=16 S seed=20495 local_start=192 nexp=9 routes=28 build=mid
+MG 141.6s   layer warmup call 0 done (twin=True)
+MG 141.6s   layer warmup call 1 done (twin=True)
+MG 141.6s T=16 S seed=20495 twin layer graph captured: True
+MG 141.6s D T=16 k=5 S nexp= 9 maxtok=10 mean=3.11 routes= 28 layer= 137.8 tw= 141.9 idsEq=True | moe span  81.1 work  76.3 ramp  4.7 tailB  2.4 bar  1.0 busy 132.0/132.0
+MG 141.6s T=16 F seed=20500 input built
+MG 141.6s   layer warmup call 0 done (twin=False)
+MG 141.6s   layer warmup call 1 done (twin=False)
+MG 141.6s T=16 F seed=20500 layer graph captured
+MG 141.6s T=16 F seed=20500 local_start=160 nexp=4 routes=24 build=mid
+MG 141.6s   layer warmup call 0 done (twin=True)
+MG 141.6s   layer warmup call 1 done (twin=True)
+MG 141.6s T=16 F seed=20500 twin layer graph captured: True
+MG 141.6s D T=16 k=5 F nexp= 4 maxtok=10 mean=6.00 routes= 24 layer= 185.2 tw= 188.4 idsEq=True | moe span  47.4 work  42.4 ramp  4.8 tailB  1.4 bar  1.0 busy 132.0/132.0
+MG 141.6s T=16 k=5 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.7s A T=16 k=5 us(tailB) SS  80.2( 2.7) FF  48.9( 1.5) SF  48.9( 1.5) FS  79.7( 2.7)
+MG 141.7s T=16 k=5 done in 0.1s
+MG 141.7s T=1 S seed=5495 input built
+MG 141.7s   layer warmup call 0 done (twin=False)
+MG 141.7s   layer warmup call 1 done (twin=False)
+MG 141.7s T=1 S seed=5495 layer graph captured
+MG 141.7s T=1 S seed=5495 local_start=192 nexp=3 routes=3 build=tiny
+MG 141.7s   layer warmup call 0 done (twin=True)
+MG 141.7s   layer warmup call 1 done (twin=True)
+MG 141.7s T=1 S seed=5495 twin layer graph captured: True
+MG 141.7s D T= 1 k=5 S nexp= 3 maxtok= 1 mean=1.00 routes=  3 layer=  73.8 tw=  76.0 idsEq=True | moe span  29.0 work  26.5 ramp  2.4 tailB  0.5 bar  1.0 busy 132.0/132.0
+MG 141.7s T=1 F seed=5500 input built
+MG 141.7s   layer warmup call 0 done (twin=False)
+MG 141.7s   layer warmup call 1 done (twin=False)
+MG 141.7s T=1 F seed=5500 layer graph captured
+MG 141.7s T=1 F seed=5500 local_start=192 nexp=3 routes=3 build=tiny
+MG 141.7s   layer warmup call 0 done (twin=True)
+MG 141.7s   layer warmup call 1 done (twin=True)
+MG 141.7s T=1 F seed=5500 twin layer graph captured: True
+MG 141.7s D T= 1 k=5 F nexp= 3 maxtok= 1 mean=1.00 routes=  3 layer=  79.2 tw=  82.2 idsEq=True | moe span  28.9 work  26.6 ramp  2.2 tailB  0.5 bar  1.0 busy 132.0/132.0
+MG 141.7s T=1 k=5 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.8s A T= 1 k=5 us(tailB) SS  32.3( 0.5) FF  32.2( 0.5) SF  32.4( 0.5) FS  32.3( 0.5)
+MG 141.8s T=1 k=5 done in 0.1s
+MG 141.8s T=8 S seed=12495 input built
+MG 141.8s   layer warmup call 0 done (twin=False)
+MG 141.8s   layer warmup call 1 done (twin=False)
+MG 141.8s T=8 S seed=12495 layer graph captured
+MG 141.8s T=8 S seed=12495 local_start=224 nexp=8 routes=13 build=tiny2
+MG 141.8s   layer warmup call 0 done (twin=True)
+MG 141.8s   layer warmup call 1 done (twin=True)
+MG 141.8s T=8 S seed=12495 twin layer graph captured: True
+MG 141.8s D T= 8 k=5 S nexp= 8 maxtok= 5 mean=1.62 routes= 13 layer= 110.6 tw= 114.4 idsEq=True | moe span  66.2 work  61.5 ramp  4.6 tailB  1.3 bar  1.0 busy 132.0/132.0
+MG 141.8s T=8 F seed=12500 input built
+MG 141.8s   layer warmup call 0 done (twin=False)
+MG 141.8s   layer warmup call 1 done (twin=False)
+MG 141.8s T=8 F seed=12500 layer graph captured
+MG 141.8s T=8 F seed=12500 local_start=192 nexp=8 routes=14 build=tiny2
+MG 141.8s   layer warmup call 0 done (twin=True)
+MG 141.8s   layer warmup call 1 done (twin=True)
+MG 141.8s T=8 F seed=12500 twin layer graph captured: True
+MG 141.9s D T= 8 k=5 F nexp= 8 maxtok= 4 mean=1.75 routes= 14 layer= 118.7 tw= 122.2 idsEq=True | moe span  66.2 work  61.5 ramp  4.6 tailB  1.3 bar  1.2 busy 132.0/132.0
+MG 141.9s T=8 k=5 timing the 4 MoE cells (20 interleaved replays each)
+MG 141.9s A T= 8 k=5 us(tailB) SS  65.7( 1.4) FF  66.4( 1.3) SF  66.0( 1.3) FS  65.5( 1.5)
+MG 141.9s T=8 k=5 done in 0.1s
+MGAP_SUMMARY (diagnostic; MoE us under CUDA-graph replay, 512 MiB read flush, medians; cells = hidden+routing class)
+MGAP_SETUP status=complete seeds/class/T={16: 6, 1: 6, 8: 6} twin_errors=none twins=['mid', 'tiny', 'tiny2'] twin_fault=none base_prepare_s=140
+MGAP_T T= 1 n=6 | layer us S   68.2 F   76.5 (S-F  -8.3) | routing S/F: nexp  2.3/ 2.7 maxtok  1.0/ 1.0 meantok 1.00/1.00 routes   2.3/  2.7
+MGAP_T T= 1 in-layer twin MoE span S   24.9 F   26.7 | work S   22.5 F   24.4 | entry->routed S    2.4 F    2.3 | tailB S    0.4 F    0.4
+MGAP_T T= 1 alone us SS   28.1 FF   30.3 SF   30.4 FS   28.1 (twin SS   30.0 FF   32.2) | S-F gap  -2.2: routing  -2.3 (  102%), hidden  +0.1 | tailB SS    0.4 FF    0.4
+MGAP_OLS T= 1 us per extra distinct expert +6.35 (n=24), S-F nexp -0.3 -> predicted routing gap  -2.1 us
+MGAP_T T= 8 n=6 | layer us S  104.4 F  115.2 (S-F -10.8) | routing S/F: nexp  7.0/ 7.3 maxtok  4.5/ 4.3 meantok 1.87/1.89 routes  12.8/ 13.7
+MGAP_T T= 8 in-layer twin MoE span S   60.0 F   62.2 | work S   55.2 F   57.4 | entry->routed S    4.6 F    4.7 | tailB S    1.2 F    1.1
+MGAP_T T= 8 alone us SS   59.1 FF   61.4 SF   61.2 FS   59.0 (twin SS   62.9 FF   65.1) | S-F gap  -2.3: routing  -2.3 (   97%), hidden  -0.1 | tailB SS    1.2 FF    1.1
+MGAP_OLS T= 8 us per extra distinct expert +6.47 (n=24), S-F nexp -0.3 -> predicted routing gap  -2.2 us
+MGAP_T T=16 n=6 | layer us S  134.5 F  207.6 (S-F -73.1) | routing S/F: nexp  8.3/ 7.0 maxtok 10.8/10.5 meantok 3.67/4.12 routes  29.2/ 27.5
+MGAP_T T=16 in-layer twin MoE span S   76.2 F   68.1 | work S   71.1 F   63.2 | entry->routed S    4.9 F    4.8 | tailB S    2.2 F    2.0
+MGAP_T T=16 alone us SS   75.4 FF   68.5 SF   68.3 FS   75.4 (twin SS   79.3 FF   71.6) | S-F gap  +6.9: routing  +7.0 (  101%), hidden  -0.1 | tailB SS    2.2 FF    2.1
+MGAP_OLS T=16 us per extra distinct expert +6.09 (n=24), S-F nexp +1.3 -> predicted routing gap  +8.1 us
+MGAP_POOLED S-F MoE gap summed over the measured T: +2.4 us; routing explains +2.5 us (  103%), hidden state explains -0.1 us
+MGAP_TAIL per-CTA phase-B end spread of the sliding cells (max - mean over busy CTAs): pooled median   1.2 us, worst T median   2.2 us (bar 8.0 us)
+MGAP_VERDICT STOP: tail spread 1.2 us < 8.0 us. What explains the gap: T=1: alone gap -2.2 (hidden +0.1), in-layer twin gap -1.8 -> layer context +0.4 | T=8: alone gap -2.3 (hidden -0.1), in-layer twin gap -2.2 -> layer context +0.1 | T=16: alone gap +6.9 (hidden -0.1), in-layer twin gap +8.0 -> layer context +1.1

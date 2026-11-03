@@ -1,0 +1,94 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 107s
+BUILD pw57_flush 30.4s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.11 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.52 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.98 us   1.68 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.02 us   1.68 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.38 us two_node 5.09 us overhead 3.68 us
+PREP rq thread ready at 46s (bake starts at 138s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.48 at 138s
+BAKE qkv_gate m=128 rq:d2s5hze 14.81 (ratio 1.4092 vs r6 20.48) at 138s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.41 (ratio 1.0569 vs rq:d2s5hze 14.81) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.69 (ratio 1.0443 vs rq:d2s5hze 14.81) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.23 (ratio 0.9975 vs rq:d2s5hze 14.81) at 138s
+BAKE qkv_gate m=128 rq:d2s6hze 16.64 (ratio 0.9711 vs rq:d2s5hze 14.81) at 138s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.01 (ref rq:d2s5hze 14.81)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0569)
+BAKE qkv_gate m=256 r6 23.04 at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 20.85 (ratio 1.1186 vs r6 23.04) at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.47 (ratio 0.9955 vs rq:n256s5m1hzmEH 20.85) at 138s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 20.85 (ref rq:n256s5m1hzmEH 20.85)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.66 at 138s
+BAKE unpooler m=128 rq:d2s5hze 21.23 (ratio 1.0852 vs r6 22.66) at 138s
+BAKE unpooler m=128 rq:d2s5hzwP 21.13 (ratio 1.0132 vs rq:d2s5hze 21.23) at 138s
+BAKE unpooler m=128 rq:s4s5hzw 20.66 (ratio 1.0437 vs rq:d2s5hze 21.23) at 138s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.65 (ratio 0.9902 vs rq:d2s5hze 21.23) at 138s
+BAKE unpooler m=128 rq:s4s5hze 21.42 (ratio 0.9918 vs rq:d2s5hze 21.23) at 138s
+BAKE unpooler m=128 rq:d2s6hze 21.92 (ratio 0.9753 vs rq:d2s5hze 21.23) at 138s
+PICK unpooler m=128 rq:s4s5hzw 20.34 (ref rq:d2s5hze 21.23)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0132)
+BAKE unpooler m=256 r6 27.55 at 138s
+PICK unpooler m=256 r6 27.55 (ref r6 27.55)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 138s
+[mfab] layer prepare done at 138s
+[mfab] moe T= 32 prod median   147.6 us  speedup vs barrier twin (twin without SC6) 1.0187 (per seed 1.017 1.019 1.012 1.023)  max|d| 0
+[mfab] moe T=128 prod median   193.7 us  speedup vs barrier twin (twin without SC6) 1.0225 (per seed 1.023 1.024 1.021 1.015)  max|d| 0
+[mfab] moe T=256 prod median   225.7 us  speedup vs barrier twin (twin without SC6) 1.0099 (per seed 1.021 1.005 1.010 1.010)  max|d| 0
+GA_INFO base_prepare_s=138.2 read_flush_MiB=512 blocks=24 passes<=3 shapes=12
+GA_PDL a skipped launch is not launched: its dependent keeps its own PDL attribute and attaches to the preceding kernel (o / pooler / MoE / unpooler); no launch needed the PDL attribute removed
+GA_SHAPE d1S T=1 t=139s inc=80.70us passes=3 na=[] seq=route:gle_route,b2:sl_cluster_finish
+  ctl:+0.28us(+0.3%,q1 -0.35,q3 +1.02,medD +0.27,arm 80.3) A2:+0.71us(+0.9%,q1 +0.16,q3 +1.34,medD +0.64,arm 80.1) A3:+1.88us(+2.3%,q1 +1.41,q3 +2.50,medD +1.92,arm 78.6) A4:+1.73us(+2.1%,q1 +0.98,q3 +2.24,medD +1.98,arm 78.7) A5:+1.66us(+2.1%,q1 +0.98,q3 +2.30,medD +1.70,arm 79.1)
+GA_SHAPE v1S T=8 t=139s inc=105.49us passes=3 na=[] seq=b1:b1,route:sl_tile_route,b2:sl_cluster_finish
+  ctl:+0.10us(+0.1%,q1 -0.42,q3 +0.59,medD -0.08,arm 105.4) A2:+2.29us(+2.2%,q1 +1.66,q3 +2.72,medD +2.11,arm 102.9) A3:+1.42us(+1.3%,q1 +0.90,q3 +2.08,medD +1.58,arm 103.7) A4:+4.38us(+4.2%,q1 +3.94,q3 +5.04,medD +4.78,arm 101.2) A5:+1.27us(+1.2%,q1 +0.82,q3 +1.82,medD +1.57,arm 104.2)
+GA_SHAPE d16S T=16 t=140s inc=123.68us passes=3 na=[] seq=b1:b1,route:sl_tile_route,b2:b2c
+  ctl:-0.06us(-0.1%,q1 -0.67,q3 +0.37,medD -0.42,arm 124.0) A2:+1.75us(+1.4%,q1 +1.25,q3 +2.62,medD +2.08,arm 121.4) A3:+2.52us(+2.0%,q1 +1.98,q3 +3.14,medD +2.59,arm 120.9) A4:+5.18us(+4.2%,q1 +4.45,q3 +5.81,medD +4.91,arm 118.9) A5:+1.62us(+1.3%,q1 +0.96,q3 +2.02,medD +1.41,arm 122.5)
+GA_SHAPE d32S T=32 t=141s inc=177.44us passes=3 na=[] seq=b1:row_boundary_pre,route:sl_tile_route,b2:row_boundary_pre
+  ctl:-0.28us(-0.2%,q1 -1.04,q3 +0.85,medD -0.26,arm 177.6) A2:+1.34us(+0.8%,q1 +0.77,q3 +2.48,medD +1.78,arm 175.8) A3:+2.54us(+1.4%,q1 +1.15,q3 +3.44,medD +2.16,arm 175.3) A4:+4.02us(+2.3%,q1 +3.22,q3 +4.88,medD +3.98,arm 173.6) A5:+1.10us(+0.6%,q1 +0.19,q3 +2.40,medD +1.57,arm 175.8)
+GA_SHAPE d1F T=1 t=141s inc=74.98us passes=3 na=[] seq=route:gle_route,b2:sl_cluster_finish
+  ctl:-0.41us(-0.5%,q1 -0.90,q3 +0.40,medD -0.18,arm 75.1) A2:+0.44us(+0.6%,q1 -0.26,q3 +1.04,medD +0.30,arm 74.8) A3:+2.14us(+2.8%,q1 +1.31,q3 +2.72,medD +2.24,arm 72.9) A4:+1.42us(+1.9%,q1 +0.99,q3 +2.29,medD +1.62,arm 73.3) A5:+1.06us(+1.4%,q1 +0.54,q3 +1.81,medD +0.94,arm 74.0)
+GA_SHAPE v16S T=128 t=142s inc=223.14us passes=3 na=[] seq=b1:row_boundary,route:graft_route,b2:row_boundary
+  ctl:-0.47us(-0.2%,q1 -1.86,q3 +0.58,medD -0.61,arm 223.6) A2:+4.66us(+2.1%,q1 +1.68,q3 +6.53,medD +0.43,arm 223.0) A3:+4.21us(+1.9%,q1 +3.17,q3 +5.73,medD +4.08,arm 218.9) A4:+10.42us(+4.7%,q1 +5.90,q3 +11.74,medD +5.20,arm 217.8) A5:+0.97us(+0.4%,q1 -2.16,q3 +2.16,medD -3.34,arm 226.7)
+GA_SHAPE v1F T=8 t=143s inc=113.12us passes=3 na=[] seq=b1:b1,route:sl_tile_route,b2:sl_cluster_finish
+  ctl:+0.00us(+0.0%,q1 -0.99,q3 +0.80,medD +0.13,arm 113.1) A2:+2.46us(+2.2%,q1 +1.74,q3 +3.31,medD +2.10,arm 110.8) A3:+1.34us(+1.2%,q1 +0.51,q3 +2.24,medD +1.36,arm 111.5) A4:+4.01us(+3.5%,q1 +3.17,q3 +4.74,medD +3.95,arm 109.0) A5:+1.10us(+1.0%,q1 +0.53,q3 +1.73,medD +1.02,arm 112.5)
+GA_SHAPE v32S T=256 t=144s inc=286.53us passes=3 na=[] seq=b1:row_boundary,route:graft_route,b2:row_boundary
+  ctl:+0.21us(+0.1%,q1 -1.78,q3 +1.84,medD +0.26,arm 286.6) A2:+10.94us(+3.8%,q1 +9.47,q3 +13.86,medD +14.43,arm 272.5) A3:+6.26us(+2.2%,q1 +4.59,q3 +8.06,medD +6.45,arm 280.0) A4:+17.76us(+6.2%,q1 +16.19,q3 +20.77,medD +21.39,arm 264.8) A5:+5.46us(+1.9%,q1 +3.87,q3 +7.58,medD +7.23,arm 277.8)
+GA_SHAPE d16F T=16 t=145s inc=236.22us passes=3 na=[] seq=b1:b1,route:sl_tile_route,b2:b2c
+  ctl:-0.10us(-0.0%,q1 -0.82,q3 +0.78,medD -0.02,arm 236.5) A2:+1.97us(+0.8%,q1 +1.28,q3 +2.96,medD +1.86,arm 234.0) A3:+3.00us(+1.3%,q1 +2.29,q3 +3.87,medD +3.14,arm 233.2) A4:+5.44us(+2.3%,q1 +4.70,q3 +6.06,medD +5.84,arm 230.3) A5:+1.52us(+0.6%,q1 +0.69,q3 +2.16,medD +1.68,arm 234.7)
+GA_SHAPE d32F T=32 t=146s inc=340.53us passes=3 na=[] seq=b1:row_boundary_pre,route:sl_tile_route,b2:row_boundary_pre
+  ctl:-0.04us(-0.0%,q1 -0.88,q3 +0.88,medD +0.22,arm 340.5) A2:+1.39us(+0.4%,q1 +0.74,q3 +1.82,medD +1.04,arm 338.6) A3:+2.83us(+0.8%,q1 +2.24,q3 +4.03,medD +3.23,arm 337.8) A4:+4.22us(+1.2%,q1 +3.47,q3 +5.33,medD +4.50,arm 336.1) A5:+1.70us(+0.5%,q1 +0.90,q3 +2.48,medD +2.02,arm 338.7)
+GA_SHAPE v16F T=128 t=147s inc=336.51us passes=3 na=[] seq=b1:row_boundary,route:graft_route,b2:row_boundary
+  ctl:+1.02us(+0.3%,q1 -0.88,q3 +3.82,medD +0.43,arm 335.9) A2:+6.54us(+1.9%,q1 +5.39,q3 +8.58,medD +7.06,arm 329.4) A3:+5.78us(+1.7%,q1 +4.10,q3 +7.31,medD +6.10,arm 331.1) A4:+11.35us(+3.4%,q1 +9.81,q3 +13.07,medD +11.79,arm 324.5) A5:+2.71us(+0.8%,q1 +0.78,q3 +4.61,medD +2.94,arm 333.8)
+GA_SHAPE v32F T=256 t=148s inc=509.42us passes=3 na=[] seq=b1:row_boundary,route:graft_route,b2:row_boundary
+  ctl:-0.42us(-0.1%,q1 -1.82,q3 +1.84,medD -0.18,arm 505.4) A2:+8.43us(+1.7%,q1 +6.91,q3 +9.70,medD +8.66,arm 512.2) A3:+6.20us(+1.2%,q1 +4.93,q3 +7.55,medD +4.21,arm 515.8) A4:+15.53us(+3.0%,q1 +14.13,q3 +17.33,medD +15.36,arm 492.8) A5:+3.19us(+0.6%,q1 +1.10,q3 +4.75,medD +2.51,arm 502.9)
+GA_SUMMARY N3 boundary-glue ceiling, timing-only skip arms (wrong numerics, never adopted); paired ABBA/BAAB, 512 MiB read flush, CUDA-graph replay, 24 blocks/pass; saving = incumbent - arm in us (paired median) and % of the incumbent
+shape  T  inc_us | A2 skip b1    | A3 skip b2    | A4 both       | A5 route      | ctl(noise) passes
+d1S     1    80.7 |  +0.71  +0.9% |  +1.88  +2.3% |  +1.73  +2.1% |  +1.66  +2.1% | +0.28 3
+v1S     8   105.5 |  +2.29  +2.2% |  +1.42  +1.3% |  +4.38  +4.2% |  +1.27  +1.2% | +0.10 3
+d16S   16   123.7 |  +1.75  +1.4% |  +2.52  +2.0% |  +5.18  +4.2% |  +1.62  +1.3% | -0.06 3
+d32S   32   177.4 |  +1.34  +0.8% |  +2.54  +1.4% |  +4.02  +2.3% |  +1.10  +0.6% | -0.28 3
+d1F     1    75.0 |  +0.44  +0.6% |  +2.14  +2.8% |  +1.42  +1.9% |  +1.06  +1.4% | -0.41 3
+v16S  128   223.1 |  +4.66  +2.1% |  +4.21  +1.9% | +10.42  +4.7% |  +0.97  +0.4% | -0.47 3
+v1F     8   113.1 |  +2.46  +2.2% |  +1.34  +1.2% |  +4.01  +3.5% |  +1.10  +1.0% | +0.00 3
+v32S  256   286.5 | +10.94  +3.8% |  +6.26  +2.2% | +17.76  +6.2% |  +5.46  +1.9% | +0.21 3
+d16F   16   236.2 |  +1.97  +0.8% |  +3.00  +1.3% |  +5.44  +2.3% |  +1.52  +0.6% | -0.10 3
+d32F   32   340.5 |  +1.39  +0.4% |  +2.83  +0.8% |  +4.22  +1.2% |  +1.70  +0.5% | -0.04 3
+v16F  128   336.5 |  +6.54  +1.9% |  +5.78  +1.7% | +11.35  +3.4% |  +2.71  +0.8% | +1.02 3
+v32F  256   509.4 |  +8.43  +1.7% |  +6.20  +1.2% | +15.53  +3.0% |  +3.19  +0.6% | -0.42 3
+T=1: A2 only drops _gle_route's carry programs (b1 is fused into gle_o); A5 there also drops the xm norm and the carry.
+conditional score (anchor 1ca0668a, formula of kb/APPROACH.md; baseline recomputed 2.2347); saving applied to every shape as measured in us (negative -> 0), 'pct' = measured % x the anchor's judged time:
+arm          100%us  50%us   25%us  100%pct
+A2 skip b1    2.2727 2.2535 2.2440 2.2722
+A3 skip b2    2.2763 2.2553 2.2449 2.2741
+A4 skip both  2.3169 2.2750 2.2546 2.3149
+A5 skip route 2.2614 2.2479 2.2413 2.2598
+N3 build gate (A4 saves >= 3 us on d16/d32/v32): 6/6 shapes ['d16S', 'd16F', 'd32S', 'd32F', 'v32S', 'v32F']; A4 per load (ratio R_j, anchor -> A4):
+  d1 2.572->2.636, d16 2.116->2.195, d32 1.900->1.942, v1 2.470->2.572, v16 2.172->2.266, v32 2.246->2.362
+GA_DONE total_prepare_s=147.9 shapes=12/12

@@ -1,0 +1,155 @@
+4.2e-03 r3.8e-03
+DT qkv:256 n256s5m1hzm-k7 21.90 21.47 0.980 0.983 e1 a1 b4.2e-03 r3.9e-03
+DT qkv:256 n256s5m1hzmEH-k7 21.70 21.30 0.982 0.980 e1 a1 b4.2e-03 r3.8e-03
+DT qkv:256 n256s4m1hzm-k7 21.71 21.50 0.990 0.985 e1 a0 b4.2e-03 r3.8e-03
+DT qkv:256 keep-n256s5m1hzmEH-k7 21.63 21.22 0.981 0.977 e1 a1
+DT poo:256 n256s4hz-k3 28.13 35.04 1.246 1.254 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5hz-k3 28.11 35.49 1.262 1.268 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5m1hzm-k3 28.03 35.01 1.249 1.252 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s5m1hzmEH-k3 28.06 34.85 1.242 1.247 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s4m1hzm-k3 28.16 34.91 1.240 1.255 e1 a0 b3.3e-03 r2.9e-03
+DT poo:256 n256s4hz-k4 28.19 30.53 1.083 1.087 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5hz-k4 28.16 30.82 1.094 1.093 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5m1hzm-k4 28.06 30.40 1.083 1.088 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s5m1hzmEH-k4 28.11 30.08 1.070 1.071 e1 a0 b3.5e-03 r3.2e-03
+DT poo:256 n256s4m1hzm-k4 28.18 30.14 1.070 1.074 e1 a0 b3.5e-03 r3.2e-03
+DT unp:256 n256s4hz-k1 27.90 46.66 1.672 1.687 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5hz-k1 27.95 47.66 1.705 1.713 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5m1hzm-k1 27.92 46.56 1.668 1.674 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s5m1hzmEH-k1 27.98 46.38 1.658 1.670 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s4m1hzm-k1 27.97 46.69 1.669 1.681 e1 a0 b0.0e+00 r1.7e-03
+DT unp:256 n256s4hz-k2 27.92 30.82 1.104 1.108 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5hz-k2 27.98 31.30 1.118 1.120 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5m1hzm-k2 27.94 30.78 1.102 1.103 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s5m1hzmEH-k2 28.02 30.66 1.094 1.099 e1 a0 b2.9e-03 r2.4e-03
+DT unp:256 n256s4m1hzm-k2 27.94 30.66 1.097 1.099 e1 a0 b2.9e-03 r2.4e-03
+DT o:128 h128s5e-k1 10.45 11.82 1.132 1.134 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 h128s8e-k1 10.50 11.87 1.131 1.147 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 d2s5hzwP-k1 10.48 13.60 1.298 1.308 e1 a0 b0.0e+00 r1.7e-03
+DT o:128 d2s5hzwP-k2 10.53 12.16 1.155 1.165 e1 a0 b2.9e-03 r2.4e-03
+DT qkv:1 t16s4curP-k7 12.77 13.02 1.020 1.030 e1 a0 b4.3e-03 r3.9e-03
+DT qkv:1 t16s5curP-k7 12.75 13.02 1.021 1.025 e1 a0 b4.4e-03 r4.0e-03
+DT qkv:1 ge 12.85 24.00 1.868 1.887 e1 a0 b2.5e-08 r1.7e-03
+DT qkv:1 ger 12.78 25.31 1.980 1.992 e1 a0 b2.5e-08 r1.7e-03
+DT qkv:1 ger-k2 12.78 25.47 1.992 2.006 e1 a0 b2.5e-08 r1.7e-03
+DT poo:1 t16s4curP-k4 17.26 18.53 1.073 1.082 e1 a0 b3.6e-03 r3.2e-03
+DT poo:1 t16s5curP-k4 17.22 18.27 1.061 1.068 e1 a0 b3.5e-03 r3.2e-03
+DT poo:1 ge 17.26 25.06 1.451 1.457 e1 a0 b3.2e-04 r1.7e-03
+DT poo:1 ger 17.30 25.50 1.475 1.482 e1 a0 b3.2e-04 r1.7e-03
+DT poo:1 ger-k2 17.28 25.95 1.502 1.515 e1 a0 b3.2e-04 r1.7e-03
+DT unp:1 t16s4curP-k2 7.46 13.54 1.815 1.862 e1 a0 b2.7e-03 r2.4e-03
+DT unp:1 t16s5curP-k2 7.46 13.09 1.755 1.796 e1 a0 b2.7e-03 r2.4e-03
+DT unp:1 ge 7.49 14.82 1.979 2.025 e1 a0 b0.0e+00 r1.6e-03
+DT unp:1 ger 7.46 15.95 2.139 2.208 e1 a0 b0.0e+00 r1.6e-03
+DT unp:1 ger-k2 7.49 15.63 2.088 2.120 e1 a0 b0.0e+00 r1.6e-03
+DT unp:1 gb-n4 7.47 8.24 1.103 1.137 e1 a0 b0.0e+00 r1.6e-03
+DT rou:1 r12 7.52 9.89 1.315 1.338 e1 a0 b2.6e-06 r2.6e-06
+DT rou:1 rhl 7.52 8.48 1.128 1.150 e1 a0 b2.6e-06 r2.6e-06
+DT qkv:8 t16s4curP-k7 13.12 13.14 1.001 1.013 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 t16s5curP-k7 13.09 13.15 1.005 1.010 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:8 ge 13.12 24.42 1.861 1.871 e1 a0 b5.0e-05 r1.7e-03
+DT qkv:8 ger 13.09 25.68 1.962 1.981 e1 a0 b5.0e-05 r1.7e-03
+DT qkv:8 ger-k2 13.09 25.79 1.971 1.991 e1 a0 b5.0e-05 r1.7e-03
+DT poo:8 t16s4curP-k4 17.66 18.74 1.061 1.069 e1 a0 b3.5e-03 r3.2e-03
+DT poo:8 t16s5curP-k4 17.63 18.18 1.031 1.034 e1 a0 b3.5e-03 r3.2e-03
+DT poo:8 ge 17.63 25.49 1.446 1.451 e1 a0 b2.2e-05 r1.7e-03
+DT poo:8 ger 17.70 25.73 1.454 1.457 e1 a0 b2.2e-05 r1.7e-03
+DT poo:8 ger-k2 17.70 26.08 1.474 1.479 e1 a0 b2.2e-05 r1.7e-03
+DT unp:8 t16s4curP-k2 8.08 14.27 1.766 1.791 e1 a0 b4.0e-03 r2.5e-03
+DT unp:8 t16s5curP-k2 8.02 13.15 1.641 1.659 e1 a0 b3.9e-03 r2.5e-03
+DT unp:8 ge 8.08 14.85 1.838 1.866 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger 8.11 16.03 1.976 2.017 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger-k2 8.13 15.58 1.917 1.952 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 gb-n4 8.00 8.51 1.064 1.067 e1 a0 b3.6e-03 r1.7e-03
+DT qkv:16 t16s4curP-k7 13.79 13.22 0.958 0.964 e1 a1 b4.2e-03 r3.9e-03
+DT qkv:16 t16s5curP-k7 13.73 13.06 0.951 0.957 e1 a1 b4.2e-03 r3.8e-03
+DT qkv:16 ge 13.74 26.18 1.905 1.922 e1 a0 b3.2e-05 r1.6e-03
+DT qkv:16 ger 13.55 26.75 1.974 1.976 e1 a0 b3.2e-05 r1.6e-03
+DT qkv:16 keep-t16s5curP-k7 13.76 13.15 0.956 0.963 e1 a1
+DT poo:16 t16s4curP-k4 17.79 18.93 1.064 1.067 e1 a0 b3.6e-03 r3.2e-03
+DT poo:16 t16s5curP-k4 17.81 18.37 1.031 1.039 e1 a0 b3.5e-03 r3.2e-03
+DT poo:16 ge 17.82 27.12 1.522 1.527 e1 a0 b0.0e+00 r1.7e-03
+DT poo:16 ger 17.95 26.78 1.492 1.501 e1 a0 b0.0e+00 r1.7e-03
+DT unp:16 t16s4curP-k2 17.86 18.53 1.038 1.049 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 t16s5curP-k2 17.71 18.11 1.023 1.027 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 ge 17.73 29.87 1.685 1.678 e1 a0 b9.3e-05 r1.7e-03
+DT unp:16 ger 17.70 34.18 1.931 1.932 e1 a0 b9.3e-05 r1.7e-03
+DT unp:16 ger-k2 17.81 34.80 1.954 1.948 e1 a0 b9.3e-05 r1.7e-03
+DT qkv:32 t32s5curP-k7 13.90 13.34 0.960 0.970 e1 a1 b4.6e-03 r3.9e-03
+DT qkv:32 t32s6curP-k7 13.87 13.46 0.970 0.982 e1 a0 b4.6e-03 r3.9e-03
+DT qkv:32 ge 14.11 43.78 3.102 3.177 e1 a0 b4.2e-03 r1.7e-03
+DT qkv:32 keep-t32s5curP-k7 13.87 13.28 0.957 0.965 e1 a1
+DT poo:32 t32s5curP-k4 18.82 18.46 0.981 0.982 e1 a1 b3.5e-03 r3.2e-03
+DT poo:32 t32s6curP-k4 18.83 18.48 0.981 0.989 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 ge 18.91 45.71 2.417 2.449 e1 a0 b1.3e-04 r1.7e-03
+DT poo:32 keep-t32s5curP-k4 18.82 18.56 0.986 0.991 e1 a0
+DT unp:32 t32s5curP-k2 18.53 18.32 0.989 0.996 e1 a0 b2.9e-03 r2.5e-03
+DT unp:32 t32s6curP-k2 18.48 18.35 0.993 0.999 e1 a0 b2.9e-03 r2.5e-03
+DT unp:32 ge 18.56 33.04 1.780 1.780 e1 a0 b8.4e-05 r1.7e-03
+DT done 22/17 4.6s adopted 6: qkv:16=arm('qkv_gate', 16, 't16s5curP-k7') qkv:32=arm('qkv_gate', 32, 't32s5curP-k7') qkv:256=arm('qkv_gate', 256, 'n256s5m1hzmEH-k7') rou:8=arm('router', 8, 'rt8w8') rou:16=arm('router', 16, 'rt8w16') rou:32=arm('router', 32, 'rt16w8')
+V4 GEOM m128 base rk_kernel BN64 BR64 ntt2 S16 grid128 nk8 W-fetches/tile 2 L2->SM 25.2 MB (W 16.8 + x 8.4)
+V4 GEOM m128 rk64p16 BN64 BR64 red1 ntt2 S16 grid128 nk8 W-fetches 2 L2->SM 25.2 MB
+V4 GEOM m128 rk128a32 BN128 BR64 red0 ntt1 S32 grid128 nk4 W-fetches 1 L2->SM 16.8 MB
+V4 GEOM m128 rk128p32 BN128 BR64 red1 ntt1 S32 grid128 nk4 W-fetches 1 L2->SM 16.8 MB
+V4 GEOM m128 rk128p16 BN128 BR64 red1 ntt1 S16 grid64 nk8 W-fetches 1 L2->SM 16.8 MB
+V4 GEOM m128 rk2w128p64 BN128 BR128 red1 ntt1 S64 grid128 nk2 W-fetches 1 L2->SM 12.6 MB
+V4 GEOM m128 rk2w128p32 BN128 BR128 red1 ntt1 S32 grid64 nk4 W-fetches 1 L2->SM 12.6 MB
+V4 GEOM m256 base rk_kernel BN64 BR64 ntt4 S8 grid128 nk16 W-fetches/tile 4 L2->SM 50.3 MB (W 33.6 + x 16.8)
+V4 GEOM m256 rk64p8 BN64 BR64 red1 ntt4 S8 grid128 nk16 W-fetches 4 L2->SM 50.3 MB
+V4 GEOM m256 rk128a16 BN128 BR64 red0 ntt2 S16 grid128 nk8 W-fetches 2 L2->SM 33.6 MB
+V4 GEOM m256 rk128p16 BN128 BR64 red1 ntt2 S16 grid128 nk8 W-fetches 2 L2->SM 33.6 MB
+V4 GEOM m256 rk256a32 BN256 BR64 red0 ntt1 S32 grid128 nk4 W-fetches 1 L2->SM 25.2 MB
+V4 GEOM m256 rk256p32 BN256 BR64 red1 ntt1 S32 grid128 nk4 W-fetches 1 L2->SM 25.2 MB
+V4 GEOM m256 rk256p16 BN256 BR64 red1 ntt1 S16 grid64 nk8 W-fetches 1 L2->SM 25.2 MB
+V4 GEOM m256 rk2w128p32 BN128 BR128 red1 ntt2 S32 grid128 nk4 W-fetches 2 L2->SM 25.2 MB
+V4 GEOM m256 rk2w256p64 BN256 BR128 red1 ntt1 S64 grid128 nk2 W-fetches 1 L2->SM 16.8 MB
+V4 SUMMARY (arm ratio/paired; a = adopted; search-pass ratios vs the incumbent route, confirm in keep)
+V4 rou:8 | ADOPTED rt8w8 confirm 0.936/0.946 (7.52 vs 8.03 us) | rt8w8=0.935/0.951* rt8w4=0.990/1.004 rt8w16=0.960/0.970 rt4w8=0.957/0.973 rt16w4=0.968/0.977
+V4 rou:16 | ADOPTED rt8w16 confirm 0.932/0.949 (7.71 vs 8.27 us) | rt8w8=0.967/0.989 rt8w4=1.008/1.012 rt8w16=0.937/0.951* rt4w8=0.984/0.994 rt16w4=0.975/0.986
+V4 rou:32 | ADOPTED rt16w8 confirm 0.968/0.979 (8.77 vs 9.06 us) | rt8w8=1.102/1.116 rt8w16=1.146/1.161 rt16w8=0.972/0.984*
+V4 rou:128 | incumbent kept (no arm passed the search gate) | rk64p16=1.190/1.214 rk128a32=1.097/1.117 rk128p32=1.319/1.340 rk128p16=1.261/1.278 rk2w128p64=1.621/1.635 rk2w128p32=1.448/1.462
+V4 rou:256 | incumbent kept (no arm passed the search gate) | rk64p8=1.229/1.236 rk128a16=1.025/1.034 rk128p16=1.238/1.255 rk256a32=1.243/1.245 rk256p32=1.416/1.426 rk256p16=1.504/1.519 rk2w128p32=1.437/1.453 rk2w256p64=1.905/1.911
+V4 DIAG rou:256 rk64p8 rel 7.56e-08 then 7.56e-08 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk128a16 rel 1.38e-06 then 1.38e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk128p16 rel 1.38e-06 then 1.38e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk256a32 rel 1.81e-06 then 1.81e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk256p32 rel 1.81e-06 then 1.81e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk256p16 rel 1.38e-06 then 1.38e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk2w128p32 rel 1.81e-06 then 1.81e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:256 rk2w256p64 rel 2.02e-06 then 2.02e-06 | finite 1 zero 0 nzrows 256/256 normratio 1
+V4 DIAG rou:128 rk64p16 rel 1.03e-07 then 1.03e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 DIAG rou:128 rk128a32 rel 6.95e-07 then 6.94e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 DIAG rou:128 rk128p32 rel 6.92e-07 then 6.92e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 DIAG rou:128 rk128p16 rel 1.04e-07 then 1.04e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 DIAG rou:128 rk2w128p64 rel 8.97e-07 then 8.97e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 DIAG rou:128 rk2w128p32 rel 6.82e-07 then 6.82e-07 | finite 1 zero 0 nzrows 128/128 normratio 1
+V4 build rk2 ok
+V4 rk2 rk64p8 regs 58 local 0 smem 148648
+V4 rk2 rk128a16 regs 90 local 0 smem 197800
+V4 rk2 rk128p16 regs 90 local 0 smem 197800
+V4 rk2 rk256a32 regs 154 local 0 smem 197768
+V4 rk2 rk256p32 regs 154 local 0 smem 197768
+V4 rk2 rk256p16 regs 154 local 0 smem 197768
+V4 rk2 rk2w128p32 regs 90 local 0 smem 197768
+V4 rk2 rk2w256p64 regs 154 local 0 smem 197752
+V4 rk2 rk64p16 regs 58 local 0 smem 148648
+V4 rk2 rk128a32 regs 90 local 0 smem 197800
+V4 rk2 rk128p32 regs 90 local 0 smem 197800
+V4 rk2 rk128p16 regs 90 local 0 smem 197800
+V4 rk2 rk2w128p64 regs 90 local 0 smem 197768
+V4 rk2 rk2w128p32 regs 90 local 0 smem 197768
+V4 rt8 S8W8 regs 94 local 0 grid 128
+V4 rt8 S8W4 regs 168 local 0 grid 128
+V4 rt8 S8W16 regs 54 local 0 grid 128
+V4 rt8 S4W8 regs 178 local 0 grid 64
+V4 rt8 S16W4 regs 93 local 0 grid 256
+V4 rt16 S8W8 regs 114 local 0 grid 128
+V4 rt16 S8W4 regs 214 local 0 grid 128
+V4 rt16 S8W16 regs 64 local 0 grid 128
+V4 rt16 S4W8 regs 214 local 0 grid 64
+V4 rt16 S16W4 regs 111 local 0 grid 256
+V4 rt32 S8W8 regs 158 local 0 grid 128
+V4 rt32 S8W4 regs 255 local 128 grid 128
+V4 rt32 S8W16 regs 81 local 0 grid 128
+V4 rt32 S4W8 regs 255 local 128 grid 64
+V4 rt32 S16W8 regs 80 local 0 grid 256

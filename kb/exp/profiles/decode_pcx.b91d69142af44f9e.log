@@ -1,0 +1,118 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 106s
+BUILD pw57_flush 30.5s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.41 us   0.67 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.39 us   0.85 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.31 us   1.80 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.11 us   1.66 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.58 us two_node 5.25 us overhead 3.90 us
+PREP rq thread ready at 45s (bake starts at 136s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 21.06 at 136s
+BAKE qkv_gate m=128 rq:d2s5hze 14.92 (ratio 1.4308 vs r6 21.06) at 136s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.43 (ratio 1.0556 vs rq:d2s5hze 14.92) at 136s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.81 (ratio 1.0364 vs rq:d2s5hze 14.92) at 136s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.13 (ratio 1.0039 vs rq:d2s5hze 14.92) at 136s
+BAKE qkv_gate m=128 rq:d2s6hze 16.55 (ratio 0.9767 vs rq:d2s5hze 14.92) at 136s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.13 (ref rq:d2s5hze 14.92)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0556)
+BAKE qkv_gate m=256 r6 23.14 at 136s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.28 (ratio 1.0963 vs r6 23.14) at 136s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.50 (ratio 1.0046 vs rq:n256s5m1hzmEH 21.28) at 136s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.28 (ref rq:n256s5m1hzmEH 21.28)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.10 at 136s
+BAKE unpooler m=128 rq:d2s5hze 20.93 (ratio 1.1161 vs r6 23.10) at 136s
+BAKE unpooler m=128 rq:d2s5hzwP 20.01 (ratio 1.0569 vs rq:d2s5hze 20.93) at 136s
+BAKE unpooler m=128 rq:s4s5hzw 21.09 (ratio 1.0029 vs rq:d2s5hze 20.93) at 136s
+BAKE unpooler m=128 rq:s4s5hzeEH 22.15 (ratio 0.9549 vs rq:d2s5hze 20.93) at 136s
+BAKE unpooler m=128 rq:s4s5hze 21.29 (ratio 0.9963 vs rq:d2s5hze 20.93) at 136s
+BAKE unpooler m=128 rq:d2s6hze 21.44 (ratio 1.0000 vs rq:d2s5hze 20.93) at 136s
+PICK unpooler m=128 rq:d2s5hzwP 19.80 (ref rq:d2s5hze 20.93)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0569)
+BAKE unpooler m=256 r6 27.55 at 136s
+PICK unpooler m=256 r6 27.55 (ref r6 27.55)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 136s
+[mfab] layer prepare done at 136s
+PCX_INFO base_prepare_s=136.2 read_flush_MiB=512 adopt_ratio<=0.988 screen<=0.997 passes=2 blocks=12 tokens=(1, 8, 16)
+PCX_ROLES T=1 traced=['o', 'pool', 'qkv', 'un'] sk2_active=['o', 'pool', 'qkv', 'un'] NSTAGE_max_P={'qkv': 6, 'o': 4, 'pool': 6, 'un': 4} arms=['o_P4', 'pool_P4', 'pool_P6', 'un_P4', 'qkv_P4', 'qkv_P6', 'qkv_ET', 'o_ET', 'pool_ET', 'un_ET', 'o_ET+pool_P6']
+PCX_BASE_SELF T=1 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+PCX_BASE_SELF T=1 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+PCX_PACING T=1 arms=['qkv_P6_pace', 'o_P4_pace', 'pool_P6_pace', 'un_P4_pace']
+PCX_ARM T=1 o_P4 S1:1.0054/1.0034- F1:1.0098/1.0099- qualifies=0
+PCX_ARM T=1 pool_P4 S1:1.0115/1.0187- F1:1.0082/1.0092- qualifies=0
+PCX_ARM T=1 pool_P6 S1:1.0318/1.0275- F1:1.0136/1.0137- qualifies=0
+PCX_ARM T=1 un_P4 S1:1.0090/1.0104- F1:0.9955/1.0036- qualifies=0
+PCX_ARM T=1 qkv_P4 S1:1.0106/1.0134- F1:1.0163/1.0148- qualifies=0
+PCX_ARM T=1 qkv_P6 S1:1.0255/1.0222- F1:1.0132/1.0159- qualifies=0
+PCX_ARM T=1 qkv_ET S1:1.0189/1.0191- F1:1.0048/1.0064- qualifies=0
+PCX_ARM T=1 o_ET S1:1.0062/1.0051- F1:0.9935/0.9904- qualifies=0
+PCX_ARM T=1 pool_ET S1:1.0183/1.0109- F1:1.0061/1.0090- qualifies=0
+PCX_ARM T=1 un_ET S1:1.0038/0.9985- F1:1.0037/0.9999- qualifies=0
+PCX_ARM T=1 o_ET+pool_P6 S1:1.0181/1.0195- F1:1.0273/1.0277- qualifies=0
+PCX_ARM T=1 qkv_P6_pace S1:0.9965/1.0050- F1:1.0181/1.0141- qualifies=0
+PCX_ARM T=1 o_P4_pace S1:1.0085/1.0049- F1:1.0032/1.0015- qualifies=0
+PCX_ARM T=1 pool_P6_pace S1:1.0110/1.0143- F1:1.0212/1.0241- qualifies=0
+PCX_ARM T=1 un_P4_pace S1:1.0220/1.0183- F1:1.0026/1.0044- qualifies=0
+PCX_NONE T=1 no arm below the screening bar 0.997
+PCX_NONE T=1 fallback=incumbent
+PCX_ROLES T=8 traced=['o', 'pool', 'qkv', 'un'] sk2_active=['o', 'pool', 'qkv', 'un'] NSTAGE_max_P={'qkv': 5, 'o': 4, 'pool': 6, 'un': 4} arms=['o_P4', 'pool_P4', 'pool_P6', 'un_P4', 'qkv_P4', 'qkv_P5', 'qkv_ET', 'o_ET', 'pool_ET', 'un_ET']
+PCX_BASE_SELF T=8 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=4.6e-06
+PCX_BASE_SELF T=8 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+PCX_PACING T=8 arms=['pool_P6_pace', 'un_P4_pace']
+PCX_ARM T=8 o_P4 S1:0.9958/0.9967- F1:1.0000/1.0032- qualifies=0
+PCX_ARM T=8 pool_P4 S1:1.0061/1.0090- F1:1.0045/1.0016- qualifies=0
+PCX_ARM T=8 pool_P6 S1:1.0144/1.0127- F1:1.0115/1.0130- qualifies=0
+PCX_ARM T=8 un_P4 S1:1.0093/1.0111- F1:1.0108/1.0100- qualifies=0
+PCX_ARM T=8 qkv_P4 S1:0.9955/0.9945- F1:1.0000/1.0009- qualifies=0
+PCX_ARM T=8 qkv_P5 S1:0.9992/0.9995- F1:1.0046/1.0059- qualifies=0
+PCX_ARM T=8 qkv_ET S1:1.0029/1.0026- F1:0.9971/1.0003- qualifies=0
+PCX_ARM T=8 o_ET S1:1.0011/0.9980- F1:0.9978/0.9977- qualifies=0
+PCX_ARM T=8 pool_ET S1:1.0056/1.0039- F1:1.0091/1.0080- qualifies=0
+PCX_ARM T=8 un_ET S1:1.0080/1.0042- F1:0.9964/0.9957- qualifies=0
+PCX_ARM T=8 pool_P6_pace S1:1.0204/1.0161- F1:1.0002/1.0017- qualifies=0
+PCX_ARM T=8 un_P4_pace S1:1.0093/1.0090- F1:1.0084/1.0028- qualifies=0
+PCX_NONE T=8 no arm below the screening bar 0.997
+PCX_NONE T=8 fallback=incumbent
+PCX_ROLES T=16 traced=['o', 'pool', 'qkv', 'un'] sk2_active=['o', 'pool', 'qkv', 'un'] NSTAGE_max_P={'qkv': 5, 'o': 4, 'pool': 5, 'un': 5} arms=['o_P4', 'pool_P4', 'pool_P5', 'un_P4', 'un_P5', 'qkv_P4', 'qkv_P5', 'qkv_ET', 'o_ET', 'pool_ET', 'un_ET']
+PCX_BASE_SELF T=16 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=1.1e-04 update_l2=1.1e-04
+PCX_BASE_SELF T=16 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=0 hidden_l2=5.9e-04 update_l2=7.5e-04
+PCX_ARM T=16 o_P4 S1:0.9973/1.0014- F1:0.9992/0.9992! qualifies=0
+PCX_ARM T=16 pool_P4 S1:0.9997/0.9986- F1:nan/nan! qualifies=0
+PCX_ARM T=16 pool_P5 S1:1.0039/1.0028- F1:1.0025/1.0044- qualifies=0
+PCX_ARM T=16 un_P4 S1:1.0032/1.0031- F1:nan/nan! qualifies=0
+PCX_ARM T=16 un_P5 S1:1.0050/1.0058- F1:1.0037/1.0038! qualifies=0
+PCX_ARM T=16 qkv_P4 S1:1.0047/1.0052- F1:nan/nan! qualifies=0
+PCX_ARM T=16 qkv_P5 S1:1.0054/1.0045- F1:nan/nan! qualifies=0
+PCX_ARM T=16 qkv_ET S1:1.0020/1.0006- F1:0.9975/0.9972! qualifies=0
+PCX_ARM T=16 o_ET S1:0.9974/0.9981- F1:0.9987/0.9978! qualifies=0
+PCX_ARM T=16 pool_ET S1:1.0012/0.9996- F1:1.0017/1.0010- qualifies=0
+PCX_ARM T=16 un_ET S1:0.9983/0.9998- F1:0.9944/0.9939! qualifies=0
+PCX_NONE T=16 no arm below the screening bar 0.997
+PCX_NONE T=16 fallback=incumbent
+PCX_TABLE role T config NSTAGE(ring) nst/CTA P_incumbent->P_max grid smemKB/CTA thr per_SM free_SMs | predecessor
+PCX_NOTE sk2f at T<=8 interleaves its 4 FP32 router stages only while nstt/4 > P, so pool P>=5 turns that interleave off
+PCX_ROW qkv  T= 1 qkv8_r176 NSTAGE=6 nst=16 P2->6 grid=96 smem=164KB thr=288 per_SM=1 free_SMs=36 stageKB=26 wKB/stage=18 | none: first kernel of the graph
+PCX_ROW o    T= 1 o8h_r88 NSTAGE=4 nst=4 P2->4 grid=256 smem=74KB thr=288 per_SM=3 free_SMs=0 stageKB=16 wKB/stage=12 | attention: trigger right after its pdl_wait (CTA start; l.1532-1533)
+PCX_ROW pool T= 1 pooler NSTAGE=6 nst=16 P2->6 grid=128 smem=202KB thr=416 per_SM=1 free_SMs=4 stageKB=32 wKB/stage=24 | o (gle sk2): trigger after its LAST stage is consumed (consumers, l.8382), before the epilogue
+PCX_ROW un   T= 1 slice8_r192 NSTAGE=4 nst=4 P2->4 grid=128 smem=116KB thr=416 per_SM=1 free_SMs=4 stageKB=28 wKB/stage=12 | MoE (moe_fused): trigger after phase B, before the grid-wide final pass (l.6487)
+PCX_ATTN T= 1 S grid=32 CTAs (SMs=132); attention triggers at CTA start
+PCX_ATTN T= 1 F grid=252 CTAs (SMs=132); attention triggers at CTA start
+PCX_ROW qkv  T= 8 qkv8n_r144 NSTAGE=5 nst=16 P2->5 grid=96 smem=138KB thr=288 per_SM=1 free_SMs=36 stageKB=26 wKB/stage=18 | none: first kernel of the graph
+PCX_ROW o    T= 8 o8h_r88 NSTAGE=4 nst=4 P2->4 grid=256 smem=74KB thr=288 per_SM=3 free_SMs=0 stageKB=16 wKB/stage=12 | attention: trigger right after its pdl_wait (CTA start)
+PCX_ROW pool T= 8 pooler NSTAGE=6 nst=16 P2->6 grid=128 smem=202KB thr=416 per_SM=1 free_SMs=4 stageKB=32 wKB/stage=24 | boundary glue (b1): trigger back-to-back with its wait (CTA start)
+PCX_ROW un   T= 8 slice8_r192 NSTAGE=4 nst=4 P2->4 grid=128 smem=116KB thr=416 per_SM=1 free_SMs=4 stageKB=28 wKB/stage=12 | MoE (moe_fused): trigger after phase B, before the grid-wide final pass
+PCX_ATTN T= 8 S grid=33 CTAs (SMs=132); attention triggers at CTA start
+PCX_ATTN T= 8 F grid=252 CTAs (SMs=132); attention triggers at CTA start
+PCX_ROW qkv  T=16 qkv16_r176 NSTAGE=5 nst=16 P2->5 grid=96 smem=178KB thr=288 per_SM=1 free_SMs=36 stageKB=34 wKB/stage=18 | none: first kernel of the graph
+PCX_ROW o    T=16 o8h_r88 NSTAGE=4 nst=4 P2->4 grid=256 smem=90KB thr=288 per_SM=2 free_SMs=0 stageKB=20 wKB/stage=12 | attention: trigger right after its pdl_wait (CTA start)
+PCX_ROW pool T=16 pooler NSTAGE=5 nst=16 P2->5 grid=128 smem=210KB thr=416 per_SM=1 free_SMs=4 stageKB=40 wKB/stage=24 | boundary glue (graft b1): trigger back-to-back with its wait (CTA start)
+PCX_ROW un   T=16 unpooler16h_r100 NSTAGE=5 nst=16 P2->5 grid=256 smem=110KB thr=288 per_SM=2 free_SMs=0 stageKB=20 wKB/stage=12 | MoE (moe_fused): trigger after phase B, before the grid-wide final pass
+PCX_ATTN T=16 S grid=256 CTAs (SMs=132); attention triggers at CTA start
+PCX_ATTN T=16 F grid=264 CTAs (SMs=132); attention triggers at CTA start
+PCX_DONE total_prepare_s=137.9 adopted={} verdicts={1: None, 8: None, 16: None}

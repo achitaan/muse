@@ -1,0 +1,25 @@
+AT builds ready 39.4s DF2/DF4 256-thread CTA
+AT ref e4m3_err=0.058987 bound=0.1500
+AT score d16S base rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S DF2 rel=0.0006409 worstrow=0.0010699 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-DF2 rel=0.0006409 worstrow=0.0010699 bound=0.1500 judge=1 cache=1
+AT d16S main DF2 cta=128 h=2 kvdup=4 11.62 25.86 2.2259 2.2269 e1 a0
+AT score d16S DF4 rel=0.0006409 worstrow=0.0010699 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-DF4 rel=0.0006409 worstrow=0.0010699 bound=0.1500 judge=1 cache=1
+AT d16S main DF4 cta=64 h=4 kvdup=2 11.66 28.74 2.4636 2.4514 e1 a0
+AT ref e4m3_err=0.066388 bound=0.1500
+AT score d32S base rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT score d32S DF2 rel=0.000584 worstrow=0.00085078 bound=0.1500 judge=1 cache=1
+AT score d32S repeat-DF2 rel=0.000584 worstrow=0.00085078 bound=0.1500 judge=1 cache=1
+AT d32S main DF2 cta=256 h=2 kvdup=4 13.58 50.40 3.7102 3.7066 e1 a0
+AT score d32S DF4 rel=0.000584 worstrow=0.00085078 bound=0.1500 judge=1 cache=1
+AT score d32S repeat-DF4 rel=0.000584 worstrow=0.00085078 bound=0.1500 judge=1 cache=1
+AT d32S main DF4 cta=128 h=4 kvdup=2 13.58 31.97 2.3534 2.3538 e1 a0
+AT SUMMARY BEGIN attn_df
+AT d16S main DF2 cta=128 h=2 kvdup=4 11.62 25.86 2.2259 2.2269 e1 a0
+AT d16S main DF4 cta=64 h=4 kvdup=2 11.66 28.74 2.4636 2.4514 e1 a0
+AT d32S main DF2 cta=256 h=2 kvdup=4 13.58 50.40 3.7102 3.7066 e1 a0
+AT d32S main DF4 cta=128 h=4 kvdup=2 13.58 31.97 2.3534 2.3538 e1 a0
+AT selected d16S base
+AT selected d32S base
+AT SUMMARY END selected=0/2 elapsed=39.8s

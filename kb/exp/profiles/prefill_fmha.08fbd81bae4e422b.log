@@ -1,0 +1,111 @@
+LT tune T=753 qkv: torch.mm 41.7us, best 41.7us algo None of 8
+LT2 T=753 o: lay 0 cfg [66, 495, 1, 0, 0, 7, 35, 0, 5]: 24.0us vs torch.mm 24.1us (x1.004)
+LT T=753 router: pinned (33, 4, 2, 3) -> algo 6
+LT2 T=753 pooler: lay 2 cfg [66, 32, 1, 0, 0, 7, 35, 0, 5]: 66.4us vs torch.mm 68.2us (x1.027)
+LT2 T=753 unpooler: lay 2 cfg [66, 32, 1, 0, 0, 5, 35, 0, 2]: 68.0us vs torch.mm 70.0us (x1.029)
+LT2 T=3012 qkv: lay 0 cfg [66, 496, 1, 0, 0, 5, 35, 0, 2]: 143.8us vs torch.mm 147.0us (x1.022)
+LT2 T=3012 o: lay 0 cfg [66, 189, 1, 0, 0, 2, 35, 0, 5]: 69.2us vs torch.mm 75.0us (x1.084)
+LT tune T=3012 router: torch.mm 40.5us, best 40.5us algo None of 8
+LT T=3012 pooler: pinned (24, 1, 0, 7) -> algo 1
+LT tune T=3012 unpooler: torch.mm 255.8us, best 255.8us algo None of 8
+LT tune T=16384 qkv: torch.mm 763.8us, best 763.8us algo None of 8
+LT2 T=16384 o: lay 3 cfg [66, 29, 1, 0, 0, 1, 35, 0, 3]: 351.6us vs torch.mm 409.6us (x1.165)
+LT tune T=16384 router: torch.mm 192.4us, best 192.4us algo None of 8
+LT T=16384 pooler: pinned (29, 1, 0, 1) -> algo 5
+LT T=16384 unpooler: pinned (201, 1, 0, 2) -> algo 6
+ATTN own kernel validation (worst rel err): {0: 0.0151, 1: 0.0151, 8: 0.0151, 9: 0.0151, 16: 0.0151, 24: 0.0151, 43: 0.0151} -> [0, 1, 8, 9, 16, 24, 43]
+ZH fmha check B1 L753 ctx3000 win2048 page1: rel err vs ref 1.89e-02
+ZH fmha check B2 L300 ctx2500 win0 page1: rel err vs ref 1.87e-02
+ZH fmha check B1 L200 ctx5000 win0 page64: rel err vs ref 1.48e-02
+ZH fmha check B1 L640 ctx4096 win2048 page64: rel err vs ref 1.84e-02
+PF2_FINAL_BEGIN prepare_s=113.2 adopted_cases=0
+PF2_BUILD stage4 ready_s=34.6
+PF2_BUILD nc_flip ready_s=32.7
+PF2_BUILD split_flip ready_s=66.2
+PF2_BUILD peel ready_s=68.1
+PF2_BUILD qforward ready_s=98.0
+PF2_BUILD gather512 ready_s=99.8
+PF2_INFO FMHA7 tileK=128 N72 stages=8/4 nc=3/4 split=1/2 producer=dedicated flush=536870912 screen=attention_ABBA16_top2 gate=full_layer_ABBA16_median_and_paired_le_0.988 outputs=default_spread KV=all_bytes_exact regs_local=le_actual_base cached_outputs=0
+PF2_ATTR turn4_full base nc=4 S=2 fmha_gather_combine=((96, 0, 0), (32, 0, 9216), (34, 0, 0))
+PF2_ATTR turn4_full stage4 nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn4_full nc_flip nc=3 S=2 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=0
+PF2_ATTR turn4_full split_flip nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn4_full peel nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn4_full qforward nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn4_full gather512 nc=4 S=2 r_l_s=((96, 0, 0), (28, 0, 9216), (34, 0, 0)) gate=1
+PF2_SCREEN turn4_full stage4 n=16 att_ratio=0.99881 paired=0.99810
+PF2_SCREEN turn4_full split_flip n=16 att_ratio=1.26842 paired=1.26816
+PF2_SCREEN turn4_full peel n=16 att_ratio=1.02691 paired=1.02648
+PF2_SCREEN turn4_full qforward n=16 att_ratio=1.00023 paired=1.00054
+PF2_SCREEN turn4_full gather512 n=16 att_ratio=1.00037 paired=1.00063
+PF2_INFO turn4_full seed=20344114 n=16 routes=4844 default_spread=1.3e-04,1.7e-03,1.4e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 att=[0.0, 0.0] ids=0.0e+00 load=0.0e+00 input=1 kv=1
+PF2 turn4_full stage4 n=16 a_us=2582.32 us=2581.57 median_ratio=0.99971 paired=0.99885 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2_PICK turn4_full arm=default ratio=1.00000
+PF2_ATTR first_full_ctx32768 base nc=4 S=1 fmha_gather_combine=((96, 0, 0), (32, 0, 9216), (34, 0, 0))
+PF2_ATTR first_full_ctx32768 stage4 nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx32768 nc_flip nc=3 S=1 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=0
+PF2_ATTR first_full_ctx32768 split_flip nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx32768 peel nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx32768 qforward nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx32768 gather512 nc=4 S=1 r_l_s=((96, 0, 0), (28, 0, 9216), (34, 0, 0)) gate=1
+PF2_SCREEN first_full_ctx32768 stage4 n=16 att_ratio=0.99811 paired=0.99811
+PF2_SCREEN first_full_ctx32768 split_flip n=16 att_ratio=1.03678 paired=1.03940
+PF2_SCREEN first_full_ctx32768 peel n=16 att_ratio=1.02659 paired=1.02701
+PF2_SCREEN first_full_ctx32768 qforward n=16 att_ratio=1.03194 paired=1.03109
+PF2_SCREEN first_full_ctx32768 gather512 n=16 att_ratio=0.99845 paired=1.00041
+PF2_INFO first_full_ctx32768 seed=20310254 n=16 routes=22150 default_spread=8.7e-05,1.9e-03,9.9e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 att=[0.0, 0.0] ids=0.0e+00 load=0.0e+00 input=1 kv=1
+PF2 first_full_ctx32768 stage4 n=16 a_us=10056.34 us=10182.96 median_ratio=1.01259 paired=1.01917 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2_PICK first_full_ctx32768 arm=default ratio=1.00000
+PF2_ATTR first_full_ctx65536 base nc=4 S=1 fmha_gather_combine=((96, 0, 0), (32, 0, 9216), (34, 0, 0))
+PF2_ATTR first_full_ctx65536 stage4 nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx65536 nc_flip nc=3 S=1 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=0
+PF2_ATTR first_full_ctx65536 split_flip nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx65536 peel nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx65536 qforward nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx65536 gather512 nc=4 S=1 r_l_s=((96, 0, 0), (28, 0, 9216), (34, 0, 0)) gate=1
+PF2_SCREEN first_full_ctx65536 stage4 n=16 att_ratio=0.99833 paired=0.99837
+PF2_SCREEN first_full_ctx65536 split_flip n=16 att_ratio=1.02572 paired=1.02716
+PF2_SCREEN first_full_ctx65536 peel n=16 att_ratio=1.02944 paired=1.02947
+PF2_SCREEN first_full_ctx65536 qforward n=16 att_ratio=1.01627 paired=1.01625
+PF2_SCREEN first_full_ctx65536 gather512 n=16 att_ratio=0.99967 paired=0.99980
+PF2_INFO first_full_ctx65536 seed=20343022 n=16 routes=26004 default_spread=9.3e-05,2.0e-03,1.0e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 att=[0.0, 0.0] ids=0.0e+00 load=0.0e+00 input=1 kv=1
+PF2 first_full_ctx65536 stage4 n=16 a_us=12368.58 us=12585.84 median_ratio=1.01757 paired=1.01120 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2 first_full_ctx65536 gather512 n=16 a_us=12345.10 us=12520.96 median_ratio=1.01424 paired=1.00841 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2_PICK first_full_ctx65536 arm=default ratio=1.00000
+PF2_ATTR turn1_full base nc=3 S=2 fmha_gather_combine=((128, 0, 0), (32, 0, 9216), (34, 0, 0))
+PF2_ATTR turn1_full stage4 nc=3 S=2 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn1_full nc_flip nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn1_full split_flip nc=3 S=1 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn1_full peel nc=3 S=2 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn1_full qforward nc=3 S=2 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR turn1_full gather512 nc=3 S=2 r_l_s=((128, 0, 0), (28, 0, 9216), (34, 0, 0)) gate=1
+PF2_SCREEN turn1_full stage4 n=16 att_ratio=0.99768 paired=0.99743
+PF2_SCREEN turn1_full nc_flip n=16 att_ratio=1.19326 paired=1.19350
+PF2_SCREEN turn1_full split_flip n=16 att_ratio=1.78931 paired=1.78981
+PF2_SCREEN turn1_full peel n=16 att_ratio=1.04432 paired=1.04529
+PF2_SCREEN turn1_full qforward n=16 att_ratio=0.99165 paired=0.99250
+PF2_SCREEN turn1_full gather512 n=16 att_ratio=1.00415 paired=1.00393
+PF2_INFO turn1_full seed=20341855 n=16 routes=1057 default_spread=2.7e-04,1.7e-03,2.9e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 att=[0.0, 0.0] ids=0.0e+00 load=0.0e+00 input=1 kv=1
+PF2 turn1_full qforward n=16 a_us=793.92 us=790.35 median_ratio=0.99551 paired=0.99637 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2 turn1_full stage4 n=16 a_us=792.16 us=793.38 median_ratio=1.00154 paired=0.99918 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2_PICK turn1_full arm=default ratio=1.00000
+PF2_ATTR first_full_ctx0 base nc=4 S=1 fmha_gather_combine=((96, 0, 0), (32, 0, 9216), (34, 0, 0))
+PF2_ATTR first_full_ctx0 stage4 nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx0 nc_flip nc=3 S=1 r_l_s=((128, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=0
+PF2_ATTR first_full_ctx0 split_flip nc=4 S=2 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx0 peel nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx0 qforward nc=4 S=1 r_l_s=((96, 0, 0), (32, 0, 9216), (34, 0, 0)) gate=1
+PF2_ATTR first_full_ctx0 gather512 nc=4 S=1 r_l_s=((96, 0, 0), (28, 0, 9216), (34, 0, 0)) gate=1
+PF2_SCREEN first_full_ctx0 stage4 n=16 att_ratio=0.99387 paired=0.99546
+PF2_SCREEN first_full_ctx0 split_flip n=16 att_ratio=1.15911 paired=1.15896
+PF2_SCREEN first_full_ctx0 peel n=16 att_ratio=1.02198 paired=1.02110
+PF2_SCREEN first_full_ctx0 qforward n=16 att_ratio=1.10285 paired=1.10198
+PF2_SCREEN first_full_ctx0 gather512 n=16 att_ratio=0.99941 paired=0.99932
+PF2_INFO first_full_ctx0 seed=20277486 n=16 routes=23993 default_spread=1.0e-04,2.0e-03,1.1e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 att=[0.0, 0.0] ids=0.0e+00 load=0.0e+00 input=1 kv=1
+PF2 first_full_ctx0 stage4 n=16 a_us=8441.54 us=8461.02 median_ratio=1.00231 paired=1.00485 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2 first_full_ctx0 gather512 n=16 a_us=8438.62 us=8458.13 median_ratio=1.00231 paired=1.00707 eq=TOL_SPREAD bits=0 kv=1 att=0.00e+00,0.00e+00 gate=0
+PF2_PICK first_full_ctx0 arm=default ratio=1.00000
+PF2_PICK turn1_sliding arm=default reason=sliding_unchanged
+PF2_PICK turn4_sliding arm=default reason=sliding_unchanged
+PF2_PICK first_sliding arm=default reason=sliding_unchanged
+PF2_FINAL_END unmeasured_or_rejected_cases=keell_default

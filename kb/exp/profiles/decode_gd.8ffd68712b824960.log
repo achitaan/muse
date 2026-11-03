@@ -1,0 +1,109 @@
+3 (ratio 1.0349 vs rq:d2s5hze 21.71) at 138s
+BAKE unpooler m=128 rq:s4s5hzw 20.88 (ratio 1.0344 vs rq:d2s5hze 21.71) at 138s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.73 (ratio 0.9998 vs rq:d2s5hze 21.71) at 138s
+BAKE unpooler m=128 rq:s4s5hze 21.75 (ratio 1.0078 vs rq:d2s5hze 21.71) at 138s
+BAKE unpooler m=128 rq:d2s6hze 22.32 (ratio 0.9806 vs rq:d2s5hze 21.71) at 138s
+PICK unpooler m=128 rq:d2s5hzwP 20.97 (ref rq:d2s5hze 21.71)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0349)
+BAKE unpooler m=256 r6 27.90 at 138s
+PICK unpooler m=256 r6 27.90 (ref r6 27.90)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 138s
+[mfab] layer prepare done at 138s
+GD_MAP projection -> sk2 launch (config, template args) at the scored token counts; fusions in the header of this section
+GD_MAP T=1 qkv=qkv8_r176<1,8,3,1,4,2,6> n=2304 o=o8h_r88<1,8,4,1,4,1,4> n=8192 pool=pooler<1,8,4,1,8,1,6> n=4096 un=slice8_r192<1,8,1,1,8,2,4> n=1024
+GD_MAP T=8 qkv=qkv8_r176<1,8,3,1,4,2,6> n=2304 o=o8h_r88<1,8,4,1,4,1,4> n=8192 pool=pooler<1,8,4,1,8,1,6> n=4096 un=slice8_r192<1,8,1,1,8,2,4> n=1024
+GD_MAP T=16 qkv=qkv16_r176<1,16,3,1,4,2,5> n=2304 o=o8h_r88<1,16,4,1,4,1,4> n=8192 pool=pooler<1,16,4,1,8,1,5> n=4096 un=unpooler16h_r100<1,16,4,1,4,1,5> n=8192
+GD_MAP T=1: qkv sk2 | attention | o = gle_o (+deferred norm, uv rows) | pooler+router = gle_pr | _gle_route | MoE | unpooler slice sk2 | _sl_cluster_finish
+GD_MAP T=8: qkv sk2 narrow | attention | o sk2 + glue_cluster_boundary b1 | pooler+router = gle_frt | route | MoE | unpooler slice sk2 | _sl_cluster_finish
+GD_MAP T=16: qkv sk2 | attention | o sk2 + glue_cluster_boundary b1 | pooler+router = sk2f | _sl_tile_route | MoE | unpooler sk2 + glue_cluster_boundary b2
+GD_SKIPPED T=1 o: gle_o: the o GEMV also forms the deferred-norm epilogue (uv rows, partial sums); a Dense GEMV would need another kernel
+GD_SKIPPED T=1 pool: gle_pr: pooler and FP32 router are one launch; separate Dense pooler + router is slower than the fusion
+GD_SKIPPED T=8 pool: gle_frt: pooler fused with the FP32 router, same reason
+GD_SKIPPED T=16 pool: sk2f: pooler fused with the router, same reason
+GD_SKIPPED T=16 qkv: Dense pick at m=16 is vjeux sk2 = Decode's own kernel family; rq excluded (BF16-per-split reduction flips expert ids)
+GD_SKIPPED T=16 un: Dense pick at m=16 is vjeux sk2 = Decode's own kernel family; rq excluded
+GD_INFO base_prepare_s=138.2 budget_s=272 bar=0.988
+GD_BUILD cg ok
+GD_BUILD gv ok
+GD_PLAN T=1 proj=qkv kind=cg n=2304 k=8192 exact=1 exact one-hot, random rel 1.67e-03
+GD_PLAN T=1 proj=un kind=cg n=1024 k=4096 exact=1 exact one-hot, random rel 1.71e-03
+GD_PLAN T=8 proj=qkv kind=gv n=2304 k=8192 exact=1 exact one-hot, random rel 1.65e-03
+GD_PLAN T=8 proj=o kind=gv n=8192 k=1024 exact=1 exact one-hot, random rel 1.65e-03
+GD_PLAN T=8 proj=un kind=gv n=1024 k=4096 exact=1 exact one-hot, random rel 1.68e-03
+GD_PLAN T=16 proj=o kind=gv n=8192 k=1024 exact=1 exact one-hot, random rel 1.66e-03
+GD_BASE_SELF T=1 S1 ids=0.000 kv=0.0e+00 hidd=0.0e+00 moe_=0.0e+00 moe_=0.0e+00 upda=0.0e+00
+GD_GATE T=1 S1 qkv:cg old=68.27 new=68.08 median=0.9972 paired=1.0058 correct=1 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=0.0e+00 upd=0.0e+00 ids=0.000 kv=0.0e+00 qkv: vs_inc=4.1e-05 row=4.1e-05 fp64_new=1.62e-03 fp64_inc=1.62e-03
+GD_GATE T=1 S1 qkv:cg+pdl old=67.74 new=67.68 median=0.9991 paired=0.9921 correct=1 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=0.0e+00 upd=0.0e+00 ids=0.000 kv=0.0e+00 qkv: vs_inc=4.1e-05 row=4.1e-05 fp64_new=1.62e-03 fp64_inc=1.62e-03
+GD_GATE T=1 S1 un:cg old=67.79 new=69.15 median=1.0201 paired=1.0138 correct=1 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=0.0e+00 upd=0.0e+00 ids=0.000 kv=0.0e+00 un: vs_inc=0.0e+00 row=0.0e+00 fp64_new=1.60e-03 fp64_inc=1.60e-03
+GD_GATE T=1 S1 un:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=6.4e-01 upd=1.1e+00 ids=0.000 kv=0.0e+00 un: vs_inc=1.2e+00 row=1.2e+00 fp64_new=1.23e+00 fp64_inc=1.60e-03
+GD_BASE_SELF T=1 F1 ids=0.000 kv=0.0e+00 hidd=0.0e+00 moe_=0.0e+00 moe_=0.0e+00 upda=0.0e+00
+GD_GATE T=1 F1 qkv:cg old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=1.4e-03 moe_out=3.6e-03 hid=2.2e-03 upd=3.5e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=1.7e-04 row=1.7e-04 fp64_new=1.70e-03 fp64_inc=1.70e-03
+GD_GATE T=1 F1 qkv:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=1.4e-03 moe_out=3.6e-03 hid=2.2e-03 upd=3.5e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=1.7e-04 row=1.7e-04 fp64_new=1.70e-03 fp64_inc=1.70e-03
+GD_GATE T=1 F1 un:cg old=74.32 new=75.26 median=1.0127 paired=1.0083 correct=1 passed=0
+GD_GATE T=1 F1 un:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=6.2e-01 upd=1.1e+00 ids=0.000 kv=0.0e+00 un: vs_inc=1.2e+00 row=1.2e+00 fp64_new=1.21e+00 fp64_inc=1.68e-03
+GD_BASE_SELF T=1 S2 ids=0.000 kv=0.0e+00 hidd=3.6e-04 moe_=0.0e+00 moe_=1.5e-05 upda=1.3e-04
+GD_GATE T=1 S2 qkv:cg old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=6.2e-04 moe_out=2.8e-03 hid=1.8e-03 upd=3.0e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=2.1e-05 row=2.1e-05 fp64_new=1.63e-03 fp64_inc=1.63e-03
+GD_GATE T=1 S2 qkv:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=6.2e-04 moe_out=2.8e-03 hid=1.8e-03 upd=3.0e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=2.1e-05 row=2.1e-05 fp64_new=1.63e-03 fp64_inc=1.63e-03
+GD_GATE T=1 S2 un:cg old=80.88 new=81.87 median=1.0123 paired=1.0145 correct=1 passed=0
+GD_GATE T=1 S2 un:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=5.2e-01 upd=9.8e-01 ids=0.000 kv=0.0e+00 un: vs_inc=1.1e+00 row=1.1e+00 fp64_new=1.12e+00 fp64_inc=1.68e-03
+GD_BASE_SELF T=1 F2 ids=0.000 kv=0.0e+00 hidd=0.0e+00 moe_=0.0e+00 moe_=0.0e+00 upda=0.0e+00
+GD_GATE T=1 F2 qkv:cg old=74.29 new=74.66 median=1.0050 paired=1.0046 correct=1 passed=0
+GD_GATE T=1 F2 qkv:cg+pdl old=74.94 new=74.54 median=0.9947 paired=0.9991 correct=1 passed=0
+GD_GATE T=1 F2 un:cg old=74.32 new=75.82 median=1.0202 paired=1.0185 correct=1 passed=0
+GD_GATE T=1 F2 un:cg+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=0.0e+00 moe_out=0.0e+00 hid=7.7e-01 upd=1.1e+00 ids=0.000 kv=0.0e+00 un: vs_inc=1.4e+00 row=1.4e+00 fp64_new=1.44e+00 fp64_inc=1.70e-03
+GD_BASE_SELF T=8 S1 ids=0.000 kv=0.0e+00 hidd=1.3e-03 moe_=4.8e-04 moe_=1.4e-03 upda=1.6e-03
+GD_GATE T=8 S1 qkv:gv old=99.65 new=100.50 median=1.0085 paired=1.0074 correct=1 passed=0 | moe_in=4.8e-04 moe_out=1.4e-03 hid=1.3e-03 upd=1.6e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=2.2e-05 row=5.8e-05 fp64_new=1.68e-03 fp64_inc=1.68e-03
+GD_GATE T=8 S1 qkv:gv+pdl old=100.34 new=102.54 median=1.0220 paired=1.0226 correct=1 passed=0 | moe_in=0.0e+00 moe_out=3.2e-05 hid=9.7e-05 upd=1.7e-04 ids=0.000 kv=0.0e+00 qkv: vs_inc=2.2e-05 row=5.8e-05 fp64_new=1.68e-03 fp64_inc=1.68e-03
+GD_GATE T=8 S1 o:gv old=99.47 new=101.97 median=1.0251 paired=1.0223 correct=1 passed=0 | moe_in=1.0e-04 moe_out=6.5e-04 hid=6.8e-04 upd=9.4e-04 ids=0.000 kv=0.0e+00 o: vs_inc=7.9e-06 row=2.0e-05 fp64_new=1.67e-03 fp64_inc=1.67e-03
+GD_GATE T=8 S1 o:gv+pdl old=99.38 new=100.00 median=1.0063 paired=1.0036 correct=1 passed=0 | moe_in=2.9e-04 moe_out=1.8e-03 hid=1.2e-03 upd=1.6e-03 ids=0.000 kv=0.0e+00 o: vs_inc=5.6e-05 row=1.6e-04 fp64_new=1.67e-03 fp64_inc=1.67e-03
+GD_GATE T=8 S1 un:gv old=99.70 new=101.74 median=1.0205 paired=1.0183 correct=1 passed=0 | moe_in=0.0e+00 moe_out=4.1e-06 hid=0.0e+00 upd=1.7e-06 ids=0.000 kv=0.0e+00 un: vs_inc=1.0e-06 row=2.1e-06 fp64_new=1.65e-03 fp64_inc=1.65e-03
+GD_GATE T=8 S1 un:gv+pdl old=99.73 new=99.70 median=0.9997 paired=0.9989 correct=1 passed=0 | moe_in=0.0e+00 moe_out=3.2e-05 hid=9.7e-05 upd=1.7e-04 ids=0.000 kv=0.0e+00 un: vs_inc=6.2e-08 row=2.2e-07 fp64_new=1.65e-03 fp64_inc=1.65e-03
+GD_BASE_SELF T=8 F1 ids=0.000 kv=0.0e+00 hidd=9.3e-04 moe_=3.9e-04 moe_=1.3e-03 upda=1.2e-03
+GD_GATE T=8 F1 qkv:gv old=107.33 new=108.16 median=1.0078 paired=1.0086 correct=1 passed=0
+GD_GATE T=8 F1 qkv:gv+pdl old=107.09 new=109.50 median=1.0226 paired=1.0217 correct=1 passed=0
+GD_GATE T=8 F1 o:gv old=107.15 new=109.38 median=1.0208 paired=1.0201 correct=1 passed=0
+GD_GATE T=8 F1 o:gv+pdl old=106.94 new=107.71 median=1.0072 paired=1.0082 correct=1 passed=0
+GD_GATE T=8 F1 un:gv old=107.71 new=108.58 median=1.0080 paired=1.0128 correct=1 passed=0
+GD_GATE T=8 F1 un:gv+pdl old=106.99 new=106.94 median=0.9996 paired=1.0024 correct=1 passed=0
+GD_BASE_SELF T=8 S2 ids=0.000 kv=0.0e+00 hidd=2.4e-04 moe_=0.0e+00 moe_=2.5e-05 upda=3.0e-04
+GD_GATE T=8 S2 qkv:gv old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=7.2e-04 moe_out=1.2e-03 hid=1.1e-03 upd=1.5e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=7.3e-06 row=2.0e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=8 S2 qkv:gv+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=7.2e-04 moe_out=1.2e-03 hid=1.1e-03 upd=1.5e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=7.3e-06 row=2.0e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=8 S2 o:gv old=94.59 new=96.45 median=1.0196 paired=1.0221 correct=1 passed=0
+GD_GATE T=8 S2 o:gv+pdl old=94.90 new=94.90 median=1.0000 paired=0.9982 correct=1 passed=0
+GD_GATE T=8 S2 un:gv old=94.37 new=96.11 median=1.0185 paired=1.0180 correct=1 passed=0
+GD_GATE T=8 S2 un:gv+pdl old=94.38 new=94.37 median=0.9998 paired=1.0024 correct=1 passed=0
+GD_BASE_SELF T=8 F2 ids=0.000 kv=0.0e+00 hidd=3.7e-05 moe_=0.0e+00 moe_=3.2e-07 upda=1.6e-05
+GD_GATE T=8 F2 qkv:gv old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=3.6e-04 moe_out=1.4e-03 hid=8.4e-04 upd=1.1e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=3.3e-05 row=8.2e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=8 F2 qkv:gv+pdl old=nan new=nan median=nan paired=nan correct=0 passed=0 | moe_in=3.6e-04 moe_out=1.4e-03 hid=8.4e-04 upd=1.1e-03 ids=0.000 kv=0.0e+00 qkv: vs_inc=3.3e-05 row=8.2e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=8 F2 o:gv old=112.96 new=115.76 median=1.0248 paired=1.0237 correct=1 passed=0
+GD_GATE T=8 F2 o:gv+pdl old=113.25 new=113.63 median=1.0034 paired=1.0066 correct=1 passed=0
+GD_GATE T=8 F2 un:gv old=113.04 new=114.46 median=1.0126 paired=1.0127 correct=1 passed=0
+GD_GATE T=8 F2 un:gv+pdl old=113.10 new=113.41 median=1.0027 paired=1.0043 correct=1 passed=0
+GD_BASE_SELF T=16 S1 ids=0.000 kv=0.0e+00 hidd=2.5e-04 moe_=2.8e-04 moe_=9.3e-05 upda=2.7e-04
+GD_GATE T=16 S1 o:gv old=110.75 new=113.17 median=1.0218 paired=1.0222 correct=0 passed=0 | moe_in=2.8e-04 moe_out=5.8e-04 hid=5.6e-04 upd=6.9e-04 ids=0.000 kv=0.0e+00 o: vs_inc=7.7e-06 row=2.8e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=16 S1 o:gv+pdl old=110.59 new=111.73 median=1.0103 paired=1.0096 correct=0 passed=0 | moe_in=2.8e-04 moe_out=5.8e-04 hid=5.5e-04 upd=6.8e-04 ids=0.000 kv=0.0e+00 o: vs_inc=7.7e-06 row=2.8e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_BASE_SELF T=16 F1 ids=0.000 kv=0.0e+00 hidd=9.5e-05 moe_=0.0e+00 moe_=1.1e-05 upda=1.1e-04
+GD_GATE T=16 F1 o:gv old=209.65 new=212.58 median=1.0140 paired=1.0126 correct=0 passed=0 | moe_in=9.0e-05 moe_out=5.6e-04 hid=5.9e-04 upd=6.9e-04 ids=0.000 kv=0.0e+00 o: vs_inc=6.0e-06 row=2.1e-05 fp64_new=1.66e-03 fp64_inc=1.66e-03
+GD_GATE T=16 F1 o:gv+pdl old=209.87 new=211.15 median=1.0061 paired=1.0038 correct=1 passed=0
+GD_BASE_SELF T=16 S2 ids=0.000 kv=0.0e+00 hidd=4.7e-04 moe_=3.8e-05 moe_=3.8e-04 upda=5.4e-04
+GD_GATE T=16 S2 o:gv old=124.50 new=126.80 median=1.0185 paired=1.0184 correct=1 passed=0
+GD_GATE T=16 S2 o:gv+pdl old=124.54 new=125.87 median=1.0107 paired=1.0106 correct=1 passed=0
+GD_BASE_SELF T=16 F2 ids=0.000 kv=0.0e+00 hidd=6.0e-04 moe_=1.2e-04 moe_=9.6e-04 upda=7.1e-04
+GD_GATE T=16 F2 o:gv old=214.82 new=217.71 median=1.0135 paired=1.0127 correct=1 passed=0
+GD_GATE T=16 F2 o:gv+pdl old=214.45 new=216.18 median=1.0081 paired=1.0089 correct=1 passed=0
+GD_TABLE T=1 set=qkv:cg median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:0.9972/1.0058- F1:nan/nan! S2:nan/nan! F2:1.0050/1.0046-
+GD_TABLE T=1 set=qkv:cg+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:0.9991/0.9921- F1:nan/nan! S2:nan/nan! F2:0.9947/0.9991-
+GD_TABLE T=1 set=un:cg median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0201/1.0138- F1:1.0127/1.0083- S2:1.0123/1.0145- F2:1.0202/1.0185-
+GD_TABLE T=1 set=un:cg+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:nan/nan! F1:nan/nan! S2:nan/nan! F2:nan/nan!
+GD_TABLE T=8 set=qkv:gv median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0085/1.0074- F1:1.0078/1.0086- S2:nan/nan! F2:nan/nan!
+GD_TABLE T=8 set=qkv:gv+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0220/1.0226- F1:1.0226/1.0217- S2:nan/nan! F2:nan/nan!
+GD_TABLE T=8 set=o:gv median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0251/1.0223- F1:1.0208/1.0201- S2:1.0196/1.0221- F2:1.0248/1.0237-
+GD_TABLE T=8 set=o:gv+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0063/1.0036- F1:1.0072/1.0082- S2:1.0000/0.9982- F2:1.0034/1.0066-
+GD_TABLE T=8 set=un:gv median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0205/1.0183- F1:1.0080/1.0128- S2:1.0185/1.0180- F2:1.0126/1.0127-
+GD_TABLE T=8 set=un:gv+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:0.9997/0.9989- F1:0.9996/1.0024- S2:0.9998/1.0024- F2:1.0027/1.0043-
+GD_TABLE T=16 set=o:gv median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0218/1.0222! F1:1.0140/1.0126! S2:1.0185/1.0184- F2:1.0135/1.0127-
+GD_TABLE T=16 set=o:gv+pdl median/paired (S sliding, F full, pass; + passed, - slower, ! incorrect): S1:1.0103/1.0096! F1:1.0061/1.0038- S2:1.0107/1.0106- F2:1.0081/1.0089-
+GD_NONE T=1 fallback=incumbent
+GD_NONE T=8 fallback=incumbent
+GD_NONE T=16 fallback=incumbent
+GD_DONE total_prepare_s=139.5 adopted=[]

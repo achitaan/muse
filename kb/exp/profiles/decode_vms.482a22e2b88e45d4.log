@@ -1,0 +1,57 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 113s
+BUILD pw57_flush 29.9s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.14 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.39 us   0.85 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.89 us   1.70 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB    9.98 us   1.68 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.42 us two_node 5.36 us overhead 3.47 us
+PREP rq thread ready at 52s (bake starts at 143s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.48 at 143s
+BAKE qkv_gate m=128 rq:d2s5hze 15.40 (ratio 1.3404 vs r6 20.48) at 143s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.82 (ratio 1.0420 vs rq:d2s5hze 15.40) at 143s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.86 (ratio 1.0269 vs rq:d2s5hze 15.40) at 143s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.64 (ratio 0.9733 vs rq:d2s5hze 15.40) at 143s
+BAKE qkv_gate m=128 rq:d2s6hze 16.71 (ratio 0.9903 vs rq:d2s5hze 15.40) at 143s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.78 (ref rq:d2s5hze 15.40)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0420)
+BAKE qkv_gate m=256 r6 23.39 at 143s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.13 (ratio 1.1133 vs r6 23.39) at 143s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 22.00 (ratio 0.9860 vs rq:n256s5m1hzmEH 21.13) at 143s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.13 (ref rq:n256s5m1hzmEH 21.13)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.26 at 143s
+BAKE unpooler m=128 rq:d2s5hze 21.07 (ratio 1.1210 vs r6 23.26) at 143s
+BAKE unpooler m=128 rq:d2s5hzwP 20.75 (ratio 1.0519 vs rq:d2s5hze 21.07) at 143s
+BAKE unpooler m=128 rq:s4s5hzw 21.09 (ratio 1.0164 vs rq:d2s5hze 21.07) at 143s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.75 (ratio 0.9814 vs rq:d2s5hze 21.07) at 143s
+BAKE unpooler m=128 rq:s4s5hze 21.49 (ratio 1.0009 vs rq:d2s5hze 21.07) at 143s
+BAKE unpooler m=128 rq:d2s6hze 21.80 (ratio 0.9852 vs rq:d2s5hze 21.07) at 143s
+PICK unpooler m=128 rq:d2s5hzwP 20.03 (ref rq:d2s5hze 21.07)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0519)
+BAKE unpooler m=256 r6 28.48 at 143s
+PICK unpooler m=256 r6 28.48 (ref r6 28.48)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 143s
+[mfab] layer prepare done at 143s
+VMS_STATIC ok: vms_run declaration == definition == call (19 parameters)
+VMS_INFO engine=vms4@ddb74e8+pdlA base_prepare_s=143.3 read_flush_MiB=512 ratio<=0.988 passes=2 blocks=8 arms={16: ['it1+r4+fin2', 'it1+r4+fin2+pdlA', 'it1+fin2', 'it1+fin2+pdlA']}
+VMS_BUILD M=16 status=ok regs/local/static_smem A=79/0/0 B=83/0/0 A_r4=79/0/0 B_r4=82/0/0 fin2a=38/0/128 fin2b=32/0/0 dyn_smem plain/w16/r4=164096/172288/217600
+VMS_INFO repacked weights at 143.3s
+VMS_SEMANTICS T=16 x=bfloat16[16, 4096] postnorm_rms(x/(1+w_pre))=[0.9999,1.0001] lids=int32[16, 8] range=[-1,31] local_routes=23/128 distinct_local=10 w=float32 rowsum=[1.00000,1.00000] engine_range=lo0/nloc32(-1=remote) board=global_ids_lo0/nloc32 post_norm=(1+w)->rmsnorm(1e-8) same_contract=1
+VMS_BASE_SELF T=16 sliding=1 pass=1 upstream_bits=0 ids_equal=1 hidden_l2=9.09e-04 update_l2=1.24e-03 moe_out_l2/row=1.44e-03/3.46e-03 cache_equal=1 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating
+VMS_GATE T=16 arm=it1+r4+fin2 sliding=1 pass=1 old_us=136.848 new_us=139.040 median=1.01602 paired=1.01604 correct=1 iso_real=2.17e-04/3.54e-04 iso_synth=judge101:4.3e-04/7.7e-04 judge102:3.4e-04/8.0e-04 hot:3.2e-04/8.3e-04 sparse:3.3e-04/8.2e-04 upstream_bits=0 ids_equal=1 hidden_l2=8.70e-04 update_l2=1.09e-03 moe_out_l2/row=1.03e-03/3.46e-03 cache_equal=1 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0
+VMS_GATE T=16 arm=it1+r4+fin2+pdlA sliding=1 pass=1 old_us=137.248 new_us=138.880 median=1.01189 paired=1.01282 correct=1 iso_real=2.17e-04/3.54e-04 iso_synth=judge101:4.3e-04/7.7e-04 judge102:3.4e-04/8.0e-04 hot:3.2e-04/8.3e-04 sparse:3.3e-04/8.2e-04 upstream_bits=0 ids_equal=1 hidden_l2=8.70e-04 update_l2=1.09e-03 moe_out_l2/row=1.03e-03/3.46e-03 cache_equal=1 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0
+VMS_GATE T=16 arm=it1+fin2 sliding=1 pass=1 old_us=137.648 new_us=139.392 median=1.01267 paired=1.01632 correct=1 iso_real=2.17e-04/3.54e-04 iso_synth=judge101:4.3e-04/7.7e-04 judge102:3.4e-04/8.0e-04 hot:3.2e-04/8.3e-04 sparse:3.3e-04/8.2e-04 upstream_bits=0 ids_equal=1 hidden_l2=8.70e-04 update_l2=1.09e-03 moe_out_l2/row=1.03e-03/3.46e-03 cache_equal=1 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0
+VMS_GATE T=16 arm=it1+fin2+pdlA sliding=1 pass=1 old_us=137.088 new_us=138.320 median=1.00899 paired=1.00799 correct=1 iso_real=2.17e-04/3.54e-04 iso_synth=judge101:4.3e-04/7.7e-04 judge102:3.4e-04/8.0e-04 hot:3.2e-04/8.3e-04 sparse:3.3e-04/8.2e-04 upstream_bits=0 ids_equal=1 hidden_l2=1.01e-03 update_l2=1.33e-03 moe_out_l2/row=1.35e-03/3.46e-03 cache_equal=1 HARNESS_STATE!!! upstream outputs differ after full state restore; full-layer comparison NOT gating passed=0
+VMS_NONE T=16 fallback=incumbent
+VMS_TABLE T=16 arm=it1+fin2 median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0127/1.0163-
+VMS_TABLE T=16 arm=it1+fin2+pdlA median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0090/1.0080-
+VMS_TABLE T=16 arm=it1+r4+fin2 median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0160/1.0160-
+VMS_TABLE T=16 arm=it1+r4+fin2+pdlA median/paired (S=sliding F=full, pass; + passed, - slower, ! incorrect): S1:1.0119/1.0128-
+VMS_DONE total_prepare_s=143.5 adopted={} engine=vms4@ddb74e8+pdlA verdicts={16: None}

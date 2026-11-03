@@ -1,0 +1,154 @@
+AT build 1h ready
+AT builds ready 42.5s
+AT ref e4m3_err=0.066076 bound=0.1500
+AT score v16S base rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score v16S probe-1h-s8 rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT v16S 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s4 synchronized-ok
+AT score v16S probe-1h-s4 rel=0.0676 worstrow=0.10489 bound=0.1500 judge=1 cache=1
+AT v16S 1h-s4 probe-numerical-reject e0 a0
+AT ref e4m3_err=0.065978 bound=0.1500
+AT score v32S base rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT probe 1h-s4 synchronized-ok
+AT score v32S probe-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S 1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S repeat-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT v32S 1h-s4 18.96 18.30 0.9654 0.9658 e1 a1
+AT probe 1h-s2 synchronized-ok
+AT score v32S probe-1h-s2 rel=0.068039 worstrow=0.10742 bound=0.1500 judge=1 cache=1
+AT score v32S 1h-s2 rel=0.068039 worstrow=0.10742 bound=0.1500 judge=1 cache=1
+AT score v32S repeat-1h-s2 rel=0.068039 worstrow=0.10742 bound=0.1500 judge=1 cache=1
+AT v32S 1h-s2 19.07 21.68 1.1367 1.1287 e1 a0
+AT score v32S preconfirm-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT score v32S confirm-1h-s4 rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT v32S keep-1h-s4 19.04 18.34 0.9630 0.9575 e0 a0
+AT ref e4m3_err=0.066586 bound=0.1500
+AT score d1S base rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT probe 1h-s16 synchronized-ok
+AT score d1S probe-1h-s16 rel=0.0047059 worstrow=0.0047059 bound=0.1500 judge=1 cache=1
+AT d1S 1h-s16 probe-numerical-reject e0 a0
+AT probe 1h-s8 synchronized-ok
+AT score d1S probe-1h-s8 rel=0.0047255 worstrow=0.0047255 bound=0.1500 judge=1 cache=1
+AT d1S 1h-s8 probe-numerical-reject e0 a0
+AT ref e4m3_err=0.058987 bound=0.1500
+AT score d16S base rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score d16S probe-1h-s8 rel=0.0044263 worstrow=0.005914 bound=0.1500 judge=1 cache=1
+AT d16S 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s4 synchronized-ok
+AT score d16S probe-1h-s4 rel=0.0044233 worstrow=0.0058997 bound=0.1500 judge=1 cache=1
+AT score d16S 1h-s4 rel=0.0044233 worstrow=0.0058997 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-1h-s4 rel=0.0044233 worstrow=0.0058997 bound=0.1500 judge=1 cache=1
+AT d16S 1h-s4 12.13 14.66 1.2084 1.2108 e1 a0
+AT ref e4m3_err=0.066388 bound=0.1500
+AT score d32S base rel=0.0047349 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT probe 1h-s4 synchronized-ok
+AT score d32S probe-1h-s4 rel=0.0047309 worstrow=0.0065554 bound=0.1500 judge=1 cache=1
+AT d32S 1h-s4 probe-numerical-reject e0 a0
+AT probe 1h-s2 synchronized-ok
+AT score d32S probe-1h-s2 rel=0.0047311 worstrow=0.0065351 bound=0.1500 judge=1 cache=1
+AT score d32S 1h-s2 rel=0.0047311 worstrow=0.0065351 bound=0.1500 judge=1 cache=1
+AT score d32S repeat-1h-s2 rel=0.0047311 worstrow=0.0065351 bound=0.1500 judge=1 cache=1
+AT d32S 1h-s2 14.00 19.52 1.3943 1.3990 e1 a0
+AT ref e4m3_err=0.070096 bound=0.1500
+AT score v1S base rel=0.071187 worstrow=0.085131 bound=0.1500 judge=1 cache=1
+AT probe 1h-s33 synchronized-ok
+AT score v1S probe-1h-s33 rel=0.070215 worstrow=0.086165 bound=0.1500 judge=1 cache=1
+AT v1S 1h-s33 probe-numerical-reject e0 a0
+AT ref e4m3_err=0.019711 bound=0.0643
+AT score v1F base rel=0.019921 worstrow=0.024977 bound=0.0643 judge=1 cache=1
+AT probe 1h-s252 synchronized-ok
+AT score v1F probe-1h-s252 rel=0.019921 worstrow=0.024977 bound=0.0643 judge=1 cache=1
+AT score v1F 1h-s252 rel=0.019921 worstrow=0.024977 bound=0.0643 judge=1 cache=1
+AT score v1F repeat-1h-s252 rel=0.019921 worstrow=0.024977 bound=0.0643 judge=1 cache=1
+AT v1F 1h-s252 18.29 20.51 1.1216 1.1224 e1 a0
+AT ref e4m3_err=0.035452 bound=0.1036
+AT score d16F base rel=0.0030019 worstrow=0.0042147 bound=0.1036 judge=1 cache=1
+AT probe 1h-s16 synchronized-ok
+AT score d16F probe-1h-s16 rel=0.0030018 worstrow=0.0042203 bound=0.1036 judge=1 cache=1
+AT d16F 1h-s16 probe-numerical-reject e0 a0
+AT probe 1h-s8 synchronized-ok
+AT score d16F probe-1h-s8 rel=0.0030016 worstrow=0.0042203 bound=0.1036 judge=1 cache=1
+AT d16F 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s32 synchronized-ok
+AT score d16F probe-1h-s32 rel=0.0030022 worstrow=0.0042173 bound=0.1036 judge=1 cache=1
+AT d16F 1h-s32 probe-numerical-reject e0 a0
+AT probe 1h-s264 synchronized-ok
+AT score d16F probe-1h-s264 rel=0.0030009 worstrow=0.0042173 bound=0.1036 judge=1 cache=1
+AT d16F 1h-s264 probe-numerical-reject e0 a0
+AT ref e4m3_err=0.031389 bound=0.0935
+AT score v16F base rel=0.032219 worstrow=0.053632 bound=0.0935 judge=1 cache=1
+AT probe 1h-s16 synchronized-ok
+AT score v16F probe-1h-s16 rel=0.033422 worstrow=0.051411 bound=0.0935 judge=1 cache=1
+AT v16F 1h-s16 probe-numerical-reject e0 a0
+AT probe 1h-s8 synchronized-ok
+AT score v16F probe-1h-s8 rel=0.035712 worstrow=0.060991 bound=0.0935 judge=1 cache=1
+AT v16F 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s32 synchronized-ok
+AT score v16F probe-1h-s32 rel=0.032452 worstrow=0.053954 bound=0.0935 judge=1 cache=1
+AT v16F 1h-s32 probe-numerical-reject e0 a0
+AT probe 1h-s264 synchronized-ok
+AT score v16F probe-1h-s264 rel=0.031593 worstrow=0.052804 bound=0.0935 judge=1 cache=1
+AT score v16F 1h-s264 rel=0.031593 worstrow=0.052804 bound=0.0935 judge=1 cache=1
+AT score v16F repeat-1h-s264 rel=0.031593 worstrow=0.052804 bound=0.0935 judge=1 cache=1
+AT v16F 1h-s264 100.83 196.64 1.9502 1.9479 e1 a0
+AT ref e4m3_err=0.041331 bound=0.1183
+AT score d32F base rel=0.0032618 worstrow=0.0043771 bound=0.1183 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score d32F probe-1h-s8 rel=0.0032632 worstrow=0.0043754 bound=0.1183 judge=1 cache=1
+AT d32F 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s4 synchronized-ok
+AT score d32F probe-1h-s4 rel=0.0032579 worstrow=0.0043683 bound=0.1183 judge=1 cache=1
+AT score d32F 1h-s4 rel=0.0032579 worstrow=0.0043683 bound=0.1183 judge=1 cache=1
+AT score d32F repeat-1h-s4 rel=0.0032579 worstrow=0.0043683 bound=0.1183 judge=1 cache=1
+AT d32F 1h-s4 172.24 260.64 1.5132 1.5137 e1 a0
+AT probe 1h-s16 synchronized-ok
+AT score d32F probe-1h-s16 rel=0.0032606 worstrow=0.0043735 bound=0.1183 judge=1 cache=1
+AT score d32F 1h-s16 rel=0.0032609 worstrow=0.0043735 bound=0.1183 judge=1 cache=1
+AT score d32F repeat-1h-s16 rel=0.0032606 worstrow=0.0043735 bound=0.1183 judge=1 cache=1
+AT d32F 1h-s16 171.90 315.30 1.8341 1.8345 e1 a0
+AT probe 1h-s264 synchronized-ok
+AT score d32F probe-1h-s264 rel=0.0032598 worstrow=0.0043736 bound=0.1183 judge=1 cache=1
+AT score d32F 1h-s264 rel=0.0032598 worstrow=0.0043736 bound=0.1183 judge=1 cache=1
+AT score d32F repeat-1h-s264 rel=0.0032598 worstrow=0.0043736 bound=0.1183 judge=1 cache=1
+AT d32F 1h-s264 172.03 280.83 1.6324 1.6324 e1 a0
+AT ref e4m3_err=0.030369 bound=0.0909
+AT score v32F base rel=0.034358 worstrow=0.072034 bound=0.0909 judge=1 cache=1
+AT probe 1h-s8 synchronized-ok
+AT score v32F probe-1h-s8 rel=0.034909 worstrow=0.077516 bound=0.0909 judge=1 cache=1
+AT v32F 1h-s8 probe-numerical-reject e0 a0
+AT probe 1h-s4 synchronized-ok
+AT score v32F probe-1h-s4 rel=0.03916 worstrow=0.093407 bound=0.0909 judge=1 cache=1
+AT v32F 1h-s4 probe-numerical-reject e0 a0
+AT probe 1h-s16 synchronized-ok
+AT score v32F probe-1h-s16 rel=0.032671 worstrow=0.071136 bound=0.0909 judge=1 cache=1
+AT score v32F 1h-s16 rel=0.032671 worstrow=0.071136 bound=0.0909 judge=1 cache=1
+AT score v32F repeat-1h-s16 rel=0.032671 worstrow=0.071136 bound=0.0909 judge=1 cache=1
+AT v32F 1h-s16 187.07 289.92 1.5498 1.5493 e1 a0
+AT probe 1h-s264 synchronized-ok
+AT score v32F probe-1h-s264 rel=0.030556 worstrow=0.069638 bound=0.0909 judge=1 cache=1
+AT score v32F 1h-s264 rel=0.030556 worstrow=0.069638 bound=0.0909 judge=1 cache=1
+AT score v32F repeat-1h-s264 rel=0.030556 worstrow=0.069638 bound=0.0909 judge=1 cache=1
+AT v32F 1h-s264 187.49 376.32 2.0072 2.0098 e1 a0
+AT summary begin status=done selected=0/11-targets elapsed=44.0s
+AT summary d1S route=base base
+AT summary d1F route=base base control-only
+AT summary d16S route=base base
+AT summary d16F route=base base
+AT summary d32S route=base base
+AT summary d32F route=base base
+AT summary v1S route=base base
+AT summary v1F route=base base
+AT summary v16S route=base base
+AT summary v16F route=base base
+AT summary v32S route=base base reject-1h-s4 search=0.9654/0.9658 confirm=0.9630/0.9575
+AT summary v32F route=base base
+AT summary load d1 synthetic_speedup=1.000000
+AT summary load d16 synthetic_speedup=1.000000
+AT summary load d32 synthetic_speedup=1.000000
+AT summary load v1 synthetic_speedup=1.000000
+AT summary load v16 synthetic_speedup=1.000000
+AT summary load v32 synthetic_speedup=1.000000
+AT summary weighted_load_geomean=1.000000 complete=6/6 weights=46S+16F metric=synthetic-gross-graph
+AT summary end

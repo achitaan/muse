@@ -1,0 +1,88 @@
+[mfab] modules built at 55s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 2.21e-07
+MP built arm=BASE seconds=86.2
+MP built arm=experimental count=3 seconds=86.2
+MP attrs arm=P regs_local_smem=[96, 0, 0, 96, 0, 0]
+MP attrs arm=F regs_local_smem=[96, 8, 0, 96, 8, 0]
+MP attrs arm=PF regs_local_smem=[96, 8, 0, 96, 8, 0]
+MP edge=empty arm=P err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=empty arm=F err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=empty arm=PF err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=one_job arm=P err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=one_job arm=F err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=one_job arm=PF err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=wide_job arm=P err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=wide_job arm=F err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=wide_job arm=PF err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=all_local arm=P err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=all_local arm=F err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP edge=all_local arm=PF err=0 maxerr=0 drift=0 base_spread=(0.0, 0.0, 0.0) ok=1
+MP info flush_MiB=512 flush=READ_sum ABBA_quads=24 draws=3 grid=132 ratio=median_draw_ratios paired=median_quad_ratios gate_each_draw=1 correctness=BASE_own_spread resources=no_extra_regs_local base_scratch=unchanged activation_scratch=separate P=post_ranges F=finalizer_claim weights=BASE
+MP spread bs=128 draw=0 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=128 draw=0 arm=P ratio=1.00105 paired=0.99969 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=0 arm=F ratio=0.99947 paired=0.99807 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=0 arm=PF ratio=1.00563 paired=1.00377 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=128 draw=1 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=128 draw=1 arm=PF ratio=1.00241 paired=1.00227 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=1 arm=F ratio=0.99889 paired=1.00102 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=1 arm=P ratio=0.99786 paired=0.99774 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=128 draw=2 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=128 draw=2 arm=P ratio=1.00317 paired=1.00318 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=2 arm=F ratio=1.00116 paired=1.00081 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=128 draw=2 arm=PF ratio=1.00759 paired=1.00600 err=0 maxerr=0 drift=0 within_spread=1
+MP bs=128 arm=P base_us=182.384 new_us=182.576 ratio=1.00105 paired=1.00039 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=128 arm=F base_us=182.160 new_us=182.064 ratio=0.99947 paired=1.00081 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=128 arm=PF base_us=181.984 new_us=183.008 ratio=1.00563 paired=1.00439 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP pick bs=128 arm=BASE seconds=87.1
+MP spread bs=256 draw=0 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=256 draw=0 arm=P ratio=1.00190 paired=1.00144 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=0 arm=F ratio=0.99936 paired=0.99905 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=0 arm=PF ratio=1.00141 paired=1.00268 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=256 draw=1 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=256 draw=1 arm=PF ratio=1.00246 paired=1.00265 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=1 arm=F ratio=1.00067 paired=0.99993 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=1 arm=P ratio=1.00268 paired=1.00119 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=256 draw=2 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=256 draw=2 arm=P ratio=1.00042 paired=1.00140 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=2 arm=F ratio=0.99304 paired=0.99156 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=256 draw=2 arm=PF ratio=0.99616 paired=0.99666 err=0 maxerr=0 drift=0 within_spread=1
+MP bs=256 arm=P base_us=226.816 new_us=227.248 ratio=1.00190 paired=1.00138 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=256 arm=F base_us=226.672 new_us=225.920 ratio=0.99936 paired=0.99799 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=256 arm=PF base_us=226.624 new_us=226.944 ratio=1.00141 paired=1.00052 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP pick bs=256 arm=BASE seconds=87.7
+MP spread bs=32 draw=0 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=32 draw=0 arm=P ratio=1.01276 paired=1.01444 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=0 arm=F ratio=1.00998 paired=1.01142 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=0 arm=PF ratio=1.00830 paired=1.00703 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=32 draw=1 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=32 draw=1 arm=PF ratio=1.00166 paired=1.00224 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=1 arm=F ratio=1.00141 paired=1.00230 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=1 arm=P ratio=1.00141 paired=1.00192 err=0 maxerr=0 drift=0 within_spread=1
+MP spread bs=32 draw=2 base_err=0 base_max=0 base_drift=0 repeats=50
+MP draw bs=32 draw=2 arm=P ratio=0.99825 paired=0.99808 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=2 arm=F ratio=1.00363 paired=1.00327 err=0 maxerr=0 drift=0 within_spread=1
+MP draw bs=32 draw=2 arm=PF ratio=1.01021 paired=1.00996 err=0 maxerr=0 drift=0 within_spread=1
+MP bs=32 arm=P base_us=126.656 new_us=128.272 ratio=1.00141 paired=1.00331 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=32 arm=F base_us=126.624 new_us=127.888 ratio=1.00363 paired=1.00454 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP bs=32 arm=PF base_us=127.184 new_us=128.240 ratio=1.00830 paired=1.00721 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=8/8 draws=3 reps=24 stability=50 correct=1 base_spread=[0.0, 0.0, 0.0] base_attrs=[96, 0, 0, 96, 0, 0]
+MP pick bs=32 arm=BASE seconds=88.1
+MP bs=1 arm=BASE_unchanged base_us=25.888 new_us=25.888 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=0 correct=1 base_spread=[] base_attrs=[]
+MP bs=8 arm=BASE_unchanged base_us=65.744 new_us=65.744 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=151/151 spills_localB=0/0 draws=3 reps=24 stability=0 correct=1 base_spread=[] base_attrs=[]
+MP bs=16 arm=BASE_unchanged base_us=98.304 new_us=98.304 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=0 correct=1 base_spread=[] base_attrs=[]
+MP done prepare_seconds=88.3 selected=[]
+MP PFY_SUMMARY Y=not_applicable_BASE_already_BF16_no_B4FIN
+MP bs=32 arm=P ratio=1.00141 paired=1.00331 correct=1 attrs_ok=1 adopted=0
+MP bs=32 arm=F ratio=1.00363 paired=1.00454 correct=1 attrs_ok=0 adopted=0
+MP bs=32 arm=PF ratio=1.00830 paired=1.00721 correct=1 attrs_ok=0 adopted=0
+MP bs=128 arm=P ratio=1.00105 paired=1.00039 correct=1 attrs_ok=1 adopted=0
+MP bs=128 arm=F ratio=0.99947 paired=1.00081 correct=1 attrs_ok=0 adopted=0
+MP bs=128 arm=PF ratio=1.00563 paired=1.00439 correct=1 attrs_ok=0 adopted=0
+MP bs=256 arm=P ratio=1.00190 paired=1.00138 correct=1 attrs_ok=1 adopted=0
+MP bs=256 arm=F ratio=0.99936 paired=0.99799 correct=1 attrs_ok=0 adopted=0
+MP bs=256 arm=PF ratio=1.00141 paired=1.00052 correct=1 attrs_ok=0 adopted=0

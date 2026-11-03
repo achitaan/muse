@@ -1,0 +1,58 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 108s
+BUILD pw57_flush 30.0s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.21 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.78 us   0.81 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.05 us   1.67 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.21 us   1.64 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.74 us two_node 5.33 us overhead 4.14 us
+PREP rq thread ready at 47s (bake starts at 138s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.58 at 138s
+BAKE qkv_gate m=128 rq:d2s5hze 14.88 (ratio 1.4128 vs r6 20.58) at 138s
+BAKE qkv_gate m=128 rq:d2s5hzwP 16.04 (ratio 1.0214 vs rq:d2s5hze 14.88) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.90 (ratio 1.0322 vs rq:d2s5hze 14.88) at 138s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.75 (ratio 0.9820 vs rq:d2s5hze 14.88) at 138s
+BAKE qkv_gate m=128 rq:d2s6hze 17.04 (ratio 0.9598 vs rq:d2s5hze 14.88) at 138s
+PICK qkv_gate m=128 rq:s4s5hzw 14.42 (ref rq:d2s5hze 14.88)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0214)
+BAKE qkv_gate m=256 r6 23.39 at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 20.96 (ratio 1.1284 vs r6 23.39) at 138s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.95 (ratio 0.9885 vs rq:n256s5m1hzmEH 20.96) at 138s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 20.96 (ref rq:n256s5m1hzmEH 20.96)
+BAKE rq unpooler esc2 slots max=4 ok
+BAKE unpooler m=128 r6 23.49 at 138s
+BAKE unpooler m=128 rq:d2s5hze 20.92 (ratio 1.1519 vs r6 23.49) at 138s
+BAKE unpooler m=128 rq:d2s5hzwP 20.80 (ratio 1.0492 vs rq:d2s5hze 20.92) at 138s
+BAKE unpooler m=128 rq:s4s5hzw 20.79 (ratio 1.0606 vs rq:d2s5hze 20.92) at 138s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.39 (ratio 1.0205 vs rq:d2s5hze 20.92) at 138s
+BAKE unpooler m=128 rq:s4s5hze 21.61 (ratio 1.0055 vs rq:d2s5hze 20.92) at 138s
+BAKE unpooler m=128 rq:d2s6hze 21.63 (ratio 1.0105 vs rq:d2s5hze 20.92) at 138s
+PICK unpooler m=128 rq:s4s5hzw 19.72 (ref rq:d2s5hze 20.92)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0492)
+BAKE unpooler m=256 r6 28.22 at 138s
+PICK unpooler m=256 r6 28.22 (ref r6 28.22)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 138s
+[mfab] layer prepare done at 138s
+RQF_INFO base_prepare_s=138.3 read_flush_MiB=512 adopt_ratio<=0.988 qkv_err<=0.0017 passes=2 blocks=12 tokens=(32, 16) flags=0x6900001
+RQF_PLAN T=32 t32s5f32-k7 exact_pack=1 valid=1 ok 1.6e-03
+RQF_PLAN T=32 t32s6f32-k7 exact_pack=1 valid=1 ok 1.7e-03
+RQF_PLAN T=16 t16s5f32-k7 exact_pack=1 valid=1 ok 1.6e-03
+RQF_BASE_SELF T=32 S ok=1 ids_equal=1 hidden_l2=6.1e-04 update_l2=7.2e-04 kv_l2=0.0e+00 qkv_fp64_err=1.658e-03 qkv_elems_differ=0.00e+00
+RQF_GATE T=32 t32s5f32 S1 old=184.75 new=188.29 med=1.0191 pair=1.0197 ok=1 ids_equal=1 hidden_l2=2.4e-03 update_l2=3.2e-03 kv_l2=9.9e-04 qkv_fp64_err=1.658e-03 qkv_elems_differ=1.22e-03 base_qkv_err=1.658e-03
+RQF_GATE T=32 t32s6f32 S1 old=184.78 new=188.83 med=1.0219 pair=1.0226 ok=1 ids_equal=1 hidden_l2=2.4e-03 update_l2=3.2e-03 kv_l2=9.9e-04 qkv_fp64_err=1.658e-03 qkv_elems_differ=1.22e-03 base_qkv_err=1.658e-03
+RQF_ARM T=32 t32s5f32 S1:1.0191/1.0197- rejected
+RQF_ARM T=32 t32s6f32 S1:1.0219/1.0226- rejected
+RQF_NONE T=32 no arm passed every check
+RQF_NONE T=32 fallback=incumbent
+RQF_BASE_SELF T=16 S ok=1 ids_equal=1 hidden_l2=1.3e-04 update_l2=1.8e-04 kv_l2=0.0e+00 qkv_fp64_err=1.673e-03 qkv_elems_differ=0.00e+00
+RQF_GATE T=16 t16s5f32 S1 old=163.62 new=167.47 med=1.0236 pair=1.0221 ok=1 ids_equal=1 hidden_l2=1.2e-03 update_l2=1.7e-03 kv_l2=0.0e+00 qkv_fp64_err=1.673e-03 qkv_elems_differ=8.95e-04 base_qkv_err=1.673e-03
+RQF_ARM T=16 t16s5f32 S1:1.0236/1.0221- rejected
+RQF_NONE T=16 no arm passed every check
+RQF_NONE T=16 fallback=incumbent
+RQF_DONE total_prepare_s=138.7 adopted={} verdicts={32: None, 16: None}

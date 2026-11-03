@@ -1,0 +1,112 @@
+pf n=16 a_us=586.53 us=586.03 median_ratio=0.99915 paired=1.00279 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding moe_xpf_overlap n=16 a_us=584.93 us=585.90 median_ratio=1.00167 paired=1.00250 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding moe_xpf_overlap_l2pf2 n=16 a_us=585.60 us=589.68 median_ratio=1.00697 paired=1.00630 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding gather_side n=16 a_us=585.04 us=585.97 median_ratio=1.00159 paired=0.99975 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding triton_pdl_early n=16 a_us=584.64 us=589.34 median_ratio=1.00805 paired=1.00326 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn1_sliding arm=default ratio=1.00000
+PFAB_INFO turn1_full seed=20341855 n=16 routes=1558 default_spread=4.1e-04,2.2e-03,4.3e-04,2.4e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn1_full moe_xpf n=16 a_us=858.74 us=860.83 median_ratio=1.00244 paired=1.00313 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full moe_xpf_overlap n=16 a_us=857.34 us=861.58 median_ratio=1.00495 paired=1.00485 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full moe_xpf_overlap_l2pf2 n=16 a_us=857.09 us=865.22 median_ratio=1.00948 paired=1.00744 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full gather_side n=16 a_us=859.14 us=860.21 median_ratio=1.00125 paired=1.00046 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full triton_pdl_early n=16 a_us=857.25 us=859.65 median_ratio=1.00280 paired=1.00117 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn1_full arm=default ratio=1.00000
+PFAB_INFO turn4_sliding seed=20346162 n=16 routes=5218 default_spread=1.2e-04,1.7e-03,1.3e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn4_sliding moe_xpf n=16 a_us=1815.95 us=1821.09 median_ratio=1.00283 paired=1.00367 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding moe_xpf_overlap n=16 a_us=1815.02 us=1821.79 median_ratio=1.00373 paired=1.00429 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding moe_xpf_overlap_l2pf2 n=16 a_us=1814.83 us=1831.46 median_ratio=1.00916 paired=1.00906 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding gather_side n=16 a_us=1815.76 us=1821.63 median_ratio=1.00323 paired=1.00267 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding triton_pdl_early n=16 a_us=1815.38 us=1817.22 median_ratio=1.00101 paired=1.00143 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn4_sliding arm=default ratio=1.00000
+PFAB_INFO turn4_full seed=20344114 n=16 routes=3822 default_spread=1.1e-04,1.7e-03,1.2e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn4_full moe_xpf n=16 a_us=2485.60 us=2487.28 median_ratio=1.00068 paired=1.00197 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full moe_xpf_overlap n=16 a_us=2483.73 us=2487.82 median_ratio=1.00165 paired=1.00191 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full moe_xpf_overlap_l2pf2 n=16 a_us=2483.87 us=2492.77 median_ratio=1.00358 paired=1.00556 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full gather_side n=16 a_us=2484.69 us=2504.80 median_ratio=1.00809 paired=1.00775 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full triton_pdl_early n=16 a_us=2483.49 us=2485.15 median_ratio=1.00067 paired=1.00118 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn4_full arm=default ratio=1.00000
+PFAB_INFO first_sliding seed=20312302 n=16 routes=38070 default_spread=8.9e-05,2.0e-03,9.4e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_sliding moe_xpf n=16 a_us=10044.11 us=10113.49 median_ratio=1.00691 paired=1.01091 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding moe_xpf_overlap n=16 a_us=10057.97 us=10107.55 median_ratio=1.00493 paired=1.00643 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding moe_xpf_overlap_l2pf2 n=16 a_us=10053.15 us=10137.79 median_ratio=1.00842 paired=1.01117 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding gather_side n=16 a_us=10056.96 us=10074.62 median_ratio=1.00176 paired=1.00269 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding triton_pdl_early n=16 a_us=10061.50 us=10101.23 median_ratio=1.00395 paired=1.00806 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_sliding arm=default ratio=1.00000
+PFAB_INFO first_full_ctx32768 seed=20310254 n=16 routes=29232 default_spread=9.2e-05,2.3e-03,1.0e-04,2.5e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx32768 moe_xpf n=16 a_us=11186.75 us=11228.16 median_ratio=1.00370 paired=1.00817 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 moe_xpf_overlap n=16 a_us=11180.66 us=11277.66 median_ratio=1.00868 paired=1.00795 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 moe_xpf_overlap_l2pf2 n=16 a_us=11154.69 us=11214.11 median_ratio=1.00533 paired=1.02036 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 gather_side n=16 a_us=11138.30 us=11203.20 median_ratio=1.00583 paired=1.00187 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 triton_pdl_early n=16 a_us=11090.18 us=11199.15 median_ratio=1.00983 paired=1.00840 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx32768 arm=default ratio=1.00000
+PFAB_INFO first_full_ctx0 seed=20277486 n=16 routes=32522 default_spread=9.5e-05,2.2e-03,9.8e-05,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx0 moe_xpf n=16 a_us=9743.65 us=9791.55 median_ratio=1.00492 paired=1.01700 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 moe_xpf_overlap n=16 a_us=9709.78 us=9763.70 median_ratio=1.00555 paired=1.00787 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 moe_xpf_overlap_l2pf2 n=16 a_us=9714.18 us=9812.50 median_ratio=1.01012 paired=1.01182 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 gather_side n=16 a_us=9721.44 us=9732.27 median_ratio=1.00111 paired=1.00781 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 triton_pdl_early n=16 a_us=9724.67 us=9856.37 median_ratio=1.01354 paired=1.01516 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx0 arm=default ratio=1.00000
+PFAB_INFO first_full_ctx65536 seed=20343022 n=16 routes=25790 default_spread=9.6e-05,1.8e-03,1.0e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx65536 moe_xpf n=16 a_us=12559.60 us=12716.42 median_ratio=1.01249 paired=1.01468 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 moe_xpf_overlap n=16 a_us=12536.46 us=12694.50 median_ratio=1.01261 paired=1.01202 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 moe_xpf_overlap_l2pf2 n=16 a_us=12525.76 us=12664.91 median_ratio=1.01111 paired=1.01136 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 gather_side n=16 a_us=12469.62 us=12505.60 median_ratio=1.00289 paired=1.00504 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 triton_pdl_early n=16 a_us=12549.34 us=12682.21 median_ratio=1.01059 paired=1.01460 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx65536 arm=default ratio=1.00000
+PFAB_INFO final_summary prepare_s=94.5 adopted_cases=0
+PFAB_INFO turn1_sliding seed=20343903 n=16 routes=1254 default_spread=4.0e-04,1.9e-03,4.3e-04,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn1_sliding moe_xpf n=16 a_us=586.53 us=586.03 median_ratio=0.99915 paired=1.00279 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding moe_xpf_overlap n=16 a_us=584.93 us=585.90 median_ratio=1.00167 paired=1.00250 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding moe_xpf_overlap_l2pf2 n=16 a_us=585.60 us=589.68 median_ratio=1.00697 paired=1.00630 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding gather_side n=16 a_us=585.04 us=585.97 median_ratio=1.00159 paired=0.99975 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_sliding triton_pdl_early n=16 a_us=584.64 us=589.34 median_ratio=1.00805 paired=1.00326 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn1_sliding arm=default ratio=1.00000
+PFAB_INFO turn1_full seed=20341855 n=16 routes=1558 default_spread=4.1e-04,2.2e-03,4.3e-04,2.4e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn1_full moe_xpf n=16 a_us=858.74 us=860.83 median_ratio=1.00244 paired=1.00313 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full moe_xpf_overlap n=16 a_us=857.34 us=861.58 median_ratio=1.00495 paired=1.00485 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full moe_xpf_overlap_l2pf2 n=16 a_us=857.09 us=865.22 median_ratio=1.00948 paired=1.00744 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full gather_side n=16 a_us=859.14 us=860.21 median_ratio=1.00125 paired=1.00046 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn1_full triton_pdl_early n=16 a_us=857.25 us=859.65 median_ratio=1.00280 paired=1.00117 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn1_full arm=default ratio=1.00000
+PFAB_INFO turn4_sliding seed=20346162 n=16 routes=5218 default_spread=1.2e-04,1.7e-03,1.3e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn4_sliding moe_xpf n=16 a_us=1815.95 us=1821.09 median_ratio=1.00283 paired=1.00367 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding moe_xpf_overlap n=16 a_us=1815.02 us=1821.79 median_ratio=1.00373 paired=1.00429 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding moe_xpf_overlap_l2pf2 n=16 a_us=1814.83 us=1831.46 median_ratio=1.00916 paired=1.00906 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding gather_side n=16 a_us=1815.76 us=1821.63 median_ratio=1.00323 paired=1.00267 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_sliding triton_pdl_early n=16 a_us=1815.38 us=1817.22 median_ratio=1.00101 paired=1.00143 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn4_sliding arm=default ratio=1.00000
+PFAB_INFO turn4_full seed=20344114 n=16 routes=3822 default_spread=1.1e-04,1.7e-03,1.2e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB turn4_full moe_xpf n=16 a_us=2485.60 us=2487.28 median_ratio=1.00068 paired=1.00197 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full moe_xpf_overlap n=16 a_us=2483.73 us=2487.82 median_ratio=1.00165 paired=1.00191 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full moe_xpf_overlap_l2pf2 n=16 a_us=2483.87 us=2492.77 median_ratio=1.00358 paired=1.00556 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full gather_side n=16 a_us=2484.69 us=2504.80 median_ratio=1.00809 paired=1.00775 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB turn4_full triton_pdl_early n=16 a_us=2483.49 us=2485.15 median_ratio=1.00067 paired=1.00118 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK turn4_full arm=default ratio=1.00000
+PFAB_INFO first_sliding seed=20312302 n=16 routes=38070 default_spread=8.9e-05,2.0e-03,9.4e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_sliding moe_xpf n=16 a_us=10044.11 us=10113.49 median_ratio=1.00691 paired=1.01091 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding moe_xpf_overlap n=16 a_us=10057.97 us=10107.55 median_ratio=1.00493 paired=1.00643 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding moe_xpf_overlap_l2pf2 n=16 a_us=10053.15 us=10137.79 median_ratio=1.00842 paired=1.01117 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding gather_side n=16 a_us=10056.96 us=10074.62 median_ratio=1.00176 paired=1.00269 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_sliding triton_pdl_early n=16 a_us=10061.50 us=10101.23 median_ratio=1.00395 paired=1.00806 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_sliding arm=default ratio=1.00000
+PFAB_INFO first_full_ctx32768 seed=20310254 n=16 routes=29232 default_spread=9.2e-05,2.3e-03,1.0e-04,2.5e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx32768 moe_xpf n=16 a_us=11186.75 us=11228.16 median_ratio=1.00370 paired=1.00817 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 moe_xpf_overlap n=16 a_us=11180.66 us=11277.66 median_ratio=1.00868 paired=1.00795 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 moe_xpf_overlap_l2pf2 n=16 a_us=11154.69 us=11214.11 median_ratio=1.00533 paired=1.02036 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 gather_side n=16 a_us=11138.30 us=11203.20 median_ratio=1.00583 paired=1.00187 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx32768 triton_pdl_early n=16 a_us=11090.18 us=11199.15 median_ratio=1.00983 paired=1.00840 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx32768 arm=default ratio=1.00000
+PFAB_INFO first_full_ctx0 seed=20277486 n=16 routes=32522 default_spread=9.5e-05,2.2e-03,9.8e-05,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx0 moe_xpf n=16 a_us=9743.65 us=9791.55 median_ratio=1.00492 paired=1.01700 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 moe_xpf_overlap n=16 a_us=9709.78 us=9763.70 median_ratio=1.00555 paired=1.00787 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 moe_xpf_overlap_l2pf2 n=16 a_us=9714.18 us=9812.50 median_ratio=1.01012 paired=1.01182 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 gather_side n=16 a_us=9721.44 us=9732.27 median_ratio=1.00111 paired=1.00781 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx0 triton_pdl_early n=16 a_us=9724.67 us=9856.37 median_ratio=1.01354 paired=1.01516 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx0 arm=default ratio=1.00000
+PFAB_INFO first_full_ctx65536 seed=20343022 n=16 routes=25790 default_spread=9.6e-05,1.8e-03,1.0e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.0e+00 load=0.0e+00 immutable=1 cache=1
+PFAB first_full_ctx65536 moe_xpf n=16 a_us=12559.60 us=12716.42 median_ratio=1.01249 paired=1.01468 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 moe_xpf_overlap n=16 a_us=12536.46 us=12694.50 median_ratio=1.01261 paired=1.01202 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 moe_xpf_overlap_l2pf2 n=16 a_us=12525.76 us=12664.91 median_ratio=1.01111 paired=1.01136 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 gather_side n=16 a_us=12469.62 us=12505.60 median_ratio=1.00289 paired=1.00504 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB first_full_ctx65536 triton_pdl_early n=16 a_us=12549.34 us=12682.21 median_ratio=1.01059 paired=1.01460 eq=TOL_SPREAD bits=0 kv=1 att=1 gate=0
+PFAB_PICK first_full_ctx65536 arm=default ratio=1.00000

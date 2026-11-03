@@ -1,0 +1,46 @@
+[mfab] modules built at 61s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 0.00e+00
+[wave] protocol emulation: 12 random schedules (1127802 steps) ok; broken variants caught: lowtarget: CTA 4: B(0) loads inter rows before A(0) tile(s) [490, 501, 506] were stored; nocounter: CTA 6: B(0) loads inter rows before A(0) tile(s) [426, 434, 437] were stored; norelease: CTA 1: A slot 0 overwritten while unit 0 is unconsumed
+[wave] bs 1: build regs 155 local 0 B static smem 0 B dynamic smem 220928 B (total 215.8 KiB) resident CTAs/SM 1 at 99s
+[wave] bs 1: gate not fast enough: pass0 median 1.2690 paired 1.2765 | pass1 median 1.2718 paired 1.2782 (8 cold draws, 0 L2-hot draws dropped, 768 pairs) us incumbent 26.5 wave 33.5
+[wave] bs 1: vs FP32 reference worst global 2.68e-03 row 2.68e-03 (incumbent 2.68e-03 / 2.68e-03); wave vs incumbent: elements differing 4 of 32768, max |diff| 0.000977, worst rel 6.69e-05
+[wave] bs 8: build regs 155 local 0 B static smem 0 B dynamic smem 220928 B (total 215.8 KiB) resident CTAs/SM 1 at 101s
+[wave] bs 8: gate not fast enough: pass0 median 1.4764 paired 1.4627 | pass1 median 1.4686 paired 1.4563 (8 cold draws, 0 L2-hot draws dropped, 768 pairs) us incumbent 71.0 wave 106.6
+[wave] bs 8: vs FP32 reference worst global 2.56e-03 row 2.77e-03 (incumbent 2.56e-03 / 2.77e-03); wave vs incumbent: elements differing 25 of 262144, max |diff| 0.000977, worst rel 3.54e-05
+[wave] nearby bs 2: dispatch (incumbent) vs reference global 2.55e-03 row 2.55e-03 ok; wave build probed directly global 2.55e-03 row 2.55e-03 ok
+[wave] nearby bs 4: dispatch (incumbent) vs reference global 2.54e-03 row 2.72e-03 ok; wave build probed directly global 2.54e-03 row 2.72e-03 ok
+[wave] nearby bs 7: dispatch (incumbent) vs reference global 2.52e-03 row 2.62e-03 ok; wave build probed directly global 2.52e-03 row 2.62e-03 ok
+[wave] nearby bs 9: dispatch (incumbent) vs reference global 2.58e-03 row 2.61e-03 ok
+[wave] diag bs 1: twin regs/local/static smem incumbent [152, 0, 0] wave [157, 0, 0]
+[wave] diag bs 1: graph us incumbent 32.2 wave 42.7 | incumbent twin 34.2 wave twin 42.2 (stamped replays 56 / 56)
+[wave] diag bs 8: twin regs/local/static smem incumbent [146, 0, 0] wave [157, 0, 0]
+[wave] diag bs 8: graph us incumbent 72.4 wave 107.1 | incumbent twin 74.2 wave twin 106.2 (stamped replays 56 / 56)
+[wave] ================================ SUMMARY ================================
+[wave] prepare() 103s; arm active at batch sizes none (incumbent everywhere); protocol emulation: 12 random schedules (1127802 steps) ok; broken variants caught: lowtarget: CTA 4: B(0) loads inter rows before A(0) tile(s) [490, 501, 506] were stored; nocounter: CTA 6: B(0) loads inter rows before A(0) tile(s) [426, 434, 437] were stored; norelease: CTA 1: A slot 0 overwritten while unit 0 is unconsumed
+[wave] footprint (build | regs | local B | static smem B | dynamic smem B | total KiB | CTAs/SM):
+[wave]   bs 1 wave 5-slot (3A+2B) | 155 | 0 | 0 | 220928 | 215.8 | 1
+[wave]   bs 1 incumbent 3-slot (dynamic derived) | n/a | n/a | n/a | 214784 | n/a | 1
+[wave]   bs 8 wave 5-slot (3A+2B) | 155 | 0 | 0 | 220928 | 215.8 | 1
+[wave]   bs 8 incumbent 3-slot (dynamic derived) | n/a | n/a | n/a | 214784 | n/a | 1
+[wave] bs 1: arm off (not fast enough): wave/incumbent pass0 median 1.2690 paired 1.2765; pass1 median 1.2718 paired 1.2782 (gate <= 0.97); us incumbent 26.5 wave 33.5; 8 cold draws (experts [2, 3]), 0 hot dropped
+[wave] bs 1: reference error worst global 2.68e-03 row 2.68e-03 (bounds 0.015 / 0.075); vs incumbent differing elements 4/32768, max |diff| 0.000977
+[wave] bs 8: arm off (not fast enough): wave/incumbent pass0 median 1.4764 paired 1.4627; pass1 median 1.4686 paired 1.4563 (gate <= 0.97); us incumbent 71.0 wave 106.6; 8 cold draws (experts [5, 6, 7, 8, 9, 10, 11]), 0 hot dropped
+[wave] bs 8: reference error worst global 2.56e-03 row 2.77e-03 (bounds 0.015 / 0.075); vs incumbent differing elements 25/262144, max |diff| 0.000977
+[wave] nearby bs 2: dispatch (incumbent) vs reference global 2.55e-03 row 2.55e-03 ok; wave build probed directly global 2.55e-03 row 2.55e-03 ok
+[wave] nearby bs 4: dispatch (incumbent) vs reference global 2.54e-03 row 2.72e-03 ok; wave build probed directly global 2.54e-03 row 2.72e-03 ok
+[wave] nearby bs 7: dispatch (incumbent) vs reference global 2.52e-03 row 2.62e-03 ok; wave build probed directly global 2.52e-03 row 2.62e-03 ok
+[wave] nearby bs 9: dispatch (incumbent) vs reference global 2.58e-03 row 2.61e-03 ok
+[wave] stamps bs 1: graph us incumbent 32.2 wave 42.7 (twins 34.2 / 42.2)
+[wave]   incumbent critical path (last-exiting CTA, us): ramp 3.10 + A 13.09 + A->B wait 2.40 + B 6.34 + drain 0.58 + barrier 1.98 + final 0.70 = 28.26
+[wave]   wave      critical path (last-exiting CTA, us): ramp 4.22 + A/B work 22.62 + hand-off waits 5.63 + drain 0.64 + barrier 1.02 + final 0.67 = 36.42
+[wave]   wave per-expert B(j) acquire wait, median over CTAs (us): 3.46 1.95 2.05 1.63; last A(j) publication vs median CTA: +0.51 +0.51 +0.51 +0.51
+[wave] stamps bs 8: graph us incumbent 72.4 wave 107.1 (twins 74.2 / 106.2)
+[wave]   incumbent critical path (last-exiting CTA, us): ramp 3.30 + A 38.34 + A->B wait 2.14 + B 20.19 + drain 0.64 + barrier 2.78 + final 0.80 = 68.16
+[wave]   wave      critical path (last-exiting CTA, us): ramp 7.30 + A/B work 71.17 + hand-off waits 19.36 + drain 0.64 + barrier 1.06 + final 0.74 = 100.22
+[wave]   wave per-expert B(j) acquire wait, median over CTAs (us): 2.24 2.08 2.11 2.08 2.02 2.05 2.08 2.08 1.70 2.08 1.57; last A(j) publication vs median CTA: +0.51 +0.51 +0.51 +0.51 +0.51 +0.51 +0.51 +0.51 +0.51 +0.51 +0.51

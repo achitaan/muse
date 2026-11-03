@@ -1,0 +1,98 @@
+AT build R ready
+AT build G ready
+AT build P ready
+AT build RG ready
+AT build RGP ready
+AT builds ready 58.7s
+AT ref e4m3_err=0.066586 bound=0.1500
+AT score d1S base rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT score d1S R rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT score d1S repeat-R rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT d1S R 8.70 8.75 1.0055 1.0046 e1 a0
+AT score d1S G rel=0.0046978 worstrow=0.0046978 bound=0.1500 judge=1 cache=1
+AT d1S G nan nan nan nan e0 a0
+AT score d1S P rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT score d1S repeat-P rel=0.0046975 worstrow=0.0046975 bound=0.1500 judge=1 cache=1
+AT d1S P 8.83 11.65 1.3188 1.3215 e1 a0
+AT score d1S RG rel=0.0046978 worstrow=0.0046978 bound=0.1500 judge=1 cache=1
+AT d1S RG nan nan nan nan e0 a0
+AT score d1S RGP rel=0.0046978 worstrow=0.0046978 bound=0.1500 judge=1 cache=1
+AT d1S RGP nan nan nan nan e0 a0
+AT ref e4m3_err=0.031595 bound=0.0940
+AT score d1F base rel=0.0029052 worstrow=0.0029052 bound=0.0940 judge=1 cache=1
+AT score d1F G rel=0.0029048 worstrow=0.0029048 bound=0.0940 judge=1 cache=1
+AT score d1F repeat-G rel=0.0029048 worstrow=0.0029048 bound=0.0940 judge=1 cache=1
+AT d1F G 14.58 14.64 1.0044 1.0188 e1 a0
+AT score d1F P rel=0.0029052 worstrow=0.0029052 bound=0.0940 judge=1 cache=1
+AT score d1F repeat-P rel=0.0029052 worstrow=0.0029052 bound=0.0940 judge=1 cache=1
+AT d1F P 14.50 36.08 2.4890 2.4898 e1 a0
+AT score d1F RGP rel=0.0029048 worstrow=0.0029048 bound=0.0940 judge=1 cache=1
+AT score d1F repeat-RGP rel=0.0029048 worstrow=0.0029048 bound=0.0940 judge=1 cache=1
+AT d1F RGP 14.54 36.16 2.4862 2.4830 e1 a0
+AT ref e4m3_err=0.058987 bound=0.1500
+AT score d16S base rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S G rel=0.0044315 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-G rel=0.0044315 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT d16S G 11.71 11.90 1.0164 1.0244 e1 a0
+AT score d16S P rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-P rel=0.0044318 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT d16S P 11.78 13.12 1.1141 1.1116 e1 a0
+AT score d16S RGP rel=0.0044315 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT score d16S repeat-RGP rel=0.0044315 worstrow=0.0059123 bound=0.1500 judge=1 cache=1
+AT d16S RGP 11.73 13.10 1.1173 1.1071 e1 a0
+AT ref e4m3_err=0.035452 bound=0.1036
+AT score d16F base rel=0.0030019 worstrow=0.0042147 bound=0.1036 judge=1 cache=1
+AT score d16F G rel=0.0030018 worstrow=0.0042147 bound=0.1036 judge=1 cache=1
+AT score d16F repeat-G rel=0.0030018 worstrow=0.0042147 bound=0.1036 judge=1 cache=1
+AT d16F G 89.94 90.10 1.0018 1.0016 e1 a0
+AT ref e4m3_err=0.066388 bound=0.1500
+AT score d32S base rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT score d32S G rel=0.0047352 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT d32S G nan nan nan nan e0 a0
+AT score d32S P rel=0.0047349 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT score d32S repeat-P rel=0.0047349 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT d32S P 13.78 14.37 1.0430 1.0378 e1 a0
+AT score d32S RGP rel=0.0047351 worstrow=0.0065459 bound=0.1500 judge=1 cache=1
+AT d32S RGP nan nan nan nan e0 a0
+AT ref e4m3_err=0.041331 bound=0.1183
+AT score d32F base rel=0.0032618 worstrow=0.0043771 bound=0.1183 judge=1 cache=1
+AT score d32F G rel=0.0032637 worstrow=0.0043771 bound=0.1183 judge=1 cache=1
+AT d32F G nan nan nan nan e0 a0
+AT ref e4m3_err=0.070096 bound=0.1500
+AT score v1S base rel=0.071187 worstrow=0.085131 bound=0.1500 judge=1 cache=1
+AT ref e4m3_err=0.019711 bound=0.0643
+AT score v1F base rel=0.019921 worstrow=0.024977 bound=0.0643 judge=1 cache=1
+AT ref e4m3_err=0.066076 bound=0.1500
+AT score v16S base rel=0.067605 worstrow=0.10031 bound=0.1500 judge=1 cache=1
+AT ref e4m3_err=0.031389 bound=0.0935
+AT score v16F base rel=0.032219 worstrow=0.053632 bound=0.0935 judge=1 cache=1
+AT ref e4m3_err=0.065978 bound=0.1500
+AT score v32S base rel=0.068053 worstrow=0.10781 bound=0.1500 judge=1 cache=1
+AT ref e4m3_err=0.030369 bound=0.0909
+AT score v32F base rel=0.034358 worstrow=0.072034 bound=0.0909 judge=1 cache=1
+AT summary begin status=done selected=0/12 elapsed=60.1s
+AT summary build R ready
+AT summary build G ready
+AT summary build P ready
+AT summary build RG ready
+AT summary build RGP ready
+AT summary d1S route=base base
+AT summary d1F route=base base
+AT summary d16S route=base base
+AT summary d16F route=base base
+AT summary d32S route=base base
+AT summary d32F route=base base
+AT summary v1S route=base base control-only
+AT summary v1F route=base base control-only
+AT summary v16S route=base base control-only
+AT summary v16F route=base base control-only
+AT summary v32S route=base base control-only
+AT summary v32F route=base base control-only
+AT summary load d1 base_us=638.976 selected_us=638.976 speedup=1.00000
+AT summary load d16 base_us=1978.464 selected_us=1978.464 speedup=1.00000
+AT summary load d32 base_us=3368.032 selected_us=3368.032 speedup=1.00000
+AT summary load v1 base_us=718.208 selected_us=718.208 speedup=1.00000
+AT summary load v16 base_us=2283.200 selected_us=2283.200 speedup=1.00000
+AT summary load v32 base_us=3805.568 selected_us=3805.568 speedup=1.00000
+AT summary weighted_load_geomean=1.000000 gross_synthetic_graphs=1
+AT summary end

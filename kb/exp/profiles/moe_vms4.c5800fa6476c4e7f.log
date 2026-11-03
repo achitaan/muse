@@ -1,0 +1,76 @@
+[vms4] static check ok: vms_run declaration == definition == call (19 parameters)
+[mfab] modules built at 52s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 3.15e-05
+[vms4] modules ready at 83s; per kernel regs/local/static smem, then dyn smem of A / B:
+[vms4]   M16: A=79/0/0 A_stream=30/0/0 A_math=82/0/0 B=83/0/0 B_stream=30/0/0 B_math=86/0/0 A_w16=79/0/0 B_w16=83/0/0 A_r4=79/0/0 B_r4=82/0/0 fin_leg=181/0/256 fin2a=38/0/128 fin2b=32/0/0 dyn_smem plain/w16/r4=164096/172288/217600
+[vms4]   M32: A=102/0/0 A_stream=30/0/0 A_math=106/0/0 B=108/0/0 B_stream=30/0/0 B_math=114/0/0 A_w16=95/0/0 B_w16=96/0/0 A_r4=0/0/0 B_r4=0/0/0 fin_leg=181/0/256 fin2a=38/0/128 fin2b=32/0/0 dyn_smem plain/w16/r4=214016/230400/0
+[vms4] repacked weights at 83s
+[vms4] bs 16 draws (U distinct experts / S sum ceil(cnt/8) / max tokens per expert / R routes): n:U12/S13/max16/R32(inc e2.5e-03) n:U14/S14/max7/R26(inc e2.6e-03) n:U13/S13/max7/R22(inc e2.5e-03) n:U12/S12/max4/R23(inc e2.6e-03) n:U9/S10/max16/R29(inc e2.6e-03) n:U6/S7/max14/R20(inc e2.6e-03) s:U4/S5/max13/R29 s:U5/S9/max14/R57
+[vms4] bs 16 weight bytes moved per call ~ 311 MB (11.0 experts x 28.31 MB)
+[vms4] bs 16 arm it1 (cfg 0x0): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 arm it1+fin2 (cfg 0x1): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 arm it1+w16 (cfg 0x2): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 arm it1+w16+fin2 (cfg 0x3): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 arm it1+r4 (cfg 0x4): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 arm it1+r4+fin2 (cfg 0x5): err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] bs 16 DIAG A (GEMM1) ~245 MB weights (eager, event to event, so +launch gap): full 68.5 us 3.72 TB/s | stream 61.1 us 4.04 TB/s | math 56.5 us 4.56 TB/s -> neither alone (stream 0.89, math 0.83 of full): overlap/latency/ramp
+[vms4] bs 16 DIAG B (GEMM2) ~123 MB weights (eager, event to event, so +launch gap): full 39.6 us 3.19 TB/s | stream 33.5 us 3.64 TB/s | math 32.5 us 3.90 TB/s -> neither alone (stream 0.85, math 0.82 of full): overlap/latency/ramp
+[vms4] bs 16 pass 1 arm it1: paired 0.9985 median 0.9658 (incumbent 98.3 us, arm 95.0 us, 72 rounds)
+[vms4] bs 16 pass 1 arm it1+fin2: paired 0.9937 median 0.9621 (incumbent 98.8 us, arm 95.0 us, 72 rounds)
+[vms4] bs 16 pass 1 arm it1+w16: paired 1.0019 median 0.9810 (incumbent 97.8 us, arm 96.0 us, 72 rounds)
+[vms4] bs 16 pass 1 arm it1+w16+fin2: paired 1.0053 median 0.9677 (incumbent 98.0 us, arm 94.8 us, 72 rounds)
+[vms4] bs 16 pass 1 arm it1+r4: paired 0.9997 median 0.9691 (incumbent 98.3 us, arm 95.3 us, 72 rounds)
+[vms4] bs 16 pass 1 arm it1+r4+fin2: paired 0.9906 median 0.9598 (incumbent 98.6 us, arm 94.6 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1: paired 0.9999 median 0.9714 (incumbent 98.4 us, arm 95.6 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1+fin2: paired 0.9951 median 0.9597 (incumbent 98.4 us, arm 94.4 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1+w16: paired 1.0013 median 0.9695 (incumbent 98.6 us, arm 95.6 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1+w16+fin2: paired 1.0057 median 0.9758 (incumbent 98.0 us, arm 95.7 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1+r4: paired 0.9963 median 0.9653 (incumbent 98.7 us, arm 95.2 us, 72 rounds)
+[vms4] bs 16 pass 2 arm it1+r4+fin2: paired 0.9931 median 0.9546 (incumbent 98.6 us, arm 94.1 us, 72 rounds)
+[vms4] bs 16 arm it1 serialized phases (us): A 62.5  B 36.3  finalizer 8.5  sum 107.2; arm graph 95.6 us (PDL overlap hides 11.6 us)
+[vms4] bs 16 arm it1+fin2 serialized phases (us): A 61.7  B 36.8  finalizer 8.1  sum 106.6; arm graph 94.4 us (PDL overlap hides 12.1 us)
+[vms4] bs 16 arm it1+w16 serialized phases (us): A 62.1  B 37.4  finalizer 8.4  sum 108.0; arm graph 95.6 us (PDL overlap hides 12.4 us)
+[vms4] bs 16 arm it1+w16+fin2 serialized phases (us): A 62.0  B 37.3  finalizer 8.0  sum 107.4; arm graph 95.7 us (PDL overlap hides 11.7 us)
+[vms4] bs 16 arm it1+r4 serialized phases (us): A 63.2  B 37.2  finalizer 8.7  sum 109.1; arm graph 95.2 us (PDL overlap hides 13.9 us)
+[vms4] bs 16 arm it1+r4+fin2 serialized phases (us): A 62.0  B 37.0  finalizer 8.1  sum 107.2; arm graph 94.1 us (PDL overlap hides 13.1 us)
+[vms4] bs 32 draws (U distinct experts / S sum ceil(cnt/8) / max tokens per expert / R routes): n:U17/S19/max20/R48(inc e3.2e-03) n:U17/S19/max9/R58(inc e3.3e-03) n:U15/S18/max29/R50(inc e3.3e-03) n:U16/S21/max32/R81(inc e3.2e-03) n:U15/S15/max5/R40(inc e3.2e-03) n:U13/S15/max14/R46(inc e3.2e-03) s:U4/S15/max29/R107 s:U2/S8/max29/R58
+[vms4] bs 32 weight bytes moved per call ~ 439 MB (15.5 experts x 28.31 MB)
+[vms4] bs 32 arm it1 (cfg 0x0): err 2.57e-03 row 2.78e-03 kerr 0 ok
+[vms4] bs 32 arm it1+fin2 (cfg 0x1): err 2.57e-03 row 2.78e-03 kerr 0 ok
+[vms4] bs 32 arm it1+w16 (cfg 0x2): err 2.57e-03 row 2.77e-03 kerr 0 ok
+[vms4] bs 32 arm it1+w16+fin2 (cfg 0x3): err 2.57e-03 row 2.77e-03 kerr 0 ok
+[vms4] bs 32 DIAG A (GEMM1) ~321 MB weights (eager, event to event, so +launch gap): full 89.5 us 3.59 TB/s | stream 77.8 us 4.09 TB/s | math 71.6 us 4.48 TB/s -> neither alone (stream 0.87, math 0.80 of full): overlap/latency/ramp
+[vms4] bs 32 DIAG B (GEMM2) ~160 MB weights (eager, event to event, so +launch gap): full 48.6 us 3.30 TB/s | stream 41.6 us 3.83 TB/s | math 39.4 us 4.07 TB/s -> neither alone (stream 0.86, math 0.81 of full): overlap/latency/ramp
+[vms4] bs 32 pass 1 arm it1: paired 1.0126 median 1.0087 (incumbent 129.4 us, arm 130.6 us, 72 rounds)
+[vms4] bs 32 pass 1 arm it1+fin2: paired 1.0090 median 1.0039 (incumbent 129.7 us, arm 130.2 us, 72 rounds)
+[vms4] bs 32 pass 1 arm it1+w16: paired 1.0121 median 1.0101 (incumbent 129.3 us, arm 130.7 us, 72 rounds)
+[vms4] bs 32 pass 1 arm it1+w16+fin2: paired 1.0082 median 1.0161 (incumbent 128.9 us, arm 131.0 us, 72 rounds)
+[vms4] bs 32 pass 2 arm it1: paired 1.0146 median 1.0151 (incumbent 128.9 us, arm 130.8 us, 72 rounds)
+[vms4] bs 32 pass 2 arm it1+fin2: paired 1.0083 median 0.9995 (incumbent 129.9 us, arm 129.8 us, 72 rounds)
+[vms4] bs 32 pass 2 arm it1+w16: paired 1.0090 median 1.0113 (incumbent 129.9 us, arm 131.4 us, 72 rounds)
+[vms4] bs 32 pass 2 arm it1+w16+fin2: paired 1.0108 median 1.0044 (incumbent 130.0 us, arm 130.5 us, 72 rounds)
+[vms4] bs 32 arm it1 serialized phases (us): A 85.6  B 48.4  finalizer 8.7  sum 142.7; arm graph 130.8 us (PDL overlap hides 11.8 us)
+[vms4] bs 32 arm it1+fin2 serialized phases (us): A 86.0  B 47.8  finalizer 8.4  sum 142.2; arm graph 129.8 us (PDL overlap hides 12.4 us)
+[vms4] bs 32 arm it1+w16 serialized phases (us): A 86.5  B 47.6  finalizer 8.8  sum 142.9; arm graph 131.4 us (PDL overlap hides 11.5 us)
+[vms4] bs 32 arm it1+w16+fin2 serialized phases (us): A 86.1  B 47.5  finalizer 8.4  sum 142.0; arm graph 130.5 us (PDL overlap hides 11.4 us)
+[vms4] SUMMARY bs 16 DIAG A (GEMM1) ~245 MB weights (eager, event to event, so +launch gap): full 68.5 us 3.72 TB/s | stream 61.1 us 4.04 TB/s | math 56.5 us 4.56 TB/s -> neither alone (stream 0.89, math 0.83 of full): overlap/latency/ramp
+[vms4] SUMMARY bs 16 DIAG B (GEMM2) ~123 MB weights (eager, event to event, so +launch gap): full 39.6 us 3.19 TB/s | stream 33.5 us 3.64 TB/s | math 32.5 us 3.90 TB/s -> neither alone (stream 0.85, math 0.82 of full): overlap/latency/ramp
+[vms4] SUMMARY bs 32 DIAG A (GEMM1) ~321 MB weights (eager, event to event, so +launch gap): full 89.5 us 3.59 TB/s | stream 77.8 us 4.09 TB/s | math 71.6 us 4.48 TB/s -> neither alone (stream 0.87, math 0.80 of full): overlap/latency/ramp
+[vms4] SUMMARY bs 32 DIAG B (GEMM2) ~160 MB weights (eager, event to event, so +launch gap): full 48.6 us 3.30 TB/s | stream 41.6 us 3.83 TB/s | math 39.4 us 4.07 TB/s -> neither alone (stream 0.86, math 0.81 of full): overlap/latency/ramp
+[vms4] SUMMARY bs16 it1: p1=0.999/0.966 p2=1.000/0.971 (paired/median vs incumbent) inc 98.4 us arm 95.6 us phases A/B/fin 62.5/36.3/8.5 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs16 it1+fin2: p1=0.994/0.962 p2=0.995/0.960 (paired/median vs incumbent) inc 98.4 us arm 94.4 us phases A/B/fin 61.7/36.8/8.1 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs16 it1+w16: p1=1.002/0.981 p2=1.001/0.969 (paired/median vs incumbent) inc 98.6 us arm 95.6 us phases A/B/fin 62.1/37.4/8.4 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs16 it1+w16+fin2: p1=1.005/0.968 p2=1.006/0.976 (paired/median vs incumbent) inc 98.0 us arm 95.7 us phases A/B/fin 62.0/37.3/8.0 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs16 it1+r4: p1=1.000/0.969 p2=0.996/0.965 (paired/median vs incumbent) inc 98.7 us arm 95.2 us phases A/B/fin 63.2/37.2/8.7 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs16 it1+r4+fin2: p1=0.991/0.960 p2=0.993/0.955 (paired/median vs incumbent) inc 98.6 us arm 94.1 us phases A/B/fin 62.0/37.0/8.1 us err 2.58e-03 row 2.72e-03 kerr 0 ok
+[vms4] SUMMARY bs32 it1: p1=1.013/1.009 p2=1.015/1.015 (paired/median vs incumbent) inc 128.9 us arm 130.8 us phases A/B/fin 85.6/48.4/8.7 us err 2.57e-03 row 2.78e-03 kerr 0 ok
+[vms4] SUMMARY bs32 it1+fin2: p1=1.009/1.004 p2=1.008/1.000 (paired/median vs incumbent) inc 129.9 us arm 129.8 us phases A/B/fin 86.0/47.8/8.4 us err 2.57e-03 row 2.78e-03 kerr 0 ok
+[vms4] SUMMARY bs32 it1+w16: p1=1.012/1.010 p2=1.009/1.011 (paired/median vs incumbent) inc 129.9 us arm 131.4 us phases A/B/fin 86.5/47.6/8.8 us err 2.57e-03 row 2.77e-03 kerr 0 ok
+[vms4] SUMMARY bs32 it1+w16+fin2: p1=1.008/1.016 p2=1.011/1.004 (paired/median vs incumbent) inc 130.0 us arm 130.5 us phases A/B/fin 86.1/47.5/8.4 us err 2.57e-03 row 2.77e-03 kerr 0 ok
+[vms4] SUMMARY prepare 85s | bs16: incumbent (no arm passes correctness + both ratio passes) | bs32: incumbent (no arm passes correctness + both ratio passes)

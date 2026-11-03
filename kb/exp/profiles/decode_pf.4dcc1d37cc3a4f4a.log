@@ -1,0 +1,65 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 103s
+BUILD pw57_flush 29.4s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.95 us   0.63 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.55 us   0.83 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.05 us   1.67 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.21 us   1.64 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.54 us two_node 5.09 us overhead 4.00 us
+PREP rq thread ready at 45s (bake starts at 133s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.38 at 133s
+BAKE qkv_gate m=128 rq:d2s5hze 15.62 (ratio 1.3340 vs r6 20.38) at 133s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.82 (ratio 1.0420 vs rq:d2s5hze 15.62) at 133s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.41 (ratio 1.0655 vs rq:d2s5hze 15.62) at 133s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.07 (ratio 1.0235 vs rq:d2s5hze 15.62) at 133s
+BAKE qkv_gate m=128 rq:d2s6hze 16.74 (ratio 0.9580 vs rq:d2s5hze 15.62) at 133s
+PICK qkv_gate m=128 rq:s4s5hzw 14.66 (ref rq:d2s5hze 15.62)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0420)
+BAKE qkv_gate m=256 r6 23.23 at 133s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.30 (ratio 1.0879 vs r6 23.23) at 133s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.41 (ratio 1.0028 vs rq:n256s5m1hzmEH 21.30) at 133s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.30 (ref rq:n256s5m1hzmEH 21.30)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.82 at 133s
+BAKE unpooler m=128 rq:d2s5hze 21.12 (ratio 1.0742 vs r6 22.82) at 133s
+BAKE unpooler m=128 rq:d2s5hzwP 21.07 (ratio 1.0145 vs rq:d2s5hze 21.12) at 133s
+BAKE unpooler m=128 rq:s4s5hzw 21.03 (ratio 1.0254 vs rq:d2s5hze 21.12) at 133s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.44 (ratio 1.0177 vs rq:d2s5hze 21.12) at 133s
+BAKE unpooler m=128 rq:s4s5hze 21.13 (ratio 1.0134 vs rq:d2s5hze 21.12) at 133s
+BAKE unpooler m=128 rq:d2s6hze 21.15 (ratio 1.0123 vs rq:d2s5hze 21.12) at 133s
+PICK unpooler m=128 rq:s4s5hzw 20.60 (ref rq:d2s5hze 21.12)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0145)
+BAKE unpooler m=256 r6 27.71 at 133s
+PICK unpooler m=256 r6 27.71 (ref r6 27.71)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 133s
+PF_INFO base_s=132.8 target=d1S,v1S,d16S,d32S O=2stages gain=0.988 flush=512MiB_READ reps=24x3 O2=alias N=dropped
+PF_INFO d1S o_prefix_bytes=6291456 stages=2
+PF_REF d1S draw=0 spread_max=7.67e-08 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF d1S draw=1 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF d1S draw=2 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_DETAIL d1S O numeric worst=moe_out:3.047 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 18]
+PF_INFO v1S o_prefix_bytes=6291456 stages=2
+PF_REF v1S draw=0 spread_max=2.33e-05 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF v1S draw=1 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF v1S draw=2 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_DETAIL v1S O numeric worst=moe_out:1.161 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 2]
+PF_INFO d16S o_prefix_bytes=6291456 stages=2
+PF_REF d16S draw=0 spread_max=2.64e-04 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_DETAIL d16S O numeric worst=moe_out:1.603 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[4]
+PF_INFO d32S o_prefix_bytes=6291456 stages=2
+PF_REF d32S draw=0 spread_max=4.15e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF d32S draw=1 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_REF d32S draw=2 spread_max=0.00e+00 ids=0.00e+00 kv_repeat=11 untouched=1
+PF_DETAIL d32S O numeric worst=update:0.843 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PF_INFO total_prepare_s=134.0 adopted=0/4
+PF_SUMMARY N=dropped(norm+top8+ids_already_one_launch) full=base
+PF d1S O=1.00532/1.00149 eq=0 ids=0e+00 kv=11 n=66x2 pick=base why=base_numeric_moe_out O2=base
+PF v1S O=1.00074/1.00000 eq=0 ids=0e+00 kv=11 n=50x2 pick=base why=base_numeric_moe_out O2=base
+PF d16S O=1.00194/1.00184 eq=0 ids=0e+00 kv=11 n=4x0 pick=base why=base_numeric_moe_out O2=alias_O
+PF d32S O=1.00046/0.99954 eq=1 ids=0e+00 kv=11 n=72x3 pick=base why=timing O2=alias_O

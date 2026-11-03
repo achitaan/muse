@@ -1,0 +1,12 @@
+AT builds ready 39.3s
+AT ref e4m3_err=0.031389 bound=0.0935
+AT score v16F wst(base) rel=0.032219 worstrow=0.053632 bound=0.0935 judge=1 cache=1
+AT score v16F vj rel=0.033435 worstrow=0.0538 bound=0.0935 judge=1 cache=1
+AT control wst@B16 rel-L2 vs reference = 0.032219 39.7s
+AT ref e4m3_err=0.030369 bound=0.0909
+AT score v32F base(vj) rel=0.034358 worstrow=0.072034 bound=0.0909 judge=1 cache=1
+AT limit v32F wst16=0.032219 limit=0.03544 base32=0.034358
+AT score v32F wst32 rel=0.031239 worstrow=0.063732 bound=0.0909 judge=1 cache=1
+AT score v32F repeat-wst32 rel=0.031239 worstrow=0.063732 bound=0.0909 judge=1 cache=1
+AT v32F wst32 185.17 186.10 1.0050 1.0048 e1 a0
+AT done 0/1 40.0s

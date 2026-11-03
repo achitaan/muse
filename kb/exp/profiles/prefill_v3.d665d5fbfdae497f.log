@@ -1,0 +1,66 @@
+LT tune T=753 qkv: torch.mm 43.2us, best 43.2us algo None of 8
+LT2 T=753 o: lay 0 cfg [66, 495, 1, 0, 0, 7, 35, 0, 5]: 24.1us vs torch.mm 24.3us (x1.009)
+LT T=753 router: pinned (33, 4, 2, 3) -> algo 6
+LT2 T=753 pooler: lay 2 cfg [66, 32, 1, 0, 0, 7, 35, 0, 5]: 68.0us vs torch.mm 69.8us (x1.027)
+LT2 T=753 unpooler: lay 2 cfg [66, 32, 1, 0, 0, 5, 35, 0, 2]: 69.0us vs torch.mm 70.9us (x1.027)
+LT2 T=3012 qkv: lay 0 cfg [66, 496, 1, 0, 0, 5, 35, 0, 2]: 145.8us vs torch.mm 149.3us (x1.024)
+LT2 T=3012 o: lay 0 cfg [66, 189, 1, 0, 0, 2, 35, 0, 5]: 70.9us vs torch.mm 75.5us (x1.065)
+LT tune T=3012 router: torch.mm 41.3us, best 41.3us algo None of 8
+LT T=3012 pooler: pinned (24, 1, 0, 7) -> algo 1
+LT tune T=3012 unpooler: torch.mm 257.3us, best 257.3us algo None of 8
+LT tune T=16384 qkv: torch.mm 776.6us, best 776.6us algo None of 8
+LT2 T=16384 o: lay 3 cfg [66, 29, 1, 0, 0, 1, 35, 0, 3]: 364.9us vs torch.mm 426.8us (x1.170)
+LT tune T=16384 router: torch.mm 199.4us, best 199.4us algo None of 8
+LT T=16384 pooler: pinned (29, 1, 0, 1) -> algo 5
+LT T=16384 unpooler: pinned (201, 1, 0, 2) -> algo 6
+ATTN own kernel validation (worst rel err): {0: 0.0151, 1: 0.0151, 8: 0.0151, 9: 0.0151, 16: 0.0151, 24: 0.0151, 43: 0.0151} -> [0, 1, 8, 9, 16, 24, 43]
+ZH fmha check B1 L753 ctx3000 win2048 page1: rel err vs ref 1.89e-02
+ZH fmha check B2 L300 ctx2500 win0 page1: rel err vs ref 1.87e-02
+ZH fmha check B1 L200 ctx5000 win0 page64: rel err vs ref 1.48e-02
+ZH fmha check B1 L640 ctx4096 win2048 page64: rel err vs ref 1.84e-02
+PF2_BUILD order ready_s=21.2
+PF2_ATTR order fine=0 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_ATTR order fine=1 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_DROP order local_memory_or_invalid_attributes; all_dependent_arms=default
+PF2_BUILD phase ready_s=24.1
+PF2_ATTR phase fine=0 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_ATTR phase fine=1 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_DROP phase local_memory_or_invalid_attributes; all_dependent_arms=default
+PF2_DROP S1 unavailable_or_budget; default
+PF2_DROP S2a_g4 unavailable_or_budget; default
+PF2_DROP S2b_nmajor unavailable_or_budget; default
+PF2_DROP S1+S2a_g4 unavailable_or_budget; default
+PF2_DROP S1+S2b_nmajor unavailable_or_budget; default
+PF2_INFO prepare_s=48.0 candidates=none flush_bytes=536870912 schedule=ABBA rounds=16 gate=median_and_paired_le_0.988 tolerance=default_spread fixed_routing=exact localSizeBytes=0 cached_outputs=0
+PF2_PICK turn1_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK turn1_full arm=default reason=no_candidates_or_budget
+PF2_PICK turn4_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK turn4_full arm=default reason=no_candidates_or_budget
+PF2_PICK first_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx32768 arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx0 arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx65536 arm=default reason=no_candidates_or_budget
+PF2_FINAL_BEGIN prepare_s=48.0 adopted_cases=0
+PF2_BUILD order ready_s=21.2
+PF2_ATTR order fine=0 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_ATTR order fine=1 phases=runtime numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_DROP order local_memory_or_invalid_attributes; all_dependent_arms=default
+PF2_BUILD phase ready_s=24.1
+PF2_ATTR phase fine=0 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_ATTR phase fine=1 phases=GATED_true_false_inline numRegs=168 localSizeBytes=8 sharedSizeBytes=0
+PF2_DROP phase local_memory_or_invalid_attributes; all_dependent_arms=default
+PF2_DROP S1 unavailable_or_budget; default
+PF2_DROP S2a_g4 unavailable_or_budget; default
+PF2_DROP S2b_nmajor unavailable_or_budget; default
+PF2_DROP S1+S2a_g4 unavailable_or_budget; default
+PF2_DROP S1+S2b_nmajor unavailable_or_budget; default
+PF2_INFO prepare_s=48.0 candidates=none flush_bytes=536870912 schedule=ABBA rounds=16 gate=median_and_paired_le_0.988 tolerance=default_spread fixed_routing=exact localSizeBytes=0 cached_outputs=0
+PF2_PICK turn1_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK turn1_full arm=default reason=no_candidates_or_budget
+PF2_PICK turn4_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK turn4_full arm=default reason=no_candidates_or_budget
+PF2_PICK first_sliding arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx32768 arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx0 arm=default reason=no_candidates_or_budget
+PF2_PICK first_full_ctx65536 arm=default reason=no_candidates_or_budget
+PF2_FINAL_END unmeasured_or_rejected_cases=keell_default

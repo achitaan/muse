@@ -1,0 +1,149 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 122s
+BUILD pw57_flush 29.9s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.60 us   0.66 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.42 us   0.85 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.47 us   1.77 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.02 us   1.68 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.46 us two_node 5.34 us overhead 3.58 us
+PREP rq thread ready at 53s (bake starts at 152s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.54 at 152s
+BAKE qkv_gate m=128 rq:d2s5hze 15.50 (ratio 1.3272 vs r6 20.54) at 152s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.65 (ratio 1.0406 vs rq:d2s5hze 15.50) at 152s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.78 (ratio 1.0366 vs rq:d2s5hze 15.50) at 152s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.46 (ratio 0.9875 vs rq:d2s5hze 15.50) at 152s
+BAKE qkv_gate m=128 rq:d2s6hze 17.03 (ratio 0.9772 vs rq:d2s5hze 15.50) at 152s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.90 (ref rq:d2s5hze 15.50)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0406)
+BAKE qkv_gate m=256 r6 23.10 at 152s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.35 (ratio 1.0987 vs r6 23.10) at 152s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.57 (ratio 1.0044 vs rq:n256s5m1hzmEH 21.35) at 152s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.35 (ref rq:n256s5m1hzmEH 21.35)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.07 at 152s
+BAKE unpooler m=128 rq:d2s5hze 21.23 (ratio 1.1155 vs r6 23.07) at 152s
+BAKE unpooler m=128 rq:d2s5hzwP 21.28 (ratio 1.0272 vs rq:d2s5hze 21.23) at 152s
+BAKE unpooler m=128 rq:s4s5hzw 21.37 (ratio 1.0048 vs rq:d2s5hze 21.23) at 152s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.90 (ratio 0.9863 vs rq:d2s5hze 21.23) at 152s
+BAKE unpooler m=128 rq:s4s5hze 21.12 (ratio 1.0331 vs rq:d2s5hze 21.23) at 152s
+BAKE unpooler m=128 rq:d2s6hze 22.22 (ratio 0.9721 vs rq:d2s5hze 21.23) at 152s
+PICK unpooler m=128 rq:s4s5hze 20.55 (ref rq:d2s5hze 21.23)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0272)
+BAKE unpooler m=256 r6 27.68 at 152s
+PICK unpooler m=256 r6 27.68 (ref r6 27.68)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 152s
+PFY_INFO base_s=152.0 target=d32S/F,v16S/F,v32S/F gain=0.988 flush=512MiB_READ reps=24x3 P_F=exact_if_repeatable Y=default_spread
+PFY_ATTR T=128 BASE=[96, 0, 0, 96, 0, 0]
+PFY_ATTR T=128 PF attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=128 P attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=128 F attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=32 BASE=[96, 0, 0, 96, 0, 0]
+PFY_ATTR T=32 PFY attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=32 P attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=32 F attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=32 Y attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_ATTR T=32 PF attrs=[96, 0, 0, 96, 0, 0] base=[96, 0, 0, 96, 0, 0] ok=1
+PFY_REF d32S draw=0 spread_max=1.53e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+PFY_DRAW d32S PFY draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32S P draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32S F draw=0 reps=4 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32S Y draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32S PF draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DETAIL d32S PFY worst=update:2.876 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL d32S P worst=moe_out:0.790 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL d32S F worst=moe_out:0.790 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[4]
+PFY_DETAIL d32S Y worst=update:2.828 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL d32S PF worst=moe_out:0.790 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_REF d32F draw=0 spread_max=3.73e-03 ids=0.00e+00 kv_repeat=11 untouched=1
+PFY_DRAW d32F PFY draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32F P draw=0 reps=24 ok=1 why=budget
+PFY_DRAW d32F F draw=0 reps=24 ok=1 why=budget
+PFY_DRAW d32F Y draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW d32F PF draw=0 reps=24 ok=1 why=budget
+PFY_REF d32F draw=1 spread_max=3.36e-09 ids=0.00e+00 kv_repeat=11 untouched=1
+PFY_DRAW d32F PF draw=1 reps=2 ok=0 why=equivalence_numeric_proj_o
+PFY_DRAW d32F F draw=1 reps=2 ok=0 why=equivalence_numeric_proj_o
+PFY_DRAW d32F P draw=1 reps=6 ok=0 why=equivalence_numeric_proj_o
+PFY_DETAIL d32F PFY worst=update:1.331 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL d32F P worst=update:0.439 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 6]
+PFY_DETAIL d32F F worst=moe_out:0.700 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 2]
+PFY_DETAIL d32F Y worst=update:1.331 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL d32F PF worst=update:0.439 ids=0.00e+00 kv_new=1 kv_untouched=1 draw_reps=[24, 2]
+PFY_REF v16S draw=0 spread_max=8.27e+00 ids=2.93e-02 kv_repeat=00 untouched=1
+PFY_DRAW v16S PF draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v16S P draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v16S F draw=0 reps=24 ok=1 why=budget
+PFY_REF v16S draw=1 spread_max=1.00e+00 ids=1.95e-02 kv_repeat=00 untouched=1
+PFY_DRAW v16S F draw=1 reps=8 ok=0 why=base_numeric_moe_out
+PFY_DRAW v16S P draw=1 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DRAW v16S PF draw=1 reps=6 ok=0 why=base_numeric_moe_out
+PFY_DETAIL v16S PF worst=moe_out:2.540 ids=3.81e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 6]
+PFY_DETAIL v16S P worst=moe_out:2.588 ids=3.61e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 2]
+PFY_DETAIL v16S F worst=moe_out:2.525 ids=3.42e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 8]
+PFY_REF v16F draw=0 spread_max=7.86e-01 ids=3.03e-02 kv_repeat=00 untouched=1
+PFY_DRAW v16F PF draw=0 reps=2 ok=0 why=base_numeric_moe_out
+PFY_DRAW v16F P draw=0 reps=2 ok=0 why=base_numeric_moe_out
+PFY_DRAW v16F F draw=0 reps=2 ok=0 why=equivalence_numeric_moe_out
+PFY_DETAIL v16F PF worst=moe_out:3.910 ids=3.32e-02 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL v16F P worst=moe_out:3.918 ids=3.03e-02 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_DETAIL v16F F worst=moe_out:3.911 ids=3.32e-02 kv_new=1 kv_untouched=1 draw_reps=[2]
+PFY_REF v32S draw=0 spread_max=8.60e+00 ids=2.59e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32S PF draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v32S P draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v32S F draw=0 reps=24 ok=1 why=budget
+PFY_REF v32S draw=1 spread_max=8.31e+00 ids=2.64e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32S F draw=1 reps=24 ok=1 why=budget
+PFY_DRAW v32S P draw=1 reps=24 ok=1 why=budget
+PFY_DRAW v32S PF draw=1 reps=24 ok=1 why=budget
+PFY_REF v32S draw=2 spread_max=8.35e+00 ids=2.49e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32S PF draw=2 reps=24 ok=1 why=budget
+PFY_DRAW v32S P draw=2 reps=24 ok=1 why=budget
+PFY_DRAW v32S F draw=2 reps=24 ok=1 why=budget
+PFY_DETAIL v32S PF worst=route_weights:0.461 ids=3.32e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_DETAIL v32S P worst=route_weights:0.462 ids=3.32e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_DETAIL v32S F worst=route_weights:0.462 ids=3.22e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_REF v32F draw=0 spread_max=7.77e+00 ids=2.15e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32F PF draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v32F P draw=0 reps=24 ok=1 why=budget
+PFY_DRAW v32F F draw=0 reps=24 ok=1 why=budget
+PFY_REF v32F draw=1 spread_max=7.56e+00 ids=2.78e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32F F draw=1 reps=24 ok=1 why=budget
+PFY_DRAW v32F P draw=1 reps=24 ok=1 why=budget
+PFY_DRAW v32F PF draw=1 reps=24 ok=1 why=budget
+PFY_REF v32F draw=2 spread_max=7.19e+00 ids=2.78e-02 kv_repeat=00 untouched=1
+PFY_DRAW v32F PF draw=2 reps=24 ok=1 why=budget
+PFY_DRAW v32F P draw=2 reps=24 ok=1 why=budget
+PFY_DRAW v32F F draw=2 reps=24 ok=1 why=budget
+PFY_DETAIL v32F PF worst=update:0.533 ids=3.27e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_DETAIL v32F P worst=update:0.525 ids=3.32e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_DETAIL v32F F worst=update:0.509 ids=3.61e-02 kv_new=1 kv_untouched=1 draw_reps=[24, 24, 24]
+PFY_INFO total_prepare_s=157.6 adopted=0/6
+PFY_SUMMARY P=post_ranges F=parity_item_claim Y=B4_BF16
+PFY d32S PFY r=0.99523 p=0.99523 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32S P r=0.99456 p=0.99456 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32S F r=0.99740 p=0.99913 ok=0 attr=1 adopted=0 n=4/0 why=equivalence_numeric_moe_out
+PFY d32S Y r=0.99939 p=0.99939 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32S PF r=0.98677 p=0.98677 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32F PFY r=0.99826 p=0.99826 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32F P r=0.99900 p=0.99831 ok=0 attr=1 adopted=0 n=30/1 why=equivalence_numeric_proj_o
+PFY d32F F r=0.99995 p=1.00244 ok=0 attr=1 adopted=0 n=26/1 why=equivalence_numeric_proj_o
+PFY d32F Y r=0.99694 p=0.99694 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY d32F PF r=0.99836 p=0.99968 ok=0 attr=1 adopted=0 n=26/1 why=equivalence_numeric_proj_o
+PFY v16S PF r=1.00284 p=1.00368 ok=0 attr=1 adopted=0 n=30/1 why=base_numeric_moe_out
+PFY v16S P r=1.00488 p=1.00441 ok=0 attr=1 adopted=0 n=26/1 why=equivalence_numeric_moe_out
+PFY v16S F r=0.99757 p=0.99632 ok=0 attr=1 adopted=0 n=32/1 why=base_numeric_moe_out
+PFY v16F PF r=1.01312 p=1.01312 ok=0 attr=1 adopted=0 n=2/0 why=base_numeric_moe_out
+PFY v16F P r=1.01264 p=1.01264 ok=0 attr=1 adopted=0 n=2/0 why=base_numeric_moe_out
+PFY v16F F r=1.00369 p=1.00369 ok=0 attr=1 adopted=0 n=2/0 why=equivalence_numeric_moe_out
+PFY v32S PF r=1.00193 p=0.99394 ok=1 attr=1 adopted=0 n=72/3 why=timing
+PFY v32S P r=0.99952 p=0.99845 ok=1 attr=1 adopted=0 n=72/3 why=timing
+PFY v32S F r=0.99232 p=0.99407 ok=1 attr=1 adopted=0 n=72/3 why=timing
+PFY v32F PF r=0.99508 p=0.99460 ok=1 attr=1 adopted=0 n=72/3 why=timing
+PFY v32F P r=0.99691 p=0.99937 ok=1 attr=1 adopted=0 n=72/3 why=timing
+PFY v32F F r=1.00053 p=0.99651 ok=1 attr=1 adopted=0 n=72/3 why=timing

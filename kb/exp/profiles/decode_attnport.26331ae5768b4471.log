@@ -1,0 +1,55 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 111s
+BUILD pw57_flush 30.3s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.18 us   0.62 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.68 us   0.82 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.02 us   1.68 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.24 us   1.64 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.61 us two_node 5.36 us overhead 3.86 us
+PREP rq thread ready at 46s (bake starts at 141s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.54 at 141s
+BAKE qkv_gate m=128 rq:d2s5hze 15.49 (ratio 1.3679 vs r6 20.54) at 141s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.96 (ratio 1.0367 vs rq:d2s5hze 15.49) at 141s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.93 (ratio 1.0566 vs rq:d2s5hze 15.49) at 141s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.83 (ratio 0.9851 vs rq:d2s5hze 15.49) at 141s
+BAKE qkv_gate m=128 rq:d2s6hze 16.66 (ratio 0.9875 vs rq:d2s5hze 15.49) at 141s
+PICK qkv_gate m=128 rq:s4s5hzw 14.66 (ref rq:d2s5hze 15.49)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0367)
+BAKE qkv_gate m=256 r6 23.17 at 141s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 20.81 (ratio 1.1241 vs r6 23.17) at 141s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.75 (ratio 0.9991 vs rq:n256s5m1hzmEH 20.81) at 141s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 20.81 (ref rq:n256s5m1hzmEH 20.81)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.74 at 141s
+BAKE unpooler m=128 rq:d2s5hze 21.41 (ratio 1.1167 vs r6 23.74) at 141s
+BAKE unpooler m=128 rq:d2s5hzwP 21.27 (ratio 1.0108 vs rq:d2s5hze 21.41) at 141s
+BAKE unpooler m=128 rq:s4s5hzw 20.96 (ratio 1.0262 vs rq:d2s5hze 21.41) at 141s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.47 (ratio 1.0046 vs rq:d2s5hze 21.41) at 141s
+BAKE unpooler m=128 rq:s4s5hze 21.34 (ratio 1.0018 vs rq:d2s5hze 21.41) at 141s
+BAKE unpooler m=128 rq:d2s6hze 22.00 (ratio 0.9703 vs rq:d2s5hze 21.41) at 141s
+PICK unpooler m=128 rq:s4s5hzw 20.86 (ref rq:d2s5hze 21.41)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0108)
+BAKE unpooler m=256 r6 27.78 at 141s
+PICK unpooler m=256 r6 27.78 (ref r6 27.78)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 141s
+[mfab] layer prepare done at 141s
+ATP_INFO base_and_build_s=141.3 flush_bytes=536870912 timing=full_layer_graph_raw_events exact_exp=1 baseline=decode_v1
+ATP shape=d1s route=bulk old_us=68.240 new_us=69.008 ratio=1.01125 paired=1.01247 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=1.41e-05,1.41e-05,1.86e-03,1.86e-03,2.88e-03,2.88e-03
+ATP shape=d1f route=bulk old_us=75.456 new_us=76.288 ratio=1.01103 paired=1.00890 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=2.77e-05,2.77e-05,2.49e-03,2.49e-03,3.30e-03,3.30e-03
+ATP shape=v1s route=vp2 old_us=111.488 new_us=111.632 ratio=1.00129 paired=1.00067 equiv=0 ids=0 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=2.11e-02,3.64e-02,1.29e-02,1.99e-02,1.95e-02,3.11e-02
+ATP shape=v1f route=bulk old_us=133.808 new_us=133.952 ratio=1.00108 paired=1.00059 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=1.47e-02,2.37e-02,8.78e-03,1.50e-02,1.37e-02,2.15e-02
+ATP shape=d16s route=bulk old_us=147.504 new_us=148.752 ratio=1.00846 paired=1.00247 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=2.84e-05,1.15e-04,1.09e-03,3.11e-03,1.43e-03,3.64e-03
+ATP shape=d16f route=bulk old_us=210.752 new_us=209.040 ratio=0.99188 paired=0.99590 equiv=1 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=1.00e-05,2.93e-05,7.70e-04,3.05e-03,8.82e-04,3.36e-03
+ATP shape=v16s route=bulk old_us=259.968 new_us=258.784 ratio=0.99545 paired=0.99482 equiv=0 ids=0 cache_bytes=0 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=4.92e-02,1.09e-01,1.55e-01,7.76e-01,2.35e-01,1.23e+00
+ATP shape=v16f route=wst old_us=332.416 new_us=346.016 ratio=1.04091 paired=1.04201 equiv=0 ids=0 cache_bytes=0 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=5.34e-02,9.58e-02,1.63e-01,7.86e-01,2.43e-01,1.22e+00
+ATP shape=d32s route=bulk old_us=179.488 new_us=179.184 ratio=0.99831 paired=0.99824 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=4.44e-05,2.23e-04,8.67e-04,3.06e-03,1.12e-03,3.96e-03
+ATP shape=d32f route=bulk old_us=314.080 new_us=313.760 ratio=0.99898 paired=0.99619 equiv=0 ids=1 cache_bytes=1 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=7.96e-05,4.45e-04,8.50e-04,3.08e-03,1.03e-03,4.00e-03
+ATP shape=v32s route=bulk old_us=349.136 new_us=351.536 ratio=1.00687 paired=0.99629 equiv=0 ids=0 cache_bytes=0 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=4.95e-02,9.95e-02,1.34e-01,7.96e-01,2.01e-01,1.21e+00
+ATP shape=v32f route=bulk old_us=517.536 new_us=510.016 ratio=0.98547 paired=0.98661 equiv=0 ids=0 cache_bytes=0 adopted=0 reps=24 draws=3 rel,row_attn_hidden_update=5.17e-02,1.18e-01,1.29e-01,7.49e-01,2.00e-01,1.22e+00
+ATP_INFO total_prepare_s=142.7 adopted=0/12

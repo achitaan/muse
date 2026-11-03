@@ -1,0 +1,90 @@
+AB first_full_ctx65536 pooler_next n=16 us=12223.78 paired=1.00399 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=6.9e-05,1.9e-03,7.4e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 unpooler_next n=16 us=12236.59 paired=1.00696 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.5e-05,1.9e-03,9.3e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 router_serial n=16 us=12212.08 paired=1.00474 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.3e-05,1.8e-03,1.0e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 attn_own n=16 us=14980.18 paired=1.23820 eq=REJECT ids=9.2e-02 load=1.6e-03 e=7.6e-02,8.7e-01,1.2e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 attn_fa3 n=16 us=16323.86 paired=1.34232 eq=REJECT ids=1.1e-01 load=1.5e-03 e=8.4e-02,8.5e-01,1.3e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO diagnostic_s=21.9 total_prepare_s=67.9 final_summary production=DEFAULT
+PFAB_INFO T=753 qkv_next ('torch',)->('lt', 0, 66, 165, 1, 0, 0, 2, 35, 0, 0)
+PFAB_INFO T=753 o_next ('lt', 0, 66, 495, 1, 0, 0, 7, 35, 0, 5)->('lt', 0, 66, 32, 1, 0, 0, 4, 35, 0, 0)
+PFAB_INFO T=753 pooler_next ('lt', 2, 66, 32, 1, 0, 0, 7, 35, 0, 5)->('lt', 2, 66, 32, 1, 0, 0, 5, 35, 0, 2)
+PFAB_INFO T=753 unpooler_next ('lt', 2, 66, 32, 1, 0, 0, 5, 35, 0, 2)->('lt', 2, 66, 32, 1, 0, 0, 5, 35, 0, 5)
+PFAB_INFO T=3012 qkv_next ('lt', 0, 66, 496, 1, 0, 0, 5, 35, 0, 2)->('lt', 0, 66, 463, 1, 0, 0, 7, 35, 0, 0)
+PFAB_INFO T=3012 o_next ('lt', 0, 66, 189, 1, 0, 0, 2, 35, 0, 5)->('lt', 0, 66, 197, 1, 0, 0, 2, 35, 0, 5)
+PFAB_INFO T=3012 pooler_next ('lt', 0, 66, 24, 1, 0, 0, 7, 35, 0, 0)->('lt', 0, 66, 23, 1, 0, 0, 4, 35, 0, 0)
+PFAB_INFO T=3012 unpooler_next ('torch',)->('lt', 0, 66, 501, 1, 0, 0, 7, 35, 0, 0)
+PFAB_INFO T=16384 qkv_next ('torch',)->('lt', 0, 66, 24, 1, 0, 0, 7, 35, 0, 0)
+PFAB_INFO T=16384 o_next ('lt', 3, 66, 29, 1, 0, 0, 1, 35, 0, 3)->('lt', 0, 66, 201, 1, 0, 0, 2, 35, 0, 0)
+PFAB_INFO T=16384 pooler_next ('lt', 0, 66, 29, 1, 0, 0, 1, 35, 0, 0)->('lt', 0, 66, 248, 1, 0, 0, 7, 35, 0, 0)
+PFAB_INFO T=16384 unpooler_next ('lt', 0, 66, 201, 1, 0, 0, 2, 35, 0, 0)->('lt', 0, 66, 209, 1, 0, 0, 4, 35, 0, 0)
+PFAB_INFO turn1_sliding seed=20343903 n=16 routes=1074 distinct=22 default_spread=2.6e-04,1.8e-03,2.9e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB turn1_sliding default n=16 us=573.31 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.6e-04,1.6e-03,2.9e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding qkv_next n=16 us=573.01 paired=0.99913 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.3e-04,1.6e-03,2.7e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding o_next n=16 us=574.78 paired=1.00133 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.5e-04,1.6e-03,2.9e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding pooler_next n=16 us=574.26 paired=1.00226 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.5e-04,1.6e-03,2.8e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding unpooler_next n=16 us=573.86 paired=1.00009 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.4e-04,1.8e-03,2.6e-04,1.8e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding router_serial n=16 us=575.63 paired=1.00285 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.4e-04,1.6e-03,2.7e-04,1.7e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding attn_own n=16 us=576.62 paired=1.00577 eq=REJECT ids=6.9e-02 load=3.9e-03 e=7.0e-02,8.5e-01,1.1e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_sliding attn_fa3 n=16 us=585.22 paired=1.02043 eq=REJECT ids=7.2e-02 load=5.4e-03 e=6.4e-02,7.6e-01,1.1e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO turn1_full seed=20341855 n=16 routes=1168 distinct=20 default_spread=3.3e-04,1.9e-03,3.5e-04,2.2e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB turn1_full default n=16 us=804.19 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=3.1e-04,1.7e-03,3.3e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full qkv_next n=16 us=804.67 paired=1.00065 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.8e-04,1.7e-03,3.0e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full o_next n=16 us=805.14 paired=1.00017 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=3.2e-04,1.7e-03,3.4e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full pooler_next n=16 us=806.56 paired=1.00206 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=3.0e-04,1.9e-03,3.2e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full unpooler_next n=16 us=803.90 paired=1.00157 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.8e-04,1.7e-03,2.9e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full router_serial n=16 us=807.34 paired=1.00430 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=3.3e-04,1.7e-03,3.5e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full attn_own n=16 us=919.09 paired=1.14251 eq=REJECT ids=9.6e-02 load=6.1e-03 e=8.1e-02,8.4e-01,1.3e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn1_full attn_fa3 n=16 us=976.29 paired=1.21673 eq=REJECT ids=9.8e-02 load=8.3e-03 e=7.9e-02,8.4e-01,1.2e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO turn4_sliding seed=20346162 n=16 routes=3973 distinct=23 default_spread=1.3e-04,2.0e-03,1.4e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB turn4_sliding default n=16 us=1623.06 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,2.0e-03,1.2e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding qkv_next n=16 us=1625.58 paired=1.00284 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,2.0e-03,1.2e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding o_next n=16 us=1623.66 paired=1.00002 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,2.0e-03,1.2e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding pooler_next n=16 us=1624.30 paired=1.00098 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.3e-05,2.0e-03,1.0e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding unpooler_next n=16 us=1625.04 paired=1.00027 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,2.0e-03,1.2e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding router_serial n=16 us=1624.10 paired=1.00087 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.3e-04,2.0e-03,2.6e-04,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding attn_own n=16 us=1637.28 paired=1.00863 eq=REJECT ids=6.9e-02 load=3.1e-03 e=5.8e-02,8.4e-01,9.4e-02,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_sliding attn_fa3 n=16 us=1644.54 paired=1.01275 eq=REJECT ids=7.7e-02 load=2.9e-03 e=6.8e-02,8.4e-01,1.1e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO turn4_full seed=20344114 n=16 routes=5541 distinct=24 default_spread=1.2e-04,1.9e-03,1.3e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB turn4_full default n=16 us=2655.39 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,1.9e-03,1.2e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full qkv_next n=16 us=2658.21 paired=1.00202 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.2e-04,1.9e-03,1.3e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full o_next n=16 us=2654.85 paired=0.99965 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,1.9e-03,1.2e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full pooler_next n=16 us=2657.30 paired=1.00070 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.1e-04,1.9e-03,1.2e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full unpooler_next n=16 us=2654.26 paired=0.99993 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=1.3e-04,1.9e-03,1.4e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full router_serial n=16 us=2658.98 paired=1.00105 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=2.9e-04,1.9e-03,3.1e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full attn_own n=16 us=3145.25 paired=1.18425 eq=REJECT ids=9.1e-02 load=3.5e-03 e=7.9e-02,8.3e-01,1.2e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB turn4_full attn_fa3 n=16 us=3383.73 paired=1.27668 eq=REJECT ids=9.9e-02 load=2.0e-03 e=7.8e-02,8.5e-01,1.2e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO first_sliding seed=20312302 n=16 routes=24930 distinct=27 default_spread=9.5e-05,2.0e-03,1.0e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB first_sliding default n=16 us=8216.35 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.5e-05,2.0e-03,1.0e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding qkv_next n=16 us=8200.06 paired=0.99820 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.4e-05,2.0e-03,1.0e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding o_next n=16 us=8217.36 paired=1.00121 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.1e-05,2.0e-03,8.8e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding pooler_next n=16 us=8235.97 paired=1.00273 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.6e-05,2.0e-03,9.3e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding unpooler_next n=16 us=8270.54 paired=1.00783 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.8e-05,2.0e-03,9.5e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding router_serial n=16 us=8222.66 paired=1.00180 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.6e-05,2.0e-03,1.0e-04,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding attn_own n=16 us=8319.62 paired=1.01372 eq=REJECT ids=3.8e-02 load=8.0e-04 e=4.1e-02,8.4e-01,6.4e-02,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_sliding attn_fa3 n=16 us=8340.38 paired=1.01682 eq=REJECT ids=4.2e-02 load=8.9e-04 e=4.4e-02,8.4e-01,6.8e-02,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO first_full_ctx32768 seed=20310254 n=16 routes=23868 distinct=25 default_spread=8.1e-05,2.0e-03,8.9e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB first_full_ctx32768 default n=16 us=10235.38 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.2e-05,2.0e-03,7.8e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 qkv_next n=16 us=10220.19 paired=1.00038 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.6e-05,1.9e-03,9.5e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 o_next n=16 us=10200.13 paired=0.99928 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.4e-05,2.0e-03,8.1e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 pooler_next n=16 us=10239.12 paired=1.00039 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=6.7e-05,1.8e-03,7.4e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 unpooler_next n=16 us=10299.09 paired=1.00611 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=6.9e-05,1.8e-03,7.5e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 router_serial n=16 us=10291.95 paired=1.00486 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.4e-05,1.9e-03,9.3e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 attn_own n=16 us=11854.37 paired=1.15360 eq=REJECT ids=8.2e-02 load=1.5e-03 e=6.4e-02,8.6e-01,1.0e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx32768 attn_fa3 n=16 us=12478.54 paired=1.21981 eq=REJECT ids=9.7e-02 load=2.2e-03 e=7.0e-02,8.6e-01,1.1e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO first_full_ctx0 seed=20277486 n=16 routes=31344 distinct=22 default_spread=8.3e-05,1.9e-03,9.0e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB first_full_ctx0 default n=16 us=9291.20 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.3e-05,1.9e-03,9.0e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 qkv_next n=16 us=9268.74 paired=0.99787 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.1e-05,1.7e-03,8.7e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 o_next n=16 us=9296.66 paired=1.00129 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.5e-05,1.7e-03,8.0e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 pooler_next n=16 us=9307.97 paired=1.00075 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.6e-05,1.7e-03,8.0e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 unpooler_next n=16 us=9364.43 paired=1.00609 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.7e-05,1.9e-03,8.3e-05,2.1e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 router_serial n=16 us=9300.46 paired=1.00041 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.8e-05,1.8e-03,9.5e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 attn_own n=16 us=9616.35 paired=1.03506 eq=REJECT ids=2.7e-02 load=1.1e-03 e=3.4e-02,8.1e-01,5.3e-02,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx0 attn_fa3 n=16 us=9706.10 paired=1.04507 eq=REJECT ids=3.1e-02 load=1.2e-03 e=3.8e-02,8.2e-01,5.8e-02,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB_INFO first_full_ctx65536 seed=20343022 n=16 routes=25260 distinct=27 default_spread=9.0e-05,1.9e-03,9.7e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 ids=0.00e+00 load=0.00e+00 input_immutable=1
+PFAB first_full_ctx65536 default n=16 us=12140.88 paired=1.00000 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=7.6e-05,1.9e-03,8.2e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 qkv_next n=16 us=12172.13 paired=0.99735 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.0e-05,1.9e-03,9.8e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 o_next n=16 us=12141.92 paired=0.99929 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.1e-05,1.9e-03,8.7e-05,2.0e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 pooler_next n=16 us=12223.78 paired=1.00399 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=6.9e-05,1.9e-03,7.4e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 unpooler_next n=16 us=12236.59 paired=1.00696 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=8.5e-05,1.9e-03,9.3e-05,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 router_serial n=16 us=12212.08 paired=1.00474 eq=TOL_SPREAD ids=0.0e+00 load=0.0e+00 e=9.3e-05,1.8e-03,1.0e-04,1.9e-03,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 attn_own n=16 us=14980.18 paired=1.23820 eq=REJECT ids=9.2e-02 load=1.6e-03 e=7.6e-02,8.7e-01,1.2e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1
+PFAB first_full_ctx65536 attn_fa3 n=16 us=16323.86 paired=1.34232 eq=REJECT ids=1.1e-01 load=1.5e-03 e=8.4e-02,8.5e-01,1.3e-01,1.2e+00,0.0e+00,0.0e+00,0.0e+00,0.0e+00 okn=1

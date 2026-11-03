@@ -1,0 +1,62 @@
+[mfab] modules built at 63s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 1.76e-06
+MP built arm=BASE seconds=96.5
+MP built arm=experimental count=14 seconds=133.3
+MP attrs arm=PB regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PAB regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=SB1 regs_local_smem=[96, 0, 0, 96, 0, 0]
+MP attrs arm=SB2 regs_local_smem=[96, 0, 0, 96, 0, 0]
+MP attrs arm=SAB1 regs_local_smem=[96, 0, 0, 96, 0, 0]
+MP attrs arm=SAB2 regs_local_smem=[96, 0, 0, 96, 0, 0]
+MP attrs arm=PB_SB1 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PB_SB2 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PB_SAB1 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PB_SAB2 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PAB_SB1 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PAB_SB2 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PAB_SAB1 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP attrs arm=PAB_SAB2 regs_local_smem=[96, 16, 0, 96, 16, 0]
+MP edge=empty arm=PAB err=0 maxerr=0 drift=0 ok=1
+MP edge=empty arm=PAB_SAB2 err=0 maxerr=0 drift=0 ok=1
+MP edge=one_job arm=PAB err=8.97e-07 maxerr=7.63e-06 drift=8.97e-07 ok=1
+MP edge=one_job arm=PAB_SAB2 err=9.25e-07 maxerr=7.63e-06 drift=9.25e-07 ok=1
+MP edge=wide_job arm=PAB err=0 maxerr=0 drift=0 ok=1
+MP edge=wide_job arm=PAB_SAB2 err=0.000122 maxerr=0.00391 drift=0 ok=1
+MP info flush_MiB=512 flush=READ_sum ABBA_quads=24 draws=3 grid=132 ratio=median_draw_ratios paired=median_quad_ratios CONTROL=identical_PAB_binary_runtime_off localB=cudaFuncGetAttributes base_scratch=unchanged private_scratch=separate overwrite_no_clear=1
+MP bs=128 arm=CONTROL base_us=182.944 new_us=184.640 ratio=1.00927 paired=1.00887 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=128 arm=PB base_us=182.512 new_us=184.144 ratio=1.00857 paired=1.00831 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=128 arm=PAB base_us=182.224 new_us=189.584 ratio=1.04039 paired=1.04262 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=128 arm=SB1 base_us=182.912 new_us=183.744 ratio=1.00455 paired=1.00371 err=3.97e-06 maxerr=0.000488 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=128 arm=SB2 base_us=183.040 new_us=184.112 ratio=1.00432 paired=1.00227 err=3.87e-05 maxerr=0.00391 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=128 arm=SAB1 base_us=182.592 new_us=184.304 ratio=1.00889 paired=1.00834 err=0.000129 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=128 arm=SAB2 base_us=183.120 new_us=184.336 ratio=1.01046 paired=1.00971 err=0.000134 maxerr=0.00391 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=128 arm=PB_SB2 base_us=170.192 new_us=171.136 ratio=1.00555 paired=1.00994 err=6.27e-05 maxerr=0.00391 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP pick bs=128 arm=BASE seconds=134.8
+MP bs=256 arm=CONTROL base_us=224.864 new_us=225.888 ratio=1.00583 paired=1.00381 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=256 arm=PB base_us=225.456 new_us=226.560 ratio=1.00476 paired=1.00493 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=256 arm=PAB base_us=225.376 new_us=235.568 ratio=1.05235 paired=1.05217 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=256 arm=SB1 base_us=225.568 new_us=227.056 ratio=1.00638 paired=1.00490 err=1.11e-05 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=256 arm=SB2 base_us=225.648 new_us=226.608 ratio=1.00361 paired=1.00295 err=1.97e-05 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=256 arm=SAB1 base_us=224.992 new_us=227.520 ratio=1.01099 paired=1.00976 err=2.71e-05 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=256 arm=SAB2 base_us=225.216 new_us=226.944 ratio=1.00767 paired=1.00898 err=4.01e-05 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=256 arm=PB_SB2 base_us=219.680 new_us=222.432 ratio=1.01253 paired=1.01191 err=2.3e-05 maxerr=0.00195 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP pick bs=256 arm=BASE seconds=136.2
+MP bs=32 arm=CONTROL base_us=126.448 new_us=128.928 ratio=1.00929 paired=1.01137 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=32 arm=PB base_us=126.656 new_us=128.400 ratio=1.00917 paired=1.01061 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=32 arm=PAB base_us=126.480 new_us=136.448 ratio=1.03872 paired=1.03832 err=0 maxerr=0 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP bs=32 arm=SB1 base_us=126.816 new_us=126.864 ratio=1.00361 paired=1.00181 err=7.31e-08 maxerr=3.81e-06 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=32 arm=SB2 base_us=126.720 new_us=127.248 ratio=1.00632 paired=1.00568 err=1.25e-05 maxerr=0.000488 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=32 arm=SAB1 base_us=126.784 new_us=127.840 ratio=1.00957 paired=1.00852 err=7.31e-08 maxerr=3.81e-06 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=32 arm=SAB2 base_us=126.912 new_us=127.312 ratio=1.00645 paired=1.00691 err=3.08e-05 maxerr=0.000977 drift=0 adopted=0 regs=96/96 spills_localB=0/0 draws=3 reps=24 stability=50
+MP bs=32 arm=PB_SB1 base_us=149.648 new_us=151.680 ratio=1.01825 paired=1.01691 err=3.87e-06 maxerr=0.000244 drift=0 adopted=0 regs=96/96 spills_localB=16/16 draws=3 reps=24 stability=50
+MP pick bs=32 arm=BASE seconds=137.2
+MP bs=1 arm=BASE_unchanged base_us=26.080 new_us=26.080 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=0
+MP bs=8 arm=BASE_unchanged base_us=65.776 new_us=65.776 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=151/151 spills_localB=0/0 draws=3 reps=24 stability=0
+MP bs=16 arm=BASE_unchanged base_us=97.840 new_us=97.840 ratio=1.00000 paired=1.00000 err=0 maxerr=0 drift=0 adopted=0 regs=149/149 spills_localB=0/0 draws=3 reps=24 stability=0
+MP done prepare_seconds=137.4 selected=[]

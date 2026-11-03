@@ -1,0 +1,73 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 109s
+BUILD pw57_flush 30.8s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB   10.02 us   0.63 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.46 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB   10.24 us   1.64 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.05 us   1.67 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.45 us two_node 5.07 us overhead 3.82 us
+PREP rq thread ready at 50s (bake starts at 140s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.32 at 140s
+BAKE qkv_gate m=128 rq:d2s5hze 15.65 (ratio 1.3049 vs r6 20.32) at 140s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.55 (ratio 1.0474 vs rq:d2s5hze 15.65) at 140s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.43 (ratio 1.0559 vs rq:d2s5hze 15.65) at 140s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.78 (ratio 0.9705 vs rq:d2s5hze 15.65) at 140s
+BAKE qkv_gate m=128 rq:d2s6hze 16.40 (ratio 0.9911 vs rq:d2s5hze 15.65) at 140s
+PICK qkv_gate m=128 rq:s4s5hzw 14.82 (ref rq:d2s5hze 15.65)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0474)
+BAKE qkv_gate m=256 r6 22.98 at 140s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.44 (ratio 1.0954 vs r6 22.98) at 140s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.58 (ratio 0.9919 vs rq:n256s5m1hzmEH 21.44) at 140s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.44 (ref rq:n256s5m1hzmEH 21.44)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.07 at 140s
+BAKE unpooler m=128 rq:d2s5hze 21.07 (ratio 1.1147 vs r6 23.07) at 140s
+BAKE unpooler m=128 rq:d2s5hzwP 20.68 (ratio 1.0412 vs rq:d2s5hze 21.07) at 140s
+BAKE unpooler m=128 rq:s4s5hzw 21.22 (ratio 1.0192 vs rq:d2s5hze 21.07) at 140s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.79 (ratio 0.9868 vs rq:d2s5hze 21.07) at 140s
+BAKE unpooler m=128 rq:s4s5hze 21.43 (ratio 0.9945 vs rq:d2s5hze 21.07) at 140s
+BAKE unpooler m=128 rq:d2s6hze 21.38 (ratio 1.0178 vs rq:d2s5hze 21.07) at 140s
+PICK unpooler m=128 rq:d2s5hzwP 20.24 (ref rq:d2s5hze 21.07)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0412)
+BAKE unpooler m=256 r6 27.84 at 140s
+PICK unpooler m=256 r6 27.84 (ref r6 27.84)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 140s
+[mfab] layer prepare done at 140s
+AB32_INFO device=NVIDIA H200 capability=9.0 sms=132 torch=2.14.1+cu130 prepare_so_far_s=140.2 flush_bytes=536870912 timing=full_layer_graph_raw_events fixed_overhead_subtracted=0 baseline=decode_v1 differential_tol=0.005 row_tol=0.025 production=DEFAULT
+AB32_INFO shape=decode32_sliding seed=20262134 fresh_draws=36 ctx=80000+/-7.5% page=1 routes_med=51.0 distinct_med=13.0
+AB32 shape=decode32_sliding arm=default reps=36 median_us=172.688 ratio_vs_default=1.00000 paired_ratio=1.00000 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=7.70e-04,3.15e-03,9.68e-04,3.89e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_sliding arm=qkv_torch reps=36 median_us=176.896 ratio_vs_default=1.02437 paired_ratio=1.02576 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=2.44e-03,3.99e-03,3.19e-03,5.23e-03,9.75e-04,5.56e-03,5.36e-04,2.69e-03 enough_reps=1
+AB32 shape=decode32_sliding arm=o_torch reps=36 median_us=176.000 ratio_vs_default=1.01918 paired_ratio=1.01831 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=1.58e-03,3.17e-03,2.02e-03,4.00e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_sliding arm=un_torch reps=36 median_us=180.144 ratio_vs_default=1.04318 paired_ratio=1.04580 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=7.93e-04,3.53e-03,1.04e-03,4.35e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_sliding arm=all3_torch reps=36 median_us=187.216 ratio_vs_default=1.08413 paired_ratio=1.08914 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=2.56e-03,4.11e-03,3.31e-03,5.38e-03,9.75e-04,5.56e-03,5.36e-04,2.69e-03 enough_reps=1
+AB32 shape=decode32_sliding arm=moe_finreg reps=36 median_us=173.616 ratio_vs_default=1.00537 paired_ratio=1.00663 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=2.32e-03,3.36e-03,2.98e-03,4.36e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32_INFO shape=decode32_full seed=20261134 fresh_draws=36 ctx=80000+/-7.5% page=1 routes_med=48.0 distinct_med=13.0
+AB32 shape=decode32_full arm=default reps=36 median_us=329.440 ratio_vs_default=1.00000 paired_ratio=1.00000 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=1.02e-03,3.40e-03,1.27e-03,4.04e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_full arm=qkv_torch reps=36 median_us=334.576 ratio_vs_default=1.01559 paired_ratio=1.01489 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=5.34e-02,3.02e-01,8.03e-02,4.38e-01,4.88e-04,2.77e-03,9.97e-04,6.32e-03 enough_reps=1
+AB32 shape=decode32_full arm=o_torch reps=36 median_us=334.048 ratio_vs_default=1.01399 paired_ratio=1.01427 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=1.73e-03,3.40e-03,2.09e-03,4.19e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_full arm=un_torch reps=36 median_us=338.016 ratio_vs_default=1.02603 paired_ratio=1.02740 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=9.59e-04,3.25e-03,1.24e-03,4.04e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32 shape=decode32_full arm=all3_torch reps=36 median_us=347.216 ratio_vs_default=1.05396 paired_ratio=1.05331 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=5.34e-02,3.02e-01,8.03e-02,4.38e-01,4.88e-04,2.77e-03,9.97e-04,6.32e-03 enough_reps=1
+AB32 shape=decode32_full arm=moe_finreg reps=36 median_us=330.064 ratio_vs_default=1.00189 paired_ratio=1.00147 equiv=TOL_0.005 ids_sets_equal=1 max_rel,row_hidden_update_k_v=2.38e-03,3.60e-03,2.93e-03,4.18e-03,0.00e+00,0.00e+00,0.00e+00,0.00e+00 enough_reps=1
+AB32_ERR shape=verify32_sliding default_not_repeatable: do_not_trust_comparisons
+AB32_INFO shape=verify32_sliding seed=20262358 fresh_draws=36 ctx=80000+/-7.5% page=1 routes_med=309.0 distinct_med=25.0
+AB32 shape=verify32_sliding arm=default reps=36 median_us=324.080 ratio_vs_default=1.00000 paired_ratio=1.00000 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.26e-01,7.84e-01,2.01e-01,1.20e+00,1.79e-02,3.98e-02,1.67e-02,4.13e-02 enough_reps=1
+AB32 shape=verify32_sliding arm=qkv_torch reps=36 median_us=326.848 ratio_vs_default=1.00854 paired_ratio=1.00698 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.36e-01,7.60e-01,2.09e-01,1.20e+00,1.69e-02,4.42e-02,1.64e-02,4.02e-02 enough_reps=1
+AB32 shape=verify32_sliding arm=o_torch reps=36 median_us=323.904 ratio_vs_default=0.99946 paired_ratio=0.99951 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.35e-01,7.84e-01,2.06e-01,1.20e+00,1.73e-02,3.95e-02,1.68e-02,4.31e-02 enough_reps=1
+AB32 shape=verify32_sliding arm=un_torch reps=36 median_us=322.096 ratio_vs_default=0.99388 paired_ratio=1.00318 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.38e-01,7.84e-01,2.13e-01,1.20e+00,1.72e-02,4.15e-02,1.70e-02,4.23e-02 enough_reps=1
+AB32 shape=verify32_sliding arm=all3_torch reps=36 median_us=327.760 ratio_vs_default=1.01136 paired_ratio=1.00898 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.36e-01,7.60e-01,2.09e-01,1.20e+00,1.69e-02,4.42e-02,1.64e-02,4.02e-02 enough_reps=1
+AB32 shape=verify32_sliding arm=qkv_lt reps=36 median_us=324.064 ratio_vs_default=0.99995 paired_ratio=0.99873 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.36e-01,7.60e-01,2.09e-01,1.20e+00,1.69e-02,4.42e-02,1.64e-02,4.02e-02 enough_reps=1
+AB32_ERR shape=verify32_full default_not_repeatable: do_not_trust_comparisons
+AB32_INFO shape=verify32_full seed=20261358 fresh_draws=36 ctx=80000+/-7.5% page=1 routes_med=421.5 distinct_med=24.0
+AB32 shape=verify32_full arm=default reps=36 median_us=504.496 ratio_vs_default=1.00000 paired_ratio=1.00000 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.31e-01,7.88e-01,2.02e-01,1.22e+00,1.72e-02,4.19e-02,1.66e-02,4.59e-02 enough_reps=1
+AB32 shape=verify32_full arm=qkv_torch reps=36 median_us=507.008 ratio_vs_default=1.00498 paired_ratio=1.00340 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.33e-01,7.86e-01,2.00e-01,1.20e+00,1.65e-02,4.81e-02,1.64e-02,4.26e-02 enough_reps=1
+AB32 shape=verify32_full arm=o_torch reps=36 median_us=504.128 ratio_vs_default=0.99927 paired_ratio=1.00010 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.31e-01,7.89e-01,2.02e-01,1.21e+00,1.75e-02,4.15e-02,1.69e-02,4.61e-02 enough_reps=1
+AB32 shape=verify32_full arm=un_torch reps=36 median_us=501.520 ratio_vs_default=0.99410 paired_ratio=0.99713 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.37e-01,7.89e-01,2.08e-01,1.22e+00,1.71e-02,4.37e-02,1.69e-02,4.68e-02 enough_reps=1
+AB32 shape=verify32_full arm=all3_torch reps=36 median_us=508.032 ratio_vs_default=1.00701 paired_ratio=1.00725 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.33e-01,7.86e-01,2.00e-01,1.20e+00,1.65e-02,4.81e-02,1.64e-02,4.26e-02 enough_reps=1
+AB32 shape=verify32_full arm=qkv_lt reps=36 median_us=506.320 ratio_vs_default=1.00362 paired_ratio=1.00263 equiv=REJECT ids_sets_equal=0 max_rel,row_hidden_update_k_v=1.33e-01,7.86e-01,2.00e-01,1.20e+00,1.65e-02,4.81e-02,1.64e-02,4.26e-02 enough_reps=1
+AB32_INFO diagnostic_s=2.3 total_prepare_s=142.6 production=DEFAULT

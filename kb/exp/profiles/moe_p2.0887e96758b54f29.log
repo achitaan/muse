@@ -1,0 +1,13 @@
+[mfab] modules built at 48s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 1.36e-08
+MS attrs new/stream_regs_local_smem_occ=[160, 0, 104064, 2, 26, 0, 104064, 2] old_false/true=[96, 16, 231168, 1, 96, 16, 231168, 1] production_regs_local_static=[96, 0, 0, 96, 0, 0] baseline_no_local=0 grid_new=264 threads_new=192 build_seconds=100.5
+MS gate geometry=1 regs_le160=1 zero_local=1 two_ctas=1
+MS info draws=3 ABBA_quads=16 flush=READ_sum512MiB obligation=raw_FP32_GEMM2_before_norm old_stage_B=35840 new_stage_B=4608 K_order=lossless_K128 stages_per_unit=32 rings=8W/2X plans=excluded_both bytes=requested_not_measured_DRAM default=keell_unchanged
+MS_ERR AssertionError ''
+MS SUMMARY complete=0 seconds=100.6 default=keell_unchanged

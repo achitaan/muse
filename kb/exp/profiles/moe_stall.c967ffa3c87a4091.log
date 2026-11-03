@@ -1,0 +1,59 @@
+[mfab] modules built at 45s
+[mfab] regs/local/smem (<false>, <true>) ['-DOKC_WGS=1'] [96, 0, 0, 96, 0, 0]
+[sc6] scales ok=True wgs=True skinny=False
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=16', '-DOKC_WGS=1', '-DOKC_SC6W=1'] [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1'] [149, 0, 0, 149, 0, 0]
+[sc6] regs/local/smem (moe_fused<false>, <true>) ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1'] [149, 0, 0, 149, 0, 0]
+[ps] bs 8: tiny2 t2_wsi {} regs [151, 0, 0, 151, 0, 0] rel vs base 7.05e-06
+MD STALL info reps=16 grid=132 flush_MiB=512 flush=READ_sum unit=16_weight_stages stage_bytes=actual_packed routing=normal_busiest_ep8 counters=SM_cycles timeline=globaltimer_ns default=UNCHANGED
+MD STALL note waitW=BW_F_call waitX=BX_F_call_after_BW_F ring=producer_BW_E_call dqmma=preWrelease+postWrelease+final_drain_excluding_flush epi=stores+fixup+flags+deferred_flush boundary=unit_metadata+dispatch+loop stage_at_init=one_time_range_setup_not_per_unit producer_overlaps_consumer=1 attribution_order_W_then_X=1 no_subtracted_timer_overhead=1
+MD STALL note NO_MMA/NO_DQ=WRONG_OUTPUT_TIMING_ONLY shared_loads_preserved=1 NO_MMA_retains_decode_scale_muls_but_no_tensor_activation_reads=1 NO_MMA_checksum_tax=2_LOP3_per_k16+2KiB_per_segment NO_DQ_retains_MMA_volatile_raw_code_scale_loads_zero_fragments=1 ablation_speedup_not_additive_or_directly_implementable=1
+MD bs=128 var=BASE us=182.656 routes=217 touched=23 jobs=24 ntt_hist=[17, 5, 1, 0, 0, 0, 0, 1]
+MD bs=256 var=BASE us=226.912 routes=449 touched=25 jobs=28 ntt_hist=[15, 7, 1, 0, 0, 1, 1, 3]
+MD STALL built_seconds=107.9
+MD bs=128 var=BASE_PAIRED us=183.312
+MD bs=128 var=TL us=185.344 ratio_BASE=1.0111 ratio_TL=1.0000 attrs=[96, 16, 0, 96, 16, 0] finite=1 rel_L2=0 valid=1
+MD bs=128 var=STALL us=237.072 ratio_BASE=1.2933 ratio_TL=1.2791 attrs=[96, 456, 0, 96, 456, 0] finite=1 rel_L2=0 valid=1
+MD bs=128 var=NO_MMA us=179.808 ratio_BASE=0.9809 ratio_TL=0.9701 attrs=[90, 0, 0, 90, 0, 0] WRONG_OUTPUT_TIMING_ONLY=1
+MD bs=128 var=NO_DQ us=178.384 ratio_BASE=0.9731 ratio_TL=0.9624 attrs=[89, 0, 0, 89, 0, 0] WRONG_OUTPUT_TIMING_ONLY=1
+MD bs=128 var=STREAM us=147.648 TBps=4.288
+MD bs=128 var=STREAM_A us=100.128 TBps=4.215
+MD bs=128 var=STREAM_B us=52.992 TBps=3.982
+MD bs=128 var=TL phase=A window_us=115.856 cta_us_med/max=110.94/118.30 unit_per_us_med/max=0.0559/0.0593
+MD bs=128 var=TL phase=B window_us=67.920 cta_us_med/max=55.71/64.96 unit_per_us_med/max=0.0544/0.0599
+MD bs=128 var=STALL phase=A window_us=152.288 cta_us_med/max=140.38/153.06 unit_per_us_med/max=0.0432/0.0464
+MD bs=128 var=STALL phase=B window_us=96.800 cta_us_med/max=72.96/93.34 unit_per_us_med/max=0.0412/0.0463
+MD bs=128 var=NO_MMA phase=A window_us=115.648 cta_us_med/max=106.08/119.90 unit_per_us_med/max=0.0573/0.0630
+MD bs=128 var=NO_MMA phase=B window_us=83.776 cta_us_med/max=51.14/82.43 unit_per_us_med/max=0.0582/0.0678
+MD bs=128 var=NO_DQ phase=A window_us=115.264 cta_us_med/max=103.82/120.77 unit_per_us_med/max=0.0586/0.0678
+MD bs=128 var=NO_DQ phase=B window_us=75.728 cta_us_med/max=50.59/71.62 unit_per_us_med/max=0.0588/0.0726
+MD STALL bs=128 phase=A samples=CTA_x_replay med/max phase_cycles=246807/269699 waitW_pct=10.25/12.69 waitX_pct=7.60/10.01 compute_preWrelease_pct=46.83/50.58 compute_postWrelease_pct=19.49/21.48 mma_drain_pct=1.15/2.25 dqmma_pct=67.41/71.55 epi_pct=10.04/19.43 boundary_pct=4.09/6.80 closure_pct=99.97/99.97 ring_pct=81.69/84.79 ring_self_pct=84.54/89.37 xring_self_pct=79.58/84.85 ready_pct=0.00/2.71 stage_at_init_pct=1.48/2.48
+MD STALL bs=128 phase=A segments_med/max=7/8 epi_cycles_per_segment=3591.2/11470.6 boundary_cycles_per_segment=1468.4/3086.1 slowWG_waitW_pct=9.75/15.02 slowWG_waitX_pct=7.61/10.21 slowWG_dqmma_pct=67.81/73.66 slowWG_epi_pct=10.12/20.11 slowWG_boundary_pct=4.15/6.76
+MD STALL bs=128 phase=B samples=CTA_x_replay med/max phase_cycles=127508/163597 waitW_pct=8.33/10.99 waitX_pct=7.52/23.48 compute_preWrelease_pct=44.62/49.67 compute_postWrelease_pct=19.63/22.21 mma_drain_pct=1.50/2.78 dqmma_pct=65.93/72.07 epi_pct=12.03/22.61 boundary_pct=5.35/11.03 closure_pct=99.93/99.95 ring_pct=82.64/93.18 ring_self_pct=85.12/89.90 xring_self_pct=62.30/72.68 ready_pct=3.79/32.42 stage_at_init_pct=1.34/2.19
+MD STALL bs=128 phase=B segments_med/max=4/4 epi_cycles_per_segment=3906.4/12055.1 boundary_cycles_per_segment=1737.1/6601.2 slowWG_waitW_pct=8.25/13.95 slowWG_waitX_pct=7.61/23.24 slowWG_dqmma_pct=65.56/72.02 slowWG_epi_pct=12.16/24.03 slowWG_boundary_pct=5.34/11.35
+MD bs=128 phase=A STREAM_cta_us_med/max=92.16/94.56 STREAM_unit_per_us_med/max=0.0605/0.0830 TL_rate_over_STREAM=0.9236 STALL_rate_over_STREAM=0.7144
+MD bs=128 phase=B STREAM_cta_us_med/max=46.30/48.54 STREAM_unit_per_us_med/max=0.0601/0.0821 TL_rate_over_STREAM=0.9047 STALL_rate_over_STREAM=0.6843
+MD bs=256 var=BASE_PAIRED us=227.728
+MD bs=256 var=TL us=229.936 ratio_BASE=1.0097 ratio_TL=1.0000 attrs=[96, 16, 0, 96, 16, 0] finite=1 rel_L2=0 valid=1
+MD bs=256 var=STALL us=293.840 ratio_BASE=1.2903 ratio_TL=1.2779 attrs=[96, 456, 0, 96, 456, 0] finite=1 rel_L2=0 valid=1
+MD bs=256 var=NO_MMA us=221.360 ratio_BASE=0.9720 ratio_TL=0.9627 attrs=[90, 0, 0, 90, 0, 0] WRONG_OUTPUT_TIMING_ONLY=1
+MD bs=256 var=NO_DQ us=214.048 ratio_BASE=0.9399 ratio_TL=0.9309 attrs=[89, 0, 0, 89, 0, 0] WRONG_OUTPUT_TIMING_ONLY=1
+MD bs=256 var=STREAM us=159.280 TBps=4.320
+MD bs=256 var=STREAM_A us=108.512 TBps=4.228
+MD bs=256 var=STREAM_B us=55.728 TBps=4.116
+MD bs=256 var=TL phase=A window_us=146.160 cta_us_med/max=137.31/146.98 unit_per_us_med/max=0.0516/0.0600
+MD bs=256 var=TL phase=B window_us=82.400 cta_us_med/max=69.81/80.26 unit_per_us_med/max=0.0514/0.0606
+MD bs=256 var=STALL phase=A window_us=186.016 cta_us_med/max=168.58/189.18 unit_per_us_med/max=0.0413/0.0471
+MD bs=256 var=STALL phase=B window_us=126.000 cta_us_med/max=90.02/112.13 unit_per_us_med/max=0.0401/0.0463
+MD bs=256 var=NO_MMA phase=A window_us=144.720 cta_us_med/max=123.14/146.50 unit_per_us_med/max=0.0571/0.0636
+MD bs=256 var=NO_MMA phase=B window_us=109.088 cta_us_med/max=60.22/86.94 unit_per_us_med/max=0.0592/0.0705
+MD bs=256 var=NO_DQ phase=A window_us=135.440 cta_us_med/max=121.31/140.26 unit_per_us_med/max=0.0610/0.0714
+MD bs=256 var=NO_DQ phase=B window_us=86.368 cta_us_med/max=62.27/87.55 unit_per_us_med/max=0.0587/0.0745
+MD STALL bs=256 phase=A samples=CTA_x_replay med/max phase_cycles=293059/330304 waitW_pct=9.49/12.44 waitX_pct=7.11/9.23 compute_preWrelease_pct=47.29/51.28 compute_postWrelease_pct=20.17/22.53 mma_drain_pct=1.09/1.94 dqmma_pct=68.59/72.00 epi_pct=10.35/18.58 boundary_pct=3.97/5.94 closure_pct=99.97/99.98 ring_pct=81.49/84.80 ring_self_pct=84.08/89.26 xring_self_pct=79.90/83.57 ready_pct=0.00/2.31 stage_at_init_pct=2.18/3.60
+MD STALL bs=256 phase=A segments_med/max=8/9 epi_cycles_per_segment=3784.9/10663.5 boundary_cycles_per_segment=1482.6/3264.4 slowWG_waitW_pct=9.05/14.14 slowWG_waitX_pct=7.13/9.47 slowWG_dqmma_pct=68.95/73.15 slowWG_epi_pct=10.31/19.23 slowWG_boundary_pct=4.00/5.93
+MD STALL bs=256 phase=B samples=CTA_x_replay med/max phase_cycles=158257/197690 waitW_pct=8.47/10.93 waitX_pct=7.52/25.89 compute_preWrelease_pct=45.01/49.96 compute_postWrelease_pct=19.65/21.83 mma_drain_pct=1.42/2.77 dqmma_pct=66.20/72.28 epi_pct=11.98/24.18 boundary_pct=5.00/7.80 closure_pct=99.94/99.96 ring_pct=82.95/89.23 ring_self_pct=85.48/89.74 xring_self_pct=62.95/71.73 ready_pct=2.61/25.83 stage_at_init_pct=1.09/2.86
+MD STALL bs=256 phase=B segments_med/max=4/5 epi_cycles_per_segment=4073.4/10842.2 boundary_cycles_per_segment=1725.5/3762.0 slowWG_waitW_pct=8.35/13.88 slowWG_waitX_pct=7.59/26.18 slowWG_dqmma_pct=65.85/73.36 slowWG_epi_pct=12.12/24.09 slowWG_boundary_pct=5.01/8.94
+MD bs=256 phase=A STREAM_cta_us_med/max=100.00/102.66 STREAM_unit_per_us_med/max=0.0606/0.0821 TL_rate_over_STREAM=0.8517 STALL_rate_over_STREAM=0.6819
+MD bs=256 phase=B STREAM_cta_us_med/max=50.02/52.19 STREAM_unit_per_us_med/max=0.0607/0.0815 TL_rate_over_STREAM=0.8457 STALL_rate_over_STREAM=0.6602
+MD SUMMARY LAST prepare_seconds=108.6 default=UNCHANGED diagnostic_only=1 results=[{"bs":128,"valid":{"TL":true,"STALL":true},"base_us":183.312,"stall_over_TL":1.2791,"B_stall_over_TL":1.4252,"B_pct":{"waitW":8.33,"waitX":7.52,"ring":82.64,"dqmma":65.93,"epi":12.03,"boundary":5.35},"B_rate_over_stream":0.9047,"no_MMA_total_gain_pct":2.99,"no_DQ_total_gain_pct":3.76,"no_MMA_B_gain_pct":-23.35,"no_DQ_B_gain_pct":-11.5},{"bs":256,"valid":{"TL":true,"STALL":true},"base_us":227.728,"stall_over_TL":1.2779,"B_stall_over_TL":1.5291,"B_pct":{"waitW":8.47,"waitX":7.52,"ring":82.95,"dqmma":66.2,"epi":11.98,"boundary":5.0},"B_rate_over_stream":0.8457,"no_MMA_total_gain_pct":3.73,"no_DQ_total_gain_pct":6.91,"no_MMA_B_gain_pct":-32.39,"no_DQ_B_gain_pct":-4.82}]

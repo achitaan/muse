@@ -1,0 +1,55 @@
+.795 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger 8.21 15.65 1.906 1.918 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 ger-k2 8.22 15.39 1.872 1.890 e1 a0 b3.6e-03 r1.7e-03
+DT unp:8 gb-n4 8.27 8.67 1.048 1.069 e1 a0 b3.6e-03 r1.7e-03
+DT qkv:16 t16s4curP-k7 13.70 13.52 0.987 0.994 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 t16s5curP-k7 13.65 13.44 0.985 0.994 e1 a0 b4.2e-03 r3.9e-03
+DT qkv:16 ge 13.66 26.75 1.958 1.975 e1 a0 b4.2e-05 r1.7e-03
+DT qkv:16 ger 13.60 27.36 2.012 2.020 e1 a0 b4.2e-05 r1.7e-03
+DT poo:16 t16s4curP-k4 18.18 19.52 1.074 1.081 e1 a0 b3.6e-03 r3.2e-03
+DT poo:16 t16s5curP-k4 18.16 18.85 1.038 1.043 e1 a0 b3.6e-03 r3.2e-03
+DT poo:16 ge 18.14 27.34 1.507 1.512 e1 a0 b0.0e+00 r1.7e-03
+DT poo:16 ger 18.22 26.85 1.473 1.480 e1 a0 b0.0e+00 r1.7e-03
+DT unp:16 t16s4curP-k2 18.06 18.98 1.050 1.058 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 t16s5curP-k2 17.89 18.56 1.038 1.032 e1 a0 b2.9e-03 r2.5e-03
+DT unp:16 ge 18.03 30.00 1.664 1.670 e1 a0 b8.9e-05 r1.7e-03
+DT unp:16 ger 17.97 34.34 1.911 1.917 e1 a0 b8.9e-05 r1.7e-03
+DT unp:16 ger-k2 17.97 35.42 1.972 1.985 e1 a0 b8.9e-05 r1.7e-03
+DT qkv:32 t32s5curP-k7 14.26 13.60 0.954 0.957 e1 a1 b4.6e-03 r3.9e-03
+DT qkv:32 t32s6curP-k7 14.14 13.68 0.967 0.972 e1 a0 b4.6e-03 r3.8e-03
+DT qkv:32 ge 14.37 44.26 3.080 3.109 e1 a0 b4.2e-03 r1.7e-03
+DT qkv:32 keep-t32s5curP-k7 14.24 13.63 0.957 0.968 e1 a1
+DT poo:32 t32s5curP-k4 18.98 18.94 0.998 1.003 e1 a0 b3.5e-03 r3.1e-03
+DT poo:32 t32s6curP-k4 19.07 18.80 0.986 0.993 e1 a0 b3.5e-03 r3.2e-03
+DT poo:32 ge 19.12 46.93 2.454 2.463 e1 a0 b1.2e-04 r1.7e-03
+DT unp:32 t32s5curP-k2 18.74 18.70 0.998 0.998 e1 a0 b2.9e-03 r2.5e-03
+DT unp:32 t32s6curP-k2 18.66 18.66 1.000 1.004 e1 a0 b2.9e-03 r2.5e-03
+DT unp:32 ge 18.72 33.20 1.774 1.779 e1 a0 b8.8e-05 r1.7e-03
+DT done 17/17 3.2s adopted 1: qkv:32=arm('qkv_gate', 32, 't32s5curP-k7')
+ZS {"bf16":"3 exponent code + 8 sign/mantissa + 16*escape + metadata","indexed_metadata":"32-bit escape base per 32 weights in addition to table","kind":"model","required_bf16_bpw_max":11.4,"required_bf16_top7":0.95,"router_fp32":"3 exponent code + 24 sign/mantissa + 32*escape + metadata; not BF16","table_metadata_bits":64,"table_only_is_lower_bound":true}
+ZS {"c12_core_bpw":12,"c12_escape":0.0001326,"c12_high7_base":54,"dtype":"torch.bfloat16","fallback":0.0224261,"group32_base32_bpw":12.3588214,"layer":"qkv_gate","layout":"matrix","optimistic_gate":true,"shape":[2304,8192],"table_metadata_bpw":3.4e-06,"table_only_bpw":11.3588214,"table_only_gain_vs12":0.0534315,"top7":0.9775739,"top7_exponents":[115,116,117,118,121,119,120]}
+ZS {"blocks":36,"c12_escape_median":0.0001345,"c12_escape_min":9.54e-05,"group32_base32_bpw_weighted":12.3589401,"layer":"qkv_gate","layout":"rows64_fullK","local_c12_escape_median":0.0001345,"table_only_bpw_median":11.3591766,"table_only_bpw_min":11.350708,"table_only_bpw_weighted":11.3589401,"top7_median":0.9775591,"top7_min":0.9770203,"top7_weighted":0.9775739}
+ZS {"blocks":18432,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4200236,"layer":"qkv_gate","layout":"N16_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.421875,"table_only_bpw_min":11.171875,"table_only_bpw_weighted":11.4200236,"top7_median":0.9775391,"top7_min":0.9599609,"top7_weighted":0.9776548}
+ZS {"blocks":4608,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.3744397,"layer":"qkv_gate","layout":"N64_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.375,"table_only_bpw_min":11.25,"table_only_bpw_weighted":11.3744397,"top7_median":0.9775391,"top7_min":0.96875,"top7_weighted":0.9775741}
+ZS {"blocks":18,"c12_escape_median":0.0001326,"c12_escape_min":0.0001097,"group32_base32_bpw_weighted":12.3588791,"layer":"qkv_gate","layout":"N128_fullK","local_c12_escape_median":0.0001326,"table_only_bpw_median":11.3603058,"table_only_bpw_min":11.3531342,"table_only_bpw_weighted":11.3588791,"top7_median":0.9774847,"top7_min":0.977293,"top7_weighted":0.9775739}
+ZS {"c12_core_bpw":12,"c12_escape":0.0001206,"c12_high7_base":54,"dtype":"torch.bfloat16","fallback":0.0249085,"group32_base32_bpw":12.3985443,"layer":"o","layout":"matrix","optimistic_gate":true,"shape":[8192,1024],"table_metadata_bpw":7.6e-06,"table_only_bpw":11.3985443,"table_only_gain_vs12":0.0501213,"top7":0.9750915,"top7_exponents":[117,123,118,119,120,122,121]}
+ZS {"blocks":128,"c12_escape_median":0.0001221,"c12_escape_min":3.05e-05,"group32_base32_bpw_weighted":12.3995132,"layer":"o","layout":"rows64_fullK","local_c12_escape_median":0.0001068,"table_only_bpw_median":11.3980713,"table_only_bpw_min":11.3720703,"table_only_bpw_weighted":11.3995132,"top7_median":0.9751816,"top7_min":0.9738007,"top7_weighted":0.9750915}
+ZS {"blocks":8192,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4604111,"layer":"o","layout":"N16_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.453125,"table_only_bpw_min":11.1875,"table_only_bpw_weighted":11.4604111,"top7_median":0.9755859,"top7_min":0.9541016,"top7_weighted":0.9751306}
+ZS {"blocks":2048,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4141617,"layer":"o","layout":"N64_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.4140625,"table_only_bpw_min":11.28125,"table_only_bpw_weighted":11.4141617,"top7_median":0.9750977,"top7_min":0.9672852,"top7_weighted":0.9750915}
+ZS {"blocks":64,"c12_escape_median":0.0001183,"c12_escape_min":5.34e-05,"group32_base32_bpw_weighted":12.399025,"layer":"o","layout":"N128_fullK","local_c12_escape_median":0.0001183,"table_only_bpw_median":11.3986816,"table_only_bpw_min":11.3828125,"table_only_bpw_weighted":11.399025,"top7_median":0.9751129,"top7_min":0.9742126,"top7_weighted":0.9750915}
+ZS {"c12_core_bpw":12,"c12_escape":0.0001375,"c12_high7_base":54,"dtype":"torch.bfloat16","fallback":0.02232,"group32_base32_bpw":12.3571215,"layer":"pooler","layout":"matrix","optimistic_gate":true,"shape":[4096,8192],"table_metadata_bpw":1.9e-06,"table_only_bpw":11.3571215,"table_only_gain_vs12":0.0535732,"top7":0.97768,"top7_exponents":[115,116,117,118,121,119,120]}
+ZS {"bit_exact_roundtrip":true,"bytes":{"escapes":1497868,"offsets":131076,"padding":0,"planes":12582912,"sign_mantissa":33554432,"table":8},"effective_bpw":11.3883724,"effective_bytes":47766296,"layer":"pooler","layout":"actual_N16_K64_unit_index","max_effective_bpw":11.4,"size_gate":true,"top7":0.97768}
+ZS {"blocks":64,"c12_escape_median":0.0001373,"c12_escape_min":0.0001049,"group32_base32_bpw_weighted":12.3572416,"layer":"pooler","layout":"rows64_fullK","local_c12_escape_median":0.0001373,"table_only_bpw_median":11.3570862,"table_only_bpw_min":11.3505554,"table_only_bpw_weighted":11.3572416,"top7_median":0.9776897,"top7_min":0.9771423,"top7_weighted":0.97768}
+ZS {"blocks":32768,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4183984,"layer":"pooler","layout":"N16_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.421875,"table_only_bpw_min":11.1875,"table_only_bpw_weighted":11.4183984,"top7_median":0.9775391,"top7_min":0.9550781,"top7_weighted":0.9777564}
+ZS {"blocks":8192,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.3727417,"layer":"pooler","layout":"N64_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.3710938,"table_only_bpw_min":11.2382812,"table_only_bpw_weighted":11.3727417,"top7_median":0.9777832,"top7_min":0.9675293,"top7_weighted":0.9776802}
+ZS {"blocks":32,"c12_escape_median":0.0001373,"c12_escape_min":0.0001097,"group32_base32_bpw_weighted":12.3571806,"layer":"pooler","layout":"N128_fullK","local_c12_escape_median":0.0001373,"table_only_bpw_median":11.3572006,"table_only_bpw_min":11.352356,"table_only_bpw_weighted":11.3571806,"top7_median":0.9776788,"top7_min":0.9774151,"top7_weighted":0.97768}
+ZS {"c12_core_bpw":12,"c12_escape":9.96e-05,"c12_high7_base":54,"dtype":"torch.bfloat16","fallback":0.0249485,"group32_base32_bpw":12.3991785,"layer":"unpooler","layout":"matrix","optimistic_gate":true,"shape":[8192,4096],"table_metadata_bpw":1.9e-06,"table_only_bpw":11.3991785,"table_only_gain_vs12":0.0500685,"top7":0.9750515,"top7_exponents":[116,122,117,118,119,121,120]}
+ZS {"blocks":128,"c12_escape_median":9.92e-05,"c12_escape_min":5.34e-05,"group32_base32_bpw_weighted":12.3994207,"layer":"unpooler","layout":"rows64_fullK","local_c12_escape_median":9.92e-05,"table_only_bpw_median":11.399231,"table_only_bpw_min":11.3865967,"table_only_bpw_weighted":11.3994207,"top7_median":0.9750633,"top7_min":0.9740067,"top7_weighted":0.9750515}
+ZS {"blocks":32768,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4610419,"layer":"unpooler","layout":"N16_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.453125,"table_only_bpw_min":11.1875,"table_only_bpw_weighted":11.4610419,"top7_median":0.9755859,"top7_min":0.953125,"top7_weighted":0.9750911}
+ZS {"blocks":8192,"c12_escape_median":0.0,"c12_escape_min":0.0,"group32_base32_bpw_weighted":12.4148016,"layer":"unpooler","layout":"N64_K64","local_c12_escape_median":0.0,"table_only_bpw_median":11.4140625,"table_only_bpw_min":11.2851562,"table_only_bpw_weighted":11.4148016,"top7_median":0.9750977,"top7_min":0.9660645,"top7_weighted":0.9750515}
+ZS {"blocks":64,"c12_escape_median":0.0001001,"c12_escape_min":6.1e-05,"group32_base32_bpw_weighted":12.3992987,"layer":"unpooler","layout":"N128_fullK","local_c12_escape_median":0.0001001,"table_only_bpw_median":11.399231,"table_only_bpw_min":11.3898315,"table_only_bpw_weighted":11.3992987,"top7_median":0.9750557,"top7_min":0.9743958,"top7_weighted":0.9750515}
+ZS {"c12_bf16_parts":{"hi":{"escape":0.0001407,"high7_base":54},"lo":{"escape":0.0005078,"high7_base":49}},"dtype":"torch.float32","fallback":0.0222416,"group32_base32_bpw":28.7117615,"layer":"router","layout":"matrix","optimistic_gate":false,"shape":[256,8192],"table_metadata_bpw":3.05e-05,"table_only_bpw":27.7117615,"table_only_gain_vs12":null,"top7":0.9777584,"top7_exponents":[115,116,117,118,121,119,120]}
+ZS {"blocks":4,"group32_base32_bpw_weighted":28.711853,"layer":"router","layout":"rows64_fullK","table_only_bpw_median":27.7155762,"table_only_bpw_min":27.6988525,"table_only_bpw_weighted":27.711853,"top7_median":0.9776421,"top7_min":0.9775848,"top7_weighted":0.9777584}
+ZS {"blocks":2048,"group32_base32_bpw_weighted":28.7723083,"layer":"router","layout":"N16_K64","table_only_bpw_median":27.75,"table_only_bpw_min":27.34375,"table_only_bpw_weighted":27.7723083,"top7_median":0.9785156,"top7_min":0.9609375,"top7_weighted":0.9778185}
+ZS {"blocks":512,"group32_base32_bpw_weighted":28.727356,"layer":"router","layout":"N64_K64","table_only_bpw_median":27.7265625,"table_only_bpw_min":27.546875,"table_only_bpw_weighted":27.727356,"top7_median":0.9777832,"top7_min":0.9699707,"top7_weighted":0.9777584}
+ZS {"blocks":2,"group32_base32_bpw_weighted":28.711792,"layer":"router","layout":"N128_fullK","table_only_bpw_median":27.711792,"table_only_bpw_min":27.7076111,"table_only_bpw_weighted":27.711792,"top7_median":0.9777584,"top7_min":0.9776278,"top7_weighted":0.9777584}

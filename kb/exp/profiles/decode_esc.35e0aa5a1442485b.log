@@ -1,0 +1,122 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 106s
+BUILD pw57_flush 29.8s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.76 us   0.65 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.78 us   0.81 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.57 us   1.75 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.30 us   1.63 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.59 us two_node 5.39 us overhead 3.79 us
+PREP rq thread ready at 44s (bake starts at 135s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.51 at 135s
+BAKE qkv_gate m=128 rq:d2s5hze 15.36 (ratio 1.3670 vs r6 20.51) at 135s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.97 (ratio 1.0197 vs rq:d2s5hze 15.36) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzw 16.12 (ratio 1.0147 vs rq:d2s5hze 15.36) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.41 (ratio 1.0102 vs rq:d2s5hze 15.36) at 135s
+BAKE qkv_gate m=128 rq:d2s6hze 16.67 (ratio 0.9850 vs rq:d2s5hze 15.36) at 135s
+PICK qkv_gate m=128 rq:d2s5hze 15.36 (ref rq:d2s5hze 15.36)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0197)
+BAKE qkv_gate m=256 r6 22.98 at 135s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.28 (ratio 1.0962 vs r6 22.98) at 136s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.77 (ratio 0.9938 vs rq:n256s5m1hzmEH 21.28) at 136s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.28 (ref rq:n256s5m1hzmEH 21.28)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 23.10 at 136s
+BAKE unpooler m=128 rq:d2s5hze 21.81 (ratio 1.0797 vs r6 23.10) at 136s
+BAKE unpooler m=128 rq:d2s5hzwP 19.96 (ratio 1.0871 vs rq:d2s5hze 21.81) at 136s
+BAKE unpooler m=128 rq:s4s5hzw 20.93 (ratio 1.0291 vs rq:d2s5hze 21.81) at 136s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.99 (ratio 0.9982 vs rq:d2s5hze 21.81) at 136s
+BAKE unpooler m=128 rq:s4s5hze 21.83 (ratio 0.9938 vs rq:d2s5hze 21.81) at 136s
+BAKE unpooler m=128 rq:d2s6hze 21.97 (ratio 0.9991 vs rq:d2s5hze 21.81) at 136s
+PICK unpooler m=128 rq:d2s5hzwP 20.06 (ref rq:d2s5hze 21.81)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0871)
+BAKE unpooler m=256 r6 28.00 at 136s
+PICK unpooler m=256 r6 28.00 (ref r6 28.00)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 136s
+[mfab] layer prepare done at 136s
+ESC_INFO base_prepare_s=135.5 read_flush_MiB=512 adopt_ratio<=0.988 screen<=0.997 passes=2 blocks=12 tokens=(1, 16, 8, 32)
+ESC_TABLE role T config NSTAGE NESC stages/CTA escapes/CTA(max) escapes(total) | note
+ESC_ROW qkv  T= 1 qkv8_r176 NSTAGE=6 NESC=4 nst=16 pmax,esc=46 2603 | ESC arm
+ESC_ROW o    T= 1 o8h_r88 NSTAGE=4 NESC=4 nst=4 pmax,esc=12 1006 | skipped: gle_o epilogue (not requested)
+ESC_ROW un   T= 1 slice8_r192 NSTAGE=4 NESC=4 nst=4 pmax,esc=10 424 | ESC arm
+ESC_ROW pool T= 1 pooler NSTAGE=6 NESC=4 nst=16 pmax,esc=52 4534 | ESC arm
+ESC_ROW qkv  T=16 qkv16_r176 NSTAGE=5 NESC=4 nst=16 pmax,esc=46 2603 | ESC arm
+ESC_ROW o    T=16 o8h_r88 NSTAGE=4 NESC=4 nst=4 pmax,esc=12 1006 | ESC arm
+ESC_ROW un   T=16 unpooler16h_r100 NSTAGE=5 NESC=4 nst=16 pmax,esc=24 3316 | ESC arm
+ESC_ROW pool T=16 pooler NSTAGE=5 NESC=4 nst=16 pmax,esc=52 4534 | ESC arm
+ESC_ROW qkv  T= 8 qkv8_r176 NSTAGE=6 NESC=4 nst=16 pmax,esc=46 2603 | skipped: already the narrow build
+ESC_ROW o    T= 8 o8h_r88 NSTAGE=4 NESC=4 nst=4 pmax,esc=12 1006 | ESC arm
+ESC_ROW un   T= 8 slice8_r192 NSTAGE=4 NESC=4 nst=4 pmax,esc=10 424 | ESC arm
+ESC_ROW pool T= 8 pooler NSTAGE=6 NESC=4 nst=16 pmax,esc=52 4534 | ESC arm
+ESC_ROW qkv  T=32 qkv32_r208 NSTAGE=4 NESC=4 nst=16 pmax,esc=46 2603 | ESC arm
+ESC_ROW o    T=32 o32h_r100 NSTAGE=3 NESC=3 nst=4 pmax,esc=12 1006 | ESC arm
+ESC_ROW un   T=32 unpooler32_r144 NSTAGE=3 NESC=3 nst=16 pmax,esc=40 3316 | ESC arm
+ESC_ROW pool T=32 pooler32_r144 NSTAGE=5 NESC=4 nst=32 pmax,esc=52 4534 | ESC arm
+ESC_BITS T=1 S pool/gle_pr m=2 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.499
+ESC_BITS T=1 S qkv/sk2 m=1 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.801
+ESC_BITS T=1 S un/sk2 m=1 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=424 max_per_cta=8 ctas=128 x_absmean=0.208
+ESC_BITS T=1 F pool/gle_pr m=2 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.458
+ESC_BITS T=1 F qkv/sk2 m=1 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.799
+ESC_BITS T=1 F un/sk2 m=1 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=424 max_per_cta=8 ctas=128 x_absmean=0.135
+ESC_ROLES T=1 traced=['o', 'pool', 'qkv', 'un'] candidates=['qkv', 'un', 'pool'] bit_exact=['pool', 'qkv', 'un'] arms=['pool_ESC', 'un_ESC', 'qkv_ESC']
+ESC_BASE_SELF T=1 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+ESC_BASE_SELF T=1 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+ESC_ARM T=1 pool_ESC S1:1.0581/1.0558- F1:1.0342/1.0395- qualifies=0
+ESC_ARM T=1 un_ESC S1:0.9983/0.9979- F1:0.9976/0.9984- qualifies=0
+ESC_ARM T=1 qkv_ESC S1:1.0426/1.0465- F1:1.0317/1.0343- qualifies=0
+ESC_NONE T=1 no arm below the screening bar 0.997
+ESC_NONE T=1 fallback=incumbent
+ESC_BITS T=16 S o/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.399
+ESC_BITS T=16 S pool/sk2f m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.795
+ESC_BITS T=16 S qkv/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.798
+ESC_BITS T=16 S un/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=3316 max_per_cta=22 ctas=256 x_absmean=0.127
+ESC_BITS T=16 F o/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.401
+ESC_BITS T=16 F pool/sk2f m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.796
+ESC_BITS T=16 F qkv/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.798
+ESC_BITS T=16 F un/sk2 m=16 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=3316 max_per_cta=22 ctas=256 x_absmean=0.0989
+ESC_ROLES T=16 traced=['o', 'pool', 'qkv', 'un'] candidates=['qkv', 'o', 'un', 'pool'] bit_exact=['o', 'pool', 'qkv', 'un'] arms=['o_ESC', 'pool_ESC', 'un_ESC', 'qkv_ESC']
+ESC_BASE_SELF T=16 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+ESC_BASE_SELF T=16 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=2.2e-04 update_l2=2.4e-04
+ESC_ARM T=16 o_ESC S1:1.0073/1.0084- F1:1.0032/1.0043- qualifies=0
+ESC_ARM T=16 pool_ESC S1:1.0302/1.0309- F1:1.0247/1.0243- qualifies=0
+ESC_ARM T=16 un_ESC S1:1.0106/1.0123- F1:1.0102/1.0090- qualifies=0
+ESC_ARM T=16 qkv_ESC S1:1.0300/1.0285- F1:1.0117/1.0136- qualifies=0
+ESC_NONE T=16 no arm below the screening bar 0.997
+ESC_NONE T=16 fallback=incumbent
+ESC_BITS T=8 S o/sk2 m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.403
+ESC_BITS T=8 S pool/gle_pr m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.796
+ESC_BITS T=8 S un/sk2 m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=424 max_per_cta=8 ctas=128 x_absmean=0.124
+ESC_BITS T=8 F o/sk2 m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.402
+ESC_BITS T=8 F pool/gle_pr m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.796
+ESC_BITS T=8 F un/sk2 m=8 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=424 max_per_cta=8 ctas=128 x_absmean=0.122
+ESC_ROLES T=8 traced=['o', 'pool', 'qkv', 'un'] candidates=['o', 'un', 'pool'] bit_exact=['o', 'pool', 'un'] arms=['o_ESC', 'pool_ESC', 'un_ESC']
+ESC_BASE_SELF T=8 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=0 hidden_l2=6.8e-04 update_l2=1.4e-03
+ESC_BASE_SELF T=8 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=7.1e-05 update_l2=6.0e-05
+ESC_ARM T=8 o_ESC S1:1.0030/1.0029- F1:1.0043/1.0055- qualifies=0
+ESC_ARM T=8 pool_ESC S1:1.0221/1.0218- F1:1.0178/1.0194- qualifies=0
+ESC_ARM T=8 un_ESC S1:1.0072/1.0024- F1:0.9990/0.9986- qualifies=0
+ESC_NONE T=8 no arm below the screening bar 0.997
+ESC_NONE T=8 fallback=incumbent
+ESC_BITS T=32 S o/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.402
+ESC_BITS T=32 S pool/sk2f m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.796
+ESC_BITS T=32 S qkv/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.798
+ESC_BITS T=32 S un/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=3316 max_per_cta=39 ctas=128 x_absmean=0.11
+ESC_BITS T=32 F o/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=1006 max_per_cta=11 ctas=256 x_absmean=0.4
+ESC_BITS T=32 F pool/sk2f m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=4534 max_per_cta=50 ctas=128 x_absmean=0.795
+ESC_BITS T=32 F qkv/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=2603 max_per_cta=44 ctas=96 x_absmean=0.798
+ESC_BITS T=32 F un/sk2 m=32 bit18=1 bit_identical=1 incumbent_repeat=1 escapes=3316 max_per_cta=39 ctas=128 x_absmean=0.119
+ESC_ROLES T=32 traced=['o', 'pool', 'qkv', 'un'] candidates=['qkv', 'o', 'un', 'pool'] bit_exact=['o', 'pool', 'qkv', 'un'] arms=['o_ESC', 'pool_ESC', 'un_ESC', 'qkv_ESC']
+ESC_BASE_SELF T=32 S ok=1 ids_equal=1 cache_equal=1 upstream_bits=0 hidden_l2=5.0e-04 update_l2=6.3e-04
+ESC_BASE_SELF T=32 F ok=1 ids_equal=1 cache_equal=1 upstream_bits=1 hidden_l2=0.0e+00 update_l2=0.0e+00
+ESC_ARM T=32 o_ESC S1:1.0082/1.0080- F1:1.0036/1.0042- qualifies=0
+ESC_ARM T=32 pool_ESC S1:1.0170/1.0183- F1:1.0041/1.0049- qualifies=0
+ESC_ARM T=32 un_ESC S1:1.0130/1.0137- F1:1.0016/1.0021- qualifies=0
+ESC_ARM T=32 qkv_ESC S1:1.0177/1.0165- F1:0.9977/0.9987- qualifies=0
+ESC_NONE T=32 no arm below the screening bar 0.997
+ESC_NONE T=32 fallback=incumbent
+ESC_DONE total_prepare_s=136.4 adopted={} verdicts={1: None, 16: None, 8: None, 32: None}

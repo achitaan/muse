@@ -2,7 +2,7 @@
 
 Branch `argon/decode-20261103`: pushing the Decode board (and its MoE / Dense components) toward 2.37.
 
-**Start here: [kb/APPROACH.md](kb/APPROACH.md) (how we choose work) and [kb/STATE.md](kb/STATE.md)** - problem, scoring, where we stand, per-kernel time, gap to the target, active lanes,
+**Full handoff: [HANDOFF.md](HANDOFF.md).** Then: **[kb/APPROACH.md](kb/APPROACH.md) (how we choose work) and [kb/STATE.md](kb/STATE.md)** - problem, scoring, where we stand, per-kernel time, gap to the target, active lanes,
 closed ideas, how changes ship, and the file map.
 
 Then:

@@ -1,0 +1,102 @@
+PREP rq thread started at 0s
+Exception in thread Thread-1 (<lambda>):
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2906, in _run_ninja_build
+    subprocess.run(
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['ninja', '-v']' returned non-zero exit status 2.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "/tmp/muse_decode_layer-ru0pcrnl/run/submission.py", line 16324, in <lambda>
+    builder = threading.Thread(target=lambda: _mk_ext(), daemon=True)   # nvcc overlaps the parent's own builds
+                                              ^^^^^^^^^
+  File "/tmp/muse_decode_layer-ru0pcrnl/run/submission.py", line 15974, in _mk_ext
+    _MK_EXT = load_inline(
+              ^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2295, in load_inline
+    return _jit_compile(
+           ^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2398, in _jit_compile
+    _write_ninja_file_and_build_library(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2555, in _write_ninja_file_and_build_library
+    _run_ninja_build(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2923, in _run_ninja_build
+    raise RuntimeError(message) from e
+RuntimeError: Error building extension 'dl_okc_mk_v1_90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=dl_okc_mk_v1_90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -std=c++20 -c /tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu -o cuda.cuda.o 
+FAILED: [code=2] cuda.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=dl_okc_mk_v1_90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -std=c++20 -c /tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu -o cuda.cuda.o 
+/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu(198): error: namespace "torch" has no member "Tensor"
+              torch::Tensor cnt, torch::Tensor err, torch::Tensor act, torch::Tensor sink,
+                     ^
+
+/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu(198): error: namespace "torch" has no member "Tensor"
+              torch::Tensor cnt, torch::Tensor err, torch::Tensor act, torch::Tensor sink,
+                                        ^
+
+/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu(198): error: namespace "torch" has no member "Tensor"
+              torch::Tensor cnt, torch::Tensor err, torch::Tensor act, torch::Tensor sink,
+                                                           ^
+
+/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu(198): error: namespace "torch" has no member "Tensor"
+              torch::Tensor cnt, torch::Tensor err, torch::Tensor act, torch::Tensor sink,
+                                                                              ^
+
+/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu(231): error: namespace "torch" has no member "Tensor"
+  void mk_nop(torch::Tensor sink) {
+                     ^
+
+5 errors detected in the compilation of "/tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/cuda.cu".
+[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=dl_okc_mk_v1_90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 105s
+BUILD pw57_flush 30.3s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.60 us   0.66 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.55 us   0.83 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.41 us   1.78 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.08 us   1.66 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.61 us two_node 5.33 us overhead 3.89 us
+PREP rq thread ready at 45s (bake starts at 135s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.61 at 135s
+BAKE qkv_gate m=128 rq:d2s5hze 15.15 (ratio 1.3789 vs r6 20.61) at 135s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.36 (ratio 1.0726 vs rq:d2s5hze 15.15) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzw 15.75 (ratio 1.0467 vs rq:d2s5hze 15.15) at 135s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.32 (ratio 1.0080 vs rq:d2s5hze 15.15) at 135s
+BAKE qkv_gate m=128 rq:d2s6hze 16.50 (ratio 0.9987 vs rq:d2s5hze 15.15) at 135s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.13 (ref rq:d2s5hze 15.15)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0726)
+BAKE qkv_gate m=256 r6 22.78 at 135s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.49 (ratio 1.0780 vs r6 22.78) at 135s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.60 (ratio 0.9942 vs rq:n256s5m1hzmEH 21.49) at 135s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.49 (ref rq:n256s5m1hzmEH 21.49)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.82 at 135s
+BAKE unpooler m=128 rq:d2s5hze 20.64 (ratio 1.1269 vs r6 22.82) at 135s
+BAKE unpooler m=128 rq:d2s5hzwP 20.73 (ratio 1.0295 vs rq:d2s5hze 20.64) at 135s
+BAKE unpooler m=128 rq:s4s5hzw 20.85 (ratio 1.0113 vs rq:d2s5hze 20.64) at 135s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.27 (ratio 1.0065 vs rq:d2s5hze 20.64) at 135s
+BAKE unpooler m=128 rq:s4s5hze 21.13 (ratio 1.0114 vs rq:d2s5hze 20.64) at 135s
+BAKE unpooler m=128 rq:d2s6hze 21.87 (ratio 0.9758 vs rq:d2s5hze 20.64) at 135s
+PICK unpooler m=128 rq:d2s5hzwP 20.05 (ref rq:d2s5hze 20.64)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0295)
+BAKE unpooler m=256 r6 27.62 at 135s
+PICK unpooler m=256 r6 27.62 (ref r6 27.62)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 135s
+[mfab] layer prepare done at 135s
+MK_INFO base_prepare_s=135.1 tokens=(1, 8) draws=2 timings/item=24 flush_MiB=512 ring=6x32KiB
+MK_ABORT ImportError: /tmp/muse_decode_layer-ru0pcrnl/sandbox/cache/torch_extensions/dl_okc_mk_v1_90a/dl_okc_mk_v1_90a.so: cannot open shared object file: No such file or directory
+MK_VERDICT STOP (no measurement completed)
+MK_DONE prepare_s=135.1

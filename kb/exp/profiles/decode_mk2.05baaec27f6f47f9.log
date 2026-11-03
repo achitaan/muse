@@ -1,0 +1,70 @@
+PREP rq thread started at 0s
+[sc6] scales ok -> wgs sc6 True
+[sc6] regs/local/smem (<false>, <true>) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]
+[sc6] regs/local/smem (<false>, <true>) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]
+[rq] layer prepare done at 106s
+BUILD pw57_flush 30.3s
+FLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be <= 3.35 TB/s (pick on the larger probe)
+FLUSH_VALIDATE warm(no flush)     6.30 MB    9.70 us   0.65 TB/s
+FLUSH_VALIDATE read/128MB         6.30 MB    7.52 us   0.84 TB/s  COLD ok
+FLUSH_VALIDATE warm(no flush)    16.78 MB    9.34 us   1.80 TB/s
+FLUSH_VALIDATE read/128MB        16.78 MB   10.14 us   1.65 TB/s  COLD ok
+FLUSH_PICK read/128 ok
+FIXED_COST one_node 4.70 us two_node 5.17 us overhead 4.24 us
+PREP rq thread ready at 44s (bake starts at 137s)
+BAKE rq qkv_gate esc2 slots max=3 ok
+BAKE qkv_gate m=128 r6 20.90 at 137s
+BAKE qkv_gate m=128 rq:d2s5hze 14.62 (ratio 1.4559 vs r6 20.90) at 137s
+BAKE qkv_gate m=128 rq:d2s5hzwP 15.59 (ratio 1.0365 vs rq:d2s5hze 14.62) at 137s
+BAKE qkv_gate m=128 rq:s4s5hzw 16.05 (ratio 1.0069 vs rq:d2s5hze 14.62) at 137s
+BAKE qkv_gate m=128 rq:s4s5hzeEH 16.39 (ratio 0.9800 vs rq:d2s5hze 14.62) at 137s
+BAKE qkv_gate m=128 rq:d2s6hze 16.53 (ratio 0.9736 vs rq:d2s5hze 14.62) at 137s
+PICK qkv_gate m=128 rq:d2s5hzwP 14.10 (ref rq:d2s5hze 14.62)
+PICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0365)
+BAKE qkv_gate m=256 r6 22.98 at 137s
+BAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.02 (ratio 1.1114 vs r6 22.98) at 137s
+BAKE qkv_gate m=256 rq:n256s5m1hzm 21.70 (ratio 0.9938 vs rq:n256s5m1hzmEH 21.02) at 137s
+PICK qkv_gate m=256 rq:n256s5m1hzmEH 21.02 (ref rq:n256s5m1hzmEH 21.02)
+BAKE rq unpooler esc2 slots max=3 ok
+BAKE unpooler m=128 r6 22.59 at 137s
+BAKE unpooler m=128 rq:d2s5hze 21.52 (ratio 1.0736 vs r6 22.59) at 137s
+BAKE unpooler m=128 rq:d2s5hzwP 20.86 (ratio 1.0460 vs rq:d2s5hze 21.52) at 137s
+BAKE unpooler m=128 rq:s4s5hzw 20.56 (ratio 1.0614 vs rq:d2s5hze 21.52) at 137s
+BAKE unpooler m=128 rq:s4s5hzeEH 21.09 (ratio 1.0332 vs rq:d2s5hze 21.52) at 137s
+BAKE unpooler m=128 rq:s4s5hze 21.48 (ratio 1.0205 vs rq:d2s5hze 21.52) at 137s
+BAKE unpooler m=128 rq:d2s6hze 21.72 (ratio 1.0017 vs rq:d2s5hze 21.52) at 137s
+PICK unpooler m=128 rq:s4s5hzw 20.28 (ref rq:d2s5hze 21.52)
+PICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0460)
+BAKE unpooler m=256 r6 28.16 at 137s
+PICK unpooler m=256 r6 28.16 (ref r6 28.16)
+[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 137s
+[mfab] layer prepare done at 137s
+MK_INC T=1 d=0 layer=68.30 pre=18.93 seg=54.90 marginal=49.38 empty=4.74 (seg IQR 54.62-55.81)
+MK_ALL T=1 d=0 L=68.18 PRE=19.06 S=54.70 E=4.74 P0=61.78 P1=57.18 P2=55.46 FL=47.89 BO=15.23 BOF=7.01 (err words 0)
+MK_INC T=1 d=1 layer=74.27 pre=19.06 seg=61.01 marginal=55.22 empty=4.77 (seg IQR 60.80-61.98)
+MK_ALL T=1 d=1 L=74.30 PRE=18.98 S=61.14 E=4.83 P0=70.99 P1=65.20 P2=64.06 FL=55.81 BO=15.14 BOF=6.98 (err words 0)
+MK_INC T=8 d=0 layer=111.84 pre=20.77 seg=98.00 marginal=91.07 empty=4.59 (seg IQR 97.70-98.56)
+MK_ALL T=8 d=0 L=111.49 PRE=20.98 S=97.63 E=4.93 P0=121.33 P1=116.82 P2=112.74 FL=88.85 BO=15.17 BOF=6.96 (err words 0)
+MK_INC T=8 d=1 layer=98.91 pre=20.96 seg=83.97 marginal=77.95 empty=4.90 (seg IQR 82.75-84.45)
+MK_ALL T=8 d=1 L=98.80 PRE=21.09 S=83.94 E=4.91 P0=107.60 P1=103.06 P2=100.29 FL=74.38 BO=15.07 BOF=6.96 (err words 0)
+MK_INFO base_prepare_s=136.7 tokens=(1, 8) draws=2 timings/item=24 flush_MiB=512 ring=6x32KiB
+MK_BUILD ready at 137s
+MK_SETUP T=1 gate=none attention_out=(1, 1024) ncta=132
+MK_DRAW T=1 d=0 local_start=160 experts=2 local_routes=2 seg_ids_equal=1 seg_vs_layer_hidden_l2=0.0e+00 phaseMB=[12.6, 58.8, 37.7, 18.9, 6.3] totalMB=134.3
+MK_INC T=1 d=0 layer=68.30 pre=18.93 seg=54.90 marginal=49.38 empty=4.74 (seg IQR 54.62-55.81)
+MK_ALL T=1 d=0 L=68.18 PRE=19.06 S=54.70 E=4.74 P0=61.78 P1=57.18 P2=55.46 FL=47.89 BO=15.23 BOF=7.01 (err words 0)
+MK_DRAW T=1 d=1 local_start=96 experts=3 local_routes=3 seg_ids_equal=1 seg_vs_layer_hidden_l2=0.0e+00 phaseMB=[12.6, 58.8, 56.6, 28.3, 6.3] totalMB=162.6
+MK_INC T=1 d=1 layer=74.27 pre=19.06 seg=61.01 marginal=55.22 empty=4.77 (seg IQR 60.80-61.98)
+MK_ALL T=1 d=1 L=74.30 PRE=18.98 S=61.14 E=4.83 P0=70.99 P1=65.20 P2=64.06 FL=55.81 BO=15.14 BOF=6.98 (err words 0)
+MK_SETUP T=8 gate=none attention_out=(8, 1024) ncta=132
+MK_DRAW T=8 d=0 local_start=64 experts=8 local_routes=12 seg_ids_equal=1 seg_vs_layer_hidden_l2=6.4e-04 phaseMB=[12.6, 58.8, 151.0, 75.5, 6.3] totalMB=304.2
+MK_INC T=8 d=0 layer=111.84 pre=20.77 seg=98.00 marginal=91.07 empty=4.59 (seg IQR 97.70-98.56)
+MK_ALL T=8 d=0 L=111.49 PRE=20.98 S=97.63 E=4.93 P0=121.33 P1=116.82 P2=112.74 FL=88.85 BO=15.17 BOF=6.96 (err words 0)
+MK_DRAW T=8 d=1 local_start=64 experts=6 local_routes=11 seg_ids_equal=1 seg_vs_layer_hidden_l2=0.0e+00 phaseMB=[12.6, 58.8, 113.2, 56.6, 6.3] totalMB=247.6
+MK_INC T=8 d=1 layer=98.91 pre=20.96 seg=83.97 marginal=77.95 empty=4.90 (seg IQR 82.75-84.45)
+MK_ALL T=8 d=1 L=98.80 PRE=21.09 S=83.94 E=4.91 P0=107.60 P1=103.06 P2=100.29 FL=74.38 BO=15.07 BOF=6.96 (err words 0)
+MK_T1: segment 57.9 us (layer 71.2, pre-attention 19.0, marginal 52.2) | P0 66.4 P1 61.2 P2 59.8 floor 51.8 | barrier/sync loaded 2.91 us (P1 1.87, P2 1.58), idle 1.64 us | bytes 148 MB, experts 2.5 | best P2 59.8; saving = 57.9 - 59.8 - 8.7 (15% of segment) = -10.5 us (per draw [-9.0, -12.1]; vs marginal -16.2; 15% of prototype instead: -10.8)
+MK_T8: segment 90.8 us (layer 105.1, pre-attention 21.0, marginal 84.1) | P0 114.5 P1 109.9 P2 106.5 floor 81.6 | barrier/sync loaded 6.57 us (P1 5.66, P2 4.98), idle 1.63 us | bytes 276 MB, experts 7.0 | best P2 106.5; saving = 90.8 - 106.5 - 13.6 (15% of segment) = -29.3 us (per draw [-29.7, -28.9]; vs marginal -36.0; 15% of prototype instead: -31.7)
+MK_SCORE anchor 1ca0668a 2.2347 -> 2.2347 (saving 0.0 us on d1S+d1F, 0.0 us on v1S+v1F; sliding only 2.2347); muse_score.py: --job 1ca0668a --save-us d1S=0.00 --save-us d1F=0.00 --save-us v1S=0.00 --save-us v1F=0.00
+MK_VERDICT STOP (projected saving -10.5 us at T=1, -29.3 us at T=8; bar 6.0 us at both)
+MK_DONE prepare_s=137.5
