@@ -72,3 +72,13 @@ publish board_best on main (byte-identical, BOARD_BEST.md row) if above the boar
 - kb/v0, kb/v1: keell base files (MoE board, Decode). kb/exp/*.py: experiments. kb/runs/*.json: saved judge results.
 - kb/muse_score.py, kb/muse_score_ref.py: score replay / what-if.
 - kb/exp/archive/, docs/archive/oct23-sprint/: superseded plans and the Oct 23 Dense sprint docs (historical only).
+
+## 9. Conclusions after the Nov 3 loop (18 lanes, all measured, all in TRIED.md)
+- Small-T MoE (TINY/TINY2/MID) runs at the HBM floor per touched expert: +6.1-6.5 us per extra distinct expert (~4.5 TB/s);
+  the sliding-vs-full MoE gap is the routing draw (97-103%), not imbalance (tail spread 1.2-2.2 us). VMS, expert wavefront,
+  B-bank prefetch all lose to keell's single fused kernel.
+- Projections: Dense-board GEMVs, escape-warp decoupling (bit-exact), deep PDL staging, FP32-reduced rq: all 0.99-1.03.
+- Boundaries: kernels already at byte time; the skip-ceiling was inflated by a routing side effect.
+- Full attention: consumer-bound at verify, gather-ceiling at decode; no buildable >=8% lever.
+- Judge seeds differ per run: per-shape times move ~6 us per touched expert between runs, so single-run per-shape
+  comparisons (including Joey's table) carry several % of draw noise.
