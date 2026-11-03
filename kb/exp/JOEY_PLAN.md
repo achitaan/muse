@@ -80,7 +80,8 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | PCX | deep pre-wait staging (P=4/NSTAGE, early trigger) T=1/8/16 | b91d6914 (f0861a6) | CLOSED: all arms 0.994-1.009; timeline excess was PDL wait inside durations | - |
 | 5 | A VMS iter 5 (18 KiB slots d6/d8, register ping-pong, 4-lane producer) | adbd3ba4 (47b6071) | CLOSED: all new levers slower (+4..+21%); best stays r4+fin2 (paired 0.986-0.990); incumbent bimodal by draw (p10 61 / p50 98 us) | VMS line closed |
 | PRED | offline predictor + chase (kb/predict/REPORT.md) | - | no candidate predicted above the 0.012 single-job noise; 0/27 written claims realised; isolated wins realise 4/16; recommends N3 ceiling ablation | N3 |
-| N3 | boundary-glue / route skip-launch ceiling, all 12 shapes | 385183f9 (dab9dd2) | pending | build N3 only if >=3 us on d16/d32/v32 |
+| N3 | boundary-glue / route skip-launch ceiling, all 12 shapes | 385183f9 (dab9dd2) | REAL CEILING: skip both boundaries saves v1 4.4/4.0, d16 5.2/5.4, d32 4.0/4.2, v16 10.4/11.4, v32 17.8/15.5 us -> score ceiling 2.3169; route only 2.2614 | build (gate 6/6 passed) |
+| N3b | coarsened boundary kernels (oracle design: T>=128 1 CTA/row 256 thr emulating logical warps; T=8/16/32 4-CTA cluster) | 32120a38 (5d4bf8e) | pending; oracle predicts ~2.2546 (25% of ceiling) | kill if below v16 4.2/4.6, v32 7.1/6.2 us |
 | R | researcher: how top MoE teams are fast | - | nothing public explains it; only new mechanism: Humming-style producerless skinny mma.sync tiles (8x128xK64, 4 stages, 4 CTAs/SM, cp.async, stream-K), prior 0-6% | GEMM2-only screen candidate |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
