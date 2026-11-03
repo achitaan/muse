@@ -1,0 +1,114 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "muse",
+  "disabled_agents": [
+    "observer",
+    "designer"
+  ],
+  "presets": {
+    "muse": {
+      "extends": "openai",
+      "researcher": {
+        "orchestratorPrompt": "@researcher - GPT-6.1 Sol High read-only investigator for one bounded research question. In this project: alternative kernel architectures and optimization techniques (CUDA/Triton, attention, MoE, decode/prefill).\n- **Delegate when:** a decision depends on outside knowledge that needs judgment - papers, published techniques, public writeups, competing methods - or a mixed question combining local code evidence with external sources (e.g. 'which kernel optimizations from the literature apply to this code on this GPU?'). Also when the user asks for @researcher.\n- **Do not delegate when:** it's a library/API docs lookup (use @librarian), a pure codebase search (use @explorer), a hard design or math decision (use @oracle), or something you can answer confidently yourself.\n- Give it one specific question, the relevant paths, constraints (hardware, problem size, dates), and the return condition. It returns findings and ranked hypotheses; you implement and measure.",
+        "model": [
+          {
+            "id": "openai/gpt-6.1-sol",
+            "variant": "high"
+          },
+          {
+            "id": "github-copilot/gpt-6.1-sol",
+            "variant": "high"
+          }
+        ],
+        "variant": "high"
+      },
+      "fixer": {
+        "model": "github-copilot/claude-sonnet-5.5",
+        "variant": "high"
+      },
+      "explorer": {
+        "model": [
+          {
+            "id": "openai/gpt-6-luna",
+            "variant": "low"
+          },
+          {
+            "id": "github-copilot/gpt-6-luna",
+            "variant": "low"
+          }
+        ],
+        "variant": "low"
+      },
+      "librarian": {
+        "model": [
+          {
+            "id": "openai/gpt-6-luna",
+            "variant": "low"
+          },
+          {
+            "id": "github-copilot/gpt-6-luna",
+            "variant": "low"
+          }
+        ],
+        "variant": "low"
+      },
+      "oracle": {
+        "model": [
+          {
+            "id": "openai/gpt-6-astra",
+            "variant": "high"
+          },
+          {
+            "id": "github-copilot/gpt-6-astra",
+            "variant": "high"
+          }
+        ],
+        "variant": "high"
+      },
+      "hard-fixer": {
+        "model": [
+          {
+            "id": "openai/gpt-6-astra",
+            "variant": "high"
+          },
+          {
+            "id": "github-copilot/gpt-6-astra",
+            "variant": "high"
+          }
+        ],
+        "variant": "high"
+      }
+    }
+  },
+  "council": {
+    "default_preset": "ideas",
+    "presets": {
+      "ideas": {
+        "argon": {
+          "model": "github-copilot/gemini-4-argon",
+          "variant": "medium",
+          "prompt": "Take the unconventional angle: ideas from adjacent fields, different algorithms or data layouts, and assumptions the others may not question."
+        },
+        "sol": {
+          "model": [
+            {
+              "id": "openai/gpt-6.1-sol",
+              "variant": "high"
+            },
+            {
+              "id": "github-copilot/gpt-6.1-sol",
+              "variant": "high"
+            }
+          ],
+          "variant": "high",
+          "prompt": "Take the rigorous angle: algorithmic and mathematical structure, complexity, numerical correctness, and theoretical limits."
+        },
+        "opus": {
+          "model": "github-copilot/claude-opus-5.5",
+          "variant": "medium",
+          "prompt": "Take the pragmatic angle: what is simplest to implement and measure in this codebase, and what is most likely to pay off quickly."
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "authorization": "Human enabled GPU runs and asked for sparing use spread until October 29, 2026 at 8 p.m. Toronto",
+  "authorization": "Human enabled GPU runs and asked for sparing use spread until October 29, 2026 at 8 p.m. Toronto; 2026-10-30T01:20Z human lifted the time window (\"turn that policy off\") and authorized scored submission when confident",
   "checks_authorized": true,
   "scored_submissions_authorized_after_material_gain": true,
-  "window_end_utc": "2026-10-30T00:00:00+00:00",
-  "window_end_local": "2026-10-29 20:00 America/Toronto",
+  "window_end_utc": "2099-01-01T00:00:00+00:00",
+  "window_end_local": "disabled by human 2026-10-30",
   "minimum_minutes_between_new_checks": 60,
   "minimum_minutes_remaining_before_new_check": 20,
   "minimum_checks_reserved_per_track": 4,

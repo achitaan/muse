@@ -1,0 +1,171 @@
+ptxas info    : 2187 bytes gmem
+ptxas info    : Compiling entry function '_Z10gv_predxorILi8ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi8ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi6ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi6ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 116 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 122 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi14ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi14ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 127 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 127 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 122 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 94 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 94 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi12ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi12ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi10ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi10ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi4ELi2ELi1ELi8ELi16ELi1ELi1ELi2ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 206 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi4ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 206 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi2ELi2ELi2ELi8ELi16ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi2ELi2ELi1ELi4ELi16ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 134 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 108 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi1ELi2ELi1ELi16ELi4ELi1ELi1ELi0ELi0EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 108 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi2ELi1EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z10gv_predxorILi0ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G' for 'sm_90a'
+ptxas info    : Function properties for _Z10gv_predxorILi0ELi1ELi1ELi2ELi16ELi8ELi1ELi1ELi0ELi3EEv1G
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 58 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi8EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi8EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi6EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi6EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 44 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi14EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi14EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi12EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi12EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi10EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi10EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 39 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z12cgemv_kernelILi2ELi512ELi8192ELi0EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj' for 'sm_90a'
+ptxas info    : Function properties for _Z12cgemv_kernelILi2ELi512ELi8192ELi0EEvPKhS1_PK13__nv_bfloat16PK4int2iPS2_jj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 144 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z6p1zeroP5uint4i' for 'sm_90a'
+ptxas info    : Function properties for _Z6p1zeroP5uint4i
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers
+ptxas info    : Compile time = 0.000 ms
