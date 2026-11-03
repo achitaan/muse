@@ -54,6 +54,9 @@ His SGLang baseline ran 4-8% slower (slower GPU); absolute-time wins despite tha
 - C  Boundary glue at T=16: fold glue_cluster_boundary pair (5.4 + 3.2 us) / PDL early trigger.
 - D  T=8 (v1S +8.6%): TINY2 vs a VMS-style M=8 variant once A works.
 
+## Operating rule (user, Nov 3)
+Work autonomously: never stop to ask; keep the loop running with the best remaining bet until the deadline or the budget cap.
+
 ## Loop protocol (repeat until 2.37+ scored or deadline Nov 5 07:59 UTC)
 1. Pick top open lane; claim it in TRIED.md ("in progress").
 2. Opus builder implements in its own kb/exp file with in-prepare gate (read-flush ABBA, median+paired, two passes,
@@ -82,7 +85,10 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | PRED | offline predictor + chase (kb/predict/REPORT.md) | - | no candidate predicted above the 0.012 single-job noise; 0/27 written claims realised; isolated wins realise 4/16; recommends N3 ceiling ablation | N3 |
 | N3 | boundary-glue / route skip-launch ceiling, all 12 shapes | 385183f9 (dab9dd2) | REAL CEILING: skip both boundaries saves v1 4.4/4.0, d16 5.2/5.4, d32 4.0/4.2, v16 10.4/11.4, v32 17.8/15.5 us -> score ceiling 2.3169; route only 2.2614 | build (gate 6/6 passed) |
 | N3b | coarsened boundary kernels | 32120a38 (5d4bf8e) | CLOSED: bit-exact but not faster (isolated T=256 11.36->11.84 us); ceiling was inflated (b1 skip fed garbage into router -> MoE work changed); b2 = its byte time; no feasible fusion (oracle-lite) | boundary lane closed |
-| T1 | VMS engine at bs1/bs8 vs TINY/TINY2 (d1S MoE 29.7 us for ~73 MB; highest-value shape) incl. 64-row tasks | 62adc58a (33ae71d) | pending | if bs1 wins -> Decode T=1 |
+| T1 | VMS engine at bs1/bs8 vs TINY/TINY2 incl. 64-row tasks | 62adc58a (33ae71d) | CLOSED: bs1 12-16% slower (3-launch chain ramp-bound, finalizer 7.5 us), bs8 tie | VMS family closed |
+| H | Humming-style producerless skinny GEMM2 screen (bs16-256) | building | - | continue if <=0.92 at 2 of 4 bs |
+| N2 | rq/CURP qkv in Decode with FP32 split reduction (T=16/32) | building | - | gate 0.988 + identical ids |
+| T1R | single fused T=1/8 MoE rewrite (oracle design pending) | design | - | build after design |
 | R | researcher: how top MoE teams are fast | - | nothing public explains it; only new mechanism: Humming-style producerless skinny mma.sync tiles (8x128xK64, 4 stages, 4 CTAs/SM, cp.async, stream-K), prior 0-6% | GEMM2-only screen candidate |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
