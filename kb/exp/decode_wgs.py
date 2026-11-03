@@ -19810,10 +19810,10 @@ def _wgs_source(diagnostic=False, table=_WGS_BASE):
     # No clock accumulators live across WGMMA; paired stamps go straight to
     # private trace slots. All CTAs retain identical threads/smem/residency.
     s = rep(s, "  constexpr int UBL = PB ? 4 : 5;\n  WgsPend pd{0, 0, 0, 0};", """  constexpr int UBL = PB ? 4 : 5;
-  const bool probe = ((int)blockIdx.x & 3) == 0;
-  unsigned long long* tr = p.dbg + blockIdx.x * 288;
-  if ((threadIdx.x & 127) == 0) tr[PB * 8 + (threadIdx.x >> 7)] = gtimer();
-  if (threadIdx.x == 0) { tr[16 + PB * 2] = g0; tr[17 + PB * 2] = g1; }
+  const bool probe = p.dbg && ((int)blockIdx.x & 3) == 0;
+  unsigned long long* tr = p.dbg ? p.dbg + blockIdx.x * 288 : nullptr;
+  if (p.dbg && (threadIdx.x & 127) == 0) tr[PB * 8 + (threadIdx.x >> 7)] = gtimer();
+  if (p.dbg && threadIdx.x == 0) { tr[16 + PB * 2] = g0; tr[17 + PB * 2] = g1; }
   WgsPend pd{0, 0, 0, 0};""")
     s = rep(s, "    switch (ntt) {\n      case 1: wgs_seg", """    const bool firstseg = gs == wgs_split(PB, g0, g1) && ge == g1;
     if (probe && firstseg && threadIdx.x == 0) {
@@ -19826,11 +19826,11 @@ def _wgs_source(diagnostic=False, table=_WGS_BASE):
     gs += s1 - s0;
   }
   wgs_flush<PB>(p, S, pd);
-  if ((threadIdx.x & 127) == 0) tr[PB * 8 + 4 + (threadIdx.x >> 7)] = gtimer();""")
+  if (p.dbg && (threadIdx.x & 127) == 0) tr[PB * 8 + 4 + (threadIdx.x >> 7)] = gtimer();""")
     s = rep(s, "  const uint32_t xring_s = smem_u32(ring + WGS_NS * UNIT_BYTES);", """  const uint32_t xring_s = smem_u32(ring + WGS_NS * UNIT_BYTES);
-  const bool probe = (((int)blockIdx.x & 3) == 0) &&
+  const bool probe = p.dbg && (((int)blockIdx.x & 3) == 0) &&
     u == (wgs_split(PB, S.wgr[PB * 2], S.wgr[PB * 2 + 1]) >> 4);
-  unsigned long long* tr = p.dbg + blockIdx.x * 288;""")
+  unsigned long long* tr = p.dbg ? p.dbg + blockIdx.x * 288 : nullptr;""")
     s = rep(s, "    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);", """    if (probe && tid == 0) tr[64 + PB * 16 + seq % 16] = gtimer();
     wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);
     if (probe && tid == 0) tr[32 + PB * 16 + seq % 16] = gtimer();""")
@@ -19843,20 +19843,23 @@ def _wgs_source(diagnostic=False, table=_WGS_BASE):
     s = s.replace("tr[63] = gtimer();", "tr[287] = gtimer();")
     s = rep(s, '      asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(mf_xr(p, S) + jj), "r"(e - q) : "memory");',
             '''      // achitaan: bracket every contributing release, without changing its atomic.
-      p.dbg[blockIdx.x * 288 + 96 + jj] = gtimer();
+      if (p.dbg) p.dbg[blockIdx.x * 288 + 96 + jj] = gtimer();
       asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(mf_xr(p, S) + jj), "r"(e - q) : "memory");
-      p.dbg[blockIdx.x * 288 + 192 + jj] = gtimer();''')
+      if (p.dbg) p.dbg[blockIdx.x * 288 + 192 + jj] = gtimer();''')
     s = rep(s, "        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32); }", """        if (!pb && !(OKC_WGSX & 8)) {
-          const bool first = i == 0;
+          const bool first = p.dbg && i == 0;
           if (first) p.dbg[blockIdx.x * 288 + 280] = gtimer();
           while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32);
           if (first) { p.dbg[blockIdx.x * 288 + 281] = gtimer(); p.dbg[blockIdx.x * 288 + 282] = j; }
         }""")
     s = rep(s, "      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }", """      if (pb && !(OKC_WGSX & 8)) {
-        if (i == 0) p.dbg[blockIdx.x * 288 + 283] = gtimer();
+        if (p.dbg && i == 0) p.dbg[blockIdx.x * 288 + 283] = gtimer();
         while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32);
-        if (i == 0) p.dbg[blockIdx.x * 288 + 284] = gtimer();
+        if (p.dbg && i == 0) p.dbg[blockIdx.x * 288 + 284] = gtimer();
       }""")
+    # achitaan: the nullable enable raises diagnostic register pressure; it is
+    # measurement-only. Its measured disabled/incumbent bias, not an assumption
+    # of unchanged spill counts, controls whether the resulting fit is usable.
     return s
 
 
@@ -20016,7 +20019,112 @@ def _moe(M=None, state=None):
     return ext if ext is not None else _WGS_PRIOR_MOE(M, state)
 
 
-def _wgs_builds(weights, table=_WGS_BASE, b4_only=None, diagnostic=True):
+def _wgs_footprint_log(log):
+    # achitaan: count actual ptxas spills, not just cudaFuncAttributes.localSizeBytes.
+    import re
+    rows, entry, pending = [], False, None
+    for line in log.splitlines():
+        if "Compiling entry function" in line:
+            entry, pending = "moe_fused" in line, None
+        if not entry:
+            continue
+        m = re.search(r"(\d+) bytes stack frame, (\d+) bytes spill stores, (\d+) bytes spill loads", line)
+        if m and pending is None:
+            pending = tuple(map(int, m.groups()))
+        m = re.search(r"Used (\d+) registers", line)
+        if m and pending is not None:
+            rows.append((int(m[1]), *pending))
+            entry = False
+    if len(rows) != 2:
+        raise RuntimeError(f"NVRTC footprint missing kernel reports ({len(rows)}/2)")
+    return tuple(max(row[i] for row in rows) for i in range(4))
+
+
+def _wgs_footprint_ok(candidate, incumbent):
+    return len(candidate) == len(incumbent) == 4 and all(a <= b for a, b in zip(candidate, incumbent))
+
+
+def _wgs_nvrtc(src, defines):
+    """Compile-only resource audit; never load a CUDA module or launch this code.
+
+    Host Torch launcher omitted, same as offline preflight. Resource tuple is
+    (registers, stack bytes, spill-store bytes, spill-load bytes), maxima over
+    the two BIG specializations. Unknown/compiler failure means NO adoption.
+    """
+    from torch.utils.cpp_extension import CUDA_HOME
+    import pathlib
+    c = _C
+    home = CUDA_HOME or "/usr/local/cuda"
+    package = pathlib.Path(torch.__file__).resolve().parent.parent
+    lib = None
+    for name in ("libnvrtc.so", "libnvrtc.so.13", "libnvrtc.so.12",
+                 str(pathlib.Path(home) / "lib64/libnvrtc.so"),
+                 str(package / "nvidia/cuda_nvrtc/lib/libnvrtc.so.12"),
+                 str(package / "nvidia/cu13/lib/libnvrtc.so.13")):
+        try:
+            lib = c.CDLL(name)
+            break
+        except OSError:
+            pass
+    if lib is None:
+        raise RuntimeError("NVRTC library unavailable; cannot certify candidate footprint")
+    signatures = {
+        "nvrtcCreateProgram": [c.POINTER(c.c_void_p), c.c_char_p, c.c_char_p, c.c_int,
+                               c.POINTER(c.c_char_p), c.POINTER(c.c_char_p)],
+        "nvrtcAddNameExpression": [c.c_void_p, c.c_char_p],
+        "nvrtcCompileProgram": [c.c_void_p, c.c_int, c.POINTER(c.c_char_p)],
+        "nvrtcGetProgramLogSize": [c.c_void_p, c.POINTER(c.c_size_t)],
+        "nvrtcGetProgramLog": [c.c_void_p, c.c_void_p],
+        "nvrtcDestroyProgram": [c.POINTER(c.c_void_p)],
+    }
+    for name, args in signatures.items():
+        fn = getattr(lib, name)
+        fn.argtypes, fn.restype = args, c.c_int
+    def check(rc):
+        if rc:
+            raise RuntimeError(f"NVRTC API status={rc}")
+    # The source only needs these standard tag/width types; no host STL in NVRTC.
+    tags = b"""namespace std { template<class T,T V> struct integral_constant {
+      static constexpr T value=V; using value_type=T; using type=integral_constant;
+      __host__ __device__ constexpr operator value_type() const noexcept {return value;}
+      __host__ __device__ constexpr value_type operator()() const noexcept {return value;}
+    }; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }"""
+    widths = b"""typedef signed char int8_t; typedef unsigned char uint8_t;
+    typedef short int16_t; typedef unsigned short uint16_t;
+    typedef int int32_t; typedef unsigned int uint32_t;
+    typedef long long int64_t; typedef unsigned long long uint64_t;
+    typedef int64_t intptr_t; typedef uint64_t uintptr_t;"""
+    headers = (c.c_char_p * 2)(tags, widths)
+    includes = (c.c_char_p * 2)(b"type_traits", b"stdint.h")
+    device = src.split("#include <torch/extension.h>", 1)[0]
+    # Unique export name avoids NVRTC's cached-result path suppressing ptxas
+    # diagnostics. ONLY the kernel symbol is renamed; its body is unchanged.
+    symbol = "moe_fused_fp_" + str(_ch_time.monotonic_ns())
+    device = device.replace("moe_fused", symbol)
+    prog = c.c_void_p()
+    check(lib.nvrtcCreateProgram(c.byref(prog), device.encode(), b"achitaan-wgs-footprint.cu", 2, headers, includes))
+    try:
+        for big in ("false", "true"):
+            check(lib.nvrtcAddNameExpression(prog, f"okc::{symbol}<{big}>".encode()))
+        flags = ["--gpu-architecture=sm_90a", "--std=c++20", "--generate-line-info",
+                 "--device-as-default-execution-space", "--ptxas-options=-v",
+                 "--include-path=" + home + "/include", "--include-path=" + home + "/include/cccl",
+                 "-DOKC_NS=3", "-DOKC_NSF=3", "-DOKC_FNST=4", *defines]
+        options = (c.c_char_p * len(flags))(*(f.encode() for f in flags))
+        rc = lib.nvrtcCompileProgram(prog, len(flags), options)
+        size = c.c_size_t()
+        check(lib.nvrtcGetProgramLogSize(prog, c.byref(size)))
+        buf = c.create_string_buffer(size.value)
+        check(lib.nvrtcGetProgramLog(prog, buf))
+        log = buf.value.decode(errors="replace")
+        if rc:
+            raise RuntimeError(f"NVRTC compile status={rc}: {log[-600:]}")
+        return _wgs_footprint_log(log)
+    finally:
+        check(lib.nvrtcDestroyProgram(c.byref(prog)))
+
+
+def _wgs_builds(weights, table=_WGS_BASE, b4_only=None, diagnostic=True, max_footprint=None):
     jobs = {}
     sfx = tuple(_MA_SFX_IF_PRMT) if _ma_scales_prmt_exact(weights["w13_sf"], weights["w2_sf"]) else ()
     if not sfx:
@@ -20029,8 +20137,17 @@ def _wgs_builds(weights, table=_WGS_BASE, b4_only=None, diagnostic=True):
             src = _wgs_source(diag, table)
             defs = (*MOE_DEFINES, *sfx, "-DOKC_DQ7=1", f"-DOKC_SC6W={int(sc6)}", f"-DOKC_B4FIN={int(b4)}")
             job = jobs[b4, diag] = {}
-            def worker(src=src, defs=defs, job=job):
+            def worker(src=src, defs=defs, job=job, diag=diag):
                 try:
+                    job["footprint"] = _wgs_nvrtc(src, defs)
+                    if max_footprint is not None and not _wgs_footprint_ok(job["footprint"], max_footprint):
+                        job["error"] = "candidate_footprint_worse_than_incumbent"
+                        return
+                    if table == _WGS_BASE and not diag:
+                        # Use the ACTUAL incumbent prepared module, assigned by
+                        # prepare below; do not compile another baseline twin.
+                        job["incumbent"] = True
+                        return
                     tag = _ch_hashlib.sha256((src + repr(defs)).encode()).hexdigest()[:16]
                     job["mod"] = _RouterExt(load_inline("achitaan_wgs_" + tag,
                         cpp_sources=MOE_CPP_SRC, cuda_sources=src,
@@ -20128,7 +20245,8 @@ def _wgs_diagnostic(st, mod, plain, T, flush, sink, deadline, summary):
     trace = torch.zeros((G, _WGS_TRACE_STRIDE), dtype=torch.int64, device=dev)
     dx = _WGSExt(mod, trace)
     px = _WGSExt(plain, torch.empty(0, dtype=torch.int64, device=dev))
-    rows, overhead = [], []
+    disabled = _WGSExt(mod, torch.empty(0, dtype=torch.int64, device=dev))
+    rows, overhead, bias = [], [], []
     for sliding in (True, False):
         if _ch_time.monotonic() > deadline - 8:
             raise RuntimeError("diagnostic budget incomplete")
@@ -20146,7 +20264,7 @@ def _wgs_diagnostic(st, mod, plain, T, flush, sink, deadline, summary):
             scratch = _ma_make_scratch(dev)
             out = torch.empty_like(x)
             graphs = []
-            for ext in (px, dx):
+            for ext in (px, disabled, dx):
                 ext.okc_set_pdl(0)
                 ext.okc_run(st["ma_w"], scratch, x, ids, tw, out, 0, 32, G)
                 torch.cuda.synchronize()
@@ -20157,10 +20275,13 @@ def _wgs_diagnostic(st, mod, plain, T, flush, sink, deadline, summary):
                     ext.okc_run(st["ma_w"], scratch, x, ids, tw, out, 0, 32, G)
                 graphs.append(g)
             if draw == 0:
-                overhead.append(_wgs_pair(graphs, flush, sink, 4)[0])
+                # achitaan: SAME diagnostic binary with dbg=null has the same
+                # register allocation/spill sites but no timestamp operations.
+                bias.append(_wgs_pair(graphs[:2], flush, sink, 4)[0])
+                overhead.append(_wgs_pair(graphs[1:], flush, sink, 4)[0])
             trace.zero_()
             torch.sum(flush, dim=0, out=sink)
-            graphs[1].replay()
+            graphs[2].replay()
             torch.cuda.synchronize()
             tr = trace.cpu().tolist()
             jobs = _wgs_jobs(hist)
@@ -20217,8 +20338,12 @@ def _wgs_diagnostic(st, mod, plain, T, flush, sink, deadline, summary):
                    f"MMA_after_release_median_us={_ch_stats.median(lag) if lag else None} "
                    f"producer_xr_median_us={_ch_stats.median(producer) if producer else None} "
                    f"first_da_median_us={_ch_stats.median(da) if da else None} measurement_only=1")
-    usable = max(overhead, default=2.0) <= 1.15 and residual <= 0.35
+    # Do not silently rescale away register/scheduling bias: reject a model if
+    # the disabled twin differs by >5%, or instrumentation adds >15%.
+    usable = (all(0.95 <= r <= 1.05 for r in bias) and len(bias) == 2
+              and max(overhead, default=2.0) <= 1.15 and residual <= 0.35)
     summary.append(f"WGS_DIAG T={T} draws={len(rows)} train=4 heldout=4 overhead={overhead} "
+                   f"disabled_vs_incumbent={bias} bias_limit=[0.95,1.05] "
                    f"heldout_relative_model_error={residual:.3f} max_recoverable_us={max(recover.values()):.3f} "
                    f"model_usable={int(usable)} measured_Bdone_us={[round(r['measured']/1000, 2) for r in held]}")
     return candidates, recover, usable
@@ -20335,24 +20460,23 @@ def prepare(weights):
     _WS7, _CL7, _GUARDS, _GUARDED_IDS = {}, {}, [], set()
     try:
         summary.append(f"WGS_INFO base_prepare_s={_ch_time.monotonic()-start:.1f} lineage=1ca0668a read_flush_MiB=512 table_mode=per_T_constants")
-        ready = {}
+        ready, footprints = {}, {}
         for key, job in jobs.items():
             job["thread"].join(timeout=max(0.0, start + 210 - _ch_time.monotonic()))
+            if not job["thread"].is_alive() and job.get("incumbent"):
+                job["mod"] = _CH_OLD_MOE(32 if key[0] else 128, st)
             if not job["thread"].is_alive() and "mod" in job:
                 mod = job["mod"]
                 attrs = list(mod.okc_attrs())
-                summary.append(f"WGS_BUILD b4={int(key[0])} diagnostic={int(key[1])} attrs={attrs}")
-                if attrs[1] == attrs[4] == 0:
-                    ready[key] = mod
+                footprints[key] = job["footprint"]
+                summary.append(f"WGS_BUILD b4={int(key[0])} diagnostic={int(key[1])} attrs={attrs} "
+                               f"NVRTC_regs_stack_spillStore_spillLoad={job['footprint']}")
+                ready[key] = mod
             else:
                 summary.append(f"WGS_BUILD {key} unavailable={job.get('error', 'deadline')}")
         if len(ready) != 4 or _ch_time.monotonic() > start + 230:
-            summary.append("WGS_SKIP incomplete_zero_local_memory_builds_or_budget fallback=all")
+            summary.append("WGS_SKIP incomplete_audited_builds_or_budget fallback=all")
             return st
-        for b4 in (False, True):
-            if list(ready[b4, False].okc_attrs()) != list(ready[b4, True].okc_attrs()):
-                summary.append(f"WGS_SKIP b4={b4} diagnostic_register_resources_not_matched fallback=all")
-                return st
         flush = torch.ones((512 << 20) // 4, dtype=torch.float32, device=dev)
         sink = torch.empty((), dtype=torch.float32, device=dev)
         fits, fitted_jobs = {}, {}
@@ -20365,7 +20489,7 @@ def prepare(weights):
                 fits[T] = _wgs_diagnostic(st, ready[b4, True], ready[b4, False], T, flush, sink, start + 270, summary)
                 tabs, recovery, usable = fits[T]
                 if usable and max(recovery.values()) >= 3.0:
-                    fitted_jobs[T] = {name: _wgs_builds(weights, tab, b4, False)[b4, False]
+                    fitted_jobs[T] = {name: _wgs_builds(weights, tab, b4, False, footprints[b4, False])[b4, False]
                                       for name, tab in tabs.items()}
             kill = len(fits) == 3 and all(max(r.values()) < 3.0 for _, r, _ in fits.values())
             summary.append(f"WGS_KILL all_T_below_3us={int(kill)}")
@@ -20377,15 +20501,23 @@ def prepare(weights):
                     mods = {}
                     for name, job in fitted_jobs.get(T, {}).items():
                         job["thread"].join(timeout=max(0.0, start + 277 - _ch_time.monotonic()))
+                        if not job["thread"].is_alive() and job.get("incumbent"):
+                            job["mod"] = ready[T == 32, False]
+                        summary.append(f"WGS_FOOTPRINT T={T} name={name} incumbent={footprints[T == 32, False]} "
+                                       f"candidate={job.get('footprint')} status={job.get('error', 'ready' if 'mod' in job else 'deadline')} "
+                                       "order=regs,stack,spillStore,spillLoad")
                         if not job["thread"].is_alive() and "mod" in job:
                             attrs = list(job["mod"].okc_attrs())
-                            summary.append(f"WGS_CANDIDATE T={T} name={name} attrs={attrs}")
-                            if attrs[1] == attrs[4] == 0:
+                            old_attrs = list(ready[T == 32, False].okc_attrs())
+                            same_or_better = all(a <= b for a, b in zip(attrs, old_attrs))
+                            summary.append(f"WGS_CANDIDATE T={T} name={name} attrs={attrs} incumbent_attrs={old_attrs} "
+                                           f"runtime_footprint_ok={int(same_or_better)}")
+                            if same_or_better and _wgs_footprint_ok(job["footprint"], footprints[T == 32, False]):
                                 mods[name] = job["mod"]
-                    if len(mods) != len(candidates):
-                        summary.append(f"WGS_SKIP T={T} fitted_builds_incomplete")
+                    if not mods:
+                        summary.append(f"WGS_SKIP T={T} no_admissible_footprint_builds")
                         continue
-                    result = _wgs_gate(st, T, candidates, mods, flush, sink, start + 289, summary)
+                    result = _wgs_gate(st, T, {n: candidates[n] for n in mods}, mods, flush, sink, start + 289, summary)
                     if result:
                         name, ext = result
                         st["wgs_ext"][T] = ext
