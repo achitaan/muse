@@ -86,9 +86,9 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | N3 | boundary-glue / route skip-launch ceiling, all 12 shapes | 385183f9 (dab9dd2) | REAL CEILING: skip both boundaries saves v1 4.4/4.0, d16 5.2/5.4, d32 4.0/4.2, v16 10.4/11.4, v32 17.8/15.5 us -> score ceiling 2.3169; route only 2.2614 | build (gate 6/6 passed) |
 | N3b | coarsened boundary kernels | 32120a38 (5d4bf8e) | CLOSED: bit-exact but not faster (isolated T=256 11.36->11.84 us); ceiling was inflated (b1 skip fed garbage into router -> MoE work changed); b2 = its byte time; no feasible fusion (oracle-lite) | boundary lane closed |
 | T1 | VMS engine at bs1/bs8 vs TINY/TINY2 incl. 64-row tasks | 62adc58a (33ae71d) | CLOSED: bs1 12-16% slower (3-launch chain ramp-bound, finalizer 7.5 us), bs8 tie | VMS family closed |
-| H | Humming-style producerless skinny GEMM2 screen (bs16-256) | d952458c (6a7fac6) | pending | continue if <=0.92 at 2 of 4 bs |
-| N2 | rq/CURP qkv in Decode with FP32 split reduction (T=16/32) | ec73a259 (4a515f9) | pending | gate 0.988 + identical ids |
-| T1R | expert-wavefront T=1/8 MoE (oracle: A(e)->B(e)->A(e+1), 3A+2B banks) | kill check baf4b220 (d54a26f): TINY/TINY2 per-phase stamps + same-pattern stream control | pending | build only if >=3 us (bs1) / 4 us (bs8) headroom |
+| H | Humming-style producerless skinny GEMM2 screen (bs16-256) | d952458c (6a7fac6) | CLOSED: 5-36x slower than incumbent phase B | - |
+| N2 | rq/CURP qkv in Decode with FP32 split reduction (T=16/32) | ec73a259 (4a515f9) | CLOSED: ids fixed but layer 1.019-1.024 slower | - |
+| T1R | expert-wavefront T=1/8 MoE (oracle: A(e)->B(e)->A(e+1), 3A+2B banks) | kill check baf4b220: CONTINUE (headroom bs1 5.4 us, bs8 6.7 us; A->B wait 2.5, B not prefetched) | build 7091a399 (a0b119e) pending | if MoE board <=0.97 -> Decode T=1/8 |
 | R | researcher: how top MoE teams are fast | - | nothing public explains it; only new mechanism: Humming-style producerless skinny mma.sync tiles (8x128xK64, 4 stages, 4 CTAs/SM, cp.async, stream-K), prior 0-6% | GEMM2-only screen candidate |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
