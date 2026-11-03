@@ -135,7 +135,6 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Dense M128 DW v5: X cluster multicast (2/4) and 2 MMA warpgroups | closed | multicast much slower (mc2 55.1, mc4 94.8 us: rank-0 handshake serializes), mma2 31.8; vec2 still best 30.2 us = 1.094/1.089x of cuBLAS. DW line closed after 5 iterations: bit-exact c12 WGMMA plateaus ~9% slower than cuBLAS at m128 (stream floor 22 us; X reload + MMA overlap not recovered) | `027ee79b` | experiments/boards/dense/dense_b7.py (decode-next) | Oct 31 |
 | Lane B: Dense-board GEMVs | closed | check 8ffd6871 2.2312 (incumbent): every arm 0.99-1.025 in the full layer, adopted 0 at T=1/8/16 (qkv cgemv T=1 0.997/1.006, o gv T=8 1.006-1.025, un gv+pdl T=8 ~1.000, o gv T=16 1.008-1.019); several pdl arms incorrect (nan). Dense-board standalone wins do not transfer: decode's sk2 already pre-issues weights under PDL. Closed | `b0caa4c9, 8ffd6871` | kb/exp/decode_gd.py (argon/decode-20261103, d2d2c48) | Nov 03 |
 | N2: rq/CURP qkv in Decode | closed | check ec73a259: FP32 split reduction fixed numerics (ids identical, qkv err 1.658e-3 = sk2's) but the layer got SLOWER: T=32 1.019-1.022, T=16 1.022-1.024 (the partial-sum handshake + reduce costs more than CURP saves). Closed | `ec73a259` | kb/exp/decode_rqf.py (argon/decode-20261103, 4a515f9) | Nov 03 |
-| Extend _de_source escape-warp decoupling (escape warps off the TMA ring empty barrier, escape x read from L2) from qkv 2<=m<=8 to qkv T=1/16/32, unpooler T=1/8/16/32, o T=8/16/32, sk2f/gle_pr; bit-exact (council Q2 #1) | in progress | argon/decode-20261103 | - | - | Nov 03 |
 
 ## Norms and glue kernels
 
@@ -344,3 +343,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | VMS/VML: new small-batch MoE engine for M=16/32 - output-owned 128-row tiles (no cross-warp K reduction), B split-K=2 into disjoint FP32 partials, per-token deterministic finalizer, PDL A->B (no data polling/sentinels), mma.sync swapped-operand; oracle design after Joey's engine table | check submitted, result pending (in-prepare gate per bs: 8 judge-like draws, read-flush ABBA x2 passes <=0.97, FP32-ref correctness; fallback to incumbent). Local: NVRTC/ptxas sm_90a regs A/B 77 (M16) 101 (M32), fin 181, 0 spills; dyn smem 164096 B (M16) / 214016 B (M32); numpy tile+route emulation exact | argon/decode-20261103 b16d63f | `79687699b85a4dcb` | kb/exp/moe_vms.py | Nov 03 |
+
+## [qkv / o / unpooler projections]
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| Extend _de_source escape-warp decoupling (escape warps off the TMA ring empty barrier, escape x read from L2) from qkv 2<=m<=8 to qkv T=1/16/32, unpooler T=1/8/16/32, o T=8/16/32, sk2f/gle_pr T=1/8/16/32 via one runtime pdl bit (18), same per-escape-warp stage order => bit-identical; in-prepare bit test + full-layer read-flush ABBA gate per arm/combination (council Q2 #1) | check submitted, result pending | 35e0aa5a | - | - | Nov 03 |
