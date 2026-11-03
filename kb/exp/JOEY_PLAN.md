@@ -67,4 +67,4 @@ Budget cap $800 (stop starting lanes at $750). Checks: 20/board/day, scored 10/b
 ## Iteration log
 | # | Lane | Job | Result | Next |
 |---|---|---|---|---|
-| 1 | A VMS | (building) | - | - |
+| 1 | A VMS/VML | 79687699 (MoE board check; commit b16d63f) | pending: 77/101 regs, 0 spills, 164/214 KB smem (NVRTC) | read gate: adopt bs16/bs32? |
