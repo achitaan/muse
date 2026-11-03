@@ -96,6 +96,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Fused routing + `_pn`; router load tweaks | closed | - | - | earlier sessions | <= Oct 31 |
 | Own top-8 PDL routing kernel (_RF finalize math) replacing SGLang routing at 9-256 tokens, judge-semantics admission | closed | admitted (weights rel<=4.8e-7, ids equal except 1 exact tie) but producer+routing unit chain slower by 2.4-3.1 us at T=16/32/128/256 in both orders; SGLang's routing kernel is already fast; none of 12 candidate formulas reproduce SGLang weights bit-exactly | `e057dc9d` | experiments/top50/decoder_p8_topk.py (decode-next) | Oct 31 |
 | Enable sk2 (fused pooler/router at 9-32 tok) PDL: 2 weight stages before griddepcontrol.wait (existing sk2_set_pdl, default 0), mask 512 with glue PDL at M16/M32 | kept | check 2.1107x (best check); selected mask 528 at M16 sliding (0.986/0.975), M16 full (0.988/0.987), M32 sliding (0.988/0.985); judge d32 full 298.5 vs ~314 us | `a7836845` | experiments/top50/decoder_p25_sk2pdl.py (decode-next) | Oct 31 |
+| CHECK-ONLY routing-tolerance policy: drop near-tie (<=0.022 above 9th) local routes to eliminate low-count experts within route/distinct budgets, T<=32; pending organizer ruling | in progress | argon/keell-base-20261102 | - | - | Nov 02 |
 
 ## qkv / o / unpooler projections
 
