@@ -244,7 +244,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
-| Direct full-layer ABBA gate of hardcoded fit/half WGS cost tables at T=128/256 (model only screens, no diagnostic twin); follow-up to ff8f8f9c | in progress | argon/keell-base-20261102 9dc34dc | - | - | Nov 02 |
+| Direct full-layer ABBA gate of hardcoded fit/half WGS cost tables at T=128/256 (model only screens, no diagnostic twin); follow-up to ff8f8f9c | in progress | 8b79f36a: all 4 builds footprint-equal (96 regs/16 B), every gate correct=0 before timing (isolated MoE L2 2.2e-4 ok, but bit-exact/cache checks too strict); fixed in decode_wgs3 (a8c7dd57) | - | - | Nov 02 |
 
 ## Dense projections (`bf16_proj`)
 
