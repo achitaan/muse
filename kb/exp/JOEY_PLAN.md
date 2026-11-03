@@ -107,3 +107,4 @@ Source: user's Codex prompt. Items to look into (offline first, no GPU spend):
 - Lessons to apply: standalone wins often vanish after integration (Anshul 6/7); per-SM timelines and same-codegen controls (Keell);
   decode win can coexist with verify collapse (Anvith); break a counter reset to expose false passes (Sapalidis).
 - Check whether the verify-32 sliding one-head attention win transfers to Decode (limited coverage; size it with the tool first).
+| MK | PIVOT megakernel kill check (T=1/8 post-attention chain in one persistent launch) | e8364e54 build fail -> 05baaec2 (15e2130) | STOP: incumbent segment 57.9/90.8 us is only 6-9 us above a barrier-free same-byte stream (51.8/81.6); persistent prototype 59.8/106.5 before math; grid sync 2.9-6.6 us each under load | closed |
