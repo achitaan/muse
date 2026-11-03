@@ -1,0 +1,31 @@
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi4ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi4ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 174 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi4ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi4ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi2ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi2ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 170 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi2ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi2ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi256ELi8192ELi1ELi8ELi4ELi4ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_Z9v18s_gemvILi3ELi1ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z9v18s_gemvILi3ELi1ELi1ELi2ELi3ELi0ELi128ELi0ELi256ELi8192ELi1ELi4ELi4ELi8ELi6EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms

@@ -1,0 +1,99 @@
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi2ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi2ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 76 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi2ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi2ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 79 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 76 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi2ELi16EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi2ELi16EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 79 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi2ELi8ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi2ELi8ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 76 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi512ELi0ELi2304ELi8192ELi1ELi16ELi8ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi2ELi1ELi1ELi0ELi0ELi512ELi0ELi2304ELi8192ELi1ELi16ELi8ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 92 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi2ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi2ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi2ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi2ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi4ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi2ELi16EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi2ELi16EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi2ELi8ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi2ELi0ELi256ELi0ELi2304ELi8192ELi1ELi2ELi8ELi8EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 78 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi512ELi0ELi2304ELi8192ELi1ELi16ELi8ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi0ELi0ELi512ELi0ELi2304ELi8192ELi1ELi16ELi8ELi1EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 93 registers, used 1 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

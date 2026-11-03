@@ -1,0 +1,22 @@
+ptxas info    : 6136 bytes gmem
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi8ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi8ELi2EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 77 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi8ELi4ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 77 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj' for 'sm_90a'
+ptxas info    : Function properties for _Z16v18d_native_gemvILi1ELi1ELi1ELi2ELi3ELi0ELi256ELi0ELi2304ELi8192ELi1ELi4ELi8ELi4EEvPK4int4PK13__nv_bfloat16PvPKjiiiiiijjjj
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 77 registers, used 1 barriers, 16 bytes smem
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Function properties for _Z17v18d_native_neverPv
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
