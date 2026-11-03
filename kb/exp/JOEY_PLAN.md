@@ -88,7 +88,10 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | T1 | VMS engine at bs1/bs8 vs TINY/TINY2 incl. 64-row tasks | 62adc58a (33ae71d) | CLOSED: bs1 12-16% slower (3-launch chain ramp-bound, finalizer 7.5 us), bs8 tie | VMS family closed |
 | H | Humming-style producerless skinny GEMM2 screen (bs16-256) | d952458c (6a7fac6) | CLOSED: 5-36x slower than incumbent phase B | - |
 | N2 | rq/CURP qkv in Decode with FP32 split reduction (T=16/32) | ec73a259 (4a515f9) | CLOSED: ids fixed but layer 1.019-1.024 slower | - |
-| T1R | expert-wavefront T=1/8 MoE (oracle: A(e)->B(e)->A(e+1), 3A+2B banks) | kill check baf4b220: CONTINUE (headroom bs1 5.4 us, bs8 6.7 us; A->B wait 2.5, B not prefetched) | wavefront 7091a399 CLOSED: correct but 1.27x (bs1) / 1.47x (bs8) slower (one A->B hand-off per expert ~2 us) | one-change neighbor: keep all-A->all-B, add 2-slot B prefetch bank -> aa8fef4f (531af59) pending |
+| T1R | expert-wavefront T=1/8 MoE (oracle: A(e)->B(e)->A(e+1), 3A+2B banks) | kill check baf4b220: CONTINUE (headroom bs1 5.4 us, bs8 6.7 us; A->B wait 2.5, B not prefetched) | wavefront 7091a399 CLOSED: correct but 1.27x (bs1) / 1.47x (bs8) slower (one A->B hand-off per expert ~2 us) | B-bank prefetch aa8fef4f CLOSED: 1.04-1.13x slower (steals A bandwidth; A->B wait is completion latency) | small-batch MOE scheduling closed |
+| C2 | council Q2 (kb/exp/COUNCIL_Q2.md): argon+opus build / sol stop -> run #1 escape-warp decoupling, #2 MoE sliding-vs-full diagnostic | - | - | - |
+| ESC | escape-warp decoupling extended to qkv/unpooler/o/pooler at T=1/8/16/32 (bit-exact) | 35e0aa5a (633281e) | pending | adopt per T |
+| MGAP | MoE sliding-vs-full gap diagnostic (routing vs layer) | ad1e2831 (3a46953) | pending | BUILD-LPT if routing >=60% and tail >=8 us |
 | R | researcher: how top MoE teams are fast | - | nothing public explains it; only new mechanism: Humming-style producerless skinny mma.sync tiles (8x128xK64, 4 stages, 4 CTAs/SM, cp.async, stream-K), prior 0-6% | GEMM2-only screen candidate |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
