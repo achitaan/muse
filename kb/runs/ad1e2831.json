@@ -1,0 +1,77 @@
+﻿{
+  "board": "muse_decode_layer",
+  "call_id": "nyc3b:kc-ad1e283193e442e4",
+  "cluster": "nyc3b",
+  "content_hash": "7817a892d668a1f4fbfc16b00a516ae32cf07f811bbe754b9470570e93883959",
+  "created_at": 1793717261.438765,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793718329.6092715,
+  "id": "ad1e283193e442e4",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/Achita/Documents/ChatGPT/Muse 2/.slim/worktrees/decode-1103/kb/exp/profiles/decode_mgap.ad1e283193e442e4.log"
+  },
+  "payload_ref": "muse_decode_layer/7817a892d668a1f4fbfc16b00a516ae32cf07f811bbe754b9470570e93883959.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "PREP rq thread started at 0s\n[sc6] scales ok -\u003e wgs sc6 True\n[sc6] regs/local/smem (\u003cfalse\u003e, \u003ctrue\u003e) -DOKC_WGS=1 [96, 0, 0, 96, 0, 0]\n[sc6] regs/local/smem (\u003cfalse\u003e, \u003ctrue\u003e) -DOKC_B4FIN=1 [96, 0, 0, 96, 0, 0]\n[rq] layer prepare done at 117s\nBUILD pw57_flush 29.8s\nFLUSH_VALIDATE probes 6.30 MB and 16.78 MB; cold must be \u003c= 3.35 TB/s (pick on the larger probe)\nFLUSH_VALIDATE warm(no flush)     6.30 MB    9.79 us   0.64 TB/s\nFLUSH_VALIDATE read/128MB         6.30 MB    7.46 us   0.84 TB/s  COLD ok\nFLUSH_VALIDATE warm(no flush)    16.78 MB    9.73 us   1.72 TB/s\nFLUSH_VALIDATE read/128MB        16.78 MB   10.05 us   1.67 TB/s  COLD ok\nFLUSH_PICK read/128 ok\nFIXED_COST one_node 4.27 us two_node 5.28 us overhead 3.26 us\nPREP rq thread ready at 45s (bake starts at 147s)\nBAKE rq qkv_gate esc2 slots max=2 ok\nBAKE qkv_gate m=128 r6 20.58 at 147s\nBAKE qkv_gate m=128 rq:d2s5hze 15.71 (ratio 1.3178 vs r6 20.58) at 147s\nBAKE qkv_gate m=128 rq:d2s5hzwP 15.41 (ratio 1.0860 vs rq:d2s5hze 15.71) at 147s\nBAKE qkv_gate m=128 rq:s4s5hzw 15.66 (ratio 1.0789 vs rq:d2s5hze 15.71) at 147s\nBAKE qkv_gate m=128 rq:s4s5hzeEH 16.45 (ratio 1.0074 vs rq:d2s5hze 15.71) at 147s\nBAKE qkv_gate m=128 rq:d2s6hze 16.86 (ratio 0.9643 vs rq:d2s5hze 15.71) at 147s\nPICK qkv_gate m=128 rq:d2s5hzwP 14.47 (ref rq:d2s5hze 15.71)\nPICK qkv_gate m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 1.0860)\nBAKE qkv_gate m=256 r6 23.04 at 147s\nBAKE qkv_gate m=256 rq:n256s5m1hzmEH 21.67 (ratio 1.1031 vs r6 23.04) at 147s\nBAKE qkv_gate m=256 rq:n256s5m1hzm 21.94 (ratio 0.9948 vs rq:n256s5m1hzmEH 21.67) at 147s\nPICK qkv_gate m=256 rq:n256s5m1hzmEH 21.67 (ref rq:n256s5m1hzmEH 21.67)\nBAKE rq unpooler esc2 slots max=3 ok\nBAKE unpooler m=128 r6 22.98 at 147s\nBAKE unpooler m=128 rq:d2s5hze 21.38 (ratio 1.0807 vs r6 22.98) at 147s\nBAKE unpooler m=128 rq:d2s5hzwP 21.60 (ratio 0.9972 vs rq:d2s5hze 21.38) at 147s\nBAKE unpooler m=128 rq:s4s5hzw 21.15 (ratio 1.0152 vs rq:d2s5hze 21.38) at 147s\nBAKE unpooler m=128 rq:s4s5hzeEH 21.16 (ratio 1.0269 vs rq:d2s5hze 21.38) at 147s\nBAKE unpooler m=128 rq:s4s5hze 21.07 (ratio 1.0219 vs rq:d2s5hze 21.38) at 147s\nBAKE unpooler m=128 rq:d2s6hze 21.87 (ratio 0.9878 vs rq:d2s5hze 21.38) at 147s\nPICK unpooler m=128 rq:s4s5hzeEH 20.82 (ref rq:d2s5hze 21.38)\nPICK unpooler m=128 rq:d2s5hzwP (forced: cursor + short apply, resident -0.26/-0.13/-0.32 us, bake ratio 0.9972)\nBAKE unpooler m=256 r6 28.22 at 147s\nPICK unpooler m=256 r6 28.22 (ref r6 28.22)\n[rq] picks [('qkv', 128), ('qkv', 256), ('un', 128)] (baked [('qkv_gate', 128), ('qkv_gate', 256), ('unpooler', 128)]) at 147s\n[mfab] layer prepare done at 147s\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 134.43,
+        "power.limit": 700,
+        "temperature.gpu": 36
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 79.1,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "node": "n-5imphluruu3bb3ci5c2w24thxw"
+    },
+    "passed": false,
+    "records": [],
+    "returncode": -9,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "timeout"
+  },
+  "started_at": 1793717414.665447,
+  "status": "done",
+  "team": "achitaan"
+}
+

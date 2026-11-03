@@ -90,8 +90,8 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | N2 | rq/CURP qkv in Decode with FP32 split reduction (T=16/32) | ec73a259 (4a515f9) | CLOSED: ids fixed but layer 1.019-1.024 slower | - |
 | T1R | expert-wavefront T=1/8 MoE (oracle: A(e)->B(e)->A(e+1), 3A+2B banks) | kill check baf4b220: CONTINUE (headroom bs1 5.4 us, bs8 6.7 us; A->B wait 2.5, B not prefetched) | wavefront 7091a399 CLOSED: correct but 1.27x (bs1) / 1.47x (bs8) slower (one A->B hand-off per expert ~2 us) | B-bank prefetch aa8fef4f CLOSED: 1.04-1.13x slower (steals A bandwidth; A->B wait is completion latency) | small-batch MOE scheduling closed |
 | C2 | council Q2 (kb/exp/COUNCIL_Q2.md): argon+opus build / sol stop -> run #1 escape-warp decoupling, #2 MoE sliding-vs-full diagnostic | - | - | - |
-| ESC | escape-warp decoupling extended to qkv/unpooler/o/pooler at T=1/8/16/32 (bit-exact) | 35e0aa5a (633281e) | pending | adopt per T |
-| MGAP | MoE sliding-vs-full gap diagnostic (routing vs layer) | ad1e2831 (3a46953) | pending | BUILD-LPT if routing >=60% and tail >=8 us |
+| ESC | escape-warp decoupling extended to qkv/unpooler/o/pooler at T=1/8/16/32 (bit-exact) | 35e0aa5a (633281e) | CLOSED: bit-identical, 0.998-1.030 (none faster) | - |
+| MGAP | MoE sliding-vs-full gap diagnostic (routing vs layer) | ad1e2831 (3a46953) TIMEOUT (hung after base prepare, no output) -> 7f733a2b (e7c47c3, bounded waits, progress lines, 270 s budget) pending | - | BUILD-LPT if routing >=60% and tail >=8 us |
 | R | researcher: how top MoE teams are fast | - | nothing public explains it; only new mechanism: Humming-style producerless skinny mma.sync tiles (8x128xK64, 4 stages, 4 CTAs/SM, cp.async, stream-K), prior 0-6% | GEMM2-only screen candidate |
 
 ## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
