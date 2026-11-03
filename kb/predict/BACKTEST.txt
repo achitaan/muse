@@ -1,10 +1,11 @@
 == BACKTEST: score replay (sum(w*baseline)/sum(w*median) per load, geometric mean over 6 loads) ==
-accepted 63 Decode jobs (23 new-format records, 40 old-archive format); rejected 2
+accepted 73 Decode jobs (33 new-format records, 40 old-archive format); rejected 3
+  rejected ad1e2831: no benchmark records (duplicate/failed job)
   rejected b0caa4c9: no benchmark records (duplicate/failed job)  [decode_gd first check: prepare AssertionError, comment trim removed the '// router piece:' patch anchor (ledger); no timing; repaired as 8ffd6871]
   rejected d588efd5: no benchmark records (duplicate/failed job)  [duplicate submission (duplicate_of another job); no records]
   not a Decode timing job 0b6a581c: moe_vms2 build failure (vms_run 13 vs 16 tensors): incumbent only, repaired as 74e3e792 (MoE board job)
-replay: max |calc - judge| = 4.44e-16 over 63 jobs (tolerance 0.0005)
-all-board replay via muse_score.score: 78 unique jobs, 0 mismatches
+replay: max |calc - judge| = 4.44e-16 over 73 jobs (tolerance 0.0005)
+all-board replay via muse_score.score: 94 unique jobs, 0 mismatches
 
 job      fmt mode     score  kind      path          group                   
 a589fabe old check   2.0746  clean     old_diag_routeold/diag_route          
@@ -70,8 +71,18 @@ ff8f8f9c new check   2.2588  clean     kb1           decode_wgs
 a8c7dd57 new check   2.2722  clean     kb1           decode_wgs3             
 7bae45c5 new check   2.2489  clean     kb1           decode_wgs4             
 8ffd6871 new check   2.2312  clean     kb1           decode_gd               
+8ab7e4a3 new check   2.2208  clean     unlabelled    unlabelled              
+482a22e2 new check   2.2552  clean     unlabelled    unlabelled              
+b91d6914 new check   2.2401  clean     unlabelled    unlabelled              
+385183f9 new check   2.2302  clean     unlabelled    unlabelled              
+32120a38 new check   2.2447  clean     unlabelled    unlabelled              
+ec73a259 new check   2.2569  clean     unlabelled    unlabelled              
+35e0aa5a new check   2.2292  clean     unlabelled    unlabelled              
+7f733a2b new check   2.2390  clean     unlabelled    unlabelled              
+e8364e54 new check   2.2328  clean     unlabelled    unlabelled              
+05baaec2 new check   2.2422  clean     unlabelled    unlabelled              
 
-wrote rows.csv (756 job x shape rows) and family_rows.csv (3024 job x shape x kernel-family rows)
+wrote rows.csv (876 job x shape rows) and family_rows.csv (3504 job x shape x kernel-family rows)
 
 == NOISE FLOOR: identical default path (kb v1; every gated wrapper whose gate adopted 0 arms ran this code) ==
 19 jobs, all path=kb1: score mean 2.2460 sd 0.0120 range [2.2257, 2.2722]  (sd = 0.53% of score)

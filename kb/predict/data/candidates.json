@@ -1,0 +1,256 @@
+{
+ "_doc": "CHASE candidates. gross_us = best-supported per-shape layer gain claim in us (positive = faster) at the time of this report; design_us = the original plan/claim; cap_us = documented headroom (profile kernel time minus byte/stream floor, see source). evidence: pre = untimed/design claim, iso = isolated paired A/B gain measured, gate = in-layer ABBA gain measured. checks = additional checks to a scored result. haircut multiplies gross. All inputs are public ledger/profile numbers; none comes from a candidate's judged score.",
+ "candidates": [
+  {
+   "id": "DG-T1",
+   "name": "Dense GEMVs at T=1 (cgemv qkv + unpooler slice)",
+   "status": "CHECK 8ffd6871 DONE: adopted 0 (qkv cg+pdl 0.995-1.000 best, un:cg 1.01-1.02 slower)",
+   "parent": "kb v1 (kb/exp/decode_gd.py, d2d2c48)",
+   "change": "replace sk2 launches with vjeux cgemv (FP32 reduce, one BF16 round) at T=1 qkv and unpooler slice",
+   "loads": "decode 1 (d1S, d1F)",
+   "mechanism": "higher HBM rate on the 4 dense GEMVs (38 us measured vs 34.9 us byte floor)",
+   "design_us": {
+    "d1S": 4.4,
+    "d1F": 4.4
+   },
+   "gross_us": {
+    "d1S": 0.3,
+    "d1F": 0.3
+   },
+   "cap_us": {
+    "d1S": 3.2,
+    "d1F": 3.2
+   },
+   "evidence": "gate",
+   "checks": 2,
+   "evidence_text": "in-layer read-flush ABBA exists (8ffd6871): best arm qkv:cg+pdl S1 0.9991/0.9921, F2 0.9947/0.9991 (~+0.3 us); un:cg 1.012-1.020 slower; design 4.4 us exceeds the 3.2 us documented headroom",
+   "kill": "no arm <=0.988 median AND paired in two passes (already hit for every T=1 arm)",
+   "killed": true
+  },
+  {
+   "id": "DG-T8",
+   "name": "Dense GEMVs at T=8 (gv qkv, o, unpooler slice)",
+   "status": "CHECK 8ffd6871 DONE: adopted 0 (all 1.000-1.025)",
+   "parent": "kb v1 (decode_gd.py)",
+   "change": "chenwainuo gv for qkv/o/unpooler slice at verify-1",
+   "loads": "verify 1 (v1S, v1F)",
+   "mechanism": "same as DG-T1",
+   "design_us": {
+    "v1S": 2.4,
+    "v1F": 2.4
+   },
+   "gross_us": {
+    "v1S": 0.0,
+    "v1F": 0.0
+   },
+   "cap_us": {
+    "v1S": 4.0,
+    "v1F": 4.6
+   },
+   "evidence": "gate",
+   "checks": 2,
+   "evidence_text": "8ffd6871: qkv:gv 1.008, o:gv 1.021-1.025, o:gv+pdl 1.003-1.008, un:gv+pdl 0.9996-1.0027; none faster",
+   "kill": "already met: no arm below 1.000",
+   "killed": true
+  },
+  {
+   "id": "DG-T16",
+   "name": "Dense GEMV at T=16 (gv o-projection)",
+   "status": "CHECK 8ffd6871 DONE: adopted 0 (1.006-1.022 slower)",
+   "parent": "kb v1 (decode_gd.py)",
+   "change": "gv for o at decode-16",
+   "loads": "decode 16 (d16S, d16F)",
+   "mechanism": "same as DG-T1",
+   "design_us": {
+    "d16S": 3.5,
+    "d16F": 3.5
+   },
+   "gross_us": {
+    "d16S": 0.0,
+    "d16F": 0.0
+   },
+   "cap_us": {
+    "d16S": 15.4,
+    "d16F": 18.6
+   },
+   "evidence": "gate",
+   "checks": 2,
+   "evidence_text": "8ffd6871: o:gv 1.014-1.022, o:gv+pdl 1.004-1.011; (S1/F1 also failed correctness)",
+   "kill": "already met",
+   "killed": true
+  },
+  {
+   "id": "VMS-16",
+   "name": "VMS MoE engine at T=16 (MID replacement)",
+   "status": "iteration 4 DONE (c5800fa6): no arm passes the board gate; Decode wiring (decode_vms.py) not yet checked",
+   "parent": "kb v1 MID at M=16 (kb/exp/moe_vms4.py, kb/exp/decode_vms.py)",
+   "change": "it1 engine + split-K B + wide finalizer (arm r4+fin2 best); route into decode MoE call at T=16 only",
+   "loads": "decode 16 (d16S, d16F)",
+   "mechanism": "output-owned tiles, B split-K=2, PDL A->B; removes ramp/tail between phases",
+   "design_us": {
+    "d16S": 10.4,
+    "d16F": 7.6
+   },
+   "gross_us": {
+    "d16S": 1.9,
+    "d16F": 1.4
+   },
+   "cap_us": {
+    "d16S": 10.6,
+    "d16F": 8.1
+   },
+   "evidence": "iso",
+   "checks": 3,
+   "evidence_text": "board bs16: arm 94-96 us vs incumbent 98.3 (median 0.955-0.981, paired 0.991-1.006, so ~0 to -4 us); mean of both = -2.5 us x (in-layer MoE/board 0.76 S, 0.575 F) = 1.9/1.4 us. Stream-only A 61.1 + B 33.5 us = 94.6 us serialised, i.e. the engine already sits at its phase-stream floor; the 84 us target needs A->B streaming without drain (iteration 2's continuous ring was 2x slower)",
+   "kill": "decode gate paired AND median > 0.988 at d16S/d16F in two passes; or MoE-board paired >0.99 on the best arm",
+   "resources": {
+    "dyn_smem_B": 217600,
+    "regs": 86,
+    "spill_B": 0,
+    "src": "moe_vms4 c5800fa6 log: M16 A/B regs 79-86, 0 spills, dyn smem plain/w16/r4 164096/172288/217600"
+   }
+  },
+  {
+   "id": "VML-32",
+   "name": "VML MoE engine at T=32",
+   "status": "iteration 4: every bs32 arm 1.000-1.016 slower",
+   "parent": "kb v1 WGS MAIN at M=32",
+   "change": "VMS engine with 4 token fragments at M=32",
+   "loads": "decode 32 (d32S, d32F)",
+   "mechanism": "as VMS-16",
+   "design_us": {
+    "d32S": 3.3,
+    "d32F": 1.8
+   },
+   "gross_us": {
+    "d32S": 0.0,
+    "d32F": 0.0
+   },
+   "cap_us": {
+    "d32S": 13.9,
+    "d32F": 19.5
+   },
+   "evidence": "iso",
+   "checks": 3,
+   "evidence_text": "c5800fa6 bs32: arms 129.8-131.4 vs incumbent 128.9-130.0 (paired 1.008-1.015); design number = Joey's d32 ratio edge (2.3% / 0.6%)",
+   "kill": "already met (all bs32 arms slower)",
+   "killed": true,
+   "resources": {
+    "dyn_smem_B": 230400,
+    "regs": 114,
+    "spill_B": 0,
+    "src": "moe_vms4 M32 math arm regs 114, dyn smem w16 230400 (limit 232448)"
+   }
+  },
+  {
+   "id": "N1-MOE128",
+   "name": "NEW: MoE T=128/256 phase-B consumer throughput (cheaper FP4 dequant/MMA issue per value, MAIN consumers)",
+   "status": "not built; headroom documented, lever not demonstrated",
+   "parent": "kb v1 WGS MAIN (moe_fused<true>)",
+   "change": "reduce consumer instruction count per FP4 value in phase B (c967ffa3: consumer-bound, dequant+MMA 66%, ring full 83% of B)",
+   "loads": "verify 16, verify 32 (v16S/F, v32S/F)",
+   "mechanism": "MoE 162-191 us vs read-flush stream floor 131-134 us (f125e6ab BASE/STREAM bs128 182.8/147.3, bs256 227.3/159.5)",
+   "design_us": {
+    "v16S": 31.4,
+    "v16F": 31.9,
+    "v32S": 57.1,
+    "v32F": 52.7
+   },
+   "gross_us": {
+    "v16S": 1.9,
+    "v16F": 1.9,
+    "v32S": 3.4,
+    "v32F": 3.2
+   },
+   "cap_us": {
+    "v16S": 31.4,
+    "v16F": 31.9,
+    "v32S": 57.1,
+    "v32F": 52.7
+   },
+   "evidence": "pre",
+   "checks": 3,
+   "evidence_text": "gross = 6% capture prior (best past MoE-MAIN in-layer capture: ERL/HINT/FINREG 0.5-1.7% of MoE, pfy ~2 us of 57) x documented headroom; same-family attempts closed: P2-RS64 1.49x slower, L1 1.03-1.06x, L2 1.03-1.12x, 7bae45c5 tables slower; NODQ ~= BASE in D-MoE diag vs 'dequant removal saves 3.8-6.9%' in c967ffa3 (conflict)",
+   "kill": "isolated MAIN consumer A/B (read flush, bs128+bs256, 3 draws) not <=0.98 on both"
+  },
+  {
+   "id": "N2-CURP32",
+   "name": "NEW: FP32-faithful rq/CURP qkv at T=16/32 (fix the BF16 per-split reduce that flips expert ids)",
+   "status": "not built; accumulator fix specified by f2ab6d4c root cause",
+   "parent": "kb v1 sk2 qkv (kb/exp/decode_curp.py arms Q)",
+   "change": "keep rq tiling but reduce split partials in FP32 and round once (as sk2 does), then rerun the Q arms",
+   "loads": "decode 16, decode 32 (d16S/F, d32S/F)",
+   "mechanism": "dense qkv 18.5-21.1 us; documented dense headroom 15-27 us/shape vs byte floor 34.9",
+   "design_us": {
+    "d16S": 0.4,
+    "d16F": 0.24,
+    "d32S": 1.7,
+    "d32F": 2.0
+   },
+   "gross_us": {
+    "d16S": 0.4,
+    "d16F": 0.24,
+    "d32S": 1.7,
+    "d32F": 2.0
+   },
+   "haircut": 0.5,
+   "cap_us": {
+    "d16S": 15.4,
+    "d16F": 18.6,
+    "d32S": 22.4,
+    "d32F": 26.8
+   },
+   "evidence": "gate",
+   "checks": 2,
+   "evidence_text": "in-layer paired ratios measured (f2ab6d4c d32S 0.985/0.991, d32F 0.991/0.995, d16 0.996-0.998) but with numerics that flip 1.6-2.3% of ids; haircut 0.5 is an ASSUMPTION for the extra FP32 partial traffic (unmeasured)",
+   "kill": "ids flip >0 or in-layer ratio > 0.99 at d32S/d32F after the FP32 reduce"
+  },
+  {
+   "id": "N3-GLUE16",
+   "name": "NEW: fold/hide the two boundary-glue kernels per layer at T>=16 (pre-wait weight stages + early trigger)",
+   "status": "not built; partial PDL variants closed",
+   "parent": "kb v1 glue_cluster_boundary x2 (d16) / _graft_row_boundary (d32, v16, v32)",
+   "change": "single boundary kernel per layer or PDL early-trigger with 2 pre-wait stages of the next GEMV (the T<=8 recipe, see H200_FACTS)",
+   "loads": "decode 16/32, verify 16/32 (8 shapes)",
+   "mechanism": "boundary glue 8.6-13.7 us/shape visible in the profile (d16S 5.4+3.2, d32S 8.7, v16S 9.8, v32S 13.7)",
+   "design_us": {
+    "d16S": 8.6,
+    "d16F": 9.4,
+    "d32S": 8.7,
+    "d32F": 10.6,
+    "v16S": 9.8,
+    "v16F": 8.8,
+    "v32S": 13.7,
+    "v32F": 13.3
+   },
+   "gross_us": {
+    "d16S": 2.1,
+    "d16F": 2.3,
+    "d32S": 2.1,
+    "d32F": 2.5,
+    "v16S": 2.4,
+    "v16F": 2.1,
+    "v32S": 3.3,
+    "v32F": 3.2
+   },
+   "cap_us": {
+    "d16S": 8.6,
+    "d16F": 9.4,
+    "d32S": 8.7,
+    "d32F": 10.6,
+    "v16S": 9.8,
+    "v16F": 8.8,
+    "v32S": 13.7,
+    "v32F": 13.3
+   },
+   "evidence": "pre",
+   "checks": 2,
+   "evidence_text": "gross = 24% capture prior (best past glue gain: M16 glue PDL -2.1/-1.8 us of 8.6, p5b) x documented glue time; H200_FACTS: at T<=8 skipping a whole glue launch saves only 1.2-2.0 us because the next GEMV already streams pre-wait; last-CTA/GEMV-tail folds closed (b3e93db2 2x slower, gle8 1.03x slower, sfnfold neutral)",
+   "kill": "boundary-only ablation (skip one boundary launch, wrong numerics, timing only) saves <1.5 us at d16/v32 in the layer"
+  }
+ ],
+ "_limits": {
+  "max_dyn_smem_B": 232448,
+  "note": "H100/H200 sm_90 max dynamic shared memory per block 227 KiB"
+ }
+}

@@ -1,0 +1,697 @@
+{
+ "_doc": "Hand-curated transfer observations from kb/ref/TRIED.md (+ origin/main TRIED rows) and the judge/gate logs it cites. Gains are in us, POSITIVE = faster. pre_us = pre-measurement claim (design/ledger/brief number, never a measurement of this candidate); iso_us = isolated/standalone paired A/B of the touched stage (MoE board, Dense board, diag harness); layer_us = measured in-layer gate (read-flush ABBA) or judge-check delta of the full layer for the shape. layer_ratio = candidate/parent median (converted with layer_ref for the era). 'approx' = midpoint of a range quoted in the ledger. level=board rows are MoE-board shapes (no layer measurement exists). NOTHING here uses a candidate's judged score.",
+ "layer_ref_us": {
+  "old": {
+   "d1S": 76,
+   "d1F": 82,
+   "d16S": 138,
+   "d16F": 213,
+   "d32S": 160,
+   "d32F": 312,
+   "v1S": 116,
+   "v1F": 123,
+   "v16S": 250,
+   "v16F": 336,
+   "v32S": 325,
+   "v32F": 488
+  },
+  "keell": {
+   "d1S": 65.7,
+   "d1F": 73.3,
+   "d16S": 127.5,
+   "d16F": 201.2,
+   "d32S": 146.7,
+   "d32F": 300.3,
+   "v1S": 106.0,
+   "v1F": 112.2,
+   "v16S": 233.0,
+   "v16F": 321.7,
+   "v32S": 305.1,
+   "v32F": 477.1
+  }
+ },
+ "arms": [
+  {
+   "id": "pnfold-d1S",
+   "group": "old/p7-pnfold",
+   "era": "old",
+   "shape": "d1S",
+   "family": "glue/norm into MoE",
+   "pre_us": 2.1,
+   "iso_us": -4.6,
+   "layer_ratio": 1.1,
+   "flags": "approx",
+   "src": "97c2ab82; TRIED row PNFOLD v3: iso M1 30.0 vs 25.4, layer +5..+16% (mid 10%); pre = cost of the _pn kernel that is removed (1.6-2.6 us)"
+  },
+  {
+   "id": "pnfold-v1S",
+   "group": "old/p7-pnfold",
+   "era": "old",
+   "shape": "v1S",
+   "family": "glue/norm into MoE",
+   "pre_us": 2.1,
+   "iso_us": -5.5,
+   "layer_ratio": 1.1,
+   "flags": "approx",
+   "src": "97c2ab82: iso M8 80.7 vs 75.2"
+  },
+  {
+   "id": "ebpub-d1S",
+   "group": "old/p12-ebpub",
+   "era": "old",
+   "shape": "d1S",
+   "family": "MoE small-M",
+   "iso_us": 0.5,
+   "layer_us": 0.0,
+   "layer_noise_us": 0.8,
+   "src": "c1d5a6f1: isolated M1 30.6->30.1; layer within +-1%"
+  },
+  {
+   "id": "ebpub-d1F",
+   "group": "old/p12-ebpub",
+   "era": "old",
+   "shape": "d1F",
+   "family": "MoE small-M",
+   "iso_us": 0.5,
+   "layer_us": 0.0,
+   "layer_noise_us": 0.8,
+   "src": "c1d5a6f1"
+  },
+  {
+   "id": "ebpub-v1S",
+   "group": "old/p12-ebpub",
+   "era": "old",
+   "shape": "v1S",
+   "family": "MoE small-M",
+   "pre_us": 1.25,
+   "iso_us": 0.3,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.2,
+   "src": "c1d5a6f1: M8 79.4 vs 79.7; pre = researcher R1 '0.5-2 us at bs8/16' midpoint"
+  },
+  {
+   "id": "ebpub-d16S",
+   "group": "old/p12-ebpub",
+   "era": "old",
+   "shape": "d16S",
+   "family": "MoE small-M",
+   "pre_us": 1.25,
+   "iso_us": -0.2,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.4,
+   "src": "c1d5a6f1: M16 109.4 vs 109.2"
+  },
+  {
+   "id": "hinterl-d32S",
+   "group": "old/p34-hinterl",
+   "era": "old",
+   "shape": "d32S",
+   "family": "MoE MAIN",
+   "iso_us": 1.5,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.6,
+   "flags": "approx",
+   "src": "a40cbaf0/a7efb0cd: diag MAIN -0.5..-1.7% (mid 1.1% of 137 us); check 'noise band'"
+  },
+  {
+   "id": "hinterl-v16S",
+   "group": "old/p34-hinterl",
+   "era": "old",
+   "shape": "v16S",
+   "family": "MoE MAIN",
+   "iso_us": 2.1,
+   "layer_us": 0.0,
+   "layer_noise_us": 2.5,
+   "flags": "approx",
+   "src": "same, 1.1% of 190 us"
+  },
+  {
+   "id": "hinterl-v32S",
+   "group": "old/p34-hinterl",
+   "era": "old",
+   "shape": "v32S",
+   "family": "MoE MAIN",
+   "iso_us": 2.6,
+   "layer_us": 0.0,
+   "layer_noise_us": 3.2,
+   "flags": "approx",
+   "src": "same, 1.1% of 238 us"
+  },
+  {
+   "id": "finreg-d32S",
+   "group": "old/p35-finreg",
+   "era": "old",
+   "shape": "d32S",
+   "family": "MoE MAIN",
+   "iso_us": 1.0,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.6,
+   "flags": "approx",
+   "src": "cba4891a: diag adds 0.5-1%; 'no per-shape change visible'"
+  },
+  {
+   "id": "finreg-v16S",
+   "group": "old/p35-finreg",
+   "era": "old",
+   "shape": "v16S",
+   "family": "MoE MAIN",
+   "iso_us": 1.4,
+   "layer_us": 0.0,
+   "layer_noise_us": 2.5,
+   "flags": "approx",
+   "src": "cba4891a"
+  },
+  {
+   "id": "finreg-v32S",
+   "group": "old/p35-finreg",
+   "era": "old",
+   "shape": "v32S",
+   "family": "MoE MAIN",
+   "iso_us": 1.8,
+   "layer_us": 0.0,
+   "layer_noise_us": 3.2,
+   "flags": "approx",
+   "src": "cba4891a"
+  },
+  {
+   "id": "norm1-d1S",
+   "group": "old/p3-norm",
+   "era": "old",
+   "shape": "d1S",
+   "family": "glue/norm PDL",
+   "iso_us": 2.1,
+   "layer_us": 0.3,
+   "layer_noise_us": 0.8,
+   "src": "f82e5ab8: unit norm->R2f -1.9/-2.3 us, whole layer -0.5/-0.1 (0.993/0.999)"
+  },
+  {
+   "id": "norm8-v1F",
+   "group": "old/p4-norm8",
+   "era": "old",
+   "shape": "v1F",
+   "family": "glue/norm PDL",
+   "iso_us": 1.3,
+   "layer_us": 2.1,
+   "layer_noise_us": 1.2,
+   "src": "d543da40: unit M8 norm->R2f -1.2/-1.4 us; layer M8 full -2.1/-2.1 (selected)"
+  },
+  {
+   "id": "norm8-d1S",
+   "group": "old/p4-norm8",
+   "era": "old",
+   "shape": "d1S",
+   "family": "glue/norm PDL",
+   "iso_us": 2.1,
+   "layer_us": 1.4,
+   "layer_noise_us": 0.8,
+   "src": "d543da40: layer M1 sliding -1.4/-1.4 (selected); iso from f82e5ab8 unit"
+  },
+  {
+   "id": "attnv-v16F",
+   "group": "old/p20-attnv",
+   "era": "old",
+   "shape": "v16F",
+   "family": "attention q8",
+   "pre_us": 2.4,
+   "iso_us": -27.7,
+   "layer_ratio": 1.085,
+   "src": "0898ae00: b16 q8 full 1.279/1.275 on attention (iso), layer 1.085; pre = researcher R2 '~0.4-1% Decode' (0.7% of 336)"
+  },
+  {
+   "id": "sfnfold-d1S",
+   "group": "old/p28-sfnfold",
+   "era": "old",
+   "shape": "d1S",
+   "family": "glue/finish",
+   "pre_us": 1.9,
+   "layer_us": 0.0,
+   "layer_noise_us": 0.8,
+   "src": "17ef7061: bit-exact fold, not selected at any shape; pre = removed _sl_cluster_finish 1.8-2.0 us (profile f2ab6d4c)"
+  },
+  {
+   "id": "sfnfold-d1F",
+   "group": "old/p28-sfnfold",
+   "era": "old",
+   "shape": "d1F",
+   "family": "glue/finish",
+   "pre_us": 1.9,
+   "layer_us": 0.0,
+   "layer_noise_us": 0.8,
+   "src": "17ef7061"
+  },
+  {
+   "id": "sfnfold-v1S",
+   "group": "old/p28-sfnfold",
+   "era": "old",
+   "shape": "v1S",
+   "family": "glue/finish",
+   "pre_us": 1.8,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.2,
+   "src": "17ef7061"
+  },
+  {
+   "id": "sfnfold-v1F",
+   "group": "old/p28-sfnfold",
+   "era": "old",
+   "shape": "v1F",
+   "family": "glue/finish",
+   "pre_us": 1.8,
+   "layer_us": 0.0,
+   "layer_noise_us": 1.2,
+   "src": "17ef7061"
+  },
+  {
+   "id": "wgs4-v16S-fit",
+   "group": "keell/7bae45c5-wgs4",
+   "era": "keell",
+   "shape": "v16S",
+   "family": "MoE MAIN",
+   "pre_us": 6.0,
+   "layer_ratio": 1.01,
+   "src": "7bae45c5: T=128 fit 1.0110/1.0089 (NEGATIVE CONTROL: model predicted 5-7 us earlier phase-B done)"
+  },
+  {
+   "id": "wgs4-v16S-half",
+   "group": "keell/7bae45c5-wgs4",
+   "era": "keell",
+   "shape": "v16S",
+   "family": "MoE MAIN",
+   "pre_us": 6.0,
+   "layer_ratio": 1.0047,
+   "src": "7bae45c5: T=128 half 1.0047/1.0046"
+  },
+  {
+   "id": "wgs4-v32S-fit",
+   "group": "keell/7bae45c5-wgs4",
+   "era": "keell",
+   "shape": "v32S",
+   "family": "MoE MAIN",
+   "pre_us": 6.0,
+   "layer_ratio": 1.0372,
+   "src": "7bae45c5: T=256 fit 1.0372/1.0373"
+  },
+  {
+   "id": "wgs4-v32S-half",
+   "group": "keell/7bae45c5-wgs4",
+   "era": "keell",
+   "shape": "v32S",
+   "family": "MoE MAIN",
+   "pre_us": 6.0,
+   "layer_ratio": 1.006,
+   "src": "7bae45c5: T=256 half 1.0040/1.0081"
+  },
+  {
+   "id": "curp-d32S",
+   "group": "keell/f2ab6d4c-curp",
+   "era": "keell",
+   "shape": "d32S",
+   "family": "dense qkv",
+   "iso_us": 0.8,
+   "layer_ratio": 0.9882,
+   "src": "f2ab6d4c: layer 0.98513/0.99118 (numerics rejected); iso = Dense-board qkv@32 CURP 0.956/0.967 x 21.1 us qkv kernel (profile)"
+  },
+  {
+   "id": "curp-d32F",
+   "group": "keell/f2ab6d4c-curp",
+   "era": "keell",
+   "shape": "d32F",
+   "family": "dense qkv",
+   "iso_us": 0.8,
+   "layer_ratio": 0.9934,
+   "src": "f2ab6d4c: 0.99130/0.99547"
+  },
+  {
+   "id": "curp-d16S",
+   "group": "keell/f2ab6d4c-curp",
+   "era": "keell",
+   "shape": "d16S",
+   "family": "dense qkv",
+   "iso_us": 0.4,
+   "layer_ratio": 0.9969,
+   "src": "f2ab6d4c: 0.99635/0.99748; iso = qkv@16 CURP confirm 0.976/0.985 x 18.5 us"
+  },
+  {
+   "id": "curp-d16F",
+   "group": "keell/f2ab6d4c-curp",
+   "era": "keell",
+   "shape": "d16F",
+   "family": "dense qkv",
+   "iso_us": 0.4,
+   "layer_ratio": 0.9988,
+   "src": "f2ab6d4c: 0.99826/0.99938"
+  },
+  {
+   "id": "pfy-v32S",
+   "group": "keell/afe3c0e2-pfy",
+   "era": "keell",
+   "shape": "v32S",
+   "family": "MoE MAIN",
+   "iso_us": 0.0,
+   "layer_ratio": 0.993,
+   "src": "afe3c0e2: v32S F 0.992/0.994; MoE-board P/F 0.999-1.004 = tie (iso 0)"
+  },
+  {
+   "id": "pfy-v32F",
+   "group": "keell/afe3c0e2-pfy",
+   "era": "keell",
+   "shape": "v32F",
+   "family": "MoE MAIN",
+   "iso_us": 0.0,
+   "layer_ratio": 0.995,
+   "src": "afe3c0e2: PF 0.995/0.995"
+  },
+  {
+   "id": "gle8-v1S",
+   "group": "keell/781d89f7-gle8",
+   "era": "keell",
+   "shape": "v1S",
+   "family": "glue/boundary",
+   "pre_us": 1.6,
+   "layer_ratio": 1.031,
+   "src": "781d89f7: removing the b1 launch; pre = H200_FACTS 'skipping one glue launch removes 1.2-2.0 us'; layer 1.031 slower"
+  },
+  {
+   "id": "gle8-v1F",
+   "group": "keell/781d89f7-gle8",
+   "era": "keell",
+   "shape": "v1F",
+   "family": "glue/boundary",
+   "pre_us": 1.6,
+   "layer_ratio": 1.026,
+   "src": "781d89f7: layer 1.026 slower"
+  },
+  {
+   "id": "rt-d32S",
+   "group": "keell/b3e93db2-rt",
+   "era": "keell",
+   "shape": "d32S",
+   "family": "route fusion",
+   "pre_us": 2.1,
+   "layer_ratio": 1.97,
+   "flags": "approx",
+   "src": "b3e93db2: routing in the pooler/router last CTA, d32S 1.95-1.99x slower; pre = removed _sl_tile_route 2.1 us (profile)"
+  },
+  {
+   "id": "rt-d32F",
+   "group": "keell/b3e93db2-rt",
+   "era": "keell",
+   "shape": "d32F",
+   "family": "route fusion",
+   "pre_us": 2.1,
+   "layer_ratio": 1.48,
+   "flags": "approx",
+   "src": "b3e93db2: d32F 1.47-1.49x slower"
+  },
+  {
+   "id": "pf-d1S",
+   "group": "keell/4dcc1d37-pf",
+   "era": "keell",
+   "shape": "d1S",
+   "family": "L2 prefetch",
+   "pre_us": 0.8,
+   "layer_ratio": 1.003,
+   "src": "4dcc1d37: o-weight L2 prefetch d1S 1.005/1.001; pre = best prior closed row (-0.8 us, attn_next/DEAD_ENDS)"
+  },
+  {
+   "id": "pf-v1S",
+   "group": "keell/4dcc1d37-pf",
+   "era": "keell",
+   "shape": "v1S",
+   "family": "L2 prefetch",
+   "pre_us": 0.8,
+   "layer_ratio": 1.0005,
+   "src": "4dcc1d37: v1S 1.001/1.000"
+  },
+  {
+   "id": "pf-d16S",
+   "group": "keell/4dcc1d37-pf",
+   "era": "keell",
+   "shape": "d16S",
+   "family": "L2 prefetch",
+   "pre_us": 0.8,
+   "layer_ratio": 1.002,
+   "src": "4dcc1d37: d16S 1.002"
+  },
+  {
+   "id": "pf-d32S",
+   "group": "keell/4dcc1d37-pf",
+   "era": "keell",
+   "shape": "d32S",
+   "family": "L2 prefetch",
+   "pre_us": 0.8,
+   "layer_ratio": 1.0,
+   "src": "4dcc1d37: d32S 1.000/0.9995"
+  },
+  {
+   "id": "wsi-v1S",
+   "group": "keell/7fd03cfa-wsi",
+   "era": "keell",
+   "shape": "v1S",
+   "family": "MoE small-M",
+   "iso_us": -2.1,
+   "layer_ratio": 1.0045,
+   "flags": "approx",
+   "src": "7fd03cfa: layer v1S 1.004/1.005; iso = 9061a264 W arm +2.7..+5.5% slower on bs8 (52.9 us)"
+  },
+  {
+   "id": "wsi-v1F",
+   "group": "keell/7fd03cfa-wsi",
+   "era": "keell",
+   "shape": "v1F",
+   "family": "MoE small-M",
+   "iso_us": -2.1,
+   "layer_ratio": 0.998,
+   "flags": "approx",
+   "src": "7fd03cfa: layer v1F 0.998 (base not repeatable there)"
+  },
+  {
+   "id": "gd-d1S",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "d1S",
+   "family": "dense GEMV",
+   "pre_us": 4.4,
+   "layer_ratio": 1.0185,
+   "flags": "approx",
+   "src": "8ffd6871 T=1 S: qkv:cg 1.0015 + un:cg 1.0170 (sum of per-projection ratios); claim = plan 4.4 us"
+  },
+  {
+   "id": "gd-d1F",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "d1F",
+   "family": "dense GEMV",
+   "pre_us": 4.4,
+   "layer_ratio": 1.019,
+   "flags": "approx",
+   "src": "8ffd6871 T=1 F: qkv:cg 1.0048 + un:cg 1.0143"
+  },
+  {
+   "id": "gd-v1S",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "v1S",
+   "family": "dense GEMV",
+   "pre_us": 2.4,
+   "layer_ratio": 1.008,
+   "flags": "approx",
+   "src": "8ffd6871 T=8 S: qkv:gv 1.008 + o:gv+pdl 1.005 + un:gv+pdl 0.9993; claim = plan 2.4 us"
+  },
+  {
+   "id": "gd-v1F",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "v1F",
+   "family": "dense GEMV",
+   "pre_us": 2.4,
+   "layer_ratio": 1.017,
+   "flags": "approx",
+   "src": "8ffd6871 T=8 F: qkv:gv 1.008 + o:gv+pdl 1.0077 + un:gv+pdl 1.001"
+  },
+  {
+   "id": "gd-d16S",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "d16S",
+   "family": "dense GEMV",
+   "pre_us": 3.5,
+   "layer_ratio": 1.0105,
+   "flags": "approx",
+   "src": "8ffd6871 T=16 S: o:gv+pdl 1.0105 (o:gv 1.022); claim = plan 3.5 us"
+  },
+  {
+   "id": "gd-d16F",
+   "group": "keell/8ffd6871-gd",
+   "era": "keell",
+   "shape": "d16F",
+   "family": "dense GEMV",
+   "pre_us": 3.5,
+   "layer_ratio": 1.0071,
+   "flags": "approx",
+   "src": "8ffd6871 T=16 F: o:gv+pdl 1.0071"
+  }
+ ],
+ "board_arms": [
+  {
+   "id": "vms1-bs16",
+   "group": "vms/it1",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": -1.5,
+   "src": "79687699: target 91.5->84; measured 92.1 vs 90.6 (1.006/1.015)"
+  },
+  {
+   "id": "vms1-bs32",
+   "group": "vms/it1",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -0.9,
+   "src": "79687699: target 121.6->112; measured 128.4 vs 127.5"
+  },
+  {
+   "id": "vms2-bs16",
+   "group": "vms/it2",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": -99.5,
+   "src": "74e3e792 NEGATIVE CONTROL: 190.4/191.5 vs 90.9"
+  },
+  {
+   "id": "vms2-bs32",
+   "group": "vms/it2",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -72.5,
+   "src": "74e3e792: 197-204 vs 128"
+  },
+  {
+   "id": "vms3-it1-bs16",
+   "group": "vms/it3-it1",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": -1.1,
+   "src": "4c5b2777 it1 arm 93.1 vs 92.0"
+  },
+  {
+   "id": "vms3-it1-bs32",
+   "group": "vms/it3-it1",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -1.3,
+   "src": "4c5b2777 it1 arm 130.6 vs 129.3"
+  },
+  {
+   "id": "vms3-fin-bs16",
+   "group": "vms/it3-fin",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": -3.2,
+   "src": "4c5b2777 fin arm 95.2 vs 92.0"
+  },
+  {
+   "id": "vms3-fin-bs32",
+   "group": "vms/it3-fin",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -4.7,
+   "src": "4c5b2777 fin arm ~134 vs 129.3"
+  },
+  {
+   "id": "vms3-tail-bs16",
+   "group": "vms/it3-tail",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": -97.0,
+   "src": "4c5b2777 fin+tail arm 189 vs 92"
+  },
+  {
+   "id": "vms3-tail-bs32",
+   "group": "vms/it3-tail",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -80.0,
+   "src": "4c5b2777 fin+tail arm 209 vs 129"
+  },
+  {
+   "id": "vms4-it1-bs16",
+   "group": "vms/it4-it1",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 1.6,
+   "src": "c5800fa6 (moe_vms4) arm it1: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-fin2-bs16",
+   "group": "vms/it4-fin2",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 2.2,
+   "src": "c5800fa6 (moe_vms4) arm fin2: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-w16-bs16",
+   "group": "vms/it4-w16",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 1.2,
+   "src": "c5800fa6 (moe_vms4) arm w16: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-w16fin2-bs16",
+   "group": "vms/it4-w16fin2",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 1.1,
+   "src": "c5800fa6 (moe_vms4) arm w16fin2: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-r4-bs16",
+   "group": "vms/it4-r4",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 1.7,
+   "src": "c5800fa6 (moe_vms4) arm r4: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-r4fin2-bs16",
+   "group": "vms/it4-r4fin2",
+   "shape": "bs16",
+   "pre_us": 7.5,
+   "iso_us": 2.5,
+   "src": "c5800fa6 (moe_vms4) arm r4fin2: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-it1-bs32",
+   "group": "vms/it4-it1",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -1.7,
+   "src": "c5800fa6 (moe_vms4) arm it1: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-fin2-bs32",
+   "group": "vms/it4-fin2",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -0.65,
+   "src": "c5800fa6 (moe_vms4) arm fin2: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-w16-bs32",
+   "group": "vms/it4-w16",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -1.4,
+   "src": "c5800fa6 (moe_vms4) arm w16: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  },
+  {
+   "id": "vms4-w16fin2-bs32",
+   "group": "vms/it4-w16fin2",
+   "shape": "bs32",
+   "pre_us": 9.6,
+   "iso_us": -1.3,
+   "src": "c5800fa6 (moe_vms4) arm w16fin2: mean of paired and median ratios x incumbent (98.3 us bs16 / 129.5 us bs32); paired and median disagree by ~3% at bs16"
+  }
+ ]
+}

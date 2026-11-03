@@ -1,0 +1,195 @@
+{
+ "_doc": "Curated lineage for Decode-board jobs (source: kb/ref/TRIED.md + origin/main:TRIED.md, board_best/BOARD_BEST.md). path = the code that actually ran in the timed region (a gated wrapper whose gate adopted 0 arms ran its parent's default path). kind: clean = judged measurement of a normal path; diag = harness/diagnostic job whose timed path is the default; withdrawn = score withdrawn by organizers/our rule (timings still valid measurements, flagged separately). group = revision group used for held-out splits.",
+ "jobs": {
+  "154b834f": {
+   "path": "old_p38",
+   "group": "old/p38",
+   "parent": null,
+   "kind": "clean",
+   "era": "old",
+   "note": "old lineage head decoder_p38_j0fix"
+  },
+  "cde2084a": {
+   "path": "keell",
+   "group": "keell-import",
+   "parent": null,
+   "kind": "clean",
+   "era": "keell",
+   "note": "keell0renz unchanged file, same-judge check"
+  },
+  "3bd3d93a": {
+   "path": "alygg",
+   "group": "alygg-import",
+   "parent": null,
+   "kind": "clean",
+   "era": "keell",
+   "note": "alygg77 unchanged file"
+  },
+  "1857a8ab": {
+   "path": "kb0",
+   "group": "kb0",
+   "parent": "cde2084a",
+   "kind": "clean",
+   "era": "keell",
+   "note": "keell + J0 guard only"
+  },
+  "2a45f597": {
+   "path": "kb1",
+   "group": "kb1",
+   "parent": "cde2084a",
+   "kind": "clean",
+   "era": "keell",
+   "note": "kb v1 = keell + J0 + ERL/HINT/FINREG"
+  },
+  "2ecb3de5": {
+   "path": "kb1",
+   "group": "kb1",
+   "parent": "2a45f597",
+   "kind": "clean",
+   "era": "keell",
+   "note": "kb v1 scored"
+  },
+  "aa9b9c16": {
+   "path": "kb1",
+   "group": "decode_ab32",
+   "parent": "kb1",
+   "kind": "diag",
+   "era": "keell",
+   "note": "ab32 diagnostic; production path = default"
+  },
+  "979a2ab5": {
+   "path": "kb1",
+   "group": "decode_prof",
+   "parent": "kb1",
+   "kind": "diag",
+   "era": "keell",
+   "note": "per-kernel profiler job; production path = default"
+  },
+  "26331ae5": {
+   "path": "kb1",
+   "group": "decode_attnport",
+   "parent": "kb1",
+   "kind": "withdrawn",
+   "era": "keell",
+   "note": "adopted 0/12; score withdrawn (readable-source rule)"
+  },
+  "f79f3879": {
+   "path": "kb1",
+   "group": "decode_chain",
+   "parent": "kb1",
+   "kind": "withdrawn",
+   "era": "keell",
+   "note": "adopted 0/8; score withdrawn"
+  },
+  "1ca0668a": {
+   "path": "kb1",
+   "group": "decode_v3",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/12; retained exact scored reference 2.2347"
+  },
+  "7fd03cfa": {
+   "path": "kb1",
+   "group": "decode_v3b",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/2"
+  },
+  "4dcc1d37": {
+   "path": "kb1",
+   "group": "decode_pf",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/4"
+  },
+  "781d89f7": {
+   "path": "kb1",
+   "group": "decode_gle8",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/2"
+  },
+  "afe3c0e2": {
+   "path": "kb1",
+   "group": "decode_pfy",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/12"
+  },
+  "89a7e977": {
+   "path": "kb1",
+   "group": "decode_edge",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/4 (cuGraphGetNodes error, all arms fell back)"
+  },
+  "b3e93db2": {
+   "path": "kb1",
+   "group": "decode_rt",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/6"
+  },
+  "f2ab6d4c": {
+   "path": "kb1",
+   "group": "decode_curp",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "adopted 0/4 (qkv CURP numerics rejected)"
+  },
+  "ff8f8f9c": {
+   "path": "kb1",
+   "group": "decode_wgs",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "harness failed before timing; default path"
+  },
+  "8b79f36a": {
+   "path": "kb1",
+   "group": "decode_wgs2",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "gate correct=0 before timing; default path"
+  },
+  "a8c7dd57": {
+   "path": "kb1",
+   "group": "decode_wgs3",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "gate repaired; default path"
+  },
+  "7bae45c5": {
+   "path": "kb1",
+   "group": "decode_wgs4",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "WGS tables slower in layer; adopted_T=[]; NEGATIVE CONTROL (predicted +5-7 us)"
+  },
+  "8ffd6871": {
+   "path": "kb1",
+   "group": "decode_gd",
+   "parent": "kb1",
+   "kind": "clean",
+   "era": "keell",
+   "note": "lane B dense GEMV gate: adopted=[] (every arm 1.00-1.025 slower or incorrect); NEGATIVE for claims 4.4/2.4/3.5 us"
+  }
+ },
+ "old_note": "Old-archive (cf36b14:experiments/top50/profiles) jobs are labelled by their pNN revision in the file name (group old/pNN, path old_pNN, parent = previous pNN). Archive scores 2.04-2.12 are on the pre-keell base; do not mix with keell-era timings except through the separate rebase test.",
+ "failed_jobs": {
+  "b0caa4c9": "decode_gd first check: prepare AssertionError, comment trim removed the '// router piece:' patch anchor (ledger); no timing; repaired as 8ffd6871",
+  "0b6a581c": "moe_vms2 build failure (vms_run 13 vs 16 tensors): incumbent only, repaired as 74e3e792 (MoE board job)",
+  "d588efd5": "duplicate submission (duplicate_of another job); no records"
+ }
+}

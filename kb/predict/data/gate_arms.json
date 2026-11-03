@@ -1,0 +1,20 @@
+{
+  "_doc": "In-prepare full-layer gate gains that were ADOPTED by a child job (so the judge timed them) vs the judge-measured per-shape delta parent->child. gate_us = mean of the two ABBA orders quoted in the ledger (positive = faster). parents = list of parent jobs (mean of their medians is the reference). Old-archive era (pre-keell). Parent assignment is from ledger text and is low-confidence where noted.",
+  "arms": [
+    {"id": "p1b-d1S", "child": "0ca71861", "parents": ["7abd8d0d"], "shape": "d1S", "gate_us": 4.35, "src": "p1b: M1 mask 15, whole-layer -4.0/-4.7 us"},
+    {"id": "p1b-d1F", "child": "0ca71861", "parents": ["7abd8d0d"], "shape": "d1F", "gate_us": 4.35, "src": "p1b"},
+    {"id": "p2-d1S", "child": "ac41a480", "parents": ["0ca71861"], "shape": "d1S", "gate_us": 5.0, "src": "p2: M1 sliding -4.9/-5.1"},
+    {"id": "p2-d1F", "child": "ac41a480", "parents": ["0ca71861"], "shape": "d1F", "gate_us": 6.65, "src": "p2: M1 full -6.4/-6.9"},
+    {"id": "p2-v1S", "child": "ac41a480", "parents": ["0ca71861"], "shape": "v1S", "gate_us": 2.15, "src": "p2: M8 sliding -1.5/-2.8"},
+    {"id": "p4-d1S", "child": "d543da40", "parents": ["f82e5ab8"], "shape": "d1S", "gate_us": 1.4, "src": "p4: M1 sliding mask 63 -1.4/-1.4"},
+    {"id": "p4-v1F", "child": "d543da40", "parents": ["f82e5ab8"], "shape": "v1F", "gate_us": 2.1, "src": "p4: M8 full mask 52 -2.1/-2.1"},
+    {"id": "p5b-d16S", "child": "831de9a6", "parents": ["ac41a480"], "shape": "d16S", "gate_us": 1.95, "src": "p5b: M16 sliding -2.1/-1.8"},
+    {"id": "p9-v1S", "child": "c5f34d4f", "parents": ["689fd93e", "0aa30c92"], "shape": "v1S", "gate_us": 2.9, "src": "p9: M8 sliding mask 18 -2.3/-3.5 (parent assignment low-confidence)"},
+    {"id": "p9-v1F", "child": "c5f34d4f", "parents": ["689fd93e", "0aa30c92"], "shape": "v1F", "gate_us": 4.85, "src": "p9: M8 full mask 19 -4.7/-5.0"},
+    {"id": "p25-d16S", "child": "a7836845", "parents": ["2cbdfa2a", "15e19cf8"], "shape": "d16S", "gate_us": 2.7, "src": "p25 sk2 PDL mask 528: M16 sliding 0.986/0.975 (parent low-confidence)"},
+    {"id": "p25-d16F", "child": "a7836845", "parents": ["2cbdfa2a", "15e19cf8"], "shape": "d16F", "gate_us": 2.7, "src": "p25: M16 full 0.988/0.987"},
+    {"id": "p25-d32S", "child": "a7836845", "parents": ["2cbdfa2a", "15e19cf8"], "shape": "d32S", "gate_us": 2.2, "src": "p25: M32 sliding 0.988/0.985"},
+    {"id": "p32-d16S", "child": "ba1e91bb", "parents": ["a7836845"], "shape": "d16S", "gate_us": 1.6, "src": "p32: M16 sliding 0.989/0.988"},
+    {"id": "p32-d32S", "child": "ba1e91bb", "parents": ["a7836845"], "shape": "d32S", "gate_us": 1.9, "src": "p32: M32 sliding 0.989/0.988"}
+  ]
+}
