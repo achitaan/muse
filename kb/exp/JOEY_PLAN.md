@@ -67,4 +67,5 @@ Budget cap $800 (stop starting lanes at $750). Checks: 20/board/day, scored 10/b
 ## Iteration log
 | # | Lane | Job | Result | Next |
 |---|---|---|---|---|
-| 1 | A VMS/VML | 79687699 (MoE board check; commit b16d63f) | pending: 77/101 regs, 0 spills, 164/214 KB smem (NVRTC) | read gate: adopt bs16/bs32? |
+| 1 | A VMS/VML | 79687699 (MoE board check; commit b16d63f) | correct (err 2.6e-3) but tie: bs16 1.006/1.015 (90.6 vs 92.1 us), bs32 ~1.00-1.01; phases bs16 A 61.1 / B 36.5 / fin 8.6 us (serial 106, PDL hides 14) | iter 2: parallel finalizer, balanced tail, L2 prefetch |
+| 2 | A VMS/VML | 0b6a581c (commit 216c53a) | pending; fin moved into B epilogue + 64-128 CTA finalizer, tail tasks split by K slice, B L2 prefetch | - |
