@@ -72,3 +72,16 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 | 2b | A VMS/VML | 74e3e792 (commit f90637d) | correct but 2x slower: bs16 191 vs 90.9 us (A 125.5, B 69.1, fin 6.5); only finalizer helped | step back: ablation arms |
 | 3 | A VMS/VML | 4c5b2777 (commit bc2a25a) | pending: arms it1 / fin / fin+tail / fin+pf2 / fin+pf0 + code/scale entropy diag | pick best arm, then fix the regressing lever |
 | B1 | B Dense GEMVs in Decode | (building, decode_gd.py) | - | - |
+
+## Extra ideas list (kb/exp/IDEAS_predictor_prompt.md, added Nov 3)
+Source: user's Codex prompt. Items to look into (offline first, no GPU spend):
+- Score tool kb/muse_score.py (done): replays judge records exactly (--backtest: 79 jobs, 0 mismatches) and answers what-ifs (--save-us SHAPE=US, --scale SHAPE=F).
+  Anchors from 1ca0668a (2.2347): d16 -10/-8 us -> 2.2597; dense lane (d1 4.4, v1 2.4, d16 3.5) + VMS d16 -> 2.3037;
+  uniform -3/-5/-8 us per layer on all 12 shapes -> 2.284 / 2.318 / 2.372. Target 2.37 needs ~8 us/layer everywhere.
+- "Chase": use the tool to pick the experiment with the largest predicted score gain per check, and re-rank after every result.
+- Predictor: pre-measurement features (touched stage, bytes, tiles, split-K, overlap) vs post-A/B forecast; zero- vs full-transfer
+  baselines; held-out by revision group; negative controls (7bae45c5: predicted 5-7 us, measured regression).
+- Feasibility filter before ranking (smem/regs/precision), enumerate one-change neighbors of existing kernels.
+- Lessons to apply: standalone wins often vanish after integration (Anshul 6/7); per-SM timelines and same-codegen controls (Keell);
+  decode win can coexist with verify collapse (Anvith); break a counter reset to expose false passes (Sapalidis).
+- Check whether the verify-32 sliding one-head attention win transfers to Decode (limited coverage; size it with the tool first).
