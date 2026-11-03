@@ -7818,6 +7818,7 @@ sk2_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__
   }
   if (pdl) asm volatile("griddepcontrol.launch_dependents;" ::: "memory");   // the next kernel may start its prologue
   if constexpr (FUSE) {
+    // router piece:
     float accr[2][MT][4];
 #pragma unroll
     for (int h = 0; h < 2; ++h)
