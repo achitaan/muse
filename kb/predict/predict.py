@@ -21,6 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 KB = os.path.dirname(HERE)
 sys.path.insert(0, KB)
 import muse_score as ms  # noqa: E402
+import muse_score_ref as REF  # noqa: E402  (user's tool: HISTORY, CONTROLS)
 
 DATA = os.path.join(HERE, "data")
 ARCHIVE_COMMIT = "cf36b14"
@@ -284,7 +285,30 @@ def noise_stats(jobs):
     return kb1, stat
 
 
+def band():
+    v = list(REF.CONTROLS.values())
+    return dict(med=st.median(v), lo=min(v), hi=max(v), width=max(v) - min(v))
+
+
 def cmd_noise(jobs):
+    b = band()
+    say("== NOISE BAND (user's CONTROLS, kb/muse_score_ref.py): 7 distinct unchanged-path checks ==")
+    say(f"median {b['med']:.4f}, range [{b['lo']:.4f}, {b['hi']:.4f}] (width {b['width']:.4f} = {b['width'] / b['med'] * 100:.2f}%). This band is used in the CHASE ranking.")
+    idx = {o['id']: o for o in jobs}
+    miss = [k for k in REF.CONTROLS if k not in idx]
+    dif = [abs(idx[k]['score'] - v) for k, v in REF.CONTROLS.items() if k in idx]
+    say(f"cross-check: {len(dif)}/7 CONTROLS jobs found in saved runs, max |replayed - CONTROLS| = {max(dif):.1e}" + (f", missing {miss}" if miss else ""))
+    arch = {o['id']: o for o in jobs if o['fmt'] == 'old'}
+    ok = n = 0
+    for rev, jid, d16, v1, tot in REF.HISTORY:
+        o = arch.get(jid[:8])
+        if o:
+            n += 1
+            ok += abs(o['score'] - tot) < 1e-6
+    say(f"cross-check: REF.HISTORY {len(REF.HISTORY)} jobs, {n} matched to my old-archive replay, {ok} agree on overall score to 1e-6 (rest are in HISTORY only or filtered)")
+    sc_h = [t for *_, t in REF.HISTORY]
+    say(f"HISTORY (old lineage) score mean {st.mean(sc_h):.4f} sd {st.stdev(sc_h):.4f} range [{min(sc_h):.4f}, {max(sc_h):.4f}]")
+    say("(finer cohort below: all 19 same-path jobs I could replay, includes diagnostics and withdrawn rows; its range is a superset of CONTROLS)")
     kb1, stat = noise_stats(jobs)
     sc = [o["score"] for o in kb1]
     say("== NOISE FLOOR: identical default path (kb v1; every gated wrapper whose gate adopted 0 arms ran this code) ==")
@@ -643,6 +667,8 @@ def cmd_chase(tres):
     say("== CHASE: ranked by expected score gain per check ==")
     say(f"anchor {ANCHOR} = {a['score']:.4f}. gross = design/ledger claim; cap = documented headroom (floor); net_full = min(gross,cap) (full transfer, ceiling);")
     say("net_hat = shrunk slope of the claim's evidence class (see TRANSFER/GATE; clipped to [0,1]); hit = empirical rate (k+1)/(n+2) that a claim of that class realised >=50% of itself.")
+    bd = band()
+    say(f"Noise band = user CONTROLS range {bd['width']:.4f} (half-width {bd['width'] / 2:.4f}): a gain below the half-width cannot be told apart from a same-code job in ONE judged score.")
     say("E[gain/check] = hit * (score_full - anchor) / checks. 'Conditional' score = score if the claim materialises at full transfer.")
     say("")
     rows = []
@@ -677,6 +703,9 @@ def cmd_chase(tres):
         say(f"    net_hat us per shape (class slope b={r['b']:.2f}): " + " ".join(f"{s}:{v * r['b']:.2f}" for s, v in r["g"].items()) + f"   ceiling (net=cap) score {r['ceil']:.4f}")
         say(f"    conditional score {r['full']:.4f} (+{r['full'] - a['score']:.4f}); at class slope b={r['b']:.2f}: {r['hat']:.4f} (+{r['hat'] - a['score']:.4f}); "
             f"checks {k['checks']}; hit {r['hit']:.2f}; E[gain/check] {r['egain']:.5f} (optimistic flat hit=0.25: {r['ealt']:.5f})")
+        bw = bd["width"]
+        say(f"    vs CONTROLS band: conditional gain {r['full'] - a['score']:.4f} = {(r['full'] - a['score']) / bw:.2f} x band width; ceiling {r['ceil'] - a['score']:.4f} = {(r['ceil'] - a['score']) / bw:.1f} x"
+            + ("  -> INSIDE the band (judged score cannot confirm it; only the in-prepare gate can)" if (r['full'] - a['score']) < bw / 2 else "  -> above band half-width"))
         say(f"    evidence [{k['evidence']}]: {k['evidence_text']}")
         say(f"    kill: {k['kill']}")
     return rows
