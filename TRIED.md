@@ -98,6 +98,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Own top-8 PDL routing kernel (_RF finalize math) replacing SGLang routing at 9-256 tokens, judge-semantics admission | closed | admitted (weights rel<=4.8e-7, ids equal except 1 exact tie) but producer+routing unit chain slower by 2.4-3.1 us at T=16/32/128/256 in both orders; SGLang's routing kernel is already fast; none of 12 candidate formulas reproduce SGLang weights bit-exactly | `e057dc9d` | experiments/top50/decoder_p8_topk.py (decode-next) | Oct 31 |
 | Enable sk2 (fused pooler/router at 9-32 tok) PDL: 2 weight stages before griddepcontrol.wait (existing sk2_set_pdl, default 0), mask 512 with glue PDL at M16/M32 | kept | check 2.1107x (best check); selected mask 528 at M16 sliding (0.986/0.975), M16 full (0.988/0.987), M32 sliding (0.988/0.985); judge d32 full 298.5 vs ~314 us | `a7836845` | experiments/top50/decoder_p25_sk2pdl.py (decode-next) | Oct 31 |
 | CHECK-ONLY routing-tolerance policy: drop near-tie (<=0.022 above 9th) local routes to eliminate low-count experts within route/distinct budgets, T<=32; pending organizer ruling | closed | dropped by user before any check: deliberately skipping near-tie experts may count as gaming the workload under AGENTS.md review; no organizer channel found to confirm. Partial file deleted, never committed or submitted | - | - | Nov 02 |
+| Top-k folded into the router at 16-256 tokens | closed | not built: upper bound below the gate. Judge profile f2ab6d4c: the whole separate route kernel (_graft_route) is 2.8 us of 252 us at v16S (1.1%) and 3.8 of 311 us at v32S (1.2%); removing it entirely is <= the 1.2% in-layer gate, ~0.3% board at best. The same fusion at T=8/16/32 (pooler/router last-CTA tail, b3e93db2) was 2x slower because the tail serialises | `f2ab6d4c, b3e93db2` | kb/exp/profiles/decode_curp.f2ab6d4c6ba74769.txt | Nov 02 |
 
 ## qkv / o / unpooler projections
 
@@ -196,7 +197,6 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | PDL for stock norm / `_sfn` / `_pn` / `routing_kernel` | open (not tried) | - | - | `_PDLI_NORM_THREADS = []` | Oct 31 |
-| Top-k folded into the router at 16-256 tokens | open (not tried) | - | - | RESEARCH_20261031.md | Oct 31 |
 | MoE readiness flags at 32+ tokens | open (not tried) | tail 5.8-8.8 us | - | RESEARCH_20261031.md | Oct 31 |
 | MoE PDL as a per-call okc_run argument instead of the process-global okc_set_pdl scope (reviewer major; thread-safety) | open (not tried) | needs C++ ABI change in packed MoE source; current scope safe while MoE runs on one thread | - | experiments/top50/decoder_p6_final.py ~478, ~7111 (decode-next) | Oct 31 |
 
