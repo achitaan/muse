@@ -69,4 +69,6 @@ Budget cap $1000 (stop starting lanes at $950). Checks: 20/board/day, scored 10/
 |---|---|---|---|---|
 | 1 | A VMS/VML | 79687699 (MoE board check; commit b16d63f) | correct (err 2.6e-3) but tie: bs16 1.006/1.015 (90.6 vs 92.1 us), bs32 ~1.00-1.01; phases bs16 A 61.1 / B 36.5 / fin 8.6 us (serial 106, PDL hides 14) | iter 2: parallel finalizer, balanced tail, L2 prefetch |
 | 2 | A VMS/VML | 0b6a581c (commit 216c53a) | build failed: stale vms_run declaration (13 vs 16 tensors), incumbent only (2.3842) | fixed f90637d |
-| 2b | A VMS/VML | 74e3e792 (commit f90637d) | pending | if bs16 wins -> submit decode_vms.py (55f3402, T=16/32 switch, full-layer gate); todo: PDL-attach vms_A (gdc_wait before reading x/ids/tw) to keep route->MoE overlap in Decode |
+| 2b | A VMS/VML | 74e3e792 (commit f90637d) | correct but 2x slower: bs16 191 vs 90.9 us (A 125.5, B 69.1, fin 6.5); only finalizer helped | step back: ablation arms |
+| 3 | A VMS/VML | 4c5b2777 (commit bc2a25a) | pending: arms it1 / fin / fin+tail / fin+pf2 / fin+pf0 + code/scale entropy diag | pick best arm, then fix the regressing lever |
+| B1 | B Dense GEMVs in Decode | (building, decode_gd.py) | - | - |
