@@ -1,0 +1,36 @@
+device-preflight.cu(1513): warning #177-D: variable "ce" was declared but never referenced
+      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+                                             ^
+          detected during:
+            instantiation of "void fs2_tiny2::run_phase<PB,BIG>(const fs2_tiny2::Params &, fs2_tiny2::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2459
+            instantiation of "void fs2_tiny2::moe_fused<BIG>(fs2_tiny2::Params) [with BIG=false]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(167): warning #177-D: variable "fs2_tiny2::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+device-preflight.cu(174): warning #177-D: variable "fs2_tiny2::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+device-preflight.cu(555): warning #177-D: variable "fs2_tiny2::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+device-preflight.cu(965): warning #177-D: variable "fs2_tiny2::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+ptxas info    : 112 bytes gmem
+ptxas info    : Compiling entry function '_ZN9fs2_tiny29moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN9fs2_tiny29moe_fusedILb1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 146 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN9fs2_tiny29moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN9fs2_tiny29moe_fusedILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 146 registers, used 3 barriers
+ptxas info    : Compile time = 0.000 ms

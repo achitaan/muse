@@ -1,0 +1,127 @@
+{
+  "flags": [
+    "--gpu-architecture=sm_90a",
+    "--std=c++20",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--ptxas-options=-v",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+    "-DOKC_NS=3",
+    "-DOKC_NSF=3"
+  ],
+  "results": [
+    {
+      "kind": "TINY",
+      "seconds": 1.7179999999934807,
+      "resource": [
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 146 registers, used 3 barriers",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 146 registers, used 3 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 344,
+      "STS": 216,
+      "RED": 0
+    },
+    {
+      "kind": "TINY2",
+      "seconds": 1.5469999999040738,
+      "resource": [
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 146 registers, used 3 barriers",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 146 registers, used 3 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 344,
+      "STS": 216,
+      "RED": 0
+    },
+    {
+      "kind": "FS",
+      "seconds": 1.25,
+      "resource": [
+        "ptxas         .     80 bytes stack frame, 112 bytes spill stores, 128 bytes spill loads",
+        "ptxas info    : Used 168 registers, used 2 barriers, 80 bytes cumulative stack size",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 151 registers, used 2 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 557,
+      "STS": 298,
+      "RED": 78
+    },
+    {
+      "kind": "NOB",
+      "seconds": 0.5619999999180436,
+      "resource": [
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 140 registers, used 2 barriers",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 140 registers, used 2 barriers"
+      ],
+      "HMMA": 64,
+      "LDS": 76,
+      "STS": 94,
+      "RED": 0
+    },
+    {
+      "kind": "NOFLUSH",
+      "seconds": 1.1400000000139698,
+      "resource": [
+        "ptxas         .     48 bytes stack frame, 88 bytes spill stores, 96 bytes spill loads",
+        "ptxas info    : Used 168 registers, used 2 barriers, 48 bytes cumulative stack size",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 143 registers, used 2 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 542,
+      "STS": 344,
+      "RED": 0
+    },
+    {
+      "kind": "NOA",
+      "seconds": 0.984000000054948,
+      "resource": [
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 167 registers, used 2 barriers",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 110 registers, used 2 barriers"
+      ],
+      "HMMA": 64,
+      "LDS": 559,
+      "STS": 304,
+      "RED": 78
+    },
+    {
+      "kind": "NOACC",
+      "seconds": 1.0469999999040738,
+      "resource": [
+        "ptxas         .     64 bytes stack frame, 88 bytes spill stores, 104 bytes spill loads",
+        "ptxas info    : Used 168 registers, used 2 barriers, 64 bytes cumulative stack size",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 148 registers, used 2 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 301,
+      "STS": 44,
+      "RED": 78
+    },
+    {
+      "kind": "TL",
+      "seconds": 1.2030000000959262,
+      "resource": [
+        "ptxas         .     120 bytes stack frame, 192 bytes spill stores, 244 bytes spill loads",
+        "ptxas info    : Used 168 registers, used 2 barriers, 120 bytes cumulative stack size",
+        "ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+        "ptxas info    : Used 159 registers, used 2 barriers"
+      ],
+      "HMMA": 128,
+      "LDS": 565,
+      "STS": 298,
+      "RED": 78
+    }
+  ]
+}

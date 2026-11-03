@@ -1,0 +1,47 @@
+[
+  {
+    "name": "TINY",
+    "rc": 0,
+    "seconds": 1.547000000020489,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++17",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3"
+    ]
+  },
+  {
+    "name": "TINY2",
+    "rc": 0,
+    "seconds": 1.577999999979511,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++17",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3"
+    ]
+  },
+  {
+    "name": "FS",
+    "rc": 0,
+    "seconds": 1.3599999999860302,
+    "flags": [
+      "--gpu-architecture=sm_90a",
+      "--std=c++17",
+      "--device-as-default-execution-space",
+      "--ptxas-options=-v",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+      "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3"
+    ]
+  }
+]

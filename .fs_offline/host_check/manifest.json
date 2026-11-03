@@ -1,0 +1,14 @@
+{
+  "experiments\\boards\\moe\\moe_fs1.py": {
+    "bytes": 211792,
+    "sha256": "1e8b87610b13ac77dbc44769bfd76b892a690170eeb91aedb0c739a5539e7116"
+  },
+  "experiments\\boards\\diag\\fsdiag.py": {
+    "bytes": 84748,
+    "sha256": "5fa0d01ba81fb2e1f78994776cab7070716a0520e2a30f5ee67be3dda2568cbf"
+  },
+  "experiments\\boards\\diag\\fsdiag2.py": {
+    "bytes": 101442,
+    "sha256": "4ea0ccc44d9fd1f47f31d719b796215f7601449bd1b53263aface758a8ef2c4f"
+  }
+}

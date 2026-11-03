@@ -1,0 +1,61 @@
+FS2_INFO device='MOCK' reps=40 flush_MiB=256 FS=1e8b87610b13 TUs=8
+FS2_NOTE NOB=no_B_math/acc/flush; NOFLUSH=red_add_to_volatile_shared_sink; NOA=no_A_math_volatile_x/weight_loads; NOACC=shared_y_add_to_register_checksum_keep_upper/MMA; all_keep_TMA/clear/barrier/finalizer; ablations_not_correct_outputs
+FS2_BUILD seconds=0.00
+FS2_RES TINY [151, 168, 0, 80, 218752]
+FS2_RES TINY2 [151, 168, 0, 80, 218752]
+FS2_RES FS [151, 168, 0, 80, 218752]
+FS2_RES NOB [151, 168, 0, 80, 218752]
+FS2_RES NOFLUSH [151, 168, 0, 80, 218752]
+FS2_RES NOA [151, 168, 0, 80, 218752]
+FS2_RES NOACC [151, 168, 0, 80, 218752]
+FS2_RES TL [151, 168, 0, 80, 218752]
+FS2_CASE R1 cnt=3:1,15:1,28:1
+FS2_CHECK R1 FS L2=0 row=0 ok=1
+FS2_CHECK R1 TL L2=0 row=0 ok=1
+FS2_CASE R8 cnt=1:3,3:1,5:1,6:1,7:3,12:1,30:1,31:1
+FS2_CHECK R8 FS L2=0 row=0 ok=1
+FS2_CHECK R8 TL L2=0 row=0 ok=1
+FS2_TL_NOTE us=min/med/max_over_CTAs_from_first_entry; task=q:A_done,B_done; Wfull=consumer_observed_after_clear/x; flush_to_bar_includes_fence; TL_perturbs_no_new_CTA_barriers
+FS2_TIME R1 p=1 BASE med=10.000 min=9.000
+FS2_TIME R1 p=1 FS med=10.000 min=9.000
+FS2_TIME R1 p=1 NOB med=10.000 min=9.000
+FS2_TIME R1 p=1 NOFLUSH med=10.000 min=9.000
+FS2_TIME R1 p=1 NOA med=10.000 min=9.000
+FS2_TIME R1 p=1 NOACC med=10.000 min=9.000
+FS2_TL R1 p=1 tasks=1.00/1.00/1.00 entry=0.00/0.66/1.31 route=2.00/2.66/3.31 Wfull=4.00/4.66/5.31 flush0=8.00/8.66/9.31 flushN=10.00/10.66/11.31 barout=11.00/11.66/12.31 exit=14.00/14.66/15.31 segments=0:8.00/8.66/9.31,10.00/10.66/11.31 tail_active=3.00/3.00/3.00 Bsum=2.00/2.00/2.00 flushsum=2.00/2.00/2.00 flush_to_bar=1.00/1.00/1.00 L2=0
+FS2_TASK R1 p=1 0:6.00/6.66/7.31,8.00/8.66/9.31
+FS2_TIME R8 p=1 BASE med=10.000 min=9.000
+FS2_TIME R8 p=1 FS med=10.000 min=9.000
+FS2_TIME R8 p=1 NOB med=10.000 min=9.000
+FS2_TIME R8 p=1 NOFLUSH med=10.000 min=9.000
+FS2_TIME R8 p=1 NOA med=10.000 min=9.000
+FS2_TIME R8 p=1 NOACC med=10.000 min=9.000
+FS2_TL R8 p=1 tasks=1.00/1.00/1.00 entry=0.00/0.66/1.31 route=2.00/2.66/3.31 Wfull=4.00/4.66/5.31 flush0=8.00/8.66/9.31 flushN=10.00/10.66/11.31 barout=11.00/11.66/12.31 exit=14.00/14.66/15.31 segments=0:8.00/8.66/9.31,10.00/10.66/11.31 tail_active=3.00/3.00/3.00 Bsum=2.00/2.00/2.00 flushsum=2.00/2.00/2.00 flush_to_bar=1.00/1.00/1.00 L2=0
+FS2_TASK R8 p=1 0:6.00/6.66/7.31,8.00/8.66/9.31
+FS2_TIME R8 p=2 NOACC med=10.000 min=9.000
+FS2_TIME R8 p=2 NOA med=10.000 min=9.000
+FS2_TIME R8 p=2 NOFLUSH med=10.000 min=9.000
+FS2_TIME R8 p=2 NOB med=10.000 min=9.000
+FS2_TIME R8 p=2 FS med=10.000 min=9.000
+FS2_TIME R8 p=2 BASE med=10.000 min=9.000
+FS2_TL R8 p=2 tasks=1.00/1.00/1.00 entry=0.00/0.66/1.31 route=2.00/2.66/3.31 Wfull=4.00/4.66/5.31 flush0=8.00/8.66/9.31 flushN=10.00/10.66/11.31 barout=11.00/11.66/12.31 exit=14.00/14.66/15.31 segments=0:8.00/8.66/9.31,10.00/10.66/11.31 tail_active=3.00/3.00/3.00 Bsum=2.00/2.00/2.00 flushsum=2.00/2.00/2.00 flush_to_bar=1.00/1.00/1.00 L2=0
+FS2_TASK R8 p=2 0:6.00/6.66/7.31,8.00/8.66/9.31
+FS2_TIME R1 p=2 NOACC med=10.000 min=9.000
+FS2_TIME R1 p=2 NOA med=10.000 min=9.000
+FS2_TIME R1 p=2 NOFLUSH med=10.000 min=9.000
+FS2_TIME R1 p=2 NOB med=10.000 min=9.000
+FS2_TIME R1 p=2 FS med=10.000 min=9.000
+FS2_TIME R1 p=2 BASE med=10.000 min=9.000
+FS2_TL R1 p=2 tasks=1.00/1.00/1.00 entry=0.00/0.66/1.31 route=2.00/2.66/3.31 Wfull=4.00/4.66/5.31 flush0=8.00/8.66/9.31 flushN=10.00/10.66/11.31 barout=11.00/11.66/12.31 exit=14.00/14.66/15.31 segments=0:8.00/8.66/9.31,10.00/10.66/11.31 tail_active=3.00/3.00/3.00 Bsum=2.00/2.00/2.00 flushsum=2.00/2.00/2.00 flush_to_bar=1.00/1.00/1.00 L2=0
+FS2_TASK R1 p=2 0:6.00/6.66/7.31,8.00/8.66/9.31
+FS2_RATIO R1 BASE/FS=1.0000/1.0000
+FS2_RATIO R1 NOB/FS=1.0000/1.0000
+FS2_RATIO R1 NOFLUSH/FS=1.0000/1.0000
+FS2_RATIO R1 NOA/FS=1.0000/1.0000
+FS2_RATIO R1 NOACC/FS=1.0000/1.0000
+FS2_RATIO R8 BASE/FS=1.0000/1.0000
+FS2_RATIO R8 NOB/FS=1.0000/1.0000
+FS2_RATIO R8 NOFLUSH/FS=1.0000/1.0000
+FS2_RATIO R8 NOA/FS=1.0000/1.0000
+FS2_RATIO R8 NOACC/FS=1.0000/1.0000
+FS2_DONE seconds=0.72

@@ -1,0 +1,14 @@
+{
+  "rc": 0,
+  "seconds": 1.125,
+  "flags": [
+    "--gpu-architecture=sm_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--ptxas-options=-v",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include",
+    "--include-path=C:\\Users\\Achita\\Documents\\ChatGPT\\Muse 2\\.tools\\cuda-compiler-13.0\\nvidia\\cu13\\include\\cccl"
+  ],
+  "device_sha256": "ebb9c8d03c61875ca8d639beb8345ee0d21a36596e9943904a8d047c4c5c2eb2"
+}

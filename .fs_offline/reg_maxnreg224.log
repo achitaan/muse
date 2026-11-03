@@ -1,0 +1,17 @@
+device-preflight.cu(5): warning #177-D: variable "fs::NTL" was declared but never referenced
+  constexpr int HD=4096, STAGE=36864, NS=4, NT=256, NTL=288;
+                                                    ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ptxas info    : 36 bytes gmem
+ptxas info    : Compiling entry function '_ZN2fs6kernelILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN2fs6kernelILb1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 224 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN2fs6kernelILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN2fs6kernelILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 151 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms

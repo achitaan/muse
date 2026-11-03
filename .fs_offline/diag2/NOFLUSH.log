@@ -1,0 +1,21 @@
+device-preflight.cu(304): warning #177-D: variable "dst" was declared but never referenced
+        float* dst=y+((size_t)e*8+S.tokens[e][i/HD])*HD+i%HD;
+               ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(316): warning #177-D: variable "dst" was declared but never referenced
+            float* dst=y+((size_t)e*8+S.tokens[e][4+t])*HD+row;
+                   ^
+
+ptxas info    : 36 bytes gmem
+ptxas info    : Compiling entry function '_ZN11fs2_noflush6kernelILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN11fs2_noflush6kernelILb1EEEvNS_6ParamsE
+ptxas         .     48 bytes stack frame, 88 bytes spill stores, 96 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 48 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN11fs2_noflush6kernelILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN11fs2_noflush6kernelILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 143 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms

@@ -1,0 +1,11 @@
+ptxas info    : 36 bytes gmem
+ptxas info    : Compiling entry function '_ZN6fs2_fs6kernelILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6fs2_fs6kernelILb1EEEvNS_6ParamsE
+ptxas         .     80 bytes stack frame, 112 bytes spill stores, 128 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 80 bytes cumulative stack size
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN6fs2_fs6kernelILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6fs2_fs6kernelILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 151 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms

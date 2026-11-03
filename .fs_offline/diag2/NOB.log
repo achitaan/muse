@@ -1,0 +1,29 @@
+device-preflight.cu(254): warning #177-D: variable "slot" was declared but never referenced
+        const unsigned char* slot=ring+sl*STAGE;
+                             ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+device-preflight.cu(303): warning #177-D: variable "z" was declared but never referenced
+        float4 z=*reinterpret_cast<float4*>(acc+i);
+               ^
+
+device-preflight.cu(304): warning #177-D: variable "dst" was declared but never referenced
+        float* dst=y+((size_t)e*8+S.tokens[e][i/HD])*HD+i%HD;
+               ^
+
+device-preflight.cu(316): warning #177-D: variable "dst" was declared but never referenced
+            float* dst=y+((size_t)e*8+S.tokens[e][4+t])*HD+row;
+                   ^
+
+ptxas info    : 36 bytes gmem
+ptxas info    : Compiling entry function '_ZN7fs2_nob6kernelILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN7fs2_nob6kernelILb1EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 140 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms
+ptxas info    : Compiling entry function '_ZN7fs2_nob6kernelILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN7fs2_nob6kernelILb0EEEvNS_6ParamsE
+ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 140 registers, used 2 barriers
+ptxas info    : Compile time = 0.000 ms
