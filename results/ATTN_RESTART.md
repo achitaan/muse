@@ -1,6 +1,8 @@
 # Attention restart — offline candidate, not a measured win
 
-**Check file:** `/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/candidates/attention_restart.py`
+**Recommended check file (v2):** `/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/candidates/attention_restart_v2.py`
+
+**Preserved v1 file:** `/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/candidates/attention_restart.py` (unchanged, SHA256 `519527b6325373d56751ecd9f8a224860d27550078d958e46b1a14710688c4c1`).
 
 Branch: `loop/attn-restart`, starting at `63e253f`. No check, scored run, push, or change to another worktree was made.
 
@@ -105,3 +107,19 @@ Evidence: `attn_restart_cpu.json`, `attn_restart_cuda_syntax.json`, `attn_restar
 The next action is one parent-owned OKC **check** of the exact file above. Inspect `RR search/confirm/summary` diagnostics, compiler errors, spills, and actual selected cells. There may be **zero adoptions**; no GPU speedup is claimed. Real-header/SM90a compilation, acquire/release visibility, resource occupancy, FP8 MMA instruction support, graph-capture behavior, rounding and performance remain GPU validation risks. First use on a previously unseen stream during capture may add scratch-counter initialization; the performance impact is not known. As with the incumbent's persistent scratch, concurrently replaying graphs sharing a scratch allocation is not supported; distinct preparation/current streams receive distinct restart workspaces.
 
 Ledger: a local branch-only `TRIED.md` row records this attempt. The discovered ledger helper pushes directly to main, so it was deliberately **not used to add a row**, respecting the task's explicit no-main/no-push constraint. The parent should reconcile the shared ledger before spending a check.
+
+## V2: researcher follow-up, separate candidate
+
+V2 keeps v1 intact and adds two independently gated design arms, taking advantage of the clarified reduced-precision-partial rule. It retains FP32 PV accumulation and does **not** touch the other session's FP16-PV work.
+
+1. **256-key ping-pong gather, 64-key compute microtiles.** Two 64-KiB K/V slots occupy ~140.1 KiB with Q/new-KV/RoPE storage; this permits one CTA/SM. Four consecutive 64-key score/PV steps consume each gather without intervening CTA barriers. The score array remains at most 32 FP32 registers/thread, rather than expanding to 128 score registers for a 256-key computation. The next 256-key gather runs asynchronously in the other slot. The planner accordingly measures one-wave and two-wave split populations for this larger footprint. Random pages are still gathered individually; no contiguous-physical-page assumption was introduced.
+
+2. **Normalized FP16 split means, FP32 statistics.** Store `mean_i = fp16(O_i / l_i)`, with `(m_i,l_i)` retained in FP32. Merge using `w_i = exp2(m_i-m) * l_i`, `O = sum(w_i*mean_i) / sum(w_i)`. This halves numerator writes and reads and reduces total partial-row traffic from 264 to 136 bytes (**48.5%**). Unlike casting raw numerators, means stay near the finite FP8 value range even for very long/uniform-attention splits; no clamping or fixed logit bound is needed. Specifically, nonnegative FP16 rounding obeys `round(P) <= 2*P`, including subnormals: the ideal-accumulation mean is bounded by twice the maximum encoded V magnitude (896), comfortably below FP16 overflow. Manufactured overflow and probability-bound tests exercise this reasoning. This targets exactly the last-arriver merge bottleneck in small/sliding cases rather than claiming fewer required cache bytes.
+
+The original 64/128-key, FP32-partial arms remain available in v2; both merge protocols and both partial formats are gated against the full incumbent. The correctness gate is unchanged (public BF16-query bound plus 0.5% against the precise FP8-query reference), with two independent ≥2.5% cold-L2 ABBA wins required. The bounded preparation allowance is 300 seconds, and sliding d1/v1/d16/v16/d32/v32 are tested before full contexts to prioritize aggregate-score latency sensitivity.
+
+**Why not short-fragment FP16 PV accumulation here?** Merely adding FP16 fragment accumulators while consolidating into the existing live FP32 output would increase, not reduce, live storage. Actually eliminating those FP32 registers requires another shared-memory checkpoint/flush design or a different rescaling scheme. That is not essential to these two changes and would duplicate the owned FP16 lane. The 256-key design instead bounds score-register pressure explicitly. PDL was not added: standalone attention has no preceding projection producer to overlap, and the new last-arriver arm already avoids a merge launch; the parallel arm is measured including its second launch.
+
+**V2 offline results:** 52 numerical variants (13 input families × two gather sizes × two partial formats) pass the pristine public judge; worst relative L2 against the FP8-query reference is **0.0028581**. All **32 analytical constant/zero-V variants** pass exactly. Fragment reconstruction includes the 256-row shared layout (worst PV absolute error **7.63e-6**). Two-/three-slot logical pipeline reuse passes **3,800 iterations**. Clang CUDA host/device syntax with explicit API stubs passes all **16 attention template instantiations**. Real CUDA compilation, races, occupancy, graph capture, and speed remain unverified; zero adoption remains possible. No OKC check was spent.
+
+Evidence: `attn_restart_v2_cpu.json`, `attn_restart_v2_cuda_syntax.json`. Reproduce with `scripts/validate_attention_restart_v2.py` and `scripts/check_attention_restart_cuda.py --v2`; the single check file has no runtime dependency on those scripts or `.tools/attention_restart_v2_tail.py`.

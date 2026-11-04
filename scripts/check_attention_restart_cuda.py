@@ -4,6 +4,7 @@ This is useful on macOS but cannot validate PTX instructions, real CUDA headers,
 resource usage or execution. The report states these limitations explicitly.
 """
 import ast
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -31,12 +32,15 @@ struct __attribute__((aligned(16))) uint4 { uint32_t x,y,z,w; };
 struct __attribute__((aligned(8))) float2 { float x,y; };
 struct __attribute__((aligned(16))) float4 { float x,y,z,w; };
 __device__ uint2 make_uint2(uint32_t,uint32_t);
+__device__ uint4 make_uint4(uint32_t,uint32_t,uint32_t,uint32_t);
 __device__ float2 make_float2(float,float);
 __device__ float4 make_float4(float,float,float,float);
 struct __nv_bfloat16 { unsigned short v; };
 struct __nv_bfloat162 { unsigned v; };
 struct __half2 { unsigned v; };
+struct __half { unsigned short v; };
 __device__ __half2 __floats2half2_rn(float,float);
+__device__ float2 __half22float2(__half2);
 __device__ float __bfloat162float(__nv_bfloat16);
 __device__ float2 __bfloat1622float2(__nv_bfloat162);
 __device__ __nv_bfloat16 __float2bfloat16_rn(float);
@@ -63,11 +67,12 @@ template<class T,int scope> struct atomic_ref {
   __device__ T fetch_add(T,int);
   __device__ void store(T,int);
 }; }
-namespace torch { struct Tensor {
+namespace torch { constexpr int kFloat16=1,kFloat32=2; struct Tensor {
   template<class T> T* data_ptr() const;
   void* data_ptr() const;
   int size(int) const;
   int device() const;
+  int scalar_type() const;
 }; }
 namespace c10 { namespace cuda { struct CUDAGuard { CUDAGuard(int); }; } }
 namespace at { namespace cuda { cudaStream_t getCurrentCUDAStream(); } }
@@ -80,13 +85,17 @@ __host__ int cudaLaunch(const void*);
 
 
 def main():
-    tree=ast.parse((ROOT/'candidates/attention_restart.py').read_text())
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--v2',action='store_true')
+    args=parser.parse_args()
+    stem='attention_restart_v2' if args.v2 else 'attention_restart'
+    tree=ast.parse((ROOT/'candidates'/f'{stem}.py').read_text())
     src=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
              and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='RR_CUDA')
     # Only external includes are replaced. The complete new core, including
     # all template bodies and host launch instantiations, is left unchanged.
     text=STUB+'\n'+''.join(line for line in src.splitlines(keepends=True) if not line.startswith('#include'))
-    target=ROOT/'.tools/attention_restart_syntax.cu'
+    target=ROOT/'.tools'/f'{stem}_syntax.cu'
     target.write_text(text)
     result={}
     for side in ('host','device'):
@@ -96,7 +105,8 @@ def main():
         result[side]=dict(command=cmd,returncode=run.returncode,stdout=run.stdout,stderr=run.stderr)
         print(side,run.returncode,run.stderr)
     result['scope']='CUDA C++ syntax with API stubs only; not NVRTC/ptxas or real-header compilation'
-    (ROOT/'results/attn_restart_cuda_syntax.json').write_text(json.dumps(result,indent=2)+'\n')
+    output='attn_restart_v2_cuda_syntax.json' if args.v2 else 'attn_restart_cuda_syntax.json'
+    (ROOT/'results'/output).write_text(json.dumps(result,indent=2)+'\n')
     assert all(result[s]['returncode']==0 for s in ('host','device'))
 
 

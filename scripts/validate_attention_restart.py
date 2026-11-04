@@ -208,7 +208,7 @@ def merge(parts):
     return m,den,out
 
 
-def emulate(data,tile,splits):
+def emulate(data,tile,splits,*,half=False,micro=False):
     """Numerical model of every tile/stripe/split, not a call to softmax."""
     cfg = data['config']
     B,L = cfg['batch'],cfg['q_len']
@@ -248,24 +248,36 @@ def emulate(data,tile,splits):
                 o = torch.zeros(L,2,8,64)
                 for it in range(lo,hi):
                     count = tile//2 if L==1 else tile
-                    at = it*tile+stripe*count
-                    to = min(at+count,end-start)
-                    if at >= to:
-                        continue
-                    coverage[at:to] += 1
-                    score = S[...,at:to]
-                    mx = score.amax(-1)
-                    mn = torch.maximum(m,mx)
-                    alpha = torch.where(torch.isfinite(mn),torch.exp2(m-mn),0)
-                    P = torch.where(torch.isfinite(mn)[...,None],torch.exp2(score-mn[...,None]),0)
-                    o *= alpha[...,None]
-                    o += torch.einsum('lkgt,tkd->lkgd',P.half().float(),V[at:to])
-                    l = l*alpha+P.sum(-1)
-                    m = mn
+                    step = min(64,count) if micro else count
+                    for offset in range(0,count,step):
+                        at = it*tile+stripe*count+offset
+                        to = min(at+step,end-start)
+                        if at >= to:
+                            continue
+                        coverage[at:to] += 1
+                        score = S[...,at:to]
+                        mx = score.amax(-1)
+                        mn = torch.maximum(m,mx)
+                        alpha = torch.where(torch.isfinite(mn),torch.exp2(m-mn),0)
+                        P = torch.where(torch.isfinite(mn)[...,None],torch.exp2(score-mn[...,None]),0)
+                        o *= alpha[...,None]
+                        o += torch.einsum('lkgt,tkd->lkgd',P.half().float(),V[at:to])
+                        l = l*alpha+P.sum(-1)
+                        m = mn
                 stripe_parts.append((m,l,o))
             parts.append(merge(stripe_parts))
         assert torch.equal(coverage,torch.ones_like(coverage)), 'token dropped or read twice across splits'
-        _,den,out = merge(parts)
+        if half:
+            m = torch.stack([p[0] for p in parts]).amax(0)
+            out,den = torch.zeros_like(parts[0][2]),torch.zeros_like(parts[0][1])
+            for pm,pl,po in parts:
+                mean = torch.where(pl[...,None]>0,po/pl[...,None],0).half().float()
+                assert torch.isfinite(mean).all(), 'normalized FP16 partial overflow'
+                weight = torch.where(pl>0,torch.exp2(pm-m)*pl,0)
+                out += weight[...,None]*mean
+                den += weight
+        else:
+            _,den,out = merge(parts)
         y = out*(data['v_scale']/den[...,None])
         # The CUDA kernel honors the real BF16 activation boundary before RMS.
         y = y.bfloat16().float().reshape(L,16,64)
@@ -324,7 +336,7 @@ def integration_tests():
     return summaries
 
 
-def static_tests(candidate):
+def static_tests(candidate,*,v2=False):
     tree = ast.parse(candidate.read_text())
     strings = {n.targets[0].id:ast.literal_eval(n.value) for n in tree.body
                if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)
@@ -334,9 +346,10 @@ def static_tests(candidate):
     assert 'atomicAdd' not in strings['RR_CUDA']
     assert 'memory_order_acq_rel' in strings['RR_CUDA']
     assert 'getCurrentCUDAStream' in strings['RR_CUDA']
-    assert 'finish<L,NT>(p,blockIdx.y,begin,min(begin+NT/8,L*16))' in strings['RR_CUDA']
+    finish = 'finish<L,NT,HALF>' if v2 else 'finish<L,NT>'
+    assert finish+'(p,blockIdx.y,begin,min(begin+NT/8,L*16))' in strings['RR_CUDA']
     # Prove all shared byte addresses are bijections and naturally aligned.
-    for tile in (64,128):
+    for tile in (64,128,256):
         addresses = [ko(r,c) for r in range(tile) for c in range(128)]
         assert sorted(addresses) == list(range(tile*128))
         assert all(ko(r,c)%16 == 0 for r in range(tile) for c in range(0,128,16))

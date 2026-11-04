@@ -1,0 +1,37 @@
+{
+  "host": {
+    "command": [
+      "clang++",
+      "-x",
+      "cuda",
+      "--cuda-host-only",
+      "--cuda-gpu-arch=sm_90",
+      "-nocudainc",
+      "-nocudalib",
+      "-std=c++20",
+      "-fsyntax-only",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/.tools/attention_restart_v2_syntax.cu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "device": {
+    "command": [
+      "clang++",
+      "-x",
+      "cuda",
+      "--cuda-device-only",
+      "--cuda-gpu-arch=sm_90",
+      "-nocudainc",
+      "-nocudalib",
+      "-std=c++20",
+      "-fsyntax-only",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/.tools/attention_restart_v2_syntax.cu"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "scope": "CUDA C++ syntax with API stubs only; not NVRTC/ptxas or real-header compilation"
+}

@@ -160,6 +160,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## Attention
 
+| Restart v2: 256-key two-slot gather ping-pong with bounded 64-key warp-MMA compute microtiles; normalized FP16 O/l split means + FP32 max/denominator halve global merge bytes without raw-partial overflow; own restart only, no FP16-PV lane changes | parked pending parent H200 check: 52 CPU public-judge variants pass (worst FP8-reference L2 .002859), 32 analytical variants exact; 256-row fragment mapping, half alignment/overflow, 3800 pipeline iterations pass; Clang CUDA host/device syntax with stubs passes 16 instances; real CUDA compile/run/speed unverified; v1 file unchanged; no check/push | loop/attn-restart v2 | - | candidates/attention_restart_v2.py; results/ATTN_RESTART.md; results/attn_restart_v2_cpu.json | Nov 04 |
+
 | Restart: warp-local FP8 mma.sync QK + FP16 PV, GQA-shared 64/128-key gather pipeline, intra-CTA decode stripe reduction then stable immutable split rows and last-arriver/parallel merge; structurally replaces the segment/WGMMA engine (not a plan sweep) | parked pending parent H200 check: complete per-case gated candidate; 15 CPU public-judge cases pass (worst FP8-query L2 .002876), 4 analytical cases, exact fragment/ownership checks, Clang CUDA host/device syntax with stubs pass; real CUDA compile/run/performance unverified; no check spent; local ledger only (no-main/no-push instruction) | loop/attn-restart | - | candidates/attention_restart.py; results/ATTN_RESTART.md; results/attn_restart_cpu.json | Nov 04 |
 
 | Idea | Outcome | Number | Job | Where | Date |
