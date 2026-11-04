@@ -109,7 +109,8 @@ def _dg_build_support():
     _DG_EXT['support'] = load_inline('gate_ceiling_att_' + tag, cpp, cuda_sources=src,
         functions=['run', 'gate_block', 'gate_occ'],
         extra_cuda_cflags=['-DOKC_QDIRECT=0', '-DOKC_PK2=0', '-DOKC_W0ENABLE=1', '-O3',
-                           '-DOKC_SM90=1', '--expt-relaxed-constexpr'], verbose=False)
+                           '-DOKC_SM90=1', '--expt-relaxed-constexpr',
+                           '-gencode=arch=compute_90a,code=sm_90a'], verbose=False)
 
 
 def _dg_build_rq(st):
@@ -368,7 +369,7 @@ def _dg_shape(st, B, L, sliding, flush, sink):
                f'control_us={ctl["save"]:.3f} qkv_exact={int(exact)} gate_exact={int(gates)} ids_exact={int(ids)}')
         _DG_RESULTS.append(row)
         print(row, flush=True)
-    if sliding and (B, L) in ((1, 1), (1, 8), (16, 1), (32, 1)):
+    if 'support' in _DG_EXT and sliding and (B, L) in ((1, 1), (1, 8), (16, 1), (32, 1)):
         _dg_attention(data, st, qkv, flush, sink, before, label)
     torch.cuda.synchronize()
 
@@ -394,8 +395,10 @@ def prepare(weights):
     for th in threads:
         th.join()
     try:
-        if errors:
-            raise RuntimeError('; '.join(errors))
+        for error in errors:
+            # An OPTIONAL placement-survey build must never discard all twelve
+            # independent projection/whole-layer timing measurements.
+            print(f'GATE_BUILD_ERR {error}', flush=True)
         _dg_build_rq(st)
         print(f'GATE_INFO base_and_build_s={_dg_time.monotonic()-start:.1f} '
               'baseline=clean_decode_v1 timing_only=1 read_flush_bytes=536870912 skipped_gate_rows_small=1008/1024', flush=True)

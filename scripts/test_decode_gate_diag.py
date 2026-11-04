@@ -155,6 +155,20 @@ class DiagTests(unittest.TestCase):
         self.assertIn('actual != nsm', src)
         self.assertIn('reserve.synchronize()', src)
 
+    def test_support_build_pins_wgmma_architecture(self):
+        # Regression for real job 3cbe4bc4: parallel builders share the process
+        # environment, so TORCH_CUDA_ARCH_LIST cannot pin this extension's ISA.
+        calls = []
+        ns = definitions(BASE, {'ATT7_CUDA_SRC', 'ATT7_CPP_SRC'})
+        ns.update(_DG_EXT={}, _dg_hash=hashlib,
+                  load_inline=lambda *args, **kwargs: calls.append(kwargs))
+        definitions(IMPL, {'_DG_SUPPORT', '_dg_build_support'}, ns)
+        ns['_dg_build_support']()
+        self.assertIn('-gencode=arch=compute_90a,code=sm_90a', calls[0]['extra_cuda_cflags'])
+        self.assertIn('attn_kernel(const __grid_constant__ Params p) {\n  if (p.dbg', calls[0]['cuda_sources'])
+        self.assertNotIn('raise RuntimeError(\'; \'.join(errors))',
+                         (ROOT / 'kb/exp/gate_diag_impl.py').read_text())
+
 
 if __name__ == '__main__':
     unittest.main()
