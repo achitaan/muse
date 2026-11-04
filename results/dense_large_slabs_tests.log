@@ -1,0 +1,21 @@
+test_all_production_cells_and_zero_ownership (__main__.Geometry.test_all_production_cells_and_zero_ownership) ... ok
+test_register_and_shared_budget (__main__.Geometry.test_register_and_shared_budget) ... ok
+test_sibling_slabs_reuse_exact_same_weights (__main__.Geometry.test_sibling_slabs_reuse_exact_same_weights) ... ok
+test_swizzled_epilogue_addresses (__main__.Geometry.test_swizzled_epilogue_addresses) ... ok
+test_every_bf16_bit_pattern_roundtrip (__main__.PackingAndNumerics.test_every_bf16_bit_pattern_roundtrip) ... ok
+test_independent_register_decode_and_escape_lists (__main__.PackingAndNumerics.test_independent_register_decode_and_escape_lists) ... ok
+test_output_math_and_partial_rounding (__main__.PackingAndNumerics.test_output_math_and_partial_rounding) ... ok
+test_real_packer_roundtrip (__main__.PackingAndNumerics.test_real_packer_roundtrip) ... ok
+test_bad_math_is_never_timed (__main__.SourceAndPolicy.test_bad_math_is_never_timed) ... ok
+test_base_unchanged_except_helper_exports (__main__.SourceAndPolicy.test_base_unchanged_except_helper_exports) ... ok
+test_both_passes_all_draws_required (__main__.SourceAndPolicy.test_both_passes_all_draws_required) ... ok
+test_cpu_fallback_and_no_synthetic_retention (__main__.SourceAndPolicy.test_cpu_fallback_and_no_synthetic_retention) ... ok
+test_fail_closed_source_drift (__main__.SourceAndPolicy.test_fail_closed_source_drift) ... ok
+test_prepare_failure_falls_back_without_touching_incumbent (__main__.SourceAndPolicy.test_prepare_failure_falls_back_without_touching_incumbent) ... ok
+test_ratio_policy (__main__.SourceAndPolicy.test_ratio_policy) ... ok
+test_rendered_source (__main__.SourceAndPolicy.test_rendered_source) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.068s
+
+OK

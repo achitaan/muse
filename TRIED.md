@@ -1,5 +1,11 @@
 # TRIED: every optimization idea tried on Muse 2 (shared ledger, all sessions)
 
+## Local claim: loop/dense-m128256-decode (not published to main)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| RS128 H2 token slabs: 64 output rows x 128 tokens per CTA, two resident CTAs/SM, adjacent in-call token slabs for M256; only M128/256 per-cell gates. Unlike closed DW b7 (027ee79b), decode remains register-direct; unlike closed CURP256 (19b6b942), this changes token ownership and occupancy, not escape decoding or ST/KS sweep; no cluster/multicast/Stream-K or new epilogue | parked offline-ready: 16 CPU/static tests PASS (all BF16 patterns, independent decode/escapes, 30 numerical cases, all-cell ownership/zeroing, gate/fallback fault injection); AST and diff checks PASS; no GPU/NVRTC/ptxas, no timing result or claimed win. Main publication deferred to caller by lane scope | loop/dense-m128256-decode | none; offline only | candidates/dense_large_slabs.py; results/dense_large_slabs.md; results/dense_large_slabs_tests.log | Nov 04 |
+
 **Before trying anything:** `python ".tools/tried.py" search <words>` (from the repo root `C:\Users\Achita\Documents\ChatGPT\Muse 2`).
 If a row says closed, don't retry it unless the new idea is materially different; say how in the new row.
 
