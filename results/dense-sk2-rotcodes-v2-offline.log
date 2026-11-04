@@ -1,0 +1,349 @@
+CPU GRAPH MOCK CONTROL TESTS: SR timings below are synthetic, NOT H200 measurements
+SR null o:16 draw0 pre 1.0000 1.0000
+SR twin o:16 rot oldSK210.000 new9.800 ratio0.9800 paired0.9800
+SR null o:16 draw0 post 1.0000 1.0000
+SR o:16 rot draw0 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw1 pre 1.0000 1.0000
+SR null o:16 draw1 post 1.0000 1.0000
+SR o:16 rot draw1 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw2 pre 1.0000 1.0000
+SR null o:16 draw2 post 1.0000 1.0000
+SR o:16 rot draw2 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 confirm-seed202315571 pre 1.0000 1.0000
+SR null o:16 confirm-seed202315571 post 1.0000 1.0000
+SR o:16 rot confirm-seed202315571 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw0 pre 1.0000 1.0000
+SR twin o:16 rot oldSK210.000 new9.800 ratio0.9800 paired0.9800
+SR null o:16 draw0 post 1.0000 1.0000
+SR o:16 rot draw0 10.000 9.810 ratio0.9810 paired0.9800 upper950.9900 exact1
+SR o:16 draw0 reject correctness
+SR null o:16 draw0 pre 1.0000 1.0000
+SR twin o:16 rot oldSK210.000 new9.800 ratio0.9800 paired0.9800
+SR null o:16 draw0 post 1.0000 1.0000
+SR o:16 rot draw0 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact0
+SR null o:16 draw0 pre 0.9900 1.0000
+SR null o:16 draw0 pre 1.0000 1.0000
+SR twin o:16 rot oldSK210.000 new9.800 ratio0.9800 paired0.9800
+SR null o:16 draw0 post 0.9900 1.0000
+SR o:16 rot draw0 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw0 pre 1.0000 1.0000
+SR twin o:16 rot oldSK210.000 new9.800 ratio0.9800 paired0.9800
+SR null o:16 draw0 post 1.0000 1.0000
+SR o:16 rot draw0 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw1 pre 1.0000 1.0000
+SR null o:16 draw1 post 1.0000 1.0000
+SR o:16 rot draw1 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 draw2 pre 1.0000 1.0000
+SR null o:16 draw2 post 1.0000 1.0000
+SR o:16 rot draw2 10.000 9.700 ratio0.9700 paired0.9770 upper950.9900 exact1
+SR null o:16 confirm-seed202315571 pre 1.0000 1.0000
+SR null o:16 confirm-seed202315571 post 1.0000 1.0000
+SR o:16 rot confirm-seed202315571 10.000 9.810 ratio0.9810 paired0.9770 upper950.9900 exact1
+SR build fallback expected build failure
+SR resources o:32 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR adopt o:32
+SR resources o:16 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR resource-final qkv_gate:32 disabled ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR resource-final o:32 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR resource-final o:16 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR final o:32
+SR resources o:32 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR adopt o:32
+SR resources o:16 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR stop _DTBudget
+SR resource-final qkv_gate:32 disabled ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR resource-final o:32 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR resource-final o:16 ref[64, 0, 0, 65536, 256, 2, 3, 3, 132] rot[64, 0, 0, 65536, 256, 2, 3, 3, 132] lateNone chooserot
+SR final o:32
+{
+  "candidate_sha256": "557f12c5df8bf0ed0c399190031303ea326f47bedf6081fb7d1b3f1118b1bd63",
+  "static": {
+    "incumbent_ast_preserved": true,
+    "ref_and_rot_bodies_preserved": true,
+    "late_loads_barriers_epilogue_preserved": true,
+    "native_specializations": 20,
+    "enabled_cells": 7,
+    "qkv32_disabled": true
+  },
+  "codec": {
+    "exhaustive_payload_position_window_cases": 63438848,
+    "random_and_basis_word_cases": 1000034,
+    "actual_torch_word_cases": 64064,
+    "malformed_packs_rejected": 5
+  },
+  "cpu_cpp": "7929856 word/window cases",
+  "resources_and_order": {
+    "cpu_cpp": "60 resource dispatch cases passed (CUDA APIs mocked)",
+    "accumulator_traces_identical": 36,
+    "late_resource_gate_cases": 14,
+    "resource_mode_selection": "passed",
+    "actual_GPU_resources": "unverified"
+  },
+  "numerical": {
+    "models": 32,
+    "escapes": 2752,
+    "worst_rel_l2": 0.0017791508130508842,
+    "geometries": [
+      {
+        "layer": "o",
+        "m": 32,
+        "modeled_n": 64,
+        "native_k": 1024,
+        "nstage": 3
+      },
+      {
+        "layer": "o",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 1024,
+        "nstage": 3
+      },
+      {
+        "layer": "unpooler",
+        "m": 32,
+        "modeled_n": 128,
+        "native_k": 4096,
+        "nstage": 3
+      },
+      {
+        "layer": "unpooler",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 4096,
+        "nstage": 3
+      },
+      {
+        "layer": "pooler",
+        "m": 32,
+        "modeled_n": 64,
+        "native_k": 8192,
+        "nstage": 5
+      },
+      {
+        "layer": "pooler",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 8192,
+        "nstage": 4
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 32,
+        "modeled_n": 48,
+        "native_k": 8192,
+        "nstage": 4
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 16,
+        "modeled_n": 48,
+        "native_k": 8192,
+        "nstage": 5
+      }
+    ],
+    "caveat": "FP32 NumPy dot16 model; not actual GPU MMA rounding, barriers or performance"
+  },
+  "wrappers": {
+    "fresh_output_pairs": 7,
+    "fallback_cases": 43,
+    "gate_boundaries_and_invalid_data": "passed",
+    "upper_median_tail_probability": 0.0403452338759962
+  },
+  "timing_loop": {
+    "actual_event_loop": "passed under mocks",
+    "ABBA_blocks": 40,
+    "vector_READ_flushes": 160
+  },
+  "control_flow": {
+    "actual_three_draw_plus_confirmation_gate": "passed",
+    "pre_timing_twin_failure": "rejected",
+    "post_timing_corruption": "rejected",
+    "marginal_win": "rejected",
+    "pre_and_post_null_drift": "rejected",
+    "fourth_pass_failure": "rejected",
+    "confirmation_seed_independent": true,
+    "build_failure_fallback": "passed",
+    "partial_adoption_and_deadline": "passed"
+  },
+  "prior_log": {
+    "job": "4614986cedc447ed",
+    "null_spread": "not measured",
+    "resource_attributes": "not logged",
+    "qkv32_incumbent": "admitted t32s5curP-k7 rq",
+    "measurements": [
+      [
+        "o",
+        "32",
+        "0",
+        "9.408",
+        "9.104",
+        "0.9677",
+        "0.9737",
+        "1"
+      ],
+      [
+        "o",
+        "32",
+        "1",
+        "9.392",
+        "9.104",
+        "0.9693",
+        "0.9770",
+        "1"
+      ],
+      [
+        "o",
+        "16",
+        "0",
+        "9.040",
+        "8.832",
+        "0.9770",
+        "0.9773",
+        "1"
+      ],
+      [
+        "unpooler",
+        "32",
+        "0",
+        "18.112",
+        "17.824",
+        "0.9841",
+        "0.9860",
+        "1"
+      ],
+      [
+        "unpooler",
+        "16",
+        "0",
+        "17.296",
+        "17.024",
+        "0.9843",
+        "0.9886",
+        "1"
+      ],
+      [
+        "pooler",
+        "32",
+        "0",
+        "18.672",
+        "18.384",
+        "0.9846",
+        "0.9920",
+        "1"
+      ],
+      [
+        "pooler",
+        "16",
+        "0",
+        "17.632",
+        "17.504",
+        "0.9927",
+        "0.9951",
+        "1"
+      ],
+      [
+        "qkv_gate",
+        "32",
+        "0",
+        "13.472",
+        "13.952",
+        "1.0356",
+        "1.0415",
+        "1"
+      ],
+      [
+        "qkv_gate",
+        "16",
+        "0",
+        "13.184",
+        "12.832",
+        "0.9733",
+        "0.9808",
+        "1"
+      ]
+    ]
+  },
+  "bandwidth": [
+    {
+      "layer": "qkv_gate",
+      "m": 16,
+      "encoded_weight_bytes": 28311552,
+      "time_us": 9.7,
+      "weight_only_TBps": 2.9187167010309283,
+      "fraction_of_4p8_TBps": 0.6080659793814434,
+      "weight_stream_floor_us": 5.89824
+    },
+    {
+      "layer": "o",
+      "m": 16,
+      "encoded_weight_bytes": 12582912,
+      "time_us": 5.22,
+      "weight_only_TBps": 2.4105195402298856,
+      "fraction_of_4p8_TBps": 0.5021915708812261,
+      "weight_stream_floor_us": 2.62144
+    },
+    {
+      "layer": "pooler",
+      "m": 16,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 13.98,
+      "weight_only_TBps": 3.6002609442060085,
+      "fraction_of_4p8_TBps": 0.7500543633762519,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "unpooler",
+      "m": 16,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 13.79,
+      "weight_only_TBps": 3.6498656997824512,
+      "fraction_of_4p8_TBps": 0.7603886874546774,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 32,
+      "encoded_weight_bytes": 28311552,
+      "time_us": 9.8,
+      "weight_only_TBps": 2.88893387755102,
+      "fraction_of_4p8_TBps": 0.6018612244897958,
+      "weight_stream_floor_us": 5.89824
+    },
+    {
+      "layer": "o",
+      "m": 32,
+      "encoded_weight_bytes": 12582912,
+      "time_us": 5.76,
+      "weight_only_TBps": 2.1845333333333334,
+      "fraction_of_4p8_TBps": 0.45511111111111113,
+      "weight_stream_floor_us": 2.62144
+    },
+    {
+      "layer": "pooler",
+      "m": 32,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 14.97,
+      "weight_only_TBps": 3.36216753507014,
+      "fraction_of_4p8_TBps": 0.7004515698062791,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "unpooler",
+      "m": 32,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 14.65,
+      "weight_only_TBps": 3.435607372013652,
+      "fraction_of_4p8_TBps": 0.7157515358361775,
+      "weight_stream_floor_us": 10.48576
+    }
+  ],
+  "unverified": [
+    "CUDA host/device compilation",
+    "NVRTC/ptxas",
+    "GPU registers/spills/SASS",
+    "barrier execution",
+    "actual H200 numerics/graphs",
+    "GPU prepare time",
+    "H200 timing"
+  ]
+}
