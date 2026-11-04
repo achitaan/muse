@@ -1,0 +1,234 @@
+{
+  "candidate_sha256": "55196ee0bfd4a0cb49bbff0f1034729c6ef22ee6d62d5b9968d86f2f62c090d5",
+  "generated_cuda_sha256": "f478c0f42c10dd01958027bb44acec23db81e140c41475a7c7b924e5f278e55b",
+  "incumbent_ast_and_cg_core_preserved": true,
+  "exhaustive": {
+    "all_bf16_payload_window_cases": 7929856,
+    "random_code_word_windows": 7933970,
+    "sign_bit_basis_bijection": true,
+    "actual_torch_word_permutations": 65570,
+    "invalid_metadata_rejections": 3
+  },
+  "cpu_cpp": {
+    "result": "PASS 7929856 compiled word/window cases",
+    "command": [
+      "/usr/bin/clang++",
+      "-O2",
+      "-std=c++20",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/dense-cg-rotcodes-host.cpp",
+      "-o",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/.dense-cg-rotcodes-host"
+    ]
+  },
+  "numerical": {
+    "roundtrip_weights": 172032,
+    "escapes": 52,
+    "cases": [
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "normal",
+        "relative_l2": 0.0017336122488447279
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "outliers",
+        "relative_l2": 0.0015027482114162811
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "zero",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "probe0",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "probe3",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "probe4",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "probe7",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 1024,
+        "nth": 64,
+        "dist": "probeLast",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "normal",
+        "relative_l2": 0.003046361672592008
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "outliers",
+        "relative_l2": 0.0020869819635278056
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "zero",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "probe0",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "probe3",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "probe4",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "probe7",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 4096,
+        "nth": 128,
+        "dist": "probeLast",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "normal",
+        "relative_l2": 0.0008279821352223822
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "outliers",
+        "relative_l2": 0.0011743052933930213
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "zero",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "probe0",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "probe3",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "probe4",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "probe7",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 256,
+        "dist": "probeLast",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "normal",
+        "relative_l2": 0.001464792065596658
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "outliers",
+        "relative_l2": 0.0009680299549943447
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "zero",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "probe0",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "probe3",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "probe4",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "probe7",
+        "relative_l2": 0.0
+      },
+      {
+        "k": 8192,
+        "nth": 512,
+        "dist": "probeLast",
+        "relative_l2": 0.0
+      }
+    ]
+  },
+  "wrappers": {
+    "fresh_output_pairs": 4,
+    "control_calls": 4,
+    "fallback_cases": 20
+  },
+  "policy_cases": 6,
+  "cuda_tools": {
+    "nvcc": null,
+    "ptxas": null,
+    "nvrtc_library": null
+  },
+  "cuda_compile": "SKIPPED: no CUDA/NVRTC toolchain",
+  "gpu": "NOT RUN: no GPU; no OKC calls authorized"
+}

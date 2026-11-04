@@ -341,6 +341,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| M=1 scalar cgemv rotated-sign 12-bit codes: keep all exponent offsets/low bytes, permute only the eight sign bits per code word, reconstruct two high-byte words with AND+ADD / ROR4+AND+ADD. Same 12 bpw, loads, escape path, FP32 FMA order and reduction. Ports the existing chen dec1 representation into a different scalar kernel, not the closed register-A pipeline/route sweeps, sub-12-bit ZS/Codec E, M8 cgemv, or token-owned epilogue | offline ready; 7929856 exhaustive BF16/window cases + 7933970 random/basis word/window cases; actual decoder expressions clang++ C++20 compile +7929856 cases pass; 172032 weight bits/52 escapes roundtrip; 32 complete scalar GEMV models <=0.003047 FP64 relL2, probes exact; wrapper/fallback/policy pass. No nvcc/ptxas/NVRTC/GPU/check. Gate both ratios <=0.975 on three fresh graph draws | loop/bf16-cg-rotcodes from 63e253f; candidate sha256 55196ee0 | none; offline only | candidates/dense_cg_rotcodes.py; scripts/verify_dense_cg_rotcodes.py; results/DENSE_CG_ROTCODES.md | Nov 04 |
 
 ## MoE kernel (\moe_fused\)
 
