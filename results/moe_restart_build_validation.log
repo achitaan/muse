@@ -1,0 +1,34 @@
+RSTREAM C++20 build-repair local validation (no GPU check/submission)
+Parent: 3aa4c52d0895bb76940d2fafe298af40c1a28ed7
+Branch: loop/moe-restart
+Source SHA256: 6723ba3ed34cb0406bab42ac6ca92ae6e6896d9ead99469f3d4858092935825b  experiments/moe_restart/moe_restart.py
+Torch: 2.14.1 CUDA available: False CUDA_HOME: None
+{
+  "packing": "64/128-row full-K code and scale roundtrips; WGS conversion identical",
+  "dequant": "all 16 codes x 119 allowed FP8 bytes exact; paired scale arithmetic exact",
+  "routing_activation": "60 routings incl empty/hot/full local; descriptor bijection and capacity",
+  "ownership_ring": "660 whole-output-tile plans; 3/6-group unique prefetches; 0/1/2/7/32-tile parity/register lifetimes",
+  "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
+  "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
+  "python_static": "AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally"
+}
+test_architecture_fallback_reports_total_prepare (__main__.BuildTests.test_architecture_fallback_reports_total_prepare) ... ok
+test_both_compilers_use_cxx20 (__main__.BuildTests.test_both_compilers_use_cxx20) ... ok
+test_build_exception_is_not_replaced_or_truncated (__main__.BuildTests.test_build_exception_is_not_replaced_or_truncated) ... ok
+test_build_failure_reports_shutdown_time_and_overrun (__main__.BuildTests.test_build_failure_reports_shutdown_time_and_overrun) ... ok
+test_compact_summary_does_not_drop_later_errors (__main__.BuildTests.test_compact_summary_does_not_drop_later_errors) ... ok
+test_deadline_with_headroom_and_no_deadline (__main__.BuildTests.test_deadline_with_headroom_and_no_deadline) ... ok
+test_first_errors_and_exact_tail_survive_log_truncation (__main__.BuildTests.test_first_errors_and_exact_tail_survive_log_truncation) ... ok
+test_no_packing_or_admission_after_expired_setup (__main__.BuildTests.test_no_packing_or_admission_after_expired_setup) ... ok
+test_noncompiler_exception_remains_visible (__main__.BuildTests.test_noncompiler_exception_remains_visible) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.015s
+
+OK
+FRONTEND ONLY: results/moe_restart_instantiated.cu host C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_instantiated.cu device C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_host_stub.cu host C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_host_stub.cu device C++20 -Wall -Wextra -Werror -ferror-limit=0
+PASS: CPU numerical/static, nine build/diagnostic/budget tests, four C++20 frontend checks, py_compile, git diff --check
+NOT RUN: NVCC/NVRTC/PTXAS, H200 numerics/performance, repaired total prepare time

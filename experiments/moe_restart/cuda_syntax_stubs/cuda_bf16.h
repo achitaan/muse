@@ -1,7 +1,7 @@
 #pragma once
 #include "cuda_runtime.h"
 struct __nv_bfloat16 { unsigned short bits; };
-struct __nv_bfloat162 { __nv_bfloat16 lo, hi; };
+struct __align__(4) __nv_bfloat162 { __nv_bfloat16 lo, hi; };
 __device__ __nv_bfloat162 __hmul2(__nv_bfloat162,__nv_bfloat162);
 __device__ __nv_bfloat162 __hmul2_rn(__nv_bfloat162,__nv_bfloat162);
 __device__ __nv_bfloat162 __low2bfloat162(__nv_bfloat162);

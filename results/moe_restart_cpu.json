@@ -5,5 +5,5 @@
   "ownership_ring": "660 whole-output-tile plans; 3/6-group unique prefetches; 0/1/2/7/32-tile parity/register lifetimes",
   "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
   "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
-  "python_static": "AST/import, generated MMA arity/domain, empty fallback guard; no GPU locally"
+  "python_static": "AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally"
 }

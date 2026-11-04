@@ -4,7 +4,9 @@
 
 `experiments/moe_restart/moe_restart.py` — self-contained; native CUDA only
 through `torch.utils.cpp_extension.load_inline`. Branch `loop/moe-restart`,
-based on `63e253f`. No GPU check or submission has been made by this lane.
+based on `63e253f`; build-repair parent `3aa4c52`. No GPU check or submission
+has been launched by this lane. The orchestrator's first check is documented
+below; it ran the fallback because the new extension failed to compile.
 
 ## Structural restart
 
@@ -140,7 +142,8 @@ Per case, the gate:
 
 Only admitted counts enter `state['restart_cases']`. Other counts, including
 nearby correctness-test shapes, use the incumbent. Exceptions or a prepare
-budget limit leave unadmitted cases on fallback. Test inputs/references are
+budget limit leave unadmitted cases on fallback (a mid-case deadline exception
+conservatively clears all RSTREAM admissions). Test inputs/references are
 discarded. Timed calls read fresh inputs, allocate fresh output, and never
 consult saved activations/reference outputs. Shared scratch needs sequential
 use, as in the incumbent.
@@ -163,20 +166,106 @@ Reproduce:
 
 ```sh
 uv run --offline --no-project --with torch --with numpy python experiments/moe_restart/validate_cpu.py
-python3 -m py_compile experiments/moe_restart/moe_restart.py experiments/moe_restart/validate_cpu.py
-for side in host device; do
-  /usr/bin/clang++ -x cuda --cuda-${side}-only --cuda-gpu-arch=sm_90 \
-    -nocudainc -nocudalib -fsyntax-only -std=c++17 -DRSTREAM_DEVICE_ONLY=1 \
-    -Iexperiments/moe_restart/cuda_syntax_stubs results/moe_restart_instantiated.cu
+uv run --offline --no-project --with torch --with numpy python experiments/moe_restart/validate_build.py
+python3 -m py_compile experiments/moe_restart/moe_restart.py experiments/moe_restart/validate_cpu.py experiments/moe_restart/validate_build.py
+for source in results/moe_restart_instantiated.cu results/moe_restart_host_stub.cu; do
+  defs=()
+  [[ "$source" == *instantiated* ]] && defs=(-DRSTREAM_DEVICE_ONLY=1)
+  for side in host device; do
+    /usr/bin/clang++ -x cuda --cuda-${side}-only --cuda-gpu-arch=sm_90 \
+      -nocudainc -nocudalib -fsyntax-only -std=c++20 \
+      -Wall -Wextra -Werror -ferror-limit=0 "${defs[@]}" \
+      -Iexperiments/moe_restart/cuda_syntax_stubs "$source"
+  done
 done
 ```
 
-Both instantiated CUDA families passed Clang host/device **frontend semantic
-checks with declaration-only stubs**. This is NOT NVCC/NVRTC/PTXAS validation:
-there is no CUDA SDK, NVRTC, ptxas, GPU, or NVPTX code-generation backend here.
+Both instantiated CUDA families and the full host wrapper passed C++20 Clang
+host/device **frontend semantic checks with declaration-only stubs**, with
+`-Wall -Wextra -Werror`. This is NOT NVCC/NVRTC/PTXAS validation:
+no CUDA SDK, NVRTC, ptxas, GPU, or NVPTX code-generation backend was located here.
 Stubs/generated `.cu` files are validation-only, not used by the check file.
 Harness files were initialized to read the spec, never edited or imported
 by the candidate.
+
+Repair-run evidence is saved in `results/moe_restart_build_validation.log`;
+`results/moe_restart_layout.log` records Clang's concrete record layouts.
+The validation stubs now also match CUDA's 8/16-B vector alignments and
+4-B BF16x2 alignment rather than inheriting scalar-member alignment.
+
+## First check and C++20 repair (2026-11-04)
+
+The orchestrator's `42cbc63b0497446b` check fell back (reported score 2.340x).
+Its complete local build log is:
+
+`/private/var/folders/pm/r8xm1mr525v913lct5tdg_5w0000gn/T/opencode/subs/profiles/moe_restart.42cbc63b0497446b.log`
+
+Lines 16/18 show NVCC using **`-std=c++17`**; lines 21/26 reject that dialect
+in ATen/PyTorch headers. Line 29 shows the host compiler already using
+**`-std=c++20`**. Thus this check provides no evidence that RSTREAM's PTX
+assembled or that its GPU code ran. The referenced
+`board_best/moe_m3_scored_2.3797.py` does not force either dialect: its
+`load_inline` uses Torch's defaults, unlike the broken RSTREAM call.
+
+Repair:
+
+- Set `extra_cflags=['-std=c++20']` and NVCC's `-std=c++20`; new extension
+  identity `okc_moe_rstream_wholeaxis_v2_cxx20_sm90a` avoids ambiguity with
+  the failed cached build. Fallback compiler settings are unchanged.
+- Preserve and print the full ninja exception. Then print the first 12
+  diagnostic lines, every remaining diagnostic without template contexts,
+  and the **exact final 1500 characters of the original exception**.
+  The extractor handles NVCC `error:`, EDG `error #`, PTXAS `error   :`,
+  and fatal errors. Keep `verbose=False` so Torch captures combined compiler
+  output. Enable unlimited template backtrace depth and error numbers; do
+  not add an unverified NVCC `--error-limit` spelling. This does not promise
+  to bypass NVCC's own frontend error-count limit.
+- Nine CPU regression tests cover both compilers' actual keyword arguments,
+  unchanged exception identity, first/all/tail diagnostics after 16KB log
+  truncation, deadline headroom, architecture fallback, setup expiry and
+  total timing including executor shutdown/overrun.
+
+### CUDA audit, beyond declaration-only device stubs
+
+| Item | Evidence / status |
+|---|---|
+| Register-A WGMMA | All eight N shapes (8..256) checked for N/2 float outputs, four `r` A words, one `l` descriptor, contiguous PTX operand indices, output-only first / read-write subsequent accumulation. Instruction form and literal scale-D 0/1 match the GPU-tested incumbent's RS BF16 helpers. Actual PTXAS validation is still pending. |
+| Descriptor and copies | Unswizzled K-major leading/stride offsets 128/1024 B agree with independent packed indexing tests; K16 steps advance 256 B. Shared base is 128-B aligned. Bulk copies are multiples of 1024 B, at most 32768 B; source/destination are at least 16-B aligned. |
+| Async barrier initialization | Move `fence.proxy.async.shared::cta` into the initializing thread, before CTA synchronization publishes its barriers to producers. No reliance on a different thread fencing the initializer's writes. |
+| Parity / retirement | Full count 1; empty count 4/8 consumer warps; one lane/warp arrives after its WG retires. CPU lifetime/parity model covers both register ping-pong groups and ring wrapping across tiles. Actual GPU visibility/scheduling remains unverified. |
+| Shuffles | Delayed scale broadcast occurs after the lane<8 load branch reconverges, with all 32 lanes participating; source lanes g=0..7 are initialized. Whole consumer WGs take the same N dispatch. |
+| Dynamic shared memory | Clang record-layout output and frontend static assertions verify `sizeof(Shared)==21376`; maximum ring plus metadata is **119680 B**. Existing `cudaFuncSetAttribute` opts in to the full specialization's maximum before launch, including >48KB cases; it is never lowered for smaller captured shapes. |
+| Registers / launch bounds | 160 / 288 threads with minBlocks=1, not a forced max-register override. The larger geometry permits approximately 224 registers/thread; N256 alone needs 128 accumulator registers. Actual spills/counts are unknown. First launch of each family now prints `RSTREAM_RESOURCES` with real register/local-byte/shared-byte/occupancy attributes, before GPU execution. |
+| Resident grid | Retain actual occupancy>=1 check and additionally reject grid<=0 or grid>the guarded device's SM count. The three grid barriers still require sequential scratch use and no competing persistent-grid protocol. |
+| `__grid_constant__` | Not used. Ordinary by-value Params is legal; force-inlined helpers take const references. NVCC may materialize parameter local storage; resource logs will expose local bytes. No unvalidated parameter ABI/qualifier change was introduced. |
+| Host code | Full CUDA host wrapper + separately emitted C++ function declaration pass Clang host/device frontend checks together, including function pointers, tensor data_ptr overloads, CUDAGuard, launch syntax, attributes and occupancy calls. Stubs cannot prove real Torch/CUDA API compatibility or linking. |
+
+Compiler discovery: `command -v nvcc ptxas` found neither; conventional CUDA
+paths do not exist; bounded searches in `/Applications`, `/Library`, `/opt`,
+`/usr/local` and user caches found nothing; Spotlight found no nvcc/ptxas/NVRTC.
+A requested full-root `find / -name nvcc -o -name ptxas ...` exceeded its
+120-second foreground limit and was also launched in the background. Apple
+Clang 21's `--print-targets` has **no NVPTX backend**; local Torch is 2.14.1
+with `torch.cuda.is_available()==False` and `CUDA_HOME=None`. No real SM90a
+compilation, GPU check or submission was performed by this repair.
+
+### Prepare budget: measured versus unknown
+
+The failed-build log reports **174.8 s total**, including a **37.7 s incumbent
+selector**. That leaves 125.2 s below the 300 s limit / 100.2 s below the 275 s
+admission deadline, but **does not bound a successful CUDA build and gate**.
+
+The repair keeps concurrent compilation, adds stage/build elapsed logs and
+deadline checks between stress cases, before FP32 references, and between
+timing draws/quads. `RSTREAM_PREPARE` is now emitted from `finally`, **after
+executor shutdown**, including architecture fallback and errors, and prints
+`admission_budget=275 limit=300 within_limit=...`. A mocked 310 s prepare
+correctly reports `within_limit=0`; expired setup skips packing/admission.
+
+**The repaired total prepare time cannot be confirmed under 300 s locally.**
+`load_inline` and incumbent setup are not cancellable by these soft deadline
+checks; no misleading timeout/abandoned compiler thread was added. A fresh
+authorized H200 check is required to establish actual compile and gate time.
 
 ## Risks / next check
 
@@ -189,8 +278,8 @@ by the candidate.
   Residency/grid barriers assume sequential scratch use, not concurrency.
 - Register loads may lose to bulk TMA despite lookahead; sparse experts and
   whole-tile tail quantization may lose.
-- The gate has a 275-second deadline, but compiler/setup overrun itself
-  cannot be interrupted by it.
+- The gate has a granular 275-second soft deadline, but compiler/setup
+  overrun itself cannot be interrupted by it; repaired total <300 s is unknown.
 - No measured speedup exists. Next action: one authorized `okc check` of
   the candidate; inspect `RSTREAM_REF`, `RSTREAM_GATE`, `RSTREAM_SELECTED`
   and ptxas diagnostics.

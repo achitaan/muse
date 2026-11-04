@@ -10,6 +10,7 @@ This is NOT a GPU compilation or race-safety test.
 import ast
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -251,11 +252,28 @@ def validate_static():
     assert not torch.cuda.is_available()
     for n in (8,16,32,64,96,128,192,256):
         assert f'RSMMA<{n}>' in mod.RESTART_CUDA
+        body = mod._restart_mma_source().split(f'template<> struct RSMMA<{n}> {{')[1].split('\n};')[0]
+        first, rest = body.split('} else {')
+        nr = n // 2
+        # PTX RS BF16 shapes use N/2 FP32 outputs, four 32-bit A registers,
+        # one 64-bit B descriptor; output-only first, read/write afterwards.
+        assert list(map(int,re.findall(r'"=f"\(d\[(\d+)\]\)',first))) == list(range(nr))
+        assert list(map(int,re.findall(r'"\+f"\(d\[(\d+)\]\)',rest))) == list(range(nr))
+        for fragment in (first,rest):
+            assert list(map(int,re.findall(r'%(\d+)',fragment))) == list(range(nr+5))
+            assert list(map(int,re.findall(r'"r"\(a\[(\d+)\]\)',fragment))) == list(range(4))
+            assert fragment.count('"l"(b)') == 1
+    # Verify host declaration and definition in the same frontend TU too.
+    assert 'cudaFuncAttributeMaxDynamicSharedMemorySize' in mod.RESTART_CUDA
+    assert 'grid > 0 && grid <= sms' in mod.RESTART_CUDA
     (ROOT/'results/moe_restart_expanded.cu').write_text(mod.RESTART_CUDA)
     (ROOT/'results/moe_restart_instantiated.cu').write_text(mod.RESTART_CUDA +
+        '\nstatic_assert(sizeof(rstream::Shared) == 21376);\n'
+        'static_assert(sizeof(rstream::Shared) + 3 * 256 * 64 * 2 == 119680);\n'
         '\ntemplate __global__ void rstream::kernel<64,8>(rstream::Params);\n'
         'template __global__ void rstream::kernel<128,256>(rstream::Params);\n')
-    results['python_static'] = 'AST/import, generated MMA arity/domain, empty fallback guard; no GPU locally'
+    (ROOT/'results/moe_restart_host_stub.cu').write_text(mod.RESTART_CPP + mod.RESTART_CUDA)
+    results['python_static'] = 'AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally'
 
 
 def validate_admission():

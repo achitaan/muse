@@ -10,11 +10,14 @@
 #define __forceinline__ inline __attribute__((always_inline))
 #define __align__(n) __attribute__((aligned(n)))
 #define __launch_bounds__(n, m) __attribute__((launch_bounds(n, m)))
-struct uint2 { unsigned x,y; };
-struct uint4 { unsigned x,y,z,w; };
-struct float2 { float x,y; };
-struct float4 { float x,y,z,w; };
-struct dim3 { unsigned x,y,z; };
+struct __align__(8) uint2 { unsigned x,y; };
+struct __align__(16) uint4 { unsigned x,y,z,w; };
+struct __align__(8) float2 { float x,y; };
+struct __align__(16) float4 { float x,y,z,w; };
+struct dim3 {
+  unsigned x,y,z;
+  __host__ __device__ constexpr dim3(unsigned a=1,unsigned b=1,unsigned c=1) : x(a),y(b),z(c) {}
+};
 extern __device__ const dim3 threadIdx, blockIdx, blockDim, gridDim;
 __device__ inline uint2 make_uint2(unsigned a,unsigned b) { return {a,b}; }
 __device__ inline uint4 make_uint4(unsigned a,unsigned b,unsigned c,unsigned d) { return {a,b,c,d}; }
@@ -35,3 +38,18 @@ __device__ float __expf(float);
 __device__ float rsqrtf(float);
 template<class T> __device__ T __ldg(const T*);
 template<class T> __device__ T __ldcg(const T*);
+
+// Host launcher declarations, deliberately not implementations. These extend
+// frontend coverage to the real host wrapper; they do not check CUDA's ABI.
+using cudaStream_t = void*;
+using cudaError_t = int;
+enum cudaFuncAttribute { cudaFuncAttributeMaxDynamicSharedMemorySize };
+struct cudaDeviceProp { int multiProcessorCount; };
+struct cudaFuncAttributes {
+  size_t sharedSizeBytes, localSizeBytes;
+  int numRegs, maxDynamicSharedSizeBytes;
+};
+template<class F> __host__ cudaError_t cudaFuncSetAttribute(F,cudaFuncAttribute,int);
+template<class F> __host__ cudaError_t cudaFuncGetAttributes(cudaFuncAttributes*,F);
+template<class F> __host__ cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int*,F,int,size_t);
+extern "C" __host__ cudaError_t cudaConfigureCall(dim3,dim3,size_t=0,cudaStream_t=nullptr);

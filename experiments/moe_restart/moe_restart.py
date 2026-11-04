@@ -898,6 +898,7 @@ RESTART_CUDA = r'''
 #include <cuda_runtime.h>
 #include <stdint.h>
 #ifndef RSTREAM_DEVICE_ONLY
+#include <stdio.h>
 #include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <c10/cuda/CUDAGuard.h>
@@ -1059,6 +1060,9 @@ template<int ROWS> __device__ __forceinline__ void route(const Params& p, Shared
       init_bar(s.full+i, 1);
       init_bar(s.empty+i, ROWS / 16);  // once per consumer warp, after WG retirement
     }
+    // Publish initialization from the initializing thread before any producer
+    // can use the barriers through the async proxy after __syncthreads().
+    asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
     if (blockIdx.x == 0) p.ctrl[2] = p.ctrl[3] = gridDim.x;
   }
   __syncthreads();
@@ -1067,7 +1071,6 @@ template<int ROWS> __device__ __forceinline__ void route(const Params& p, Shared
     if (e >= 0 && e < EXP) s.pos[i] += s.offset[e];
   }
   __syncthreads();
-  asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
 }
 __device__ __forceinline__ size_t x_index(int row0, int pad, int token, int col) {
   return size_t(row0) * H + size_t(col >> 6) * pad * KGROUP +
@@ -1326,6 +1329,21 @@ template<int R, int C> void rs_launch(rstream::Params p, int grid, cudaStream_t 
   int resident = 0;
   C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident, fn, nt, bytes));
   TORCH_CHECK(resident >= 1, "RSTREAM kernel cannot reside: regs/smem, R=", R, " bytes=", bytes);
+  // One CTA/SM is sufficient even if resource use allows more. Never launch
+  // an oversubscribed spin-barrier grid, including through a direct caller.
+  int sms = at::cuda::getCurrentDeviceProperties()->multiProcessorCount;
+  TORCH_CHECK(grid > 0 && grid <= sms, "RSTREAM grid must be resident: grid=", grid, " SMs=", sms);
+  static bool reported = false;  // diagnostics only; scratch use is sequential
+  if (!reported) {
+    cudaFuncAttributes attrs{};
+    C10_CUDA_CHECK(cudaFuncGetAttributes(&attrs, fn));
+    printf("RSTREAM_RESOURCES R=%d CAP=%d regs=%d local_bytes=%zu static_smem=%zu "
+           "dynamic_smem=%d max_dynamic_smem=%d resident=%d grid=%d sms=%d\n",
+           R, C, attrs.numRegs, attrs.localSizeBytes, attrs.sharedSizeBytes,
+           bytes, attrs.maxDynamicSharedSizeBytes, resident, grid, sms);
+    fflush(stdout);
+    reported = true;
+  }
   rstream::kernel<R,C><<<grid,nt,bytes,stream>>>(p);
   C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
@@ -1425,15 +1443,51 @@ def kernel_fn(data, state):
 
 
 def _restart_extension():
-    return load_inline(
-        name='okc_moe_rstream_wholeaxis_v1_sm90a',
-        cpp_sources=RESTART_CPP, cuda_sources=RESTART_CUDA,
-        functions=['restart_run'],
-        extra_cuda_cflags=['-O3', '-std=c++17', '-lineinfo',
-                          '-gencode=arch=compute_90a,code=sm_90a',
-                          '--ptxas-options=-v'],
-        verbose=False,
-    )
+    import time
+    started = time.monotonic()
+    try:
+        return load_inline(
+            name='okc_moe_rstream_wholeaxis_v2_cxx20_sm90a',
+            cpp_sources=RESTART_CPP, cuda_sources=RESTART_CUDA,
+            functions=['restart_run'],
+            # The incumbent lets Torch choose its dialect (C++20 on the
+            # judge). Pin BOTH compilers to that dialect, never only NVCC.
+            extra_cflags=['-std=c++20'],
+            extra_cuda_cflags=['-O3', '-std=c++20', '-lineinfo',
+                              '-gencode=arch=compute_90a,code=sm_90a',
+                              '--ptxas-options=-v', '--ftemplate-backtrace-limit=0',
+                              '--display-error-number'],
+            # False keeps ninja's complete combined output in the exception.
+            # With True a build exception can lose its captured compiler text.
+            verbose=False,
+        )
+    finally:
+        print(f'RSTREAM_BUILD dialect=c++20 seconds={time.monotonic()-started:.1f}', flush=True)
+
+
+def _restart_report_failure(exc):
+    """Keep all compiler output, then repeat useful diagnostics for log tails."""
+    import re
+    text = str(exc)
+    print(f'RSTREAM_ERROR_FULL {type(exc).__name__}: {text}', flush=True)
+    # PTXAS spells some diagnostics "error   :", unlike NVCC's "error:".
+    diagnostic = re.compile(r'\b(?:error\s*[:#]|(?:ptxas|nvcc)\s+fatal\b|fatal\s+error\b)', re.I)
+    errors = [line for line in text.splitlines() if diagnostic.search(line)]
+    first = '\n'.join(errors[:12]) if errors else '\n'.join(text.splitlines()[:4])
+    print(f'RSTREAM_ERROR_FIRST\n{first}', flush=True)
+    if len(errors) > 12:
+        # Keep EVERY diagnostic in compact form as well as in the full log;
+        # template backtraces can otherwise push later errors out of log tails.
+        print('RSTREAM_ERROR_MORE\n' + '\n'.join(errors[12:]), flush=True)
+    # Do not truncate before this point: the old failure lesson was a tail
+    # taken from an already shortened exception, hiding the actual NVCC error.
+    print(f'RSTREAM_DISABLED {type(exc).__name__} RSTREAM_ERROR_TAIL\n{text[-1500:]}', flush=True)
+
+
+def _restart_budget_check(deadline):
+    import time
+    if deadline is not None and time.monotonic() + 2.0 > deadline:
+        raise TimeoutError('RSTREAM admission prepare deadline; retain fallback')
 
 
 def _restart_data(m, gen, dev, mode='random'):
@@ -1564,6 +1618,7 @@ def _restart_select(weights, state, deadline=None):
         old_stress, old = _restart_graph(data, state, False)
         new_stress, new = _restart_graph(data, state, True)
         for mode in stress:
+            _restart_budget_check(deadline)
             fresh = _restart_data(m, gen, dev, mode)
             for key in ('hidden_states', 'topk_ids', 'topk_weights'):
                 data[key].copy_(fresh[key])
@@ -1580,6 +1635,7 @@ def _restart_select(weights, state, deadline=None):
             # Full FP32 reference on the M-token hot path for EVERY case,
             # and a multi-expert skewed draw for the largest case.
             if mode == 'hot' or (m == 256 and mode == 'random'):
+                _restart_budget_check(deadline)
                 ref = _restart_fp32_reference(data, weights)
                 valid, referr, rowerr = _restart_error(new, ref, 0.012, 0.05)
                 print(f'RSTREAM_REF M={m} mode={mode} rel={referr:.3e} row={rowerr:.3e} ok={int(valid)}', flush=True)
@@ -1597,6 +1653,7 @@ def _restart_select(weights, state, deadline=None):
         ratios = [[], []]
         old_times, new_times = [], []
         for draw in range(8):
+            _restart_budget_check(deadline)
             data = _restart_data(m, gen, dev)
             oldg, oldout = _restart_graph(data, state, False)
             newg, newout = _restart_graph(data, state, True)
@@ -1610,6 +1667,7 @@ def _restart_select(weights, state, deadline=None):
             for order in (0, 1):
                 paired = []
                 for quad in range(4):
+                    _restart_budget_check(deadline)
                     sequence = (oldg, newg, newg, oldg) if order == 0 else (newg, oldg, oldg, newg)
                     ts = [time_graph(g) for g in sequence]
                     ot = (ts[0]+ts[3])*.5 if order == 0 else (ts[1]+ts[2])*.5
@@ -1645,12 +1703,15 @@ def prepare(weights):
         # Preserve the incumbent's setup and existing build selector exactly.
         # RSTREAM has its own, stricter admission gate below.
         state = _restart_incumbent_prepare(weights)
+        print(f'RSTREAM_STAGE fallback_ready elapsed={time.monotonic()-started:.1f}', flush=True)
         state['restart_cases'] = frozenset()
         if not can_restart:
             print('RSTREAM_DISABLED architecture/FP8 scale-domain fallback', flush=True)
             return state
         try:
             state['restart_ext'] = future.result()
+            print(f'RSTREAM_STAGE build_ready elapsed={time.monotonic()-started:.1f}', flush=True)
+            _restart_budget_check(started + 275.0)
             state['restart_w'] = _restart_weights(weights, state)
             dev = weights['w13'].device
             # Sum of all padded expert rows is <= 2*(8M) + 7*32. 8192 rows
@@ -1663,13 +1724,19 @@ def prepare(weights):
                 torch.empty((capacity, HIDDEN), device=dev, dtype=torch.float32),
                 torch.zeros(4, device=dev, dtype=torch.int32),
             ]
+            print(f'RSTREAM_STAGE packing_ready elapsed={time.monotonic()-started:.1f}', flush=True)
             _restart_select(weights, state, deadline=started + 275.0)
         except Exception as exc:
             state['restart_cases'] = frozenset()
-            print(f'RSTREAM_DISABLED {type(exc).__name__}: {exc}', flush=True)
+            _restart_report_failure(exc)
         torch.cuda.synchronize()
-        print(f'RSTREAM_PREPARE seconds={time.monotonic()-started:.1f}', flush=True)
         return state
     finally:
         if pool:
             pool.shutdown(wait=True)
+        # Include executor shutdown, architecture fallback and failure paths.
+        # Compilation/fallback setup cannot be interrupted by the gate's soft
+        # deadline; report an overrun rather than claiming it stayed in budget.
+        elapsed = time.monotonic() - started
+        print(f'RSTREAM_PREPARE seconds={elapsed:.1f} admission_budget=275 '
+              f'limit=300 within_limit={int(elapsed < 300.0)}', flush=True)
