@@ -6,6 +6,7 @@
 #include <random>
 #include <vector>
 using std::min; using std::max;
+static_assert(__cplusplus >= 202002L, "native preflight must use the shared C++20 dialect");
 constexpr int JMAX = 88, NW = 16, NRB = 2, RED_W = 4, EMAX = 3072;
 struct Dim { unsigned x; } blockIdx, gridDim;
 struct Params {};

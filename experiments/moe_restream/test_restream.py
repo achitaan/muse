@@ -11,6 +11,8 @@ import unittest
 import math
 from types import SimpleNamespace
 import json
+import contextlib
+import io
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -42,6 +44,16 @@ def metadata_header(pp):
     histograms = [r["hist"] for M in ("128", "256") for r in model[M]["draws"]]
     result.append("const int actual_counts[8][32] = {" + ",".join("{" + ",".join(map(str, row)) + "}" for row in histograms) + "};")
     return "\n".join(result)
+
+
+def host_namespace():
+    tree = ast.parse((HERE / "host.py").read_text())
+    ns = {"_moe_sel_original_prepare": lambda w: dict(w), "kernel_fn": lambda data, state: "base",
+          "load_inline": lambda *a, **k: SimpleNamespace(okc_set_pdl=lambda value: None),
+          "_mh_time": SimpleNamespace(monotonic=lambda: 0.), "_MOE_SEL": {},
+          "_moe_default": lambda M, sfx: (("-DOKC_WGS=1",) if sfx else ()) + tuple(sfx)}
+    exec(compile(tree, "<host>", "exec"), ns)
+    return ns, tree
 
 
 def pipeline(seed):
@@ -180,7 +192,7 @@ class RestreamTests(unittest.TestCase):
                                 input=text, text=True, capture_output=True, check=True).stdout
             (directory / "metadata.hpp").write_text(metadata_header(pp))
             binary = directory / "model"
-            compiled = subprocess.run([compiler, "-O2", "-std=c++17", "-I", str(directory),
+            compiled = subprocess.run([compiler, "-O2", "-std=c++20", "-I", str(directory),
                                        str(HERE / "test_native.cpp"), "-o", str(binary)], text=True, capture_output=True)
             self.assertEqual(compiled.returncode, 0, compiled.stderr)
             run = subprocess.run([str(binary)], text=True, capture_output=True)
@@ -294,13 +306,11 @@ class RestreamTests(unittest.TestCase):
         self.assertIn('med <= .97', host)
         self.assertIn('clean_med <= 1.01', host)
         self.assertIn('state["_rs_selected"].clear()', host)
-        self.assertIn('_rs_base_prepare = _mh_original_prepare', host)
+        self.assertIn('_rs_base_prepare = _moe_sel_original_prepare', host)
+        self.assertNotIn('budget_or_nonPRMT', host)
 
     def test_shape_dispatch_and_exception_fallback(self):
-        tree = ast.parse((HERE / "host.py").read_text())
-        ns = {"_mh_original_prepare": lambda w: dict(w), "kernel_fn": lambda data, state: "base",
-              "_mh_time": SimpleNamespace(monotonic=lambda: 0.)}
-        exec(compile(tree, "<host>", "exec"), ns)
+        ns, _ = host_namespace()
         ns["_rs_run"] = lambda data, state: "tq"
         for M in (4, 16, 32, 128, 256, 257):
             data = {"hidden_states": SimpleNamespace(shape=(M, 4096))}
@@ -310,8 +320,120 @@ class RestreamTests(unittest.TestCase):
             state["_rs_w"] = "private"
             raise RuntimeError("gate failure")
         ns["_rs_gate"], ns["print"] = fail, lambda *a, **k: None
+        ns["_rs_post_select"] = lambda state, start: None
         state = ns["prepare"]({"sentinel": 1})
         self.assertEqual(state, {"sentinel": 1, "_rs_selected": set()})
+
+    def test_prior_log_proves_budget_not_nonPRMT(self):
+        # b3fe8be00fcb4666 logged BOTH MAIN and FALLBACK at M256. Execute the
+        # real incumbent candidate generator: without sfx that is impossible.
+        values = {}
+        for node in TREE.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if getattr(target, "id", "") in ("MAIN_DEFINES", "MAIN_FALLBACK_DEFINES", "TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
+                        values[target.id] = ast.literal_eval(node.value)
+        functions = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ("_main_defines", "_moe_valid")]
+        exec(compile(ast.Module(body=functions, type_ignores=[]), "<incumbent candidates>", "exec"), values)
+        lut = values["_moe_valid"](256, ())
+        prmt = values["_moe_valid"](256, ("-DOKC_PRMTSC=1",))
+        self.assertEqual(lut, [values["MAIN_FALLBACK_DEFINES"]])
+        self.assertEqual(len(prmt), 2)
+        self.assertIn("-DOKC_WGS=1", prmt[0])
+        self.assertEqual(prmt[1], values["MAIN_FALLBACK_DEFINES"] + ("-DOKC_PRMTSC=1",))
+        # With sfx proven nonempty, the old disjunction can only mean >170s.
+        self.assertFalse(not ("-DOKC_PRMTSC=1",))
+
+    def test_distinct_admission_reasons_and_remaining_budget(self):
+        ns, _ = host_namespace()
+        ns["_mh_time"] = SimpleNamespace(monotonic=lambda: 171.)
+        log = io.StringIO()
+        with contextlib.redirect_stdout(log):
+            self.assertTrue(ns["_rs_admit"]({"sfx": ("-DOKC_PRMTSC=1",)}, 0.))
+        self.assertIn("layout=wgs scale_decode=prmt prmt=1", log.getvalue())
+        self.assertIn("remaining_s=129.00 gate_remaining_s=114.00", log.getvalue())
+        self.assertNotIn("SKIP", log.getvalue())
+        log = io.StringIO()
+        with contextlib.redirect_stdout(log):
+            self.assertFalse(ns["_rs_admit"]({"sfx": ()}, 0.))
+        self.assertIn("reason=nonPRMT", log.getvalue())
+        self.assertIn("layout=unit+fat scale_decode=lut", log.getvalue())
+        self.assertNotIn("insufficient_compile_budget", log.getvalue())
+        ns["_mh_time"] = SimpleNamespace(monotonic=lambda: 226.)
+        log = io.StringIO()
+        with contextlib.redirect_stdout(log):
+            self.assertFalse(ns["_rs_admit"]({"sfx": ("-DOKC_PRMTSC=1",)}, 0.))
+        self.assertIn("reason=insufficient_compile_budget", log.getvalue())
+        self.assertIn("remaining_s=74.00 gate_remaining_s=59.00", log.getvalue())
+
+    def test_candidate_runs_before_optional_selector(self):
+        ns, _ = host_namespace()
+        events, clock = [], {"now": 0.}
+        ns["_mh_time"] = SimpleNamespace(monotonic=lambda: clock["now"])
+        ns["print"] = lambda *a, **k: None
+        def core(weights):
+            events.append("core")
+            clock["now"] = 129.3  # synthetic reproduction: +41.7 selector => old >170s skip
+            return {"sfx": ("-DOKC_PRMTSC=1",)}
+        def gate(weights, state, start):
+            events.append("TQ_gate")
+            self.assertTrue(ns["_rs_admit"](state, start))
+            state["_rs_selected"].add(256)
+            clock["now"] = 230.
+        def post(state, start):
+            events.append("optional_cached_selector")
+            self.assertEqual(state["_rs_selected"], {256})
+            self.assertNotIn(256, ns["_MOE_SEL"])
+        ns["_rs_base_prepare"], ns["_rs_gate"], ns["_rs_post_select"] = core, gate, post
+        state = ns["prepare"]({})
+        self.assertEqual(events, ["core", "TQ_gate", "optional_cached_selector"])
+        self.assertEqual(state["_rs_selected"], {256})
+
+    def test_cached_selector_is_bounded_and_cannot_change_M256(self):
+        ns, tree = host_namespace()
+        node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_rs_post_select")
+        text = ast.unparse(node)
+        self.assertIn("for M in (16, 32)", text)
+        self.assertIn("range(3)", text)
+        self.assertIn("range(9)", text)
+        self.assertIn("_rs_is_cached(d)", text)
+        self.assertNotIn("load_inline", text)
+        self.assertNotIn("_moe_select(", text)
+        ns.update(DQ7=True, _EXTS={("-DOKC_WGS=1", "-DOKC_DQ7=1"): object()})
+        self.assertTrue(ns["_rs_is_cached"](("-DOKC_WGS=1",)))
+        self.assertFalse(ns["_rs_is_cached"](("-DOKC_CPF=0",)))
+        ns["_mh_time"] = SimpleNamespace(monotonic=lambda: 291.)
+        with contextlib.redirect_stdout(io.StringIO()):
+            ns["_rs_post_select"](None, 0.)  # exits before Tensor access/compilation
+
+    def test_shared_cpp20_policy_for_real_incumbent_and_TQ_build_calls(self):
+        ns, _ = host_namespace()
+        calls = []
+        def builder(*args, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(okc_set_pdl=lambda value: None)
+        ns["_rs_torch_load_inline"] = builder
+        values = {}
+        for node in TREE.body:
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if getattr(target, "id", "") in ("MAIN_DEFINES", "MAIN_NS", "CPP_SRC", "CUDA_SRC", "DQ7", "PDL"):
+                        values[target.id] = ast.literal_eval(node.value)
+        ns.update(values, torch=SimpleNamespace(cuda=SimpleNamespace(get_device_capability=lambda: (9, 0))),
+                  _EXTS={}, ALT_SRCS={}, _RS_CUDA=SRC)
+        ext = next(n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name == "_ext")
+        exec(compile(ast.Module(body=[ext], type_ignores=[]), "<incumbent _ext>", "exec"), ns)
+        with contextlib.redirect_stdout(io.StringIO()):
+            ns["_ext"](ns["MAIN_DEFINES"] + ("-DOKC_PRMTSC=1",))
+            ns["_rs_ext"](("-DOKC_PRMTSC=1",))
+        self.assertEqual(len(calls), 2)
+        for kwargs in calls:
+            for key in ("extra_cflags", "extra_cuda_cflags"):
+                self.assertEqual([f for f in kwargs[key] if f.startswith(("-std=", "--std="))], ["-std=c++20"])
+        self.assertEqual(calls[0]["cuda_sources"], OLD)
+        self.assertEqual(calls[1]["cuda_sources"], SRC)
+        mixed = ["-O3", "-std=c++17", "--std=c++14", "-std", "c++11", "--std", "c++17", "-lineinfo"]
+        self.assertEqual(ns["_rs_cxx20_flags"](mixed), ["-O3", "-lineinfo", "-std=c++20"])
 
     def test_actual_histogram_model(self):
         import json

@@ -99,9 +99,13 @@ If extra X time were fully serial, even a hypothetical 40 TB/s X path plus
 
 ## Prepared fallback gate
 
-The original prepare and original `kernel_fn` remain fallback. This new prepare
-bypasses the old headroom measurement wrapper rather than rerunning it. It
-builds a separate extension and private losslessly packed weights/scratch.
+The original packing/build core and original `kernel_fn` remain fallback. The
+TQ64 stage now runs **before** any optional legacy selection (see
+`SKIP_REPAIR.md`); neither the old headroom measurement nor the exhaustive
+M128/M256 selector runs first. A bounded, cached-only M16/M32 selector can run
+afterward without changing the M256 gate comparator. Both incumbent and TQ64
+use one explicit **C++20 host + NVCC** policy. TQ64 builds a separate extension
+and private losslessly packed weights/scratch.
 Only M256 can select TQ64. Two independent passes of **16 fresh judge-like
 draws** each use read-flush balanced ABBA (six quads). Each pass requires a
 median TQ/base ratio <=0.97 and a no-duplicate-draw median <=1.01. Numerical
@@ -109,8 +113,12 @@ gates require finite values, relative L2<=0.005 and row<=0.02 vs incumbent.
 Hot 256-token experts and repeated empty graphs are also checked. Failure,
 deadline or compilation error leaves the incumbent selected. No actual input
 is cached; timed calls always produce a fresh output and branch only on shape.
-Budget: skip new build if base prepare >170 s; stop gate at 275 s. Compiler
-invocation is uninterruptible, so exceptional compile duration remains a risk.
+Budget: TQ64 has the first claim on remaining setup time, with a 285 s total
+gate deadline and >=60 s needed before starting its compiler. Optional cached
+small-shape selection stops at 290 s. Every admission/skip prints physical
+layout, scale decoder, elapsed time, total remaining time and gate remaining
+time; non-PRMT and budget skips are distinct. Compiler invocation is not
+interruptible, so exceptional compile duration remains a risk.
 
 ## Local evidence / gaps
 
