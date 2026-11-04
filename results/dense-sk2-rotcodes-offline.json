@@ -1,0 +1,174 @@
+{
+  "static": {
+    "incumbent_ast_preserved": true,
+    "kernel_body_preserved": true,
+    "native_specializations": 8
+  },
+  "codec": {
+    "exhaustive_payload_position_window_cases": 63438848,
+    "random_and_basis_word_cases": 1000034,
+    "actual_torch_word_cases": 64064,
+    "malformed_packs_rejected": 5
+  },
+  "cpu_cpp": "7929856 word/window cases",
+  "numerical": {
+    "models": 32,
+    "escapes": 2752,
+    "worst_rel_l2": 0.0017791508130508842,
+    "geometries": [
+      {
+        "layer": "o",
+        "m": 32,
+        "modeled_n": 64,
+        "native_k": 1024,
+        "nstage": 3
+      },
+      {
+        "layer": "o",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 1024,
+        "nstage": 3
+      },
+      {
+        "layer": "unpooler",
+        "m": 32,
+        "modeled_n": 128,
+        "native_k": 4096,
+        "nstage": 3
+      },
+      {
+        "layer": "unpooler",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 4096,
+        "nstage": 3
+      },
+      {
+        "layer": "pooler",
+        "m": 32,
+        "modeled_n": 64,
+        "native_k": 8192,
+        "nstage": 5
+      },
+      {
+        "layer": "pooler",
+        "m": 16,
+        "modeled_n": 64,
+        "native_k": 8192,
+        "nstage": 4
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 32,
+        "modeled_n": 48,
+        "native_k": 8192,
+        "nstage": 4
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 16,
+        "modeled_n": 48,
+        "native_k": 8192,
+        "nstage": 5
+      }
+    ],
+    "caveat": "FP32 NumPy dot16 model; not actual GPU MMA rounding, barriers or performance"
+  },
+  "wrappers": {
+    "fresh_output_pairs": 8,
+    "fallback_cases": 48,
+    "gate_cases": 8
+  },
+  "control_flow": {
+    "actual_three_draw_gate": "passed",
+    "pre_timing_twin_failure": "rejected",
+    "post_timing_corruption": "rejected",
+    "marginal_win": "rejected",
+    "build_failure_fallback": "passed",
+    "partial_adoption_and_deadline": "passed"
+  },
+  "bandwidth": [
+    {
+      "layer": "qkv_gate",
+      "m": 16,
+      "encoded_weight_bytes": 28311552,
+      "time_us": 9.7,
+      "weight_only_TBps": 2.9187167010309283,
+      "fraction_of_4p8_TBps": 0.6080659793814434,
+      "weight_stream_floor_us": 5.89824
+    },
+    {
+      "layer": "o",
+      "m": 16,
+      "encoded_weight_bytes": 12582912,
+      "time_us": 5.22,
+      "weight_only_TBps": 2.4105195402298856,
+      "fraction_of_4p8_TBps": 0.5021915708812261,
+      "weight_stream_floor_us": 2.62144
+    },
+    {
+      "layer": "pooler",
+      "m": 16,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 13.98,
+      "weight_only_TBps": 3.6002609442060085,
+      "fraction_of_4p8_TBps": 0.7500543633762519,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "unpooler",
+      "m": 16,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 13.79,
+      "weight_only_TBps": 3.6498656997824512,
+      "fraction_of_4p8_TBps": 0.7603886874546774,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 32,
+      "encoded_weight_bytes": 28311552,
+      "time_us": 9.8,
+      "weight_only_TBps": 2.88893387755102,
+      "fraction_of_4p8_TBps": 0.6018612244897958,
+      "weight_stream_floor_us": 5.89824
+    },
+    {
+      "layer": "o",
+      "m": 32,
+      "encoded_weight_bytes": 12582912,
+      "time_us": 5.76,
+      "weight_only_TBps": 2.1845333333333334,
+      "fraction_of_4p8_TBps": 0.45511111111111113,
+      "weight_stream_floor_us": 2.62144
+    },
+    {
+      "layer": "pooler",
+      "m": 32,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 14.97,
+      "weight_only_TBps": 3.36216753507014,
+      "fraction_of_4p8_TBps": 0.7004515698062791,
+      "weight_stream_floor_us": 10.48576
+    },
+    {
+      "layer": "unpooler",
+      "m": 32,
+      "encoded_weight_bytes": 50331648,
+      "time_us": 14.65,
+      "weight_only_TBps": 3.435607372013652,
+      "fraction_of_4p8_TBps": 0.7157515358361775,
+      "weight_stream_floor_us": 10.48576
+    }
+  ],
+  "unverified": [
+    "CUDA host/device compilation",
+    "NVRTC/ptxas",
+    "GPU registers/spills/SASS",
+    "barrier execution",
+    "actual H200 numerics/graphs",
+    "GPU prepare time",
+    "H200 timing"
+  ]
+}
