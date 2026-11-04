@@ -1,0 +1,69 @@
+{
+  "source_job": "8bf9cae70baa4192",
+  "code_bytes_per_expert": 25165824,
+  "scale_bytes_per_expert": 3145728,
+  "weight_bytes_per_expert": 28311552,
+  "actual_job_route_histograms_available": false,
+  "shape_estimates": [
+    {
+      "bs": 16,
+      "incumbent_us": 93.40947128144965,
+      "nominal_mean_distinct": 11.86,
+      "nominal_code_bytes": 298466672.64,
+      "nominal_scale_bytes": 37308334.08,
+      "nominal_weight_bytes": 335775006.71999997,
+      "input_output_bytes": 262144,
+      "corrected_nominal_hbm_floor_us": 70.00773973333332,
+      "max_unpadded_math_us": 13.028212222446916,
+      "conditional_target_us": 84.0,
+      "target_weight_port_TBps": {
+        "tma_raw_writes": 3.997321508571428,
+        "generic_raw_reads": 3.997321508571428,
+        "generic_decoded_writes": 18.950264929523808,
+        "tensorcore_weight_reads": 18.950264929523808,
+        "generic_reads_and_writes": 22.947586438095236,
+        "all_weight_ports_sum": 45.89517287619047
+      }
+    },
+    {
+      "bs": 32,
+      "incumbent_us": 126.9083636284592,
+      "nominal_mean_distinct": 15.970000000000002,
+      "nominal_code_bytes": 401898209.2800001,
+      "nominal_scale_bytes": 50237276.16000001,
+      "nominal_weight_bytes": 452135485.44000006,
+      "input_output_bytes": 524288,
+      "corrected_nominal_hbm_floor_us": 94.30411946666668,
+      "max_unpadded_math_us": 26.056424444893832,
+      "conditional_target_us": 109.0,
+      "target_weight_port_TBps": {
+        "tma_raw_writes": 4.148031976513762,
+        "generic_raw_reads": 4.148031976513762,
+        "generic_decoded_writes": 19.66474418495413,
+        "tensorcore_weight_reads": 19.66474418495413,
+        "generic_reads_and_writes": 23.812776161467895,
+        "all_weight_ports_sum": 47.62555232293579
+      }
+    }
+  ],
+  "hbm_only_ceiling": {
+    "score": 2.5878174055595955,
+    "gain_vs_best": 0.0874553118290522
+  },
+  "conditional_target": {
+    "score": 2.4505418234324945,
+    "gain_vs_best": 0.02976922445371022
+  },
+  "score_needed_for_3pct": 2.4510910000000004,
+  "required_product_of_two_shape_speedups": 1.2964604477428285,
+  "shared_weight_bytes_per_expert_by_port": {
+    "tma_raw_writes": 28311552,
+    "generic_raw_reads": 28311552,
+    "generic_decoded_writes": 134217728,
+    "tensorcore_weight_reads": 134217728,
+    "generic_reads_and_writes": 162529280,
+    "all_weight_ports_sum": 325058560
+  },
+  "shared_ports_capacity_or_concurrency_verified": false,
+  "build_gate": "NOT PASSED: actual routed-byte evidence and independent/shared port limits unresolved; target lacks >=3% margin"
+}

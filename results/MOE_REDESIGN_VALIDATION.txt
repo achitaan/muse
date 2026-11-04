@@ -1,0 +1,20 @@
+test_actual_histogram_counter (__main__.RooflineTests.test_actual_histogram_counter) ... ok
+test_board_weighting_and_build_rejection (__main__.RooflineTests.test_board_weighting_and_build_rejection) ... ok
+test_exact_nvfp4_byte_accounting (__main__.RooflineTests.test_exact_nvfp4_byte_accounting) ... ok
+test_nominal_floor_share_is_removed (__main__.RooflineTests.test_nominal_floor_share_is_removed) ... ok
+test_shared_traffic_separates_ports (__main__.RooflineTests.test_shared_traffic_separates_ports) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK
+M16: nominal mean D=11.86; codes=298.466673 MB; scales=37.308334 MB; nominal one-read floor=70.007740 us
+M32: nominal mean D=15.97; codes=401.898209 MB; scales=50.237276 MB; nominal one-read floor=94.304119 us
+Actual route arrays/histograms in supplied profile: unavailable
+HBM-only ceiling: {'score': 2.5878174055595955, 'gain_vs_best': 0.0874553118290522}
+Conditional 84/109 us target: {'score': 2.4505418234324945, 'gain_vs_best': 0.02976922445371022}
+Build decision: NOT PASSED: actual routed-byte evidence and independent/shared port limits unresolved; target lacks >=3% margin
+GPU compilation/correctness/graphs/resources/timing: NOT PERFORMED; no kernel built
+OKC submissions/checks: NONE; pending EXACTDIV job not queried or awaited
+Branch: loop/moe-redesign
+Original base: 63e253f9db1c1f1829136b4103317268bd082c0d
