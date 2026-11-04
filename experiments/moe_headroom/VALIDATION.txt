@@ -1,0 +1,32 @@
+test_balanced_abba_and_deadline (__main__.HeadroomTests.test_balanced_abba_and_deadline) ... ok
+test_budget_skips_before_compilation (__main__.HeadroomTests.test_budget_skips_before_compilation) ... ok
+test_byte_counts_and_duplicate_jobs (__main__.HeadroomTests.test_byte_counts_and_duplicate_jobs) ... ok
+test_complete_histograms_fit_log_tail_budget (__main__.HeadroomTests.test_complete_histograms_fit_log_tail_budget) ... ok
+test_every_packed_chunk_read_once (__main__.HeadroomTests.test_every_packed_chunk_read_once) ... ok
+test_exact_prefix_and_added_lines_only (__main__.HeadroomTests.test_exact_prefix_and_added_lines_only) ... ok
+test_extension_declarations_and_exports_match (__main__.HeadroomTests.test_extension_declarations_and_exports_match) ... ok
+test_prepare_catches_diagnostic_and_logging_failures (__main__.HeadroomTests.test_prepare_catches_diagnostic_and_logging_failures) ... ok
+test_production_source_and_kernel_fn_not_modified (__main__.HeadroomTests.test_production_source_and_kernel_fn_not_modified) ... ok
+test_read_flush_is_outside_event_interval (__main__.HeadroomTests.test_read_flush_is_outside_event_interval) ... ok
+test_reciprocal_range_correction (__main__.HeadroomTests.test_reciprocal_range_correction) ... ok
+test_ring_reuse_and_line_samples (__main__.HeadroomTests.test_ring_reuse_and_line_samples) ... ok
+test_same_physical_weight_layouts (__main__.HeadroomTests.test_same_physical_weight_layouts) ... ok
+test_weak_summaries_survive_tail_and_board_uses_six_loads (__main__.HeadroomTests.test_weak_summaries_survive_tail_and_board_uses_six_loads) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.476s
+
+OK
+AST parse: PASS
+Exact original byte prefix: PASS (185756 bytes, original CRLF preserved)
+Diff against base: 392 added lines, 0 removed lines
+Appended-line whitespace: PASS; inherited base whitespace deliberately unchanged
+Candidate bytes: 205262 SHA256: edcd4a89c54fbb8f7e14b294350b652f3bca6bdebdac08ecb4abf0c99f1b65a3
+Baseline SHA256: f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb
+Host: arm64 Darwin Torch: None
+nvcc None
+ptxas None
+CUDA/NVRTC/ptxas compilation, GPU timing and actual prepare duration: NOT PERFORMED (no local CUDA/GPU)
+OKC check/submit: NONE; no main commits/pushes; supplied profile files untouched
+Branch: loop/moe-headroom
+Original base: 63e253f9db1c1f1829136b4103317268bd082c0d

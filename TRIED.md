@@ -14,6 +14,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| EXACTDIV scheduler quotient replacement | closed per parent: 2.329x, no gain; do not pursue | loop/moe-second | `673a7ced11ab4079` | experiments/moe_exactdiv/moe_exactdiv.py | Nov 04 |
+| SS64/32 redesign | closed by Oracle before implementation: shared-bandwidth target too optimistic; conditional best case +2.98% lacks requested margin; first obtain actual routing + paired stream headroom (row97, 7f733a2b) | loop/moe-redesign | `none; design only` | results/MOE_REDESIGN.md | Nov 04 |
+| Route-matched current-board MoE headroom diagnostic: actual D/R/full histograms, once-read TMA over the same physical packed weights/scales, read-flush paired ABBA; unchanged production prefix. Requested Oracle first-step, not another optimization | parked: offline ready. Exact185756-byte base prefix; +392/-0 lines; 14 CPU/static tests PASS incl byte coverage, bank-conflict-free samples, physical layout/hint choice, ABBA/read flush/deadlines/error containment/log-tail budget. 28 draws planned (8 each M16/32;4 each M8/128/256), same routes for both graphs, unique/job byte distinction, weak gap and six-load counterfactual summaries. No local CUDA/GPU or timing evidence; compiler budget not interruptible. Parent must merge local ledger row | loop/moe-headroom from 63e253f; SHA256 edcd4a89c54fbb8f | `none; offline only` | experiments/moe_headroom/moe_headroom.py; experiments/moe_headroom/VALIDATION.txt | Nov 04 |
 | One persistent fused kernel (TINY / TINY2 / MID / MAIN builds) | kept | MoE board 2.3797x | `33114871` and later | MOE_NOTES | <= Oct 31 |
 | Small-M FP32 finalizer | kept | 1.1496x aggregate | `74ba5356` | MOE_NOTES | <= Oct 31 |
 | Single-token CUDA NVFP4 GEMV | reverted | 148 us vs 54 us | `67f2f03d` | MOE_NOTES | <= Oct 31 |
