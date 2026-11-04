@@ -341,6 +341,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| SK2 token-owner FP32 epilogue: WSK=2 warps retain their owned token-half in registers, exchange only the other half through separate shared scratch, remove ring-retirement barrier and raster transpose; unchanged 12-bit stream, FP32 summation order and MMA loop. Distinct from closed FP16 partial transport (eabdf1c9): half as many FP32 transfers, not narrower transfers | offline ready; H200 pending. 336 exact epilogue cases; 524288 BF16 bits/68 escapes roundtrip; 15 FP64 product models <=0.001811, probes exact; 8 wrapper/6 policy tests pass. Incumbent AST/core preserved. No nvcc/ptxas/NVRTC/GPU, no check spent. Three fresh graph draws require both ratios <=0.975 per cell | loop/bf16-c12-epilogue; candidate sha256 6196dd26 | none; offline only | candidates/dense_owner_epilogue.py; scripts/verify_dense_owner.py; results/DENSE_OWNER_EPILOGUE.md | Nov 04 |
 
 ## MoE kernel (\moe_fused\)
 

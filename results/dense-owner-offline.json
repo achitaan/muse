@@ -1,0 +1,163 @@
+{
+  "candidate_sha256": "6196dd2665a0b206866f202549cacd91c792087d6e41a0b8749b6cd54c374498",
+  "generated_cuda_sha256": "ef8ad20812cd89fc4133a8ad0f2774ae9f0f884e7ebd8b7ebf4e373d1ef6901f",
+  "incumbent_ast_preserved": true,
+  "configs": [
+    {
+      "layer": "o",
+      "m": 32,
+      "cfg": "o32h_r100",
+      "mt": 2,
+      "nt": 2,
+      "nwr": 2,
+      "nacc": 1,
+      "r": 32,
+      "stages": 3,
+      "nesc": 3,
+      "base_smem": 100432,
+      "owner_smem": 104528,
+      "original_partial_bytes_each_direction": 8192,
+      "owner_partial_bytes_each_direction": 4096
+    },
+    {
+      "layer": "unpooler",
+      "m": 16,
+      "cfg": "unpooler16t_r72",
+      "mt": 1,
+      "nt": 2,
+      "nwr": 2,
+      "nacc": 1,
+      "r": 32,
+      "stages": 3,
+      "nesc": 3,
+      "base_smem": 69520,
+      "owner_smem": 71568,
+      "original_partial_bytes_each_direction": 4096,
+      "owner_partial_bytes_each_direction": 2048
+    },
+    {
+      "layer": "unpooler",
+      "m": 32,
+      "cfg": "unpooler32_r144",
+      "mt": 2,
+      "nt": 4,
+      "nwr": 2,
+      "nacc": 1,
+      "r": 64,
+      "stages": 3,
+      "nesc": 3,
+      "base_smem": 149584,
+      "owner_smem": 157776,
+      "original_partial_bytes_each_direction": 16384,
+      "owner_partial_bytes_each_direction": 8192
+    },
+    {
+      "layer": "pooler",
+      "m": 32,
+      "cfg": "pooler32_r144",
+      "mt": 2,
+      "nt": 2,
+      "nwr": 2,
+      "nacc": 1,
+      "r": 32,
+      "stages": 5,
+      "nesc": 4,
+      "base_smem": 162032,
+      "owner_smem": 166128,
+      "original_partial_bytes_each_direction": 8192,
+      "owner_partial_bytes_each_direction": 4096
+    }
+  ],
+  "exact_epilogue_cases": 336,
+  "packing": {
+    "weights": 524288,
+    "escapes": 68,
+    "exact_bits": true
+  },
+  "numerical": [
+    {
+      "m": 9,
+      "dist": "normal",
+      "rel_l2": 0.0016147153373202861
+    },
+    {
+      "m": 9,
+      "dist": "outliers",
+      "rel_l2": 0.0016067019271363684
+    },
+    {
+      "m": 9,
+      "dist": "probe",
+      "rel_l2": 0.0
+    },
+    {
+      "m": 16,
+      "dist": "normal",
+      "rel_l2": 0.0017456233074785524
+    },
+    {
+      "m": 16,
+      "dist": "outliers",
+      "rel_l2": 0.0015844252013462884
+    },
+    {
+      "m": 16,
+      "dist": "probe",
+      "rel_l2": 0.0
+    },
+    {
+      "m": 17,
+      "dist": "normal",
+      "rel_l2": 0.0018104433738579267
+    },
+    {
+      "m": 17,
+      "dist": "outliers",
+      "rel_l2": 0.0015124748340452445
+    },
+    {
+      "m": 17,
+      "dist": "probe",
+      "rel_l2": 0.0
+    },
+    {
+      "m": 31,
+      "dist": "normal",
+      "rel_l2": 0.0016716192567817242
+    },
+    {
+      "m": 31,
+      "dist": "outliers",
+      "rel_l2": 0.0016091943654441261
+    },
+    {
+      "m": 31,
+      "dist": "probe",
+      "rel_l2": 0.0
+    },
+    {
+      "m": 32,
+      "dist": "normal",
+      "rel_l2": 0.0017093899064450108
+    },
+    {
+      "m": 32,
+      "dist": "outliers",
+      "rel_l2": 0.0016369526157205903
+    },
+    {
+      "m": 32,
+      "dist": "probe",
+      "rel_l2": 0.0
+    }
+  ],
+  "fresh_wrapper_calls": 8,
+  "policy_cases": 6,
+  "cuda_tools": {
+    "nvcc": null,
+    "ptxas": null,
+    "nvrtc_library": null
+  },
+  "cuda_compile": "SKIPPED: no CUDA/NVRTC toolchain on this macOS host",
+  "gpu": "NOT RUN; no GPU and no OKC check/submit authorized"
+}
