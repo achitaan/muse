@@ -71,6 +71,16 @@ def validate_pack():
         p = packed.numpy().reshape(rows//tile, 64, wg, 2304)
         q = p[..., :2048].copy().view(np.uint32).reshape(rows//tile, 64, wg, 4, 32, 4)
         ss = p[..., 2048:].reshape(rows//tile, 64, wg, 4, 8, 4, 2)
+        # v4 all-lane row-coalesced scale loads return exactly the old
+        # lane<8 loads followed by __shfl(..., lane>>2). Four duplicate lane
+        # addresses change neither the requested sectors nor packed bytes.
+        for warp0 in range(4):
+            old_unique = p[...,2048+warp0*64:2048+(warp0+1)*64].copy().view(np.uint32).reshape(rows//tile,64,wg,8,2)
+            direct = []
+            for lane0 in range(32):
+                off = 2048 + warp0*64 + (lane0//4)*8
+                direct.append(p[...,off:off+8].copy().view(np.uint32))
+            assert np.array_equal(np.stack(direct,-2),old_unique[...,(np.arange(32)//4),:])
         ub, kg, group, warp, lane, step = np.indices(q.shape)
         base_row = ub*tile + group*64 + warp*16 + lane//4
         base_col = kg*64 + step*16 + 2*(lane%4)
@@ -92,7 +102,7 @@ def validate_pack():
                                 for h in range(2):
                                     row = rr[ub0*tile+wg0*64+w*16+g+h*8]
                                     assert ss[ub0,kg0,wg0,w,g,j,h] == sf[row,kg0*4+j]
-    results['packing'] = '64/128-row full-K code and scale roundtrips; WGS conversion identical'
+    results['packing'] = '64/128-row full-K code and scale roundtrips; WGS conversion identical; row-coalesced all-lane scales equal unique-load+broadcast'
 
 
 def validate_decoder():
@@ -189,13 +199,18 @@ def validate_ownership_and_ring():
         loads = list(window)
         consumed = []
         for k in range(64):
-            consumed.append(window[0])
-            window[:-1] = window[1:]
+            slot = k % look
+            consumed.append(window[slot])
             if k+look < 64:
-                window[-1] = k+look
+                window[slot] = k+look
                 loads.append(k+look)
         assert loads == list(range(64))
         assert consumed == list(range(64))
+    for n in (8,16,32,64,96,128,192,256):
+        groups = 4 if n <= 64 else 2 if n <= 128 else 1
+        look = 4 if n <= 32 else 2 if n <= 64 else 1
+        assert groups % look == 0
+        assert [kk % look for st in range(64//groups) for kk in range(groups)] == [k % look for k in range(64)]
     # Mixed N tile widths and K256/K128/K64 stages preserve global two-slot
     # parity. af[cg] is reused only after its WGMMA group retires. An old slot
     # is released after the FIRST current group, never after the first K64
@@ -244,7 +259,7 @@ def validate_ownership_and_ring():
                 for producers in (1,2):
                     issued = [st for warp in range(producers) for st in range(warp,64//groups,producers)]
                     assert sorted(issued) == list(range(64//groups))
-    results['ownership_ring'] = f'{plans} plans incl grids264/528; 1/2/4-group unique prefetches; mixed-N K256/K128/K64 two-slot parity/register lifetimes and capacities'
+    results['ownership_ring'] = f'{plans} plans incl grids264/528; fixed cyclic 1/2/4-group unique prefetches, no queue shifts; mixed-N K256/K128/K64 two-slot parity/register lifetimes and capacities'
 
 
 def validate_arithmetic():
@@ -304,14 +319,14 @@ def validate_static():
     assert 'grid > 0 && grid <= sms' in mod.RESTART_CUDA
     (ROOT/'results/moe_restart_expanded.cu').write_text(mod.RESTART_CUDA)
     instances = [(64,8,False),(128,16,False),(128,32,False),(128,64,False),
-                 (64,128,False),(64,256,False),(64,8,True),(128,32,True),(64,256,True)]
+                 (64,128,False),(64,256,False),(64,8,True),(128,16,True),(128,32,True)]
     declarations = ''.join(f'template __global__ void rstream::kernel<{r},{c},{str(p).lower()}>(rstream::Params);\n'
                            for r,c,p in instances)
     (ROOT/'results/moe_restart_instantiated.cu').write_text(mod.RESTART_CUDA +
         '\nstatic_assert(sizeof(rstream::Shared) == 21504);\n'
         'static_assert(sizeof(rstream::Shared) + 2 * rstream::Geometry<64,256>::ring_bytes == 87040);\n'
         'static_assert(rstream::Geometry<64,8>::threads == 160 && rstream::Geometry<64,8>::blocks == 4);\n'
-        'static_assert(rstream::Geometry<128,32>::threads == 320 && rstream::Geometry<128,32>::producers == 2);\n'
+        'static_assert(rstream::Geometry<128,32>::threads == 288 && rstream::Geometry<128,32>::producers == 1);\n'
         'static_assert(rstream::Geometry<128,64>::threads == 288 && rstream::Geometry<128,64>::blocks == 2);\n'
         'static_assert(rstream::Geometry<64,256>::threads == 160 && rstream::Geometry<64,256>::blocks == 2);\n' + declarations)
     (ROOT/'results/moe_restart_host_stub.cu').write_text(mod.RESTART_CPP + mod.RESTART_CUDA)

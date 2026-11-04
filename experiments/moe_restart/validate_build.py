@@ -16,6 +16,9 @@ SOURCE = Path(__file__).with_name('moe_restart.py')
 spec = importlib.util.spec_from_file_location('restart_build', SOURCE)
 mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
+profile_spec = importlib.util.spec_from_file_location('restart_profile_model', SOURCE.with_name('analyze_profile.py'))
+profile_model = importlib.util.module_from_spec(profile_spec)
+profile_spec.loader.exec_module(profile_model)
 
 
 class BuildTests(unittest.TestCase):
@@ -163,10 +166,55 @@ class BuildTests(unittest.TestCase):
         for name in ('sample_start', 'sample_end'):
             body = mod.RESTART_CUDA.split(name+'(')[1].split('\n}')[0]
             self.assertIn('if constexpr (PROFILE)', body)
+        for name in ('warp_clock', 'warp_sample', 'weight_ready'):
+            body = mod.RESTART_CUDA.split(name+'(')[1].split('\n}')[0]
+            self.assertIn('if constexpr (PROFILE)', body)
         self.assertIn('attrs.localSizeBytes == 0', mod.RESTART_CUDA)
         self.assertIn('const __grid_constant__ Params p', mod.RESTART_CUDA)
-        for r,c in ((64,8),(128,16),(128,32),(128,64),(64,128),(64,256)):
+        for r,c in ((64,8),(128,16),(128,32)):
             self.assertIn(f'rs_launch<{r},{c}>', mod.RESTART_CUDA)
+
+    def test_fixed_slot_pipeline_never_shifts_future_loads(self):
+        body = mod.RESTART_CUDA.split('void consume(')[1].split('void tile(')[0]
+        self.assertNotIn('cw[j+1]', body)
+        self.assertNotIn('sw[j+1]', body)
+        self.assertIn('int ws = kk % LOOK', body)
+        self.assertIn('load_group<ROWS>(base, k + LOOK, cw[ws], sw[ws])', body)
+        self.assertIn('#pragma unroll\n    for (int kk', body)
+        self.assertLess(body.index('weight_ready<PROFILE>(probe,s,cw[ws],sw[ws])'),
+                        body.index('uint4 codes = cw[ws]'))
+        commit_to_wait = body.split('wg_commit();')[1].split('wg_wait<1>();')[0]
+        self.assertNotIn('warp_sample', commit_to_wait)
+        load = mod.RESTART_CUDA.split('void load_group(')[1].split('void consume(')[0]
+        self.assertNotIn('lane < 8', load)
+        self.assertIn('(lane >> 2) * 8', load)
+        self.assertNotIn('__shfl_sync', body)
+
+    def test_profile_layout_and_compile_work_are_bounded(self):
+        self.assertIn('TRACE_BASE = 24, WARP_METRICS = 8', mod.RESTART_CUDA)
+        self.assertNotIn('blockIdx.x * 16', mod.RESTART_CUDA)
+        self.assertIn('%%globaltimer', mod.RESTART_CUDA)
+        self.assertIn('st.volatile.shared.b32', mod.RESTART_CUDA)
+        self.assertIn('rs_launch<128,16,true>', mod.RESTART_CUDA)
+        self.assertNotIn('rs_launch<64,256,true>', mod.RESTART_CUDA)
+        for r,c in ((128,64),(64,128),(64,256)):
+            self.assertNotIn(f'rs_launch<{r},{c}>', mod.RESTART_CUDA)
+        self.assertIn('RSTREAM_RESOURCE_REJECT v4_scope=M<=32', mod.RESTART_CUDA)
+
+    def test_latency_model_distinguishes_early_uses_from_real_lookahead(self):
+        # Hand solution: initial wait800, then each newly issued load is
+        # touched by next FIFO shift. The final four groups have no new loads.
+        self.assertEqual(profile_model.pipeline_model(True), 800 + 60*800 + 4*240)
+        self.assertEqual(profile_model.pipeline_model(False), 800 + 64*240)
+        self.assertEqual(profile_model.pipeline_model(False, latency=0), 64*240)
+        self.assertEqual(profile_model.pipeline_model(True, latency=0), 64*240)
+
+    def test_analyzer_does_not_invent_missing_phase_data(self):
+        report = profile_model.analyze('RSTREAM_GATE M=16 old_us=103 new_us=243\n')
+        self.assertEqual(report['missing_small_M_phase_samples'], [8,16,32])
+        self.assertEqual(report['profiles'], [])
+        self.assertEqual(report['gates'][0]['M'], '16')
+        self.assertTrue(report['assumptions']['incumbent_phase_times_not_in_log'])
 
 
 if __name__ == '__main__':

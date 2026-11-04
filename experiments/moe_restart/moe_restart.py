@@ -908,9 +908,15 @@ RESTART_CUDA = r'''
 
 namespace rstream {
 constexpr int H = 4096, MAX_M = 256, EXP = 32, KGROUP = 64, NS = 2;
+// 8 phase clocks, 8 legacy regions, 8 globaltimer timestamps, then
+// [A/B][consumer warp 0..7][8 metrics]. Keep Python's layout identical.
+constexpr int TRACE_BASE = 24, WARP_METRICS = 8, TRACE_STRIDE = TRACE_BASE + 2 * 8 * WARP_METRICS;
 constexpr float TWO62 = 0x1p62f;
 template<int R, int C> struct Geometry {
-  static constexpr int producers = R == 128 && C <= 32 ? 2 : 1;
+  // v3's second producer mostly spun on empty barriers: full-wait <=5% of
+  // consumer work. One producer serves both slots and frees 32 threads/CTA
+  // (2-CTA register ceiling ~102 -> ~112) for consumers and their probes.
+  static constexpr int producers = 1;
   static constexpr int threads = (R / 64) * 128 + producers * 32;
   static constexpr int blocks = C <= 8 ? 4 : 2;
   // Every N<=C fits: N=64/128/256 each needs 256 K64-token units,
@@ -1116,8 +1122,47 @@ template<bool PROFILE> __device__ __forceinline__ unsigned long long sample_star
 template<bool PROFILE> __device__ __forceinline__ void sample_end(
     const Params& p, bool elected, int metric, unsigned long long start) {
   if constexpr (PROFILE) {
-    if (elected) p.trace[blockIdx.x * 16 + metric] += clock64() - start;
+    if (elected) p.trace[blockIdx.x * TRACE_STRIDE + metric] += clock64() - start;
   }
+}
+// Uniform within each consumer warp: unlike sample_start, these probes must
+// not insert a lane-0 branch/reconvergence between a load and its timestamp.
+template<bool PROFILE> __device__ __forceinline__ unsigned long long warp_clock(bool probe) {
+  unsigned long long t = 0;
+  if constexpr (PROFILE) {
+    if (probe) asm volatile("mov.u64 %0, %%clock64;" : "=l"(t) :: "memory");
+  }
+  return t;
+}
+template<bool PROFILE> __device__ __forceinline__ void warp_sample(
+    const Params& p, bool pb, bool probe, int metric, unsigned long long value) {
+  if constexpr (PROFILE) {
+    if (probe && (threadIdx.x & 31) == 0) {
+      int offset = TRACE_BASE + (int(pb) * 8 + (threadIdx.x >> 5)) * WARP_METRICS + metric;
+      p.trace[blockIdx.x * TRACE_STRIDE + offset] += value;
+    }
+  }
+}
+template<bool PROFILE> __device__ __forceinline__ unsigned long long weight_ready(
+    bool probe, Shared& s, const uint4& q, const uint2& sf) {
+  if constexpr (PROFILE) {
+    if (probe) {
+      auto begin = warp_clock<true>(true);
+      // A real dependent instruction is necessary: a clock read alone does
+      // NOT wait for preceding LDG results. XOR all six words into a volatile
+      // shared store (one harmless scratch word/warp, unused until finish).
+      // This is a readiness-wait PROXY: includes the XOR/store issue cost,
+      // not an exact hardware scoreboard-stall counter. No weight is staged.
+      asm volatile("{ .reg .b32 v; .reg .pred p; "
+                   "xor.b32 v, %0, %1; xor.b32 v, v, %2; xor.b32 v, v, %3; "
+                   "xor.b32 v, v, %4; xor.b32 v, v, %5; "
+                   "setp.eq.u32 p, %7, 0; @p st.volatile.shared.b32 [%6], v; }"
+                   :: "r"(q.x), "r"(q.y), "r"(q.z), "r"(q.w), "r"(sf.x), "r"(sf.y),
+                      "r"(sa(s.reduce + (threadIdx.x >> 5))), "r"(threadIdx.x & 31) : "memory");
+      return warp_clock<true>(true) - begin;
+    }
+  }
+  return 0;
 }
 template<int ROWS, int N, int PRODUCERS, bool PROFILE> __device__ __forceinline__ void produce(
     const Params& p, Shared& s, unsigned char* ring, int e, bool pb, int& seq) {
@@ -1145,27 +1190,26 @@ template<int ROWS> __device__ __forceinline__ void load_group(
   int tid = threadIdx.x, wg = tid >> 7, warp = (tid >> 5) & 3, lane = tid & 31;
   constexpr int PIECE = 2304;  // 64 rows x 64 K: 2048 code + 256 scale bytes
   const unsigned char* ptr = base + size_t(group) * (ROWS / 64) * PIECE + wg * PIECE;
-  // Every code and scale is loaded by exactly one thread. The scale words
-  // are broadcast to the four lanes sharing a weight row, without smem.
+  // Four adjacent lanes use one row's scales. Loading the SAME address in
+  // those lanes still requests the same two 32-byte sectors/warp, not four
+  // times the HBM bytes. Avoid divergent scale loads + two dependent SHFLs.
   const void* cp = ptr + (warp * 32 + lane) * 16;
+  const void* sp = ptr + 2048 + warp * 64 + (lane >> 2) * 8;
   if constexpr (ROWS == 128) {
     // Retain the fallback's weight evict-first L2 policy so the small,
     // repeatedly used activation packs survive the compressed weight stream.
     asm volatile("ld.global.cg.L2::cache_hint.v4.u32 {%0,%1,%2,%3}, [%4], %5;"
                  : "=r"(codes.x), "=r"(codes.y), "=r"(codes.z), "=r"(codes.w)
-                 : "l"(cp), "l"(0x12f0000000000000ull));
-  } else codes = __ldg(reinterpret_cast<const uint4*>(cp));
-  scale = make_uint2(0, 0);
-  if (lane < 8) {
-    const void* sp = ptr + 2048 + warp * 64 + lane * 8;
-    if constexpr (ROWS == 128) {
-      asm volatile("ld.global.cg.L2::cache_hint.v2.u32 {%0,%1}, [%2], %3;"
-                   : "=r"(scale.x), "=r"(scale.y)
-                   : "l"(sp), "l"(0x12f0000000000000ull));
-    } else scale = __ldg(reinterpret_cast<const uint2*>(sp));
+                 : "l"(cp), "l"(0x12f0000000000000ull) : "memory");
+    asm volatile("ld.global.cg.L2::cache_hint.v2.u32 {%0,%1}, [%2], %3;"
+                 : "=r"(scale.x), "=r"(scale.y)
+                 : "l"(sp), "l"(0x12f0000000000000ull) : "memory");
+  } else {
+    asm volatile("ld.global.nc.v4.u32 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(codes.x), "=r"(codes.y), "=r"(codes.z), "=r"(codes.w) : "l"(cp) : "memory");
+    asm volatile("ld.global.nc.v2.u32 {%0,%1}, [%2];"
+                 : "=r"(scale.x), "=r"(scale.y) : "l"(sp) : "memory");
   }
-  // Do NOT broadcast here: a shuffle would immediately wait for the global
-  // scale load and serialize register lookahead. Broadcast only at consumption.
 }
 template<bool PB, int ROWS, int N, bool PROFILE> __device__ __forceinline__ void consume(
     const Params& p, Shared& s, unsigned char* ring, int e, int tile, int& seq) {
@@ -1180,32 +1224,50 @@ template<bool PB, int ROWS, int N, bool PROFILE> __device__ __forceinline__ void
   // accumulator registers (or eager zeroing that can serialize WGMMA).
   uint32_t af[2][2][4];
   constexpr int LOOK = N <= 32 ? 4 : N <= 64 ? 2 : 1;
+  static_assert(Stage<N>::groups % LOOK == 0, "constant cyclic register slots");
   uint4 cw[LOOK]; uint2 sw[LOOK];
   #pragma unroll
   for (int j = 0; j < LOOK; ++j) load_group<ROWS>(base, j, cw[j], sw[j]);
+  warp_sample<PROFILE>(p,PB,true,0,1);
   int previous = -1;
   #pragma unroll 1
   for (int st = 0; st < Stage<N>::count; ++st, ++seq) {
     int slot = seq % NS;
+    // Sample one steady-state K-stage per tile, all consumer warps. Sampling
+    // every K64 group would itself dominate the kernel and register budget.
+    bool probe = PROFILE && st == Stage<N>::count / 2;
+    auto full_start = warp_clock<PROFILE>(probe);
     auto start = sample_start<PROFILE>(tid == 0);
     wait_bar(s.full + slot, (seq / NS) & 1);
     sample_end<PROFILE>(p,tid == 0,PB ? 10 : 8,start);
+    warp_sample<PROFILE>(p,PB,probe,7,warp_clock<PROFILE>(probe)-full_start);
+    warp_sample<PROFILE>(p,PB,probe,1,1);
+    unsigned long long issue_first = 0;
     start = sample_start<PROFILE>(tid == 0);
-    #pragma unroll 1
+    #pragma unroll
     for (int kk = 0; kk < Stage<N>::groups; ++kk) {
       int k = st * Stage<N>::groups + kk;
-      uint4 codes = cw[0];
-      uint2 local_scale = sw[0];
-      #pragma unroll
-      for (int j = 0; j < LOOK - 1; ++j) { cw[j] = cw[j+1]; sw[j] = sw[j+1]; }
+      // kk is compile-time unrolled and LOOK divides groups: no dynamic
+      // register indexing, and, crucially, NO MOV of future load results.
+      // The v3 shifting FIFO touched every pending LDG at every iteration.
+      int ws = kk % LOOK;
+      // Probe the ORIGINAL slots before copying them: timing after those
+      // MOVs could miss the very scoreboard wait being investigated.
+      auto ready_cycles = weight_ready<PROFILE>(probe,s,cw[ws],sw[ws]);
+      uint4 codes = cw[ws];
+      uint2 scales = sw[ws];
       // Prefetch each compressed K64 group once, independently of token N.
-      if (k + LOOK < H / KGROUP) load_group<ROWS>(base, k + LOOK, cw[LOOK-1], sw[LOOK-1]);
-      uint2 scales;
-      scales.x = __shfl_sync(0xffffffffu, local_scale.x, g);
-      scales.y = __shfl_sync(0xffffffffu, local_scale.y, g);
+      auto issued = warp_clock<PROFILE>(probe);
+      if (kk == 0) issue_first = issued;
+      if (k + LOOK < H / KGROUP) load_group<ROWS>(base, k + LOOK, cw[ws], sw[ws]);
+      auto issue_last = warp_clock<PROFILE>(probe);
+      warp_sample<PROFILE>(p,PB,probe,4,ready_cycles);
+      warp_sample<PROFILE>(p,PB,probe,3,issue_last-issued);
+      if (kk == Stage<N>::groups-1) warp_sample<PROFILE>(p,PB,probe,2,issue_last-issue_first);
       uint64_t desc = descriptor(ring + slot * Stage<N>::bytes + kk * N * KGROUP * 2);
       #pragma unroll
       for (int cg = 0; cg < 2; ++cg) {
+        auto decode_start = warp_clock<PROFILE>(probe);
         #pragma unroll
         for (int j = 0; j < 2; ++j) {
           int step = 2 * cg + j;
@@ -1220,7 +1282,13 @@ template<bool PB, int ROWS, int N, bool PROFILE> __device__ __forceinline__ void
         else RSMMA<N>::template run<false>(d, af[cg][0], desc + cg * 32);
         RSMMA<N>::template run<false>(d, af[cg][1], desc + cg * 32 + 16);
         wg_commit();
+        auto wait_start = warp_clock<PROFILE>(probe);
         wg_wait<1>();
+        auto wait_end = warp_clock<PROFILE>(probe);
+        // Do not insert a lane-0 trace RMW between commit and wait: it could
+        // let the WGMMA retire and hide the exposed wait we want to measure.
+        warp_sample<PROFILE>(p,PB,probe,5,wait_start-decode_start);
+        warp_sample<PROFILE>(p,PB,probe,6,wait_end-wait_start);
         if (kk == 0 && cg == 0 && previous >= 0) {
           if (lane == 0) arrive(s.empty + previous);
           previous = -1;
@@ -1339,7 +1407,12 @@ template<int NT> __device__ __forceinline__ void finish(const Params& p, Shared&
 }
 template<bool PROFILE> __device__ __forceinline__ void stamp(const Params& p, int i) {
   if constexpr (PROFILE) {
-    if (threadIdx.x == 0) p.trace[blockIdx.x * 16 + i] = clock64();
+    if (threadIdx.x == 0) {
+      p.trace[blockIdx.x * TRACE_STRIDE + i] = clock64();
+      unsigned long long ns;
+      asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(ns) :: "memory");
+      p.trace[blockIdx.x * TRACE_STRIDE + 16 + i] = ns;
+    }
   }
 }
 template<int ROWS, int CAP, bool PROFILE=false>
@@ -1426,16 +1499,19 @@ template<bool PROFILE> void restart_dispatch(std::vector<Tensor> w, std::vector<
   p.m = x.size(0); p.lo = lo;
   auto stream = at::cuda::getCurrentCUDAStream();
   if constexpr (PROFILE) {
+    TORCH_CHECK(p.m <= 32, "RSTREAM profiles are bounded to M8/16/32");
     if (p.m <= 8) rs_launch<64,8,true>(p,grid,stream);
-    else if (p.m <= 32) rs_launch<128,32,true>(p,grid,stream);
-    else rs_launch<64,256,true>(p,grid,stream);
+    else if (p.m <= 16) rs_launch<128,16,true>(p,grid,stream);
+    else rs_launch<128,32,true>(p,grid,stream);
   } else {
+    // v4 targets the measured zero-local small kernels. Do not spend compile
+    // time instantiating the known-spilling CAP128/256 families (or an
+    // ungated CAP64). Large inputs keep the exact incumbent; the selector's
+    // existing per-case resource exception handles this static rejection.
+    TORCH_CHECK(p.m <= 32, "RSTREAM_RESOURCE_REJECT v4_scope=M<=32; large kernels parked");
     if (p.m <= 8) rs_launch<64,8>(p,grid,stream);
     else if (p.m <= 16) rs_launch<128,16>(p,grid,stream);
-    else if (p.m <= 32) rs_launch<128,32>(p,grid,stream);
-    else if (p.m <= 64) rs_launch<128,64>(p,grid,stream);
-    else if (p.m <= 128) rs_launch<64,128>(p,grid,stream);
-    else rs_launch<64,256>(p,grid,stream);
+    else rs_launch<128,32>(p,grid,stream);
   }
 }
 void restart_run(std::vector<Tensor> w, std::vector<Tensor> scratch,
@@ -1531,7 +1607,7 @@ def _restart_extension():
     started = time.monotonic()
     try:
         return load_inline(
-            name='okc_moe_rstream_wholeaxis_v3_k256_resident_sm90a',
+            name='okc_moe_rstream_wholeaxis_v4_fixedslots_sm90a',
             cpp_sources=RESTART_CPP, cuda_sources=RESTART_CUDA,
             functions=['restart_run', 'restart_profile'],
             # The incumbent lets Torch choose its dialect (C++20 on the
@@ -1661,24 +1737,30 @@ def _restart_graph(data, state, new):
 
 
 def _restart_phase_diagnostics(weights, state, deadline):
-    """Six diagnostic samples + three warmups; no clock64 in production."""
+    """Six graph samples, same-input old/new calibration; no production clocks."""
     import time
     if time.monotonic() + 5.0 > deadline:
         print('RSTREAM_PROFILE skipped budget', flush=True)
         return
     dev = weights['w13'].device
     gen = torch.Generator(device=dev).manual_seed(947153)
+    # Inserting M16 must not change v3's M8/M32 before/after routing draws.
+    gen16 = torch.Generator(device=dev).manual_seed(947169)
     flush = torch.ones(32 << 20, dtype=torch.float32, device=dev)
     labels = ('route', 'gather_sync', 'A', 'A_sync', 'B', 'B_sync', 'finish')
-    for m in (8, 32, 256):
+    # Three small production + three matching profile families. Park known
+    # large spills, replace the CAP256 profile with missing CAP16. No sweep.
+    trace_base, warp_metrics = 24, 8
+    trace_stride = trace_base + 2 * 8 * warp_metrics
+    for m in (8, 16, 32):
         for mode in ('hot', 'random'):
             _restart_budget_check(deadline)
-            data = _restart_data(m, gen, dev, mode)
+            data = _restart_data(m, gen16 if m == 16 else gen, dev, mode)
             ids = data['topk_ids'].cpu().reshape(-1)
             count = torch.bincount(ids[(ids >= state['lo']) & (ids < state['lo'] + 32)] - state['lo'], minlength=32)
             pads = [next(n for n in (8,16,32,64,96,128,192,256) if n >= c) if c else 0
                     for c in count.tolist()]
-            trace = torch.zeros((state['grid'] * 4, 16), dtype=torch.int64, device=dev)
+            trace = torch.zeros((state['grid'] * 4, trace_stride), dtype=torch.int64, device=dev)
             out = torch.empty_like(data['hidden_states'])
             begin, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
             rows = 128 if 8 < m <= 64 else 64
@@ -1689,10 +1771,15 @@ def _restart_phase_diagnostics(weights, state, deadline):
                 # Exclude first-use module loading / host attribute printing
                 # from the sample event interval. Keep the subsequent read flush.
                 run(); torch.cuda.synchronize(); trace.zero_()
+            graph = torch.cuda.CUDAGraph()
+            with torch.cuda.graph(graph):
+                run()
+            trace.zero_()
             flush.sum()
             begin.record()
-            run()
+            graph.replay()
             end.record(); end.synchronize()
+            profile_us = begin.elapsed_time(end)*1000.0
             ticks = trace.cpu()
             ticks = ticks[ticks[:,7] != 0]
             delta = (ticks[:,1:8] - ticks[:,:7]).float()
@@ -1701,9 +1788,46 @@ def _restart_phase_diagnostics(weights, state, deadline):
             regions = ('A_full_wait','A_work','B_full_wait','B_work',
                        'A_empty_wait','B_empty_wait','A_bulk_issue','B_bulk_issue')
             samples = ' '.join(f'{name}_cycles_max={int(ticks[:,8+i].max())}' for i,name in enumerate(regions))
-            print(f'RSTREAM_PROFILE M={m} mode={mode} us={begin.elapsed_time(end)*1000.0:.2f} '
+            # globaltimer is common to all SMs, clock64 is not. Phase envelopes
+            # include CTA tails; do not add independent per-phase maxima.
+            ns = ticks[:,16:24]
+            envelopes = ','.join(f'{(int(ns[:,i+1].max())-int(ns[:,i].min()))/1000.0:.2f}'
+                                 for i in range(7))
+            mhz = float(((ticks[:,7]-ticks[:,0]).double() /
+                         (ns[:,7]-ns[:,0]).double()*1000.0).median())
+            # Same routing draw, same read flush, no host work between events.
+            # This diagnoses instrumentation overhead, NOT an admission test.
+            calibration = []
+            for new in (False, True):
+                _restart_budget_check(deadline)
+                try:
+                    raw, _ = _restart_graph(data, state, new)
+                except RuntimeError as exc:
+                    if 'RSTREAM_RESOURCE_REJECT' not in str(exc):
+                        raise
+                    calibration.append(float('nan'))
+                    continue
+                flush.sum(); begin.record(); raw.replay(); end.record(); end.synchronize()
+                calibration.append(begin.elapsed_time(end)*1000.0)
+            print(f'RSTREAM_PROFILE M={m} mode={mode} us={profile_us:.2f} '
+                  f'old_us={calibration[0]:.2f} raw_new_us={calibration[1]:.2f} sm_mhz={mhz:.1f} '
                   f'ctas={ticks.shape[0]} active={int((count>0).sum())} routes={int(count.sum())} '
-                  f'padded={sum(pads)} max_pad={max(pads)} {phases} {samples}', flush=True)
+                  f'padded={sum(pads)} max_pad={max(pads)} {phases} {samples} '
+                  f'phase_envelope_us={envelopes}', flush=True)
+            # Compact per-warp vectors keep all six samples within judge-log
+            # limits. Cycles are SUMMED across sampled stages, then divided by
+            # sample count; tiles is a total, not an average of CTA maxima.
+            warp = ticks[:,trace_base:].reshape(-1,2,8,warp_metrics).sum(0)
+            for phase, name in enumerate(('A','B')):
+                vectors = []
+                for w in range(rows//16):
+                    values = warp[phase,w].tolist()
+                    n = max(values[1],1)
+                    vectors.append(f'w{w}=' + ','.join(
+                        [str(values[0]),str(values[1])] + [f'{v/n:.1f}' for v in values[2:]]))
+                print(f'RSTREAM_WARP M={m} mode={mode} phase={name} '
+                      f'metrics=tiles,samples,load_span,load_issue,ready_proxy,decode_mma_issue,mma_wait,full_wait '
+                      f'unit=cycles_per_sampled_Kstage window_B_per_warp=2304 ' + ' '.join(vectors), flush=True)
 
 
 def _restart_admission(ratios, correct):

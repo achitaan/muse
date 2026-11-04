@@ -1,0 +1,328 @@
+RSTREAM v4 local validation (CPU/front-end only; no GPU, NVCC, PTXAS or judge check)
+Source: experiments/moe_restart/moe_restart.py; parent 8a75f5c; branch loop/moe-restart
+Bounded build: three small production plus three matching profile families; M>32 static incumbent fallback
+{
+  "assumptions": {
+    "sm_ghz": 1.98,
+    "SMs": 132,
+    "HBM_TBps": 4.4,
+    "HBM_bytes_per_cycle_per_SM": 16.835016835016834,
+    "phase_medians_are_not_additive_wall_time": true,
+    "CTA_phase_max_is_not_globally_aligned_phase_envelope": true,
+    "incumbent_phase_times_not_in_log": true
+  },
+  "missing_small_M_phase_samples": [
+    16
+  ],
+  "gates": [
+    {
+      "M": "1",
+      "old_us": "26.536",
+      "new_us": "87.456",
+      "ratio_AB": "3.20467",
+      "ratio_BA": "3.22851",
+      "err": "3.106e-03",
+      "admit": "0"
+    },
+    {
+      "M": "8",
+      "old_us": "69.056",
+      "new_us": "171.472",
+      "ratio_AB": "2.51509",
+      "ratio_BA": "2.51777",
+      "err": "8.560e-04",
+      "admit": "0"
+    },
+    {
+      "M": "16",
+      "old_us": "102.712",
+      "new_us": "242.880",
+      "ratio_AB": "2.25122",
+      "ratio_BA": "2.25494",
+      "err": "9.896e-04",
+      "admit": "0"
+    },
+    {
+      "M": "32",
+      "old_us": "121.848",
+      "new_us": "254.192",
+      "ratio_AB": "2.09535",
+      "ratio_BA": "2.09817",
+      "err": "5.385e-04",
+      "admit": "0"
+    }
+  ],
+  "profiles": [
+    {
+      "M": 8,
+      "mode": "hot",
+      "active": 1,
+      "grid": 528,
+      "rows": 64,
+      "profile_event_us": 118.78,
+      "phases": {
+        "route": {
+          "med": 8271,
+          "max": 8644
+        },
+        "gather_sync": {
+          "med": 10040,
+          "max": 10478
+        },
+        "A": {
+          "med": 185,
+          "max": 66321
+        },
+        "A_sync": {
+          "med": 69757,
+          "max": 70634
+        },
+        "B": {
+          "med": 189,
+          "max": 66433
+        },
+        "B_sync": {
+          "med": 70383,
+          "max": 76943
+        },
+        "finish": {
+          "med": 118,
+          "max": 9680
+        }
+      },
+      "phase_median_us_at_assumed_clock": {
+        "route": 4.177272727272728,
+        "gather_sync": 5.070707070707071,
+        "A": 0.09343434343434344,
+        "A_sync": 35.23080808080808,
+        "B": 0.09545454545454546,
+        "B_sync": 35.5469696969697,
+        "finish": 0.0595959595959596
+      },
+      "A_weight_bytes": 18874368,
+      "B_weight_bytes": 9437184,
+      "A_bytes_per_cycle_per_SM_proxy": 2.155993371083614,
+      "B_bytes_per_cycle_per_SM_proxy": 1.0761792811075548,
+      "A_bytes_per_cycle_per_CTA_proxy": 0.5389983427709035,
+      "A_fraction_of_HBM_share_proxy": 0.1280660062423667,
+      "unique_weight_floor_us": 6.434443636363636,
+      "A_full_wait_max": 2517,
+      "A_work_max": 46275,
+      "A_producer_empty_wait_max": 42601
+    },
+    {
+      "M": 8,
+      "mode": "random",
+      "active": 11,
+      "grid": 528,
+      "rows": 64,
+      "profile_event_us": 249.76,
+      "phases": {
+        "route": {
+          "med": 11156,
+          "max": 11520
+        },
+        "gather_sync": {
+          "med": 16078,
+          "max": 16629
+        },
+        "A": {
+          "med": 190755,
+          "max": 206812
+        },
+        "A_sync": {
+          "med": 19873,
+          "max": 71919
+        },
+        "B": {
+          "med": 77015,
+          "max": 132875
+        },
+        "B_sync": {
+          "med": 59120,
+          "max": 68761
+        },
+        "finish": {
+          "med": 121,
+          "max": 20677
+        }
+      },
+      "phase_median_us_at_assumed_clock": {
+        "route": 5.634343434343434,
+        "gather_sync": 8.12020202020202,
+        "A": 96.3409090909091,
+        "A_sync": 10.036868686868686,
+        "B": 38.89646464646464,
+        "B_sync": 29.858585858585858,
+        "finish": 0.06111111111111111
+      },
+      "A_weight_bytes": 207618048,
+      "B_weight_bytes": 103809024,
+      "A_bytes_per_cycle_per_SM_proxy": 7.605284026071988,
+      "B_bytes_per_cycle_per_SM_proxy": 5.918585136406397,
+      "A_bytes_per_cycle_per_CTA_proxy": 1.901321006517997,
+      "A_fraction_of_HBM_share_proxy": 0.45175387114867616,
+      "unique_weight_floor_us": 70.77888,
+      "A_full_wait_max": 10605,
+      "A_work_max": 171188,
+      "A_producer_empty_wait_max": 150149
+    },
+    {
+      "M": 32,
+      "mode": "hot",
+      "active": 1,
+      "grid": 264,
+      "rows": 128,
+      "profile_event_us": 95.97,
+      "phases": {
+        "route": {
+          "med": 10008,
+          "max": 10439
+        },
+        "gather_sync": {
+          "med": 9456,
+          "max": 9987
+        },
+        "A": {
+          "med": 215,
+          "max": 66790
+        },
+        "A_sync": {
+          "med": 70433,
+          "max": 77928
+        },
+        "B": {
+          "med": 236,
+          "max": 64000
+        },
+        "B_sync": {
+          "med": 74510,
+          "max": 75580
+        },
+        "finish": {
+          "med": 844,
+          "max": 7704
+        }
+      },
+      "phase_median_us_at_assumed_clock": {
+        "route": 5.054545454545455,
+        "gather_sync": 4.775757575757575,
+        "A": 0.10858585858585859,
+        "A_sync": 35.57222222222222,
+        "B": 0.1191919191919192,
+        "B_sync": 37.63131313131313,
+        "finish": 0.4262626262626263
+      },
+      "A_weight_bytes": 18874368,
+      "B_weight_bytes": 9437184,
+      "A_bytes_per_cycle_per_SM_proxy": 2.140853965618152,
+      "B_bytes_per_cycle_per_SM_proxy": 1.1170909090909091,
+      "A_bytes_per_cycle_per_CTA_proxy": 1.070426982809076,
+      "A_fraction_of_HBM_share_proxy": 0.12716672555771824,
+      "unique_weight_floor_us": 6.434443636363636,
+      "A_full_wait_max": 2654,
+      "A_work_max": 49691,
+      "A_producer_empty_wait_max": 48349
+    },
+    {
+      "M": 32,
+      "mode": "random",
+      "active": 16,
+      "grid": 264,
+      "rows": 128,
+      "profile_event_us": 279.17,
+      "phases": {
+        "route": {
+          "med": 20008,
+          "max": 20372
+        },
+        "gather_sync": {
+          "med": 22059,
+          "max": 22574
+        },
+        "A": {
+          "med": 246859,
+          "max": 280372
+        },
+        "A_sync": {
+          "med": 37025,
+          "max": 70054
+        },
+        "B": {
+          "med": 126504,
+          "max": 143058
+        },
+        "B_sync": {
+          "med": 20203,
+          "max": 73540
+        },
+        "finish": {
+          "med": 357,
+          "max": 12038
+        }
+      },
+      "phase_median_us_at_assumed_clock": {
+        "route": 10.105050505050505,
+        "gather_sync": 11.14090909090909,
+        "A": 124.67626262626263,
+        "A_sync": 18.699494949494948,
+        "B": 63.89090909090909,
+        "B_sync": 10.203535353535354,
+        "finish": 0.1803030303030303
+      },
+      "A_weight_bytes": 301989888,
+      "B_weight_bytes": 150994944,
+      "A_bytes_per_cycle_per_SM_proxy": 8.159881093041323,
+      "B_bytes_per_cycle_per_SM_proxy": 7.996065168736393,
+      "A_bytes_per_cycle_per_CTA_proxy": 4.079940546520661,
+      "A_fraction_of_HBM_share_proxy": 0.4846969369266546,
+      "unique_weight_floor_us": 102.95109818181818,
+      "A_full_wait_max": 12242,
+      "A_work_max": 245237,
+      "A_producer_empty_wait_max": 214119
+    }
+  ],
+  "illustrative_pipeline": {
+    "latency_cycles": 800,
+    "compute_cycles_per_K64": 240,
+    "look": 4,
+    "shifting_cycles": 49760,
+    "cyclic_cycles": 16160,
+    "not_a_measured_speedup": true
+  }
+}
+{
+  "packing": "64/128-row full-K code and scale roundtrips; WGS conversion identical; row-coalesced all-lane scales equal unique-load+broadcast",
+  "dequant": "all 16 codes x 119 allowed FP8 bytes exact; paired scale arithmetic exact",
+  "routing_activation": "60 routings incl empty/hot/full local; descriptor bijection and capacity",
+  "ownership_ring": "924 plans incl grids264/528; fixed cyclic 1/2/4-group unique prefetches, no queue shifts; mixed-N K256/K128/K64 two-slot parity/register lifetimes and capacities",
+  "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
+  "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
+  "python_static": "AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally"
+}
+test_analyzer_does_not_invent_missing_phase_data (__main__.BuildTests.test_analyzer_does_not_invent_missing_phase_data) ... ok
+test_architecture_fallback_reports_total_prepare (__main__.BuildTests.test_architecture_fallback_reports_total_prepare) ... ok
+test_both_compilers_use_cxx20 (__main__.BuildTests.test_both_compilers_use_cxx20) ... ok
+test_build_exception_is_not_replaced_or_truncated (__main__.BuildTests.test_build_exception_is_not_replaced_or_truncated) ... ok
+test_build_failure_reports_shutdown_time_and_overrun (__main__.BuildTests.test_build_failure_reports_shutdown_time_and_overrun) ... ok
+test_compact_summary_does_not_drop_later_errors (__main__.BuildTests.test_compact_summary_does_not_drop_later_errors) ... ok
+test_deadline_with_headroom_and_no_deadline (__main__.BuildTests.test_deadline_with_headroom_and_no_deadline) ... ok
+test_default_incumbent_prepare_skips_optional_selector (__main__.BuildTests.test_default_incumbent_prepare_skips_optional_selector) ... ok
+test_first_errors_and_exact_tail_survive_log_truncation (__main__.BuildTests.test_first_errors_and_exact_tail_survive_log_truncation) ... ok
+test_fixed_slot_pipeline_never_shifts_future_loads (__main__.BuildTests.test_fixed_slot_pipeline_never_shifts_future_loads) ... ok
+test_latency_model_distinguishes_early_uses_from_real_lookahead (__main__.BuildTests.test_latency_model_distinguishes_early_uses_from_real_lookahead) ... ok
+test_no_packing_or_admission_after_expired_setup (__main__.BuildTests.test_no_packing_or_admission_after_expired_setup) ... ok
+test_noncompiler_exception_remains_visible (__main__.BuildTests.test_noncompiler_exception_remains_visible) ... ok
+test_production_clock_code_is_compile_time_discarded (__main__.BuildTests.test_production_clock_code_is_compile_time_discarded) ... ok
+test_profile_layout_and_compile_work_are_bounded (__main__.BuildTests.test_profile_layout_and_compile_work_are_bounded) ... ok
+test_resource_rejection_is_per_case_not_prepare_abort (__main__.BuildTests.test_resource_rejection_is_per_case_not_prepare_abort) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.011s
+
+OK
+CLANG FRONTEND results/moe_restart_instantiated.cu host (declaration-only stubs, NOT PTX validation)
+CLANG FRONTEND results/moe_restart_instantiated.cu device (declaration-only stubs, NOT PTX validation)
+CLANG FRONTEND results/moe_restart_host_stub.cu host (declaration-only stubs, NOT PTX validation)
+CLANG FRONTEND results/moe_restart_host_stub.cu device (declaration-only stubs, NOT PTX validation)
+ALL LOCAL CHECKS PASSED; GPU performance/prepare duration UNKNOWN

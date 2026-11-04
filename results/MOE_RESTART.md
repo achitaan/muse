@@ -1,8 +1,14 @@
 # MoE restart: RSTREAM
 
-**Current revision is v3**: quantitative diagnosis and current geometry are
+**Current revision is v4**: quantitative diagnosis and current geometry are
 in [MOE_RESTART_PERFORMANCE.md](MOE_RESTART_PERFORMANCE.md). The design and
 repair history below describe v1/v2 unless explicitly marked otherwise.
+v4 repairs the shifting register-prefetch FIFO, removes scale broadcasts and
+the mostly-idle second medium producer, and adds per-consumer-warp issue/wait
+proxies plus aligned phase clocks. Its GPU performance is not yet measured.
+The v4 build instantiates only three small production + three matching profile
+families; M>32 is statically resource-rejected to the incumbent to avoid
+recompiling known-spilling large kernels during this bounded small-M repair.
 
 ## Check file
 

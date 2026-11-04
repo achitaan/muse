@@ -1,4 +1,182 @@
-# RSTREAM v3: quantitative diagnosis and bounded repair
+# RSTREAM v4: repair the register FIFO's early load dependencies
+
+Exact check file: `experiments/moe_restart/moe_restart.py`, branch
+`loop/moe-restart`, worktree
+`/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-moe-restart`.
+Parent `8a75f5c`. **No v4 GPU check, submission, push or main commit by this lane.**
+
+## Measured v3 result and phase attribution
+
+Read all 18 complete `RSTREAM_GATE/RESOURCES/PROFILE` lines from
+`/private/var/folders/pm/r8xm1mr525v913lct5tdg_5w0000gn/T/opencode/subs/profiles/moe_restart3.c1efd71a0484482b.log`.
+Build 51.7 s, prepare **139.7 s**, correctness passed, no admitted cases.
+Gate new/old: M1 3.205/3.229, M8 2.515/2.518, M16 2.251/2.255,
+M32 2.095/2.098 (AB/BA). Large cases were rejected: CAP128 local456 B;
+CAP256 local1872 B. Their 168-register kernels are NOT repaired here.
+
+Random diagnostic phase **median cycles** (not additive critical-path times):
+
+| M | route | gather+sync | A | A-sync | B | B-sync | norm/finish | old whole-call median us |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 8 | 11156 | 16078 | **190755** | 19873 | 77015 | 59120 | 121 | 69.056 |
+| 16 | unavailable | unavailable | unavailable | unavailable | unavailable | unavailable | unavailable | 102.712 |
+| 32 | 20008 | 22059 | **246859** | 37025 | 126504 | 20203 | 357 | 121.848 |
+
+At an **assumed**, not measured, 1.98 GHz those rows are respectively
+`5.63, 8.12, 96.34, 10.04, 38.90, 29.86, 0.06 us` and
+`10.11, 11.14, 124.68, 18.70, 63.89, 10.20, 0.18 us`.
+A maxima are **206812 / 280372 cycles** (~104.5 / 141.6 us).
+Thus A alone exceeds the incumbent's entire displayed M8/M32 call. These
+are different draws/builds, so that comparison localizes the problem but is
+not a paired speedup measurement. The log has **neither M16 phase samples
+nor incumbent per-phase counters**; do not invent them. v4 adds M16 samples
+and same-input incumbent/uninstrumented-new timings.
+
+The tiny norm medians mean most CTAs do no finish work, NOT that norm is free:
+finish maxima are 20677 / 12038 cycles. Likewise hot A/B medians are near
+zero because only 128/64 A tasks and 64/32 B tasks exist for 528/264 CTAs;
+idle CTAs account the actual GEMM duration to the following barrier.
+
+### A is far below its bandwidth share, in consumer work
+
+| Random draw | M8: R64, 528 CTAs | M32: R128, 264 CTAs |
+|---|---:|---:|
+| Active experts / padded routes | 11 / 88 | 16 / 128 |
+| A unique compressed bytes | 207618048 | 301989888 |
+| Bytes / (A max cycles * 132 SMs), proxy | **7.605 B/cycle/SM** | **8.160 B/cycle/SM** |
+| Same proxy per launched CTA | **1.901 B/cycle** | **4.080 B/cycle** |
+| HBM per-CTA share at 1.98 GHz | 4.209 B/cycle | 8.418 B/cycle |
+| Fraction of optimistic HBM share | 45.2% | 48.5% |
+| Consumer A-work maximum cycles | 171188 | 245237 |
+| Consumer A-full-wait maximum cycles | 10605 | 12242 |
+| Producer A-empty-wait maximum cycles | 150149 | 214119 |
+
+4.4 TB/s / 132 / (1.7..1.98 GHz) is **19.6..16.8 B/cycle/SM**:
+these proxies are only ~39..49% of that. v3 has no globally aligned phase
+timestamps; max CTA duration is a service-span proxy, not an exact aggregate
+bandwidth measurement. Maxima can belong to different CTAs. Nevertheless,
+activation waits are only ~5..6% of the consumer-work maxima, producers
+mostly wait for consumers, and small kernels have **zero local bytes**.
+More activation producers or large-case spill repairs cannot remove this term.
+
+The hot work loops cost 46275/49691 cycles per full-K tile, or ~723/776
+cycles/K64. ~64 ordinary decode instructions plus two scale shuffles per
+consumer warp/K64 do not by themselves identify that latency. The v3
+counter combined load stalls, decode and WGMMA waits; no claim about their
+individual measured shares is justified yet.
+
+## Chosen repair and its model
+
+The source has a concrete **early-use hazard**: every K64 iteration performs
+`cw[j]=cw[j+1]; sw[j]=sw[j+1]` over ALL future groups before doing current
+decode. Physical MOVs must wait for their source LDGs. In a rolled loop they
+cannot all be eliminated by static renaming: even the newest, supposedly
+four-groups-ahead load is read again on the next iteration. A scale-load
+branch/reconvergence and two SHFL dependencies further obstruct the window.
+Generated SASS is unavailable, so attributing the measured wait specifically
+to those MOVs remains a **testable source-based diagnosis**, not a hardware
+stall-counter observation.
+
+Ranked changes:
+
+1. **Fixed cyclic slots, fully unrolled 1/2/4-group K-stage.** `kk % LOOK`
+   is constant after unrolling. Only the current group's registers are read;
+   its replacement is issued into that slot; future groups are untouched.
+   Weight traffic, native-N reuse, MMA count and ring lifetimes are unchanged.
+   An illustrative 800-cycle load / 240-cycle compute / LOOK4 simulation
+   drops from **49760 to 16160 cycles/full K**, close to v3's loop scale but
+   emphatically NOT a measured or physically uncapped speedup prediction.
+   Aggregate bandwidth caps the random A opportunity at roughly **2.1..2.2x**
+   at 1.98 GHz, before fixed costs/tails.
+2. **Row-coalesced scales in every lane.** Four lanes request the same
+   8-byte scale address for `lane>>2`. This still touches two 32-byte scale
+   sectors/warp, not four times the unique HBM bytes. It removes the divergent
+   load branch, zero initialization and both broadcasts. Removing two SHFLs
+   alone is only a few-percent issue saving; restoring independence matters
+   more. CPU tests prove equivalence to the previous load+broadcast mapping.
+3. **One medium producer.** Consumer pressure, not activation availability,
+   dominates. Removing the mostly-spinning second warp changes 320 -> 288
+   threads/CTA and raises the 2-CTA register ceiling from ~102 to ~112. Four
+   consumer WGs/SM and two activation slots remain; probe registers now have
+   more headroom. This is not an extra multiplicative speedup claim.
+
+The effective one-K64/warp window of a serialized FIFO is 576 B/warp,
+~9 KiB/SM with 16 consumer warps. A genuinely independent LOOK4 window is
+2304 B/warp, **36 KiB/SM**. At 16.8 B/cycle this covers ~2190 cycles of
+memory latency, versus ~548 for one group. Enlarging LOOK without removing
+the early uses would not solve this, and risks occupancy/spills.
+
+## What the next judge log will answer
+
+- Same six hot/random samples, now M8/**16**/32. Separate RNG for M16 keeps
+  the old M8/M32 input draws unchanged. Profile kernels run via graph replay;
+  same-draw `old_us` and `raw_new_us` expose instrumentation overhead.
+- All old phase/region counters remain. **Globaltimer** stamps give aligned
+  phase envelopes and an effective `sm_mhz` conversion instead of guessed
+  frequency. Envelopes can overlap slightly; do not sum independent maxima.
+- `RSTREAM_WARP` reports **every consumer warp** (w0..3 or w0..7), separately
+  for A/B. Vectors are `tiles,samples,load_span,load_issue,ready_proxy,
+  decode_mma_issue,mma_wait,full_wait`. Except counts, these are cycle sums
+  divided by sampled K-stage count, NOT maxima from unrelated CTAs.
+- One steady-state K256 stage/tile is sampled: `load_span` is the interval
+  from immediately before its first replacement weight load to immediately
+  after its last; `load_issue` sums the four individual issue intervals.
+  These distinguish a wide/slowly issued window from a small but stalled one.
+  Each warp's window is 2304 unique B. Load span includes intervening compute
+  and probe overhead; it is an in-flight **proxy**, not literal occupancy.
+- `ready_proxy` times an XOR of all six loaded words into a dependent
+  volatile shared checksum store, so a bare clock cannot falsely appear to
+  wait for LDG. It includes XOR/store issue overhead; this checksum is not
+  compressed/dequantized weight staging. `decode_mma_issue` includes decode,
+  fence, two WGMMA instructions and commit. `mma_wait` isolates wait<1>.
+  These probes cover only one of 16 stages and are compile-time absent from
+  production. Check profile registers/local bytes/residency and calibration
+  before treating them as representative.
+
+If readiness remains large, weight latency/prefetch scheduling is still the
+problem. If it is small and `decode_mma_issue` dominates, register-A decode
+and issue throughput set the floor. If `mma_wait` dominates, two-group WGMMA
+retirement is exposed; yet another activation producer is not the response.
+
+## Budget, validation and honest expectation
+
+The build is reduced to **three production + three matching profile families**,
+replacing the eight-shape CAP256 profile with two-shape CAP16 and statically
+rejecting M>32. The previously spilling CAP128/256 and never-admitted CAP64
+families are not instantiated; these input sizes retain the exact incumbent
+through the existing per-case resource-rejection path. The generic large-N
+source/CPU lifetime tests are retained for later isolated work. No incumbent
+compilation or selector is added, no autotuning sweep. Six profiling samples plus twelve
+short calibration graph timings are bounded. v3 prepared in 139.7 s versus
+the 300 s limit, leaving **160.3 s** headroom. Existing 275 s soft deadline,
+resource/zero-local rejection and strict numerical/paired-performance gate
+remain. The compiler and fallback setup are not cancellable; a hard <300 s
+guarantee cannot honestly be made locally. The expensive large-N families
+are now removed from the build rather than trusted to finish within that
+headroom. **v4 elapsed time is unmeasured.**
+
+The M32 random draw's unique-weight floor alone is **102.95 us**; measured
+routing+gather medians add ~21 us at 1.98 GHz, before finish, barriers and
+imperfect streaming. Even a near-ideal pipeline is roughly 125--140 us
+(~1.0--1.15x the 121.85 us incumbent median, different draws). At 70--80%
+HBM utilization, ~150--175 us / **1.2--1.45x** is a more plausible residual
+range. M8 has 70.78 us unique-weight floor on its 11-expert diagnostic draw,
+plus ~14 us route/gather and larger B underfill. An M8 win is not promised.
+M16 uses the same repaired medium mechanism but has no prior phase profile,
+so no fabricated bound is given. This is a credible large consumer-loop
+repair, **not evidence the structure can beat the incumbent at M16/32**.
+
+Reproduce diagnosis with `python3 experiments/moe_restart/analyze_profile.py
+<v3-log> --output results/moe_restart_v3_profile.json`. Local verification is
+recorded in `results/moe_restart_v4_validation.log`: CPU packing/decode,
+60 routing patterns, 924 ownership plans and mixed-stage lifetime checks;
+16 build/diagnostic/model regressions; Python byte-compilation; instantiated
+Clang CUDA host/device frontend checks with declaration-only stubs.
+**No local GPU/NVCC/PTXAS, no new measured speedup.**
+
+---
+
+# Archived v3 plan: quantitative diagnosis and bounded repair
 
 Check file: `experiments/moe_restart/moe_restart.py`, branch `loop/moe-restart`.
 Parent: `57e115d`. No new GPU check/submission/push by this lane.
