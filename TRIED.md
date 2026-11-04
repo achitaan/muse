@@ -341,6 +341,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| SK2 token-owner FP32 epilogue (first scoped lane attempt): halve shared partial traffic and remove ring-retirement barrier | closed; correct but all candidates slower: o32 1.073, un16 1.022, un32 1.074, pool32 1.059 candidate/incumbent; adopted 0; board 1.5815x | loop/bf16-c12-epilogue fb16407 | 8ba14018820847fd | candidates/dense_owner_epilogue.py; supplied first-check profile | Nov 04 |
+| Restart: independent raw-BF16 full-token clustered GEMM, consumer-armed TMA multicast, balanced cluster Stream-K for qkv/pooler, output ownership for o/unpooler, private FP32 single-launch last-arriver reduction. No c12/decoder/escape WG, no producer peer-ready handshake, no library plan sweep; materially distinct from DW multicast 027ee79b and CUTLASS df119bda | offline ready; design-before-build roofline +11.59% ideal / +4.00% optimistic / +1.47% at 80% efficiency. AST preserved; ten real ownership layouts +36 boundary geometries, 1460 credit schedules/523892 events, 432 output tails, 36 FP64 models <=0.001681 with exact probes/zeros, wrapper/policy tests pass. Stubbed C++20 syntax passes, NOT CUDA/PTX; no nvcc/ptxas/NVRTC/GPU/check. Gate both ratios <=0.975 on three fresh graph draws | loop/bf16-redesign from 63e253f; candidate sha256 90f29a63 | none; offline only | candidates/dense_redesign.py; results/DENSE_REDESIGN.md; scripts/verify_dense_redesign.py; results/dense-redesign-offline.json | Nov 04 |
 
 ## MoE kernel (\moe_fused\)
 

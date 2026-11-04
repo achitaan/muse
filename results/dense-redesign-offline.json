@@ -1,0 +1,467 @@
+{
+  "candidate_sha256": "90f29a63214a3998cb61bc99a22b9db6ff8046dbbff20896db8bfc1c5a2180ad",
+  "generated_cuda_sha256": "6956521591d66eb11c52b0fd92e48bd67509bc0d69bebb5a613b9c8ce5d4de67",
+  "incumbent_ast_preserved": true,
+  "cpp_syntax": {
+    "result": "PASS: C++20 templates/host-wrapper syntax, CUDA/ATen stubbed and PTX removed",
+    "removed_asm_statements": 25,
+    "command": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-fsyntax-only",
+      "-Wno-unknown-pragmas",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/dense-redesign-syntax.cpp"
+    ]
+  },
+  "roofline_board_gains": {
+    "ideal": 1.115861313470859,
+    "design": 1.039979420576155,
+    "lower_efficiency": 1.014729876675562,
+    "higher_latency": 1.0265690900598898
+  },
+  "ownership": [
+    {
+      "layer": "unpooler",
+      "m": 256,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 4096,
+      "max_dynamic_shared": 123968
+    },
+    {
+      "layer": "pooler",
+      "m": 256,
+      "mode": "stream",
+      "clusters": 66,
+      "parts": 3,
+      "partial_tasks": 192,
+      "weight_stage_pairs": 4096,
+      "max_dynamic_shared": 193600
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 256,
+      "mode": "stream",
+      "clusters": 66,
+      "parts": 5,
+      "partial_tasks": 156,
+      "weight_stage_pairs": 2304,
+      "max_dynamic_shared": 193600
+    },
+    {
+      "layer": "o",
+      "m": 256,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 1024,
+      "max_dynamic_shared": 123968
+    },
+    {
+      "layer": "unpooler",
+      "m": 128,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 4096,
+      "max_dynamic_shared": 74816
+    },
+    {
+      "layer": "pooler",
+      "m": 128,
+      "mode": "stream",
+      "clusters": 66,
+      "parts": 3,
+      "partial_tasks": 192,
+      "weight_stage_pairs": 4096,
+      "max_dynamic_shared": 109632
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 128,
+      "mode": "stream",
+      "clusters": 66,
+      "parts": 5,
+      "partial_tasks": 156,
+      "weight_stage_pairs": 2304,
+      "max_dynamic_shared": 109632
+    },
+    {
+      "layer": "o",
+      "m": 128,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 1024,
+      "max_dynamic_shared": 74816
+    },
+    {
+      "layer": "o",
+      "m": 16,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 1024,
+      "max_dynamic_shared": 31808
+    },
+    {
+      "layer": "o",
+      "m": 32,
+      "mode": "output",
+      "clusters": 64,
+      "parts": 1,
+      "partial_tasks": 128,
+      "weight_stage_pairs": 1024,
+      "max_dynamic_shared": 37952
+    }
+  ],
+  "native_tail_layouts": 432,
+  "credit_protocol": {
+    "schedules": 1460,
+    "asynchronous_events": 523892
+  },
+  "numerical": [
+    {
+      "n": 256,
+      "k": 128,
+      "m": 128,
+      "dist": "normal",
+      "stream": 1,
+      "relative_l2": 0.0016755195284095057,
+      "row_error": 0.0019188412344456202
+    },
+    {
+      "n": 256,
+      "k": 128,
+      "m": 128,
+      "dist": "outliers",
+      "stream": 1,
+      "relative_l2": 0.0016484168261473749,
+      "row_error": 0.0018924308871979437
+    },
+    {
+      "n": 256,
+      "k": 128,
+      "m": 128,
+      "dist": "probes",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 256,
+      "k": 128,
+      "m": 128,
+      "dist": "zero",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 384,
+      "k": 192,
+      "m": 256,
+      "dist": "normal",
+      "stream": 1,
+      "relative_l2": 0.0016618615856037156,
+      "row_error": 0.001902049561206679
+    },
+    {
+      "n": 384,
+      "k": 192,
+      "m": 256,
+      "dist": "outliers",
+      "stream": 1,
+      "relative_l2": 0.0016521532686455374,
+      "row_error": 0.0018865754883947807
+    },
+    {
+      "n": 384,
+      "k": 192,
+      "m": 256,
+      "dist": "probes",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 384,
+      "k": 192,
+      "m": 256,
+      "dist": "zero",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 256,
+      "k": 1024,
+      "m": 127,
+      "dist": "normal",
+      "stream": 1,
+      "relative_l2": 0.0016804038783397159,
+      "row_error": 0.001982952060668887
+    },
+    {
+      "n": 256,
+      "k": 1024,
+      "m": 127,
+      "dist": "outliers",
+      "stream": 1,
+      "relative_l2": 0.0016562939531194827,
+      "row_error": 0.0019403216460560945
+    },
+    {
+      "n": 256,
+      "k": 1024,
+      "m": 127,
+      "dist": "probes",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 256,
+      "k": 1024,
+      "m": 127,
+      "dist": "zero",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 384,
+      "k": 1024,
+      "m": 129,
+      "dist": "normal",
+      "stream": 1,
+      "relative_l2": 0.0016570060418265437,
+      "row_error": 0.0018481693157022642
+    },
+    {
+      "n": 384,
+      "k": 1024,
+      "m": 129,
+      "dist": "outliers",
+      "stream": 1,
+      "relative_l2": 0.001658936204043057,
+      "row_error": 0.0018469214271799263
+    },
+    {
+      "n": 384,
+      "k": 1024,
+      "m": 129,
+      "dist": "probes",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 384,
+      "k": 1024,
+      "m": 129,
+      "dist": "zero",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 512,
+      "k": 256,
+      "m": 255,
+      "dist": "normal",
+      "stream": 1,
+      "relative_l2": 0.0016619442169997067,
+      "row_error": 0.0018425305274963313
+    },
+    {
+      "n": 512,
+      "k": 256,
+      "m": 255,
+      "dist": "outliers",
+      "stream": 1,
+      "relative_l2": 0.0016640469747679185,
+      "row_error": 0.0018762034907169724
+    },
+    {
+      "n": 512,
+      "k": 256,
+      "m": 255,
+      "dist": "probes",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 512,
+      "k": 256,
+      "m": 255,
+      "dist": "zero",
+      "stream": 1,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 16,
+      "dist": "normal",
+      "stream": 0,
+      "relative_l2": 0.001662226047016496,
+      "row_error": 0.0017019844452555008
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 16,
+      "dist": "outliers",
+      "stream": 0,
+      "relative_l2": 0.0016520795528860352,
+      "row_error": 0.0016910513346023275
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 16,
+      "dist": "probes",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 16,
+      "dist": "zero",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 32,
+      "dist": "normal",
+      "stream": 0,
+      "relative_l2": 0.0016669848265400682,
+      "row_error": 0.001701650648749277
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 32,
+      "dist": "outliers",
+      "stream": 0,
+      "relative_l2": 0.0016584513668892352,
+      "row_error": 0.0017000102562175533
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 32,
+      "dist": "probes",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 32,
+      "dist": "zero",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 128,
+      "dist": "normal",
+      "stream": 0,
+      "relative_l2": 0.0016611892197591152,
+      "row_error": 0.001721148913493209
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 128,
+      "dist": "outliers",
+      "stream": 0,
+      "relative_l2": 0.0016647052575630274,
+      "row_error": 0.0017084178771344602
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 128,
+      "dist": "probes",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 64,
+      "m": 128,
+      "dist": "zero",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 128,
+      "m": 256,
+      "dist": "normal",
+      "stream": 0,
+      "relative_l2": 0.0016599640525514104,
+      "row_error": 0.0016998307619928207
+    },
+    {
+      "n": 8192,
+      "k": 128,
+      "m": 256,
+      "dist": "outliers",
+      "stream": 0,
+      "relative_l2": 0.0016584579306301132,
+      "row_error": 0.001712954451098194
+    },
+    {
+      "n": 8192,
+      "k": 128,
+      "m": 256,
+      "dist": "probes",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    },
+    {
+      "n": 8192,
+      "k": 128,
+      "m": 256,
+      "dist": "zero",
+      "stream": 0,
+      "relative_l2": 0.0,
+      "row_error": 0.0
+    }
+  ],
+  "wrapper_policy": {
+    "fresh_calls": 12,
+    "fallbacks": 30,
+    "admission_cases": 6
+  },
+  "cuda_tools": {
+    "nvcc": null,
+    "ptxas": null,
+    "nvrtc_library": null
+  },
+  "cuda_compile": "SKIPPED: no CUDA/NVRTC toolchain on this macOS host",
+  "gpu": "NOT RUN: no GPU or OKC calls authorized"
+}
