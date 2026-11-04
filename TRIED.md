@@ -162,6 +162,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| FULL-CB2: v16F WST only, reduce producer WGs NPW4->2 and use the source's existing consumer160->200 / producer40 register split; same total61440 regs, tile128/stages4/PF2/RR1/G=SM and all math/traversal/merge. Not row188's unchanged NPW4 WST32 port or row194 one-head extension; row197's generic104 cap is not v16F's WST160 | offline ready: nominal full BW d16F3.789 d32F3.954 v16F3.338 v32F3.568 TB/s; v16F69.5% peak selected for sole new arm. 17 CPU/static tests PASS (producer coverage/staged bytes/new KV, register/shared/barrier/ticket/folder models, wrapper/metadata, hard correctness/no-worse/2% confirmation, host resource CPP shim). Runtime occupancy/register-pool preflight and compiled baseline/candidate stats added. CUDA build/GPU progress/numerics/perf unverified; no nvcc/NVRTC/ptxas. Hypothesis4-10% shape, +0.51-1.31% board; not measured. No check submitted | FULL-CB2 / loop/attn-full-consumer-budget from 63e253f | baseline8f53cd76d828427c; no new job | candidates/attention_full_cb2.py; scripts/validate_attention_full_cb2.py; results/ATTN_FULL_CB2.md | Nov 04 |
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |
 | A3 split change in Decode | closed | no change on the target shape | `9171012a` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | Fewer sliding splits | closed | every changed shape slower | `543fe60e` | attn_next/DEAD_ENDS.md | <= Oct 31 |
