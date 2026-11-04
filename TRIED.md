@@ -160,6 +160,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## Attention
 
+| Restart: warp-local FP8 mma.sync QK + FP16 PV, GQA-shared 64/128-key gather pipeline, intra-CTA decode stripe reduction then stable immutable split rows and last-arriver/parallel merge; structurally replaces the segment/WGMMA engine (not a plan sweep) | parked pending parent H200 check: complete per-case gated candidate; 15 CPU public-judge cases pass (worst FP8-query L2 .002876), 4 analytical cases, exact fragment/ownership checks, Clang CUDA host/device syntax with stubs pass; real CUDA compile/run/performance unverified; no check spent; local ledger only (no-main/no-push instruction) | loop/attn-restart | - | candidates/attention_restart.py; results/ATTN_RESTART.md; results/attn_restart_cpu.json | Nov 04 |
+
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |

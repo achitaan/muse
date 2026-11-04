@@ -1,0 +1,90 @@
+{
+  "source": "c300e99c653946ab: representative incumbent-family profile, NOT the scored 8f53cd76 incumbent run",
+  "peak_TB_s": 4.8,
+  "loads": [
+    {
+      "B": 1,
+      "L": 1,
+      "sliding_us": 5.210095640977988,
+      "full_us": 10.932587247783147,
+      "weighted_us": 414.58579544951783,
+      "sliding_share": 0.5780815505874471,
+      "full_share": 0.4219184494125528,
+      "sliding_unique_KV_bytes": 524288,
+      "full_nominal_unique_KV_bytes": 20480256,
+      "sliding_hbm_floor_us": 0.10922666666666667,
+      "full_nominal_hbm_floor_us": 4.26672,
+      "full_nominal_useful_TB_s": 1.873321980956784
+    },
+    {
+      "B": 16,
+      "L": 1,
+      "sliding_us": 7.845674941118746,
+      "full_us": 86.55190071406889,
+      "weighted_us": 1745.7314587165647,
+      "sliding_share": 0.20673342711987977,
+      "full_share": 0.7932665728801201,
+      "sliding_unique_KV_bytes": 8388608,
+      "full_nominal_unique_KV_bytes": 327684096,
+      "sliding_hbm_floor_us": 1.7476266666666667,
+      "full_nominal_hbm_floor_us": 68.26752,
+      "full_nominal_useful_TB_s": 3.785983823538787
+    },
+    {
+      "B": 32,
+      "L": 1,
+      "sliding_us": 9.689620849633743,
+      "full_us": 165.99663292883437,
+      "weighted_us": 3101.668685944502,
+      "sliding_share": 0.1437041167881615,
+      "full_share": 0.8562958832118385,
+      "sliding_unique_KV_bytes": 16777216,
+      "full_nominal_unique_KV_bytes": 655368192,
+      "sliding_hbm_floor_us": 3.4952533333333333,
+      "full_nominal_hbm_floor_us": 136.53504,
+      "full_nominal_useful_TB_s": 3.948081237774068
+    },
+    {
+      "B": 1,
+      "L": 8,
+      "sliding_us": 6.02226999151374,
+      "full_us": 13.877636639553698,
+      "weighted_us": 499.0666058424912,
+      "sliding_share": 0.5550850655334427,
+      "full_share": 0.44491493446655733,
+      "sliding_unique_KV_bytes": 526080,
+      "full_nominal_unique_KV_bytes": 20482048,
+      "sliding_hbm_floor_us": 0.1096,
+      "full_nominal_hbm_floor_us": 4.267093333333333,
+      "full_nominal_useful_TB_s": 1.4759031765987138
+    },
+    {
+      "B": 16,
+      "L": 8,
+      "sliding_us": 11.335198952543143,
+      "full_us": 98.22922323706186,
+      "weighted_us": 2093.0867236099743,
+      "sliding_share": 0.24911492960869108,
+      "full_share": 0.7508850703913089,
+      "sliding_unique_KV_bytes": 8417280,
+      "full_nominal_unique_KV_bytes": 327712768,
+      "sliding_hbm_floor_us": 1.7536,
+      "full_nominal_hbm_floor_us": 68.27349333333333,
+      "full_nominal_useful_TB_s": 3.336204412500679
+    },
+    {
+      "B": 32,
+      "L": 8,
+      "sliding_us": 14.623230997102397,
+      "full_us": 182.38965331590748,
+      "weighted_us": 3590.90307892123,
+      "sliding_share": 0.18732575374014038,
+      "full_share": 0.8126742462598595,
+      "sliding_unique_KV_bytes": 16834560,
+      "full_nominal_unique_KV_bytes": 655425536,
+      "sliding_hbm_floor_us": 3.5072,
+      "full_nominal_hbm_floor_us": 136.54698666666667,
+      "full_nominal_useful_TB_s": 3.5935455991287624
+    }
+  ]
+}
