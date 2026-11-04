@@ -1,0 +1,25 @@
+test_all_single_phase_interleavings (__main__.JoinFullTests.test_all_single_phase_interleavings) ... ok
+test_cuda_patch_is_synchronization_only (__main__.JoinFullTests.test_cuda_patch_is_synchronization_only) ... ok
+test_host_ast_unchanged_except_extension_name (__main__.JoinFullTests.test_host_ast_unchanged_except_extension_name) ... ok
+test_non_wgs_preprocessing_identical (__main__.JoinFullTests.test_non_wgs_preprocessing_identical) ... ok
+test_producer_and_consumer_stage_orders (__main__.JoinFullTests.test_producer_and_consumer_stage_orders) ... ok
+test_ring_interleavings_and_reuse (__main__.JoinFullTests.test_ring_interleavings_and_reuse) ... ok
+test_ring_mutations_are_detected (__main__.JoinFullTests.test_ring_mutations_are_detected) ... ok
+test_wrong_initial_count_is_detected (__main__.JoinFullTests.test_wrong_initial_count_is_detected) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.597s
+
+OK
+Candidate Python AST / OKC header / LF / whitespace / baseline identity: PASS
+board_best/moe_m3_scored_2.3797.py 185756 bytes f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb
+experiments/moe_consumer/moe_joinfull.py 183381 bytes aad221d44279a94b6c722a48c79f569611ed048b4739fa8db2297537afea6bff
+Host: arm64 Darwin
+nvcc None
+ptxas None
+podman None
+docker None
+qemu-x86_64 None
+qemu-aarch64 None
+CUDA compilation, GPU numerical/graph/deadlock/resource/timing gates: SKIPPED (no compiler/runtime/GPU)
+Official OKC checks/submits: NONE

@@ -14,6 +14,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| JOINFULL: combine MAIN/WGS weight-full and x-full TMA completion into one two-arrival CTA-local mbarrier per stage; retain independent weight/x empty barriers, all arithmetic and global doneAs unchanged. Distinct from closed slot-release, global readiness, producer-order and ring-depth ideas; motivated by consumer-bound diagnostic c967ffa3 | parked: offline candidate, 8 tests PASS (874 full-barrier orders, 1202 async ring traces, 2014 stage-order cases; wrong-count/destination mutants caught; host AST and 8 non-WGS preprocessed sources unchanged). Ports kept J0 guard. No CUDA compiler/GPU; no performance claim or OKC check. Local row only: parent must merge main ledger | loop/moe-consumer; SHA256 aad221d44279a94b | `none; offline only` | experiments/moe_consumer/moe_joinfull.py; experiments/moe_consumer/VALIDATION.txt | Nov 04 |
 | One persistent fused kernel (TINY / TINY2 / MID / MAIN builds) | kept | MoE board 2.3797x | `33114871` and later | MOE_NOTES | <= Oct 31 |
 | Small-M FP32 finalizer | kept | 1.1496x aggregate | `74ba5356` | MOE_NOTES | <= Oct 31 |
 | Single-token CUDA NVFP4 GEMV | reverted | 148 us vs 54 us | `67f2f03d` | MOE_NOTES | <= Oct 31 |
