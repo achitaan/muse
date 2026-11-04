@@ -105,6 +105,15 @@ removes the rejected shared-traffic obstacle and duplicate weight passes.
 **Reaching 2.78x has not been measured or established.** The load/decode
 pipeline and tails must actually deliver; the gate may admit no cases.
 
+No public leader design is known or assumed here. Their aggregate scores do
+not imply that they beat every per-case streaming floor. The local motivation
+is independent: duplicate jobs cost about 7.7% at M256, and phase B has
+consumer back-pressure (shared ledger rows 48, 77, 82 in the supplied copy).
+Producer-dequantized SS-WGMMA/native-N128 remains a separate follow-up, not
+part of this candidate; it should first win a GEMM2-only comparison. Scale
+dictionary/entropy coding is likewise not implemented, and this lane does
+not touch the other session's five-bit scale-delta work.
+
 ## Per-case admission and numerical boundaries
 
 Prepare compiles RSTREAM concurrently with fallback setup. Only SM90 and
