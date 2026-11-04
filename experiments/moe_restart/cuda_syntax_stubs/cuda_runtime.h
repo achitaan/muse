@@ -10,6 +10,9 @@
 #define __forceinline__ inline __attribute__((always_inline))
 #define __align__(n) __attribute__((aligned(n)))
 #define __launch_bounds__(n, m) __attribute__((launch_bounds(n, m)))
+// NVCC's CUDA>=11.7 grid-constant parameter contract is not modeled by Clang
+// without the SDK. Const/reference semantics are still checked below.
+#define __grid_constant__
 struct __align__(8) uint2 { unsigned x,y; };
 struct __align__(16) uint4 { unsigned x,y,z,w; };
 struct __align__(8) float2 { float x,y; };
@@ -26,6 +29,7 @@ __device__ size_t __cvta_generic_to_shared(const void*);
 __device__ void __threadfence();
 __device__ void __syncthreads();
 __device__ void __nanosleep(unsigned);
+__device__ unsigned long long clock64();
 __device__ unsigned __ballot_sync(unsigned,bool);
 __device__ int __popc(unsigned);
 __device__ unsigned __shfl_sync(unsigned,unsigned,int);

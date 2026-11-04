@@ -156,13 +156,21 @@ def validate_routing_and_x():
                     assert (ix[0,step*16] - ix[0,0])*2 == step*256
                 if pads[e] >= 16:
                     assert (ix[8,0] - ix[0,0])*2 == 1024
+                groups = 4 if pads[e] <= 64 else 2 if pads[e] <= 128 else 1
+                for kg in range(64):
+                    st, kk = divmod(kg,groups)
+                    source = offsets[e]*4096 + st*groups*pads[e]*64
+                    # K-adaptive bulk copies enclose every K64 descriptor,
+                    # including the last real/padded token of N96/N192.
+                    assert ix[0,kg*64] == source + kk*pads[e]*64
+                    assert ix[-1,kg*64+63] < source + groups*pads[e]*64
             draws += 1
     results['routing_activation'] = f'{draws} routings incl empty/hot/full local; descriptor bijection and capacity'
 
 
 def validate_ownership_and_ring():
     plans = 0
-    for grid in (1,2,8,66,132):
+    for grid in (1,2,8,66,132,264,528):
         for active in range(33):
             for rows in (64,128):
                 for total_rows in (4096,8192):
@@ -176,7 +184,7 @@ def validate_ownership_and_ring():
                         owned = {(u%active,u//active) for u in jobs}
                         assert len(owned) == total
                     plans += 1
-    for look in (3,6):
+    for look in (1,2,4):
         window = list(range(look))
         loads = list(window)
         consumed = []
@@ -188,27 +196,55 @@ def validate_ownership_and_ring():
                 loads.append(k+look)
         assert loads == list(range(64))
         assert consumed == list(range(64))
-    # Ring parity and register ping-pong: input af[group] can be rewritten
-    # only after its earlier WGMMA has retired. wait_group<1> enforces it.
+    # Mixed N tile widths and K256/K128/K64 stages preserve global two-slot
+    # parity. af[cg] is reused only after its WGMMA group retires. An old slot
+    # is released after the FIRST current group, never after the first K64
+    # within the old K256 stage (which would be prematurely early).
     for ntile in (0,1,2,7,32):
         inflight = []
         register_live = set()
-        arrivals = [0,0,0]
-        produced = [0,0,0]
-        for seq in range(ntile*64):
-            slot = seq%3
-            produced[slot] += 1
-            for cg in (0,1):
-                assert cg not in register_live
-                register_live.add(cg); inflight.append((seq,cg,slot))
-                while len(inflight) > 1:
-                    _, retired, _ = inflight.pop(0); register_live.remove(retired)
-                if cg == 0 and seq:
-                    arrivals[(seq-1)%3] += 1
-        if ntile:
-            inflight.clear(); register_live.clear(); arrivals[(ntile*64-1)%3] += 1
+        arrivals = [0,0]
+        produced = [0,0]
+        seq = 0
+        for tile in range(ntile):
+            n = (8,16,32,64,96,128,192,256)[tile % 8]
+            groups = 4 if n <= 64 else 2 if n <= 128 else 1
+            previous = None
+            assert seq % 2 == 0  # producer warp assignment retains slot ownership
+            for st in range(64 // groups):
+                slot = seq % 2
+                assert arrivals[slot] == produced[slot]
+                assert ((seq//2)&1) == (produced[slot]&1)
+                if seq >= 2:
+                    assert (((seq//2)-1)&1) == ((arrivals[slot]-1)&1)
+                produced[slot] += 1
+                for kk in range(groups):
+                    for cg in (0,1):
+                        assert cg not in register_live
+                        register_live.add(cg); inflight.append((seq,cg,slot))
+                        while len(inflight) > 1:
+                            _, retired, _ = inflight.pop(0); register_live.remove(retired)
+                        if kk == 0 and cg == 0 and previous is not None:
+                            assert all(s != seq-1 for s,_,_ in inflight)
+                            arrivals[previous] += 1
+                            previous = None
+                previous = slot
+                seq += 1
+            inflight.clear(); register_live.clear(); arrivals[previous] += 1
         assert arrivals == produced
-    results['ownership_ring'] = f'{plans} whole-output-tile plans; 3/6-group unique prefetches; 0/1/2/7/32-tile parity/register lifetimes'
+    # Ring capacities must cover non-monotone N*stage_groups at N96/N192.
+    for cap in (8,16,32,64,96,128,192,256):
+        capacity = min(cap,64)*4*64*2
+        for n in (8,16,32,64,96,128,192,256):
+            if n <= cap:
+                groups = 4 if n <= 64 else 2 if n <= 128 else 1
+                assert groups*n*64*2 <= capacity
+                assert groups*n*64*2 % 16 == 0
+                assert (64//groups) % 2 == 0
+                for producers in (1,2):
+                    issued = [st for warp in range(producers) for st in range(warp,64//groups,producers)]
+                    assert sorted(issued) == list(range(64//groups))
+    results['ownership_ring'] = f'{plans} plans incl grids264/528; 1/2/4-group unique prefetches; mixed-N K256/K128/K64 two-slot parity/register lifetimes and capacities'
 
 
 def validate_arithmetic():
@@ -247,7 +283,7 @@ def validate_static():
     assert '__MMA_SOURCE__' not in mod.RESTART_CUDA
     assert 'cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes' in mod.RESTART_CUDA
     # No compressed/dequantized weight writes to shared memory in the new core.
-    assert 'ring + slot * N * KGROUP * 2' in mod.RESTART_CUDA
+    assert 'ring + slot * Stage<N>::bytes' in mod.RESTART_CUDA
     assert 'griddepcontrol' not in mod.RESTART_CUDA
     assert not torch.cuda.is_available()
     for n in (8,16,32,64,96,128,192,256):
@@ -267,11 +303,17 @@ def validate_static():
     assert 'cudaFuncAttributeMaxDynamicSharedMemorySize' in mod.RESTART_CUDA
     assert 'grid > 0 && grid <= sms' in mod.RESTART_CUDA
     (ROOT/'results/moe_restart_expanded.cu').write_text(mod.RESTART_CUDA)
+    instances = [(64,8,False),(128,16,False),(128,32,False),(128,64,False),
+                 (64,128,False),(64,256,False),(64,8,True),(128,32,True),(64,256,True)]
+    declarations = ''.join(f'template __global__ void rstream::kernel<{r},{c},{str(p).lower()}>(rstream::Params);\n'
+                           for r,c,p in instances)
     (ROOT/'results/moe_restart_instantiated.cu').write_text(mod.RESTART_CUDA +
-        '\nstatic_assert(sizeof(rstream::Shared) == 21376);\n'
-        'static_assert(sizeof(rstream::Shared) + 3 * 256 * 64 * 2 == 119680);\n'
-        '\ntemplate __global__ void rstream::kernel<64,8>(rstream::Params);\n'
-        'template __global__ void rstream::kernel<128,256>(rstream::Params);\n')
+        '\nstatic_assert(sizeof(rstream::Shared) == 21504);\n'
+        'static_assert(sizeof(rstream::Shared) + 2 * rstream::Geometry<64,256>::ring_bytes == 87040);\n'
+        'static_assert(rstream::Geometry<64,8>::threads == 160 && rstream::Geometry<64,8>::blocks == 4);\n'
+        'static_assert(rstream::Geometry<128,32>::threads == 320 && rstream::Geometry<128,32>::producers == 2);\n'
+        'static_assert(rstream::Geometry<128,64>::threads == 288 && rstream::Geometry<128,64>::blocks == 2);\n'
+        'static_assert(rstream::Geometry<64,256>::threads == 160 && rstream::Geometry<64,256>::blocks == 2);\n' + declarations)
     (ROOT/'results/moe_restart_host_stub.cu').write_text(mod.RESTART_CPP + mod.RESTART_CUDA)
     results['python_static'] = 'AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally'
 

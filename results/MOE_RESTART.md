@@ -1,5 +1,9 @@
 # MoE restart: RSTREAM
 
+**Current revision is v3**: quantitative diagnosis and current geometry are
+in [MOE_RESTART_PERFORMANCE.md](MOE_RESTART_PERFORMANCE.md). The design and
+repair history below describe v1/v2 unless explicitly marked otherwise.
+
 ## Check file
 
 `experiments/moe_restart/moe_restart.py` — self-contained; native CUDA only
@@ -244,7 +248,10 @@ Compiler discovery: `command -v nvcc ptxas` found neither; conventional CUDA
 paths do not exist; bounded searches in `/Applications`, `/Library`, `/opt`,
 `/usr/local` and user caches found nothing; Spotlight found no nvcc/ptxas/NVRTC.
 A requested full-root `find / -name nvcc -o -name ptxas ...` exceeded its
-120-second foreground limit and was also launched in the background. Apple
+120-second foreground limit; its background rerun has now completed. Matches
+were only Nix/YAML package definitions and UV index/metadata files (the two
+NVRTC wheel-index files are 578/610-byte msgpack records), not compilers or
+NVRTC libraries. Apple
 Clang 21's `--print-targets` has **no NVPTX backend**; local Torch is 2.14.1
 with `torch.cuda.is_available()==False` and `CUDA_HOME=None`. No real SM90a
 compilation, GPU check or submission was performed by this repair.

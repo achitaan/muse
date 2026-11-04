@@ -1,0 +1,100 @@
+RSTREAM v3 static/CPU validation (not a GPU build or performance measurement)
+Parent: 57e115d1d5850bbc7279af1117cda6fc2702d5b7
+Branch: loop/moe-restart
+Source SHA256: 27fb87a51dd2e6fa5bf621231832146f3934fbd02c52ed631076b5d4bfd01349  experiments/moe_restart/moe_restart.py
+{
+  "packing": "64/128-row full-K code and scale roundtrips; WGS conversion identical",
+  "dequant": "all 16 codes x 119 allowed FP8 bytes exact; paired scale arithmetic exact",
+  "routing_activation": "60 routings incl empty/hot/full local; descriptor bijection and capacity",
+  "ownership_ring": "924 plans incl grids264/528; 1/2/4-group unique prefetches; mixed-N K256/K128/K64 two-slot parity/register lifetimes and capacities",
+  "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
+  "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
+  "python_static": "AST/import, all 8 generated MMA shapes/operands/constraints, host/device signature TU, empty fallback guard; no GPU locally"
+}
+test_architecture_fallback_reports_total_prepare (__main__.BuildTests.test_architecture_fallback_reports_total_prepare) ... ok
+test_both_compilers_use_cxx20 (__main__.BuildTests.test_both_compilers_use_cxx20) ... ok
+test_build_exception_is_not_replaced_or_truncated (__main__.BuildTests.test_build_exception_is_not_replaced_or_truncated) ... ok
+test_build_failure_reports_shutdown_time_and_overrun (__main__.BuildTests.test_build_failure_reports_shutdown_time_and_overrun) ... ok
+test_compact_summary_does_not_drop_later_errors (__main__.BuildTests.test_compact_summary_does_not_drop_later_errors) ... ok
+test_deadline_with_headroom_and_no_deadline (__main__.BuildTests.test_deadline_with_headroom_and_no_deadline) ... ok
+test_default_incumbent_prepare_skips_optional_selector (__main__.BuildTests.test_default_incumbent_prepare_skips_optional_selector) ... ok
+test_first_errors_and_exact_tail_survive_log_truncation (__main__.BuildTests.test_first_errors_and_exact_tail_survive_log_truncation) ... ok
+test_no_packing_or_admission_after_expired_setup (__main__.BuildTests.test_no_packing_or_admission_after_expired_setup) ... ok
+test_noncompiler_exception_remains_visible (__main__.BuildTests.test_noncompiler_exception_remains_visible) ... ok
+test_production_clock_code_is_compile_time_discarded (__main__.BuildTests.test_production_clock_code_is_compile_time_discarded) ... ok
+test_resource_rejection_is_per_case_not_prepare_abort (__main__.BuildTests.test_resource_rejection_is_per_case_not_prepare_abort) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.018s
+
+OK
+{
+  "measured_job": "e61f95e5a91944c8",
+  "assumptions": {
+    "HBM_bytes_per_us": 4400000.0,
+    "BF16_flops_per_us": 989000000.0,
+    "decode_thread_instructions_per_weight_estimate": 2,
+    "local_frame_bytes_is_not_a_dynamic_spill_count": true
+  },
+  "expert": {
+    "A_weight_bytes": 18874368,
+    "B_weight_bytes": 9437184,
+    "weight_floor_us": 6.434443636363636,
+    "decode_warp_instructions_estimate": 3145728,
+    "scale_shuffle_warp_instructions": 98304,
+    "wgmma_instructions": 49152,
+    "flops_per_padded_token": 100663296,
+    "R64_logical_shared_bytes_per_padded_token": 3145728,
+    "R128_logical_shared_bytes_per_padded_token": 2359296
+  },
+  "observed_and_equivalents": [
+    {
+      "m": 1,
+      "old_us": 26.152,
+      "new_us": 114.976,
+      "ratio_of_medians_not_gate_geomean": 4.396451514224533,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": null
+    },
+    {
+      "m": 8,
+      "old_us": 68.872,
+      "new_us": 420.008,
+      "ratio_of_medians_not_gate_geomean": 6.098385410616796,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": null
+    },
+    {
+      "m": 16,
+      "old_us": 102.944,
+      "new_us": 1060.12,
+      "ratio_of_medians_not_gate_geomean": 10.298026111283804,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": 74.37908031322337
+    },
+    {
+      "m": 32,
+      "old_us": 121.608,
+      "new_us": 1230.688,
+      "ratio_of_medians_not_gate_geomean": 10.120123676073943,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": 86.18305347583913
+    },
+    {
+      "m": 128,
+      "old_us": 174.288,
+      "new_us": 2371.072,
+      "ratio_of_medians_not_gate_geomean": 13.604333057927109,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": 170.7050464771412
+    },
+    {
+      "m": 256,
+      "old_us": 235.072,
+      "new_us": 3410.208,
+      "ratio_of_medians_not_gate_geomean": 14.507078682276068,
+      "equivalent_extra_bytes_per_thread_k64_at_4_4TBps_32experts": 246.7296459056713
+    }
+  ]
+}
+FRONTEND ONLY: results/moe_restart_instantiated.cu host C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_instantiated.cu device C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_host_stub.cu host C++20 -Wall -Wextra -Werror -ferror-limit=0
+FRONTEND ONLY: results/moe_restart_host_stub.cu device C++20 -Wall -Wextra -Werror -ferror-limit=0
+PASS: CPU numerical/static, 924 ownership plans and mixed-N two-slot lifetimes, 12 build/log/deadline/resource-case tests, 9 CUDA family frontend instantiations, host wrapper, static performance model, py_compile, diff --check
+NOT RUN: NVCC/NVRTC/PTXAS v3 build, real local memory/residency, GPU numerics/performance, new total prepare time

@@ -135,6 +135,39 @@ class BuildTests(unittest.TestCase):
         pack.assert_not_called()
         select.assert_not_called()
 
+    def test_resource_rejection_is_per_case_not_prepare_abort(self):
+        state = {'grid': 132}
+        out = io.StringIO()
+        def graph(data, state, new):
+            if new:
+                raise RuntimeError('RSTREAM_RESOURCE_REJECT local_bytes=1928')
+            return Mock(), None
+        with (patch.object(mod, '_restart_data', side_effect=lambda m,*args,**kwargs: {'m': m}),
+              patch.object(mod, '_restart_graph', side_effect=graph) as run,
+              patch.object(mod.torch, 'empty', return_value=Mock()),
+              patch.object(mod.torch.cuda, 'Event', return_value=Mock()),
+              patch.object(mod.torch.cuda, 'synchronize'),
+              contextlib.redirect_stdout(out)):
+            mod._restart_select({'w13': SimpleNamespace(device='cpu')}, state)
+        self.assertEqual(run.call_count, 12)
+        self.assertEqual(out.getvalue().count('RSTREAM_CASE_DISABLED'), 6)
+        self.assertEqual(state['restart_cases'], frozenset())
+
+    def test_default_incumbent_prepare_skips_optional_selector(self):
+        self.assertIs(mod._restart_incumbent_prepare, mod._moe_sel_original_prepare)
+
+    def test_production_clock_code_is_compile_time_discarded(self):
+        body = mod.RESTART_CUDA.split('void stamp(')[1].split('template<int ROWS')[0]
+        self.assertIn('if constexpr (PROFILE)', body)
+        self.assertEqual(mod.RESTART_CUDA.count('clock64()'), 3)
+        for name in ('sample_start', 'sample_end'):
+            body = mod.RESTART_CUDA.split(name+'(')[1].split('\n}')[0]
+            self.assertIn('if constexpr (PROFILE)', body)
+        self.assertIn('attrs.localSizeBytes == 0', mod.RESTART_CUDA)
+        self.assertIn('const __grid_constant__ Params p', mod.RESTART_CUDA)
+        for r,c in ((64,8),(128,16),(128,32),(128,64),(64,128),(64,256)):
+            self.assertIn(f'rs_launch<{r},{c}>', mod.RESTART_CUDA)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

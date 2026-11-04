@@ -1,0 +1,92 @@
+
+*** Dumping AST Record Layout
+         0 | struct dim3
+         0 |   unsigned int x
+         4 |   unsigned int y
+         8 |   unsigned int z
+           | [sizeof=12, dsize=12, align=4,
+           |  nvsize=12, nvalign=4]
+
+*** Dumping AST Record Layout
+         0 | struct rstream::Shared
+         0 |   uint64_t[2] full
+        16 |   uint64_t[2] empty
+        32 |   int[32] count
+       160 |   int[32] pad
+       288 |   int[33] offset
+       420 |   int[32] active
+       548 |   int na
+       552 |   int task
+       556 |   int16_t[8192] ent
+     16940 |   int16_t[2048] pos
+     21036 |   float[88] reduce
+           | [sizeof=21504, dsize=21504, align=128,
+           |  nvsize=21504, nvalign=128]
+
+*** Dumping AST Record Layout
+         0 | struct __nv_bfloat16
+         0 |   unsigned short bits
+           | [sizeof=2, dsize=2, align=2,
+           |  nvsize=2, nvalign=2]
+
+*** Dumping AST Record Layout
+         0 | struct __nv_bfloat162
+         0 |   struct __nv_bfloat16 lo
+         0 |     unsigned short bits
+         2 |   struct __nv_bfloat16 hi
+         2 |     unsigned short bits
+           | [sizeof=4, dsize=4, align=4,
+           |  nvsize=4, nvalign=4]
+
+*** Dumping AST Record Layout
+         0 | struct uint4
+         0 |   unsigned int x
+         4 |   unsigned int y
+         8 |   unsigned int z
+        12 |   unsigned int w
+           | [sizeof=16, dsize=16, align=16,
+           |  nvsize=16, nvalign=16]
+
+*** Dumping AST Record Layout
+         0 | struct uint2
+         0 |   unsigned int x
+         4 |   unsigned int y
+           | [sizeof=8, dsize=8, align=8,
+           |  nvsize=8, nvalign=8]
+
+*** Dumping AST Record Layout
+         0 | struct float2
+         0 |   float x
+         4 |   float y
+           | [sizeof=8, dsize=8, align=8,
+           |  nvsize=8, nvalign=8]
+
+*** Dumping AST Record Layout
+         0 | struct float4
+         0 |   float x
+         4 |   float y
+         8 |   float z
+        12 |   float w
+           | [sizeof=16, dsize=16, align=16,
+           |  nvsize=16, nvalign=16]
+
+*** Dumping AST Record Layout
+         0 | struct rstream::Params
+         0 |   const unsigned char * wa
+         8 |   const unsigned char * wb
+        16 |   const float * ga
+        24 |   const float * gb
+        32 |   const __nv_bfloat16 * nw
+        40 |   const __nv_bfloat16 * x
+        48 |   const int * ids
+        56 |   const float * tw
+        64 |   __nv_bfloat16 * xa
+        72 |   __nv_bfloat16 * xb
+        80 |   __nv_bfloat16 * out
+        88 |   float * y
+        96 |   int * ctrl
+       104 |   unsigned long long * trace
+       112 |   int m
+       116 |   int lo
+           | [sizeof=120, dsize=120, align=8,
+           |  nvsize=120, nvalign=8]
