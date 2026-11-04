@@ -1,0 +1,118 @@
+{
+  "candidate": "candidates/attention_decodefull_ring6.py",
+  "candidate_sha256": "6678da3bf4b63aa14ff093017bdcfe1b5fc758b1190a46db768923aea2d9456a",
+  "status": "CPU/static passed; H200 unmeasured",
+  "cuda_device_source_identity": "only flat q1 STAGES 3->6",
+  "base_layout": {
+    "status": "passed",
+    "sizeof": 61440,
+    "dynamic_bytes": 62464,
+    "nonflat_sizeof": 57344,
+    "verify_sizeof": 113664,
+    "v_offset": 24576,
+    "q_offset": 53248,
+    "shared_residency": 3
+  },
+  "ring6_layout": {
+    "status": "passed",
+    "sizeof": 111616,
+    "dynamic_bytes": 112640,
+    "nonflat_sizeof": 57344,
+    "verify_sizeof": 113664,
+    "v_offset": 49152,
+    "q_offset": 103424,
+    "shared_residency": 2
+  },
+  "numerical_model": {
+    "randomized_ring_schedules": 2750,
+    "attention_max_abs_error": 8.881784197001252e-16
+  },
+  "policy": {
+    "layout_rejections": 41,
+    "admission_scenarios": 7,
+    "timing_gate_cases": 8,
+    "equivalence_gate_cases": 5
+  },
+  "bandwidth": {
+    "d16F": {
+      "nominal_context": 80000,
+      "kv_bytes": 327680000,
+      "time_us": 86.48892431597221,
+      "useful_TB_s": 3.7886932065761187,
+      "peak_fraction": 0.7893110847033581,
+      "peak_floor_us": 68.26666666666667,
+      "setup_draws": [
+        {
+          "total_cached_tokens": 1272694,
+          "kv_bytes": 325809664,
+          "cta_count": 264,
+          "tile_min": 70,
+          "tile_max": 76,
+          "tile_mean": 75.68560606060606,
+          "crossed_request_ctas": 15
+        },
+        {
+          "total_cached_tokens": 1297366,
+          "kv_bytes": 332125696,
+          "cta_count": 264,
+          "tile_min": 71,
+          "tile_max": 78,
+          "tile_mean": 77.64772727272727,
+          "crossed_request_ctas": 15
+        },
+        {
+          "total_cached_tokens": 1266663,
+          "kv_bytes": 324265728,
+          "cta_count": 264,
+          "tile_min": 70,
+          "tile_max": 76,
+          "tile_mean": 75.66287878787878,
+          "crossed_request_ctas": 15
+        }
+      ]
+    },
+    "d32F": {
+      "nominal_context": 80000,
+      "kv_bytes": 655360000,
+      "time_us": 165.73434978928213,
+      "useful_TB_s": 3.954279851058259,
+      "peak_fraction": 0.823808302303804,
+      "peak_floor_us": 136.53333333333333,
+      "setup_draws": [
+        {
+          "total_cached_tokens": 2564470,
+          "kv_bytes": 656504320,
+          "cta_count": 264,
+          "tile_min": 147,
+          "tile_max": 153,
+          "tile_mean": 152.3219696969697,
+          "crossed_request_ctas": 30
+        },
+        {
+          "total_cached_tokens": 2538289,
+          "kv_bytes": 649801984,
+          "cta_count": 264,
+          "tile_min": 145,
+          "tile_max": 151,
+          "tile_mean": 150.3901515151515,
+          "crossed_request_ctas": 31
+        },
+        {
+          "total_cached_tokens": 2567177,
+          "kv_bytes": 657197312,
+          "cta_count": 264,
+          "tile_min": 147,
+          "tile_max": 153,
+          "tile_mean": 152.3409090909091,
+          "crossed_request_ctas": 30
+        }
+      ]
+    }
+  },
+  "toolchain": {
+    "nvcc": null,
+    "ptxas": null,
+    "clang++": "/usr/bin/clang++"
+  },
+  "gpu_validation": "skipped: no local CUDA GPU, torch, NVRTC, nvcc or ptxas"
+}
