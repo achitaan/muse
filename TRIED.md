@@ -162,6 +162,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| PVT-Q1 PV-axis transpose: V^T x P with dimensions as MMA M and eight heads as N, FP16 operands/FP32 accumulators unchanged; two ldmatrix.x4.trans loads per 16 keys, four fully useful MMAs instead of eight half-empty MMAs; same splits, logical order and merge. Distinct from closed Q8 producer transpose (0898ae00), FP8 QK and physical-order traversal | parked/offline ready: 10 CPU fragment/numerical/source/gate tests and helper Clang syntax pass; CPU import safe; CUDA compiler/GPU unavailable, no timing or check. Local-only row: caller must merge ledger (no main/push permission) | PVT-Q1 / loop/attn-pv-transpose | none; offline only | candidates/attention_q1_pvt.py; scripts/validate_attention_q1_pvt.py; results/attention_q1_pvt_OFFLINE.md | Nov 04 |
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |
 | A3 split change in Decode | closed | no change on the target shape | `9171012a` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | Fewer sliding splits | closed | every changed shape slower | `543fe60e` | attn_next/DEAD_ENDS.md | <= Oct 31 |
