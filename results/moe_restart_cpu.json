@@ -1,0 +1,9 @@
+{
+  "packing": "64/128-row full-K code and scale roundtrips; WGS conversion identical",
+  "dequant": "all 16 codes x 119 allowed FP8 bytes exact; paired scale arithmetic exact",
+  "routing_activation": "60 routings incl empty/hot/full local; descriptor bijection and capacity",
+  "ownership_ring": "660 whole-output-tile plans; 3/6-group unique prefetches; 0/1/2/7/32-tile parity/register lifetimes",
+  "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
+  "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
+  "python_static": "AST/import, generated MMA arity/domain, empty fallback guard; no GPU locally"
+}

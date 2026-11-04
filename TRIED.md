@@ -1,5 +1,11 @@
 # TRIED: every optimization idea tried on Muse 2 (shared ledger, all sessions)
 
+## Restart lane (branch-local; orchestrator to publish without this lane pushing)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| RSTREAM MoE restart: direct global-to-register NVFP4 RS-WGMMA, unique scales with delayed broadcasts, whole expert token axis to 256, 2 WGs/128 weight rows, one persistent launch; unlike WGS/P2 shared-weight rings, VMS multi-launch and Humming activation-row rereads | parked: complete candidate; CPU packing/decode/addressing/ownership/arithmetic/admission and instantiated Clang CUDA frontend checks pass; NVCC/PTXAS/GPU correctness/speed unverified; per-case >=3% both-order numerical/performance gate retains incumbent otherwise | loop/moe-restart, base 63e253f | none; no GPU check spent | experiments/moe_restart/moe_restart.py; results/MOE_RESTART.md; results/moe_restart_cpu.json | Nov 04 |
+
 **Before trying anything:** `python ".tools/tried.py" search <words>` (from the repo root `C:\Users\Achita\Documents\ChatGPT\Muse 2`).
 If a row says closed, don't retry it unless the new idea is materially different; say how in the new row.
 

@@ -1,0 +1,20 @@
+RSTREAM offline validation (no GPU or PTX assembler)
+{
+  "packing": "64/128-row full-K code and scale roundtrips; WGS conversion identical",
+  "dequant": "all 16 codes x 119 allowed FP8 bytes exact; paired scale arithmetic exact",
+  "routing_activation": "60 routings incl empty/hot/full local; descriptor bijection and capacity",
+  "ownership_ring": "660 whole-output-tile plans; 3/6-group unique prefetches; 0/1/2/7/32-tile parity/register lifetimes",
+  "arithmetic": "analytical one-nonzero-column MLP, BF16 GEMM/GS/SwiGLU boundaries and RMSNorm",
+  "admission": "7 policy cases; zero/near-zero/nonfinite numerical guard cases",
+  "python_static": "AST/import, generated MMA arity/domain, empty fallback guard; no GPU locally"
+}
+Python py_compile: PASS
+Clang CUDA host frontend, declaration-only stubs, both instantiated families: PASS (not PTX assembly)
+Clang CUDA device frontend, declaration-only stubs, both instantiated families: PASS (not PTX assembly)
+NVCC/NVRTC/ptxas/GPU compile and execution: NOT AVAILABLE, NOT PERFORMED
+Apple clang version 21.0.0 (clang-2100.1.1.101)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+Python 3.12.12 Torch 2.14.1 NumPy 2.5.4 CUDA False
+fe10c5c9897ea74fee7974ae195bf25b57fbeb2e1a176141d552a9518bed98ed  experiments/moe_restart/moe_restart.py
