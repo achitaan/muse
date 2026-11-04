@@ -162,6 +162,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| Decode-full only: double q1 flat KV gather ring 3->6 tiles; unchanged 264-CTA partition, page-index TMA and FP32 merge/math. Different from closed launch-plan rows (a7c4e6e6/129ffe91), q8 page-index prefetch (a4bd8523), and physical traversal (dbb907cf); real P1 read diagnostic be84a6c4 already establishes 3.96/4.15 TB/s random-gather ceiling | in progress; offline only, no GPU check or push; local ledger claim because lane forbids main/push | loop/attn-decfull-gatherpipe | none | candidates/attention_decodefull_ring6.py | Nov 04 |
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |
 | A3 split change in Decode | closed | no change on the target shape | `9171012a` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | Fewer sliding splits | closed | every changed shape slower | `543fe60e` | attn_next/DEAD_ENDS.md | <= Oct 31 |
