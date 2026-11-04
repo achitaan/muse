@@ -59,7 +59,7 @@ def partial_tests():
                 half_row_stride_bytes=128,float_row_stride_bytes=256)
 
 
-def cases():
+def cases(tile_override=None):
     # Early/late causal windows, over-splitting, exact/partial gathers, mixed
     # lengths, large FP32 RoPE angles, nonunit scales, and coherent low logits.
     specs=[
@@ -82,7 +82,8 @@ def cases():
         d=v1.public.generate_input(B,ctx,'tp8',layer,7200+i,L,dist=dist,page=page,
                                    kv_scale=scale,spread=spread,device='cpu')
         ref=v1.public.ref_kernel(d,torch.float8_e4m3fn)[0].bfloat16()
-        for tile in ((64,128) if L==1 else (64,256)):
+        tiles=(tile_override or {}).get(L,(64,128) if L==1 else (64,256))
+        for tile in tiles:
             for half in (False,True):
                 out,k,v,_=v1.emulate(d,tile,splits,half=half,micro=True)
                 err=float((out.float()-ref.float()).norm()/ref.float().norm().clamp(min=1e-12))
@@ -96,7 +97,7 @@ def cases():
     return result
 
 
-def manufactured_tests():
+def manufactured_tests(tile_override=None):
     n=0
     for L in (1,8):
         for scale in (1.,1/64):
@@ -106,7 +107,8 @@ def manufactured_tests():
                 d['v_cache'].fill_(value/scale)
                 d['qkv'][...,1152:1280]=value
                 d['qkv'][...,1280:]=0
-                for tile in ((64,128) if L==1 else (64,256)):
+                tiles=(tile_override or {}).get(L,(64,128) if L==1 else (64,256))
+                for tile in tiles:
                     for half in (False,True):
                         out,*_=v1.emulate(d,tile,7,half=half,micro=True)
                         # Independent analytical solution: constant V survives

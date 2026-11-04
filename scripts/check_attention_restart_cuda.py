@@ -20,7 +20,11 @@ STUB=r'''
 #define __forceinline__ inline __attribute__((always_inline))
 #define __launch_bounds__(a,b) __attribute__((launch_bounds(a,b)))
 #define __align__(a) __attribute__((aligned(a)))
+#define __grid_constant__
+#include <vector>
+#ifndef INFINITY
 #define INFINITY __builtin_inff()
+#endif
 #define C10_CUDA_CHECK(x) (void)(x)
 #define C10_CUDA_KERNEL_LAUNCH_CHECK() ((void)0)
 #define TORCH_CHECK(x,...) ((void)(x))
@@ -58,6 +62,7 @@ __device__ void __sincosf(float,float*,float*);
 __device__ void __syncthreads();
 __device__ void __threadfence();
 template<class T> __device__ T __ldcg(const T*);
+template<class T> __device__ T __ldg(const T*);
 template<class T> __device__ T max(T a,T b){return a>b?a:b;}
 template<class T> __device__ T min(T a,T b){return a<b?a:b;}
 namespace cuda {
@@ -73,11 +78,15 @@ namespace torch { constexpr int kFloat16=1,kFloat32=2; struct Tensor {
   int size(int) const;
   int device() const;
   int scalar_type() const;
+  int64_t numel() const;
 }; }
 namespace c10 { namespace cuda { struct CUDAGuard { CUDAGuard(int); }; } }
 namespace at { namespace cuda { cudaStream_t getCurrentCUDAStream(); } }
 constexpr int cudaFuncAttributeMaxDynamicSharedMemorySize=1;
 template<class F> int cudaFuncSetAttribute(F,int,int);
+struct cudaFuncAttributes { int numRegs,maxThreadsPerBlock; size_t localSizeBytes; };
+template<class F> int cudaFuncGetAttributes(cudaFuncAttributes*,F);
+template<class F> int cudaOccupancyMaxActiveBlocksPerMultiprocessor(int*,F,int,size_t);
 __host__ int cudaConfigureCall(dim3,dim3,size_t=0,cudaStream_t=nullptr);
 __host__ int cudaSetupArgument(const void*,size_t,size_t);
 __host__ int cudaLaunch(const void*);
@@ -87,8 +96,9 @@ __host__ int cudaLaunch(const void*);
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--v2',action='store_true')
+    parser.add_argument('--v3',action='store_true')
     args=parser.parse_args()
-    stem='attention_restart_v2' if args.v2 else 'attention_restart'
+    stem='attention_restart_v3' if args.v3 else 'attention_restart_v2' if args.v2 else 'attention_restart'
     tree=ast.parse((ROOT/'candidates'/f'{stem}.py').read_text())
     src=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
              and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='RR_CUDA')
@@ -105,7 +115,7 @@ def main():
         result[side]=dict(command=cmd,returncode=run.returncode,stdout=run.stdout,stderr=run.stderr)
         print(side,run.returncode,run.stderr)
     result['scope']='CUDA C++ syntax with API stubs only; not NVRTC/ptxas or real-header compilation'
-    output='attn_restart_v2_cuda_syntax.json' if args.v2 else 'attn_restart_cuda_syntax.json'
+    output='attn_restart_v3_cuda_syntax.json' if args.v3 else 'attn_restart_v2_cuda_syntax.json' if args.v2 else 'attn_restart_cuda_syntax.json'
     (ROOT/'results'/output).write_text(json.dumps(result,indent=2)+'\n')
     assert all(result[s]['returncode']==0 for s in ('host','device'))
 

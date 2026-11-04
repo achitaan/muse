@@ -1,5 +1,7 @@
 # Attention restart — offline candidate, not a measured win
 
+**Superseded after parent GPU checks:** v1/v2 built correctly but admitted no restart arms; full verification was 3.3–3.9× slower. See `ATTN_RESTART_V3.md` for measured root-cause accounting and the sliding-only v3 candidate. The initial performance hypotheses below are preserved as history, not current recommendations.
+
 **Recommended check file (v2):** `/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/candidates/attention_restart_v2.py`
 
 **Preserved v1 file:** `/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-attn-restart/candidates/attention_restart.py` (unchanged, SHA256 `519527b6325373d56751ecd9f8a224860d27550078d958e46b1a14710688c4c1`).

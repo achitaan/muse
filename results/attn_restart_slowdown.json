@@ -1,0 +1,739 @@
+{
+  "sources": {
+    "1": "/private/var/folders/pm/r8xm1mr525v913lct5tdg_5w0000gn/T/opencode/subs/profiles/attention_restart.2847448242174b71.log",
+    "2": "/private/var/folders/pm/r8xm1mr525v913lct5tdg_5w0000gn/T/opencode/subs/profiles/attention_restart_v2.c36537ede3ff45c1.log"
+  },
+  "log_tail_warning": "v2 log starts part-way through v1F; sliding lines are absent",
+  "little_law": {
+    "peak_bytes_per_s": 4800000000000.0,
+    "latency_s": 1e-06,
+    "SMs": 132,
+    "bytes_per_SM": 36363.63636363636
+  },
+  "shared_bytes": {
+    "incumbent_vj_L1": 61440,
+    "incumbent_vj_L8": 113664,
+    "v2_L1_T64": 51840,
+    "v2_L1_T128": 100992,
+    "v2_L8_T64": 61568,
+    "v2_L8_T256": 143488,
+    "v3_L1_T64": 68224,
+    "v3_L1_T128": 100992,
+    "v3_L8_T64": 77952,
+    "v3_L8_T128": 110720,
+    "incumbent_v16F_WST": 205008
+  },
+  "summaries": {
+    "1": [
+      {
+        "label": "d16F",
+        "plan": {
+          "splits": 16,
+          "tile": 128,
+          "last": 1
+        },
+        "base_us": 90.048,
+        "new_us": 103.792,
+        "median_ratio": 1.15263,
+        "paired_ratio": 1.1539,
+        "probe_seq_lens": [
+          80112,
+          74394,
+          84048,
+          85565,
+          82274,
+          82264,
+          75345,
+          76061,
+          74733,
+          82492,
+          75858,
+          85849,
+          76552,
+          79897,
+          74108,
+          85586
+        ],
+        "unique_KV_bytes": 326439424,
+        "gross_useful_TB_s": 3.145130877138893,
+        "equivalent_64key_tile_period_us_per_SM": 0.687364238410596,
+        "base_tile_period_us_per_SM": 0.5963443708609271
+      },
+      {
+        "label": "d16S",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 1
+        },
+        "base_us": 11.552,
+        "new_us": 16.896,
+        "median_ratio": 1.4626,
+        "paired_ratio": 1.44867
+      },
+      {
+        "label": "d1F",
+        "plan": {
+          "splits": 264,
+          "tile": 64,
+          "last": 1
+        },
+        "base_us": 14.432,
+        "new_us": 44.192,
+        "median_ratio": 3.06208,
+        "paired_ratio": 3.07731,
+        "probe_seq_lens": [
+          80000
+        ],
+        "unique_KV_bytes": 20480256,
+        "gross_useful_TB_s": 0.4634380883417813,
+        "equivalent_64key_tile_period_us_per_SM": 4.6629448441247,
+        "base_tile_period_us_per_SM": 1.522800959232614
+      },
+      {
+        "label": "d1S",
+        "plan": {
+          "splits": 16,
+          "tile": 128,
+          "last": 1
+        },
+        "base_us": 8.608,
+        "new_us": 13.872,
+        "median_ratio": 1.61152,
+        "paired_ratio": 1.60911
+      },
+      {
+        "label": "d32F",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 1
+        },
+        "base_us": 171.952,
+        "new_us": 188.464,
+        "median_ratio": 1.09603,
+        "paired_ratio": 1.09847,
+        "probe_seq_lens": [
+          74715,
+          82356,
+          76708,
+          85661,
+          81418,
+          81253,
+          74878,
+          79772,
+          77628,
+          83912,
+          84436,
+          84529,
+          82238,
+          85824,
+          76198,
+          84411,
+          77889,
+          80185,
+          81697,
+          78582,
+          83514,
+          83550,
+          84913,
+          74113,
+          76199,
+          83199,
+          84808,
+          85977,
+          77261,
+          81980,
+          80806,
+          84960
+        ],
+        "unique_KV_bytes": 664474112,
+        "gross_useful_TB_s": 3.5257349520332792,
+        "equivalent_64key_tile_period_us_per_SM": 0.6131931969435543,
+        "base_tile_period_us_per_SM": 0.5594691644071974
+      },
+      {
+        "label": "d32S",
+        "plan": {
+          "splits": 8,
+          "tile": 64,
+          "last": 1
+        },
+        "base_us": 13.6,
+        "new_us": 18.544,
+        "median_ratio": 1.36353,
+        "paired_ratio": 1.36143
+      },
+      {
+        "label": "v16F",
+        "plan": {
+          "splits": 32,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 99.808,
+        "new_us": 332.368,
+        "median_ratio": 3.33007,
+        "paired_ratio": 3.33636,
+        "probe_seq_lens": [
+          81560,
+          77580,
+          79000,
+          82684,
+          83958,
+          74178,
+          77811,
+          79511,
+          85254,
+          75169,
+          77936,
+          77631,
+          74410,
+          80353,
+          79815,
+          77766
+        ],
+        "unique_KV_bytes": 323774464,
+        "gross_useful_TB_s": 0.9741445145140326,
+        "equivalent_64key_tile_period_us_per_SM": 2.219149013657056,
+        "base_tile_period_us_per_SM": 0.6663963581183612
+      },
+      {
+        "label": "v16S",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 14.592,
+        "new_us": 31.456,
+        "median_ratio": 2.1557,
+        "paired_ratio": 2.13832
+      },
+      {
+        "label": "v1F",
+        "plan": {
+          "splits": 264,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 17.888,
+        "new_us": 83.824,
+        "median_ratio": 4.68605,
+        "paired_ratio": 4.67405,
+        "probe_seq_lens": [
+          80000
+        ],
+        "unique_KV_bytes": 20482048,
+        "gross_useful_TB_s": 0.24434586753197174,
+        "equivalent_64key_tile_period_us_per_SM": 8.84473860911271,
+        "base_tile_period_us_per_SM": 1.8874628297362113
+      },
+      {
+        "label": "v1S",
+        "plan": {
+          "splits": 33,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 9.536,
+        "new_us": 22.112,
+        "median_ratio": 2.31879,
+        "paired_ratio": 2.31447
+      },
+      {
+        "label": "v32F",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 184.272,
+        "new_us": 640.848,
+        "median_ratio": 3.47773,
+        "paired_ratio": 3.47832,
+        "probe_seq_lens": [
+          85584,
+          79330,
+          83901,
+          81393,
+          74527,
+          82903,
+          84423,
+          74865,
+          74039,
+          84800,
+          83394,
+          85645,
+          83915,
+          76729,
+          80652,
+          83244,
+          75881,
+          80578,
+          83368,
+          84668,
+          75543,
+          78369,
+          74208,
+          75229,
+          74794,
+          80514,
+          78588,
+          81731,
+          74874,
+          81326,
+          74555,
+          83000
+        ],
+        "unique_KV_bytes": 654547456,
+        "gross_useful_TB_s": 1.0213770753751281,
+        "equivalent_64key_tile_period_us_per_SM": 2.1164915932746196,
+        "base_tile_period_us_per_SM": 0.6085844675740593
+      },
+      {
+        "label": "v32S",
+        "plan": {
+          "splits": 8,
+          "tile": 64,
+          "last": 0
+        },
+        "base_us": 18.336,
+        "new_us": 37.872,
+        "median_ratio": 2.06545,
+        "paired_ratio": 2.06679
+      }
+    ],
+    "2": [
+      {
+        "label": "d16F",
+        "plan": {
+          "splits": 32,
+          "tile": 64,
+          "last": 1,
+          "half": 0
+        },
+        "base_us": 89.952,
+        "new_us": 103.808,
+        "median_ratio": 1.15404,
+        "paired_ratio": 1.15203,
+        "probe_seq_lens": [
+          80112,
+          74394,
+          84048,
+          85565,
+          82274,
+          82264,
+          75345,
+          76061,
+          74733,
+          82492,
+          75858,
+          85849,
+          76552,
+          79897,
+          74108,
+          85586
+        ],
+        "unique_KV_bytes": 326439424,
+        "gross_useful_TB_s": 3.1446461159062884,
+        "equivalent_64key_tile_period_us_per_SM": 0.6874701986754967,
+        "base_tile_period_us_per_SM": 0.5957086092715232
+      },
+      {
+        "label": "d32F",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 1,
+          "half": 0
+        },
+        "base_us": 172.096,
+        "new_us": 189.2,
+        "median_ratio": 1.09939,
+        "paired_ratio": 1.09997,
+        "probe_seq_lens": [
+          74715,
+          82356,
+          76708,
+          85661,
+          81418,
+          81253,
+          74878,
+          79772,
+          77628,
+          83912,
+          84436,
+          84529,
+          82238,
+          85824,
+          76198,
+          84411,
+          77889,
+          80185,
+          81697,
+          78582,
+          83514,
+          83550,
+          84913,
+          74113,
+          76199,
+          83199,
+          84808,
+          85977,
+          77261,
+          81980,
+          80806,
+          84960
+        ],
+        "unique_KV_bytes": 664474112,
+        "gross_useful_TB_s": 3.5120196194503173,
+        "equivalent_64key_tile_period_us_per_SM": 0.6155878728124229,
+        "base_tile_period_us_per_SM": 0.5599376879467587
+      },
+      {
+        "label": "v16F",
+        "plan": {
+          "splits": 32,
+          "tile": 64,
+          "last": 0,
+          "half": 0
+        },
+        "base_us": 100.512,
+        "new_us": 333.696,
+        "median_ratio": 3.31996,
+        "paired_ratio": 3.319,
+        "probe_seq_lens": [
+          81560,
+          77580,
+          79000,
+          82684,
+          83958,
+          74178,
+          77811,
+          79511,
+          85254,
+          75169,
+          77936,
+          77631,
+          74410,
+          80353,
+          79815,
+          77766
+        ],
+        "unique_KV_bytes": 323774464,
+        "gross_useful_TB_s": 0.9702677406981203,
+        "equivalent_64key_tile_period_us_per_SM": 2.2280157814871018,
+        "base_tile_period_us_per_SM": 0.6710968133535661
+      },
+      {
+        "label": "v1F",
+        "plan": {
+          "splits": 132,
+          "tile": 256,
+          "last": 1,
+          "half": 0
+        },
+        "base_us": 18.368,
+        "new_us": 92.528,
+        "median_ratio": 5.03746,
+        "paired_ratio": 5.04849,
+        "probe_seq_lens": [
+          80000
+        ],
+        "unique_KV_bytes": 20482048,
+        "gross_useful_TB_s": 0.2213605395123638,
+        "equivalent_64key_tile_period_us_per_SM": 9.76314628297362,
+        "base_tile_period_us_per_SM": 1.9381103117505996
+      },
+      {
+        "label": "v32F",
+        "plan": {
+          "splits": 16,
+          "tile": 64,
+          "last": 0,
+          "half": 1
+        },
+        "base_us": 186.512,
+        "new_us": 635.472,
+        "median_ratio": 3.40714,
+        "paired_ratio": 3.40734,
+        "probe_seq_lens": [
+          85584,
+          79330,
+          83901,
+          81393,
+          74527,
+          82903,
+          84423,
+          74865,
+          74039,
+          84800,
+          83394,
+          85645,
+          83915,
+          76729,
+          80652,
+          83244,
+          75881,
+          80578,
+          83368,
+          84668,
+          75543,
+          78369,
+          74208,
+          75229,
+          74794,
+          80514,
+          78588,
+          81731,
+          74874,
+          81326,
+          74555,
+          83000
+        ],
+        "unique_KV_bytes": 654547456,
+        "gross_useful_TB_s": 1.030017775763527,
+        "equivalent_64key_tile_period_us_per_SM": 2.098736589271417,
+        "base_tile_period_us_per_SM": 0.615982385908727
+      }
+    ]
+  },
+  "capacity_upper_bounds": [
+    {
+      "name": "v2 verify T64",
+      "tile": 64,
+      "stages": 3,
+      "planned_CTA_per_SM": 2,
+      "max_future_bytes_SM": 65536
+    },
+    {
+      "name": "v2 verify T256",
+      "tile": 256,
+      "stages": 2,
+      "planned_CTA_per_SM": 1,
+      "max_future_bytes_SM": 65536
+    },
+    {
+      "name": "incumbent v32F vj",
+      "tile": 64,
+      "stages": 4,
+      "planned_CTA_per_SM": 2,
+      "max_future_bytes_SM": 98304
+    },
+    {
+      "name": "incumbent v16F WST",
+      "tile": 128,
+      "stages": 4,
+      "planned_CTA_per_SM": 1,
+      "max_future_bytes_SM": 98304
+    },
+    {
+      "name": "v3 verify T64",
+      "tile": 64,
+      "stages": 4,
+      "planned_CTA_per_SM": 2,
+      "max_future_bytes_SM": 98304
+    },
+    {
+      "name": "v3 verify T128",
+      "tile": 128,
+      "stages": 3,
+      "planned_CTA_per_SM": 2,
+      "max_future_bytes_SM": 131072
+    }
+  ],
+  "source_level_verify_ops_per_64keys": {
+    "restart_warp_mma_QK": 128,
+    "restart_warp_mma_PV": 256,
+    "restart_K_shared_scalar_warp_loads": 256,
+    "restart_V_shared_uint2_warp_loads": 128,
+    "restart_V_byte_permutation_warp_ops": 256,
+    "restart_V_FP8_to_half2_warp_conversions": 512,
+    "restart_K_shared_bytes": 32768,
+    "restart_V_shared_bytes": 32768,
+    "incumbent_v32F_vj_warpgroup_mma": 8,
+    "incumbent_v16F_WST_warpgroup_mma_equivalent": 6,
+    "limitation": "PTX/source operation counts, NOT SASS counts or cycle attribution"
+  },
+  "v2_matched_half_control": [
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 16,
+        "tile": 64,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 345.616,
+      "float_us": 344.096
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 16,
+        "tile": 64,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 368.432,
+      "float_us": 351.76
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 32,
+        "tile": 64,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 337.584,
+      "float_us": 333.696
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 32,
+        "tile": 64,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 373.264,
+      "float_us": 339.952
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 8,
+        "tile": 256,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 378.704,
+      "float_us": 378.304
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 8,
+        "tile": 256,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 376.608,
+      "float_us": 369.696
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 16,
+        "tile": 256,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 373.152,
+      "float_us": 371.344
+    },
+    {
+      "label": "v16F",
+      "plan": {
+        "splits": 16,
+        "tile": 256,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 381.28,
+      "float_us": 365.552
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 8,
+        "tile": 64,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 658.08,
+      "float_us": 658.944
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 8,
+        "tile": 64,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 667.392,
+      "float_us": 659.472
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 16,
+        "tile": 64,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 635.472,
+      "float_us": 635.856
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 16,
+        "tile": 64,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 656.08,
+      "float_us": 642.528
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 4,
+        "tile": 256,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 733.712,
+      "float_us": 734.224
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 4,
+        "tile": 256,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 713.664,
+      "float_us": 710.848
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 8,
+        "tile": 256,
+        "last": 0,
+        "half": 1
+      },
+      "half_us": 725.968,
+      "float_us": 728.224
+    },
+    {
+      "label": "v32F",
+      "plan": {
+        "splits": 8,
+        "tile": 256,
+        "last": 1,
+        "half": 1
+      },
+      "half_us": 722.864,
+      "float_us": 711.36
+    }
+  ],
+  "compile_tools": "nvcc/ptxas/NVRTC not found in PATH, Spotlight or bounded common-path search; broad user-tree find timed out after 120s without a match",
+  "register_spills": "unknown: GPU logs suppress ptxas output; v3 adds verbose ptxas and persistent runtime function-attribute/occupancy logs"
+}

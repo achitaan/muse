@@ -336,7 +336,7 @@ def integration_tests():
     return summaries
 
 
-def static_tests(candidate,*,v2=False):
+def static_tests(candidate,*,v2=False,v3=False):
     tree = ast.parse(candidate.read_text())
     strings = {n.targets[0].id:ast.literal_eval(n.value) for n in tree.body
                if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)
@@ -346,8 +346,9 @@ def static_tests(candidate,*,v2=False):
     assert 'atomicAdd' not in strings['RR_CUDA']
     assert 'memory_order_acq_rel' in strings['RR_CUDA']
     assert 'getCurrentCUDAStream' in strings['RR_CUDA']
-    finish = 'finish<L,NT,HALF>' if v2 else 'finish<L,NT>'
-    assert finish+'(p,blockIdx.y,begin,min(begin+NT/8,L*16))' in strings['RR_CUDA']
+    finish = 'finish<L,NT,HALF>' if v2 or v3 else 'finish<L,NT>'
+    bound = 'ROWS' if v3 else 'NT/8'
+    assert finish+'(p,blockIdx.y,begin,min(begin+'+bound+',L*16))' in strings['RR_CUDA']
     # Prove all shared byte addresses are bijections and naturally aligned.
     for tile in (64,128,256):
         addresses = [ko(r,c) for r in range(tile) for c in range(128)]
