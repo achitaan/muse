@@ -1,0 +1,25 @@
+test_both_split_passes_and_elapsed_ratios_required (__main__.PolicyTests.test_both_split_passes_and_elapsed_ratios_required) ... ok
+test_fit_uses_training_only (__main__.PolicyTests.test_fit_uses_training_only) ... ok
+test_null_drift_cannot_cancel_across_passes_or_draws (__main__.PolicyTests.test_null_drift_cannot_cancel_across_passes_or_draws) ... ok
+test_print_tail_contains_all_draws (__main__.PolicyTests.test_print_tail_contains_all_draws) ... ok
+test_routing_histogram_edges (__main__.PolicyTests.test_routing_histogram_edges) ... ok
+test_strict_gate_and_every_veto (__main__.PolicyTests.test_strict_gate_and_every_veto) ... ok
+test_actual_repack_byte_mapping (__main__.RepackTests.test_actual_repack_byte_mapping) ... ok
+test_cpp20_all_builds_and_only_control_instantiated (__main__.StaticTests.test_cpp20_all_builds_and_only_control_instantiated) ... ok
+test_incumbent_and_control_source_integrity (__main__.StaticTests.test_incumbent_and_control_source_integrity) ... ok
+test_runtime_no_data_sync_or_histogram_policy (__main__.StaticTests.test_runtime_no_data_sync_or_histogram_policy) ... ok
+test_shape_only_dispatch_and_fresh_output (__main__.StaticTests.test_shape_only_dispatch_and_fresh_output) ... ok
+test_source_ast_and_signatures (__main__.StaticTests.test_source_ast_and_signatures) ... ok
+test_actual_timing_loop_pairs_null_and_candidate (__main__.TimingTests.test_actual_timing_loop_pairs_null_and_candidate) ... ok
+test_capture_replayed_before_reading_outputs (__main__.TimingTests.test_capture_replayed_before_reading_outputs) ... ok
+test_deadline_uses_monotonic_clock (__main__.TimingTests.test_deadline_uses_monotonic_clock) ... ok
+test_numeric_gate_exact_bounds_and_sticky_error (__main__.TimingTests.test_numeric_gate_exact_bounds_and_sticky_error) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.087s
+
+OK
+tail-test: 10286 bytes for 64 draws + summaries
+repack-test: 4624 original-byte addresses, codes/scales/tile/expert boundaries
+source-integrity: incumbent unchanged except C++20 build flags/header; VMS arithmetic byte-identical
+candidate-sha256: bf2e6a01d157acfb1aa546eede33b34330096538b835664d51ad87803a42b5be
