@@ -1,0 +1,72 @@
+{
+  "candidate_sha256": "1ee1d2cc751de2b4bf6aabe3b3732193ec025ac1ac881d2bc06ab20a7637de31",
+  "native_cuda_and_parent_logic_preserved": true,
+  "explicit_runtime_output_sites": 24,
+  "static_checks": true,
+  "binding": {
+    "production_fresh": true,
+    "nesting_and_exception_restore": true,
+    "thread_local": true,
+    "aligned_views": 6
+  },
+  "scheduling": {
+    "seeds": 16,
+    "every_panel_role_in_every_event_slot": 4
+  },
+  "protocol": [
+    {
+      "case": "different-address false win removed by exact output sharing",
+      "old_null": 0.9523809523809524,
+      "new_null": 1.0,
+      "adopt": false
+    },
+    {
+      "case": "false old ABBA slot win removed",
+      "old_null": 0.9523809523809523,
+      "new_null": 1.0,
+      "adopt": false
+    },
+    {
+      "case": "real gain survives slot bias and first-replay penalty",
+      "ratio": 0.9285714285715735,
+      "adopt": true
+    },
+    {
+      "case": "residual capture bias rejected despite unit aggregate",
+      "aggregate": 1.0,
+      "raw": [
+        0.9523809523809053,
+        1.050000000000052,
+        1.050000000000052,
+        0.9523809523809053
+      ],
+      "adopt": false
+    },
+    {
+      "case": "post-null failure vetoes a fast candidate",
+      "adopt": false
+    },
+    {
+      "case": "sub-threshold genuine gain rejected",
+      "adopt": false
+    },
+    {
+      "case": "fast wrong result rejected before capture",
+      "adopt": false
+    },
+    {
+      "case": "unbound complete incumbent skipped",
+      "adopt": false
+    },
+    {
+      "case": "capture failure clears stream and borrowing context",
+      "adopt": false
+    },
+    {
+      "case": "incomplete deadline design rejected and cleaned",
+      "adopt": false
+    }
+  ],
+  "policy_wiring": true,
+  "gpu": "NOT RUN: physical cause and H200 null band remain unverified; no GPU/OKC authorized"
+}
