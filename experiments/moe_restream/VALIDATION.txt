@@ -1,0 +1,26 @@
+test_actual_histogram_model (__main__.RestreamTests.test_actual_histogram_model) ... ok
+test_actual_packer_with_lazy_cpu_tensors (__main__.RestreamTests.test_actual_packer_with_lazy_cpu_tensors) ... ok
+test_arithmetic_precision_and_readiness_policy_unchanged (__main__.RestreamTests.test_arithmetic_precision_and_readiness_policy_unchanged) ... ok
+test_async_active_empty_token_wg_pipeline (__main__.RestreamTests.test_async_active_empty_token_wg_pipeline) ... ok
+test_emitted_candidate_and_fallback_scope (__main__.RestreamTests.test_emitted_candidate_and_fallback_scope) ... ok
+test_global_activation_layouts (__main__.RestreamTests.test_global_activation_layouts) ... ok
+test_native_indices_output_coverage_and_smem (__main__.RestreamTests.test_native_indices_output_coverage_and_smem) ... PASS outputs=269484032 owner_checks=1238760 contributors=81920 smem=209024 sizeofSmem=22584
+ok
+test_pack_permutations_and_qword_roundtrip (__main__.RestreamTests.test_pack_permutations_and_qword_roundtrip) ... ok
+test_read_once_weight_piece_coverage (__main__.RestreamTests.test_read_once_weight_piece_coverage) ... ok
+test_shape_dispatch_and_exception_fallback (__main__.RestreamTests.test_shape_dispatch_and_exception_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 8.365s
+
+OK
+AST parse / exact inherited headroom prefix: PASS
+Candidate bytes: 358075 SHA256: 48db5988fc3bd595bc81df7a925533ce5ca3dff21ef7ca1f2585a89ad88db1a9
+MODEL M=128 median stream-byte cut% 0.0 median peak-HBM cut% 0.0 target False
+MODEL M=256 median stream-byte cut% 5.9844907298082965 median peak-HBM cut% 5.4801597284343435 target True
+Conditional model requires hidden extra activation-copy cost; full serial-X sensitivity is in MODEL.json
+CUDA/NVRTC/ptxas compilation / numeric GPU tolerance / graph replay / performance gate / prepare duration: NOT RUN
+nvcc: None ptxas: None
+OKC check/submit: NONE; no main commit/push; no other worktree writes
+Branch: loop/moe-restream
+Parent: e578f78596f48147f31cf35aa1042d2ae31505da
