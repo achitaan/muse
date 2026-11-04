@@ -1,0 +1,1322 @@
+{
+  "candidate_sha256": "fd1d2ccdf5883315afe4be885eb9aca2cc43189b99c3b369824bcb501a54ee67",
+  "parent_prefix_preserved": true,
+  "source": {
+    "core_sha256": "3041f16e7de7674691fbf2d0daf958a8897281727ba268270ab4c623d417d9f4",
+    "router_sha256": "351dda5762c40d399d2839104bec757432b6526d6c74d946fd97765ed4f11360",
+    "core_syntax": {
+      "result": "PASS: C++20 syntax ONLY, CUDA/ATen stubbed, PTX removed",
+      "removed_asm": 35,
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-fsyntax-only",
+        "-Wno-unknown-pragmas",
+        "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/rotcodes2-core-syntax.cpp"
+      ]
+    },
+    "router_syntax": {
+      "result": "PASS: C++20 syntax ONLY, CUDA/ATen stubbed, PTX removed",
+      "removed_asm": 15,
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-fsyntax-only",
+        "-Wno-unknown-pragmas",
+        "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/rotcodes2-router-syntax.cpp"
+      ]
+    }
+  },
+  "bitfield": {
+    "all_bf16_payload_window_cases": 7929856,
+    "random_code_word_windows": 7933970,
+    "sign_bit_basis_bijection": true,
+    "actual_torch_word_permutations": 65570,
+    "invalid_metadata_rejections": 3
+  },
+  "pool_fma": {
+    "result": "PASS 100000 two-row FMA-order cases",
+    "command": [
+      "/usr/bin/clang++",
+      "-O2",
+      "-std=c++20",
+      "-Wno-unknown-pragmas",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/rotcodes2-pool-host.cpp",
+      "-o",
+      "/Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-bf16-proj/results/.rotcodes2-pool-host"
+    ]
+  },
+  "sk2": {
+    "roundtrip_weights": 720896,
+    "escapes": 134,
+    "cases": [
+      {
+        "cfg": "o32h_r100",
+        "m": 31,
+        "dist": "normal",
+        "relative_l2": 0.0016932007734997687,
+        "row_error": 0.0020487173225979707
+      },
+      {
+        "cfg": "o32h_r100",
+        "m": 31,
+        "dist": "outliers",
+        "relative_l2": 0.0016418346433431687,
+        "row_error": 0.0020317355159656207
+      },
+      {
+        "cfg": "o32h_r100",
+        "m": 31,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o32h_r100",
+        "m": 32,
+        "dist": "normal",
+        "relative_l2": 0.0016576001370693047,
+        "row_error": 0.001957867765274474
+      },
+      {
+        "cfg": "o32h_r100",
+        "m": 32,
+        "dist": "outliers",
+        "relative_l2": 0.001635601370189958,
+        "row_error": 0.0019521040620959045
+      },
+      {
+        "cfg": "o32h_r100",
+        "m": 32,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 2,
+        "dist": "normal",
+        "relative_l2": 0.0015716722893814718,
+        "row_error": 0.0017454066631080063
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 2,
+        "dist": "outliers",
+        "relative_l2": 0.0015691585052592758,
+        "row_error": 0.0017677919145144038
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 2,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 3,
+        "dist": "normal",
+        "relative_l2": 0.0016978934170456905,
+        "row_error": 0.001741927434844541
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 3,
+        "dist": "outliers",
+        "relative_l2": 0.0017473986598877174,
+        "row_error": 0.0019230013184920942
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 3,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 4,
+        "dist": "normal",
+        "relative_l2": 0.0017587971000683931,
+        "row_error": 0.002125976342255763
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 4,
+        "dist": "outliers",
+        "relative_l2": 0.001532677109622263,
+        "row_error": 0.00165768567637377
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 4,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 5,
+        "dist": "normal",
+        "relative_l2": 0.0017098736308459267,
+        "row_error": 0.0019395198319650444
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 5,
+        "dist": "outliers",
+        "relative_l2": 0.001669474647918767,
+        "row_error": 0.0018208171636844065
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 5,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 6,
+        "dist": "normal",
+        "relative_l2": 0.001700684811666208,
+        "row_error": 0.001908766373464047
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 6,
+        "dist": "outliers",
+        "relative_l2": 0.0017139149970098746,
+        "row_error": 0.0018698409898250576
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 6,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 7,
+        "dist": "normal",
+        "relative_l2": 0.0016426369970522913,
+        "row_error": 0.00184691161952903
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 7,
+        "dist": "outliers",
+        "relative_l2": 0.001720874620323933,
+        "row_error": 0.002104890151032284
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 7,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 8,
+        "dist": "normal",
+        "relative_l2": 0.0016774716826419781,
+        "row_error": 0.001986190087202543
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 8,
+        "dist": "outliers",
+        "relative_l2": 0.0015684570330098632,
+        "row_error": 0.0018207977002870704
+      },
+      {
+        "cfg": "o8h_r88",
+        "m": 8,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 31,
+        "dist": "normal",
+        "relative_l2": 0.0015957191034084647,
+        "row_error": 0.002094364702556612
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 31,
+        "dist": "outliers",
+        "relative_l2": 0.0016848194934718816,
+        "row_error": 0.001960965677683038
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 31,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 32,
+        "dist": "normal",
+        "relative_l2": 0.00164391178536331,
+        "row_error": 0.0020429708041530604
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 32,
+        "dist": "outliers",
+        "relative_l2": 0.001637280161071597,
+        "row_error": 0.002027148175939186
+      },
+      {
+        "cfg": "pooler32_r144",
+        "m": 32,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 2,
+        "dist": "normal",
+        "relative_l2": 0.0018388618760909585,
+        "row_error": 0.0023304556507789042
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 2,
+        "dist": "outliers",
+        "relative_l2": 0.001387050312431363,
+        "row_error": 0.001405161870500517
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 2,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 3,
+        "dist": "normal",
+        "relative_l2": 0.0017059667554973372,
+        "row_error": 0.0018090417915797474
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 3,
+        "dist": "outliers",
+        "relative_l2": 0.0017173803438960303,
+        "row_error": 0.0020586844158193046
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 3,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 4,
+        "dist": "normal",
+        "relative_l2": 0.0016503745929913947,
+        "row_error": 0.0017768015281924546
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 4,
+        "dist": "outliers",
+        "relative_l2": 0.0014620483760955643,
+        "row_error": 0.0017482966359134307
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 4,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 5,
+        "dist": "normal",
+        "relative_l2": 0.0016452485784675677,
+        "row_error": 0.0020507909386338714
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 5,
+        "dist": "outliers",
+        "relative_l2": 0.00165803362998992,
+        "row_error": 0.0019641767598820746
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 5,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 6,
+        "dist": "normal",
+        "relative_l2": 0.0017838733002546055,
+        "row_error": 0.002013094777028146
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 6,
+        "dist": "outliers",
+        "relative_l2": 0.0016815119635510886,
+        "row_error": 0.0018230679385978729
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 6,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 7,
+        "dist": "normal",
+        "relative_l2": 0.0016050498241531581,
+        "row_error": 0.0018142533986722099
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 7,
+        "dist": "outliers",
+        "relative_l2": 0.0016747888320102053,
+        "row_error": 0.002200782204618071
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 7,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 8,
+        "dist": "normal",
+        "relative_l2": 0.0016384276428094873,
+        "row_error": 0.001756604606271972
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 8,
+        "dist": "outliers",
+        "relative_l2": 0.0016750629285663047,
+        "row_error": 0.002019148942880445
+      },
+      {
+        "cfg": "pooler8h_r72",
+        "m": 8,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 31,
+        "dist": "normal",
+        "relative_l2": 0.0016821077349160787,
+        "row_error": 0.0020574629682481886
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 31,
+        "dist": "outliers",
+        "relative_l2": 0.0016720233531236782,
+        "row_error": 0.0023038407274263237
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 31,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 32,
+        "dist": "normal",
+        "relative_l2": 0.0016982454428211117,
+        "row_error": 0.002123249040475251
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 32,
+        "dist": "outliers",
+        "relative_l2": 0.0016184096955152321,
+        "row_error": 0.0019686960430744596
+      },
+      {
+        "cfg": "qkv32_r208",
+        "m": 32,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 2,
+        "dist": "normal",
+        "relative_l2": 0.0012756417793251592,
+        "row_error": 0.0016115400691758828
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 2,
+        "dist": "outliers",
+        "relative_l2": 0.0016589305138544762,
+        "row_error": 0.001717733479201124
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 2,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 3,
+        "dist": "normal",
+        "relative_l2": 0.001653710576235235,
+        "row_error": 0.0016731375914665245
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 3,
+        "dist": "outliers",
+        "relative_l2": 0.0018515718663542015,
+        "row_error": 0.002171914087850141
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 3,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 4,
+        "dist": "normal",
+        "relative_l2": 0.0018639114875476888,
+        "row_error": 0.0019637966076602367
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 4,
+        "dist": "outliers",
+        "relative_l2": 0.00170392802145308,
+        "row_error": 0.0020144414364309483
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 4,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 5,
+        "dist": "normal",
+        "relative_l2": 0.0015027861609814173,
+        "row_error": 0.001910043966999214
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 5,
+        "dist": "outliers",
+        "relative_l2": 0.001957602314452791,
+        "row_error": 0.002353769010238367
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 5,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 6,
+        "dist": "normal",
+        "relative_l2": 0.0019228802349495866,
+        "row_error": 0.0024952221262656096
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 6,
+        "dist": "outliers",
+        "relative_l2": 0.0018719414874567824,
+        "row_error": 0.0021755234992253463
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 6,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 7,
+        "dist": "normal",
+        "relative_l2": 0.0015129952509231987,
+        "row_error": 0.0018792977980517664
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 7,
+        "dist": "outliers",
+        "relative_l2": 0.0018211762179935382,
+        "row_error": 0.002126275997375641
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 7,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 8,
+        "dist": "normal",
+        "relative_l2": 0.0017490842685915094,
+        "row_error": 0.002114599198759374
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 8,
+        "dist": "outliers",
+        "relative_l2": 0.0017047820856170054,
+        "row_error": 0.0020219125161798604
+      },
+      {
+        "cfg": "slice8_r192",
+        "m": 8,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 31,
+        "dist": "normal",
+        "relative_l2": 0.0016678192074630791,
+        "row_error": 0.0019100330025690788
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 31,
+        "dist": "outliers",
+        "relative_l2": 0.001644628877735459,
+        "row_error": 0.0018937615309696113
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 31,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 32,
+        "dist": "normal",
+        "relative_l2": 0.0016876687898209237,
+        "row_error": 0.002044871066257263
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 32,
+        "dist": "outliers",
+        "relative_l2": 0.0016557298886198334,
+        "row_error": 0.0019715181383271195
+      },
+      {
+        "cfg": "unpooler32_r144",
+        "m": 32,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 15,
+        "dist": "normal",
+        "relative_l2": 0.0016543468817172512,
+        "row_error": 0.001956207067560918
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 15,
+        "dist": "outliers",
+        "relative_l2": 0.0016883017831869343,
+        "row_error": 0.0020084610554755
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 15,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 16,
+        "dist": "normal",
+        "relative_l2": 0.0016919576958847608,
+        "row_error": 0.0021343580548604997
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 16,
+        "dist": "outliers",
+        "relative_l2": 0.001579939014515754,
+        "row_error": 0.0018546782268673576
+      },
+      {
+        "cfg": "pooler16t_r192",
+        "m": 16,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 15,
+        "dist": "normal",
+        "relative_l2": 0.0016169872859835165,
+        "row_error": 0.001887270742213042
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 15,
+        "dist": "outliers",
+        "relative_l2": 0.0016110245511901267,
+        "row_error": 0.0020691591911485736
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 15,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 16,
+        "dist": "normal",
+        "relative_l2": 0.0016110398035978416,
+        "row_error": 0.0018914991098093938
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 16,
+        "dist": "outliers",
+        "relative_l2": 0.0016685152668551233,
+        "row_error": 0.0019238409841698556
+      },
+      {
+        "cfg": "unpooler16t_r72",
+        "m": 16,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 2,
+        "dist": "normal",
+        "relative_l2": 0.001721000987856877,
+        "row_error": 0.0019010692363008147
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 2,
+        "dist": "outliers",
+        "relative_l2": 0.0017870473355500187,
+        "row_error": 0.0018646874178463474
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 2,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 3,
+        "dist": "normal",
+        "relative_l2": 0.0013922365132174356,
+        "row_error": 0.0015379138319165395
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 3,
+        "dist": "outliers",
+        "relative_l2": 0.0015934843806970577,
+        "row_error": 0.001666061116636817
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 3,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 4,
+        "dist": "normal",
+        "relative_l2": 0.0014874484082932442,
+        "row_error": 0.0016645170887667653
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 4,
+        "dist": "outliers",
+        "relative_l2": 0.0017108570056704952,
+        "row_error": 0.0019219173052679353
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 4,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 5,
+        "dist": "normal",
+        "relative_l2": 0.0017674241783443472,
+        "row_error": 0.002036135996820241
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 5,
+        "dist": "outliers",
+        "relative_l2": 0.0016193099522577553,
+        "row_error": 0.0018802758280024826
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 5,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 6,
+        "dist": "normal",
+        "relative_l2": 0.0016680658759304038,
+        "row_error": 0.001925539098889321
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 6,
+        "dist": "outliers",
+        "relative_l2": 0.00164433077231182,
+        "row_error": 0.0018952486314609128
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 6,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 7,
+        "dist": "normal",
+        "relative_l2": 0.0014406323639512954,
+        "row_error": 0.0016585546320862616
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 7,
+        "dist": "outliers",
+        "relative_l2": 0.0017729700759773945,
+        "row_error": 0.002094331718737159
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 7,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 8,
+        "dist": "normal",
+        "relative_l2": 0.001725887879334035,
+        "row_error": 0.0020985568500184906
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 8,
+        "dist": "outliers",
+        "relative_l2": 0.001500634807349815,
+        "row_error": 0.0020101033868560234
+      },
+      {
+        "cfg": "qkv8t_r144",
+        "m": 8,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 15,
+        "dist": "normal",
+        "relative_l2": 0.0015680347022875162,
+        "row_error": 0.0018204401041286818
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 15,
+        "dist": "outliers",
+        "relative_l2": 0.001603496806749204,
+        "row_error": 0.001994759804694322
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 15,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 16,
+        "dist": "normal",
+        "relative_l2": 0.001580046825802656,
+        "row_error": 0.001989462805224538
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 16,
+        "dist": "outliers",
+        "relative_l2": 0.0015678558808246805,
+        "row_error": 0.0019426268943473054
+      },
+      {
+        "cfg": "qkv16t_r200",
+        "m": 16,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 15,
+        "dist": "normal",
+        "relative_l2": 0.0016353445026781668,
+        "row_error": 0.001974401959123792
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 15,
+        "dist": "outliers",
+        "relative_l2": 0.0016035974286272097,
+        "row_error": 0.0019040531934456295
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 15,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 16,
+        "dist": "normal",
+        "relative_l2": 0.0016939388116774432,
+        "row_error": 0.001973159958197711
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 16,
+        "dist": "outliers",
+        "relative_l2": 0.001748795389138864,
+        "row_error": 0.0019987732181031915
+      },
+      {
+        "cfg": "o16t_r68",
+        "m": 16,
+        "dist": "probes",
+        "relative_l2": 0.0,
+        "row_error": 0.0
+      }
+    ]
+  },
+  "scalar_multi": [
+    {
+      "k": 1024,
+      "m": 2,
+      "dist": "normal",
+      "relative_l2": 0.0011028405432294691
+    },
+    {
+      "k": 1024,
+      "m": 2,
+      "dist": "outliers",
+      "relative_l2": 0.001221017593918268
+    },
+    {
+      "k": 1024,
+      "m": 2,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 3,
+      "dist": "normal",
+      "relative_l2": 0.0012731339664476635
+    },
+    {
+      "k": 1024,
+      "m": 3,
+      "dist": "outliers",
+      "relative_l2": 0.001887293481186603
+    },
+    {
+      "k": 1024,
+      "m": 3,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 4,
+      "dist": "normal",
+      "relative_l2": 0.0015997341179878294
+    },
+    {
+      "k": 1024,
+      "m": 4,
+      "dist": "outliers",
+      "relative_l2": 0.001661698073730095
+    },
+    {
+      "k": 1024,
+      "m": 4,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 5,
+      "dist": "normal",
+      "relative_l2": 0.0018650006729040449
+    },
+    {
+      "k": 1024,
+      "m": 5,
+      "dist": "outliers",
+      "relative_l2": 0.0017370419378541484
+    },
+    {
+      "k": 1024,
+      "m": 5,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 6,
+      "dist": "normal",
+      "relative_l2": 0.0017317569983737301
+    },
+    {
+      "k": 1024,
+      "m": 6,
+      "dist": "outliers",
+      "relative_l2": 0.0014116792287999992
+    },
+    {
+      "k": 1024,
+      "m": 6,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 7,
+      "dist": "normal",
+      "relative_l2": 0.0016914040124008348
+    },
+    {
+      "k": 1024,
+      "m": 7,
+      "dist": "outliers",
+      "relative_l2": 0.001371666801177016
+    },
+    {
+      "k": 1024,
+      "m": 7,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 1024,
+      "m": 8,
+      "dist": "normal",
+      "relative_l2": 0.0014550384515199983
+    },
+    {
+      "k": 1024,
+      "m": 8,
+      "dist": "outliers",
+      "relative_l2": 0.0013900288279548852
+    },
+    {
+      "k": 1024,
+      "m": 8,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 2,
+      "dist": "normal",
+      "relative_l2": 0.0013867295984492404
+    },
+    {
+      "k": 4096,
+      "m": 2,
+      "dist": "outliers",
+      "relative_l2": 0.0013335841078788312
+    },
+    {
+      "k": 4096,
+      "m": 2,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 3,
+      "dist": "normal",
+      "relative_l2": 0.001241612137791757
+    },
+    {
+      "k": 4096,
+      "m": 3,
+      "dist": "outliers",
+      "relative_l2": 0.0016576553357973037
+    },
+    {
+      "k": 4096,
+      "m": 3,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 4,
+      "dist": "normal",
+      "relative_l2": 0.0019707488935873266
+    },
+    {
+      "k": 4096,
+      "m": 4,
+      "dist": "outliers",
+      "relative_l2": 0.0014790868750877097
+    },
+    {
+      "k": 4096,
+      "m": 4,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 5,
+      "dist": "normal",
+      "relative_l2": 0.0019183557879588222
+    },
+    {
+      "k": 4096,
+      "m": 5,
+      "dist": "outliers",
+      "relative_l2": 0.0018295452620889416
+    },
+    {
+      "k": 4096,
+      "m": 5,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 6,
+      "dist": "normal",
+      "relative_l2": 0.0016029078424605124
+    },
+    {
+      "k": 4096,
+      "m": 6,
+      "dist": "outliers",
+      "relative_l2": 0.001875099648860153
+    },
+    {
+      "k": 4096,
+      "m": 6,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 7,
+      "dist": "normal",
+      "relative_l2": 0.0016811090019544146
+    },
+    {
+      "k": 4096,
+      "m": 7,
+      "dist": "outliers",
+      "relative_l2": 0.0019793568841607974
+    },
+    {
+      "k": 4096,
+      "m": 7,
+      "dist": "probes",
+      "relative_l2": 0.0
+    },
+    {
+      "k": 4096,
+      "m": 8,
+      "dist": "normal",
+      "relative_l2": 0.001372574216705706
+    },
+    {
+      "k": 4096,
+      "m": 8,
+      "dist": "outliers",
+      "relative_l2": 0.0020394806414213876
+    },
+    {
+      "k": 4096,
+      "m": 8,
+      "dist": "probes",
+      "relative_l2": 0.0
+    }
+  ],
+  "router": {
+    "exact_bf16_payloads": 8388608,
+    "escapes": 2932,
+    "cases": [
+      {
+        "s": 16,
+        "wk": 8,
+        "m": 2,
+        "relative_l2": 2.448215469374416e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 8,
+        "m": 7,
+        "relative_l2": 2.741653200197277e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 8,
+        "m": 8,
+        "relative_l2": 2.5354093147766305e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 8,
+        "m": 16,
+        "relative_l2": 2.7330610795020077e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 8,
+        "m": 32,
+        "relative_l2": 2.6350833879349435e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 4,
+        "m": 2,
+        "relative_l2": 2.813496416717288e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 4,
+        "m": 7,
+        "relative_l2": 2.691286423107623e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 4,
+        "m": 8,
+        "relative_l2": 2.5299262480597946e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 4,
+        "m": 16,
+        "relative_l2": 2.6133062915949937e-06,
+        "probe_error": 2.732258139026872e-06
+      },
+      {
+        "s": 16,
+        "wk": 4,
+        "m": 32,
+        "relative_l2": 2.6101967032783325e-06,
+        "probe_error": 2.732258139026872e-06
+      }
+    ]
+  },
+  "wrappers": {
+    "fresh_bf16_calls": 14,
+    "router_launches": 2,
+    "fallbacks": 28,
+    "admission_cases": 6
+  },
+  "cuda_tools": {
+    "nvcc": null,
+    "ptxas": null,
+    "nvrtc_library": null
+  },
+  "cuda_compile": "SKIPPED: no CUDA/NVRTC toolchain; C++ syntax checks stub CUDA/PTX",
+  "gpu": "NOT RUN: no GPU; no OKC operations authorized"
+}
