@@ -14,6 +14,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| Verify-only MAIN hybrid N=8 instruction path: keep the incumbent WGS jobs, TMA rings, dequant, stream-K fixups and epilogues; use warp-local mma.sync for <=8-route jobs to remove WGMMA fence/commit/wait overhead; >=16 padded routes unchanged; per-M prepare gate | prepared offline; 11 CPU tests pass (21 packed NVFP4 tensor-fragment emulations, exact stage/slot/bank maps, 100 randomized ring schedules, negative gate policy, mock ABBA/read-flush/fallback/dispatch/fresh outputs, incumbent-body identity, C++ template syntax); no CUDA/NVRTC/GPU available; no check submitted. Two-pass 8-draw READ512 ABBA/BAAB gate requires median+paired <=.985 both orders, no draw >1.005, strict numerical and no-resource-growth guard; J0 kept fix in both arms. Public-routing model predicts useful101/166 and issued156/212 TFLOPS, not dense-compute floor | loop/moe-verify-sync | none; offline only | candidates/moe_verify_sync.py; results/moe_verify_sync; scripts/test_moe_verify_sync.py | Nov 04 |
 | One persistent fused kernel (TINY / TINY2 / MID / MAIN builds) | kept | MoE board 2.3797x | `33114871` and later | MOE_NOTES | <= Oct 31 |
 | Small-M FP32 finalizer | kept | 1.1496x aggregate | `74ba5356` | MOE_NOTES | <= Oct 31 |
 | Single-token CUDA NVFP4 GEMV | reverted | 148 us vs 54 us | `67f2f03d` | MOE_NOTES | <= Oct 31 |
