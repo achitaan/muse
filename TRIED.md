@@ -333,7 +333,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Diagnostic: per-kernel GPU timeline (torch.profiler/CUPTI, cold-L2 graph replays) of keell0renz decode layer, 12 shapes, to pick a structural target | check submitted, awaiting PROF lines | job 979a2ab5f2604fe6; kb/exp/decode_prof.py | - | - | Nov 02 |
-| FLAGS: pooler/router tile readiness -> T1/T8 route; last logits tile release before pooler epilogue, one-warp acquire poll, last-route reset; unlike expert-boundary EBPUB/early-trigger/deep-staging lines | in progress | argon/flags-20261104; one handoff; read-flush ABBA both-order median+paired <=0.992, exact bytes | - | muse-flags/kb/exp/decode_flags.py | Nov 04 |
+| FLAGS: pooler/router tile readiness -> T1/T8 route; last logits tile release before pooler epilogue, one-warp acquire poll, last-route reset; unlike expert-boundary EBPUB/early-trigger/deep-staging lines | closed | 0/4 adopted; d1S AB/BA median 1.04647/1.04593 paired 1.04751/1.04501; d1F med 1.04451/1.04205 paired 1.04155/1.04052; v1S med 1.02787/1.03257 paired 1.03002/1.03194; v1F med 1.03043/1.02719 paired 1.02790/1.02703. +3.264..3.680us; reset+KV pass all; exact all bytes d1S draw0, otherwise incumbent repeats non-bit-exact too. 13/13 fallback PASS, prepare138.4s, check2.271898x; retained anchor2.2445 unchanged (forced flags predicted2.2141). One check; branch argon/flags-20261104 c0883c6+7633eac | `eaf3e97e0b434409` | muse-flags/kb/exp/decode_flags.py; kb/exp/FLAGS_NOTES.md; profiles/decode_flags.eaf3e97e0b434409.log | Nov 04 |
 
 ## MoE kernel (``moe_fused``)
 
