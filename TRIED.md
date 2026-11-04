@@ -162,6 +162,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| RQ-Q1: register-only query load/norm/RoPE/FP16 fragments in per-request Q1, preserving the eight-chunk FP32 reduction tree; remove raw/normalized shared Q staging and its no-new-KV CTA barrier. Not the closed page-index registers (0acc8428), FP8 QK (row 174), or PV-axis transpose (01323f0); QK/PV and KV traversal/merge unchanged | parked, offline-ready: 9 CPU/static tests PASS; actual C++ helper matches 258048 packed words bitwise; dense oracle/alignment/gates PASS; no nvcc/NVRTC/ptxas/GPU; timing and CUDA compilation unverified; caller check pending; duplicated query arithmetic/register pressure can lose | RQ-Q1 / loop/attn-q1-register-query from 63e253f | none; no check submitted | candidates/attention_q1_regquery.py; scripts/validate_attention_q1_regquery.py; results/attention_q1_regquery_OFFLINE.md | Nov 04 |
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |
 | A3 split change in Decode | closed | no change on the target shape | `9171012a` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | Fewer sliding splits | closed | every changed shape slower | `543fe60e` | attn_next/DEAD_ENDS.md | <= Oct 31 |
