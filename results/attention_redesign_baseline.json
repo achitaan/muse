@@ -1,0 +1,23 @@
+{
+  "job_id": "8f53cd76d828427c",
+  "source": "board_best/attention_kb1h2_scored_2.6536.py",
+  "retrieval": "okc status 8f53cd76d828427c --json; read-only retrieval of completed board-best run, not the queued candidates",
+  "speedup": 2.653624497544015,
+  "speedup_ci": [2.613820130080855, 2.693428865007175],
+  "baseline_us": 3766.3,
+  "score_us": 1419.3040513025824,
+  "records": [
+    {"load": "decode 1", "batch": 1, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 1, "median_ns": 4924.250727936815, "baseline_ns": 20623.999647796154, "speedup": 4.188251327413073, "median_raw_ns": 9023.99979531765, "speed_of_light_ns": 111.14666666666666, "graph_overhead_ns": 4192.00025498867},
+    {"load": "decode 1", "batch": 1, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 1, "median_ns": 10713.590981006628, "baseline_ns": 31647.99977093935, "speedup": 2.9540048548657367, "median_raw_ns": 14735.99998280406, "speed_of_light_ns": 4268.586666666666, "graph_overhead_ns": 4031.9999679923058},
+    {"load": "decode 16", "batch": 16, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 1, "median_ns": 7848.382987501145, "baseline_ns": 27072.000317275524, "speedup": 3.4493729931870982, "median_raw_ns": 11872.000060975552, "speed_of_light_ns": 1647.2746666666667, "graph_overhead_ns": 4064.0002116560936},
+    {"load": "decode 16", "batch": 16, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 1, "median_ns": 86488.92431597221, "baseline_ns": 200351.9949503243, "speedup": 2.3165046453621416, "median_raw_ns": 90607.99703001976, "speed_of_light_ns": 63177.38666666667, "graph_overhead_ns": 4480.000119656324},
+    {"load": "decode 32", "batch": 32, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 1, "median_ns": 9815.97452251088, "baseline_ns": 31071.999575942755, "speedup": 3.165452345529793, "median_raw_ns": 13984.00031030178, "speed_of_light_ns": 3294.5493333333334, "graph_overhead_ns": 4095.999989658594},
+    {"load": "decode 32", "batch": 32, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 1, "median_ns": 165734.34978928213, "baseline_ns": 383551.99433863163, "speedup": 2.3142576950782203, "median_raw_ns": 170047.99842834473, "speed_of_light_ns": 126354.77333333335, "graph_overhead_ns": 4127.999767661095},
+    {"load": "verify 1", "batch": 1, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 8, "median_ns": 6036.34999876982, "baseline_ns": 22496.00039795041, "speedup": 3.7267554735121378, "median_raw_ns": 10319.999884814024, "speed_of_light_ns": 124.58666666666666, "graph_overhead_ns": 4256.000276654959},
+    {"load": "verify 1", "batch": 1, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 8, "median_ns": 14133.478833689085, "baseline_ns": 36064.00033459067, "speedup": 2.551671867836755, "median_raw_ns": 18287.99955546856, "speed_of_light_ns": 4282.026666666667, "graph_overhead_ns": 4160.00047698617},
+    {"load": "verify 16", "batch": 16, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 8, "median_ns": 11259.419505308264, "baseline_ns": 29007.999692112207, "speedup": 2.576331726376867, "median_raw_ns": 15552.000142633915, "speed_of_light_ns": 1862.3146666666669, "graph_overhead_ns": 4288.000520318747},
+    {"load": "verify 16", "batch": 16, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 8, "median_ns": 98177.73937604758, "baseline_ns": 204367.99945309758, "speedup": 2.0816123975956735, "median_raw_ns": 102479.99802231789, "speed_of_light_ns": 63392.42666666667, "graph_overhead_ns": 4447.9998759925365},
+    {"load": "verify 32", "batch": 32, "layer": "sliding", "ctx": 80000, "weight": 46, "q_len": 8, "median_ns": 14183.865803972358, "baseline_ns": 34335.99881827831, "speedup": 2.4207786010399306, "median_raw_ns": 18368.00016462803, "speed_of_light_ns": 3724.6293333333338, "graph_overhead_ns": 4160.0000113248825},
+    {"load": "verify 32", "batch": 32, "layer": "full", "ctx": 80000, "weight": 16, "q_len": 8, "median_ns": 183658.69839220753, "baseline_ns": 389919.9995212257, "speedup": 2.123068512053495, "median_raw_ns": 188288.00320625305, "speed_of_light_ns": 126784.85333333335, "graph_overhead_ns": 4416.000563651323}
+  ]
+}

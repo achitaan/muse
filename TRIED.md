@@ -162,6 +162,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| ATTN-REDESIGN: fresh disaggregated FP8 attention, persistent QK/softmax -> block-scaled FP8 P workspace -> separate PV/merge; screen the new cross-kernel dataflow by H200 byte/latency/L2 roofline before building, not a split-knob or transpose repeat | closed before build: v16F/v32F are 39.45% weighted time, need 10.8067% each for +3% board; added P traffic kills it even at 4.8 TB/s with 64 MiB cache credit and zero metadata/math/latency: 74k optimistic board <=2.579997 (-2.775%), 80k <=2.516396; fallback unchanged2.653624. Five arithmetic/model tests PASS. Not a global-floor proof: fused HBM-only ceiling2.882268 at80k. No candidate/check/submission | ATTN-REDESIGN / loop/attn-redesign from 63e253f | baseline 8f53cd76d828427c; no new job | results/ATTN_REDESIGN.md; results/attention_redesign_baseline.json; scripts/attention_redesign_roofline.py | Nov 04 |
 | Native FP8 split-KV kernel | kept | Attention board 2.569x | - | board_best | <= Oct 31 |
 | A3 split change in Decode | closed | no change on the target shape | `9171012a` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | Fewer sliding splits | closed | every changed shape slower | `543fe60e` | attn_next/DEAD_ENDS.md | <= Oct 31 |
