@@ -1,0 +1,30 @@
+test_host_ast_unchanged (__main__.ExactDivTests.test_host_ast_unchanged) ... ok
+test_main_control_prunes_general_division_paths (__main__.ExactDivTests.test_main_control_prunes_general_division_paths) ... ok
+test_native_actual_helpers_and_mutations (__main__.ExactDivTests.test_native_actual_helpers_and_mutations) ... PASS EXACTDIV=1 quotient_cases=9820384 range_cases=1685166 owner_cases=5055498 zero_cases=90160 instrumented_divisions=21735382 correction_steps=1456500 max_corrections=5
+PASS EXACTDIV=0 quotient_cases=9820384 range_cases=1685166 owner_cases=5055498 zero_cases=90160 instrumented_divisions=0 correction_steps=0 max_corrections=0
+MUTATION no_corrections rejected: division n=1 d=1 ulps=-4 got=0 expected=1
+MUTATION inverse_boundary rejected: owner nj=23 G=128 pb=0 s=2160 ulps=-4 got=23 expected=22
+ok
+test_non_wgs_preprocessing_unchanged (__main__.ExactDivTests.test_non_wgs_preprocessing_unchanged) ... ok
+test_only_scheduler_cuda_functions_change (__main__.ExactDivTests.test_only_scheduler_cuda_functions_change) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.671s
+
+OK
+Candidate Python AST / OKC header / LF / whitespace / baseline identity: PASS
+board_best/moe_m3_scored_2.3797.py 185756 bytes f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb
+experiments/moe_exactdiv/moe_exactdiv.py 183681 bytes c28786b11c448f926c98105fff6f71e1d73749a8bcb3c9f36ab59f9c289c77a8
+Host: arm64 Darwin
+Apple clang version 21.0.0 (clang-2100.1.1.101)
+nvcc None
+ptxas None
+podman None
+docker None
+qemu-x86_64 None
+qemu-aarch64 None
+Native C++ helper compilation/execution: PASS (not a CUDA compilation)
+CUDA/NVRTC/ptxas compilation and GPU tolerance/graph/resources/performance: SKIPPED (tooling/GPU unavailable)
+Official OKC checks/submits by this lane: NONE; JOINFULL job not queried or awaited
+Branch: loop/moe-second
+Original base: 63e253f9db1c1f1829136b4103317268bd082c0d

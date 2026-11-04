@@ -14,6 +14,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| EXACTDIV: replace WGS scheduler runtime u32/u64 division with approximate FP32 quotients plus exact integer-product corrections; algebraic inverse ownership floor((xe*G-1)/tot), same costs, cuts, slots and all math. Distinct from closed cost-table refits (7bae45c5) and cut snapping/private fixups (523d3227), and independent of JOINFULL | parked: offline ready, 5 tests PASS. Actual extracted helpers compiled/executed natively: per enabled/control arm 9,820,384 quotient + 1,685,166 range + 5,055,498 owner + 90,160 empty cases, +/-4-ulp perturbations, max 5 corrections; two mutants rejected. Host AST / 8 non-WGS preprocessed variants unchanged. Ports kept J0 guard. No CUDA compiler/GPU or OKC check; local row only, parent must merge main ledger | loop/moe-second from 63e253f; SHA256 c28786b11c448f92 | `none; offline only` | experiments/moe_exactdiv/moe_exactdiv.py; experiments/moe_exactdiv/VALIDATION.txt | Nov 04 |
 | One persistent fused kernel (TINY / TINY2 / MID / MAIN builds) | kept | MoE board 2.3797x | `33114871` and later | MOE_NOTES | <= Oct 31 |
 | Small-M FP32 finalizer | kept | 1.1496x aggregate | `74ba5356` | MOE_NOTES | <= Oct 31 |
 | Single-token CUDA NVFP4 GEMV | reverted | 148 us vs 54 us | `67f2f03d` | MOE_NOTES | <= Oct 31 |
