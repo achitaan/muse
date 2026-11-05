@@ -1,0 +1,32 @@
+AST parse: PASS
+Production prefix bytes: 185756 / 185756 EXACT (including line endings)
+Production-prefix diff: +438/-0 lines
+Forbidden process/graph-v2-v3 grep: PASS (zero matches)
+Whitespace: appendix has zero trailing-whitespace lines. git diff --check flags inherited CRLF/license trailing spaces in the verbatim production prefix; intentionally retained to satisfy byte identity.
+Candidate SHA256: bf38424775dc47f24e6fe8d0a40f2c5eb5acd8e8e9909a2b91d5c5489776f711
+Candidate: /Users/achita.anantachina/.local/share/opencode/worktree/e72615/loop-moe-w4a16/experiments/moe_cf/moe_cf.py
+Validation command: python3 -m unittest discover -s experiments/moe_cf -p test_cf.py -v
+test_abba_12_rounds_pairing_and_null (test_cf.CfTests.test_abba_12_rounds_pairing_and_null) ... ok
+test_background_build_single_owner_and_flags (test_cf.CfTests.test_background_build_single_owner_and_flags) ... ok
+test_budget_skips_before_gpu_access (test_cf.CfTests.test_budget_skips_before_gpu_access) ... ok
+test_cpp_export_signatures_match (test_cf.CfTests.test_cpp_export_signatures_match) ... ok
+test_cuda_preprocessor_all_variants_and_builds (test_cf.CfTests.test_cuda_preprocessor_all_variants_and_builds) ... ok
+test_drift_cancels_in_paired_abba (test_cf.CfTests.test_drift_cancels_in_paired_abba) ... ok
+test_failure_containment_and_selector_bypass (test_cf.CfTests.test_failure_containment_and_selector_bypass) ... ok
+test_full_measure_control_flow_with_fake_gpu (test_cf.CfTests.test_full_measure_control_flow_with_fake_gpu) ... ok
+test_import_prebuild_prioritizes_main (test_cf.CfTests.test_import_prebuild_prioritizes_main) ... ok
+test_no_forbidden_processes_or_graph_apis (test_cf.CfTests.test_no_forbidden_processes_or_graph_apis) ... ok
+test_read_flush_and_same_routes_static (test_cf.CfTests.test_read_flush_and_same_routes_static) ... ok
+test_source_anchors_fail_closed (test_cf.CfTests.test_source_anchors_fail_closed) ... ok
+test_summary_known_subcosts_and_partial_draw_counts (test_cf.CfTests.test_summary_known_subcosts_and_partial_draw_counts) ... ok
+test_untouched_ring_protocol_routing_and_smem (test_cf.CfTests.test_untouched_ring_protocol_routing_and_smem) ... ok
+test_variant_semantics (test_cf.CfTests.test_variant_semantics) ... ok
+test_verbatim_prefix_and_ast (test_cf.CfTests.test_verbatim_prefix_and_ast) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.758s
+
+OK
+CUDA preprocessing: all 5 ablations x MAIN/MID PASS (clang++ -E, empty CUDA/Torch headers; syntax/protocol gate only)
+GPU compile, GPU numerical checks/timings, six-draw GPU completion and prepare wall time: SKIPPED, no local Torch/nvcc/GPU
+Submissions/pushes/main commits: NONE. Commit on loop/moe-cf only.
