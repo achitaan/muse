@@ -125,6 +125,47 @@ Full design: `serving/MOE_PORT_DESIGN.md` (file:line citations into SGLang and o
 - Proposed integration point: inside `_forward_marlin`, after the pre-expert norm, before `_marlin_expert_outputs`;
   auto-selected for eligible Muse/Hopper decode/verify (a new runner flag is not allowed).
 
+## 4b. MoE serving idea (the plan for a large serving gain)
+
+**What the kernel track taught us about MoE**
+- MoE is mostly limited by streaming expert weights from memory, not by math: the clean counterfactual
+  (`6d2c4a40`) found only ~7-11% of MoE time recoverable on the compute (consumer) side.
+- Our kernel-board MoE still beats SGLang's Marlin path by 1.6-3x per call (decode1 26 vs 80 us, decode16 93 vs 188,
+  decode32 127 vs 207, verify 8/128/256 tokens 65 vs 147, 183 vs 474, 216 vs 618 us), because it streams the weights
+  far more efficiently. So the serving win is replacing Marlin's decode/verify MoE with a better streaming kernel,
+  not tuning compute.
+
+**The obstacle:** our kernel keeps four copies of the weights (one layout per variant: TINY, MID, MAIN, WGS).
+For all ~60 layers that does not fit next to Marlin's copy (see `serving/MOE_PORT_DESIGN.md`: +202 GiB/GPU).
+
+**Options, in order of preference**
+1. **Fast kernel that reads Marlin's existing weight layout directly (preferred).** Our streaming design, rewritten so
+   its inner loop consumes SGLang's own Marlin-packed NVFP4 weights and scales. Zero extra memory; prefill stays on
+   Marlin untouched; most mergeable (a faster small-batch Hopper path for the same weights, auto-selected, no new
+   flag); reuses stock's exact scale handling, which makes matching stock's tokens far easier. Cost: rewriting the
+   kernel's load/dequant path for Marlin's tile and bit layout.
+2. **One shared layout of our own, replacing Marlin's.** Repack once after load into a single layout every variant
+   reads, free Marlin's copy (memory = stock). Needs a prefill kernel that reads our layout too: more work, harder to merge.
+3. **Bounded proof (stepping stone).** Current kernel on 4-8 layers with two layouts (~1.7 GiB/layer). ~2-5% at
+   concurrency 16; proves integration, startup time and token matching on the judge.
+
+**Required in every option:** the zero-local-job (J==0) hang guard (missing in the board MoE file); reproducing
+stock's numerics exactly (stock drops the up-projection global scale and rounds scales through BF16); CUDA-graph
+capture per batch size; decode/verify T <= 256 (DFlash verifies 8 tokens per request), prefill stays on Marlin.
+
+**Rough upside if option 1 fully works:** MoE is ~30-60% of a decode step at concurrency 16/32 and our kernel was
+1.6-2.9x faster per call, so roughly **+15-30% throughput at 16/32**, less at concurrency 1. An estimate from
+kernel-board ratios, not a measurement.
+
+**What it takes:** a 1x H200 (~$2.5-4/GPU-hour; ~$100-250 for a week of kernel work) to compare one MoE layer
+against stock Marlin output-for-output and time it; then the judge's 3 daily checks (concurrency 16) for the full
+server, or a short 8x H200 session (~$20-35/hour) to confirm. Without a GPU, option 1 is a blind rewrite.
+
+**Why it matters beyond the prize:** SGLang maintainers (consulting with Meta) review the top serving patches for
+mergeability. A small, measured, mergeable patch (S1 now, option 1 later), plus a public write-up and an actual
+SGLang PR after the track, is the strongest visible signal for a Meta ML-infra/inference interview. Confirm the
+okc account opted in to sharing email with Meta (`GET /me` -> `rules`).
+
 ## 5. Options (decision pending)
 
 1. **Minimal:** submit S1 as the first scored run on Nov 10, look at the score, stop. Low cost, small gain.
