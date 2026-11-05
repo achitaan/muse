@@ -219,7 +219,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Sliding-kernel internal phase counters (globaltimer per sampled CTA) | in progress | - | `-` | loop-attention-decode loop/attn-phase | Nov 04 |
 | Sliding prep trim: warp-local RoPE overlapping Q loads + remove two q1 prep CTA barriers | closed | check 2.601; d1S 1.000-1.010, d16S 1.018-1.029, d32S 1.006-1.016, d1F 0.999-1.009 (slower/noise); cached-KV overlap and owner-only cache write already in incumbent | `063332333f8141ea` | loop/attn-prepovl 02b16e2 | Nov 04 |
 | Sliding prep: RoPE cos/sin from a position-indexed table built in prepare (identical arithmetic) + position-row prefetch (d1S/d16S/d32S) | closed | check 2.633; prep 1.36->1.28 us only (trig is not the prep cost); no shape admitted; nulls spread 7-13% | `1f11c97ee2764f53` | loop-attn-slide2 626ad0b | Nov 04 |
-| Sliding publication phase: aligned 80-B smem exchange records, float4 acc + float2 m/l transfers (same FP32 order, barriers, counter), L=1 pair route | in progress | check submitted | - | loop-attn-pub 1014035 | Nov 04 |
+| Sliding publication phase: aligned 80-B smem exchange records, float4 acc + float2 m/l transfers (same FP32 order, barriers, counter), L=1 pair route | closed | check 2.694 (incumbent path: adopted 0, even v32S 1h rejected at preconfirm, i.e. a lucky draw of keell default); d1S 0.996/0.998, d16S 1.006/1.012 slower, d32S 1.013/1.014 slower | `4d982a24d4154ae3, 1b62222395504b45` | loop-attn-pub 42a3d35 | Nov 04 |
 
 ## Across kernels
 
