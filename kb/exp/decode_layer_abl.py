@@ -16930,15 +16930,34 @@ import gc as _da_gc
 
 _DA_COMPONENTS = ('qkv_proj','attention','o_proj','o_boundary',
                   'pooler_router','route','moe','unpooler','finish')
-_DA_SHAPES = tuple((f'{p}{b}{s}',b,l,sliding)
-                  for p,b,l in (('d',16,1),('d',1,1),('v',1,8),
-                                ('d',32,1),('v',16,8),('v',32,8))
+_DA_SHAPES = tuple((f'v{b}{s}',b,8,sliding)
+                  for b in (16,32)
                   for s,sliding in (('S',True),('F',False)))
 _DA_ANCHOR = dict(zip(('d1S','d1F','d16S','d16F','d32S','d32F',
                        'v1S','v1F','v16S','v16F','v32S','v32F'),
                       (66.8,74.0,129.4,205.2,148.2,290.6,
                        108.5,111.9,244.7,323.3,309.8,472.2)))
 _DA_LOADS = ('d1','d16','d32','v1','v16','v32')
+# Measured null_us,(saved_us),(p10_us) from job 7dc880bcc6544992.
+# None = failed/absent, NOT a measured zero; component order is _DA_COMPONENTS.
+_DA_PRIOR = {
+ 'd16S':(-.400,(7.840,4.096,1.720,.280,15.104,None,46.056,10.664,2.720),
+                (6.587,3.726,.693,-1.014,13.866,None,45.446,10.150,2.102)),
+ 'd16F':(-.112,(8.112,82.208,.800,.632,15.808,None,90.456,11.376,1.904),
+                (7.312,80.770,-.206,-.158,15.008,None,89.344,10.642,1.278)),
+ 'd1S':(-.168,(8.096,2.352,2.960,None,13.896,None,19.728,1.768,None),
+               (6.954,1.763,1.286,None,13.482,None,18.701,1.570,None)),
+ 'd1F':(-.064,(8.040,8.768,2.520,None,14.032,None,25.640,2.312,None),
+               (7.362,7.547,1.653,None,12.846,None,25.304,1.018,None)),
+ 'v1S':(.240,(7.448,4.688,1.776,.888,15.920,None,65.584,2.008,None),
+              (6.037,4.307,.715,.368,15.730,None,64.955,1.208,None)),
+ 'v1F':(-.528,(6.920,12.216,1.216,.424,15.480,None,58.424,1.896,None),
+               (5.896,11.352,.690,-.747,14.384,None,58.050,.677,None)),
+ 'd32S':(-.656,(10.600,6.976,3.576,None,16.688,None,84.336,12.408,None),
+                (7.683,5.654,1.248,None,15.307,None,83.334,11.061,None)),
+ 'd32F':(.136,(10.568,169.168,1.848,None,16.768,None,86.760,11.704,None),
+               (9.726,167.598,.293,None,13.870,None,85.077,9.621,None)),
+}
 _DA_EXT = None
 _DA_CTX = None
 _DA_CUDA = r'''
@@ -16993,13 +17012,13 @@ std::vector<int64_t> da_clone(int64_t raw, std::vector<int64_t> skip) {
       ck(cudaGraphNodeGetType(n, &type));
       if (type != cudaGraphNodeTypeKernel)
         throw std::runtime_error("DEC_ABL non-kernel node: refusing incomplete skip");
-      cudaKernelNodeParams params;
-      ck(cudaGraphKernelNodeGetParams(n, &params));
+      cudaKernelNodeParams original{};
+      ck(cudaGraphKernelNodeGetParams(n, &original));
+      // Do not retain the source driver's kernel handle/context for our runtime function.
+      cudaKernelNodeParams params{};
       params.func = reinterpret_cast<void*>(da_noop);
+      params.gridDim = original.gridDim;
       params.blockDim = dim3(32, 1, 1);
-      params.sharedMemBytes = 0;
-      params.kernelParams = nullptr;
-      params.extra = nullptr;
       // SetParams leaves node attributes/edges intact. Retain grid dimensions
       // so cooperative launch and cluster dimensions remain legal.
       ck(cudaGraphKernelNodeSetParams(n, &params));
@@ -17184,39 +17203,15 @@ def _da_pair(base,arm,reset,flush,sink,deadline,rounds=12,validate=None):
                 base=_da_stats.median(times[0]),arm=_da_stats.median(times[1]),n=len(diffs))
 
 
-def _da_null(data,st,key,flush,sink,deadline):
-    run = _af_capture(data,st,_af_key(data['config']),'old')
-    g,output = run['graph'],run['output']
-    rank = int(torch.bincount((output[2].long()//32).flatten(),minlength=8).argmax())
-    data['local_start'].fill_(32*rank)
-    g.replay()
-    ids,kv = output[2].clone(),_af_cache(data)
-    def validate():
-        if not torch.equal(output[2],ids):
-            raise RuntimeError('null routing changed')
-    r = _da_pair(g,g,lambda: _af_reset_cache(data,kv),flush,sink,deadline,validate=validate)
-    print(f'DEC_ABL {key} null {r["saved"]:.3f} {r["p10"]:.3f} {r["saved"]:.3f} '
-          f'base_us={r["base"]:.3f} rounds={r["n"]} helper=0 same_graph_null=1',flush=True)
-    print(f'DEC_ABL_SKIP {key} components=all helper_required_for_dependency_preserving_noop',flush=True)
-    print(f'DEC_ABL_SUMMARY {key} null_only=1',flush=True)
-    return {'null':r}
-
-
 def _da_shape(st,key,B,L,sliding,flush,sink,deadline):
     global _DA_CTX
     ss = _af_state(st)
     ss['af_pick'] = {}
     data,refresh = _af_inputs(ss,B,L,sliding,20261104+37*B+L+1000*sliding)
     refresh()
-    if B==1:  # published fixed context for single-request loads
-        data['seq_lens'].fill_(80000)
-        data['cache_seqlens'].fill_(80000+L)
-        pos = torch.arange(80000,80000+L,device=st['qkv'].device,dtype=torch.int64)
-        data['positions'].copy_(pos)
-        data['cache_loc'].copy_(data['page_table'].gather(1,pos[None]).flatten())
     assert ss['att_ok'] and _supported7(data['config']) and _att_fits7(data,data['config'])
     if _DA_EXT is None:
-        return _da_null(data,ss,key,flush,sink,deadline)
+        raise RuntimeError('graph helper required')
     stream = torch.cuda.Stream(device=st['qkv'].device)
     stream.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(stream):
@@ -17282,10 +17277,9 @@ def _da_shape(st,key,B,L,sliding,flush,sink,deadline):
         handles.append(null)
         ctl = _da_pair(base,null,reset,flush,sink,deadline,validate=validate)
         result = {'null':ctl}
-        fused = B*L==1 and 'o_boundary' not in ctx['nodes']
         print(f'DEC_ABL_GRAPH {key} nodes={nn} edges={ne} local_start={32*busiest} '
               f'groups={",".join(k+":"+str(len(v)) for k,v in ctx["nodes"].items())} '
-              f'fused_o_boundary={int(fused)}',flush=True)
+              'fused_o_boundary=0',flush=True)
         print(f'DEC_ABL {key} null {ctl["saved"]:.3f} {ctl["p10"]:.3f} {ctl["saved"]:.3f} '
               f'base_us={ctl["base"]:.3f} rounds={ctl["n"]}',flush=True)
         for component in _DA_COMPONENTS:
@@ -17304,11 +17298,9 @@ def _da_shape(st,key,B,L,sliding,flush,sink,deadline):
                 r = _da_pair(base,handle,reset,flush,sink,deadline,validate=validate)
                 check_routes(handle)
                 result[component] = r
-                label = ('o_proj+boundary_partial' if fused and component=='o_proj' else
-                         'route+boundary_carry' if fused and component=='route' else component)
                 print(f'DEC_ABL {key} {component} {r["saved"]:.3f} {r["p10"]:.3f} {ctl["saved"]:.3f} '
                       f'base_us={r["base"]:.3f} arm_us={r["arm"]:.3f} rounds={r["n"]} '
-                      f'launch_group={label} ids_exact=1',flush=True)
+                      f'launch_group={component} ids_exact=1',flush=True)
             except Exception as ex:
                 print(f'DEC_ABL_ERROR {key} {component} {type(ex).__name__} {str(ex)[-240:]}',flush=True)
             finally:
@@ -17338,6 +17330,9 @@ def _da_gain(savings):
 
 
 def _da_summary(results):
+    results = {**{k:dict(null=dict(saved=null),**{
+        c:dict(saved=s,p10=p) for c,s,p in zip(_DA_COMPONENTS,saved,p10) if s is not None})
+        for k,(null,saved,p10) in _DA_PRIOR.items()},**results}
     for component in _DA_COMPONENTS:
         savings = {k:r[component]['saved'] for k,r in results.items() if component in r}
         gain = _da_gain(savings)
@@ -17345,7 +17340,8 @@ def _da_summary(results):
                         for k,r in results.items() if component in r}
         print(f'DEC_ABL_WHATIF {component} board_factor={gain:.6f} gain_pct={100*(gain-1):.3f} '
               f'score_from_2.288={2.288*gain:.6f} p10_null_factor={_da_gain(conservative):.6f} '
-              f'shapes={len(savings)}/12 missing_zero=1 latency_reduction=0.25',flush=True)
+              f'shapes={len(savings)}/12 missing_zero=1 latency_reduction=0.25 '
+              'prior_job=7dc880bcc6544992 prior_shapes=8',flush=True)
 
 
 _DA_PARENT_PREPARE = prepare
@@ -17373,11 +17369,11 @@ def prepare(weights):
         print(f'DEC_ABL_INFO base_prepare_s={_da_time.monotonic()-start:.2f} '
               'read_flush_MiB=512 rounds=12 warm_rounds=2 deadline_s=280 '
               'columns=shape,component,saved_us_median,saved_us_p10,null_us '
-              'noop=original_grid_one_warp_pdl_wait_trigger picks={}',flush=True)
+              'noop=original_grid_one_warp_pdl_wait_trigger picks={} new_shapes=v16S,v16F,v32S,v32F',flush=True)
         if _da_time.monotonic()>start+260:
             raise TimeoutError('insufficient prepare budget')
         if _DA_EXT is None:
-            print('DEC_ABL_FALLBACK helper_unavailable null_only=1',flush=True)
+            raise RuntimeError('graph helper unavailable')
         # _af_state clones counters/activation scratch. Lt plans share a temporary
         # workspace: restore its bytes before returning production too.
         seen = set()
@@ -17420,6 +17416,7 @@ def prepare(weights):
         for ext in st.get('ma_ext',{}).values():
             ext.okc_set_pdl(0)
         _da_summary(results)
-        print(f'DEC_ABL_DONE prepare_s={_da_time.monotonic()-start:.2f} shapes={len(results)}/12 '
+        print(f'DEC_ABL_DONE prepare_s={_da_time.monotonic()-start:.2f} shapes={len(_DA_PRIOR)+len(results)}/12 '
+              f'new_shapes={len(results)}/4 prior_job=7dc880bcc6544992 '
               'production=unchanged diagnostics=never_adopted',flush=True)
     return st

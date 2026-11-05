@@ -43,9 +43,37 @@ class Contracts(unittest.TestCase):
         self.assertAlmostEqual(gain({'d1S': 10}), (s/(s-46*2.5))**(1/6))
         self.assertAlmostEqual(n['_da_quantile'](list(range(12)), .1), 1.1)
         shapes = n['_DA_SHAPES']
-        self.assertEqual([s[0] for s in shapes[:8]],
-                         ['d16S','d16F','d1S','d1F','v1S','v1F','d32S','d32F'])
-        self.assertEqual(set(s[0] for s in shapes), set(anchor))
+        self.assertEqual([s[0] for s in shapes], ['v16S','v16F','v32S','v32F'])
+        self.assertTrue(all(b in (16,32) and l==8 for _,b,l,_ in shapes))
+        self.assertFalse(set(s[0] for s in shapes) & set(n['_DA_PRIOR']))
+        self.assertEqual(set(s[0] for s in shapes) | set(n['_DA_PRIOR']), set(anchor))
+
+    def test_prior_measurements_and_combined_whatif(self):
+        n = namespace()
+        prior = n['_DA_PRIOR']
+        expected = {'d16S':46.056,'d16F':90.456,'d1S':19.728,'d1F':25.640,
+                    'v1S':65.584,'v1F':58.424,'d32S':84.336,'d32F':86.760}
+        for key,(_,saved,p10) in prior.items():
+            self.assertEqual(saved[6],expected[key])
+            self.assertEqual(len(saved),9)
+            self.assertEqual(len(p10),9)
+            self.assertEqual([x is None for x in saved],[x is None for x in p10])
+            self.assertIsNone(saved[5])  # route failed, not measured zero
+        fresh = {s[0]:{'null':{'saved':.1},'moe':{'saved':100.,'p10':99.}}
+                 for s in n['_DA_SHAPES']}
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            n['_da_summary'](fresh)
+        lines = output.getvalue().splitlines()
+        self.assertEqual(len(lines),9)
+        moe = next(s for s in lines if s.startswith('DEC_ABL_WHATIF moe '))
+        factor = n['_da_gain']({**expected,**{s:100. for s in fresh}})
+        self.assertIn(f'board_factor={factor:.6f}',moe)
+        self.assertIn('shapes=12/12',moe)
+        self.assertIn('prior_job=7dc880bcc6544992 prior_shapes=8',moe)
+        route = next(s for s in lines if s.startswith('DEC_ABL_WHATIF route '))
+        self.assertIn('board_factor=1.000000',route)
+        self.assertIn('shapes=0/12',route)
+        self.assertEqual(len(fresh),4)  # summary must not mutate measured results
 
     def test_nested_capture_classification_and_output_slots(self):
         n = namespace()
@@ -194,6 +222,8 @@ class Contracts(unittest.TestCase):
         self.assertIn('#if CUDART_VERSION >= 13000',src)
         self.assertIn('#define DA_CAPTURE_INFO cudaStreamGetCaptureInfo\n',src)
         self.assertIn('#define DA_GRAPH_EDGES cudaGraphGetEdges\n',src)
+        self.assertIn('cudaKernelNodeParams params{};',src)
+        self.assertIn('params.gridDim = original.gridDim;',src)
 
     def test_build_error_keeps_first_compiler_diagnostic(self):
         n = namespace()
@@ -227,7 +257,7 @@ class Contracts(unittest.TestCase):
         self.assertEqual(len(replays),56)
         self.assertEqual(len(validations),56)
 
-    def test_prepare_fallback_restores_production_globals(self):
+    def test_prepare_four_shapes_restores_production_globals(self):
         n = namespace()
         class Thread:
             def __init__(self, **kw): pass
@@ -246,9 +276,10 @@ class Contracts(unittest.TestCase):
             self.assertEqual(n['_AF_KINDS'],())
             return st
         n['_DA_PARENT_PREPARE'] = base
+        n['_DA_EXT'] = object()
         cases = []
         def shape(st,key,*args):
-            self.assertIsNone(n['_DA_EXT'])
+            self.assertIsNotNone(n['_DA_EXT'])
             cases.append(key)
             return {'null':{'saved':0,'p10':0,'base':75,'arm':75,'n':12}}
         n['_da_shape'] = shape
@@ -261,10 +292,19 @@ class Contracts(unittest.TestCase):
         self.assertIs(n['_AF_KINDS'],original_kinds)
         for key,value in saved.items():
             self.assertIs(n[key],value)
-        self.assertIn('DEC_ABL_FALLBACK',output.getvalue())
         self.assertNotIn('DEC_ABL_ABORT',output.getvalue())
         self.assertIn('shapes=12/12',output.getvalue())
+        self.assertIn('new_shapes=4/4',output.getvalue())
         self.assertEqual(cases,[s[0] for s in n['_DA_SHAPES']])
+        n['_DA_EXT'] = None
+        cases.clear()
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            out = n['prepare']({'qkv_gate':types.SimpleNamespace(device='cuda')})
+        self.assertIn('DEC_ABL_ABORT RuntimeError graph helper unavailable',output.getvalue())
+        self.assertIn('shapes=8/12 new_shapes=0/4',output.getvalue())
+        self.assertFalse(cases)
+        for key,value in saved.items():
+            self.assertIs(n[key],value)
 
 
 if __name__ == '__main__':
