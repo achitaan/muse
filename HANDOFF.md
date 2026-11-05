@@ -1,5 +1,7 @@
 # Open Kernel Challenge handoff
 
+> Updated November 4, 2026 (Toronto): read [the current optimization checkpoint](results/decode-moe-plan-20261030/CURRENT_STATUS.md) first. Retained Decode is 2.075466170x and MoE 2.348299935x. Latest M1 and WGS read-reuse candidates are closed without a new gain. Phase timing is planned and unadmitted. Rank/quota figures below are historical; fixed 60-minute spacing is removed. The original October 23 record and later appendices follow.
+
 Snapshot: October 23, 2026, approximately 12:40 PM America/Toronto (16:40 UTC). Refresh cloud job status immediately; this document is a checkpoint, not a live status feed.
 
 ## Objective and execution ownership

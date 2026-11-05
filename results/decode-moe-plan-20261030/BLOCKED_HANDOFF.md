@@ -1,3 +1,5 @@
+> Superseded November 4, 2026 (Toronto): this file preserves a resolved historical pacing blocker. There is no fixed spacing requirement. Latest owned WGS check is terminal and closed; phase timing remains planned/unadmitted. Live queue and quotas were not refreshed. See [CURRENT_STATUS.md](CURRENT_STATUS.md) for current evidence and policy.
+
 > Superseded 2026-10-31: human removed fixed spacing. M1 check8efb0121db7848c2 completed and is closed on timing. Goal active, no GPU job pending. CURRENT_STATE.json and EVALUATION_POLICY_OVERRIDE.json are current; all older blocker records below are historical.
 
 > Current 2026-10-31: queue snapshot router-m1/jobs-20261031T041838Z.json contains 47 done and 3 duplicate jobs, with none active. Only own-check pacing remains until 04:41:30.304784 UTC; this is not a blocked goal. Historical record below remains preserved.

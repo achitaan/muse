@@ -19,5 +19,9 @@
   "checks_remaining": 12,
   "submissions_remaining": 10,
   "latest_evidence": "Starter and small_batch passed 9 tests and 30 shapes. Small batch is 0.912009x SGLang, CI [0.898329,0.925689]; no overall speedup over SGLang. Six candidates still queued. 22 SM90 compiler specializations and CPU models passed.",
-  "snapshot_utc": "2026-10-23T16:40:00Z"
+  "snapshot_utc": "2026-10-23T16:40:00Z",
+  "historical_snapshot_only": true,
+  "superseded_by": "results/decode-moe-plan-20261030/CURRENT_STATE.json",
+  "current_status_note": "results/decode-moe-plan-20261030/CURRENT_STATUS.md",
+  "supersession_note": "Original October 23 checkpoint preserved. Its deadline, paused status, candidates and quota are historical; use the linked checkpoint."
 }

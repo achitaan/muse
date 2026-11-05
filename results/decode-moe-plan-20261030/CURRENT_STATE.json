@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-31T05:06:31.587550+00:00",
+  "updated_at": "2026-11-05T03:18:51.989694+00:00",
   "goal": "active;top50 not achieved",
   "branch": "argon/decode-moe-20261030",
   "working_decode_source": "experiments/decode_moe/decoder_pdli.py",
@@ -27,11 +27,11 @@
   "unvalidated_decode_draft": "experiments/decode_moe/decoder_pdl32_handoff_draft.py",
   "draft_sha256": "57f3accbe89aa8ec21e330ea4232f268f242fff84fae72e1ac67995f0cd72bc1",
   "draft_admitted_for_GPU": false,
-  "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved.",
-  "new_GPU_jobs_this_packet": 1,
+  "draft_reason": "Unrun M32 draft remains unadmitted: prior real-chain controls failed byte qualification. Preserve Decode checks. The older Dense-at-reserve reason is historical; current live quotas are unrefreshed.",
+  "new_GPU_jobs_this_packet": 0,
   "pending_user_question": null,
   "previous_check_outcome": "moe-repeat-v2/outcome.json",
-  "dense_checks_after_ack_expected": 4,
+  "dense_checks_after_ack_expected": null,
   "dense_checks_left": 16,
   "next_diagnostic_source": null,
   "next_diagnostic_sha256": null,
@@ -57,9 +57,9 @@
     "performance_gate": "greater than3% in both paired graph arm orders",
     "Decode_and_Attention_byte_gates_unchanged": true
   },
-  "current_focus": "M1 specialization payload qualified on CPU;no GPU admission before04:41:30UTC plus fresh policy checks.",
-  "next_diagnostic_track": "muse_bf16_proj",
-  "earliest_new_check_utc": "2026-10-31T04:41:30.304784+00:00",
+  "current_focus": "Retained-MoE phase-timing investigation planned; no runnable instrumentation payload, CPU qualification, GPU admission or new measurement yet.",
+  "next_diagnostic_track": "muse_moe_w4a16",
+  "earliest_new_check_utc": null,
   "newest_CPU_alternative": {
     "source": "experiments/decode_moe/moe_tiny_norm_whole.py",
     "sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
@@ -94,9 +94,9 @@
   "latest_overall_ranked": 1730,
   "latest_overall_board": "scoring-review/overall-20261031.json",
   "overall_API_measure": "rank across the problems; the API gives ranks only",
-  "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
-  "admission": "tiny-norm-whole/admission-690ef087.json",
-  "moe_checks_after_ack_expected": 19,
+  "admitted_source_sha256": null,
+  "admission": null,
+  "moe_checks_after_ack_expected": null,
   "closed_norm_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
   "remaining_track_limits": {
     "muse_bf16_proj": {
@@ -107,8 +107,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 3,
-        "left": 17
+        "used": 4,
+        "left": 16
       }
     },
     "muse_attention_decode": {
@@ -131,8 +131,8 @@
       },
       "checks": {
         "per_day": 20,
-        "used": 1,
-        "left": 19
+        "used": 2,
+        "left": 18
       }
     },
     "muse_decode_layer": {
@@ -212,7 +212,7 @@
     "source_binding": "unknown;not a retained-source performance claim"
   },
   "pacing_scope_blocker": null,
-  "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
+  "spacing_scope": "No fixed interval. Sparing checks, idle shared GPU queue, fresh source/evaluator/quota admission and four-check reserve per track.",
   "owned_live_job": null,
   "native_goal_status_last_observed": "active;human resumed Goal mode",
   "owned_status_session": null,
@@ -313,7 +313,7 @@
     "static_shared_bytes": 4096,
     "static_instruction_ratio": 0.7674897119341564,
     "no_spills": true,
-    "GPU_jobs": 0,
+    "GPU_jobs": 1,
     "GPU_admitted": false,
     "review": "router-m1/REVIEW.md",
     "payload_sha256": "9bd760ff0696ba59464e6d8b19a1f3a4920b261d981b0da6b49fde6ca4ea800e",
@@ -321,7 +321,10 @@
     "packaged_CUDA_sha256": "c2c6cba7e6fa6451891849bf6d254d0e2e8d34ea5fe1a6805ce77846366f107c",
     "CPU_payload_qualified": true,
     "shape_selector_cases": 258,
-    "public_delegations": 40
+    "public_delegations": 40,
+    "status": "Closed on measured timing: 0/4 comparisons exceed 3%; no retry, score or Decode transfer.",
+    "job_id": "8efb0121db7848c2",
+    "outcome": "router-m1/outcome.json"
   },
   "queue_snapshot": "router-m1/jobs-20261031T041838Z.json",
   "queue_snapshot_status_counts": {
@@ -336,10 +339,126 @@
   ],
   "fixed_spacing_minutes": 0,
   "spacing_override": "Human 2026-10-31: Wait don't follow 60m spacing just do when you think ur fine",
-  "next_diagnostic_admission": "wgs-final-reuse/admission.json",
+  "next_diagnostic_admission": null,
   "evaluation_policy_override": "EVALUATION_POLICY_OVERRIDE.json",
-  "next_CPU_candidate_source": "wgs-final-reuse/candidate.cu",
-  "next_CPU_candidate_sha256": "b6199d97ff4907e55b674e55b1f8f04f38df7f7c90c2f0ed2ac5c5df429d9520",
+  "next_CPU_candidate_source": null,
+  "next_CPU_candidate_sha256": null,
   "next_CPU_candidate_status": "Closed on GPU timing; retained DBG phase hooks inspected, but no new diagnostic source or job exists.",
-  "next_measurement_note": "wgs-final-reuse/NEXT_MEASUREMENT.md"
+  "next_measurement_note": "wgs-final-reuse/NEXT_MEASUREMENT.md",
+  "superseded_fields_at_documentation_refresh_20261105": {
+    "current_focus": "M1 specialization payload qualified on CPU;no GPU admission before04:41:30UTC plus fresh policy checks.",
+    "next_diagnostic_track": "muse_bf16_proj",
+    "earliest_new_check_utc": "2026-10-31T04:41:30.304784+00:00",
+    "next_diagnostic_admission": "wgs-final-reuse/admission.json",
+    "next_CPU_candidate_source": "wgs-final-reuse/candidate.cu",
+    "next_CPU_candidate_sha256": "b6199d97ff4907e55b674e55b1f8f04f38df7f7c90c2f0ed2ac5c5df429d9520",
+    "admitted_source_sha256": "690ef087234197c1b91c7cb99161dcceb56d3f2c671986613c90c716d9d05bf0",
+    "admission": "tiny-norm-whole/admission-690ef087.json",
+    "moe_checks_after_ack_expected": 19,
+    "dense_checks_after_ack_expected": 4,
+    "spacing_scope": "Only own checks, per human reply;still require no shared active GPU job.",
+    "remaining_track_limits": {
+      "muse_bf16_proj": {
+        "scored": {
+          "per_day": 10,
+          "used": 0,
+          "left": 10
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 3,
+          "left": 17
+        }
+      },
+      "muse_attention_decode": {
+        "scored": {
+          "per_day": 10,
+          "used": 0,
+          "left": 10
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 2,
+          "left": 18
+        }
+      },
+      "muse_moe_w4a16": {
+        "scored": {
+          "per_day": 10,
+          "used": 0,
+          "left": 10
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 1,
+          "left": 19
+        }
+      },
+      "muse_decode_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 0,
+          "left": 10
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 0,
+          "left": 20
+        }
+      },
+      "muse_prefill_layer": {
+        "scored": {
+          "per_day": 10,
+          "used": 0,
+          "left": 10
+        },
+        "checks": {
+          "per_day": 20,
+          "used": 0,
+          "left": 20
+        }
+      }
+    },
+    "draft_reason": "Unrun M32 draft is not admitted: real-chain controls failed byte qualification; Dense at reserve. Final Decode check remains reserved."
+  },
+  "documentation_refresh_only": true,
+  "status_note": "CURRENT_STATUS.md",
+  "evidence_through_utc": "2026-10-31T05:06:31.587550+00:00",
+  "source_revision_at_refresh": "3d1d67707989dbdf5a5193edf2c5e040b82c4ee3",
+  "live_queue_refreshed_at_documentation_update": false,
+  "quota_snapshot_is_live": false,
+  "rank_snapshot_is_live": false,
+  "quota_snapshot_date_utc": "2026-10-31",
+  "rank_snapshot_date_utc": "2026-10-31",
+  "remaining_track_limits_scope": "Historical 2026-10-31 snapshot; UTC daily resets; refresh before launch.",
+  "attention_checks_left": 18,
+  "prefill_checks_left": 20,
+  "latest_gain_status": "No additional gain from latest M1 or WGS read-reuse experiments; retained scored sources unchanged.",
+  "retained_sources": {
+    "Dense": {
+      "source": "best/verified.py",
+      "sha256": "edc61a1e1fb26a10bcfacda3ef3fc06833c17ec7a078d5ded8eb8717509b765b",
+      "retained_scored_speedup": 1.527771327
+    },
+    "MoE": {
+      "source": "best/moe_verified.py",
+      "sha256": "331148716e8d1ba92b45cd29725be997d44b3a5235af74d75770bb9444100d50",
+      "retained_scored_speedup": 2.348299935
+    },
+    "Decode": {
+      "source": "experiments/decode_moe/decoder_pdli.py",
+      "sha256": "c15df9d3d83c55f4ba64be810e56502563e6cfe22bb5ef22172a1feb287654e5",
+      "retained_scored_speedup": 2.0754661699757184
+    },
+    "Attention": {
+      "source": "best/attention_checked.py",
+      "sha256": "9e922c3555484081ca45a99a90284e26eccab181fb677700d8227a4b3402412f",
+      "retained_scored_speedup": 2.537000514
+    },
+    "Prefill": {
+      "source": "best/prefill_verified.py",
+      "sha256": "93e57ab45fb71414c65b71a2b03241a62b3d6097890cb7612616e620c050aae7",
+      "retained_scored_speedup": 1.663469245
+    }
+  }
 }

@@ -1,3 +1,5 @@
+> Status refreshed November 4, 2026 (Toronto): [CURRENT_STATUS.md](CURRENT_STATUS.md) and [CURRENT_STATE.json](CURRENT_STATE.json) supersede historical next-action, spacing and quota statements below. Latest M1 and WGS read-reuse checks are closed without a new speedup; evidence links are in the current checkpoint. No GPU job was launched by this documentation update.
+
 # decode-moe-plan: implementation results (2026-10-30, branch `argon/decode-moe-20261030`)
 
 Parent for every Decode candidate: `board_best/decoder_finreg_fp8pv_scored_2.0071.py` (scored 2.0071x,
