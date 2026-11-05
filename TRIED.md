@@ -221,7 +221,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Sliding prep: RoPE cos/sin from a position-indexed table built in prepare (identical arithmetic) + position-row prefetch (d1S/d16S/d32S) | closed | check 2.633; prep 1.36->1.28 us only (trig is not the prep cost); no shape admitted; nulls spread 7-13% | `1f11c97ee2764f53` | loop-attn-slide2 626ad0b | Nov 04 |
 | Sliding publication phase: aligned 80-B smem exchange records, float4 acc + float2 m/l transfers (same FP32 order, barriers, counter), L=1 pair route | closed | check 2.694 (incumbent path: adopted 0, even v32S 1h rejected at preconfirm, i.e. a lucky draw of keell default); d1S 0.996/0.998, d16S 1.006/1.012 slower, d32S 1.013/1.014 slower | `4d982a24d4154ae3, 1b62222395504b45` | loop-attn-pub 42a3d35 | Nov 04 |
 | q8 sliding (v16S/v32S): gate loads/sigmoids moved after arrival publication, before merge polling (same FP32 order) | in progress | check ba76cea9e0b74c90 | `ba76cea9e0b74c90` | loop-attn-q8gate fa82f88 | Nov 04 |
-| Lock in one-KV-head sliding routes as defaults: v32S 1h-s4, v16S 1h-s8 (consistently 0.950-0.969 across tonight's runs) with judge-tolerance safety check instead of base-equivalence/timing gate | in progress | est ~+0.3% board | - | loop-attn-1hfix | Nov 04 |
+| Lock in one-KV-head sliding routes as defaults: v32S 1h-s4, v16S 1h-s8 | in progress | check 7680c87433e1431b (diff vs board file: _AT_1HFIX table + judge-bound/cache safety check only) | `7680c87433e1431b` | loop-attn-1hfix e489fa1 | Nov 04 |
 
 ## Across kernels
 
