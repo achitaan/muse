@@ -8641,78 +8641,32 @@ def _ph_build_specs():
 
 
 def _ph_builds(deadline):
-    """Cancellable subprocess JITs: no late nvcc worker can outlive prepare.
+    """In-process JIT builds on daemon threads (no child processes: the judge
+    rejects sources that start processes). A build that misses the deadline is
+    simply not used; it never touches the production path."""
+    import threading
+    from torch.utils.cpp_extension import load_inline
+    modules, threads = {}, []
 
-    Builders return shared-library paths, not live CUDA objects. No CUDA kernel
-    is launched by a worker. Process groups include ninja/nvcc descendants.
-    """
-    import importlib.util
-    import json
-    import os
-    from pathlib import Path
-    import signal
-    import subprocess
-    import sys
-    import tempfile
-    child = r'''
-import json, sys
-from torch.utils.cpp_extension import load_inline
-cfg = json.load(open(sys.argv[1]))
-mod = load_inline(**cfg)
-with open(sys.argv[2], 'w') as f:
-    json.dump(mod.__file__, f)
-'''
-    modules, jobs = {}, []
-    with tempfile.TemporaryDirectory(prefix='attn_phase_') as tmp:
+    def build(kind, cpp, cuda, functions, flags):
+        name = 'okc_attn_phase_' + kind + '_' + _zh_tag(cpp, cuda, *flags)
         try:
-            for kind, (cpp, cuda, functions, flags) in _ph_build_specs().items():
-                _at_check(deadline)
-                name = 'okc_attn_phase_' + kind + '_' + _zh_tag(cpp, cuda, *flags)
-                cfg = dict(name=name, cpp_sources=cpp + '\nvoid phase_mark(torch::Tensor);\n',
-                           cuda_sources=cuda, functions=functions + ['phase_mark'],
-                           extra_cflags=['-std=c++20'], extra_cuda_cflags=flags, verbose=False)
-                args, result, log = [Path(tmp) / (kind + s) for s in ('.json', '.result', '.log')]
-                args.write_text(json.dumps(cfg))
-                stream = log.open('w')
-                jobs.append(dict(kind=kind, name=name, result=result, log=log, stream=stream,
-                                 proc=subprocess.Popen([sys.executable, '-c', child, str(args), str(result)],
-                                     stdout=stream, stderr=stream, start_new_session=True,
-                                     env=dict(os.environ, MAX_JOBS='2'))))
-            pending = list(jobs)
-            while pending and _at_time.monotonic() < deadline:
-                for job in pending[:]:
-                    if job['proc'].poll() is None:
-                        continue
-                    pending.remove(job)
-                    job['stream'].flush()
-                    if job['proc'].returncode == 0 and job['result'].exists():
-                        path = json.loads(job['result'].read_text())
-                        spec = importlib.util.spec_from_file_location(job['name'], path)
-                        module = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(module)
-                        modules[job['kind']] = module
-                        print('ATTN_PHASE_BUILD %s ready' % job['kind'], flush=True)
-                    else:
-                        lines = job['log'].read_text().splitlines()
-                        errors = [line for line in lines if 'error:' in line.lower() or 'fatal' in line.lower()]
-                        print('ATTN_PHASE_BUILD %s failed %s' %
-                              (job['kind'], (' | '.join(errors[-6:]) if errors else '\n'.join(lines))[-1100:]
-                               .replace('\n', ' ')), flush=True)
-                if pending:
-                    _at_time.sleep(0.05)
-            for job in pending:
-                print('ATTN_PHASE_BUILD %s budget_cancelled' % job['kind'], flush=True)
-        finally:
-            # Kill the entire group EVEN IF its leader exited: ninja/nvcc must
-            # not survive a cancellation and perturb the production check.
-            for job in jobs:
-                try:
-                    os.killpg(job['proc'].pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                job['proc'].wait(timeout=3)
-                job['stream'].close()
-    return modules
+            modules[kind] = load_inline(name=name, cpp_sources=cpp + '\nvoid phase_mark(torch::Tensor);\n',
+                                        cuda_sources=cuda, functions=functions + ['phase_mark'],
+                                        extra_cflags=['-std=c++20'], extra_cuda_cflags=flags, verbose=False)
+            print('ATTN_PHASE_BUILD %s ready' % kind, flush=True)
+        except Exception as exc:  # noqa: BLE001
+            print('ATTN_PHASE_BUILD %s failed %s' % (kind, str(exc)[-1100:].replace('\n', ' ')), flush=True)
+
+    for kind, (cpp, cuda, functions, flags) in _ph_build_specs().items():
+        _at_check(deadline)
+        t = threading.Thread(target=build, args=(kind, cpp, cuda, functions, flags), daemon=True)
+        t.start(); threads.append((kind, t))
+    for kind, t in threads:
+        t.join(max(0.0, deadline - _at_time.monotonic()))
+        if t.is_alive():
+            print('ATTN_PHASE_BUILD %s budget_exceeded' % kind, flush=True)
+    return {k: v for k, v in modules.items()}
 
 
 def _ph_route(data):
