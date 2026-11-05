@@ -219,3 +219,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+
+## Decode VMS32 (local branch claim; no main push)
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| VMS32 at d32S/d32F only, independent shape picks; materially different from closed T16 decode VMS: clean-null bs32 evidence .987 (e115610794554d17), honest <=1.10x incumbent error vs independent FP32 MoE/full-layer references instead of bit identity; READ512 full-layer distinct-base null ABBA+BAAB, 16 rounds x3 passes, all paired <1 and median <=.995 | prepared; 12 CPU/structural tests + AST + forbidden scan pass; GPU build, timing/correctness and prepare<285s pending caller's check; no GPU check spent locally | loop/dec-vms | pending | kb/exp/decode_vms32.py; kb/exp/DECODE_VMS32_NOTES.md | Nov 04 |
