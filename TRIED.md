@@ -220,8 +220,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Sliding prep trim: warp-local RoPE overlapping Q loads + remove two q1 prep CTA barriers | closed | check 2.601; d1S 1.000-1.010, d16S 1.018-1.029, d32S 1.006-1.016, d1F 0.999-1.009 (slower/noise); cached-KV overlap and owner-only cache write already in incumbent | `063332333f8141ea` | loop/attn-prepovl 02b16e2 | Nov 04 |
 | Sliding prep: RoPE cos/sin from a position-indexed table built in prepare (identical arithmetic) + position-row prefetch (d1S/d16S/d32S) | closed | check 2.633; prep 1.36->1.28 us only (trig is not the prep cost); no shape admitted; nulls spread 7-13% | `1f11c97ee2764f53` | loop-attn-slide2 626ad0b | Nov 04 |
 | Sliding publication phase: aligned 80-B smem exchange records, float4 acc + float2 m/l transfers (same FP32 order, barriers, counter), L=1 pair route | closed | check 2.694 (incumbent path: adopted 0, even v32S 1h rejected at preconfirm, i.e. a lucky draw of keell default); d1S 0.996/0.998, d16S 1.006/1.012 slower, d32S 1.013/1.014 slower | `4d982a24d4154ae3, 1b62222395504b45` | loop-attn-pub 42a3d35 | Nov 04 |
-| q8 sliding (v16S/v32S): gate loads/sigmoids moved after arrival publication, before merge polling (same FP32 order) | in progress | check ba76cea9e0b74c90 | `ba76cea9e0b74c90` | loop-attn-q8gate fa82f88 | Nov 04 |
-| Lock in one-KV-head sliding routes as defaults: v32S 1h-s4, v16S 1h-s8 | in progress | check 7680c87433e1431b (diff vs board file: _AT_1HFIX table + judge-bound/cache safety check only) | `7680c87433e1431b` | loop-attn-1hfix e489fa1 | Nov 04 |
+| Lock in one-KV-head sliding routes as defaults: v32S 1h-s4, v16S 1h-s8, judge-bound/cache safety check | kept (small) | check 7680c874 2.611 (noise); safety passed (err 0.068 vs bound 0.15, cache ok); v16S 11.26->10.99 us (~2.4%), v32S 14.18->14.22 (same as board run); scored run 3a16a9026b05414d submitted | `7680c87433e1431b, 3a16a9026b05414d` | loop-attn-1hfix e489fa1 | Nov 05 |
+| q8 sliding (v16S/v32S): gate loads/sigmoids moved after arrival publication, before merge polling | closed | check 2.622; v16S 1.006/1.005 slower; v32S 0.992/0.992 but exact=0; admitted 0 | `ba76cea9e0b74c90` | loop-attn-q8gate fa82f88 | Nov 05 |
 
 ## Across kernels
 
@@ -329,7 +329,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | rotcodes2: pooler1 ILP + rotated SK2 + M2-8 tails + router hi/lo decode | closed | router rot 1.05-1.15x slower, cg8 2.2-3.3x slower; check 1.586 tie | `8c42ea937f20437d` | loop/bf16-rotcodes2 | Nov 04 |
 | PROCESS: ABBA gate base-vs-base null control | diagnostic | second capture of identical incumbent measured 0.95-0.99 on small cells -> earlier small-cell wins unreliable without null arm | `bf7cb2fb7aad4812` | loop/dense-m1632-v2 | Nov 04 |
 | Consolidation: routertail router@8/16 + fail-closed re-audit of board CURP cells with 8 null panels/draw (1.5% or 3xMAD) + fresh-seed confirm | kept (router@8 only) | check 1.587 tie: router:8 rt8w8 admitted cand 0.969 paired 0.971 confirm pass (null MAD 0.77%); router:16 confirm failed; board CURP cells qkv32/pool32/qkv16/qkv256 RETRACTED by honest gate (0.988/1.002/0.995/1.020) | `21e39400aa4d466a` | loop-bf16-proj loop/bf16-consolidate a1125e5 | Nov 04 |
-| Lock in one-wave routertail router@8 rt8w8 and router@16 rt8w16 as defaults (0.917-0.969 across 3 runs), correctness-only safety check; CURP cells use board's own gate | in progress | check df5143b428e44ee6 | `df5143b428e44ee6` | loop-dense-rtfix 0fbe81c | Nov 04 |
+| Lock in one-wave routertail router@8 rt8w8 and router@16 rt8w16 as defaults, correctness-only safety check; CURP cells use board gate | kept (small) | check df5143b4 1.576 (noise); router err 2.5e-6 vs bound 5e-5; scored run 9523a1ffc6894465 submitted | `df5143b428e44ee6, 9523a1ffc6894465` | loop-dense-rtfix 0fbe81c | Nov 05 |
 
 ## Decode layer
 
