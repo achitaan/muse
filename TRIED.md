@@ -349,6 +349,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Decode in-layer component ablation (no-op replacement, routing fixed) + MoE warp-role stall census -> which lever reaches layer time | diagnostic | MoE dominates (d1S 19.7 .. d32S 84.3 us; 25% faster = +8.0% board), attention +2.4%, pooler/router +2.3% (13.9-16.8 us), qkv +1.3%; MoE consumer-bound 81-87%, producers idle. Oracle (Astra high): no blind consumer change credible in 2.5 h; reopen only with uninstrumented same-routing counterfactual of a recoverable consumer subcost | `7dc880bcc6544992, de07099cf2104e6d` | loop/decode-abl c629bda; loop/moe-stall d966ccd | Nov 04 |
 | QKV T=16/32: in-layer gated existing qkv16t_r200 SK2 config (NACC 1->2) from the dense board; 96 CTAs/132 SMs, T32 ~2.67 TB/s | in progress | check pending | - | loop-dec-qkv c5251b3 | Nov 04 |
 | Full-context decode attention: multi-tile pre-wait old-KV staging | in progress | finding: d16F/d32F already prefill all 3 ring stages before PDL wait; QKV and attention cannot co-reside (smem) -> no headroom there; candidate stages both prologue tiles pre-wait at d1F/v1F only; check 91a9eb9ba5cf4f4d | `91a9eb9ba5cf4f4d` | loop-dec-attnfull 16f1209 | Nov 04 |
+| Pooler+router T<=8: lossless router packing, one 16 KiB copy per stage instead of eight 2 KiB copies (arithmetic unchanged) | in progress | check submitted | - | loop-dec-pooler 0714254 | Nov 04 |
 
 ## Prefill
 
