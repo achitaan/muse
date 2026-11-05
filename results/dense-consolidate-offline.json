@@ -1,0 +1,119 @@
+{
+  "candidate_sha256": "5fadb031a50b22dd69dd26219d77e0f7b4053d51b883992be0e0ccbeb112151a",
+  "lineage": {
+    "base_native_math_unchanged": true,
+    "router_dispatch_addition": "RSM(8,16)",
+    "controlled_primitives_identical_to_fa02f58": true
+  },
+  "binding": {
+    "production_fresh": true,
+    "nesting_and_exception_restore": true,
+    "thread_local": true,
+    "aligned_views": 6
+  },
+  "scheduling": {
+    "seeds": 16,
+    "every_panel_role_in_every_event_slot": 4
+  },
+  "policy": {
+    "independent_null_n": 8,
+    "raw_mad": 0.01,
+    "adaptive_margin": 0.03,
+    "strict_boundary_paired_order_drift_and_nonfinite_rejected": true
+  },
+  "router_pack": {
+    "bf16_payloads_roundtripped": 8388608,
+    "geometries": 2,
+    "fp64_router_relative": 2.49685883221735e-06,
+    "launch_argument_transport": true
+  },
+  "bounded_rq": {
+    "exact_board_tags": [
+      "t32s5curP-k7",
+      "t32s6curP-k4",
+      "t16s5curP-k7",
+      "n256s5m1hzm-k7"
+    ],
+    "rq_only_build": true,
+    "cxx20_sm90a_flags": true,
+    "off_scope_and_bad_pack_rejected": true
+  },
+  "protocol": [
+    {
+      "case": "real gain, balanced slots and first-replay bias",
+      "null_med": 1.0,
+      "null_mad": 0.0,
+      "cand_med": 0.9285714285715735,
+      "paired": 0.9285714285715702,
+      "confirm": "0.92857/0.92857:pass",
+      "admitted": true,
+      "n": 16,
+      "limit": 0.985,
+      "reason": "pass",
+      "tag": "none"
+    },
+    {
+      "case": "same computation rejects despite old address/ABBA artifacts",
+      "null_med": 1.0,
+      "null_mad": 0.0,
+      "cand_med": 1.0,
+      "paired": 1.0,
+      "confirm": "skipped",
+      "admitted": false,
+      "n": 8,
+      "limit": 0.985,
+      "reason": "no-gain",
+      "tag": "none"
+    },
+    {
+      "case": "sub-1.5-percent gain rejected",
+      "null_med": 1.0,
+      "null_mad": 0.0,
+      "cand_med": 0.9928571428572468,
+      "paired": 0.9928571428572471,
+      "confirm": "skipped",
+      "admitted": false,
+      "n": 8,
+      "limit": 0.985,
+      "reason": "no-gain",
+      "tag": "none"
+    },
+    {
+      "case": "opposing capture biases widen MAD, not canceled",
+      "null_med": 1.0011904761904666,
+      "null_mad": 0.0488095238094437,
+      "cand_med": 0.9296768707484389,
+      "paired": 0.9296768707484391,
+      "confirm": "skipped",
+      "admitted": false,
+      "n": 8,
+      "limit": 0.8535714285716689,
+      "reason": "no-gain",
+      "tag": "none"
+    },
+    {
+      "case": "fresh-seed confirmation veto",
+      "null_med": 1.0,
+      "null_mad": 0.0,
+      "cand_med": 0.9285714285714286,
+      "paired": 0.9285714285714287,
+      "confirm": "1.00000/1.00000:fail",
+      "admitted": false,
+      "n": 16,
+      "limit": 0.985,
+      "reason": "no-gain",
+      "tag": "none"
+    }
+  ],
+  "numerical_validator": {
+    "fp64_identity_oracle": true,
+    "perturbed_output_rejected": true
+  },
+  "prepare_wiring": {
+    "six_exact_cells": true,
+    "rejected_board_cells_retracted": true,
+    "budget_partial_cell_not_adopted": true,
+    "production_fresh_and_geometry_guarded": true
+  },
+  "gpu": "NOT RUN: no CUDA/nvcc; H200 compile, timing/nulls and prepare duration unverified"
+}
