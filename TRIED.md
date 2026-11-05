@@ -160,6 +160,12 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## Attention
 
+Branch-local claim (no main writes/pushes permitted for this lane):
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| SLIDE2 position-indexed RoPE table built with literal-identical device reduction/sincos; prefetch row with Q/K constants, retain every prep barrier and merge instruction (materially different from closed warp-local/barrier-removal trial) | in progress; CPU/source tests passed; awaiting caller GPU check | loop/attn-slide2 | - | candidates/attention_slide2.py; scripts/validate_attention_slide2.py | Nov 04 |
+
 | Current-incumbent sliding attention CUPTI check-log diagnostic: 12 cold-L2 graph profiles, external-merge ablation when available, unique-KV floor and 46S/16F half-overhead bounds; distinct from closed instruction-cache and speculative launch-fusion ideas | diagnostic prepared; offline AST/byte-prefix/accounting/native-API-shape/log-tail/isolation checks pass; no GPU/nvcc, no judge check; authoritative-main ledger reconciliation pending caller | loop/attn-sliding-diag | none; offline only | candidates/attention_sliding_diag.py; results/ATTENTION_SLIDING_DIAG.md | Nov 04 |
 
 | Idea | Outcome | Number | Job | Where | Date |
