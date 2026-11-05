@@ -89,6 +89,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## qkv / o / unpooler projections
 
+| Decode SK2 full-wave fill: QKV16/32 R16 (144 CTAs), unpooler16 R16 (512), unpooler32 R32 (256); keep incumbent WSK/UPW/NACC and ring-stage count, unlike NACC-only qkv16t_r200 | candidate ready; AST, 9 new + 7 incumbent CPU tests, forbidden grep PASS; 3-pass READ512/16-round ABBA+BAAB per layer/shape with incremental combo admission; GPU compile/numerics/timing pending caller; local branch only | loop/dec-qkvfill | pending caller (none submitted) | kb/exp/decode_qkvfill.py; kb/exp/DECODE_QKVFILL_NOTES.md | Nov 05 |
+
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | Custom 12-bit lossless (c12) GEMVs at 1-32 tokens | kept | - | - | DECODE_NOTES | <= Oct 31 |
