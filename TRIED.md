@@ -1,5 +1,11 @@
 # TRIED: every optimization idea tried on Muse 2 (shared ledger, all sessions)
 
+## Nov 04 lane claim (local branch only; caller merges shared ledger)
+
+| Area / idea | Outcome | Number / evidence | Job | Source | Date |
+|---|---|---|---|---|---|
+| Decode: port attention-board 42a3d35 aligned 80-byte publication exchange, separate default-off build; differs from standalone board by whole-layer gate on d1S/d16S/d32S | prepared; GPU gate in progress, caller submits. 3 passes, READ512, 16 ABBA/BAAB rounds plus null, exact KV/ids and attention within incumbent repeatability; median paired <=0.995, every pass <1 | loop/dec-pub; CPU 7/7, AST/forbidden scan passed; no local GPU | no job yet | kb/exp/decode_pub.py | Nov 04 |
+
 **Before trying anything:** `python ".tools/tried.py" search <words>` (from the repo root `C:\Users\Achita\Documents\ChatGPT\Muse 2`).
 If a row says closed, don't retry it unless the new idea is materially different; say how in the new row.
 
