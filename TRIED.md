@@ -160,6 +160,8 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## Attention
 
+| Pair q1 prep overlap: early constants, warp-local identical RoPE during Q copies, elide two prep CTA barriers; cache gather/owner-only writes already present in base | prepared; CPU source/ownership/group-count/gate/ABBA/phase tests pass; no local GPU/nvcc, performance unknown; local branch ledger only, main reconciliation by caller | loop/attn-prepovl | none; awaiting caller check | candidates/attention_prepovl.py; scripts/validate_attention_prepovl.py | Nov 04 |
+
 | Current-incumbent sliding attention CUPTI check-log diagnostic: 12 cold-L2 graph profiles, external-merge ablation when available, unique-KV floor and 46S/16F half-overhead bounds; distinct from closed instruction-cache and speculative launch-fusion ideas | diagnostic prepared; offline AST/byte-prefix/accounting/native-API-shape/log-tail/isolation checks pass; no GPU/nvcc, no judge check; authoritative-main ledger reconciliation pending caller | loop/attn-sliding-diag | none; offline only | candidates/attention_sliding_diag.py; results/ATTENTION_SLIDING_DIAG.md | Nov 04 |
 
 | Idea | Outcome | Number | Job | Where | Date |
