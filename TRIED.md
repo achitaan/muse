@@ -358,9 +358,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Combo: KV tile-0 pre-wait gather (d1S/d1F) + pooler router packing (v1S/v1F), 3-pass tolerance gate | closed | check 2.254; 3 passes x16 rounds: d1S KV 1.004/1.004/1.004 (slower now), d1F 0.993-0.997, v1S POOL 0.996/1.000/1.000, v1S KV+POOL 0.995/1.003/0.993, v1F ~1.000-1.006; earlier near-misses did not reproduce; admitted 0 | `87f83bb1aa7b43ca` | loop-dec-combo ed853c1 | Nov 04 |
 | VMS MoE engine at T=32 (d32S/d32F) inside decode | closed | check 2.243; d32S 1.006/1.054/1.006, d32F 1.017/0.999/1.014 (slower); ids equal, errors equal; admitted 0 | `f0e44ad60d404c57` | loop-dec-vms 14aab38 | Nov 04 |
 | Port of attention publication exchange (aligned float4 smem records) to decode sliding attention d1S/d16S/d32S | closed | check 2.251; 3 passes: d1S 0.998/0.994/0.999, d16S 1.001/0.998/1.001, d32S 0.997/1.002/1.002 (noise); admitted 0 | `44ba771832e84120` | loop-dec-pub 7d13aff | Nov 04 |
-| One-head sliding attention as default at v16S (s8) / v32S (s4) in decode, correctness-only safety check (no timing gate) | in progress | check 82528aab7cf24e17 | `82528aab7cf24e17` | loop-dec-1h 9608c41 | Nov 05 |
-| Lock in KV tile-0 pre-wait at d1F and pooler router packing at v1S as defaults, correctness-only check | in progress | check submitted | - | loop-dec-lockin d88b82c | Nov 05 |
-| Full-wave SK2 configs at T=16/32: qkv 144 CTAs (was 96), unpooler 512/256 CTAs; 3-pass null-controlled gate | in progress | check submitted | - | loop-dec-qkvfill 3c537ba | Nov 05 |
+| One-head sliding attention as default at v16S (s8) / v32S (s4) in decode, correctness-only safety check | closed | check 2.243; safety check FAILED at both shapes (in-layer row errors exceed judge row bound; the attention-board kernel does not port as-is to decode verify); fell back | `82528aab7cf24e17` | loop-dec-1h 9608c41 | Nov 04 |
+| Lock in KV tile-0 pre-wait at d1F and pooler router packing at v1S as defaults, correctness-only check | closed | check 2.242 (no visible gain); admitted 1 of 2 shapes; not scored (track closed) | `57f7639f3df04bf9` | loop-dec-lockin d88b82c | Nov 04 |
+| Full-wave SK2 configs at T=16/32: qkv 144 CTAs (was 96), unpooler 512/256 CTAs | closed | check 2.246; qkv full-wave 1.8-3.2% SLOWER at d16/d32 (more CTAs = more escape/partial overhead, not faster); unpooler 0.996-1.015; admitted 0. 96-CTA qkv is not idle-SM-limited | `1bdf398e434e421e` | loop-dec-qkvfill 3c537ba | Nov 04 |
 
 ## Prefill
 
