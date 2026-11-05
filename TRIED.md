@@ -154,6 +154,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+| Decode COMBO: KV at d1S/F, POOL and KV+POOL at v1S/F; materially different from near-miss single-arm checks f4de74b65d804d32 / 2ec8fcf133b34b95: honest public-reference/incumbent-error-envelope validation, three READ512 whole-layer ABBA+BAAB passes x16 rounds, median paired <=0.995 and every pass <1 plus null controls | parked: CPU ready, caller GPU check pending; 988742-byte standalone; 14 combo +9 KV parent tests pass, full-width public-reference CPU comparison passes; no GPU/nvcc, no check/submission/push; local ledger row only because caller forbids main writes | loop/dec-combo (parent 51fe86a, pool 0714254) | - | kb/exp/decode_combo.py; kb/exp/DECODE_COMBO.md | Nov 04 |
 | PDL handoffs for qkv -> attention -> o, norm -> R2f, MoE -> unpooler at 1/8 tokens | kept | 2.0755x | `452fbd9d` | board_best/decoder_pdli_scored_2.0755.py | <= Oct 31 |
 | L2 weight prefetch during attention and the norm | closed | best -0.8 us; +20-25 us with pooler weights | `94c68965`, `bad2bc21` | attn_next/DEAD_ENDS.md | <= Oct 31 |
 | PDLI selector: 1% gate + tolerant whole-layer probe (rel_l2<=1e-3 AND <=16 mismatching elems) | closed | 2.0434x (CI 2.013-2.074); tolerant probe still rejected: MoE run-to-run diffs reach 18-731 elems, rel_l2 up to 1.3e-3; even M1_sliding lost its selection -> selected={} | `7abd8d0d` | experiments/top50/decoder_p1_gate.py (decode-next) | Oct 31 |
