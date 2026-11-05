@@ -219,3 +219,5 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+# Local-only lane claim (2026-11-04; caller publishes shared ledger; no main writes).
+| Decode QKV16/32: existing dense qkv16t_r200 SK2 configuration (NACC=2; same FP32 path, same 24-row stream) versus incumbent NACC=1, per-shape whole-layer READ512 ABBA/null/exact admission; unlike closed CURP/rq, dense GEMV, staging and escape scheduling lanes | candidate ready; AST, 7 CPU tests, forbidden grep PASS; GPU compile/numerics/timing pending caller check; source 991507 bytes; no check submitted by lane | loop/dec-qkv | pending caller | kb/exp/decode_qkv.py; kb/exp/DECODE_QKV_NOTES.md | Nov 04 |
