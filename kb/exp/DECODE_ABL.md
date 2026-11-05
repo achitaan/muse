@@ -1,6 +1,6 @@
 # Prepare-only full-layer launch-group ablation
 
-Check file: `kb/exp/decode_layer_abl.py` (997,738 bytes).
+Check file: `kb/exp/decode_layer_abl.py` (999,285 bytes).
 
 Its first 977,700 bytes are exactly the incumbent `decode_attn_fp16.py` used by
 `bc0b306ed55449a8`, SHA256
@@ -55,22 +55,49 @@ fused parts, explicitly labeled `o_proj+boundary_partial` and
 not launch ablation. A no-op retains nonzero launch/scheduling cost, so measured
 savings are conservative launch-group ceilings, not complete mathematical costs.
 
-`DEC_ABL_SKIP/ERROR/ABORT` explain missing measurements. The diagnostics require
-PyTorch `CUDAGraph(keep_graph=True)` and CUDA graph edge-data APIs (CUDA >=12.3).
+`DEC_ABL_SKIP/ERROR/ABORT` explain missing measurements. The component diagnostics
+require PyTorch `CUDAGraph(keep_graph=True)` and CUDA graph edge-data APIs (CUDA
+>=12.3). CUDA 13 uses the unsuffixed edge-data APIs; CUDA 12 uses the suffixed
+`cudaStreamGetCaptureInfo_v3`/`cudaGraphGetEdges_v2` names, selected at compile time.
 Helper builds explicitly use C++20 and SM90a; incumbent flags remain untouched.
+Build failures print the FIRST compiler diagnostics, not a trailing log fragment.
+Without the helper, ordinary PyTorch graph replays still measure 12-round
+same-graph base-vs-base nulls at each shape. Component arms are explicitly skipped:
+they cannot safely retain PDL dependencies without the compiled no-op helper.
 
 ## Validation
 
 `python3 -m unittest discover -s kb/exp -p 'test_decode_layer_abl.py' -v`
 
-Nine CPU tests pass: AST/exact prefix/size, score weights, quantiles, node ownership,
+Eleven CPU tests pass: AST/exact prefix/size, score weights, quantiles, node ownership,
 nested hooks, source-verified output argument indices, hook identity restoration,
 ABBA/flush/event order and sample counts, null, deadline discard, per-sample
 routing rejection, exception depth cleanup, prepare fallback/global restoration,
-native dependency-preservation contract. Direct prefix diff is empty.
+native dependency-preservation contract, first-error retention and helper-free
+null replay/prepare continuation. Direct prefix diff is empty.
+
+Both CUDA 12 and CUDA 13 **signature contracts** pass clang++ syntax checking:
+
+```
+python3 kb/exp/decode_abl_api_contract.py | clang++ -std=c++20 -fsyntax-only -x c++ - -DCUDART_VERSION=12080
+python3 kb/exp/decode_abl_api_contract.py | clang++ -std=c++20 -fsyntax-only -x c++ - -DCUDART_VERSION=13000
+```
+
+These compile the candidate's actual selector/calls against the signatures from
+the judge report, exposing only that generation's names. They do not constitute
+verification against NVIDIA headers: no CUDA headers are present locally.
 
 No local torch, CUDA GPU, or nvcc: native compilation and GPU timing remain
 unverified. No check submitted and nothing pushed/committed to main.
+
+## Check 032e0f0d828a4344 correction
+
+The caller's judge run reached base prepare in 137 s but the helper failed:
+CUDA 13 removed the suffixed graph API identifiers. Thus zero component timings
+were obtained, not a negative performance result. This revision fixes API naming
+without changing the seven-argument capture-info/five-argument edge-data
+semantics. No runtime measurements yet for this revision. Forbidden-process
+pattern scan of the candidate returns zero matches.
 
 ## Ledger handoff (caller must record before checking)
 

@@ -16947,6 +16947,13 @@ _DA_CUDA = r'''
 #include <vector>
 #include <stdexcept>
 #include <cstdint>
+#if CUDART_VERSION >= 13000
+#define DA_CAPTURE_INFO cudaStreamGetCaptureInfo
+#define DA_GRAPH_EDGES cudaGraphGetEdges
+#else
+#define DA_CAPTURE_INFO cudaStreamGetCaptureInfo_v3
+#define DA_GRAPH_EDGES cudaGraphGetEdges_v2
+#endif
 static void ck(cudaError_t e) {
   if (e != cudaSuccess) throw std::runtime_error(cudaGetErrorString(e));
 }
@@ -16957,7 +16964,7 @@ __global__ void da_noop() {
 std::vector<int64_t> da_nodes() {
   cudaStreamCaptureStatus status;
   cudaGraph_t g = nullptr;
-  ck(cudaStreamGetCaptureInfo_v3(at::cuda::getCurrentCUDAStream(), &status,
+  ck(DA_CAPTURE_INFO(at::cuda::getCurrentCUDAStream(), &status,
                                nullptr, &g, nullptr, nullptr, nullptr));
   if (status != cudaStreamCaptureStatusActive || !g)
     throw std::runtime_error("DEC_ABL not capturing");
@@ -16977,7 +16984,7 @@ std::vector<int64_t> da_clone(int64_t raw, std::vector<int64_t> skip) {
   ck(cudaGraphClone(&g, original));
   try {
     size_t edges = 0, after = 0, nodes = 0;
-    ck(cudaGraphGetEdges_v2(g, nullptr, nullptr, nullptr, &edges));
+    ck(DA_GRAPH_EDGES(g, nullptr, nullptr, nullptr, &edges));
     ck(cudaGraphGetNodes(g, nullptr, &nodes));
     for (auto p : skip) {
       cudaGraphNode_t n;
@@ -16997,7 +17004,7 @@ std::vector<int64_t> da_clone(int64_t raw, std::vector<int64_t> skip) {
       // so cooperative launch and cluster dimensions remain legal.
       ck(cudaGraphKernelNodeSetParams(n, &params));
     }
-    ck(cudaGraphGetEdges_v2(g, nullptr, nullptr, nullptr, &after));
+    ck(DA_GRAPH_EDGES(g, nullptr, nullptr, nullptr, &after));
     if (after != edges) throw std::runtime_error("DEC_ABL changed graph edges");
     ck(cudaGraphInstantiate(&exec, g, nullptr, nullptr, 0));
     ck(cudaGraphDestroy(g));
@@ -17013,6 +17020,12 @@ void da_replay(int64_t p) {
 }
 void da_destroy(int64_t p) { ck(cudaGraphExecDestroy(reinterpret_cast<cudaGraphExec_t>(p))); }
 '''
+
+
+def _da_build_error(ex):
+    lines = str(ex).splitlines()
+    at = next((i for i,s in enumerate(lines) if 'error:' in s.lower() or 'fatal error' in s.lower()),0)
+    return '\n'.join(s[:500] for s in lines[at:at+20])[:4000]
 
 
 def _da_build(dev):
@@ -17031,7 +17044,7 @@ def _da_build(dev):
                                  '-gencode=arch=compute_90a,code=sm_90a','--expt-relaxed-constexpr'],
                              verbose=False)
     except Exception as ex:
-        print(f'DEC_ABL_BUILD_ERROR {type(ex).__name__} {str(ex)[-1000:]}',flush=True)
+        print(f'DEC_ABL_BUILD_ERROR {type(ex).__name__} {_da_build_error(ex)}',flush=True)
 
 
 def _da_tensors(x):
@@ -17153,7 +17166,8 @@ def _da_pair(base,arm,reset,flush,sink,deadline,rounds=12,validate=None):
             reset()  # saved REAL intermediates + KV, BEFORE READ flush/events
             torch.sum(flush,dim=0,out=sink)
             a.record()
-            _DA_EXT.da_replay((base,arm)[i])
+            g = (base,arm)[i]
+            _DA_EXT.da_replay(g) if isinstance(g,int) else g.replay()
             b.record()
             b.synchronize()
             us = 1000.0*a.elapsed_time(b)
@@ -17170,6 +17184,24 @@ def _da_pair(base,arm,reset,flush,sink,deadline,rounds=12,validate=None):
                 base=_da_stats.median(times[0]),arm=_da_stats.median(times[1]),n=len(diffs))
 
 
+def _da_null(data,st,key,flush,sink,deadline):
+    run = _af_capture(data,st,_af_key(data['config']),'old')
+    g,output = run['graph'],run['output']
+    rank = int(torch.bincount((output[2].long()//32).flatten(),minlength=8).argmax())
+    data['local_start'].fill_(32*rank)
+    g.replay()
+    ids,kv = output[2].clone(),_af_cache(data)
+    def validate():
+        if not torch.equal(output[2],ids):
+            raise RuntimeError('null routing changed')
+    r = _da_pair(g,g,lambda: _af_reset_cache(data,kv),flush,sink,deadline,validate=validate)
+    print(f'DEC_ABL {key} null {r["saved"]:.3f} {r["p10"]:.3f} {r["saved"]:.3f} '
+          f'base_us={r["base"]:.3f} rounds={r["n"]} helper=0 same_graph_null=1',flush=True)
+    print(f'DEC_ABL_SKIP {key} components=all helper_required_for_dependency_preserving_noop',flush=True)
+    print(f'DEC_ABL_SUMMARY {key} null_only=1',flush=True)
+    return {'null':r}
+
+
 def _da_shape(st,key,B,L,sliding,flush,sink,deadline):
     global _DA_CTX
     ss = _af_state(st)
@@ -17183,6 +17215,8 @@ def _da_shape(st,key,B,L,sliding,flush,sink,deadline):
         data['positions'].copy_(pos)
         data['cache_loc'].copy_(data['page_table'].gather(1,pos[None]).flatten())
     assert ss['att_ok'] and _supported7(data['config']) and _att_fits7(data,data['config'])
+    if _DA_EXT is None:
+        return _da_null(data,ss,key,flush,sink,deadline)
     stream = torch.cuda.Stream(device=st['qkv'].device)
     stream.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(stream):
@@ -17340,8 +17374,10 @@ def prepare(weights):
               'read_flush_MiB=512 rounds=12 warm_rounds=2 deadline_s=280 '
               'columns=shape,component,saved_us_median,saved_us_p10,null_us '
               'noop=original_grid_one_warp_pdl_wait_trigger picks={}',flush=True)
-        if _DA_EXT is None or _da_time.monotonic()>start+260:
-            raise TimeoutError('helper unavailable or insufficient prepare budget')
+        if _da_time.monotonic()>start+260:
+            raise TimeoutError('insufficient prepare budget')
+        if _DA_EXT is None:
+            print('DEC_ABL_FALLBACK helper_unavailable null_only=1',flush=True)
         # _af_state clones counters/activation scratch. Lt plans share a temporary
         # workspace: restore its bytes before returning production too.
         seen = set()

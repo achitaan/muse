@@ -191,6 +191,41 @@ class Contracts(unittest.TestCase):
             self.assertIn(text,src)
         for text in ('cudaGraphRemoveDependencies','cudaGraphDestroyNode','cudaGraphAddDependencies'):
             self.assertNotIn(text,src)
+        self.assertIn('#if CUDART_VERSION >= 13000',src)
+        self.assertIn('#define DA_CAPTURE_INFO cudaStreamGetCaptureInfo\n',src)
+        self.assertIn('#define DA_GRAPH_EDGES cudaGraphGetEdges\n',src)
+
+    def test_build_error_keeps_first_compiler_diagnostic(self):
+        n = namespace()
+        log = 'building...\n'+'long command '*1000+'\n'
+        log += 'cuda.cu(12): error: first_missing_identifier\n  offending_call();\n  ^\n'
+        log += 'other message\n'*1000+'last error omitted\n'
+        text = n['_da_build_error'](RuntimeError(log))
+        self.assertTrue(text.startswith('cuda.cu(12): error: first_missing_identifier'))
+        self.assertIn('offending_call();',text)
+        self.assertNotIn('last error omitted',text)
+        self.assertEqual(n['_da_build_error'](RuntimeError('no CUDA compiler')), 'no CUDA compiler')
+
+    def test_helper_free_null_uses_graph_replay(self):
+        n = namespace()
+        clock, replays, validations = [0.0],[],[]
+        class Event:
+            def __init__(self, **kw): pass
+            def record(self): self.t = clock[0]
+            def synchronize(self): pass
+            def elapsed_time(self, other): return (other.t-self.t)/1000
+        class Graph:
+            def replay(self):
+                replays.append(1)
+                clock[0] += 75
+        n['torch'] = types.SimpleNamespace(cuda=types.SimpleNamespace(Event=Event),sum=lambda *a,**k: None)
+        self.assertIsNone(n['_DA_EXT'])
+        g = Graph()
+        r = n['_da_pair'](g,g,lambda:None,None,None,math.inf,validate=lambda: validations.append(1))
+        self.assertEqual(r['saved'],0)
+        self.assertEqual(r['base'],75)
+        self.assertEqual(len(replays),56)
+        self.assertEqual(len(validations),56)
 
     def test_prepare_fallback_restores_production_globals(self):
         n = namespace()
@@ -199,7 +234,9 @@ class Contracts(unittest.TestCase):
             def start(self): pass
             def join(self, **kw): pass
         n['threading'] = types.SimpleNamespace(Thread=Thread)
-        n['torch'] = types.SimpleNamespace(cuda=types.SimpleNamespace(synchronize=lambda: None))
+        n['torch'] = types.SimpleNamespace(cuda=types.SimpleNamespace(synchronize=lambda: None),
+                                          no_grad=contextlib.nullcontext,ones=lambda *a,**kw: None,
+                                          empty=lambda *a,**kw: None,float32=None)
         globals_to_restore = ('_WS7','_CL7','_GUARDS','_GUARDED_IDS','bfp_SK2_PDL','_PF7','_GLE_W_CUR')
         saved = {k:object() for k in globals_to_restore}
         n.update(saved)
@@ -209,6 +246,13 @@ class Contracts(unittest.TestCase):
             self.assertEqual(n['_AF_KINDS'],())
             return st
         n['_DA_PARENT_PREPARE'] = base
+        cases = []
+        def shape(st,key,*args):
+            self.assertIsNone(n['_DA_EXT'])
+            cases.append(key)
+            return {'null':{'saved':0,'p10':0,'base':75,'arm':75,'n':12}}
+        n['_da_shape'] = shape
+        n['_check_guards'] = lambda:None
         n['_GLE_EXT'] = n['_DE_EXT'] = None
         n['bfp__get_ext'] = lambda: types.SimpleNamespace(sk2_set_pdl=lambda flag: None)
         with contextlib.redirect_stdout(io.StringIO()) as output:
@@ -217,8 +261,10 @@ class Contracts(unittest.TestCase):
         self.assertIs(n['_AF_KINDS'],original_kinds)
         for key,value in saved.items():
             self.assertIs(n[key],value)
-        self.assertIn('DEC_ABL_ABORT',output.getvalue())
-        self.assertIn('shapes=0/12',output.getvalue())
+        self.assertIn('DEC_ABL_FALLBACK',output.getvalue())
+        self.assertNotIn('DEC_ABL_ABORT',output.getvalue())
+        self.assertIn('shapes=12/12',output.getvalue())
+        self.assertEqual(cases,[s[0] for s in n['_DA_SHAPES']])
 
 
 if __name__ == '__main__':
