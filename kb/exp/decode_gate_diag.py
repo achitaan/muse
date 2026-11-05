@@ -59,6 +59,17 @@ compiled extensions and per-device scratch, never activations).
 Safety: every scratch/workspace buffer is followed by sentinel words;
 prepare() checks them after the tuner and the attention self-test.
 """
+
+# Explicit flags, not process-global TORCH_CUDA_ARCH_LIST: builders run in parallel.
+def _gate_host_flags(flags=()):
+    return [f for f in flags if not f.startswith(('-std=', '--std='))] + ['-std=c++20']
+
+
+def _gate_nvcc_flags(flags=()):
+    return [f for f in flags if not f.startswith(('-std=', '--std=', '-gencode',
+            '--generate-code', '-arch=', '--gpu-architecture='))] + [
+            '-std=c++20', '-gencode=arch=compute_90a,code=sm_90a']
+
 import os
 import threading
 import types
@@ -3703,8 +3714,8 @@ def _att7():
         arch = f"{major}{minor}" + ("a" if major >= 9 else "")
         os.environ["TORCH_CUDA_ARCH_LIST"] = f"{major}.{minor}" + ("a" if major == 9 else "")
         _ATT7 = load_inline(name=f"muse_att_v298w1pf_{arch}", cpp_sources=ATT7_CPP_SRC, cuda_sources=ATT7_CUDA_SRC,
-                            functions=["run"], extra_cuda_cflags=["-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-O3", f"-DOKC_SM90={1 if major >= 9 else 0}", "--expt-relaxed-constexpr"],
-                            verbose=False)
+                            functions=["run"], extra_cuda_cflags=_gate_nvcc_flags(["-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-O3", f"-DOKC_SM90={1 if major >= 9 else 0}", "--expt-relaxed-constexpr"]),
+                            verbose=False, extra_cflags=_gate_host_flags(['-O3']))
     return _ATT7
 _WS7 = {}
 _PF7 = None
@@ -6848,12 +6859,12 @@ def _ma_ext(defines=None):
             cpp_sources=MOE_CPP_SRC,
             cuda_sources=src,
             functions=["okc_run", "okc_set_pdl"] + (["okc_attrs"] if "okc_attrs" in src else []),
-            extra_cuda_cflags=["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}", "-lineinfo",
+            extra_cuda_cflags=_gate_nvcc_flags(["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}", "-lineinfo",
                                *([] if any(d.startswith("-DOKC_NS=") for d in defs) else [f"-DOKC_NS={_MA_MAIN_NS if major >= 9 else 1}"]),
                                f"-DOKC_FNST={4 if major >= 9 else 3}",
-                               *([] if any(d.startswith("-DOKC_NSF=") for d in defs) else [f"-DOKC_NSF={3 if major >= 9 else 1}"]), *defs],
+                               *([] if any(d.startswith("-DOKC_NSF=") for d in defs) else [f"-DOKC_NSF={3 if major >= 9 else 1}"]), *defs]),
             verbose=False,
-        )
+        extra_cflags=_gate_host_flags(['-O3']))
         _MA_EXTS[defines].okc_set_pdl(1 if _MA_PDL else 0)
     return _MA_EXTS[defines]
 def _moe_build(defines):
@@ -9175,10 +9186,10 @@ def bfp__get_ext():
             cpp_sources="#include <torch/extension.h>\n" + bfp_CPP_SRC,
             cuda_sources=cuda_src,
             functions=["skinny_tma_a", "gemm90", "wide", "sk2", "gq", "sk2f", "sk2_set_pdl"],
-            extra_cuda_cflags=["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}"] + ([f"-DSK2_DELAY_ESC={bfp__SK2_DELAY}"] if bfp__SK2_DELAY else []),
+            extra_cuda_cflags=_gate_nvcc_flags(["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}"] + ([f"-DSK2_DELAY_ESC={bfp__SK2_DELAY}"] if bfp__SK2_DELAY else [])),
             no_implicit_headers=True,
             verbose=False,
-        )
+        extra_cflags=_gate_host_flags(['-O3']))
     return bfp__ext
 def bfp_pack_fragments(w: torch.Tensor) -> torch.Tensor:
     """W [N, K] bf16 -> [N/16, K/16, 32 lanes, 8] in mma.m16n8k16 A-fragment order."""
@@ -11610,15 +11621,15 @@ def _graft_glue_module():
     from tvm_ffi.cpp import load_inline as _tvm_load_inline
     return _tvm_load_inline(name='graft_glue_' + _hashlib.md5(_GRAFT_GLUE_CUDA.encode()).hexdigest()[:12],
                             cuda_sources=_GRAFT_GLUE_CUDA, functions=['b1', 'b2c'],
-                            extra_cuda_cflags=['-O3', '-std=c++20', '--expt-relaxed-constexpr', '--fmad=false',
-                                               '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo'])
+                            extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-std=c++20', '--expt-relaxed-constexpr', '--fmad=false',
+                                               '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo']), extra_cflags=_gate_host_flags(['-O3']))
 @_lru_cache(None)
 def _graft_b2_module():
     from tvm_ffi.cpp import load_inline as _tvm_load_inline
     return _tvm_load_inline(name='graft_b2_' + _hashlib.md5(_GRAFT_B2_CUDA.encode()).hexdigest()[:12],
                             cuda_sources=_GRAFT_B2_CUDA, functions=['b2s'],
-                            extra_cuda_cflags=['-O3', '-std=c++20', '--expt-relaxed-constexpr', '--fmad=false',
-                                               '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo'])
+                            extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-std=c++20', '--expt-relaxed-constexpr', '--fmad=false',
+                                               '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo']), extra_cflags=_gate_host_flags(['-O3']))
 @_glx.jit
 def _graft_row_boundary(Branch, Stream, PostW, PreW, Alpha, Beta, Out, NewStream,
                         H: _gl.constexpr, F: _gl.constexpr, POST: _gl.constexpr, V: _gl.constexpr, NW: _gl.constexpr):
@@ -12462,7 +12473,7 @@ def _sl_cluster_module():
     from tvm_ffi.cpp import load_inline as _tvm_load_inline
     return _tvm_load_inline(name='sl_early_tail_' + _hashlib.md5(_SL_GLUE_CUDA.encode()).hexdigest()[:12],
                             cuda_sources=_SL_GLUE_CUDA, functions=['b1'],
-                            extra_cuda_cflags=['-O3', '-std=c++17', '--use_fast_math'])
+                            extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-std=c++17', '--use_fast_math']), extra_cflags=_gate_host_flags(['-O3']))
 @triton.jit
 def _sl_cluster_finish(P, T, CARRY, TAIL, BETA, POST, NEXT, SOUT, HOUT,
                        BC: tl.constexpr, USE_PDL: tl.constexpr = True):
@@ -12780,7 +12791,7 @@ def _de_ext():
   import hashlib
   source=_de_source();tag=hashlib.md5(source.encode()).hexdigest()[:12];source=source.replace('sk2_kernel','sk2_kernel_narrow_'+tag).replace('launch_sk2','launch_sk2_narrow_'+tag);cpp=bfp_CPP_SRC[bfp_CPP_SRC.index('void sk2('):bfp_CPP_SRC.index('void sk2f(')]+'void sk2_set_pdl(int64_t n);'
   _DE_EXT=load_inline('proj_dl_escape_'+hashlib.md5(source.encode()).hexdigest()[:12],'#include <torch/extension.h>\n'+cpp,
-    cuda_sources=source,functions=['sk2','sk2_set_pdl'],no_implicit_headers=True,extra_cuda_cflags=['-O3','-gencode=arch=compute_90,code=sm_90'],verbose=False)
+    cuda_sources=source,functions=['sk2','sk2_set_pdl'],no_implicit_headers=True,extra_cuda_cflags=_gate_nvcc_flags(['-O3','-gencode=arch=compute_90,code=sm_90']),verbose=False, extra_cflags=_gate_host_flags(['-O3']))
  return _DE_EXT
 def prepare(weights):
  _de_ext()
@@ -12964,7 +12975,7 @@ def _router_fp32_ext():
             no_implicit_headers=True,
             with_pytorch_error_handling=False,
             verbose=False,
-            extra_cuda_cflags=['-O3', '-gencode=arch=compute_90,code=sm_90'])
+            extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-gencode=arch=compute_90,code=sm_90']), extra_cflags=_gate_host_flags(['-O3']))
     return _ROUTER_FP32_EXT
 def _router_fp32_gemv(x, state):
     m = x.shape[0]
@@ -13294,7 +13305,7 @@ def _gle_ext():
                " torch::Tensor x32, torch::Tensor w32, int64_t wpf);\nvoid sk2_set_pdl(int64_t n);\n")
         _GLE_EXT = load_inline("gle_o_" + tag, "#include <torch/extension.h>\n" + cpp, cuda_sources=source,
                                functions=["gle_o", "gle_pr", "sk2_set_pdl"], no_implicit_headers=True,
-                               extra_cuda_cflags=["-O3", "-gencode=arch=compute_90,code=sm_90"], verbose=False)
+                               extra_cuda_cflags=_gate_nvcc_flags(["-O3", "-gencode=arch=compute_90,code=sm_90"]), verbose=False, extra_cflags=_gate_host_flags(['-O3']))
     return _GLE_EXT
 @triton.jit
 def _gle_carry(PO, S, ALPHA, BETA, ALPHA2, t, cols, r1, ROWS1: tl.constexpr):
@@ -13550,7 +13561,7 @@ def _gle_b1x_module():
     from tvm_ffi.cpp import load_inline as _tvm_load_inline
     src = _gle_b1x_source()
     return _tvm_load_inline(name='gle_b1x_' + _hashlib.md5(src.encode()).hexdigest()[:12], cuda_sources=src,
-                            functions=['b1'], extra_cuda_cflags=['-O3', '-std=c++17', '--use_fast_math'])
+                            functions=['b1'], extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-std=c++17', '--use_fast_math']), extra_cflags=_gate_host_flags(['-O3']))
 class _GleB1x:
     """_sl_cluster_module() stand-in: the router-writing b1 goes to the exact-FP32 copy (w from the calling state)."""
     def __init__(self, base):
@@ -13815,7 +13826,7 @@ void nop(torch::Tensor out, int64_t blocks, int64_t threads);
             t0 = time.time()
             _flext[0] = load_inline(name="pw57_flush", cpp_sources=FLUSH_CPP, cuda_sources=FLUSH_CUDA,
                                     functions=["flush_read", "probe_read", "nop"],
-                                    extra_cuda_cflags=["-O3", "--use_fast_math"], verbose=False)
+                                    extra_cuda_cflags=_gate_nvcc_flags(["-O3", "--use_fast_math"]), verbose=False, extra_cflags=_gate_host_flags(['-O3']))
             print("BUILD pw57_flush %.1fs" % (time.time() - t0), flush=True)
         return _flext[0]
     class _Flusher:
@@ -15180,7 +15191,7 @@ int64_t rqrun(int64_t v, torch::Tensor W, torch::Tensor x, torch::Tensor out, to
             tag = ("rq128_%x" if slot is _rqmod else "rq32_%x") % (hash(src) & 0xffffffff)
             flags = RQFLAGS + (["-Xptxas=-v"] if verbose else [])
             slot[0] = load_inline(tag + ("v" if verbose else ""), cpp_sources="int64_t rqrun(int64_t, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor, torch::Tensor, int64_t);",
-                                    cuda_sources=src, functions=["rqrun"], extra_cuda_cflags=flags, verbose=verbose)
+                                    cuda_sources=src, functions=["rqrun"], extra_cuda_cflags=_gate_nvcc_flags(flags), verbose=verbose, extra_cflags=_gate_host_flags(['-O3']))
             slot[1] = src
         return slot[0]
     def _pack_nat(w):
@@ -15590,7 +15601,7 @@ def _dg_inputs(st, B, L, sliding, seed):
     # achitaan: independent synthetic inputs following the public data contract (correlated stream, agentic
     # lengths 74000..86000, scattered page=1, soft FP8 keys); same recipe as AB32 but with a batch parameter.
     dev = st["qkv"].device
-    H, per = st["qkv"].shape[1], 86000 + L
+    H, per = st["qkv"].shape[1], (80000 if B == 1 else 86000) + L
     T, total = B * L, B * per
     gen = torch.Generator(device=dev).manual_seed(seed)
     cfg = dict(batch=B, q_len=L, tokens=T, hidden=H, num_q_heads=NUM_Q_HEADS,
@@ -15694,7 +15705,8 @@ def _dg_build_sk(narrow=False):
     _DG_EXT['narrow' if narrow else 'sk'] = load_inline(
         'gate_ceiling_sk_' + tag, '#include <torch/extension.h>\n' + cpp, cuda_sources=src,
         functions=['sk2', 'sk2_set_pdl'], no_implicit_headers=True,
-        extra_cuda_cflags=['-O3', '-gencode=arch=compute_90,code=sm_90'], verbose=False)
+        extra_cflags=_gate_host_flags(['-O3', '-std=c++20']),
+        extra_cuda_cflags=_gate_nvcc_flags(['-O3', '-std=c++20', '-gencode=arch=compute_90a,code=sm_90a']), verbose=False)
 
 
 _DG_SUPPORT = r'''
@@ -15760,9 +15772,10 @@ def _dg_build_support():
     tag = _dg_hash.sha256(src.encode()).hexdigest()[:12]
     _DG_EXT['support'] = load_inline('gate_ceiling_att_' + tag, cpp, cuda_sources=src,
         functions=['run', 'gate_block', 'gate_occ'],
-        extra_cuda_cflags=['-DOKC_QDIRECT=0', '-DOKC_PK2=0', '-DOKC_W0ENABLE=1', '-O3',
-                           '-DOKC_SM90=1', '--expt-relaxed-constexpr',
-                           '-gencode=arch=compute_90a,code=sm_90a'], verbose=False)
+        extra_cflags=_gate_host_flags(['-O3', '-std=c++20']),
+        extra_cuda_cflags=_gate_nvcc_flags(['-DOKC_QDIRECT=0', '-DOKC_PK2=0', '-DOKC_W0ENABLE=1', '-O3',
+                           '-DOKC_SM90=1', '--expt-relaxed-constexpr', '-std=c++20',
+                           '-gencode=arch=compute_90a,code=sm_90a']), verbose=False)
 
 
 def _dg_build_rq(st):
@@ -15783,7 +15796,8 @@ def _dg_build_rq(st):
     tag = _dg_hash.sha256(src.encode()).hexdigest()[:12]
     _DG_EXT['rq'] = load_inline('gate_ceiling_rq_' + tag,
         cpp_sources='int64_t rqrun(int64_t,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t,int64_t,int64_t,torch::Tensor,torch::Tensor,int64_t);',
-        cuda_sources=src, functions=['rqrun'], extra_cuda_cflags=_CHEN['RQFLAGS'], verbose=False)
+        cuda_sources=src, functions=['rqrun'], extra_cflags=_gate_host_flags(['-O3', '-std=c++20']),
+        extra_cuda_cflags=_gate_nvcc_flags(_CHEN['RQFLAGS'] + ['-std=c++20']), verbose=False)
 
 
 def _dg_short_state(st, T, qkv):
@@ -15896,12 +15910,14 @@ def _dg_reset(data, before):
         data[key].view(torch.uint8).view(-1, 2, 64).index_copy_(0, data['cache_loc'], value)
 
 
-def _dg_pair(graphs, flush, sink, restore, blocks=12):
+def _dg_pair(graphs, flush, sink, restore, blocks=12, deadline=None):
     ts, ds, rs = [[], []], [], [[], []]
     a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     for block in range(blocks):
         bt = [[], []]
         for i in ((0, 1, 1, 0) if block % 2 == 0 else (1, 0, 0, 1)):
+            if deadline is not None and _dg_time.monotonic() >= deadline:
+                raise TimeoutError('gate prepare timing budget exhausted')
             restore()
             torch.sum(flush, dim=0, out=sink)
             a.record()
@@ -15915,7 +15931,7 @@ def _dg_pair(graphs, flush, sink, restore, blocks=12):
         rs[block % 2].append(sum(bt[1]) / sum(bt[0]))
     med = _dg_stats.median
     return dict(base=med(ts[0]), short=med(ts[1]), save=med(ds), ratio=med(ts[1]) / med(ts[0]),
-                abba=med(rs[0]), baab=med(rs[1]))
+                paired=med(rs[0] + rs[1]), abba=med(rs[0]), baab=med(rs[1]))
 
 
 def _dg_attention(data, st, qkv, flush, sink, before, label):

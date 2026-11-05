@@ -42,7 +42,8 @@ def _dg_build_sk(narrow=False):
     _DG_EXT['narrow' if narrow else 'sk'] = load_inline(
         'gate_ceiling_sk_' + tag, '#include <torch/extension.h>\n' + cpp, cuda_sources=src,
         functions=['sk2', 'sk2_set_pdl'], no_implicit_headers=True,
-        extra_cuda_cflags=['-O3', '-gencode=arch=compute_90,code=sm_90'], verbose=False)
+        extra_cflags=['-O3', '-std=c++20'],
+        extra_cuda_cflags=['-O3', '-std=c++20', '-gencode=arch=compute_90a,code=sm_90a'], verbose=False)
 
 
 _DG_SUPPORT = r'''
@@ -108,8 +109,9 @@ def _dg_build_support():
     tag = _dg_hash.sha256(src.encode()).hexdigest()[:12]
     _DG_EXT['support'] = load_inline('gate_ceiling_att_' + tag, cpp, cuda_sources=src,
         functions=['run', 'gate_block', 'gate_occ'],
+        extra_cflags=['-O3', '-std=c++20'],
         extra_cuda_cflags=['-DOKC_QDIRECT=0', '-DOKC_PK2=0', '-DOKC_W0ENABLE=1', '-O3',
-                           '-DOKC_SM90=1', '--expt-relaxed-constexpr',
+                           '-DOKC_SM90=1', '--expt-relaxed-constexpr', '-std=c++20',
                            '-gencode=arch=compute_90a,code=sm_90a'], verbose=False)
 
 
@@ -131,7 +133,8 @@ def _dg_build_rq(st):
     tag = _dg_hash.sha256(src.encode()).hexdigest()[:12]
     _DG_EXT['rq'] = load_inline('gate_ceiling_rq_' + tag,
         cpp_sources='int64_t rqrun(int64_t,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t,int64_t,int64_t,torch::Tensor,torch::Tensor,int64_t);',
-        cuda_sources=src, functions=['rqrun'], extra_cuda_cflags=_CHEN['RQFLAGS'], verbose=False)
+        cuda_sources=src, functions=['rqrun'], extra_cflags=['-O3', '-std=c++20'],
+        extra_cuda_cflags=_CHEN['RQFLAGS'] + ['-std=c++20'], verbose=False)
 
 
 def _dg_short_state(st, T, qkv):
@@ -244,12 +247,14 @@ def _dg_reset(data, before):
         data[key].view(torch.uint8).view(-1, 2, 64).index_copy_(0, data['cache_loc'], value)
 
 
-def _dg_pair(graphs, flush, sink, restore, blocks=12):
+def _dg_pair(graphs, flush, sink, restore, blocks=12, deadline=None):
     ts, ds, rs = [[], []], [], [[], []]
     a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     for block in range(blocks):
         bt = [[], []]
         for i in ((0, 1, 1, 0) if block % 2 == 0 else (1, 0, 0, 1)):
+            if deadline is not None and _dg_time.monotonic() >= deadline:
+                raise TimeoutError('gate prepare timing budget exhausted')
             restore()
             torch.sum(flush, dim=0, out=sink)
             a.record()
@@ -263,7 +268,7 @@ def _dg_pair(graphs, flush, sink, restore, blocks=12):
         rs[block % 2].append(sum(bt[1]) / sum(bt[0]))
     med = _dg_stats.median
     return dict(base=med(ts[0]), short=med(ts[1]), save=med(ds), ratio=med(ts[1]) / med(ts[0]),
-                abba=med(rs[0]), baab=med(rs[1]))
+                paired=med(rs[0] + rs[1]), abba=med(rs[0]), baab=med(rs[1]))
 
 
 def _dg_attention(data, st, qkv, flush, sink, before, label):

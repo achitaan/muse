@@ -7,6 +7,7 @@ import ast
 import io
 from pathlib import Path
 import tokenize
+from gate_build_flags import pin_inline_builds
 
 
 def compact(source):
@@ -36,8 +37,13 @@ def build(root):
     inputs = inputs.replace('seq = torch.randint(74000, 86001, (B,), generator=gen, device=dev)',
                             'seq = (torch.full((1,), 80000, dtype=torch.int64, device=dev) if B == 1 else\n'
                             '               torch.randint(74000, 86001, (B,), generator=gen, device=dev))')
+    # The native B=1 speculative prologue uses page-table WIDTH, not seq_lens.
+    # Match the scored 80000 context in both places; leaving width=86000 would
+    # time a speculative miss on every replay, unlike the actual scored shapes.
+    inputs = inputs.replace('H, per = st["qkv"].shape[1], 86000 + L',
+                            'H, per = st["qkv"].shape[1], (80000 if B == 1 else 86000) + L')
     impl = (root / 'kb/exp/gate_diag_impl.py').read_text()
-    out = base + '\n\n' + inputs + '\n\n' + impl
+    out = pin_inline_builds(base + '\n\n' + inputs + '\n\n' + impl)
     assert len(out.encode()) < 1_000_000, len(out.encode())
     ast.parse(out)
     return out

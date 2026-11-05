@@ -5,10 +5,12 @@ import importlib.util
 from pathlib import Path
 import random
 import statistics
+import sys
 import types
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
 BASE = ast.parse((ROOT / 'kb/v1/decode_v1.py').read_text())
 IMPL = ast.parse((ROOT / 'kb/exp/gate_diag_impl.py').read_text())
 
@@ -72,6 +74,14 @@ class DiagTests(unittest.TestCase):
             self.assertEqual((old_stage, old_cta, old_intra), (new_stage, new_cta, new_intra))
         self.assertEqual(54 * 24, 1296)
         self.assertEqual(2304 - 1296, 1008)
+
+    def test_single_request_context_matches_speculative_width(self):
+        from build_decode_gate_diag import build
+        src = build(ROOT)
+        node = next(n for n in ast.parse(src).body if isinstance(n, ast.FunctionDef) and n.name == '_dg_inputs')
+        inputs = ast.get_source_segment(src, node)
+        self.assertIn('H, per = st["qkv"].shape[1], (80000 if B == 1 else 86000) + L', inputs)
+        self.assertIn('torch.full((1,), 80000', inputs)
 
     def test_rq_case_ids_preserved(self):
         chen = next(n for n in BASE.body if isinstance(n, ast.FunctionDef) and n.name == '_make_chen')
@@ -137,6 +147,7 @@ class DiagTests(unittest.TestCase):
         result = env['_dg_pair']((Graph('A', 100), Graph('B', 96)), None, None, restore, blocks=12)
         self.assertAlmostEqual(result['save'], 4)
         self.assertAlmostEqual(result['ratio'], .96)
+        self.assertAlmostEqual(result['paired'], .96)
         self.assertAlmostEqual(result['abba'], .96)
         self.assertAlmostEqual(result['baab'], .96)
         self.assertEqual([v for v in trace if v in ('A', 'B')][:8], list('ABBABAAB'))
@@ -165,6 +176,8 @@ class DiagTests(unittest.TestCase):
         definitions(IMPL, {'_DG_SUPPORT', '_dg_build_support'}, ns)
         ns['_dg_build_support']()
         self.assertIn('-gencode=arch=compute_90a,code=sm_90a', calls[0]['extra_cuda_cflags'])
+        self.assertIn('-std=c++20', calls[0]['extra_cuda_cflags'])
+        self.assertIn('-std=c++20', calls[0]['extra_cflags'])
         self.assertIn('attn_kernel(const __grid_constant__ Params p) {\n  if (p.dbg', calls[0]['cuda_sources'])
         self.assertNotIn('raise RuntimeError(\'; \'.join(errors))',
                          (ROOT / 'kb/exp/gate_diag_impl.py').read_text())
