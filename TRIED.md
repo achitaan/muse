@@ -352,6 +352,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | QKV T=16/32: in-layer gated existing qkv16t_r200 SK2 config (NACC 1->2) | closed | check 2.243; d32S 0.995/0.999, d32F 0.9995/1.001, d16S 1.000, d16F 1.001; exact=0 (order change), admitted 0 | `fc73f2353a1b401b` | loop-dec-qkv c5251b3 | Nov 04 |
 | Full-context decode attention: multi-tile pre-wait old-KV staging | closed | incumbent already pre-waits all 3 ring stages at d16F/d32F and QKV (sk2 smem 182-219 KB) cannot co-reside with attention; d1F/v1F two-tile pre-wait 1.005-1.008 slower; check 2.250 | `91a9eb9ba5cf4f4d` | loop-dec-attnfull 16f1209 | Nov 04 |
 | Pooler+router T<=8: lossless router packing, one 16 KiB copy per stage instead of eight 2 KiB copies | closed (inconclusive v1S) | check 2.246; d1S/d1F 1.001-1.014 slower; v1S pass1 0.996/0.993, pass2 0.980/0.981 (inconsistent), v1F ~1.00; exact=0 so not admitted; T16/32 already contiguous; weight floor 12.24 us (58.8 MB) | `2ec8fcf133b34b95` | loop-dec-pooler 0714254 | Nov 04 |
+| Combo: KV tile-0 pre-wait gather (d1S/d1F) + pooler router packing (v1S/v1F), honest 3-pass tolerance gate (ids equal, within incumbent error envelope) | in progress | check submitted | - | loop-dec-combo ed853c1 | Nov 04 |
 
 ## Prefill
 
