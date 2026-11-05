@@ -217,6 +217,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Diagnostic: per-kernel profile + read-once floor, 12 cases | diagnostic | single fused kernel/case, no gaps; sliding latency bound d1S 4.7us (2% HBM) .. v32S 13.8 (25%); full 71-83% peak; -10% sliding = +3.3% board | `a2eb07df1f4a41f3` | loop/attn-sliding-diag | Nov 04 |
 | Sliding-kernel internal phase counters (globaltimer per sampled CTA) | in progress | - | `-` | loop-attention-decode loop/attn-phase | Nov 04 |
 | Sliding prep trim: warp-local RoPE overlapping Q loads + remove two q1 prep CTA barriers | closed | check 2.601; d1S 1.000-1.010, d16S 1.018-1.029, d32S 1.006-1.016, d1F 0.999-1.009 (slower/noise); cached-KV overlap and owner-only cache write already in incumbent | `063332333f8141ea` | loop/attn-prepovl 02b16e2 | Nov 04 |
+| Sliding prep: RoPE cos/sin from a position-indexed table built in prepare with identical device arithmetic + position-row prefetch during prep (d1S/d16S/d32S) | in progress | check 1f11c97ee2764f53 | `1f11c97ee2764f53` | loop-attn-slide2 626ad0b | Nov 04 |
 
 ## Across kernels
 
