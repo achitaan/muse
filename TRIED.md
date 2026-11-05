@@ -356,6 +356,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Pooler+router T<=8: lossless router packing, one 16 KiB copy per stage instead of eight 2 KiB copies | closed (inconclusive v1S) | check 2.246; d1S/d1F 1.001-1.014 slower; v1S pass1 0.996/0.993, pass2 0.980/0.981 (inconsistent), v1F ~1.00; exact=0 so not admitted; T16/32 already contiguous; weight floor 12.24 us (58.8 MB) | `2ec8fcf133b34b95` | loop-dec-pooler 0714254 | Nov 04 |
 | Combo: KV tile-0 pre-wait gather (d1S/d1F) + pooler router packing (v1S/v1F), 3-pass tolerance gate | closed | check 2.254; 3 passes x16 rounds: d1S KV 1.004/1.004/1.004 (slower now), d1F 0.993-0.997, v1S POOL 0.996/1.000/1.000, v1S KV+POOL 0.995/1.003/0.993, v1F ~1.000-1.006; earlier near-misses did not reproduce; admitted 0 | `87f83bb1aa7b43ca` | loop-dec-combo ed853c1 | Nov 04 |
 | VMS MoE engine at T=32 (d32S/d32F) inside decode | closed | check 2.243; d32S 1.006/1.054/1.006, d32F 1.017/0.999/1.014 (slower); ids equal, errors equal; admitted 0 | `f0e44ad60d404c57` | loop-dec-vms 14aab38 | Nov 04 |
+| Port of attention publication exchange (aligned float4 smem records) to decode sliding attention d1S/d16S/d32S | closed | check 2.251; 3 passes: d1S 0.998/0.994/0.999, d16S 1.001/0.998/1.001, d32S 0.997/1.002/1.002 (noise); admitted 0 | `44ba771832e84120` | loop-dec-pub 7d13aff | Nov 04 |
 
 ## Prefill
 
