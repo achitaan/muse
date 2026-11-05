@@ -1,0 +1,44 @@
+{
+  "sha256": "728f342cafa1f7487ba875b12666cd34e81103b7499b5e8e4e09fd27aed863db",
+  "lineage": {
+    "factory_and_flags_identical_to_consolidation": true,
+    "board_gate_and_prepare_verbatim": true,
+    "router_timing_gate_absent": true,
+    "forbidden_ast_clean": true
+  },
+  "router_pack": {
+    "bf16_payloads_roundtripped": 8388608,
+    "geometries": 2,
+    "fp64_router_relative": 2.49685883221735e-06,
+    "launch_argument_transport": true
+  },
+  "bounded_rq": {
+    "exact_board_tags": [
+      "t32s5curP-k7",
+      "t32s6curP-k4",
+      "t16s5curP-k7",
+      "n256s5m1hzm-k7"
+    ],
+    "rq_only_build": true,
+    "cxx20_sm90a_flags": true,
+    "off_scope_and_bad_pack_rejected": true
+  },
+  "numerical_safety": {
+    "identity_oracle": true,
+    "four_deterministic_batches_per_cell": true,
+    "nonfinite_wrong_dtype_shape_zero_fail_closed": true,
+    "row_floor_checked": true
+  },
+  "board_gate": {
+    "board_inclusive_0_988_median_and_paired": true,
+    "fresh_confirmation_required": true
+  },
+  "wiring": {
+    "two_defaults_no_timing": true,
+    "independent_failure_fallback": true,
+    "unsupported_fallback": true,
+    "board_selections_preserved": true,
+    "fresh_outputs_and_shape_guards": true
+  },
+  "gpu": "NOT RUN: no CUDA/nvcc; compile, accuracy and prepare duration unverified"
+}
