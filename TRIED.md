@@ -359,6 +359,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | VMS MoE engine at T=32 (d32S/d32F) inside decode | closed | check 2.243; d32S 1.006/1.054/1.006, d32F 1.017/0.999/1.014 (slower); ids equal, errors equal; admitted 0 | `f0e44ad60d404c57` | loop-dec-vms 14aab38 | Nov 04 |
 | Port of attention publication exchange (aligned float4 smem records) to decode sliding attention d1S/d16S/d32S | closed | check 2.251; 3 passes: d1S 0.998/0.994/0.999, d16S 1.001/0.998/1.001, d32S 0.997/1.002/1.002 (noise); admitted 0 | `44ba771832e84120` | loop-dec-pub 7d13aff | Nov 04 |
 | One-head sliding attention as default at v16S (s8) / v32S (s4) in decode, correctness-only safety check (no timing gate) | in progress | check 82528aab7cf24e17 | `82528aab7cf24e17` | loop-dec-1h 9608c41 | Nov 05 |
+| Lock in KV tile-0 pre-wait at d1F and pooler router packing at v1S as defaults, correctness-only check | in progress | check submitted | - | loop-dec-lockin d88b82c | Nov 05 |
 
 ## Prefill
 
