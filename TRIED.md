@@ -357,3 +357,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
+
+## Attention publication
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| L=1 pair CTA cross-warp exchange: aligned 80-byte records, four float4 accumulator transfers plus float2 m/l; same FP32 arithmetic, barriers, global atomics and counter; unlike closed BULKRED/private-partial proposals this changes only the CTA-local handoff | in progress; CPU AST/layout/byte-transport/flag/forbidden checks pass; GPU check delegated to caller; no main update/push from this worktree | loop/attn-pub | pending | candidates/attention_pub.py; candidates/attention_pub_notes.md | Nov 04 |
