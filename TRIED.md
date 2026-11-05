@@ -10,6 +10,12 @@ If a row says closed, don't retry it unless the new idea is materially different
 Outcomes: kept | closed | parked | diagnostic | in progress | open (not tried). Areas: MoE kernel (`moe_fused`), Pooler + router, qkv / o / unpooler projections, Norms and glue kernels, Attention, Across kernels, Open ideas, Process.
 The helper commits only this file to `main` (fast-forward, with retries) and never touches a checkout. Read-only fallback: `git fetch origin main; git show origin/main:TRIED.md`.
 
+## Decode one-head correctness-only default
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| Default v16S 1h-s8 and v32S 1h-s4, correctness-only prepare admission; materially differs from f1cb2069 timing-gated bundle and uses tonight's reproduced attention routes | parked pending H200; AST/compile, forbidden grep, 5 CPU tests passed; 957847 bytes; exact incumbent AST/CUDA after readable dedup and byte-identical board one-head CUDA verified | loop/dec-1h | no job; caller submits; local ledger only per no-main-write instruction | kb/exp/decode_1h.py; kb/exp/test_decode_1h.py | Nov 05 |
+
 ## MoE kernel (`moe_fused`)
 
 | Idea | Outcome | Number | Job | Where | Date |
