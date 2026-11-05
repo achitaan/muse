@@ -363,3 +363,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | L=1 pair CTA cross-warp exchange: aligned 80-byte records, four float4 accumulator transfers plus float2 m/l; same FP32 arithmetic, barriers, global atomics and counter; unlike closed BULKRED/private-partial proposals this changes only the CTA-local handoff | diagnostic: d1S null median/paired 1.000/1.006; candidate passes both 0.996/0.993, below admission threshold; one-trace/eight-trace analyzer mismatch aborted before d16S/d32S. Follow-up keeps gates identical, defers all diagnostics until timing sweep completes and catches diagnostic analysis errors; rerun pending; local branch only | loop/attn-pub | 4d982a24d4154ae3 | candidates/attention_pub.py; candidates/attention_pub_notes.md | Nov 04 |
+
+## Attention q8 gate
+
+| Idea | Outcome | Number | Job | Where | Date |
+|---|---|---|---|---|---|
+| Verify sliding cooperative NC1 single-wave rows: stage unchanged gate loads and sigmoids after arrival ticket but before merge poll; original FP32 normalization/order, store and cache publication intact. Distinct from closed tanh/private-partial/BULKRED ideas: only schedule independent gate work across wait | prepared, GPU pending; local branch only (caller prohibits main writes/pushes); 7 CPU tests, AST, unchanged prefix and forbidden scan pass; two read-flush ABBA passes <=0.985 median+paired plus base/base null and exact output/cache required | loop/attn-q8gate | pending caller check | candidates/attention_q8gate.py; candidates/attention_q8gate_notes.md | Nov 04 |
