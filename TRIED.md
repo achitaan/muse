@@ -106,7 +106,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | VMS lightness gate (static, null-controlled, 32 draws per bs) | parked | clean nulls; bs16 gmean 1.009, bs32 0.987; not adopted (exact=0, base itself nondeterministic at bs32); ~+0.2% board if adopted | `e115610794554d17` | loop/moe-vms-gate | Nov 04 |
 | Incumbent per-role stall breakdown bs16/32/256 (producer/consumer/dependency/tail) | in progress | - | `-` | loop-moe-w4a16 loop/moe-stall | Nov 04 |
 | Uninstrumented same-routing counterfactual of incumbent consumer subcosts (NODQ/NOMMA/NOEPI/NOFIN/STREAM) at bs16/32/256 | diagnostic | loads-only STREAM saves only 7.4 (bs16 ~105 us), 12.8 (bs32 ~130), 25.2 (bs256 ~220) us => max recoverable consumer work ~7-11%; NODQ 3.2-11.0, NOMMA -6.4..9.0, NOFIN 0.8-6.9, NOEPI -5.6..3.2 (non-additive). The instrumented census '85% consumer-bound' was counter artifact; MoE is mostly weight-stream bound. Decode impact of a perfect consumer ~+2-3%, not +8% | `6d2c4a40f52548f3` | loop-moe-w4a16 loop/moe-cf e9095a1 | Nov 04 |
-| VMS static at bs32 with honest tolerance gate (err <= 1.10x incumbent's own, 24 draws geomean <= 0.990 + 8-draw fresh-seed confirm), bs16 incumbent | in progress | check submitted | - | loop-moe-vms32 8736a4b | Nov 04 |
+| VMS static at bs32 with honest tolerance gate | closed | check 2.383 (incumbent path); 24 fresh draws geomean 0.994 / median 0.999 (gate 0.990): the earlier 0.987 did not reproduce; per-draw 0.954-1.030; VMS numerically better than incumbent (err 2.53e-3 vs 3.17e-3); adopted 0 | `8a774f74a6564a22` | loop-moe-vms32 8736a4b | Nov 04 |
 
 ## Pooler + router
 
