@@ -1,0 +1,35 @@
+Offline validation, 2026-11-04; branch loop/moe-stall from e578f78.
+
+Check file: experiments/moe_stall/moe_stall.py
+Candidate size: 220554 bytes
+Candidate SHA256: 3b91cbfbf8c05a53370a9ea17f02b6602ff16a0e335f0ec78b0880fc284a6cb0
+
+PASS Python ast.parse(candidate)
+PASS exact production prefix against BOTH worktree board_best and caller's
+     canonical /Users/achita.anantachina/Documents/Codex/2026-10-29/can/muse/
+     board_best/moe_m3_scored_2.3797.py
+     Prefix size: 185756 bytes
+     Prefix SHA256: f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb
+PASS production unified diff has no deleted lines; appendix-only additions.
+PASS unchanged production AST prefix, CUDA/CPP strings, kernel_fn and selector.
+PASS generated diagnostic source preserves incumbent synchronization, TMA,
+     atomic publication, dequant, and MMA instruction/call sequences.
+PASS no added CUDA shared memory; unique warp/phase/metric counter writers.
+
+COMMAND python3 -m unittest discover -s experiments/moe_stall -p 'test_*.py' -v
+RESULT 15/15 PASS, including actual host clang++ -std=c++20 compile/run of
+       counter addressing, sampling, resets, aliases, guards and null behavior
+       (hardware clock/SM reads substituted).
+
+COMMAND python3 -m unittest discover -s experiments/moe_headroom -p 'test_*.py' -v
+RESULT 14/14 PASS (inherited headroom diagnostic regression suite).
+
+SKIP real CUDA compilation: no nvcc/CUDA toolkit in this environment.
+SKIP eager/graph GPU numerical tests, resources, stall counters, overhead,
+     and <300-second preparation measurement: no Torch or local GPU.
+SKIP submitting/pushing/main ledger update: explicitly reserved for caller.
+
+Runtime safety/accounting limitations are documented in README.md.
+270-second deadline is soft: blocking native compilation cannot be preempted.
+The instrumentation can change codegen and perturb dependent unsampled CTAs;
+three-arm timings report both codegen and enabled-counter overhead.
