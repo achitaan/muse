@@ -321,7 +321,7 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 | 64-row x 128-token rs128 slabs, 2 CTA/SM at M128/256 | closed | 1.03-1.30x slower | `89dda3f8a79f483b` | loop/dense-m128256-decode | Nov 04 |
 | rotcodes2: pooler1 ILP + rotated SK2 + M2-8 tails + router hi/lo decode | closed | router rot 1.05-1.15x slower, cg8 2.2-3.3x slower; check 1.586 tie | `8c42ea937f20437d` | loop/bf16-rotcodes2 | Nov 04 |
 | PROCESS: ABBA gate base-vs-base null control | diagnostic | second capture of identical incumbent measured 0.95-0.99 on small cells -> earlier small-cell wins unreliable without null arm | `bf7cb2fb7aad4812` | loop/dense-m1632-v2 | Nov 04 |
-| Consolidation: routertail router@8/16 + fail-closed re-audit of board CURP cells with 8 null panels/draw (1.5% or 3xMAD) + fresh-seed confirm | in progress | check 21e39400aa4d466a; loop/bf16-consolidate a1125e5 | `21e39400aa4d466a` | loop-bf16-proj candidates/dense_consolidate.py | Nov 04 |
+| Consolidation: routertail router@8/16 + fail-closed re-audit of board CURP cells with 8 null panels/draw (1.5% or 3xMAD) + fresh-seed confirm | kept (router@8 only) | check 1.587 tie: router:8 rt8w8 admitted cand 0.969 paired 0.971 confirm pass (null MAD 0.77%); router:16 confirm failed; board CURP cells qkv32/pool32/qkv16/qkv256 RETRACTED by honest gate (0.988/1.002/0.995/1.020) | `21e39400aa4d466a` | loop-bf16-proj loop/bf16-consolidate a1125e5 | Nov 04 |
 
 ## Decode layer
 
