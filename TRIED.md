@@ -74,6 +74,9 @@ The helper commits only this file to `main` (fast-forward, with retries) and nev
 
 ## Pooler + router
 
+<!-- Branch-local claim only: caller must promote to shared main ledger; this lane may not push/commit main. -->
+| DEC_POOL stage-major lossless FP32 router pack: replace 8x2KiB bulk copies with 1x16KiB per stage, preserving all arithmetic; unlike closed router-sidecar/reorder/escape changes | in progress; CPU layout/source/gate tests only, GPU check owned by caller | loop/dec-pooler | - | kb/exp/decode_pooler.py; kb/exp/DECODE_POOLER.md | Nov 04 |
+
 | Idea | Outcome | Number | Job | Where | Date |
 |---|---|---|---|---|---|
 | R2f fused pooler + FP32 router at 1/8 tokens | kept | 2.0510x when published | - | DECODE_NOTES | <= Oct 31 |
