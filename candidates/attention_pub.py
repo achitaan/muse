@@ -9164,11 +9164,28 @@ def _pub_case(B, L, window, device, flush, sink, deadline):
         print('ATTN_PUB %s pass=%d base_us=%.6f candidate_us=%.6f median=%.8f paired=%.8f '
               'exact=%d cache=%d eligible=%d' %
               (label, rep, au, bu, ratio, paired, exact, cache, keep), flush=True)
-    # One replay even on a rejected arm: locate the remaining publication cost.
-    _pub_trace(data, plan, ncta, base, flush, sink, deadline, label)
     if keep:
         _PUB_SELECTED.add((B, L, window))
     print('ATTN_PUB %s adopted=%d' % (label, keep), flush=True)
+    # Retain the diagnostic inputs only until the entire timing sweep finishes.
+    return data, plan, ncta, base, label
+
+
+def _pub_diagnostics(jobs, flush, sink, deadline):
+    # Diagnostics cannot prevent later shapes from being timed or discard a
+    # completed gate. In particular, the legacy analyzer requires eight traces
+    # while this explicitly one-replay diagnostic supplies only one.
+    for data, plan, ncta, base, label in jobs:
+        try:
+            _pub_trace(data, plan, ncta, base, flush, sink, deadline, label)
+        except _ATBudget:
+            print('ATTN_PHASE_ERR %s diagnostic_budget_exhausted' % label, flush=True)
+            break
+        except Exception as exc:
+            print('ATTN_PHASE_ERR %s diagnostic_nonfatal %s %s' %
+                  (label, type(exc).__name__, str(exc)[-600:].replace('\n', ' ')), flush=True)
+            if any(s in str(exc).lower() for s in ('cuda error', 'illegal', 'device-side', 'launch fail')):
+                raise  # a device fault is not a recoverable diagnostic error
 
 
 def _pub_key(data):
@@ -9219,9 +9236,13 @@ def prepare(*_args, **_kwargs):
         with torch.random.fork_rng(devices=[device.index]), torch.cuda.stream(stream), torch.no_grad():
             flush = torch.ones((512 << 20) // 4, device=device, dtype=torch.float32)
             sink = torch.empty((), device=device, dtype=torch.float32)
+            diagnostics = []
             for B, L, window in _PUB_CASES:
                 _at_check(deadline - 3.)
-                _pub_case(B, L, window, device, flush, sink, deadline)
+                job = _pub_case(B, L, window, device, flush, sink, deadline)
+                if job is not None:
+                    diagnostics.append(job)
+            _pub_diagnostics(diagnostics, flush, sink, deadline)
             _at_drain(deadline)
         _PUB_DEVICE = device
     except _ATBudget:

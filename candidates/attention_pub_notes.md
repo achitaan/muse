@@ -62,15 +62,33 @@ Host and nvcc flags are explicitly C++20 on all six JIT call sites, SM90a only.
 - Bytewise BF16 output equality after each pass, with full K and V byte equality.
   Both arms start from identical caches with new-token rows poisoned. No tolerance
   or retry-to-pass. Nondeterministic atomic order can conservatively reject a win.
-- One separately labeled candidate phase replay with fine publication stamps.
+- Separately labeled candidate phase diagnostics are deferred until ALL timing
+  gates complete. Analysis errors are printed and non-fatal; diagnostic budget
+  exhaustion stops diagnostics only. CUDA device faults still propagate.
   These stamps are NOT present in the timed production candidate.
 - Only completed passing shapes dispatch to the new raw module. All other calls
   keep the incumbent. Synthetic graphs/tensors do not survive prepare.
 
 ## Local validation
 
-`python3 candidates/test_attention_pub_cpu.py -v`: seven tests passed.
+`python3 candidates/test_attention_pub_cpu.py -v`: nine tests passed.
 AST/bytecode parse passed; forbidden process-start grep clean; diff check clean.
 No local torch, GPU or nvcc: CUDA compilation, exact GPU results and performance
 remain unverified. Caller submits the check and updates the shared ledger result.
 The claim is recorded only on this branch because the lane prohibits main writes.
+
+## Check 4d982a24d4154ae3 and diagnostic-only repair
+
+d1S null median/paired 1.000/1.006; candidate pass 1 and pass 2 both
+0.996/0.993, so no admission under the unchanged <=0.985 gate. The one-replay
+diagnostic then called the inherited analyzer, which requires eight complete
+replays, raising ValueError before d16S/d32S had been timed.
+
+The follow-up moves diagnostics out of `_pub_case`: its gate and adoption finish
+first, and `prepare` completes the d1S/d16S/d32S timing sweep before diagnostics.
+`_pub_diagnostics` catches/prints ordinary analysis errors and continues to the
+next diagnostic without clearing confirmed selections. The legacy one/eight
+trace mismatch is intentionally not otherwise changed in this narrowly scoped
+repair. CPU regression tests verify ordering and continuation after this exact
+ValueError. Kernel source, gates, data, timing method, and diagnostic replay
+contents are unchanged.

@@ -1,5 +1,7 @@
 """CPU-only source/layout checks; no torch, CUDA toolkit, or process starts."""
 import ast
+import contextlib
+import io
 from pathlib import Path
 import random
 import struct
@@ -129,6 +131,38 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual([ast.unparse(n) for n in gate.values if isinstance(n, ast.Compare)],
                          ['ratio <= 0.985', 'paired <= 0.985'])
         self.assertIn('ATTN_PUB_NULL', text)
+
+    def test_diagnostics_are_deferred_until_all_gates(self):
+        case = next(n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name == '_pub_case')
+        self.assertNotIn('_pub_trace(', ast.unparse(case))
+        prepare = [n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name == 'prepare'][-1]
+        gate_loop = next(n for n in ast.walk(prepare) if isinstance(n, ast.For)
+                         and isinstance(n.iter, ast.Name) and n.iter.id == '_PUB_CASES')
+        self.assertNotIn('_pub_diagnostics(', ast.unparse(gate_loop))
+        calls = [n for n in ast.walk(prepare) if isinstance(n, ast.Call)
+                 and isinstance(n.func, ast.Name) and n.func.id in ('_pub_case', '_pub_diagnostics')]
+        lines = {n.func.id: n.lineno for n in calls}
+        self.assertGreater(lines['_pub_diagnostics'], gate_loop.end_lineno)
+
+    def test_diagnostic_analysis_failure_is_nonfatal(self):
+        node = next(n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name == '_pub_diagnostics')
+        visited = []
+        selected = {(16, 1, 2048)}
+
+        def trace(*args):
+            visited.append(args[-1])
+            if len(visited) == 1:
+                raise ValueError('fewer than eight complete cold phase replays')
+
+        env = {'_pub_trace': trace, '_ATBudget': type('Budget', (Exception,), {}),
+               '_PUB_SELECTED': selected}
+        exec(compile(ast.Module([node], type_ignores=[]), str(SOURCE), 'exec'), env)
+        jobs = [(None, None, 32, None, 'd1S'), (None, None, 256, None, 'd16S')]
+        with contextlib.redirect_stdout(io.StringIO()) as log:
+            env['_pub_diagnostics'](jobs, None, None, 100.)
+        self.assertEqual(visited, ['d1S', 'd16S'])
+        self.assertIn('diagnostic_nonfatal ValueError fewer than eight', log.getvalue())
+        self.assertEqual(selected, {(16, 1, 2048)})
 
 
 if __name__ == '__main__':
