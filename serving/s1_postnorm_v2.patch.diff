@@ -1,0 +1,161 @@
+diff --git a/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py b/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
+index b2092f6..e6c08be 100644
+--- a/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
++++ b/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py
+@@ -68,13 +68,19 @@ def fused_post_expert_norm_weighted_sum(
+     weight_first: bool = True,
+     apply_norm: bool = True,
+     slot_expert_ids: Optional[torch.Tensor] = None,
++    *,
++    min_tokens_for_fused: int = _MIN_TOKENS_FOR_FUSED,
+ ) -> torch.Tensor:
+     x = expert_output.contiguous()
+     tokens, topk, hidden = x.shape
+     out = torch.empty((tokens, hidden), dtype=x.dtype, device=x.device)
+     if tokens == 0:
+         return out
+-    if tokens < _MIN_TOKENS_FOR_FUSED:
++    # Allow callers to use the fused kernel for small CUDA batches as well.
++    # Keep the PyTorch path available for CPU inputs when overriding the cutoff.
++    if not x.is_cuda:
++        min_tokens_for_fused = _MIN_TOKENS_FOR_FUSED
++    if tokens < min_tokens_for_fused:
+         y = x
+         if slot_expert_ids is not None:
+             y = torch.where(
+diff --git a/python/sglang/srt/layers/muse_spark_fp4_moe.py b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+index 97b1474..d2178c1 100644
+--- a/python/sglang/srt/layers/muse_spark_fp4_moe.py
++++ b/python/sglang/srt/layers/muse_spark_fp4_moe.py
+@@ -607,6 +607,8 @@ class MuseSpark1xFp4Experts(nn.Module):
+                 eps=self._post_expert_norm_eps,
+                 weight_first=self._post_expert_norm_weight_first,
+                 slot_expert_ids=local_topk_ids,
++                # Avoid the multi-op PyTorch fallback for small Marlin batches.
++                min_tokens_for_fused=1,
+             )
+         return finalize_identity_with_post_expert_norm(
+             expert_outputs=expert_outputs,
+diff --git a/python/sglang/test/kernels/test_muse_spark_post_expert_norm.py b/python/sglang/test/kernels/test_muse_spark_post_expert_norm.py
+new file mode 100644
+index 0000000..1c7de6d
+--- /dev/null
++++ b/python/sglang/test/kernels/test_muse_spark_post_expert_norm.py
+@@ -0,0 +1,117 @@
++"""Post-expert RMSNorm coverage, including Marlin's small-batch override.
++
++Run with pytest. CPU cases exercise the real PyTorch fallback; CUDA cases
++exercise the existing Triton kernel at and around the old dispatch boundary.
++"""
++
++from unittest.mock import MagicMock
++
++import pytest
++import torch
++
++from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import (
++    fused_post_expert_norm_weighted_sum,
++)
++
++
++def _inputs(tokens, pattern, device):
++    generator = torch.Generator().manual_seed(1234)
++    x = torch.randn(tokens, 8, 4096, generator=generator).to(torch.bfloat16)
++    weight = (1 + 0.1 * torch.randn(4096, generator=generator)).to(torch.bfloat16)
++    scores = torch.rand(tokens, 8, generator=generator)
++    scores /= scores.sum(-1, keepdim=True)
++    ids = torch.zeros(tokens, 8, dtype=torch.int32)
++    if pattern == "remote":
++        ids.fill_(-1)
++    elif pattern == "mixed":
++        ids[torch.rand(tokens, 8, generator=generator) < 0.75] = -1
++    elif pattern == "one_live":
++        ids.fill_(-1)
++        # Include a late live slot after several skipped remote slots.
++        ids[torch.arange(tokens), torch.arange(tokens) % 8] = 0
++    poison = torch.tensor([float("nan"), float("inf"), -float("inf"), 1e30])
++    poison = poison.repeat(1024).to(torch.bfloat16)
++    x[ids < 0] = poison
++    return tuple(t.to(device) for t in (x, scores, weight, ids))
++
++
++def _reference(x, scores, weight, ids, weight_first):
++    # Independent FP64 definition: mask remote slots, per-slot RMSNorm, then
++    # routing-weighted sum. Marlin can leave remote expert outputs uninitialized.
++    y = torch.where((ids >= 0).unsqueeze(-1), x.double(), 0.0)
++    if weight_first:
++        y = y * weight.double()
++    y = y * torch.rsqrt(y.square().mean(-1, keepdim=True) + 1e-8)
++    if not weight_first:
++        y = y * weight.double()
++    return (y * scores.double().unsqueeze(-1)).sum(1)
++
++
++@pytest.mark.parametrize("tokens", [0, 1, 8, 31])
++@pytest.mark.parametrize("pattern", ["local", "mixed", "remote", "one_live"])
++@pytest.mark.parametrize("weight_first", [True, False])
++def test_small_batch_cpu(tokens, pattern, weight_first):
++    x, scores, weight, ids = _inputs(tokens, pattern, "cpu")
++    kwargs = dict(norm_weight=weight, slot_expert_ids=ids, weight_first=weight_first)
++    stock = fused_post_expert_norm_weighted_sum(x, scores, **kwargs)
++    actual = fused_post_expert_norm_weighted_sum(
++        x, scores, min_tokens_for_fused=1, **kwargs
++    )
++    # The override must not launch Triton on a small CPU input.
++    assert torch.equal(actual, stock)
++    _check_reference(actual, _reference(x, scores, weight, ids, weight_first))
++
++
++def _check_reference(actual, reference):
++    assert actual.dtype == torch.bfloat16
++    assert actual.shape == reference.shape
++    assert torch.isfinite(actual).all()
++    if not torch.count_nonzero(reference):
++        # An empty/all-remote weighted sum is exactly zero, despite poisoned rows.
++        assert torch.count_nonzero(actual) == 0
++    else:
++        # BF16 has unit roundoff 2^-8; allow two unit roundoffs in relative L2
++        # against the independent FP64 formula (not elementwise near cancellation).
++        relative_error = (actual.double() - reference).norm() / reference.norm()
++        assert relative_error < 2 * 2**-8
++
++
++@pytest.mark.parametrize("tokens", [1, 31, 32])
++def test_small_cuda_batch_dispatch(tokens, monkeypatch):
++    # Dispatch-only test: no CUDA allocations or Triton compilation required.
++    x = MagicMock(spec=torch.Tensor)
++    x.contiguous.return_value = x
++    x.shape = (tokens, 8, 4096)
++    x.dtype = torch.bfloat16
++    x.device = torch.device("cpu")
++    x.is_cuda = True
++    kernel = MagicMock()
++    monkeypatch.setattr(
++        fused_post_expert_norm_weighted_sum.__module__
++        + "._post_expert_norm_weighted_sum_kernel",
++        kernel,
++    )
++    fused_post_expert_norm_weighted_sum(
++        x, torch.ones(tokens, 8), min_tokens_for_fused=1
++    )
++    kernel.__getitem__.assert_called_once_with((tokens,))
++    kernel.__getitem__.return_value.assert_called_once()
++
++
++@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA and Triton")
++@pytest.mark.parametrize("tokens", [0, 1, 4, 8, 9, 16, 24, 31, 32, 33])
++@pytest.mark.parametrize("pattern", ["local", "mixed", "remote", "one_live"])
++@pytest.mark.parametrize("weight_first", [True, False])
++def test_small_batch_cuda(tokens, pattern, weight_first):
++    x, scores, weight, ids = _inputs(tokens, pattern, "cuda")
++    kwargs = dict(norm_weight=weight, slot_expert_ids=ids, weight_first=weight_first)
++    actual = fused_post_expert_norm_weighted_sum(
++        x, scores, min_tokens_for_fused=1, **kwargs
++    )
++    stock = fused_post_expert_norm_weighted_sum(x, scores, **kwargs)
++    reference = _reference(x, scores, weight, ids, weight_first)
++    _check_reference(actual, reference)
++    _check_reference(stock, reference)
++    if tokens >= 32:
++        # Above the original cutoff both calls launch the identical kernel.
++        assert torch.equal(actual, stock)

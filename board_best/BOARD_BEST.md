@@ -1,5 +1,7 @@
 # Board bests and source provenance
 
+Attention refreshed 2026-11-04 from scored run `3a16a902` (2.6790x): one-head sliding routes locked in at v16S/v32S (see NOV4_FINAL_AND_SERVING.md). Kernel track closed Nov 4 23:59 PT; final provisional overall rank 136 (decode 2.288x).
+
 Decode refreshed 2026-11-02 from scored run `1ca0668a` (2.2347x): kb v1 plus gated Decode v3 arms (T=8 ring-issuer warp, Dense CURP routes, RQ expansion); the gate adopted 0/12, so the scored path equals kb v1 (`2ecb3de5`, 2.2341x) and the difference is noise.
 
 Dense refreshed 2026-11-02 from scored run `bbde8419` (1.5886x): keell0renz's dense file plus achitaan's gated route tuner, which this run adopted for 4 cells after a confirmation pass (qkv_gate@16/@32 and pooler@32 on chenwainuo rq with the CURP escape cursor, qkv_gate@256 on an rq plan). First own measured speedup on keell's code (qkv_gate@32 ~3.5%, reproduced in check `630d4cb2`); board effect ~+0.1-0.3%, inside run noise.
@@ -28,6 +30,7 @@ unchanged (the `best/` baselines are untouched).
 
 | Board | Best | Rank | Scored job | Source in this folder | SHA-256 |
 |---|---:|---:|---|---|---|
+| Attention | 2.6790x | 150 at close | `3a16a9026b05414d` | `attention_kb1hfix_scored_2.6790.py`: board file 2.6536 with one-KV-head sliding routes made DEFAULT at v16S (1h-s8) and v32S (1h-s4) after a judge-bound/KV-cache safety check (no timing gate; those routes timed 0.950-0.969 in every Nov 4 run). Scored CI [2.638, 2.719]; check 7680c874 2.611. Branch `loop/attn-1hfix` (e489fa1), `kb/exp/attn_1hfix.py`. | `b22f27b89acc35f5f18164ed8cbbd9e81de32647b072afbe354775d999794e92` |
 | MoE | 2.3797x | 59 / 1131 (was 90) | `ac80911ea3d34dac` | `moe_m3_scored_2.3797.py` (M3 selector; selects nothing -> same kernels as `best/moe_verified.py`) | `23008c1b004a6cc4b6bb0384e9ef9bc180d398c901edc309faf656b26301e795` |
 | Attention | 2.6536x | (pending refresh) | `8f53cd76d828427c` | `attention_kb1h2_scored_2.6536.py`: keell0renz's attention file (Apache-2.0) plus achitaan's one-KV-head-per-CTA sliding split-KV kernel, import-time gated (read-flush ABBA, median+paired <= 0.988, confirm pass, judge-like error, exact KV bytes); this run adopted v32S 1h-s4 (search 0.968/0.969, confirm 0.971/0.970); all other shapes keell default. Scored CI [2.6138, 2.6934]; keell same-judge 2.6421x. Readable source. Branch `argon/keell-base-20261102`, `kb/exp/attn_1h2.py` (7b2bd8c) | `6b65dec7c1aaeb4675815555ddbb0ee8a0de17ab93e56523c3d1d386899998ca` |
 | Attention | 2.6461x | (pending refresh) | `baedd9d76cfe43f3` | `attention_kbtune_scored_2.6461.py`: keell0renz's attention file (Apache-2.0, kernels unchanged) plus achitaan's import-time per-shape plan tuner (137 candidates, read-flush ABBA, confirm pass); this run adopted 0/12 (check `129ffe91` had adopted d16S PDL and v16S nc=2 at ~2%, which did not reproduce). Scored CI [2.6064, 2.7014]; keell's unchanged check `6ae275da` 2.6421x. Branch `argon/keell-base-20261102`, `kb/exp/attn_tune.py` (c9413d3). | `46bef77f73453f2328b793b5bffaa9360a84280789e7b477b1723bc2ce7a4515` |
