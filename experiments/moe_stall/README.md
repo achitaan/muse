@@ -5,23 +5,28 @@ Check file: `experiments/moe_stall/moe_stall.py`
 Base: `board_best/moe_m3_scored_2.3797.py`, copied byte-for-byte as the
 185,756-byte prefix (SHA256
 `f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb`).
-The inherited `kernel_fn`, CUDA/CPP strings, packing, selector, and defines
-are unchanged. No production optimization or selection is adopted.
+The inherited `kernel_fn`, CUDA/CPP strings, packing, selector source, and defines
+are unchanged. The final prepare wrapper **bypasses the optional selector** and
+clears its choices: production always retains the incumbent's default build.
 
 The only shared build change is a `load_inline` adapter supplying **C++20 to
 both host and nvcc**, including the incumbent's unchanged builder. Diagnostic
 kernels are separately named extensions and use separate scratch/output
-allocations. Production preparation/selection runs first. No candidate kernel
-is reachable from the timed `kernel_fn`.
+allocations. MAIN diagnostic compilation starts at import on a daemon thread,
+overlapping incumbent preparation/builds. The census follows default preparation,
+without spending 38 seconds on the selector. No candidate kernel is reachable
+from the timed `kernel_fn`; compilation uses in-process `load_inline`, not a
+process launcher.
 
 ## Protocol
 
-* bs16 MID, bs32 WGS MAIN, bs256 WGS MAIN; eight fresh draws each.
+* bs32 WGS MAIN, then bs256 WGS MAIN; **six fresh draws each**. bs16 MID runs
+  last, also six draws, only if budget remains.
 * Uses the file's own `_moe_routes`: skewed popularity, top-8, rotated to the
   busiest rank. Hidden states are generated first, just as in the selector.
-* Compiles only the two necessary diagnostic define tuples. If the inherited
-  selector actually picks a different build, that shape is explicitly skipped,
-  rather than instrumenting one build and timing another.
+* Prebuilds only PRMT MAIN at import. Optional MID compilation starts only after
+  the WGS census and requires at least 60 seconds remaining. Non-PRMT/fallback
+  cases are explicitly skipped rather than timing mismatched kernels.
 * For each draw, capture three graphs: exact incumbent, instrumented binary
   with counters disabled, and the same binary with sampled counters enabled.
 * Four symmetric `inc, disabled, sampled, sampled, disabled, inc` timing blocks.
@@ -119,16 +124,27 @@ truncation. Fetch the full log for a complete role census.
 errors. Added diagnostic exceptions and logging failures are contained in
 prepare. No zero-local-job draw is launched, avoiding the inherited all-remote hang.
 `MOE_STALL_DONE` reports total preparation elapsed time.
+`MOE_STALL_BUDGET` reports remaining soft budget at import/build, incumbent-ready,
+allocation, case, draw, graph-ready and reporting stages (`not_started` before
+prepare). Skip reasons distinguish incumbent budget exhaustion, background build
+timeout/error, optional MID admission, allocation/case/draw/timing-block limits.
 
 ## Budget and limitations
 
-Soft deadline is **270 s from entry to prepare**, leaving a 30 s margin. New
-compilation requires at least 90 s remaining initially and at least 45 s before
-each distinct build. Replay loops stop at the deadline and partial draw counts
-are explicit. Native extension compilation is blocking/non-preemptible; pathological
-compiler delays can exceed the soft deadline. Runtime <300 s cannot be verified
-without the caller's H200 check. The inherited preparation itself is unchanged
-and can also consume the budget.
+Soft deadline is **270 s from entry to prepare**, leaving 20 s to the requested
+<290 s limit. Timing stops by 260 s to reserve 10 s for reporting. MAIN build
+waits reserve 30 s for the census; optional MID waits reserve 15 s. All build
+waits are bounded; unfinished native compilation remains on a daemon thread,
+never blocks prepare via a synchronous compile/join, and is not cancelled.
+The unchanged incumbent preparation and individual GPU calls remain
+non-preemptible. Actual <290 s runtime needs the caller's H200 check; the soft
+budget is not a hard watchdog against a hung GPU/incumbent compiler.
+
+Previous check `b2367a9259064cbc` (commit `562de5a`) produced no census:
+the selector took 38.3 s, prepare reached 185.103 s, and the old initial 90 s
+compile-reserve gate rejected it at 180 s. Regression tests now admit that
+timestamp and verify MAIN prebuilding, bounded waits, default-only production,
+six-draw WGS-first execution, and optional MID omission under budget pressure.
 
 No local Torch/CUDA toolkit/nvcc/GPU was available. Thus sm90a compilation,
 resource usage, actual overhead, graph correctness and wall-clock setup budget
@@ -146,7 +162,8 @@ substituting only hardware clock/SM reads; replay reset, alias duration equality
 sampling, non-overlap, address guards, null counters, and non-lane-0 behavior
 are executed. Python tests cover exact prefix/AST, source drift, source
 synchronization/arithmetic preservation, exports, build dialect, graph timing
-order, budget/error paths, manufactured accounting and skew/overhead reporting.
+order, budget/error paths, actual thread lifecycle, simulated full census control
+flow, manufactured accounting and skew/overhead reporting (22 stall tests).
 
 Branch-local TRIED row only: the caller explicitly prohibited submitting,
 pushing, or committing to main. Caller must publish the shared-ledger claim and

@@ -837,15 +837,20 @@ def prepare(weights):
 
 # ---------------------------------------------------------------------------
 # Diagnostic-only addition, 2026-11-04. Everything above is byte-identical to
-# board_best/moe_m3_scored_2.3797.py. No production source, selection, packing,
-# scratch, or kernel_fn is replaced. Two separate instrumented extensions are
-# built in prepare, never called on the production/timed path.
+# board_best/moe_m3_scored_2.3797.py. Production source, packing, scratch and
+# kernel_fn are unchanged. The final prepare bypasses the optional selector,
+# retaining default production builds. MAIN diagnostic compilation starts at
+# import on a thread; optional MID follows the WGS census if budget permits.
 import math as _ms_math
 import statistics as _ms_statistics
+import threading as _ms_threading
 import time as _ms_time
 
 _MS_SEED = 2026110402
-_MS_CASES = ((16, 8), (32, 8), (256, 8))
+_MS_CASES = ((32, 6), (256, 6), (16, 6))
+_MS_SOFT_LIMIT = 270.0  # 20 s margin to the requested <290 s prepare limit
+_MS_REPORT_RESERVE = 10.0
+_MS_PREPARE_START = None
 _MS_PHASES = ("A", "B", "FINAL")
 _MS_FIELDS = (
     "begin_ns", "end_ns", "empty_wait", "implicit_empty_wait", "weight_wait",
@@ -857,6 +862,7 @@ _MS_FIELDS = (
 )
 _MS_INDEX = {name: i for i, name in enumerate(_MS_FIELDS)}
 _MS_EXTS = {}
+_MS_BUILDS = {}  # main-thread-owned jobs; worker publishes via Event.set()
 
 # Build-only compatibility: current judge PyTorch headers require C++20. Apply
 # the same dialect to the untouched incumbent builder and diagnostic builder.
@@ -1111,6 +1117,71 @@ def _ms_ext(defines):
     return _MS_EXTS[defines]
 
 
+def _ms_budget(stage, deadline=None, **fields):
+    now = _ms_time.monotonic()
+    if deadline is None and _MS_PREPARE_START is not None:
+        deadline = _MS_PREPARE_START + _MS_SOFT_LIMIT
+    remaining = None if deadline is None else deadline - now
+    value = "not_started" if remaining is None else f"{remaining:.3f}"
+    try:
+        print(f"MOE_STALL_BUDGET stage={stage} remaining_s={value} "
+              + " ".join(f"{k}={v}" for k, v in fields.items()), flush=True)
+    except Exception:
+        pass  # logging must not break production preparation or worker cleanup
+    return remaining
+
+
+def _ms_start_build(defines):
+    """Only the import/prepare thread calls this; native builds run in-process."""
+    defines = tuple(defines)
+    if defines in _MS_BUILDS:
+        return _MS_BUILDS[defines]
+    job = {"done": _ms_threading.Event(), "error": None}
+    _MS_BUILDS[defines] = job
+
+    def build():
+        start = _ms_time.monotonic()
+        try:
+            _ms_budget("build_start", defines=','.join(defines))
+            _ms_ext(defines)
+        except Exception as exc:
+            job["error"] = f"{type(exc).__name__}: {str(exc).replace(chr(10), ' ')[:1200]}"
+        finally:
+            _ms_budget("build_done", build_elapsed_s=f"{_ms_time.monotonic()-start:.3f}",
+                       status="error" if job["error"] else "ready", defines=','.join(defines))
+            job["done"].set()
+
+    # Never join without a timeout. A slow native compiler cannot hold prepare
+    # past its budget; daemon threads also cannot hold interpreter shutdown.
+    thread = _ms_threading.Thread(target=build, name="moe-stall-build", daemon=True)
+    try:
+        thread.start()
+    except Exception as exc:
+        job["error"] = f"thread_start: {type(exc).__name__}: {exc}"
+        job["done"].set()
+    return job
+
+
+def _ms_wait_build(defines, deadline, bs):
+    remaining = _ms_budget("build_wait", deadline, bs=bs)
+    # MAIN is already compiling from import; MID is optional and is never
+    # started until both priority WGS cases have been attempted.
+    if tuple(defines) not in _MS_BUILDS and bs == 16 and remaining < 60:
+        print(f"MOE_STALL_SKIP bs={bs} reason=optional_mid_compile_budget remaining_s={remaining:.3f}", flush=True)
+        return None
+    job = _ms_start_build(defines)
+    reserve = 30.0 if bs != 16 else 15.0
+    if not job["done"].wait(timeout=max(0.0, deadline - _ms_time.monotonic() - reserve)):
+        remaining = _ms_budget("build_timeout", deadline, bs=bs)
+        print(f"MOE_STALL_SKIP bs={bs} reason=background_build_timeout remaining_s={remaining:.3f}", flush=True)
+        return None
+    if job["error"] is not None:
+        print(f"MOE_STALL_SKIP bs={bs} reason=background_build_error detail={job['error']}", flush=True)
+        return None
+    _ms_budget("build_ready", deadline, bs=bs)
+    return _MS_EXTS[tuple(defines)]
+
+
 def _ms_role(defines, warp):
     if "-DOKC_WGS=1" in defines:
         return "consumer" if warp < 16 else ("weight_producer" if warp == 16 else "activation_producer")
@@ -1272,11 +1343,13 @@ def _ms_report(records, timings):
 
 
 def _ms_measure(state, prepare_start):
-    deadline = prepare_start + 270.0  # leave a 30-second setup margin
+    deadline = prepare_start + _MS_SOFT_LIMIT
+    draw_deadline = deadline - _MS_REPORT_RESERVE
     records, timings = [], []
     try:
-        if _ms_time.monotonic() > deadline - 90:
-            print("MOE_STALL_SKIP reason=insufficient_compile_budget", flush=True)
+        remaining = _ms_budget("census_enter", deadline)
+        if remaining <= _MS_REPORT_RESERVE + 5:
+            print(f"MOE_STALL_SKIP reason=incumbent_used_budget remaining_s={remaining:.3f}", flush=True)
             return
         dev = state["w"][0].device
         if torch.cuda.get_device_capability(dev) != (9, 0) or state["cnt"] != 32:
@@ -1293,18 +1366,20 @@ def _ms_measure(state, prepare_start):
                 print(f"MOE_STALL_SKIP bs={bs} reason=unexpected_selected_build defines={','.join(selected[bs])}", flush=True)
             else:
                 cases.append((bs, draws))
+        if not cases:
+            return
+        # Wait only for MAIN here. Do not spend WGS measurement time on MID.
         modules = {}
-        for defines in dict.fromkeys(selected[bs] for bs, _ in cases):
-            if _ms_time.monotonic() > deadline - 45:
-                print("MOE_STALL_SKIP reason=remaining_compile_budget", flush=True)
-                break
-            module = _ms_ext(defines)
-            resources = list(module.ms_resources())
-            modules[defines] = (module, resources)
-            print(f"MOE_STALL_RESOURCE defines={','.join(defines)} "
-                  f"NTL_smem_falseRegs_falseLocal_falseStatic_falseOcc_trueRegs_trueLocal_trueStatic_trueOcc={resources}", flush=True)
-        if not modules or _ms_time.monotonic() >= deadline - 5:
-            print("MOE_STALL_SKIP reason=compile_used_budget", flush=True)
+        if any(bs > 16 for bs, _ in cases):
+            defines = selected[32]
+            module = _ms_wait_build(defines, deadline, 32)
+            if module is None:
+                print("MOE_STALL_SKIP bs=256 reason=priority_main_unavailable", flush=True)
+                return
+            modules[defines] = module
+        remaining = _ms_budget("census_allocate", deadline)
+        if remaining <= _MS_REPORT_RESERVE + 5:
+            print(f"MOE_STALL_SKIP reason=allocation_budget remaining_s={remaining:.3f}", flush=True)
             return
         flush = torch.ones(128 << 20, dtype=torch.float32, device=dev)  # 512 MiB READ flush
         flush.amax()
@@ -1313,12 +1388,13 @@ def _ms_measure(state, prepare_start):
         inc_state = dict(state, scratch=inc_scratch)
         empty_trace = torch.empty(0, dtype=torch.int64, device=dev)
         torch.cuda.synchronize(dev)
-        print(f"MOE_STALL_CONFIG seed={_MS_SEED} cases=16x8,32x8,256x8 grid={state['grid']} "
+        _ms_budget("census_allocated", deadline)
+        print(f"MOE_STALL_CONFIG seed={_MS_SEED} cases=32x6,256x6,16x6_optional grid={state['grid']} "
               "sample=CTA_mod16_eq_2draw lane=0_each_warp clock=globaltimer_ns+entry_exit_clock64 "
               "timing=ABCCBA_4blocks_raw_graph read_flush_bytes=536870912 "
               "MID_refill=implicit_CTA_barrier_not_explicit_empty_wait MID_helper=partials_epilogue "
               "dqmma=loads+dequant+issue+inflight_wait_excluding_deferred_flush "
-              "AtoB_transition_is_subset_of_dependency_or_activation_wait production_selection_unchanged=1", flush=True)
+               "AtoB_transition_is_subset_of_dependency_or_activation_wait production_default=1 selector_skipped=1", flush=True)
 
         def time_one(graph):
             flush.amax()  # READ only, strictly outside the CUDA event interval
@@ -1331,14 +1407,26 @@ def _ms_measure(state, prepare_start):
             return start.elapsed_time(end) * 1000.0
 
         for bs, draws in cases:
+            remaining = _ms_budget("case_start", deadline, bs=bs)
+            if remaining <= _MS_REPORT_RESERVE + 5:
+                print(f"MOE_STALL_SKIP bs={bs} reason=case_budget remaining_s={remaining:.3f}", flush=True)
+                continue
             defines = selected[bs]
             if defines not in modules:
-                continue
-            module, resources = modules[defines]
+                module = _ms_wait_build(defines, deadline, bs)
+                if module is None:
+                    continue
+                modules[defines] = module
+            module = modules[defines]
+            resources = list(module.ms_resources())
+            _ms_budget("resources_ready", deadline, bs=bs)
+            print(f"MOE_STALL_RESOURCE bs={bs} defines={','.join(defines)} "
+                  f"NTL_smem_falseRegs_falseLocal_falseStatic_falseOcc_trueRegs_trueLocal_trueStatic_trueOcc={resources}", flush=True)
             nwarps = resources[0] // 32
             for draw in range(draws):
-                if _ms_time.monotonic() >= deadline - 3:
-                    print(f"MOE_STALL_SKIP bs={bs} draw={draw} reason=deadline", flush=True)
+                remaining = _ms_budget("draw_start", deadline, bs=bs, draw=draw)
+                if remaining <= _MS_REPORT_RESERVE + 3:
+                    print(f"MOE_STALL_SKIP bs={bs} draw={draw} reason=draw_budget remaining_s={remaining:.3f}", flush=True)
                     break
                 x = torch.randn((bs, HIDDEN), generator=gen, device=dev).to(torch.bfloat16)
                 ids, tw = _moe_routes(bs, gen, dev)  # file's own judge-like routing helper
@@ -1370,7 +1458,13 @@ def _ms_measure(state, prepare_start):
                     run_diag(off_out, empty_trace)
                 with torch.cuda.graph(on_graph):
                     run_diag(on_out, trace)
-                times = _ms_balanced(time_one, inc_graph, off_graph, on_graph, deadline)
+                _ms_budget("graphs_ready", deadline, bs=bs, draw=draw)
+                try:
+                    times = _ms_balanced(time_one, inc_graph, off_graph, on_graph, draw_deadline)
+                except TimeoutError:
+                    remaining = _ms_budget("timing_timeout", deadline, bs=bs, draw=draw)
+                    print(f"MOE_STALL_SKIP bs={bs} draw={draw} reason=timing_block_budget remaining_s={remaining:.3f}", flush=True)
+                    break
                 # The final sampled replay in the timing block owns these
                 # counters; subsequent disabled/incumbent replays cannot edit it.
                 slab = trace.cpu().tolist()
@@ -1388,17 +1482,28 @@ def _ms_measure(state, prepare_start):
                       f"overhead_pct={(times['on_ratio']-1)*100:.2f} relL2={max(error,replay_error):.3e} "
                       f"blocks={times['blocks']} hist={','.join(map(str,counts))}", flush=True)
                 del inc_graph, off_graph, on_graph, inc_out, off_out, on_out, trace, data, x, ids, tw, local
+                _ms_budget("draw_done", deadline, bs=bs, draw=draw)
     finally:
+        _ms_budget("report_start", deadline)
         _ms_report(records, timings)
+        _ms_budget("report_done", deadline)
 
 
-_ms_original_prepare = prepare
+# Bypass ONLY the selector wrapper (38.3 s plus extra build arms in b2367a9259064cbc).
+# Keep the original packing/default extension preparation and timed kernel intact.
+_ms_original_prepare = _moe_sel_original_prepare
 
 
 def prepare(weights):
+    global _MS_PREPARE_START
     start = _ms_time.monotonic()
+    _MS_PREPARE_START = start
+    _MOE_SEL.clear()
+    _ms_budget("prepare_enter")
     state = _ms_original_prepare(weights)
     try:
+        _ms_budget("incumbent_ready")
+        print("MOE_SELECTOR selected=[] skipped=stall_census production_default=1", flush=True)
         _ms_measure(state, start)
     except Exception as exc:
         try:
@@ -1407,7 +1512,15 @@ def prepare(weights):
         except Exception:
             pass
     try:
-        print(f"MOE_STALL_DONE prepare_elapsed_s={_ms_time.monotonic()-start:.3f} soft_deadline_s=270", flush=True)
+        elapsed = _ms_time.monotonic() - start
+        print(f"MOE_STALL_DONE prepare_elapsed_s={elapsed:.3f} soft_deadline_s={_MS_SOFT_LIMIT:g} "
+              f"remaining_s={_MS_SOFT_LIMIT-elapsed:.3f}", flush=True)
     except Exception:
         pass
     return state
+
+
+# Import-time in-process prebuild overlaps weight creation/packing and default
+# incumbent builds. No process launcher, pool, or synchronous compile in prepare.
+if torch.cuda.is_available():
+    _ms_start_build(tuple(MAIN_DEFINES) + ("-DOKC_PRMTSC=1",))

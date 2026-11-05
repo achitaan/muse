@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import threading
 from types import SimpleNamespace
 import unittest
 
@@ -29,14 +30,16 @@ def base_values():
     for n in BASE_TREE.body:
         if isinstance(n, ast.Assign):
             for t in n.targets:
-                if isinstance(t, ast.Name) and t.id in ("CUDA_SRC", "CPP_SRC", "MAIN_DEFINES", "MID_DEFINES", "MAIN_NS", "DQ7", "PDL"):
+                if isinstance(t, ast.Name) and t.id in ("CUDA_SRC", "CPP_SRC", "MAIN_DEFINES", "MID_DEFINES", "MAIN_NS", "DQ7", "PDL", "HIDDEN"):
                     result[t.id] = ast.literal_eval(n.value)
     return result
 
 
-def addon_namespace():
+def addon_namespace(prebuild=False, builder=None):
     addon = ast.Module(body=CAND_TREE.body[len(BASE_TREE.body):], type_ignores=[])
-    ns = {"prepare": lambda w: w, "load_inline": lambda *a, **k: None, **base_values()}
+    ns = {"prepare": lambda w: w, "_moe_sel_original_prepare": lambda w: w,
+          "_MOE_SEL": {}, "load_inline": builder or (lambda *a, **k: None),
+          "torch": SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: prebuild)), **base_values()}
     exec(compile(addon, str(CAND), "exec"), ns)
     return ns, addon
 
@@ -280,7 +283,7 @@ int main() {
         self.assertIn("_moe_routes(bs, gen, dev)", text)
         self.assertIn("inc_state = dict(state, scratch=inc_scratch)", text)
         self.assertIn("slab = trace.cpu().tolist()", text)
-        self.assertEqual(dict(addon_namespace()[0]["_MS_CASES"]), {16: 8, 32: 8, 256: 8})
+        self.assertEqual(addon_namespace()[0]["_MS_CASES"], ((32, 6), (256, 6), (16, 6)))
 
     def test_decode_and_manufactured_accounting(self):
         ns, _ = addon_namespace()
@@ -328,12 +331,191 @@ int main() {
 
     def test_budget_skip_before_torch_or_compile_access(self):
         ns, _ = addon_namespace()
-        ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 181.)
+        ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 256.)
         ns["_ms_ext"] = lambda *a: self.fail("compiled after setup budget expired")
         text = io.StringIO()
         with contextlib.redirect_stdout(text):
             ns["_ms_measure"](None, 0.)
-        self.assertIn("reason=insufficient_compile_budget", text.getvalue())
+        self.assertIn("reason=incumbent_used_budget", text.getvalue())
+        self.assertIn("remaining_s=14.000", text.getvalue())
+
+    def test_prepare_bypasses_selector_and_clears_stale_choices(self):
+        ns, _ = addon_namespace()
+        self.assertIs(ns["_ms_original_prepare"], ns["_moe_sel_original_prepare"])
+        order, state = [], object()
+        ns["_MOE_SEL"][32] = ("wrong-build",)
+        def base(weights):
+            self.assertEqual(ns["_MOE_SEL"], {})
+            order.append("default_prepare")
+            return state
+        def census(s, start):
+            self.assertIs(s, state)
+            order.append("census")
+        ns["_ms_original_prepare"], ns["_ms_measure"] = base, census
+        ns["_moe_select"] = lambda *a: self.fail("selector must not run")
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertIs(ns["prepare"]({}), state)
+        self.assertEqual(order, ["default_prepare", "census"])
+
+    def test_import_prebuild_is_background_and_single_owner(self):
+        calls, entered, release = [], threading.Event(), threading.Event()
+        module = object()
+        def builder(*a, **kw):
+            calls.append((threading.current_thread(), kw))
+            entered.set()
+            if not release.wait(timeout=5):
+                raise RuntimeError("test failed to release build")
+            return module
+        with contextlib.redirect_stdout(io.StringIO()):
+            ns, _ = addon_namespace(prebuild=True, builder=builder)
+            defines = ns["MAIN_DEFINES"] + ("-DOKC_PRMTSC=1",)
+            job = ns["_MS_BUILDS"][defines]
+            try:
+                self.assertTrue(entered.wait(timeout=5))
+                self.assertFalse(job["done"].is_set(), "import must not wait for compile")
+                self.assertIs(ns["_ms_start_build"](defines), job)
+                self.assertNotEqual(calls[0][0], threading.current_thread())
+                self.assertTrue(calls[0][0].daemon)
+                self.assertEqual(len(ns["_MS_BUILDS"]), 1, "do not prebuild optional MID")
+            finally:
+                release.set()
+                self.assertTrue(job["done"].wait(timeout=5))
+        self.assertIsNone(job["error"])
+        self.assertIs(ns["_MS_EXTS"][defines], module)
+        self.assertEqual(len(calls), 1)
+        self.assertIn("void ms_run(", calls[0][1]["cuda_sources"])
+        self.assertIn("-std=c++20", calls[0][1]["extra_cuda_cflags"])
+
+    def test_prebuild_exception_is_published_without_retry(self):
+        def fail(*a, **kw):
+            raise RuntimeError("compile failed\nsecond line")
+        with contextlib.redirect_stdout(io.StringIO()):
+            ns, _ = addon_namespace(prebuild=True, builder=fail)
+            defines = ns["MAIN_DEFINES"] + ("-DOKC_PRMTSC=1",)
+            job = ns["_MS_BUILDS"][defines]
+            self.assertTrue(job["done"].wait(timeout=5))
+            self.assertNotIn("\n", job["error"])
+            ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 185.)
+            self.assertIsNone(ns["_ms_wait_build"](defines, 270., 32))
+        self.assertIn("RuntimeError: compile failed", job["error"])
+
+    def test_build_wait_is_bounded_and_mid_admission_is_optional(self):
+        ns, _ = addon_namespace()
+        ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 185.)
+        defines = ns["MAIN_DEFINES"] + ("-DOKC_PRMTSC=1",)
+        timeouts = []
+        ns["_MS_BUILDS"][defines] = {
+            "done": SimpleNamespace(wait=lambda timeout: timeouts.append(timeout) or False), "error": None}
+        text = io.StringIO()
+        with contextlib.redirect_stdout(text):
+            self.assertIsNone(ns["_ms_wait_build"](defines, 270., 32))
+        self.assertEqual(timeouts, [55.])
+        self.assertIn("reason=background_build_timeout", text.getvalue())
+        ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 220.)
+        ns["_ms_start_build"] = lambda *a: self.fail("optional MID started with <60s")
+        with contextlib.redirect_stdout(text):
+            self.assertIsNone(ns["_ms_wait_build"](ns["MID_DEFINES"], 270., 16))
+        self.assertIn("reason=optional_mid_compile_budget", text.getvalue())
+        self.assertIn("remaining_s=50.000", text.getvalue())
+
+    def test_original_185_second_skip_now_waits_for_prebuild(self):
+        ns, _ = addon_namespace()
+        ns["_ms_time"] = SimpleNamespace(monotonic=lambda: 185.103)
+        ns["torch"].cuda.get_device_capability = lambda dev: (9, 0)
+        ns["_moe_default"] = lambda bs, sfx: ns["MID_DEFINES" if bs == 16 else "MAIN_DEFINES"] + sfx
+        waits = []
+        ns["_ms_wait_build"] = lambda defines, deadline, bs: waits.append(bs)
+        state = {"w": [SimpleNamespace(device="cuda")], "cnt": 32, "sfx": ("-DOKC_PRMTSC=1",)}
+        with contextlib.redirect_stdout(io.StringIO()):
+            ns["_ms_measure"](state, 0.)
+        self.assertEqual(waits, [32])
+
+    def test_priority_order_and_no_blocking_build_or_process_launcher(self):
+        ns, addon = addon_namespace()
+        self.assertEqual(ns["_MS_CASES"], ((32, 6), (256, 6), (16, 6)))
+        measure = next(n for n in addon.body if isinstance(n, ast.FunctionDef) and n.name == "_ms_measure")
+        text = ast.unparse(measure)
+        self.assertNotIn("_ms_ext(", text)
+        self.assertLess(text.index("_ms_wait_build(defines, deadline, 32)"), text.index("for bs, draws in cases:"))
+        self.assertGreater(text.index("_ms_wait_build(defines, deadline, bs)"), text.index("for bs, draws in cases:"))
+        # The standalone CHECK file, not the offline host-C++ test harness.
+        self.assertNotRegex(CAND.read_text(), r"\b(subprocess|Popen|multiprocessing|ProcessPoolExecutor)\b")
+        self.assertLess(ns["_MS_SOFT_LIMIT"], 290)
+        self.assertGreaterEqual(ns["_MS_REPORT_RESERVE"], 10)
+
+    def test_census_control_flow_finishes_wgs_before_optional_mid(self):
+        # Exercise the real measurement loop, graph/timer flow and budget
+        # admission with fake GPU operations. Numerical gates have separate
+        # manufactured tests; this is not a substitute for an H200 run.
+        class Tensor:
+            device = "cuda"
+            def __getitem__(self, key): return self
+            def __ge__(self, other): return self
+            def __lt__(self, other): return self
+            def __and__(self, other): return self
+            def __sub__(self, other): return self
+            def __truediv__(self, other): return 0.0
+            def to(self, *a): return self
+            def long(self): return self
+            def float(self): return self
+            def norm(self): return self
+            def clamp_min(self, *a): return self
+            def amax(self): return self
+            def cpu(self): return self
+            def tolist(self): return [1] * 32
+        tensor = lambda *a, **kw: Tensor()
+        for optional in (True, False):
+            with self.subTest(optional=optional):
+                ns, _ = addon_namespace()
+                now, done, builds, reports = [150.], [], [], []
+                ns["_ms_time"] = SimpleNamespace(monotonic=lambda: now[0])
+                balanced = ns["_ms_balanced"]
+                ns["_ms_balanced"] = lambda *a: balanced(*a, clock=lambda: now[0])
+                ns["torch"] = SimpleNamespace(
+                    cuda=SimpleNamespace(get_device_capability=lambda dev: (9, 0),
+                        synchronize=lambda *a: None,
+                        CUDAGraph=lambda: SimpleNamespace(replay=lambda: None),
+                        graph=lambda g: contextlib.nullcontext(),
+                        Event=lambda **kw: SimpleNamespace(record=lambda: None,
+                            synchronize=lambda: None, elapsed_time=lambda other: 0.1)),
+                    ones=tensor, empty=tensor, empty_like=tensor, randn=tensor,
+                    bincount=tensor, float32="fp32", bfloat16="bf16", int64="int64",
+                    Generator=lambda **kw: SimpleNamespace(manual_seed=lambda seed: None))
+                sfx = ("-DOKC_PRMTSC=1",)
+                main, mid = ns["MAIN_DEFINES"] + sfx, ns["MID_DEFINES"] + sfx
+                ns["_moe_default"] = lambda bs, s: mid if bs == 16 else main
+                ns["_moe_routes"] = lambda *a: (Tensor(), Tensor())
+                ns["_make_scratch"] = lambda dev: []
+                ns["kernel_fn"] = lambda *a: Tensor()
+                module = SimpleNamespace(ms_resources=lambda: [576], ms_run=lambda *a: None)
+                def start(defines):
+                    if defines not in ns["_MS_BUILDS"]:
+                        builds.append((defines, list(done)))
+                        ns["_MS_EXTS"][defines] = module
+                        ns["_MS_BUILDS"][defines] = {"done": SimpleNamespace(wait=lambda **kw: True), "error": None}
+                    return ns["_MS_BUILDS"][defines]
+                ns["_ms_start_build"] = start
+                start(main)  # import-time prebuild
+                def decode(slab, bs, draw, defines, shift):
+                    done.append((bs, draw))
+                    if not optional and (bs, draw) == (256, 5):
+                        now[0] = 220.  # still room to report, but not to build MID
+                    return []
+                ns["_ms_decode"] = decode
+                ns["_ms_report"] = lambda rows, timings: reports.extend(timings)
+                state = {"w": [Tensor()], "cnt": 32, "lo": 0, "grid": 132, "sfx": sfx}
+                text = io.StringIO()
+                with contextlib.redirect_stdout(text):
+                    ns["_ms_measure"](state, 0.)
+                wgs = [(bs, d) for bs in (32, 256) for d in range(6)]
+                expected = wgs + ([(16, d) for d in range(6)] if optional else [])
+                self.assertEqual(done, expected)
+                self.assertEqual([(t["bs"], t["draw"]) for t in reports], expected)
+                if optional:
+                    self.assertEqual(builds, [(main, []), (mid, wgs)])
+                else:
+                    self.assertEqual(builds, [(main, [])])
+                    self.assertIn("reason=optional_mid_compile_budget", text.getvalue())
 
     def test_report_units_skew_and_overhead_are_explicit(self):
         ns, _ = addon_namespace()
