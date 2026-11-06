@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "kind": "prediction",
+  "recorded_at": "2026-11-06T04:53:50.826560+00:00",
+  "payload": {
+    "schema_version": 1,
+    "candidate": "s1",
+    "candidate_sha256": "4cdd3b2cca5d518db590e1f0db9752c8197eaeac3f3d60272497911aeb3a4b20",
+    "model": "conditional-amdahl-v1",
+    "patch_sha256": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f",
+    "concurrency": {
+      "1": {
+        "latency_reduction": null,
+        "throughput_change": null,
+        "interactivity_change": null,
+        "interval_kind": "conditional scenario bounds; not a predictive interval",
+        "missing": [
+          "critical_path_fraction",
+          "stage_new_old_ratio",
+          "added_time_fraction"
+        ]
+      },
+      "4": {
+        "latency_reduction": null,
+        "throughput_change": null,
+        "interactivity_change": null,
+        "interval_kind": "conditional scenario bounds; not a predictive interval",
+        "missing": [
+          "critical_path_fraction",
+          "stage_new_old_ratio",
+          "added_time_fraction"
+        ]
+      },
+      "16": {
+        "latency_reduction": null,
+        "throughput_change": null,
+        "interactivity_change": null,
+        "interval_kind": "conditional scenario bounds; not a predictive interval",
+        "missing": [
+          "critical_path_fraction",
+          "stage_new_old_ratio",
+          "added_time_fraction"
+        ]
+      },
+      "32": {
+        "latency_reduction": null,
+        "throughput_change": null,
+        "interactivity_change": null,
+        "interval_kind": "conditional scenario bounds; not a predictive interval",
+        "missing": [
+          "critical_path_fraction",
+          "stage_new_old_ratio",
+          "added_time_fraction"
+        ]
+      }
+    },
+    "official_score": null,
+    "aggregate_proxy": null,
+    "probability_improving": null,
+    "probability_constraint_violation": null,
+    "probability_status": "unavailable: no calibrated serving model",
+    "evaluation_cost": null,
+    "validity": "pending_official_answer_gate",
+    "workspace_feasible": null,
+    "full_model_memory_feasible": null
+  }
+}

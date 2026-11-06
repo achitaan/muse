@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "route-workspace",
+  "mechanism": "reuse routing metadata allocation across serialized graph replays",
+  "validity": "unknown",
+  "lineage": "route-workspace",
+  "by_concurrency": {},
+  "evaluation_cost": null,
+  "additional_workspace_bytes": null,
+  "workspace_cap_bytes": 268435456,
+  "next_experiment": "Inspect actual Marlin allocation lifetimes; reject if buffers are already reused or cost is outside timing.",
+  "patch_sha256": null,
+  "implementation_status": "source investigation proposal; not an implemented optimization"
+}

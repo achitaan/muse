@@ -1,0 +1,62 @@
+[
+  {
+    "schema_version": 1,
+    "id": "s1",
+    "mechanism": "small-token finalizer fusion",
+    "validity": "pending_official_answer_gate",
+    "lineage": "s1",
+    "by_concurrency": {},
+    "evaluation_cost": null,
+    "additional_workspace_bytes": null,
+    "workspace_cap_bytes": 268435456,
+    "next_experiment": "Measure affected-call frequency and non-overlapped time by concurrency; then the authorized opening C16 check.",
+    "patch_sha256": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f",
+    "evidence": [
+      "PRECOMP_RESULTS.json",
+      "FOLLOWUP_RESULTS.json"
+    ]
+  },
+  {
+    "schema_version": 1,
+    "id": "route-workspace",
+    "mechanism": "reuse routing metadata allocation across serialized graph replays",
+    "validity": "unknown",
+    "lineage": "route-workspace",
+    "by_concurrency": {},
+    "evaluation_cost": null,
+    "additional_workspace_bytes": null,
+    "workspace_cap_bytes": 268435456,
+    "next_experiment": "Inspect actual Marlin allocation lifetimes; reject if buffers are already reused or cost is outside timing.",
+    "patch_sha256": null,
+    "implementation_status": "source investigation proposal; not an implemented optimization"
+  },
+  {
+    "schema_version": 1,
+    "id": "dflash-metadata",
+    "mechanism": "batch CPU-to-device verification metadata copies",
+    "validity": "unknown",
+    "lineage": "dflash-metadata",
+    "by_concurrency": {},
+    "evaluation_cost": null,
+    "additional_workspace_bytes": null,
+    "workspace_cap_bytes": 268435456,
+    "next_experiment": "Inspect DFlash metadata transfer dependencies; trace exposed copies before proposing fusion.",
+    "patch_sha256": null,
+    "implementation_status": "source investigation proposal; not an implemented optimization"
+  },
+  {
+    "schema_version": 1,
+    "id": "ordered-moe",
+    "mechanism": "ordered stream-K partial buffers",
+    "validity": "rejected",
+    "lineage": "ordered-moe",
+    "by_concurrency": {},
+    "evaluation_cost": null,
+    "additional_workspace_bytes": 196135200,
+    "workspace_cap_bytes": 268435456,
+    "next_experiment": "Closed: T128 differs at GEMM1 with stable stock controls; do not repeat configuration changes.",
+    "evidence": [
+      "FOLLOWUP_RESULTS.json"
+    ]
+  }
+]

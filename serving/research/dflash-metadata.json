@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "dflash-metadata",
+  "mechanism": "batch CPU-to-device verification metadata copies",
+  "validity": "unknown",
+  "lineage": "dflash-metadata",
+  "by_concurrency": {},
+  "evaluation_cost": null,
+  "additional_workspace_bytes": null,
+  "workspace_cap_bytes": 268435456,
+  "next_experiment": "Inspect DFlash metadata transfer dependencies; trace exposed copies before proposing fusion.",
+  "patch_sha256": null,
+  "implementation_status": "source investigation proposal; not an implemented optimization"
+}

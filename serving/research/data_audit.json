@@ -1,0 +1,8 @@
+{
+  "observation_rows": 354,
+  "serving_label_count": 0,
+  "serving_target_missing_fraction": 1.0,
+  "target_distribution": null,
+  "target_correlations": null,
+  "note": "No serving target distribution, residual fit, calibration or ranking accuracy can be estimated."
+}

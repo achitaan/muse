@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "ordered-moe",
+  "mechanism": "ordered stream-K partial buffers",
+  "validity": "rejected",
+  "lineage": "ordered-moe",
+  "by_concurrency": {},
+  "evaluation_cost": null,
+  "additional_workspace_bytes": 196135200,
+  "workspace_cap_bytes": 268435456,
+  "next_experiment": "Closed: T128 differs at GEMM1 with stable stock controls; do not repeat configuration changes.",
+  "evidence": [
+    "FOLLOWUP_RESULTS.json"
+  ]
+}
