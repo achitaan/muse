@@ -26,9 +26,12 @@
     "evaluation_cost": null,
     "additional_workspace_bytes": null,
     "workspace_cap_bytes": 268435456,
-    "next_experiment": "Inspect actual Marlin allocation lifetimes; reject if buffers are already reused or cost is outside timing.",
+    "next_experiment": "A serving trace identifies repeated uncaptured allocation/initialization on the critical path, with call frequency and a safe lifetime model.",
     "patch_sha256": null,
-    "implementation_status": "source investigation proposal; not an implemented optimization"
+    "implementation_status": "source investigation proposal; not an implemented optimization",
+    "research_status": "parked",
+    "decision_reason": "Allocations exist, but no exposed replay cost is established. Decode has a distinct capture/replay path; allocation-count reduction alone is not a serving gain.",
+    "source_audit_id": "pinned-serving-source-20261106"
   },
   {
     "schema_version": 1,
@@ -40,9 +43,12 @@
     "evaluation_cost": null,
     "additional_workspace_bytes": null,
     "workspace_cap_bytes": 268435456,
-    "next_experiment": "Inspect DFlash metadata transfer dependencies; trace exposed copies before proposing fusion.",
+    "next_experiment": "A trace shows actual repeated transfers on the selected path and the call-site device/dtype identities explain why guards do not skip them.",
     "patch_sha256": null,
-    "implementation_status": "source investigation proposal; not an implemented optimization"
+    "implementation_status": "source investigation proposal; not an implemented optimization",
+    "research_status": "parked",
+    "decision_reason": "Reusable buffers already exist and proposed transfers are device/dtype guarded. No repeated exposed transfer has been demonstrated.",
+    "source_audit_id": "pinned-serving-source-20261106"
   },
   {
     "schema_version": 1,

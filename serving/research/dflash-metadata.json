@@ -8,7 +8,10 @@
   "evaluation_cost": null,
   "additional_workspace_bytes": null,
   "workspace_cap_bytes": 268435456,
-  "next_experiment": "Inspect DFlash metadata transfer dependencies; trace exposed copies before proposing fusion.",
+  "next_experiment": "A trace shows actual repeated transfers on the selected path and the call-site device/dtype identities explain why guards do not skip them.",
   "patch_sha256": null,
-  "implementation_status": "source investigation proposal; not an implemented optimization"
+  "implementation_status": "source investigation proposal; not an implemented optimization",
+  "research_status": "parked",
+  "decision_reason": "Reusable buffers already exist and proposed transfers are device/dtype guarded. No repeated exposed transfer has been demonstrated.",
+  "source_audit_id": "pinned-serving-source-20261106"
 }

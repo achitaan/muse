@@ -1,0 +1,1634 @@
+{
+  "serving_labels": 0,
+  "component_sessions": 1,
+  "families": [
+    {
+      "candidate": "s1",
+      "schema_version": 1,
+      "fidelity": "integrated_component",
+      "source": "results/precomp-20261105/results/s1-paired-v2.jsonl",
+      "source_sha256": "a2ee1d35f6c32538c27baa0554d54c396def8cfa175390a384ccd359fb466c05",
+      "patch_sha256": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f",
+      "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+      "harness_sha256": "6ceed3a24c95410e181db14ae44366307d96a8db0e7f87b3d2d976d902dba909",
+      "kernel_source_sha256": null,
+      "image": "lmsysorg/sglang@sha256:8cfc5a72cb296771f5f8a4a4688cb6d05685610a830cbb616fa4ab0eb7bb2b0a",
+      "environment": {
+        "event": "environment",
+        "gpu": "NVIDIA H200",
+        "torch": "2.14.1+cu130",
+        "cuda": "13.0",
+        "seed": 4207,
+        "preparation_seconds": 3.3501203819178045,
+        "allocated_bytes": 1174409728,
+        "reserved_bytes": 2501902336,
+        "patch_sha256": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f"
+      },
+      "environment_missing": [],
+      "session": "precomp-20261105",
+      "workload": "synthetic random weights and specified routes",
+      "validity": "pending_official_answer_gate",
+      "observations": [
+        {
+          "tokens": 1,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            221,
+            226,
+            231
+          ],
+          "stage_new_old_ratio": [
+            0.8085009870955607,
+            0.8135841816563748
+          ],
+          "saved_us": [
+            26.479993015527725,
+            27.104005217552185
+          ],
+          "max_control_fraction": 0.0037170031783823054,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 1,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            222,
+            227,
+            232
+          ],
+          "stage_new_old_ratio": [
+            0.801825202412625,
+            0.8069681128331613
+          ],
+          "saved_us": [
+            27.39199623465538,
+            28.1439907848835
+          ],
+          "max_control_fraction": 0.0011265897853340867,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 1,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            113,
+            118,
+            123
+          ],
+          "stage_new_old_ratio": [
+            0.6573452106415484,
+            0.6623305195152004
+          ],
+          "saved_us": [
+            29.48800101876259,
+            30.191998928785324
+          ],
+          "max_control_fraction": 0.007458585942442086,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 1,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            114,
+            119,
+            124
+          ],
+          "stage_new_old_ratio": [
+            0.6560827147546852,
+            0.6619276572464543
+          ],
+          "saved_us": [
+            29.295995831489563,
+            29.80799786746502
+          ],
+          "max_control_fraction": 0.00515084264905763,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 1,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            5,
+            10,
+            15
+          ],
+          "stage_new_old_ratio": [
+            0.39050825295919406,
+            0.6653176984082714
+          ],
+          "saved_us": [
+            25.903998874127865,
+            26.46399848163128
+          ],
+          "max_control_fraction": 0.004653974648125114,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 1,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            6,
+            11,
+            16
+          ],
+          "stage_new_old_ratio": [
+            0.38814688969949884,
+            0.6687049729605772
+          ],
+          "saved_us": [
+            23.264000192284584,
+            24.271998554468155
+          ],
+          "max_control_fraction": 0.0067114605220210954,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            239,
+            244,
+            249
+          ],
+          "stage_new_old_ratio": [
+            0.7797511279893035,
+            0.7816337417031239
+          ],
+          "saved_us": [
+            32.71999955177307,
+            33.13600271940231
+          ],
+          "max_control_fraction": 0.007444439695774574,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            240,
+            245,
+            250
+          ],
+          "stage_new_old_ratio": [
+            0.7724487506936218,
+            0.7774458719049397
+          ],
+          "saved_us": [
+            33.375997096300125,
+            34.46400165557861
+          ],
+          "max_control_fraction": 0.007394894156260712,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            131,
+            136,
+            141
+          ],
+          "stage_new_old_ratio": [
+            0.8123533637160553,
+            0.8301343157781984
+          ],
+          "saved_us": [
+            35.67998856306076,
+            35.823993384838104
+          ],
+          "max_control_fraction": 0.005363690766239215,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            132,
+            137,
+            142
+          ],
+          "stage_new_old_ratio": [
+            0.8058632213134883,
+            0.8232719528615293
+          ],
+          "saved_us": [
+            36.81600093841553,
+            37.47200220823288
+          ],
+          "max_control_fraction": 0.004225774175926733,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            23,
+            28,
+            33
+          ],
+          "stage_new_old_ratio": [
+            0.7232735427599856,
+            0.7900923663652227
+          ],
+          "saved_us": [
+            35.999998450279236,
+            36.0960029065609
+          ],
+          "max_control_fraction": 0.006064023019020426,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 8,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            24,
+            29,
+            34
+          ],
+          "stage_new_old_ratio": [
+            0.7195464126222432,
+            0.7834696743293402
+          ],
+          "saved_us": [
+            36.000002175569534,
+            37.26400434970856
+          ],
+          "max_control_fraction": 0.007681963497400801,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            257,
+            262,
+            267
+          ],
+          "stage_new_old_ratio": [
+            0.8485778511915383,
+            0.853777462902051
+          ],
+          "saved_us": [
+            34.064002335071564,
+            35.520002245903015
+          ],
+          "max_control_fraction": 0.002541212143192695,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            258,
+            263,
+            268
+          ],
+          "stage_new_old_ratio": [
+            0.8425844033619485,
+            0.8472212699333687
+          ],
+          "saved_us": [
+            35.760000348091125,
+            37.07200288772583
+          ],
+          "max_control_fraction": 0.005195168072563261,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            149,
+            154,
+            159
+          ],
+          "stage_new_old_ratio": [
+            0.8553104671801742,
+            0.8630464647219116
+          ],
+          "saved_us": [
+            38.624003529548645,
+            39.34401273727417
+          ],
+          "max_control_fraction": 0.0004195528836752338,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            150,
+            155,
+            160
+          ],
+          "stage_new_old_ratio": [
+            0.8491479609576212,
+            0.8595261887465865
+          ],
+          "saved_us": [
+            40.11199623346329,
+            40.41600227355957
+          ],
+          "max_control_fraction": 0.0037259117011754217,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            41,
+            46,
+            51
+          ],
+          "stage_new_old_ratio": [
+            0.7772416726536394,
+            0.841609827244431
+          ],
+          "saved_us": [
+            37.151999771595,
+            39.152003824710846
+          ],
+          "max_control_fraction": 0.004474275473047351,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 16,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            42,
+            47,
+            52
+          ],
+          "stage_new_old_ratio": [
+            0.7710504711755325,
+            0.8363451105675092
+          ],
+          "saved_us": [
+            38.54399919509888,
+            40.41600227355957
+          ],
+          "max_control_fraction": 0.003081645369194086,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            275,
+            280,
+            285
+          ],
+          "stage_new_old_ratio": [
+            0.9973686163687592,
+            1.0017921283422593
+          ],
+          "saved_us": [
+            -0.3840029239654541,
+            0.5600005388259888
+          ],
+          "max_control_fraction": 0.00045184469938130967,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            276,
+            281,
+            286
+          ],
+          "stage_new_old_ratio": [
+            0.9954163084746437,
+            1.0003759251998132
+          ],
+          "saved_us": [
+            -0.07999688386917114,
+            0.9759962558746338
+          ],
+          "max_control_fraction": 0.0029305729383465318,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            167,
+            172,
+            177
+          ],
+          "stage_new_old_ratio": [
+            0.9962434310021836,
+            0.9997137024038023
+          ],
+          "saved_us": [
+            0.09600818157196045,
+            1.3440102338790894
+          ],
+          "max_control_fraction": 0.0021947556839048143,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            168,
+            173,
+            178
+          ],
+          "stage_new_old_ratio": [
+            0.99708351072214,
+            1.0017273775102553
+          ],
+          "saved_us": [
+            -0.5760043859481812,
+            1.0399967432022095
+          ],
+          "max_control_fraction": 0.0032628241860379603,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            59,
+            64,
+            69
+          ],
+          "stage_new_old_ratio": [
+            0.9963501151930272,
+            1.0016436843127388
+          ],
+          "saved_us": [
+            -0.4639923572540283,
+            0.9600073099136353
+          ],
+          "max_control_fraction": 0.0032878680379895275,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            60,
+            65,
+            70
+          ],
+          "stage_new_old_ratio": [
+            1.000795362214323,
+            1.001225592592339
+          ],
+          "saved_us": [
+            -0.31998753547668457,
+            -0.20799040794372559
+          ],
+          "max_control_fraction": 0.0021110049149623,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            293,
+            298,
+            303
+          ],
+          "stage_new_old_ratio": [
+            0.998052408900781,
+            0.998926673901334
+          ],
+          "saved_us": [
+            0.5280077457427979,
+            0.9600222110748291
+          ],
+          "max_control_fraction": 0.001853891099414362,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            294,
+            299,
+            304
+          ],
+          "stage_new_old_ratio": [
+            0.9985377857019301,
+            1.000649726143184
+          ],
+          "saved_us": [
+            -0.31998753547668457,
+            0.719994306564331
+          ],
+          "max_control_fraction": 0.0022819604560581075,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            185,
+            190,
+            195
+          ],
+          "stage_new_old_ratio": [
+            0.9983279555793996,
+            1.0003605754125464
+          ],
+          "saved_us": [
+            -0.22402405738830566,
+            1.0400116443634033
+          ],
+          "max_control_fraction": 0.002415914193851343,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            186,
+            191,
+            196
+          ],
+          "stage_new_old_ratio": [
+            1.0006687794372795,
+            1.0021718820426817
+          ],
+          "saved_us": [
+            -1.3439953327178955,
+            -0.41598081588745117
+          ],
+          "max_control_fraction": 0.0020426199764120856,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            77,
+            82,
+            87
+          ],
+          "stage_new_old_ratio": [
+            0.998297124157534,
+            1.0001291165953152
+          ],
+          "saved_us": [
+            -0.08001923561096191,
+            0.9920001029968262
+          ],
+          "max_control_fraction": 0.0009813243881983125,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            78,
+            83,
+            88
+          ],
+          "stage_new_old_ratio": [
+            0.9990952783893057,
+            1.0006328575779853
+          ],
+          "saved_us": [
+            -0.3679990768432617,
+            0.5600154399871826
+          ],
+          "max_control_fraction": 0.0015408862230421594,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            311,
+            316,
+            321
+          ],
+          "stage_new_old_ratio": [
+            0.9958171096292336,
+            1.0008475915492827
+          ],
+          "saved_us": [
+            -0.6560087203979492,
+            3.2320022583007812
+          ],
+          "max_control_fraction": 0.0030854062068372823,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            312,
+            317,
+            322
+          ],
+          "stage_new_old_ratio": [
+            0.9988998275891334,
+            1.003255510058131
+          ],
+          "saved_us": [
+            -2.5439858436584473,
+            0.8479952812194824
+          ],
+          "max_control_fraction": 0.0017298403240142424,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            203,
+            208,
+            213
+          ],
+          "stage_new_old_ratio": [
+            0.9991471001942795,
+            1.0019238016403555
+          ],
+          "saved_us": [
+            -1.439988613128662,
+            0.6399750709533691
+          ],
+          "max_control_fraction": 0.001202448347214502,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            204,
+            209,
+            214
+          ],
+          "stage_new_old_ratio": [
+            0.9981833745872206,
+            0.999103273968612
+          ],
+          "saved_us": [
+            0.6720423698425293,
+            1.3599693775177002
+          ],
+          "max_control_fraction": 0.0022203016069410886,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            95,
+            100,
+            105
+          ],
+          "stage_new_old_ratio": [
+            1.000885847063889,
+            1.0017905165189505
+          ],
+          "saved_us": [
+            -1.3279616832733154,
+            -0.6560087203979492
+          ],
+          "max_control_fraction": 0.0016774221407305223,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            96,
+            101,
+            106
+          ],
+          "stage_new_old_ratio": [
+            1.000343837233938,
+            1.0009891810129157
+          ],
+          "saved_us": [
+            -0.7359981536865234,
+            -0.25600194931030273
+          ],
+          "max_control_fraction": 0.0008601661099919555,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        }
+      ]
+    },
+    {
+      "candidate": "native-v3",
+      "schema_version": 1,
+      "fidelity": "integrated_component",
+      "source": "results/precomp-20261105/results/native-release-paired.jsonl",
+      "source_sha256": "f5515ddfe8979c31bf44c123d72e0ae6d7d634fa464c60288dba93067dfad928",
+      "patch_sha256": "e85da7cab68b2536dc6fe259834c062a7b4378a93abd423ec9c3246b53a9db8e",
+      "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+      "harness_sha256": "b5842e3f31feae110f3d02053cb7645b20c98c1acd43a653f7c27534b7a42025",
+      "kernel_source_sha256": "3eb38b8d658e3becd0d314c2ce4ad717786b9859c7570cee4392458411340736",
+      "image": "lmsysorg/sglang@sha256:8cfc5a72cb296771f5f8a4a4688cb6d05685610a830cbb616fa4ab0eb7bb2b0a",
+      "environment": {
+        "event": "environment",
+        "preparation_seconds": 66.68596927402541,
+        "resources": [
+          132,
+          231168,
+          1,
+          576
+        ],
+        "workspace_bytes": 175163680,
+        "torch": "2.14.1+cu130",
+        "gpu": "NVIDIA H200"
+      },
+      "environment_missing": [
+        "cuda_version_in_this_log"
+      ],
+      "session": "precomp-20261105",
+      "workload": "synthetic random weights and specified routes",
+      "validity": "rejected",
+      "observations": [
+        {
+          "tokens": 32,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            276,
+            284,
+            292
+          ],
+          "stage_new_old_ratio": [
+            1.1122900596316598,
+            1.1165093208743353
+          ],
+          "saved_us": [
+            -24.28799867630005,
+            -23.535996675491333
+          ],
+          "max_control_fraction": 0.002225767349341101,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            277,
+            285,
+            293
+          ],
+          "stage_new_old_ratio": [
+            1.1138018523248843,
+            1.117574925087137
+          ],
+          "saved_us": [
+            -24.54400062561035,
+            -23.760005831718445
+          ],
+          "max_control_fraction": 0.00428786339765308,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            250,
+            258,
+            266
+          ],
+          "stage_new_old_ratio": [
+            1.1019656344690103,
+            1.1044217456515029
+          ],
+          "saved_us": [
+            -34.800007939338684,
+            -33.50400924682617
+          ],
+          "max_control_fraction": 0.0018904444754560545,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            251,
+            259,
+            267
+          ],
+          "stage_new_old_ratio": [
+            1.099189041842715,
+            1.1010607602672815
+          ],
+          "saved_us": [
+            -33.53600203990936,
+            -32.1120023727417
+          ],
+          "max_control_fraction": 0.0025997598173002068,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            224,
+            232,
+            240
+          ],
+          "stage_new_old_ratio": [
+            1.1084484001371047,
+            1.1300348353054364
+          ],
+          "saved_us": [
+            -28.047993779182434,
+            -27.007989585399628
+          ],
+          "max_control_fraction": 0.003115485070289692,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 32,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            225,
+            233,
+            241
+          ],
+          "stage_new_old_ratio": [
+            1.1030682168579293,
+            1.122616208925961
+          ],
+          "saved_us": [
+            -26.351995766162872,
+            -25.584004819393158
+          ],
+          "max_control_fraction": 0.003799177322461489,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            120,
+            128,
+            136
+          ],
+          "stage_new_old_ratio": [
+            0.996828405703894,
+            0.9987859435933161
+          ],
+          "saved_us": [
+            0.5919933319091797,
+            1.552000641822815
+          ],
+          "max_control_fraction": 0.0022576999581115365,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            121,
+            129,
+            137
+          ],
+          "stage_new_old_ratio": [
+            1.0040667742188312,
+            1.007809900450439
+          ],
+          "saved_us": [
+            -3.791987895965576,
+            -1.9840002059936523
+          ],
+          "max_control_fraction": 0.0021953627832345113,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            94,
+            102,
+            110
+          ],
+          "stage_new_old_ratio": [
+            0.7045931881014093,
+            0.7202697340139826
+          ],
+          "saved_us": [
+            172.56000638008118,
+            182.24000930786133
+          ],
+          "max_control_fraction": 0.001687230432229514,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            95,
+            103,
+            111
+          ],
+          "stage_new_old_ratio": [
+            0.7010101747480422,
+            0.7157823843867424
+          ],
+          "saved_us": [
+            175.35999417304993,
+            185.16798317432404
+          ],
+          "max_control_fraction": 0.005347856579352439,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            68,
+            76,
+            84
+          ],
+          "stage_new_old_ratio": [
+            0.6771401769963082,
+            0.6783085873708314
+          ],
+          "saved_us": [
+            193.05603206157684,
+            199.18401539325714
+          ],
+          "max_control_fraction": 0.0005703246069790335,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 128,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            69,
+            77,
+            85
+          ],
+          "stage_new_old_ratio": [
+            0.6709597538670469,
+            0.6762655463827266
+          ],
+          "saved_us": [
+            193.90398263931274,
+            203.5679817199707
+          ],
+          "max_control_fraction": 0.0007747131247748396,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "hot",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            198,
+            206,
+            214
+          ],
+          "stage_new_old_ratio": [
+            0.9893435047221645,
+            1.0003346815662693
+          ],
+          "saved_us": [
+            -0.25600194931030273,
+            8.384019136428833
+          ],
+          "max_control_fraction": 0.0019051109304506486,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "hot",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            199,
+            207,
+            215
+          ],
+          "stage_new_old_ratio": [
+            0.9970412497582233,
+            1.0101895190923462
+          ],
+          "saved_us": [
+            -7.791966199874878,
+            2.3199915885925293
+          ],
+          "max_control_fraction": 0.0023670077949686785,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "mixed",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            172,
+            180,
+            188
+          ],
+          "stage_new_old_ratio": [
+            0.6487467432889436,
+            0.6622535027313885
+          ],
+          "saved_us": [
+            249.39201772212982,
+            260.09601354599
+          ],
+          "max_control_fraction": 0.0018150728238706115,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "mixed",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            173,
+            181,
+            189
+          ],
+          "stage_new_old_ratio": [
+            0.6507425093369811,
+            0.6638344894761998
+          ],
+          "saved_us": [
+            248.78399074077606,
+            258.512020111084
+          ],
+          "max_control_fraction": 0.0014052593409416003,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "uniform",
+          "cache": "cold",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            146,
+            154,
+            162
+          ],
+          "stage_new_old_ratio": [
+            0.5881954483922891,
+            0.6062932134672425
+          ],
+          "saved_us": [
+            288.87999057769775,
+            301.5199899673462
+          ],
+          "max_control_fraction": 0.0006771368799063371,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        },
+        {
+          "tokens": 256,
+          "pattern": "uniform",
+          "cache": "steady",
+          "ep_offset": 32,
+          "blocks": [
+            0,
+            1,
+            2
+          ],
+          "source_lines": [
+            147,
+            155,
+            163
+          ],
+          "stage_new_old_ratio": [
+            0.5863318083533269,
+            0.6052167011945956
+          ],
+          "saved_us": [
+            289.8720055818558,
+            303.3279925584793
+          ],
+          "max_control_fraction": 0.00283421105903936,
+          "range_kind": "observed block range, not a predictive interval",
+          "path_scope": "complete local expert operation after pre-expert norm",
+          "serving_concurrency": null,
+          "independent_sessions": 1
+        }
+      ]
+    }
+  ]
+}

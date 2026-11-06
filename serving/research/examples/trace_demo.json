@@ -1,0 +1,10 @@
+{
+  "source": "MANUFACTURED EXAMPLE ONLY: not a Muse measurement or training label",
+  "resource_edges_complete": true,
+  "nodes": [
+    {"id": "parallel_a", "duration_us": 10},
+    {"id": "parallel_b", "duration_us": 20},
+    {"id": "join", "duration_us": 5, "dependencies": ["parallel_a", "parallel_b"]}
+  ],
+  "changed_duration_us": {"parallel_b": [2, 12]}
+}

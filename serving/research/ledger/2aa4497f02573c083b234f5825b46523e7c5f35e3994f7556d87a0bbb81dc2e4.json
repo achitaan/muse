@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "kind": "source_audit",
+  "recorded_at": "2026-11-06T05:35:33.613262+00:00",
+  "payload": {
+    "schema_version": 1,
+    "audit_id": "pinned-serving-source-20261106",
+    "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+    "checkout": "/home/achita/muse-serving/sglang",
+    "checkout_modified": false,
+    "gpu_jobs": 0,
+    "sources": {
+      "python/sglang/srt/speculative/dflash_worker_v2.py": "7d462f5f175828bcc3b4d47fcdfa33cb6af4b14669ef016eeb79b1a5191eec8c",
+      "python/sglang/srt/layers/muse_spark_fp4_moe.py": "1d377424e4c1f486f72a0e8ea67ea41dca4bd3f6929aa3729f5f7480861ed352",
+      "python/sglang/kernels/ops/moe/moe_wna16_marlin.py": "a34fa1daf24a6286d5d027c6ae45dac5fea144abd606a65b722fecd091513398"
+    },
+    "decisions": [
+      {
+        "candidate": "route-workspace",
+        "status": "parked",
+        "reason": "Allocations exist, but no exposed replay cost is established. Decode has a distinct capture/replay path; allocation-count reduction alone is not a serving gain.",
+        "evidence": [
+          "muse_spark_fp4_moe.py:500-512 creates workspace and aliases cache1/cache3 within cache13",
+          "moe_wna16_marlin.py:74-77 already accepts a caller-provided output",
+          "moe_wna16_marlin.py:114-130 conditionally allocates activation ordering and FP32 reduction scratch",
+          "decode_cuda_graph_runner.py:1060,1174,1556 has capture and backend replay paths"
+        ],
+        "reopen_condition": "A serving trace identifies repeated uncaptured allocation/initialization on the critical path, with call frequency and a safe lifetime model."
+      },
+      {
+        "candidate": "dflash-metadata",
+        "status": "parked",
+        "reason": "Reusable buffers already exist and proposed transfers are device/dtype guarded. No repeated exposed transfer has been demonstrated.",
+        "evidence": [
+          "dflash_worker_v2.py:1067-1082 allocates reusable block and CPU-length buffers",
+          "dflash_worker_v2.py:1883-1905 transfers only on device mismatch and casts only on dtype mismatch",
+          "dflash_worker_v2.py:2564,2590-2596 reuses the CPU lengths buffer; these CPU copies are not evidence of GPU synchronization"
+        ],
+        "reopen_condition": "A trace shows actual repeated transfers on the selected path and the call-site device/dtype identities explain why guards do not skip them."
+      }
+    ]
+  }
+}
