@@ -18,7 +18,7 @@ serving estimates are null until workload/critical-path features exist.
 
 The latest follow-up supersedes the old MoE design: a resident-Marlin implementation
 already exists, and the ordered-buffer follow-up already failed T128 equivalence.
-Do not restart those as novel hypotheses. Read ../FOLLOWUP_HANDOFF.md, ../TRIED.md
+Do not restart those as novel hypotheses. Read ../FOLLOWUP_HANDOFF.md, ../../TRIED.md
 (repository root), and ../../notes/loop-2026-11-04/LOOP_LOG.md before candidate work.
 
 ## Interface and versioned feature contract
@@ -112,8 +112,13 @@ Nov20 00:00 Pacific closing; 409600-byte patch cap, 400-character added-line cap
 The prior $50 total and $15 additional pre-opening limits remain; this work spent $0.
 No eight-GPU rental is authorized. Previously rented SGLang checkouts were deleted
 with the pods. Previously recorded macOS can/serving paths are not assumed local.
-Local serving worktree exists, but locating a surviving full pinned checkout remains
-an inventory task; the engine does not depend on one.
+Located `/home/achita/muse-serving/sglang` in WSL. Its active `my-patch` branch is at
+`ecc0ea98fb46d27f4e468035e873be35e570d996`, not the evaluator revision. The pinned
+`a55ab7d5` object exists and was read with `git show`; the checkout was not changed.
+Pinned DFlash source already allocates reusable metadata buffers around lines
+1067–1082. Mere buffer reuse is therefore not a novel candidate. Pinned Marlin code
+has temporary allocations around lines 77, 114 and 128; their presence does not prove
+exposed serving cost because graph capture may already amortize allocation.
 
 This milestone supplies the minimum schema, historical dataset, callable analytical
 model, freeze/ingest/calibration loop and guard tests. Remaining work is source-backed
