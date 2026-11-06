@@ -1,0 +1,17 @@
+[1/2] ccache /usr/local/cuda/bin/nvcc -MD -MF native_marlin_wgs.cuda.o.d -DTORCH_EXTENSION_NAME=muse_native_marlin_4a90454c43b3 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++20 -gencode=arch=compute_90a,code=sm_90a -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 --ptxas-options=-v -c /workspace/muse-precomp/native_marlin_wgs.cu -o native_marlin_wgs.cuda.o 
+FAILED: [code=2] native_marlin_wgs.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF native_marlin_wgs.cuda.o.d -DTORCH_EXTENSION_NAME=muse_native_marlin_4a90454c43b3 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++20 -gencode=arch=compute_90a,code=sm_90a -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 --ptxas-options=-v -c /workspace/muse-precomp/native_marlin_wgs.cu -o native_marlin_wgs.cuda.o 
+/workspace/muse-precomp/native_marlin_wgs.cu(149): error: identifier "OKC_NSF" is undefined
+  static_assert(OKC_NSF <= 7 && OKC_NS <= 5, "barrier slots");
+                ^
+
+/workspace/muse-precomp/native_marlin_wgs.cu(149): error: identifier "OKC_NS" is undefined
+  static_assert(OKC_NSF <= 7 && OKC_NS <= 5, "barrier slots");
+                                ^
+
+/workspace/muse-precomp/native_marlin_wgs.cu(2493): error: identifier "OKC_NS" is undefined
+    size_t xa = (size_t)OKC_NS * okc::UNIT_BYTES + (8 > 8 ? (size_t)okc::NW * 8 * okc::X1P * 2 : 0);
+                        ^
+
+3 errors detected in the compilation of "/workspace/muse-precomp/native_marlin_wgs.cu".
+ninja: build stopped: subcommand failed.

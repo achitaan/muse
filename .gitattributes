@@ -4,3 +4,10 @@ best/** -text
 results/** -text
 muse_bf16_proj/** -text
 board_best/decoder_pdli_scored_2.0755.py -text
+
+serving/*.diff text eol=lf
+serving/native_marlin* text eol=lf
+serving/*.py text eol=lf
+serving/*.json text eol=lf
+serving/results/** text eol=lf
+serving/experiments/native_*/* text eol=lf

@@ -1,0 +1,44 @@
+ninja: no work to do.
+{"event": "prepared", "seconds": 0.07485780003480613, "resources": [132, 231168, 1, 576], "workspace_bytes": 158378272}
+{"event": "tile_pass", "phase": 0, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 0, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 0, "expert": 31, "unit": 15, "stage": 15}
+{"event": "tile_pass", "phase": 1, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 1, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 1, "expert": 31, "unit": 15, "stage": 15}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 5.454924394143745e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011563575390027836, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00039151692180894315, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005301456549204886, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "gemm1", "null": {"bit_equal": false, "rel_l2": 9.813929864321835e-06, "max_abs": 0.00390625}, "candidate": {"bit_equal": false, "rel_l2": 6.283910624915734e-05, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "swi", "null": {"bit_equal": false, "rel_l2": 1.0478421245352365e-05, "max_abs": 0.00048828125}, "candidate": {"bit_equal": false, "rel_l2": 9.984929783968255e-05, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "gemm2", "null": {"bit_equal": false, "rel_l2": 6.542631308548152e-05, "max_abs": 0.000244140625}, "candidate": {"bit_equal": false, "rel_l2": 0.00036886712769046426, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "hot", "null": {"bit_equal": false, "rel_l2": 0.00012130579852964729, "max_abs": 0.0078125}, "candidate": {"bit_equal": false, "rel_l2": 0.0006332875927910209, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "remote", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 7.012733112787828e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011059966345783323, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.000398780161049217, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 256, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005349457496777177, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 256, "pattern": "hot", "stage": "gemm1", "null": {"bit_equal": false, "rel_l2": 1.673928454692941e-05, "max_abs": 0.0078125}, "candidate": {"bit_equal": false, "rel_l2": 6.736995419487357e-05, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 256, "pattern": "hot", "stage": "swi", "null": {"bit_equal": false, "rel_l2": 2.19806534005329e-05, "max_abs": 0.001953125}, "candidate": {"bit_equal": false, "rel_l2": 0.0001040658462443389, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 256, "pattern": "hot", "stage": "gemm2", "null": {"bit_equal": false, "rel_l2": 0.00010119885700987652, "max_abs": 0.000244140625}, "candidate": {"bit_equal": false, "rel_l2": 0.00038886949187144637, "max_abs": 0.00048828125}}
+{"event": "combined", "tokens": 256, "pattern": "hot", "null": {"bit_equal": false, "rel_l2": 0.00019224312563892454, "max_abs": 0.0078125}, "candidate": {"bit_equal": false, "rel_l2": 0.0006797061651013792, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 256, "pattern": "remote", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 256, "pattern": "remote", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 256, "pattern": "remote", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 256, "pattern": "remote", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 4.7473833546973765e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.000117826959467493, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00034853702527470887, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 32, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00042994198156520724, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 32, "pattern": "hot", "stage": "gemm1", "null": {"bit_equal": false, "rel_l2": 2.1057790945633315e-05, "max_abs": 0.00390625}, "candidate": {"bit_equal": false, "rel_l2": 6.570845289388672e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 32, "pattern": "hot", "stage": "swi", "null": {"bit_equal": false, "rel_l2": 2.7395926736062393e-05, "max_abs": 0.0009765625}, "candidate": {"bit_equal": false, "rel_l2": 0.00010286233737133443, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 32, "pattern": "hot", "stage": "gemm2", "null": {"bit_equal": false, "rel_l2": 0.0001300840376643464, "max_abs": 0.000244140625}, "candidate": {"bit_equal": false, "rel_l2": 0.0003885117475874722, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 32, "pattern": "hot", "null": {"bit_equal": false, "rel_l2": 0.00023149947810452431, "max_abs": 0.0078125}, "candidate": {"bit_equal": false, "rel_l2": 0.0006928984075784683, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 32, "pattern": "remote", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 32, "pattern": "remote", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 32, "pattern": "remote", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 32, "pattern": "remote", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}

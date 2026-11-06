@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2906, in _run_ninja_build
+    subprocess.run(
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['ninja', '-v', '-j', '4']' returned non-zero exit status 1.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/muse-precomp/check_native_marlin.py", line 117, in <module>
+    main()
+  File "/workspace/muse-precomp/check_native_marlin.py", line 69, in main
+    state = NativeState(layer, offset=args.offset)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/muse-precomp/native_marlin.py", line 31, in __init__
+    self.ext = load_extension()
+               ^^^^^^^^^^^^^^^^
+  File "/workspace/muse-precomp/native_marlin.py", line 16, in load_extension
+    return load(
+           ^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 1937, in load
+    return _jit_compile(
+           ^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2398, in _jit_compile
+    _write_ninja_file_and_build_library(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2555, in _write_ninja_file_and_build_library
+    _run_ninja_build(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2923, in _run_ninja_build
+    raise RuntimeError(message) from e
+RuntimeError: Error building extension 'muse_native_marlin_4a90454c43b3'

@@ -1,0 +1,920 @@
+{
+  "scope": "synthetic single-H200 expert operations; no full-server answer/throughput evidence",
+  "s1_status": "retained first candidate, pending official serving equivalence",
+  "moe_status": "experimental only; no accepted or enabled serving regime",
+  "s1": [
+    {
+      "tokens": 1,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.1864158183436252,
+        0.19149901290443927
+      ],
+      "saved_us_range": [
+        26.479993015527725,
+        27.104005217552185
+      ],
+      "max_abs_null_control": 0.0037170031783823054,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 1,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.19303188716683872,
+        0.198174797587375
+      ],
+      "saved_us_range": [
+        27.39199623465538,
+        28.1439907848835
+      ],
+      "max_abs_null_control": 0.0011265897853340867,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 1,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3376694804847996,
+        0.3426547893584516
+      ],
+      "saved_us_range": [
+        29.48800101876259,
+        30.191998928785324
+      ],
+      "max_abs_null_control": 0.007458585942442086,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 1,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3380723427535457,
+        0.34391728524531484
+      ],
+      "saved_us_range": [
+        29.295995831489563,
+        29.80799786746502
+      ],
+      "max_abs_null_control": 0.00515084264905763,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 1,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3346823015917286,
+        0.6094917470408059
+      ],
+      "saved_us_range": [
+        25.903998874127865,
+        26.46399848163128
+      ],
+      "max_abs_null_control": 0.004653974648125114,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 1,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3312950270394228,
+        0.6118531103005012
+      ],
+      "saved_us_range": [
+        23.264000192284584,
+        24.271998554468155
+      ],
+      "max_abs_null_control": 0.0067114605220210954,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.21836625829687606,
+        0.22024887201069654
+      ],
+      "saved_us_range": [
+        32.71999955177307,
+        33.13600271940231
+      ],
+      "max_abs_null_control": 0.007444439695774574,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.22255412809506026,
+        0.22755124930637816
+      ],
+      "saved_us_range": [
+        33.375997096300125,
+        34.46400165557861
+      ],
+      "max_abs_null_control": 0.007394894156260712,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.1698656842218016,
+        0.18764663628394473
+      ],
+      "saved_us_range": [
+        35.67998856306076,
+        35.823993384838104
+      ],
+      "max_abs_null_control": 0.005363690766239215,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.17672804713847068,
+        0.1941367786865117
+      ],
+      "saved_us_range": [
+        36.81600093841553,
+        37.47200220823288
+      ],
+      "max_abs_null_control": 0.004225774175926733,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.20990763363477727,
+        0.27672645724001443
+      ],
+      "saved_us_range": [
+        35.999998450279236,
+        36.0960029065609
+      ],
+      "max_abs_null_control": 0.006064023019020426,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 8,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.21653032567065977,
+        0.28045358737775683
+      ],
+      "saved_us_range": [
+        36.000002175569534,
+        37.26400434970856
+      ],
+      "max_abs_null_control": 0.007681963497400801,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.14622253709794897,
+        0.15142214880846172
+      ],
+      "saved_us_range": [
+        34.064002335071564,
+        35.520002245903015
+      ],
+      "max_abs_null_control": 0.002541212143192695,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.15277873006663134,
+        0.1574155966380515
+      ],
+      "saved_us_range": [
+        35.760000348091125,
+        37.07200288772583
+      ],
+      "max_abs_null_control": 0.005195168072563261,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.1369535352780884,
+        0.14468953281982577
+      ],
+      "saved_us_range": [
+        38.624003529548645,
+        39.34401273727417
+      ],
+      "max_abs_null_control": 0.0004195528836752338,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.14047381125341352,
+        0.15085203904237876
+      ],
+      "saved_us_range": [
+        40.11199623346329,
+        40.41600227355957
+      ],
+      "max_abs_null_control": 0.0037259117011754217,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.158390172755569,
+        0.22275832734636059
+      ],
+      "saved_us_range": [
+        37.151999771595,
+        39.152003824710846
+      ],
+      "max_abs_null_control": 0.004474275473047351,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 16,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.16365488943249085,
+        0.2289495288244675
+      ],
+      "saved_us_range": [
+        38.54399919509888,
+        40.41600227355957
+      ],
+      "max_abs_null_control": 0.003081645369194086,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 32,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0017921283422592804,
+        0.0026313836312408245
+      ],
+      "saved_us_range": [
+        -0.3840029239654541,
+        0.5600005388259888
+      ],
+      "max_abs_null_control": 0.00045184469938130967,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0003759251998132207,
+        0.004583691525356315
+      ],
+      "saved_us_range": [
+        -0.07999688386917114,
+        0.9759962558746338
+      ],
+      "max_abs_null_control": 0.0029305729383465318,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.00028629759619769324,
+        0.0037565689978164007
+      ],
+      "saved_us_range": [
+        0.09600818157196045,
+        1.3440102338790894
+      ],
+      "max_abs_null_control": 0.0021947556839048143,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0017273775102553124,
+        0.002916489277860035
+      ],
+      "saved_us_range": [
+        -0.5760043859481812,
+        1.0399967432022095
+      ],
+      "max_abs_null_control": 0.0032628241860379603,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.001643684312738758,
+        0.003649884806972814
+      ],
+      "saved_us_range": [
+        -0.4639923572540283,
+        0.9600073099136353
+      ],
+      "max_abs_null_control": 0.0032878680379895275,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0012255925923390087,
+        -0.000795362214323081
+      ],
+      "saved_us_range": [
+        -0.31998753547668457,
+        -0.20799040794372559
+      ],
+      "max_abs_null_control": 0.0021110049149623,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.0010733260986659499,
+        0.0019475910992190482
+      ],
+      "saved_us_range": [
+        0.5280077457427979,
+        0.9600222110748291
+      ],
+      "max_abs_null_control": 0.001853891099414362,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0006497261431839263,
+        0.0014622142980699193
+      ],
+      "saved_us_range": [
+        -0.31998753547668457,
+        0.719994306564331
+      ],
+      "max_abs_null_control": 0.0022819604560581075,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.00036057541254641556,
+        0.001672044420600427
+      ],
+      "saved_us_range": [
+        -0.22402405738830566,
+        1.0400116443634033
+      ],
+      "max_abs_null_control": 0.002415914193851343,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0021718820426817054,
+        -0.0006687794372794986
+      ],
+      "saved_us_range": [
+        -1.3439953327178955,
+        -0.41598081588745117
+      ],
+      "max_abs_null_control": 0.0020426199764120856,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.00012911659531522623,
+        0.0017028758424659785
+      ],
+      "saved_us_range": [
+        -0.08001923561096191,
+        0.9920001029968262
+      ],
+      "max_abs_null_control": 0.0009813243881983125,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0006328575779852574,
+        0.0009047216106943257
+      ],
+      "saved_us_range": [
+        -0.3679990768432617,
+        0.5600154399871826
+      ],
+      "max_abs_null_control": 0.0015408862230421594,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0008475915492827113,
+        0.004182890370766357
+      ],
+      "saved_us_range": [
+        -0.6560087203979492,
+        3.2320022583007812
+      ],
+      "max_abs_null_control": 0.0030854062068372823,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0032555100581310725,
+        0.0011001724108665734
+      ],
+      "saved_us_range": [
+        -2.5439858436584473,
+        0.8479952812194824
+      ],
+      "max_abs_null_control": 0.0017298403240142424,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0019238016403555491,
+        0.0008528998057204529
+      ],
+      "saved_us_range": [
+        -1.439988613128662,
+        0.6399750709533691
+      ],
+      "max_abs_null_control": 0.001202448347214502,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.0008967260313880177,
+        0.0018166254127793824
+      ],
+      "saved_us_range": [
+        0.6720423698425293,
+        1.3599693775177002
+      ],
+      "max_abs_null_control": 0.0022203016069410886,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.001790516518950458,
+        -0.0008858470638890559
+      ],
+      "saved_us_range": [
+        -1.3279616832733154,
+        -0.6560087203979492
+      ],
+      "max_abs_null_control": 0.0016774221407305223,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.0009891810129156742,
+        -0.0003438372339379381
+      ],
+      "saved_us_range": [
+        -0.7359981536865234,
+        -0.25600194931030273
+      ],
+      "max_abs_null_control": 0.0008601661099919555,
+      "performance_threshold_only": false
+    }
+  ],
+  "moe": [
+    {
+      "tokens": 32,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.1165093208743353,
+        -0.11229005963165983
+      ],
+      "saved_us_range": [
+        -24.28799867630005,
+        -23.535996675491333
+      ],
+      "max_abs_null_control": 0.002225767349341101,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.11757492508713696,
+        -0.11380185232488427
+      ],
+      "saved_us_range": [
+        -24.54400062561035,
+        -23.760005831718445
+      ],
+      "max_abs_null_control": 0.00428786339765308,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.10442174565150286,
+        -0.1019656344690103
+      ],
+      "saved_us_range": [
+        -34.800007939338684,
+        -33.50400924682617
+      ],
+      "max_abs_null_control": 0.0018904444754560545,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.1010607602672815,
+        -0.09918904184271504
+      ],
+      "saved_us_range": [
+        -33.53600203990936,
+        -32.1120023727417
+      ],
+      "max_abs_null_control": 0.0025997598173002068,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.13003483530543636,
+        -0.10844840013710466
+      ],
+      "saved_us_range": [
+        -28.047993779182434,
+        -27.007989585399628
+      ],
+      "max_abs_null_control": 0.003115485070289692,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 32,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.12261620892596103,
+        -0.10306821685792933
+      ],
+      "saved_us_range": [
+        -26.351995766162872,
+        -25.584004819393158
+      ],
+      "max_abs_null_control": 0.003799177322461489,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.0012140564066839277,
+        0.0031715942961060284
+      ],
+      "saved_us_range": [
+        0.5919933319091797,
+        1.552000641822815
+      ],
+      "max_abs_null_control": 0.0022576999581115365,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.007809900450439056,
+        -0.004066774218831171
+      ],
+      "saved_us_range": [
+        -3.791987895965576,
+        -1.9840002059936523
+      ],
+      "max_abs_null_control": 0.0021953627832345113,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 128,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.27973026598601736,
+        0.29540681189859075
+      ],
+      "saved_us_range": [
+        172.56000638008118,
+        182.24000930786133
+      ],
+      "max_abs_null_control": 0.001687230432229514,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 128,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.28421761561325765,
+        0.29898982525195783
+      ],
+      "saved_us_range": [
+        175.35999417304993,
+        185.16798317432404
+      ],
+      "max_abs_null_control": 0.005347856579352439,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 128,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.32169141262916856,
+        0.32285982300369176
+      ],
+      "saved_us_range": [
+        193.05603206157684,
+        199.18401539325714
+      ],
+      "max_abs_null_control": 0.0005703246069790335,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 128,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3237344536172734,
+        0.32904024613295313
+      ],
+      "saved_us_range": [
+        193.90398263931274,
+        203.5679817199707
+      ],
+      "max_abs_null_control": 0.0007747131247748396,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 256,
+      "pattern": "hot",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.00033468156626925705,
+        0.01065649527783552
+      ],
+      "saved_us_range": [
+        -0.25600194931030273,
+        8.384019136428833
+      ],
+      "max_abs_null_control": 0.0019051109304506486,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "hot",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        -0.010189519092346222,
+        0.0029587502417767197
+      ],
+      "saved_us_range": [
+        -7.791966199874878,
+        2.3199915885925293
+      ],
+      "max_abs_null_control": 0.0023670077949686785,
+      "performance_threshold_only": false
+    },
+    {
+      "tokens": 256,
+      "pattern": "mixed",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3377464972686115,
+        0.35125325671105645
+      ],
+      "saved_us_range": [
+        249.39201772212982,
+        260.09601354599
+      ],
+      "max_abs_null_control": 0.0018150728238706115,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 256,
+      "pattern": "mixed",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.33616551052380017,
+        0.3492574906630189
+      ],
+      "saved_us_range": [
+        248.78399074077606,
+        258.512020111084
+      ],
+      "max_abs_null_control": 0.0014052593409416003,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 256,
+      "pattern": "uniform",
+      "cache": "cold",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3937067865327575,
+        0.4118045516077109
+      ],
+      "saved_us_range": [
+        288.87999057769775,
+        301.5199899673462
+      ],
+      "max_abs_null_control": 0.0006771368799063371,
+      "performance_threshold_only": true
+    },
+    {
+      "tokens": 256,
+      "pattern": "uniform",
+      "cache": "steady",
+      "blocks": 3,
+      "latency_reduction_range": [
+        0.3947832988054044,
+        0.4136681916466731
+      ],
+      "saved_us_range": [
+        289.8720055818558,
+        303.3279925584793
+      ],
+      "max_abs_null_control": 0.00283421105903936,
+      "performance_threshold_only": true
+    }
+  ],
+  "patches": {
+    "s1_postnorm_v2.patch.diff": {
+      "bytes": 7375,
+      "sha256": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f",
+      "files": [
+        "python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py",
+        "python/sglang/srt/layers/muse_spark_fp4_moe.py",
+        "python/sglang/test/kernels/test_muse_spark_post_expert_norm.py"
+      ]
+    },
+    "moe_direct_marlin.experimental.patch.diff": {
+      "bytes": 168310,
+      "sha256": "e85da7cab68b2536dc6fe259834c062a7b4378a93abd423ec9c3246b53a9db8e",
+      "files": [
+        "python/sglang/srt/layers/muse_spark_fp4_moe.py",
+        "python/sglang/srt/models/muse_spark.py",
+        "python/sglang/srt/layers/quantization/muse_spark_nvfp4_moe.py",
+        "python/sglang/kernels/ops/muse_spark_v12/native_marlin.py",
+        "python/sglang/kernels/ops/muse_spark_v12/native_marlin_wgs.cu",
+        "python/sglang/kernels/ops/muse_spark_v12/native_marlin_tiles.cuh"
+      ]
+    }
+  },
+  "s1_coverage": {
+    "case_start": 336,
+    "case_done": 312,
+    "empty_pass": 24,
+    "fresh_replay": 312
+  },
+  "moe_coverage": {
+    "case_start": 1392,
+    "case_done": 1344,
+    "empty_pass": 48,
+    "fresh_replay": 6720
+  },
+  "precision": [
+    {
+      "file": "native-release-paired.jsonl",
+      "max_recorded_relative_l2": 0.0007043651421554387,
+      "acceptance": "unresolved; no numerical tolerance substituted for serving acceptance"
+    },
+    {
+      "file": "native-v3-epsilon.jsonl",
+      "max_recorded_relative_l2": 0.011491870507597923,
+      "acceptance": "unresolved; no numerical tolerance substituted for serving acceptance"
+    }
+  ]
+}

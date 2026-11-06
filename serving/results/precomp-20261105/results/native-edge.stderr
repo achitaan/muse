@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/workspace/muse-precomp/check_native_marlin.py", line 121, in <module>
+    main()
+  File "/workspace/muse-precomp/check_native_marlin.py", line 79, in main
+    torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+  File "/opt/sglang/lib/python3.12/site-packages/torch/testing/_comparison.py", line 1689, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not equal!
+
+Mismatched elements: 2871 / 65536 (4.4%)
+Greatest absolute difference: 1.5798644075051544e-35 at index (1, 178)
+Greatest relative difference: 1.0 at index (1, 176)

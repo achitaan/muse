@@ -1,0 +1,19 @@
+[1/2] ccache /usr/local/cuda/bin/nvcc -MD -MF native_marlin_wgs.cuda.o.d -DTORCH_EXTENSION_NAME=muse_native_marlin_4a90454c43b3 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 --ptxas-options=-v -c /workspace/muse-precomp/native_marlin_wgs.cu -o native_marlin_wgs.cuda.o 
+FAILED: [code=1] native_marlin_wgs.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF native_marlin_wgs.cuda.o.d -DTORCH_EXTENSION_NAME=muse_native_marlin_4a90454c43b3 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 --ptxas-options=-v -c /workspace/muse-precomp/native_marlin_wgs.cu -o native_marlin_wgs.cuda.o 
+In file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/extension.h:6,
+                 from /workspace/muse-precomp/native_marlin_wgs.cu:2485:
+/opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/all.h:5:2: error: #error C++20 or later compatible compiler is required to use PyTorch.
+    5 | #error C++20 or later compatible compiler is required to use PyTorch.
+      |  ^~~~~
+In file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/types.h:4,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader_options.h:5,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader/base.h:4,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader/stateful.h:5,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader.h:4,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data.h:4,
+                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/all.h:10:
+/opt/sglang/lib/python3.12/site-packages/torch/include/ATen/ATen.h:5:2: error: #error C++20 or later compatible compiler is required to use ATen.
+    5 | #error C++20 or later compatible compiler is required to use ATen.
+      |  ^~~~~
+ninja: build stopped: subcommand failed.

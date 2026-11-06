@@ -1,0 +1,18 @@
+========= COMPUTE-SANITIZER
+ninja: no work to do.
+{"event": "prepared", "seconds": 0.2145832609385252, "resources": [132, 231168, 1, 576], "workspace_bytes": 158378272}
+{"event": "tile_pass", "phase": 0, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 0, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 0, "expert": 31, "unit": 15, "stage": 15}
+{"event": "tile_pass", "phase": 1, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 1, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 1, "expert": 31, "unit": 15, "stage": 15}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 5.454924394143745e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011563575390027836, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00039151692180894315, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005301456549204886, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "remote", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+========= ERROR SUMMARY: 0 errors

@@ -1,0 +1,23 @@
+{
+  "bench_marlin_stock.py": "b4a4573853e43c7fae8ed5f655b6577df582eabca6788d252950d727737235fe",
+  "bench_native_marlin.py": "b5842e3f31feae110f3d02053cb7645b20c98c1acd43a653f7c27534b7a42025",
+  "bench_precomp.py": "6ceed3a24c95410e181db14ae44366307d96a8db0e7f87b3d2d976d902dba909",
+  "build_native_patch.py": "19353046c3f8b73aa0dbad2a4ebe6bf97b576f16a71c3c415cb752ab4f16d3b1",
+  "build_native_source.py": "9d13b63cffa0f0a2c8080edb07b6cd2dffc08973ee86978dcc08442275248a3e",
+  "check_marlin_nvfp4_layout.py": "936f173590faa8f793b8a7e894905da4c4353a98edca223f55b6efe1ccdaf30a",
+  "check_native_marlin.py": "de2b73e85cab52bd3260a65f3b38c8084b0dbe3164d4a644c5676c3c5fa61a64",
+  "check_native_replay.py": "3c3ffafcc911eadd1989e6fb0c60135d1f3561f841839af579e9b832c98068b6",
+  "marlin_nvfp4_layout.py": "19e050faf779b43e2e77b47cffd7aa59d84a1ed0887fedc91249df388d0f0209",
+  "moe_direct_marlin.experimental.patch.diff": "e85da7cab68b2536dc6fe259834c062a7b4378a93abd423ec9c3246b53a9db8e",
+  "native_marlin.py": "f0d9b9d3bad191b7fae6d9b69d7cf18f3ae308f2182e9ad700d882025ee86e44",
+  "native_marlin_host.inc": "9610f838040e833b87d76c564ec14f614a9cfb0f5f4e90ee5de439f1c4c87f24",
+  "native_marlin_tiles.cuh": "2c372140483704e0a6a12652c2d7f138fef0ed342f40c9d9c6ac534ac8c2560f",
+  "native_marlin_wgs.cu": "3eb38b8d658e3becd0d314c2ce4ad717786b9859c7570cee4392458411340736",
+  "s1_postnorm_v2.patch.diff": "ea7f03abf143c671694d4caa421530f8d76bcc531a7c4b6063a358a1aabf9a7f",
+  "summarize_precomp.py": "b44f96ef1d893e236a63db3bce54ade0c06ab7922344e69053b73ddc760d62a7",
+  "test_native_integration.py": "07efa530f5be8c1e66bc0e0ce1974664eed0c3237f0562ad5b69a1c67935c50c",
+  "_base_commit": "19e09dd694d748d6ef77bd0e09308f56c3b210ca",
+  "_retained_board_source": "f72cdf2b5438c70369b0fb823e171f4022b22b97f0dff66c6170dfe3aaf845fb",
+  "_coverage_cuda_sha256": "694e2b760c58b513f0a477295c94d2ca115771f0e5239e536adf812ccd2b99f1",
+  "_release_difference": "Removed spaces on one blank CUDA source line; final paired measurements rebuilt exact release source."
+}

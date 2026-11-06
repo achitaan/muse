@@ -1,0 +1,44 @@
+ninja: no work to do.
+{"event": "prepared", "seconds": 0.07489765202626586, "resources": [132, 231168, 1, 576], "workspace_bytes": 158378272}
+{"event": "tile_pass", "phase": 0, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 0, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 0, "expert": 31, "unit": 15, "stage": 15}
+{"event": "tile_pass", "phase": 1, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 1, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 1, "expert": 31, "unit": 15, "stage": 15}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 9.120245522353798e-05, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00012362675624899566, "max_abs": 3.5762786865234375e-07}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0004546449345070869, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 128, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.000550975208170712, "max_abs": 0.005859375}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 9.83472855295986e-05, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00014992196520324796, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00047866578097455204, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 128, "pattern": "mixed", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005939907860010862, "max_abs": 0.005859375}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00010155977361137047, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00016138907813001424, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0004975968040525913, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 128, "pattern": "local", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.000749854720197618, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00010859464237000793, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00014941362314857543, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 256, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0004483731172513217, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 256, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005913276108913124, "max_abs": 0.005859375}}
+{"event": "stage", "tokens": 256, "pattern": "mixed", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 9.600158227840438e-05, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 256, "pattern": "mixed", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00013378876610659063, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 256, "pattern": "mixed", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00043624770478345454, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 256, "pattern": "mixed", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005776598700322211, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 256, "pattern": "local", "stage": "gemm1", "null": {"bit_equal": false, "rel_l2": 5.453199264593422e-06, "max_abs": 6.103515625e-05}, "candidate": {"bit_equal": false, "rel_l2": 0.0001011998247122392, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 256, "pattern": "local", "stage": "swi", "null": {"bit_equal": false, "rel_l2": 6.350041076075286e-06, "max_abs": 1.1920928955078125e-07}, "candidate": {"bit_equal": false, "rel_l2": 0.000153393906657584, "max_abs": 9.5367431640625e-07}}
+{"event": "stage", "tokens": 256, "pattern": "local", "stage": "gemm2", "null": {"bit_equal": false, "rel_l2": 2.9655393518623896e-05, "max_abs": 7.62939453125e-06}, "candidate": {"bit_equal": false, "rel_l2": 0.00047944599646143615, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 256, "pattern": "local", "null": {"bit_equal": false, "rel_l2": 5.1808143325615674e-05, "max_abs": 0.00390625}, "candidate": {"bit_equal": false, "rel_l2": 0.0007398637826554477, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011806111433543265, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00020394931198097765, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 32, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005100233829580247, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 32, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005401452071964741, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 32, "pattern": "mixed", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00010372636461397633, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 32, "pattern": "mixed", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0001341205061180517, "max_abs": 2.384185791015625e-07}}
+{"event": "stage", "tokens": 32, "pattern": "mixed", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.000437404727563262, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 32, "pattern": "mixed", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0006042885361239314, "max_abs": 0.005859375}}
+{"event": "stage", "tokens": 32, "pattern": "local", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00010043313523055986, "max_abs": 0.0001220703125}}
+{"event": "stage", "tokens": 32, "pattern": "local", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0001698776613920927, "max_abs": 4.76837158203125e-07}}
+{"event": "stage", "tokens": 32, "pattern": "local", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005367777775973082, "max_abs": 1.52587890625e-05}}
+{"event": "combined", "tokens": 32, "pattern": "local", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0008253880660049617, "max_abs": 0.0078125}}

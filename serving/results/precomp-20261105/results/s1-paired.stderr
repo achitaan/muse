@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/muse-precomp/bench_precomp.py", line 191, in <module>
+    main()
+  File "/workspace/muse-precomp/bench_precomp.py", line 185, in main
+    run_case(torch, layer, generator, flush, args, tokens, pattern, offset)
+  File "/workspace/muse-precomp/bench_precomp.py", line 148, in run_case
+    assert torch.equal(outputs["stock_a"], outputs["s1"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

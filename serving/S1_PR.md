@@ -1,5 +1,20 @@
 # Use fused post-expert norm for small NVFP4 Marlin batches
 
+## November 5 preparation update
+
+The v2 patch has now been tested through normal imports on the official H200
+image and pinned SGLang commit: **115 focused tests passed**, and the combined
+S1/dormant-MoE integration suite passed 159 tests. Fresh paired measurements of the
+complete synthetic expert operation saved approximately 23–40 microseconds at
+T=1/8/16, with three captures, stock controls, and separate cold/steady timings.
+The routing/shape sweep covered 336 cases. Generated-answer agreement and full-server
+throughput remain unmeasured; some observed stock-repeat-equal outputs differ under
+S1, so numerical operator tests do not establish serving acceptance.
+
+See [the completed handoff](PRECOMP_HANDOFF.md), [raw results](results/precomp-20261105/),
+and [the grouped measurements](PRECOMP_RESULTS.json). The earlier cleanup validation
+and “no local GPU” statements below describe the historical preparation stage.
+
 ## Motivation and change
 
 `MuseSpark1xFp4Experts._forward_marlin` already uses the Triton post-expert

@@ -1,0 +1,16 @@
+ninja: no work to do.
+{"event": "prepared", "seconds": 0.07500862283632159, "resources": [132, 231168, 1, 576], "workspace_bytes": 158378272}
+{"event": "tile_pass", "phase": 0, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 0, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 0, "expert": 31, "unit": 15, "stage": 15}
+{"event": "tile_pass", "phase": 1, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 1, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 1, "expert": 31, "unit": 15, "stage": 15}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.009076428599655628, "max_abs": 1.1920928955078125e-07}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.013390248641371727, "max_abs": 6.394884621840902e-14}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.009185850620269775, "max_abs": 1.1920928955078125e-07}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.012925276532769203, "max_abs": 6.394884621840902e-14}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "mixed", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}

@@ -1,5 +1,11 @@
 # Muse Spark serving MoE port: phase-1 design
 
+**Later outcome:** the authorized single-layout prototype and bounded H200 run are
+implemented on `codex/serving-precomp-20261105`. See
+[PRECOMP_HANDOFF.md](PRECOMP_HANDOFF.md) for source-bound results and the stopping
+decision. No serving regime is enabled. The design below remains historical evidence;
+its “design only” status and extra-layout suggestion do not describe the new port.
+
 Date: 2026-11-05. Status: **design only; no GPU validation, checks, submissions, or implementation**.
 Target: SGLang `a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f`, worktree `wt-moe`, branch `serve/moe-port`.
 Judge configuration is unchanged: TP8/EP8, ModelOpt NVFP4, Marlin, DFlash/8, C<=32, decode graph BS<=32, prefill chunk<=16384.
