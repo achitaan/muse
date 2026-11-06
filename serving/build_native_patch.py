@@ -15,8 +15,9 @@ def edit_once(text, old, new):
     return text.replace(old, new)
 
 
-def build(checkout):
+def build(checkout, *, source_dir=None, output=None):
     here = Path(__file__).resolve().parent
+    source_dir = source_dir or here
     root = "python/sglang/"
     files = {}
     def base(path):
@@ -131,7 +132,7 @@ def build(checkout):
 """)
     files[path] = original, text
     for name in ("native_marlin.py", "native_marlin_wgs.cu", "native_marlin_tiles.cuh"):
-        files[root + "kernels/ops/muse_spark_v12/" + name] = "", (here / name).read_text()
+        files[root + "kernels/ops/muse_spark_v12/" + name] = "", (source_dir / name).read_text()
     chunks = []
     for name, (old, new) in files.items():
         chunks.append(f"diff --git a/{name} b/{name}\n")
@@ -140,7 +141,7 @@ def build(checkout):
         chunks.extend(difflib.unified_diff(old.splitlines(True), new.splitlines(True),
                                           fromfile="a/" + name if old else "/dev/null",
                                           tofile="b/" + name))
-    output = here / "moe_direct_marlin.experimental.patch.diff"
+    output = output or here / "moe_direct_marlin.experimental.patch.diff"
     output.write_text("".join(chunks), newline="\n")
     print(output, output.stat().st_size)
 
@@ -148,4 +149,7 @@ def build(checkout):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--sglang-checkout", type=Path, required=True)
-    build(p.parse_args().sglang_checkout)
+    p.add_argument("--source-dir", type=Path)
+    p.add_argument("--output", type=Path)
+    args = p.parse_args()
+    build(args.sglang_checkout, source_dir=args.source_dir, output=args.output)

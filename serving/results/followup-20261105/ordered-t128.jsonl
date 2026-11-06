@@ -1,0 +1,95 @@
+[1/2] ccache /usr/local/cuda/bin/nvcc -MD -MF native_marlin_wgs.cuda.o.d -DTORCH_EXTENSION_NAME=muse_native_marlin_6f4eb9eb804e -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++20 -gencode=arch=compute_90a,code=sm_90a -DOKC_NW=16 -DOKC_FAST1=0 -DOKC_EPI4=0 -DOKC_WGS=1 -DOKC_PRMTSC=1 -DOKC_NS=3 -DOKC_NSF=3 --ptxas-options=-v -c /workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu -o native_marlin_wgs.cuda.o 
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(2007): warning #177-D: variable "base" was declared but never referenced
+      const unsigned char* base = pb ? p.wBs : p.wAs;
+                           ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(2238): warning #177-D: variable "g" was declared but never referenced
+    const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
+                                             ^
+          detected during:
+            instantiation of "void okc::wgs_phase<PB>(const okc::Params &, okc::Smem &, unsigned char *, int, int, int &) [with PB=false]" at line 2636
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=true]" at line 2771
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(2240): warning #177-D: variable "k16c" was declared but never referenced
+    const uint32_t k16c = 16u + p.zero;
+                   ^
+          detected during:
+            instantiation of "void okc::wgs_phase<PB>(const okc::Params &, okc::Smem &, unsigned char *, int, int, int &) [with PB=false]" at line 2636
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=true]" at line 2771
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(337): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = 0 ? 4 : 2;
+                ^
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(352): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(352): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(355): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(363): warning #177-D: variable "okc::TWO62" was declared but never referenced
+  constexpr float TWO62 = 4.611686018427388e18f;
+                  ^
+
+/workspace/muse/serving/experiments/ordered_fixup/native_marlin_wgs.cu(1860): warning #177-D: variable "okc::WGS_PIECE" was declared but never referenced
+  constexpr int WGS_PIECE = 9216;
+                ^
+
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    24 bytes stack frame, 28 bytes spill stores, 20 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 24 bytes cumulative stack size
+ptxas info    : Compile time = 4799.074 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_Z18native_tile_kernelILb0EEvPK14CUtensorMap_stPfiii' for 'sm_90a'
+ptxas info    : Function properties for _Z18native_tile_kernelILb0EEvPK14CUtensorMap_stPfiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 20 registers, used 1 barriers, 36880 bytes smem
+ptxas info    : Compile time = 6.189 ms
+ptxas info    : Compiling entry function '_Z18native_tile_kernelILb1EEvPK14CUtensorMap_stPfiii' for 'sm_90a'
+ptxas info    : Function properties for _Z18native_tile_kernelILb1EEvPK14CUtensorMap_stPfiii
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 24 registers, used 1 barriers, 36880 bytes smem
+ptxas info    : Compile time = 5.862 ms
+[2/2] ccache c++ native_marlin_wgs.cuda.o -shared -lcuda -L/opt/sglang/lib/python3.12/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o muse_native_marlin_6f4eb9eb804e.so
+{"event": "prepared", "seconds": 65.31253723683767, "resources": [132, 231168, 1, 576], "workspace_bytes": 196135200}
+{"event": "tile_pass", "phase": 0, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 0, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 0, "expert": 31, "unit": 15, "stage": 15}
+{"event": "tile_pass", "phase": 1, "expert": 0, "unit": 0, "stage": 0}
+{"event": "tile_pass", "phase": 1, "expert": 7, "unit": 3, "stage": 8}
+{"event": "tile_pass", "phase": 1, "expert": 31, "unit": 15, "stage": 15}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 5.454924394143745e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011563575390027836, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "uniform", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00039151692180894315, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "uniform", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005301456549204886, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 6.871591176604852e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00011716051085386425, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "mixed", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00039926046156324446, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "mixed", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0005368686397559941, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "gemm1", "null": {"bit_equal": false, "rel_l2": 8.718299795873463e-06, "max_abs": 0.00390625}, "candidate": {"bit_equal": false, "rel_l2": 6.384337757481262e-05, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "swi", "null": {"bit_equal": false, "rel_l2": 1.1858842299261596e-05, "max_abs": 0.00048828125}, "candidate": {"bit_equal": false, "rel_l2": 8.762627840042114e-05, "max_abs": 0.001953125}}
+{"event": "stage", "tokens": 128, "pattern": "hot", "stage": "gemm2", "null": {"bit_equal": false, "rel_l2": 7.173541962401941e-05, "max_abs": 0.000244140625}, "candidate": {"bit_equal": false, "rel_l2": 0.00036280331551097333, "max_abs": 0.000244140625}}
+{"event": "combined", "tokens": 128, "pattern": "hot", "null": {"bit_equal": false, "rel_l2": 0.00013739574933424592, "max_abs": 0.00390625}, "candidate": {"bit_equal": false, "rel_l2": 0.000637013406958431, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 6.295633647823706e-05, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0001012120337691158, "max_abs": 0.00390625}}
+{"event": "stage", "tokens": 128, "pattern": "local", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.00037467462243512273, "max_abs": 0.00048828125}}
+{"event": "combined", "tokens": 128, "pattern": "local", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": false, "rel_l2": 0.0006501572206616402, "max_abs": 0.0078125}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "remote", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "remote", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "padding", "stage": "gemm1", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "padding", "stage": "swi", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "stage", "tokens": 128, "pattern": "padding", "stage": "gemm2", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}
+{"event": "combined", "tokens": 128, "pattern": "padding", "null": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}, "candidate": {"bit_equal": true, "rel_l2": 0.0, "max_abs": 0.0}}

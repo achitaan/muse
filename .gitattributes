@@ -11,3 +11,11 @@ serving/*.py text eol=lf
 serving/*.json text eol=lf
 serving/results/** text eol=lf
 serving/experiments/native_*/* text eol=lf
+
+# Keep follow-up evidence byte-exact, including the compressed saved tensors.
+serving/results/followup-20261105/** -text -whitespace
+serving/results/followup-20261105/*.tar.gz binary
+serving/experiments/ordered_fixup/* text eol=lf
+# Unified-diff context lines contain an intentional leading space.
+serving/experiments/ordered_fixup/*.diff -whitespace
+serving/followup_prepare.sh text eol=lf

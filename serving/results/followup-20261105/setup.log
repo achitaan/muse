@@ -1,0 +1,28 @@
+Cloning into '/workspace/sglang-stock'...
+HEAD is now at a55ab7d5ae Support Muse Spark Open
+Preparing worktree (detached HEAD a55ab7d5ae)
+Updating files:  85% (8960/10459)Updating files:  86% (8995/10459)Updating files:  87% (9100/10459)Updating files:  88% (9204/10459)Updating files:  89% (9309/10459)Updating files:  90% (9414/10459)Updating files:  91% (9518/10459)Updating files:  92% (9623/10459)Updating files:  93% (9727/10459)Updating files:  94% (9832/10459)Updating files:  95% (9937/10459)Updating files:  96% (10041/10459)Updating files:  97% (10146/10459)Updating files:  98% (10250/10459)Updating files:  99% (10355/10459)Updating files: 100% (10459/10459)Updating files: 100% (10459/10459), done.
+HEAD is now at a55ab7d5ae Support Muse Spark Open
+2.14.1+cu130 3.8.0 NVIDIA H200
+a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f
+Fri Nov  6 04:15:21 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.91.07              Driver Version: 595.91.07      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H200                    On  |   00000000:18:00.0 Off |                    0 |
+| N/A   27C    P0             78W /  700W |       0MiB / 143771MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+S1_ISOLATION_FINISHED

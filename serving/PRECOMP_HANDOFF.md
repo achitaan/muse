@@ -1,5 +1,9 @@
 # Serving preparation: completed bounded run
 
+Later evidence: [FOLLOWUP_HANDOFF.md](FOLLOWUP_HANDOFF.md) isolates S1's FP32
+variance differences and records rejection of the one ordered-buffer MoE follow-up.
+The historical sources and measurements below remain unchanged.
+
 Prepared November 5 Toronto time; GPU logs use November 6 UTC.
 
 **S1 is the first candidate. The direct-Marlin MoE port is experimental and disabled.**
